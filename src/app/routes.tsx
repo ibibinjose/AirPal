@@ -99,24 +99,6 @@ const PlanCreatePage = lazy(() => import("@/pages/PlanCreatePage").then((m) => (
 const PlanDetailPage = lazy(() => import("@/pages/PlanDetailPage").then((m) => ({ default: m.PlanDetailPage })));
 const PlanEditPage = lazy(() => import("@/pages/PlanEditPage").then((m) => ({ default: m.PlanEditPage })));
 const HelpDeskPage = lazy(() => import("@/pages/HelpDeskPage").then((m) => ({ default: m.HelpDeskPage })));
-const EventAnalyticsPage = lazy(() =>
-  import("@/pages/EventAnalyticsPage").then((m) => ({ default: m.EventAnalyticsPage })),
-);
-const SavedExperiencesPage = lazy(() =>
-  import("@/pages/SavedExperiencesPage").then((m) => ({ default: m.SavedExperiencesPage })),
-);
-const NotificationsPage = lazy(() =>
-  import("@/pages/NotificationsPage").then((m) => ({ default: m.NotificationsPage })),
-);
-const EventCategoriesPage = lazy(() =>
-  import("@/pages/EventCategoriesPage").then((m) => ({ default: m.EventCategoriesPage })),
-);
-const VenueDirectoryPage = lazy(() =>
-  import("@/pages/VenueDirectoryPage").then((m) => ({ default: m.VenueDirectoryPage })),
-);
-const ExperienceDetailsPage = lazy(() =>
-  import("@/pages/ExperienceDetailsPage").then((m) => ({ default: m.ExperienceDetailsPage })),
-);
 const AccountSyncPage = lazy(() => import("@/pages/AccountSyncPage").then((m) => ({ default: m.AccountSyncPage })));
 const ExplorePage = lazy(() => import("@/pages/ExplorePage").then((m) => ({ default: m.ExplorePage })));
 
@@ -165,7 +147,9 @@ export function AppRoutes() {
             <Redirect to="/admin/search-analytics" />
           </Route>
           <Route path="/guide" component={GuidePage} />
-          <Route path="/venues" component={VenueDirectoryPage} />
+          <Route path="/venues">
+            <Redirect to="/guide" />
+          </Route>
           <Route path="/tour/:id" component={TourPage} />
           <Route path="/scan" component={ScanPage} />
           <Route path="/qr-scanner">
@@ -200,9 +184,13 @@ export function AppRoutes() {
           <Route path="/e/:eventId/s/:stallId" component={StallPage} />
           <Route path="/e/:id/guests" component={GuestlistPage} />
           <Route path="/e/:id/manage">{(p) => <Redirect to={`/e/${p.id}/guests`} />}</Route>
-          <Route path="/experience-details/:id" component={ExperienceDetailsPage} />
-          <Route path="/experience-details" component={ExperienceDetailsPage} />
-          <Route path="/saved-experiences" component={SavedExperiencesPage} />
+          <Route path="/experience-details/:id">{(p) => <Redirect to={`/e/${p.id}`} />}</Route>
+          <Route path="/experience-details">
+            <Redirect to="/events" />
+          </Route>
+          <Route path="/saved-experiences">
+            <Redirect to="/me/tickets" />
+          </Route>
           <Route path="/e/:id" component={EventPage} />
           <Route path="/ticket/:id" component={TicketPage} />
           <Route path="/calendar" component={CalendarPage} />
@@ -213,7 +201,9 @@ export function AppRoutes() {
           <Route path="/f">
             <Redirect to="/events" />
           </Route>
-          <Route path="/event-categories" component={EventCategoriesPage} />
+          <Route path="/event-categories">
+            <Redirect to="/events" />
+          </Route>
           <Route path="/events" component={EventsPage} />
           <Route path="/pass" component={PassPage} />
           <Route path="/pass/events">
@@ -246,10 +236,14 @@ export function AppRoutes() {
           <Route path="/event/new">
             <Redirect to="/event" />
           </Route>
-          <Route path="/event-analytics" component={EventAnalyticsPage} />
+          <Route path="/event-analytics">
+            <Redirect to="/event" />
+          </Route>
           <Route path="/event" component={OrganiserEventPage} />
           <Route path="/me/memories" component={MemoryWallPage} />
-          <Route path="/notifications" component={NotificationsPage} />
+          <Route path="/notifications">
+            <Redirect to="/me/inbox" />
+          </Route>
           <Route path="/me/inbox" component={InboxPage} />
           <Route path="/inbox">
             <Redirect to="/me/inbox" />
