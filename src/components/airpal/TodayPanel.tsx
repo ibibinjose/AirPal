@@ -112,17 +112,17 @@ export function TodayPanel({ className }: { className?: string }) {
         </button>
 
         <Link
-          href="/my-day"
+          href="/plan"
           className="mt-3 flex min-h-[44px] items-center justify-center gap-1.5 text-center text-xs sm:text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation"
         >
-          <span>See my day</span>
+          <span>See my plans</span>
           <ArrowRight size={14} />
         </Link>
       </section>
 
       {/* Wallet / Passbook Peek */}
       <Link
-        href="/passbook"
+        href="/me/tickets"
         className="group flex items-center gap-3 rounded-2xl border border-line bg-card p-4 shadow-xs transition hover:border-brand/40 hover:shadow-sm active:scale-[0.99] cursor-pointer"
       >
         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand/10 text-accent transition group-hover:bg-brand group-hover:text-white">

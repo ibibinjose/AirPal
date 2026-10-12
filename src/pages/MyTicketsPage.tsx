@@ -72,7 +72,7 @@ export function MyTicketsPage() {
         </div>
       )}
 
-      {!user ? (
+      {!user && bookings.length === 0 ? (
         <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-xs">
           <Ticket size={28} className="mx-auto text-mute" />
           <p className="mt-2 font-display text-lg font-bold text-ink">Sign in to see your passes</p>
@@ -94,6 +94,22 @@ export function MyTicketsPage() {
             </Link>
           </div>
         </div>
+      ) : !user && bookings.length > 0 ? (
+        <>
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-brand/10 p-3.5 text-xs font-semibold text-accent ring-1 ring-brand/20">
+            <span>Viewing passes saved on this device. Sign in to sync across all your devices.</span>
+            <Link href="/start?tab=signin" className="underline shrink-0">
+              Sign in →
+            </Link>
+          </div>
+          <div className="mt-6 space-y-4">
+            <div className="space-y-4">
+              {bookings.map((t) => (
+                <AirPalTicketPass key={t.id} booking={t} guestName="Guest Mate" />
+              ))}
+            </div>
+          </div>
+        </>
       ) : failed && bookings.length === 0 ? (
         <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-xs">
           <Ticket size={28} className="mx-auto text-mute" />

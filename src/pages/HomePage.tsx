@@ -159,10 +159,10 @@ export function HomePage() {
             </div>
 
             <Link
-              href="/passbook"
+              href="/deals"
               className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card border border-line px-5 text-xs sm:text-sm font-semibold text-ink shadow-2xs hover:bg-paper transition active:scale-95 cursor-pointer touch-manipulation"
             >
-              <span>Find my perks</span>
+              <span>Explore perks</span>
               <ArrowRight size={14} />
             </Link>
           </div>

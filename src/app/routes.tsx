@@ -105,30 +105,20 @@ const EventAnalyticsPage = lazy(() =>
 const SavedExperiencesPage = lazy(() =>
   import("@/pages/SavedExperiencesPage").then((m) => ({ default: m.SavedExperiencesPage })),
 );
-const SupportCenterPage = lazy(() =>
-  import("@/pages/SupportCenterPage").then((m) => ({ default: m.SupportCenterPage })),
-);
 const NotificationsPage = lazy(() =>
   import("@/pages/NotificationsPage").then((m) => ({ default: m.NotificationsPage })),
 );
-const WalletPage = lazy(() => import("@/pages/WalletPage").then((m) => ({ default: m.WalletPage })));
 const EventCategoriesPage = lazy(() =>
   import("@/pages/EventCategoriesPage").then((m) => ({ default: m.EventCategoriesPage })),
 );
 const VenueDirectoryPage = lazy(() =>
   import("@/pages/VenueDirectoryPage").then((m) => ({ default: m.VenueDirectoryPage })),
 );
-const CheckInHistoryPage = lazy(() =>
-  import("@/pages/CheckInHistoryPage").then((m) => ({ default: m.CheckInHistoryPage })),
-);
 const ExperienceDetailsPage = lazy(() =>
   import("@/pages/ExperienceDetailsPage").then((m) => ({ default: m.ExperienceDetailsPage })),
 );
 const AccountSyncPage = lazy(() => import("@/pages/AccountSyncPage").then((m) => ({ default: m.AccountSyncPage })));
-const QrScannerPage = lazy(() => import("@/pages/QrScannerPage").then((m) => ({ default: m.QrScannerPage })));
 const ExplorePage = lazy(() => import("@/pages/ExplorePage").then((m) => ({ default: m.ExplorePage })));
-const MyDayPage = lazy(() => import("@/pages/MyDayPage").then((m) => ({ default: m.MyDayPage })));
-const PassbookPage = lazy(() => import("@/pages/PassbookPage").then((m) => ({ default: m.PassbookPage })));
 
 function RouteFallback() {
   // Full-viewport reserve: keeps the footer below the fold while the route
@@ -157,8 +147,12 @@ export function AppRoutes() {
           <Route path="/now" component={NowPage} />
           <Route path="/explore/attractions" component={AttractionsPage} />
           <Route path="/explore" component={ExplorePage} />
-          <Route path="/my-day" component={MyDayPage} />
-          <Route path="/passbook" component={PassbookPage} />
+          <Route path="/my-day">
+            <Redirect to="/plan" />
+          </Route>
+          <Route path="/passbook">
+            <Redirect to="/me/tickets" />
+          </Route>
           <Route path="/discover">
             <Redirect to="/explore" />
           </Route>
@@ -174,7 +168,9 @@ export function AppRoutes() {
           <Route path="/venues" component={VenueDirectoryPage} />
           <Route path="/tour/:id" component={TourPage} />
           <Route path="/scan" component={ScanPage} />
-          <Route path="/qr-scanner" component={QrScannerPage} />
+          <Route path="/qr-scanner">
+            <Redirect to="/scan" />
+          </Route>
           <Route path="/w/:code" component={WavePage} />
           <Route path="/circle" component={CirclePage} />
           <Route path="/concierge">
@@ -264,8 +260,12 @@ export function AppRoutes() {
           <Route path="/messages">
             <Redirect to="/me/inbox" />
           </Route>
-          <Route path="/wallet" component={WalletPage} />
-          <Route path="/check-in-history" component={CheckInHistoryPage} />
+          <Route path="/wallet">
+            <Redirect to="/me/tickets" />
+          </Route>
+          <Route path="/check-in-history">
+            <Redirect to="/me/tickets" />
+          </Route>
           <Route path="/me/tickets" component={MyTicketsPage} />
           <Route path="/me" component={MePage} />
           <Route path="/bio" component={MePage} />
@@ -347,7 +347,9 @@ export function AppRoutes() {
           <Route path="/alternatives/:slug" component={AlternativePage} />
           <Route path="/contact" component={ContactPage} />
           <Route path="/help" component={HelpPage} />
-          <Route path="/support" component={SupportCenterPage} />
+          <Route path="/support">
+            <Redirect to="/help" />
+          </Route>
           <Route path="/assist" component={AssistPage} />
           <Route path="/unsubscribe" component={UnsubscribePage} />
           <Route path="/privacy" component={PrivacyPage} />

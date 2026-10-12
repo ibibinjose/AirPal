@@ -88,18 +88,6 @@ export const HOST_LINKS: BrowseLink[] = [
 /** Plan & Go: the plan loop pages. */
 export const PLAN_LINKS: BrowseLink[] = [
   {
-    href: "/my-day",
-    label: "My day",
-    icon: CalendarDays,
-    match: (p) => p.startsWith("/my-day"),
-  },
-  {
-    href: "/passbook",
-    label: "Passbook",
-    icon: Ticket,
-    match: (p) => p.startsWith("/passbook"),
-  },
-  {
     href: "/plan",
     label: "My plans",
     icon: Users,

@@ -234,11 +234,18 @@ export function PlanHubPage() {
               </span>
             )}
             <Link
+              href="/calendar"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition shadow-xs"
+            >
+              <Calendar size={12} className="text-accent" />
+              <span>Calendar</span>
+            </Link>
+            <Link
               href="/pass"
               className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition shadow-xs"
             >
               <Ticket size={12} className="text-amber-500" />
-              <span>Events &amp; Deals on Pass →</span>
+              <span>Events &amp; Deals →</span>
             </Link>
           </div>
           <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-ink md:text-4xl">
