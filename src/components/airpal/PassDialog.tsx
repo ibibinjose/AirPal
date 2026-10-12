@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
+import { Link } from "wouter";
+import { X, ArrowRight } from "lucide-react";
 import { makeQrDataUrl } from "@/lib/qr";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
@@ -44,6 +45,16 @@ export function PassDialog({ pass, onClose }: Props) {
     };
   }, [pass]);
 
+  // Support ESC key dismissal
+  useEffect(() => {
+    if (!pass) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pass, onClose]);
+
   if (!pass || typeof document === "undefined") return null;
 
   const displayCode = pass.code || pass.id.slice(0, 8).toUpperCase();
@@ -53,14 +64,17 @@ export function PassDialog({ pass, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="pass-dialog-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 sm:p-6"
     >
       {/* Backdrop */}
       <div onClick={onClose} className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
 
-      {/* Modal card */}
-      <div className="relative z-10 w-full max-w-sm overflow-hidden rounded-3xl border border-line bg-card p-6 shadow-2xl text-center dark:border-line/70">
-        <div className="flex items-start justify-between">
+      {/* Sheet / Modal card */}
+      <div className="apple-mobile-sheet relative z-10 w-full max-w-sm overflow-hidden rounded-t-[32px] sm:rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-2xl text-center dark:border-line/70 pb-[max(1.75rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] sm:pb-6">
+        {/* Drag handle on mobile */}
+        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line/80 sm:hidden" />
+
+        <div className="flex items-start justify-between gap-3">
           <div className="text-left">
             <span className="text-[10px] font-bold uppercase tracking-wider text-accent">AIRPAL · DIGITAL PASS</span>
             <h2 id="pass-dialog-title" className="font-display text-xl font-bold text-ink mt-0.5">
@@ -72,9 +86,9 @@ export function PassDialog({ pass, onClose }: Props) {
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="grid h-8 w-8 place-items-center rounded-full bg-paper text-mute hover:bg-card hover:text-ink ring-1 ring-line transition cursor-pointer"
+            className="grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-paper text-mute hover:bg-card hover:text-ink ring-1 ring-line transition cursor-pointer touch-manipulation active:scale-95"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
@@ -87,7 +101,9 @@ export function PassDialog({ pass, onClose }: Props) {
               Generating pass QR…
             </div>
           )}
-          <code className="mt-3 block font-mono text-xs font-bold tracking-widest text-ink">{displayCode}</code>
+          <code className="mt-3 block font-mono text-xs font-bold tracking-widest text-ink tabular-nums">
+            {displayCode}
+          </code>
         </div>
 
         {/* Valid for entry text */}
@@ -96,7 +112,7 @@ export function PassDialog({ pass, onClose }: Props) {
         </p>
 
         {/* Apple & Google Wallet Buttons */}
-        <div className="mt-4 flex flex-col gap-2">
+        <div className="mt-4 flex flex-col gap-2.5">
           <AppleWalletButton
             onClick={() => {
               void triggerHaptic("medium");
@@ -109,6 +125,17 @@ export function PassDialog({ pass, onClose }: Props) {
               openGoogleWalletPass(pass.id);
             }}
           />
+        </div>
+
+        <div className="mt-3 text-center">
+          <Link
+            href={`/ticket/${pass.id}`}
+            onClick={onClose}
+            className="text-xs font-semibold text-accent hover:underline inline-flex items-center gap-1 cursor-pointer"
+          >
+            <span>View full ticket pass & receipt</span>
+            <ArrowRight size={13} />
+          </Link>
         </div>
       </div>
     </div>,

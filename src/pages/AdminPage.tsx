@@ -153,7 +153,7 @@ export function AdminPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8 pb-28">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
       {/* Top Command Bar & Status Header */}
       <header className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

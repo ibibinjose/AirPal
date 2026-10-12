@@ -140,7 +140,7 @@ export function GetAirPalPage() {
   }
 
   return (
-    <div className="relative mx-auto max-w-4xl overflow-hidden px-4 py-8 pb-28 md:px-6">
+    <div className="relative mx-auto max-w-4xl overflow-hidden px-4 py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] md:px-6">
       {/* Top Header Navigation */}
       <div className="relative flex items-center justify-between">
         <Link

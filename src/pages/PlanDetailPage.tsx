@@ -359,7 +359,7 @@ export function PlanDetailPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 md:py-10 pb-32">
+    <div className="mx-auto max-w-3xl px-4 py-6 md:py-10 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
       <PaymentCanceledNotice />
       {ticketId && (
         <div className="mx-auto max-w-lg">

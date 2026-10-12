@@ -41,7 +41,7 @@ export function JoinPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 pb-28 md:py-14">
+    <div className="mx-auto max-w-2xl px-4 py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] md:py-14">
       {/* Header */}
       <header className="text-center">
         <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-brand/10 px-3.5 py-1 text-xs font-bold text-accent">

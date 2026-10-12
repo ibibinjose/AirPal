@@ -47,13 +47,15 @@ export function useMyBookings() {
   const { today } = useLocalNow();
 
   const [bookings, setBookings] = useState<BookingWithId[] | undefined>(() => {
-    if (!user?.uid) return undefined;
-    const cached = readCachedBookings(user.uid);
+    const activeUid = user?.uid || (typeof window !== "undefined" ? localStorage.getItem("airpal.anon.id") : null);
+    if (!activeUid) return undefined;
+    const cached = readCachedBookings(activeUid);
     return cached.length > 0 ? cached : undefined;
   });
   const [loading, setLoading] = useState<boolean>(() => {
-    if (!user?.uid) return false;
-    return readCachedBookings(user.uid).length === 0;
+    const activeUid = user?.uid || (typeof window !== "undefined" ? localStorage.getItem("airpal.anon.id") : null);
+    if (!activeUid) return false;
+    return readCachedBookings(activeUid).length === 0;
   });
   const [failed, setFailed] = useState<boolean>(false);
   const [isOfflineCached, setIsOfflineCached] = useState<boolean>(false);
@@ -64,12 +66,33 @@ export function useMyBookings() {
   }, []);
 
   useEffect(() => {
+    const handleUpdated = () => {
+      const activeUid = user?.uid || (typeof window !== "undefined" ? localStorage.getItem("airpal.anon.id") : null);
+      if (activeUid) {
+        const cached = readCachedBookings(activeUid);
+        setBookings(cached);
+      }
+    };
+    window.addEventListener("airpal:bookings-updated", handleUpdated);
+    return () => {
+      window.removeEventListener("airpal:bookings-updated", handleUpdated);
+    };
+  }, [user?.uid]);
+
+  useEffect(() => {
     const uid = user?.uid;
     if (!uid) {
-      setBookings([]);
-      setLoading(false);
+      const anonId = typeof window !== "undefined" ? localStorage.getItem("airpal.anon.id") : null;
+      if (anonId) {
+        const cached = readCachedBookings(anonId);
+        setBookings(cached);
+        setLoading(false);
+        setIsOfflineCached(cached.length > 0);
+      } else {
+        setBookings([]);
+        setLoading(false);
+      }
       setFailed(false);
-      setIsOfflineCached(false);
       return;
     }
 

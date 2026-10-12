@@ -137,7 +137,7 @@ export function TicketPage() {
   return (
     <div
       className={cn(
-        "min-h-screen transition-all duration-300 pb-28",
+        "min-h-screen transition-all duration-300 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]",
         brightnessBoost ? "bg-white text-black brightness-110 contrast-105" : "",
       )}
     >
@@ -146,7 +146,7 @@ export function TicketPage() {
         <div className="flex items-center justify-between gap-3 mb-4">
           <Link
             href="/me/tickets"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer touch-manipulation"
           >
             <ArrowLeft size={14} />
             <span>Passbook Wallet</span>
@@ -159,7 +159,7 @@ export function TicketPage() {
 
           <Link
             href="/pass"
-            className="inline-flex min-h-[44px] items-center text-xs font-semibold text-accent hover:underline"
+            className="inline-flex min-h-[44px] items-center text-xs font-semibold text-accent hover:underline cursor-pointer touch-manipulation"
           >
             AirPal Pass →
           </Link>
@@ -172,7 +172,7 @@ export function TicketPage() {
             onClick={toggleBrightness}
             aria-pressed={brightnessBoost}
             className={cn(
-              "w-full flex items-center justify-between gap-3 rounded-2xl p-3.5 transition active:scale-[0.99] cursor-pointer ring-1 shadow-xs",
+              "w-full flex min-h-[48px] items-center justify-between gap-3 rounded-2xl p-3.5 transition active:scale-[0.99] cursor-pointer ring-1 shadow-xs touch-manipulation",
               brightnessBoost
                 ? "bg-amber-400 text-neutral-950 ring-amber-500 font-bold shadow-md animate-pulse"
                 : "bg-card text-ink ring-line hover:bg-paper",
@@ -211,7 +211,7 @@ export function TicketPage() {
 
         {/* Staff / Holder View Switcher (If Entitled) */}
         {booking && isStaff && (
-          <div className="mb-4 flex items-center gap-2 rounded-2xl bg-paper p-1 ring-1 ring-line">
+          <div className="mb-4 flex items-center gap-2 rounded-2xl bg-paper p-1.5 ring-1 ring-line">
             <button
               type="button"
               onClick={() => {
@@ -219,7 +219,7 @@ export function TicketPage() {
                 setMode("pass");
               }}
               className={cn(
-                "flex-1 min-h-[38px] rounded-xl text-xs font-bold transition active:scale-95 cursor-pointer",
+                "flex-1 min-h-[44px] rounded-xl text-xs font-bold transition active:scale-95 cursor-pointer touch-manipulation",
                 mode === "pass" ? "bg-card text-ink shadow-xs ring-1 ring-line" : "text-mute hover:text-ink",
               )}
             >
@@ -232,7 +232,7 @@ export function TicketPage() {
                 setMode("gate");
               }}
               className={cn(
-                "flex-1 min-h-[38px] rounded-xl text-xs font-bold transition active:scale-95 cursor-pointer",
+                "flex-1 min-h-[44px] rounded-xl text-xs font-bold transition active:scale-95 cursor-pointer touch-manipulation",
                 mode === "gate" ? "bg-card text-ink shadow-xs ring-1 ring-line" : "text-mute hover:text-ink",
               )}
             >

@@ -47,7 +47,7 @@ export function HelpPage() {
   }, [query, category]);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 pb-28">
+    <div className="mx-auto max-w-2xl px-4 py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Knowledge Hub</p>
       <h1 className="font-display mt-2 text-3xl font-bold tracking-tight">How can we help?</h1>
       <p className="mt-1 text-sm leading-6 text-mute">

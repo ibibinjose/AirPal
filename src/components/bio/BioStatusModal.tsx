@@ -119,16 +119,17 @@ export function BioStatusModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/65 p-4 backdrop-blur-sm sm:p-6 [padding-bottom:var(--keyboard-height,0px)] transition-[padding] duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center overflow-y-auto bg-black/65 p-0 sm:p-6 backdrop-blur-sm [padding-bottom:var(--keyboard-height,0px)] transition-[padding] duration-200"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="bio-status-modal-title"
     >
       <div
-        className="relative w-full max-w-md overflow-hidden rounded-[32px] bg-paper shadow-2xl ring-1 ring-line animate-in fade-in zoom-in-95 duration-200"
+        className="relative w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden rounded-t-[32px] sm:rounded-[32px] bg-paper shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:pb-0"
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="mx-auto mt-2 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />
         {/* Header */}
         <div className="flex items-center justify-between border-b border-line/60 bg-gradient-to-r from-card via-paper to-card px-6 py-4">
           <div className="flex items-center gap-2">
@@ -169,7 +170,7 @@ export function BioStatusModal({
                     type="button"
                     onClick={() => setStatus(key)}
                     className={cn(
-                      "flex items-center gap-2.5 p-2.5 rounded-2xl border text-left transition-all",
+                      "flex min-h-[46px] items-center gap-2.5 p-2.5 rounded-2xl border text-left transition-all touch-manipulation cursor-pointer",
                       isSelected
                         ? "bg-card border-brand shadow-xs ring-1 ring-brand/30"
                         : "bg-card/50 border-line hover:bg-card hover:border-line/80",
@@ -192,7 +193,7 @@ export function BioStatusModal({
             <label className="text-xs font-semibold text-ink uppercase tracking-wider block mb-2">
               What&apos;s on?
             </label>
-            <div className="flex items-center gap-2 rounded-2xl bg-card p-1.5 ring-1 ring-line">
+            <div className="flex min-h-[48px] items-center gap-2 rounded-2xl bg-card p-1.5 ring-1 ring-line">
               <div className="flex items-center justify-center h-9 w-9 rounded-xl bg-paper ring-1 ring-line text-lg shrink-0">
                 {emoji || "💬"}
               </div>
@@ -208,15 +209,16 @@ export function BioStatusModal({
                 <button
                   type="button"
                   onClick={() => setCustomText("")}
-                  className="p-1 rounded-lg text-mute hover:text-ink"
+                  className="flex min-h-[36px] min-w-[36px] items-center justify-center p-1 rounded-lg text-mute hover:text-ink touch-manipulation cursor-pointer"
+                  aria-label="Clear status text"
                 >
-                  <X size={13} />
+                  <X size={14} />
                 </button>
               )}
             </div>
 
             {/* Emoji Quick Picker */}
-            <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto pb-1">
+            <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto pb-1 no-scrollbar">
               <span className="text-[10px] font-semibold text-mute shrink-0 mr-1 flex items-center gap-1">
                 <Smile size={11} /> Emoji:
               </span>
@@ -226,7 +228,7 @@ export function BioStatusModal({
                   type="button"
                   onClick={() => setEmoji(em)}
                   className={cn(
-                    "h-7 w-7 rounded-lg text-sm flex items-center justify-center transition shrink-0",
+                    "h-8 w-8 min-h-[32px] min-w-[32px] rounded-lg text-sm flex items-center justify-center transition shrink-0 touch-manipulation cursor-pointer",
                     emoji === em ? "bg-brand/15 ring-1 ring-brand scale-110" : "hover:bg-card",
                   )}
                 >
@@ -249,7 +251,7 @@ export function BioStatusModal({
                       setEmoji(p.emoji);
                       setCustomText(p.text);
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-[11px] font-medium text-ink ring-1 ring-line hover:bg-paper transition"
+                    className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full bg-card px-3 py-1 text-[11px] font-medium text-ink ring-1 ring-line hover:bg-paper transition touch-manipulation cursor-pointer active:scale-95"
                   >
                     <span>{p.emoji}</span>
                     <span>{p.text}</span>
@@ -268,12 +270,18 @@ export function BioStatusModal({
             size="sm"
             onClick={handleClear}
             disabled={saving}
-            className="rounded-full text-xs text-mute hover:text-ink px-3"
+            className="min-h-[44px] rounded-full text-xs text-mute hover:text-ink px-3 touch-manipulation cursor-pointer"
           >
             Clear Status
           </Button>
           <div className="flex items-center gap-2">
-            <Button type="button" variant="ghost" size="sm" onClick={onClose} className="rounded-full text-xs">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="min-h-[44px] rounded-full text-xs touch-manipulation cursor-pointer"
+            >
               Cancel
             </Button>
             <Button
@@ -281,7 +289,7 @@ export function BioStatusModal({
               size="sm"
               onClick={handleSave}
               disabled={saving}
-              className="rounded-full bg-brand text-white text-xs font-semibold px-4 shadow-sm hover:bg-brand-ink"
+              className="min-h-[44px] rounded-full bg-brand text-white text-xs font-semibold px-4 shadow-sm hover:bg-brand-ink touch-manipulation cursor-pointer"
             >
               Save Status
             </Button>

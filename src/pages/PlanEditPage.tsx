@@ -131,7 +131,7 @@ export function PlanEditPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 md:py-10 pb-28">
+    <div className="mx-auto max-w-3xl px-4 py-6 md:py-10 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
       {/* Top Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">

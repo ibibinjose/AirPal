@@ -61,14 +61,14 @@ export function ExplorePage() {
   }, [kind, category, area, search]);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pb-28 pt-4 md:px-6 md:pt-6">
+    <main className="mx-auto max-w-6xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-6 sm:pt-6">
       {/* Header breadcrumb & kicker */}
       <div className="flex items-center gap-2 mb-2">
         <Link
           href="/"
-          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer touch-manipulation"
         >
-          <ArrowLeft size={13} />
+          <ArrowLeft size={14} />
           <span>Home</span>
         </Link>
         <span className="text-[11px] font-bold uppercase tracking-wider text-accent">FOLLOW YOUR CURIOSITY</span>
@@ -85,7 +85,7 @@ export function ExplorePage() {
       {/* Toolbar */}
       <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         {/* Kind selector */}
-        <div className="flex items-center gap-1 rounded-2xl border border-line bg-paper p-1 w-fit overflow-x-auto">
+        <div className="flex items-center gap-1 rounded-2xl border border-line bg-paper p-1.5 w-full lg:w-fit overflow-x-auto no-scrollbar">
           {KINDS.map((k) => (
             <button
               key={k.key}
@@ -95,7 +95,7 @@ export function ExplorePage() {
                 setKind(k.key);
               }}
               className={cn(
-                "rounded-xl px-4 py-2 text-xs font-semibold transition cursor-pointer touch-manipulation whitespace-nowrap",
+                "inline-flex min-h-[44px] flex-1 lg:flex-initial items-center justify-center rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition cursor-pointer touch-manipulation whitespace-nowrap",
                 kind === k.key ? "bg-card text-ink shadow-xs" : "text-mute hover:text-ink hover:bg-card/50",
               )}
             >
@@ -105,15 +105,15 @@ export function ExplorePage() {
         </div>
 
         {/* Controls: Area + Search */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           {/* Area dropdown */}
-          <div className="relative flex items-center rounded-2xl border border-line bg-card px-3 py-2 shadow-2xs">
-            <MapPin size={15} className="text-accent shrink-0 mr-2" />
+          <div className="relative flex min-h-[48px] items-center rounded-2xl border border-line bg-card px-3.5 py-2 shadow-2xs">
+            <MapPin size={16} className="text-accent shrink-0 mr-2" />
             <select
               value={area}
               onChange={(e) => setArea(e.target.value)}
               aria-label="Filter by area"
-              className="bg-transparent text-xs font-semibold text-ink outline-none cursor-pointer"
+              className="w-full bg-transparent text-[16px] sm:text-xs font-semibold text-ink outline-none cursor-pointer"
             >
               <option value="">All areas</option>
               {distinctAreas.map((a) => (
@@ -125,15 +125,19 @@ export function ExplorePage() {
           </div>
 
           {/* Search box */}
-          <div className="relative flex flex-1 sm:w-64 items-center rounded-2xl border border-line bg-card px-3 py-2 shadow-2xs">
-            <Search size={15} className="text-mute shrink-0 mr-2" />
+          <div className="relative flex min-h-[48px] flex-1 sm:w-64 items-center rounded-2xl border border-line bg-card px-3.5 py-2 shadow-2xs">
+            <Search size={16} className="text-mute shrink-0 mr-2" />
             <input
-              type="text"
+              type="search"
+              inputMode="search"
+              enterKeyHint="search"
+              autoCapitalize="none"
+              autoComplete="off"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Find something you’ll love…"
               aria-label="Search experiences"
-              className="w-full bg-transparent text-xs text-ink placeholder:text-mute outline-none"
+              className="w-full bg-transparent text-[16px] sm:text-xs text-ink placeholder:text-mute outline-none"
             />
           </div>
         </div>
@@ -150,13 +154,13 @@ export function ExplorePage() {
 
       {/* Grid of cards */}
       {filteredItems.length > 0 ? (
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           {filteredItems.map((item) => (
             <ExperienceCard key={item.id} item={item} onSelect={setSelectedItem} />
           ))}
         </div>
       ) : (
-        <div className="mt-8 rounded-3xl border border-dashed border-line bg-paper/50 p-12 text-center">
+        <div className="mt-8 rounded-3xl border border-dashed border-line bg-paper/50 p-8 sm:p-12 text-center">
           <Compass size={32} className="mx-auto text-accent" />
           <h2 className="mt-3 font-display text-lg font-bold text-ink">A different path, perhaps?</h2>
           <p className="mx-auto mt-1 max-w-sm text-xs text-mute leading-relaxed">
@@ -170,7 +174,7 @@ export function ExplorePage() {
               setArea("");
               setSearch("");
             }}
-            className="mt-5 inline-flex min-h-[40px] items-center gap-1.5 rounded-full border border-line bg-card px-5 text-xs font-semibold text-ink hover:bg-paper transition"
+            className="mt-5 inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-line bg-card px-5 text-xs sm:text-sm font-semibold text-ink hover:bg-paper transition cursor-pointer touch-manipulation active:scale-95"
           >
             Show everything
           </button>

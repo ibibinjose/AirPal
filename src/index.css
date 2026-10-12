@@ -202,13 +202,27 @@ button:not(:disabled) {
   }
 }
 
-/* iOS auto-zooms on focus when inputs are under 16px. Keep mobile form text at 16px. */
+/* iOS auto-zooms on focus when inputs are under 16px. Keep mobile form text strictly at 16px to prevent viewport shifts. */
 @media (max-width: 768px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
   textarea {
-    font-size: 16px;
+    font-size: 16px !important;
   }
+}
+
+/* Mobile Apple-style bottom sheet presentation & touch targets */
+.apple-mobile-sheet {
+  max-height: min(92vh, calc(var(--visual-viewport-height, 100dvh) - 1.25rem));
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Apple HIG 44x44 touch target slop helper */
+.touch-target-44 {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
 }
 
 /* Ensure inputs and interactive fields maintain generous clearance above the virtual keyboard and below sticky headers */

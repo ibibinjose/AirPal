@@ -98,13 +98,14 @@ export function BioShareModal({ open, onClose, handle, name, url }: BioShareModa
       role="dialog"
       aria-modal="true"
       aria-label="Share Profile"
-      className="fixed inset-0 z-50 grid place-items-center bg-black/60 px-4 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="modal-safe relative w-full max-w-sm rounded-[32px] bg-paper p-6 text-center shadow-2xl ring-1 ring-line animate-in zoom-in-95 duration-200"
+        className="modal-safe relative w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] bg-paper p-6 text-center shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] sm:pb-6"
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />
         <button
           type="button"
           onClick={() => {

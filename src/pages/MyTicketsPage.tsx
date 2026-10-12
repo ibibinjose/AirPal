@@ -24,7 +24,7 @@ export function MyTicketsPage() {
   const displayList = tab === "upcoming" ? upcomingBookings : tab === "past" ? pastBookings : bookings;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-28 pt-4 md:px-6 md:pt-6">
+    <div className="mx-auto max-w-2xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-4 md:px-6 md:pt-6">
       <div className="flex items-center gap-2 mb-3">
         <Link
           href="/pass"
@@ -50,14 +50,14 @@ export function MyTicketsPage() {
               }}
               aria-label="Refresh tickets"
               title="Refresh tickets"
-              className="no-print grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card ring-1 ring-line text-mute hover:text-ink hover:bg-paper transition active:scale-95"
+              className="no-print grid h-10 w-10 min-h-[44px] min-w-[44px] shrink-0 place-items-center rounded-full bg-card ring-1 ring-line text-mute hover:text-ink hover:bg-paper transition active:scale-95 cursor-pointer touch-manipulation"
             >
               <RefreshCw size={15} />
             </button>
           )}
           <Link
             href="/calendar"
-            className="no-print inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line hover:bg-paper hover:text-ink transition"
+            className="no-print inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line hover:bg-paper hover:text-ink transition cursor-pointer touch-manipulation"
           >
             <Calendar size={13} className="text-accent" />
             <span>Calendar</span>

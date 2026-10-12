@@ -543,7 +543,7 @@ export function SearchPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 pb-28 md:px-6 md:py-10">
+    <div className="mx-auto max-w-4xl px-4 py-6 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] md:px-6 md:py-10">
       {/* Header bar */}
       <div className="flex items-center gap-3">
         <button

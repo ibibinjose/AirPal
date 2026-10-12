@@ -24,14 +24,6 @@ export function HomePage() {
     return n || null;
   }, [user]);
 
-  const todayDateString = useMemo(() => {
-    return new Intl.DateTimeFormat("en-AU", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    }).format(new Date());
-  }, []);
-
   // Filter curated experiences by selected category
   const filteredExperiences = useMemo(() => {
     if (category === "All") return CURATED_EXPERIENCES;
@@ -47,23 +39,17 @@ export function HomePage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-28 pt-4 md:px-6 md:pt-6">
+    <div className="mx-auto max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-6 sm:pt-6">
       {/* Editorial Page Greeting */}
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-accent">
-            YOUR EVERYDAY, A LITTLE BRIGHTER
-          </div>
-          <h1 className="mt-1 font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-ink">
-            {firstName ? `Hey ${firstName}, good to see you ` : "Hey, good to see you "}
-            <span className="text-accent inline-block">✳</span>
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-mute">A whole city of possibilities. A day that’s yours.</p>
+      <div className="mb-6">
+        <div className="text-[10px] font-bold uppercase tracking-widest text-accent">
+          YOUR EVERYDAY, A LITTLE BRIGHTER
         </div>
-
-        <span className="shrink-0 rounded-xl border border-line bg-card px-3.5 py-1.5 text-xs font-semibold text-mute shadow-2xs">
-          {todayDateString}
-        </span>
+        <h1 className="mt-1 font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-ink">
+          {firstName ? `Hey ${firstName}, good to see you ` : "Hey, good to see you "}
+          <span className="text-accent inline-block">✳</span>
+        </h1>
+        <p className="mt-1 text-xs sm:text-sm text-mute">A whole city of possibilities. A day that’s yours.</p>
       </div>
 
       {/* Hero Banner — Editorial Luma Craft */}
@@ -79,7 +65,7 @@ export function HomePage() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 px-6 py-10 sm:px-10 sm:py-14 max-w-2xl">
+        <div className="relative z-10 px-5 py-8 sm:px-10 sm:py-14 max-w-2xl">
           <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-white/90">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>A LITTLE SPONTANEITY LOOKS GOOD ON YOU</span>
@@ -97,7 +83,7 @@ export function HomePage() {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link
               href="/explore"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand px-6 text-xs sm:text-sm font-semibold text-white shadow-sm transition hover:bg-brand-ink active:scale-95 cursor-pointer"
+              className="inline-flex min-h-[48px] items-center gap-2 rounded-full bg-brand px-6 text-xs sm:text-sm font-semibold text-white shadow-sm transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
             >
               <span>Find my next thing</span>
               <ArrowUpRight size={16} />
@@ -109,7 +95,7 @@ export function HomePage() {
                 void triggerHaptic("medium");
                 setShowAddPlan(true);
               }}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-white/15 px-5 text-xs sm:text-sm font-semibold text-white ring-1 ring-white/30 backdrop-blur-md hover:bg-white/25 transition active:scale-95 cursor-pointer"
+              className="inline-flex min-h-[48px] items-center gap-1.5 rounded-full bg-white/15 px-5 text-xs sm:text-sm font-semibold text-white ring-1 ring-white/30 backdrop-blur-md hover:bg-white/25 transition active:scale-95 cursor-pointer touch-manipulation"
             >
               <Plus size={16} />
               <span>Plan a hangout</span>
@@ -146,14 +132,14 @@ export function HomePage() {
 
               <Link
                 href="/explore"
-                className="flex items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
+                className="inline-flex min-h-[44px] items-center gap-1 text-xs sm:text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation"
               >
                 <span>View all</span>
-                <ArrowRight size={13} />
+                <ArrowRight size={14} />
               </Link>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
               {whatNowItems.map((item) => (
                 <ExperienceCard key={item.id} item={item} onSelect={setSelectedExperience} />
               ))}
@@ -174,10 +160,10 @@ export function HomePage() {
 
             <Link
               href="/passbook"
-              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-card border border-line px-4 text-xs font-semibold text-ink shadow-2xs hover:bg-paper transition active:scale-95 cursor-pointer"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card border border-line px-5 text-xs sm:text-sm font-semibold text-ink shadow-2xs hover:bg-paper transition active:scale-95 cursor-pointer touch-manipulation"
             >
               <span>Find my perks</span>
-              <ArrowRight size={13} />
+              <ArrowRight size={14} />
             </Link>
           </div>
 
@@ -191,14 +177,14 @@ export function HomePage() {
 
               <Link
                 href="/pass"
-                className="flex items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
+                className="inline-flex min-h-[44px] items-center gap-1 text-xs sm:text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation"
               >
                 <span>All events</span>
-                <ArrowRight size={13} />
+                <ArrowRight size={14} />
               </Link>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
               {upcomingEventItems.map((item) => (
                 <ExperienceCard key={item.id} item={item} onSelect={setSelectedExperience} />
               ))}

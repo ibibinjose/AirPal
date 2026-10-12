@@ -1,49 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "wouter";
 import { ArrowUpRight, ArrowRight, CalendarDays, Plus, Sun, CloudRain, CloudSun, Ticket } from "lucide-react";
 import { usePlans } from "@/contexts/PlanContext";
+import { useLocalNow } from "@/contexts/LocalNowContext";
 import { useMyBookings } from "@/hooks/useMyBookings";
+import { weatherLabel } from "@/lib/weather";
+import { toZonedDateStr } from "@/lib/local-time";
 import { triggerHaptic } from "@/lib/native";
 import { AddPlanDialog } from "./AddPlanDialog";
 import { cn } from "@/lib/cn";
 
-interface WeatherState {
-  temp: number;
-  label: string;
-  rainy: boolean;
-}
-
 export function TodayPanel({ className }: { className?: string }) {
   const { myPlans } = usePlans();
   const { bookings } = useMyBookings();
+  const { weather: liveWeather, city, today: localToday } = useLocalNow();
   const [adding, setAdding] = useState(false);
-  const [weather, setWeather] = useState<WeatherState>({
-    temp: 21,
-    label: "Mostly sunny",
-    rainy: false,
-  });
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch(
-      "https://api.open-meteo.com/v1/forecast?latitude=-33.8688&longitude=151.2093&current=temperature_2m,weather_code&timezone=Australia%2FSydney",
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled || !data?.current) return;
-        const code = Number(data.current.weather_code) || 0;
-        const temp = Math.round(Number(data.current.temperature_2m) || 21);
-        const rainy = code >= 51;
-        const label = code <= 1 ? "Mostly sunny" : code < 51 ? "A little cloudy" : "Rainy skies";
-        setWeather({ temp, label, rainy });
-      })
-      .catch(() => undefined);
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const currentTemp = liveWeather?.temp ?? 21;
+  const isRainy = (liveWeather?.code ?? 0) >= 51;
+  const weatherText = liveWeather ? weatherLabel(liveWeather.code, liveWeather.isDay) : "Mostly sunny";
+  const cityLabel = (city || liveWeather?.city || "Sydney").toUpperCase();
 
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = localToday || toZonedDateStr(new Date());
   const todayPlans = myPlans
     .filter((p) => (p.date ? p.date.startsWith(todayStr) : false))
     .sort((a, b) => (a.time || "").localeCompare(b.time || ""));
@@ -61,21 +39,21 @@ export function TodayPanel({ className }: { className?: string }) {
       {/* Weather Card */}
       <section className="relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-[#f0f4e8] to-[#e6eed4] p-5 dark:from-[#1c221a] dark:to-[#161a15] dark:border-line/60 shadow-xs">
         <div className="relative z-10 flex items-center justify-between text-xs font-semibold tracking-wider uppercase text-[#5a6a48] dark:text-[#a0b885]">
-          <span>SYDNEY, RIGHT NOW</span>
-          {weather.rainy ? (
+          <span>{cityLabel}, RIGHT NOW</span>
+          {isRainy ? (
             <CloudRain size={20} className="text-[#5a6a48] dark:text-[#a0b885]" />
-          ) : weather.label.includes("cloudy") ? (
+          ) : weatherText.toLowerCase().includes("cloud") ? (
             <CloudSun size={20} className="text-[#899c4c] dark:text-[#b4c878]" />
           ) : (
             <Sun size={22} className="text-[#899c4c] dark:text-[#b4c878]" />
           )}
         </div>
-        <div className="relative z-10 mt-3 font-display text-4xl font-extrabold tracking-tight text-ink">
-          {weather.temp}°C
+        <div className="relative z-10 mt-3 font-display text-4xl font-extrabold tracking-tight text-ink tabular-nums">
+          {currentTemp}°C
         </div>
-        <p className="relative z-10 mt-1 text-sm font-semibold text-[#485638] dark:text-[#c4d6ad]">{weather.label}</p>
+        <p className="relative z-10 mt-1 text-sm font-semibold text-[#485638] dark:text-[#c4d6ad]">{weatherText}</p>
         <p className="relative z-10 mt-2 text-xs text-mute">
-          {weather.rainy ? "A cosy corner or gallery is calling." : "A little fresh air looks good on you."}
+          {isRainy ? "A cosy corner or gallery is calling." : "A little fresh air looks good on you."}
         </p>
         {/* Soft decorative ambient circle */}
         <div
@@ -93,17 +71,22 @@ export function TodayPanel({ className }: { className?: string }) {
         <p className="mt-0.5 text-xs text-mute font-medium">{todayDateFormatted}</p>
 
         {/* Timeline */}
-        <div className="mt-4 flex flex-col gap-3">
+        <div className="mt-4 flex flex-col gap-2">
           {todayPlans.length > 0 ? (
             todayPlans.slice(0, 3).map((plan) => (
-              <div
+              <Link
                 key={plan.id}
-                className="relative pl-5 before:absolute before:left-1.5 before:top-2 before:h-2 before:w-2 before:rounded-full before:bg-brand before:ring-2 before:ring-card"
+                href={`/plan/${plan.id}`}
+                className="group relative block rounded-xl p-2 -ml-2 pl-5 transition hover:bg-paper/70 cursor-pointer before:absolute before:left-1.5 before:top-4 before:h-2 before:w-2 before:rounded-full before:bg-brand before:ring-2 before:ring-card"
               >
-                <div className="text-[11px] font-bold text-mute uppercase tracking-wider">{plan.time || "Today"}</div>
-                <h3 className="text-sm font-bold text-ink leading-tight mt-0.5">{plan.title}</h3>
-                <p className="text-xs text-mute mt-0.5">{plan.destination || "Personal plan"}</p>
-              </div>
+                <div className="text-[11px] font-bold text-mute uppercase tracking-wider tabular-nums">
+                  {plan.time || "Today"}
+                </div>
+                <h3 className="text-sm font-bold text-ink leading-tight mt-0.5 group-hover:text-accent transition-colors">
+                  {plan.title}
+                </h3>
+                <p className="text-xs text-mute mt-0.5 truncate">{plan.destination || "Personal plan"}</p>
+              </Link>
             ))
           ) : (
             <div className="rounded-xl border border-dashed border-line bg-paper/60 p-4 text-center">
@@ -122,18 +105,18 @@ export function TodayPanel({ className }: { className?: string }) {
             void triggerHaptic("medium");
             setAdding(true);
           }}
-          className="mt-4 flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-line bg-paper text-xs font-semibold text-ink transition hover:bg-card hover:border-brand/40 active:scale-[0.98] cursor-pointer"
+          className="mt-4 flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-2xl border border-line bg-paper text-xs sm:text-sm font-semibold text-ink transition hover:bg-card hover:border-brand/40 active:scale-[0.98] cursor-pointer touch-manipulation"
         >
-          <Plus size={15} className="text-accent" />
+          <Plus size={16} className="text-accent" />
           <span>Add a plan</span>
         </button>
 
         <Link
           href="/my-day"
-          className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs font-semibold text-accent hover:underline cursor-pointer"
+          className="mt-3 flex min-h-[44px] items-center justify-center gap-1.5 text-center text-xs sm:text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation"
         >
           <span>See my day</span>
-          <ArrowRight size={13} />
+          <ArrowRight size={14} />
         </Link>
       </section>
 

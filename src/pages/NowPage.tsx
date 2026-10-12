@@ -183,7 +183,7 @@ export function NowPage() {
   const mapsUrl = suggestion ? mapsPlaceUrl(suggestion.place.geo, suggestion.place.name) : undefined;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-28 pt-4 sm:px-6 sm:pb-32 sm:pt-6">
+    <div className="mx-auto max-w-2xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-4 sm:px-6 sm:pb-32 sm:pt-6">
       <LocationSheet open={locationPicker} onClose={() => setLocationPicker(false)} />
 
       {/* Hero Header */}

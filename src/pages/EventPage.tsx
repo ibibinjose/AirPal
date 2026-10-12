@@ -494,7 +494,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
   }, [ev.id, ev.title, ev.insiderTip, ev.detail, ev.heroImage]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 pb-28">
+    <div className="mx-auto max-w-4xl px-4 py-6 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
       <div className="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
         <div className="lg:col-span-5">
           <EventCoverGlow src={ev.heroImage} alt={ev.title} />

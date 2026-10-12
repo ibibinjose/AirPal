@@ -227,7 +227,7 @@ export function EventsPage() {
   }, [cityEvents, category, dateRange, today, query]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-28 md:px-6">
+    <div className="mx-auto max-w-5xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] md:px-6">
       {/* Top Navigation & Header */}
       <header className="pt-4 sm:pt-6 flex flex-wrap items-center justify-between gap-4">
         <div>

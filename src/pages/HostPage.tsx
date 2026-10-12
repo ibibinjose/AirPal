@@ -223,7 +223,7 @@ export function HostPage() {
 
   return (
     <div className="relative isolate overflow-hidden">
-      <div className="relative mx-auto max-w-3xl px-4 pb-28">
+      <div className="relative mx-auto max-w-3xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
         {user.emailVerified === false && <VerifyEmailBanner email={user.email} onSend={sendVerificationEmail} />}
 
         <header className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-end sm:justify-between">

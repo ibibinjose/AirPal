@@ -1,6 +1,7 @@
 import { ArrowUpRight, MapPin, Plus, Check } from "lucide-react";
 import { type ExperienceItem } from "@/lib/curated-experiences";
 import { usePlans } from "@/contexts/PlanContext";
+import { toZonedDateStr } from "@/lib/local-time";
 import { triggerHaptic } from "@/lib/native";
 import { cn } from "@/lib/cn";
 
@@ -27,7 +28,7 @@ export function ExperienceCard({ item, onSelect, compact = false }: Props) {
         title: item.title,
         type: "walk",
         theme: "sunset",
-        date: item.starts_at ? item.starts_at.split("T")[0] : new Date().toISOString().split("T")[0],
+        date: item.starts_at ? item.starts_at.split("T")[0] : toZonedDateStr(new Date()),
         time: item.open_hour ? `${String(item.open_hour).padStart(2, "0")}:00` : "12:00",
         destination: item.venue,
         heroImage: item.image,
@@ -100,13 +101,13 @@ export function ExperienceCard({ item, onSelect, compact = false }: Props) {
             title={isSaved ? "Saved to your day" : "Add to your day"}
             aria-label={isSaved ? "Saved to your day" : "Add to your day"}
             className={cn(
-              "grid h-8 w-8 place-items-center rounded-full border transition active:scale-90 cursor-pointer",
+              "grid min-h-[44px] min-w-[44px] place-items-center rounded-full border transition active:scale-90 cursor-pointer touch-manipulation",
               isSaved
-                ? "border-emerald-500 bg-emerald-500 text-white"
+                ? "border-emerald-500 bg-emerald-500 text-white shadow-xs"
                 : "border-line bg-paper text-mute hover:border-brand hover:text-accent",
             )}
           >
-            {isSaved ? <Check size={15} strokeWidth={2.5} /> : <Plus size={16} strokeWidth={2.5} />}
+            {isSaved ? <Check size={16} strokeWidth={2.5} /> : <Plus size={18} strokeWidth={2.5} />}
           </button>
         </div>
       </div>

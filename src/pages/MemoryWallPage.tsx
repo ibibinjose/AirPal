@@ -168,7 +168,7 @@ export function MemoryWallPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-28">
+    <div className="mx-auto max-w-lg px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
       <div className="flex items-center gap-3 pt-4">
         <button
           type="button"

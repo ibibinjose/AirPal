@@ -80,14 +80,14 @@ export function PassbookPage() {
   });
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-28 pt-4 md:px-6 md:pt-6">
+    <main className="mx-auto max-w-5xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-6 sm:pt-6">
       {/* Header breadcrumb & kicker */}
       <div className="flex items-center gap-2 mb-2">
         <Link
           href="/"
-          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer touch-manipulation"
         >
-          <ArrowLeft size={13} />
+          <ArrowLeft size={14} />
           <span>Home</span>
         </Link>
         <span className="text-[11px] font-bold uppercase tracking-wider text-accent">GOOD TIMES, ON HAND</span>
@@ -105,16 +105,16 @@ export function PassbookPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/me/tickets"
-            className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-card px-4 text-xs font-semibold text-mute ring-1 ring-line hover:bg-paper hover:text-ink transition"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-4 text-xs font-semibold text-mute ring-1 ring-line hover:bg-paper hover:text-ink transition cursor-pointer touch-manipulation"
           >
-            <Ticket size={14} className="text-accent" />
+            <Ticket size={15} className="text-accent" />
             <span>Manage All Tickets</span>
           </Link>
         </div>
       </div>
 
       {/* Filter Segmented Control */}
-      <div className="mt-6 flex items-center gap-1 rounded-2xl border border-line bg-paper p-1 w-fit">
+      <div className="mt-6 flex items-center gap-1 rounded-2xl border border-line bg-paper p-1.5 w-full sm:w-fit overflow-x-auto no-scrollbar">
         {(["All", "Tickets", "Perks"] as FilterTab[]).map((tab) => (
           <button
             key={tab}
@@ -124,7 +124,7 @@ export function PassbookPage() {
               setFilter(tab);
             }}
             className={cn(
-              "rounded-xl px-4 py-2 text-xs font-semibold transition cursor-pointer touch-manipulation",
+              "inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center rounded-xl px-5 py-2 text-xs sm:text-sm font-semibold transition cursor-pointer touch-manipulation whitespace-nowrap",
               filter === tab ? "bg-card text-ink shadow-xs" : "text-mute hover:text-ink hover:bg-card/50",
             )}
           >
@@ -139,7 +139,7 @@ export function PassbookPage() {
 
       {/* Wallet Pass Cards Grid */}
       {visiblePasses.length > 0 ? (
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {visiblePasses.map((pass) => (
             <article
               key={pass.id}
@@ -161,7 +161,7 @@ export function PassbookPage() {
                   </span>
                   <h2 className="mt-1 font-display text-lg font-bold text-ink leading-snug">{pass.title}</h2>
                   <p className="mt-1 text-xs text-mute">{pass.venue}</p>
-                  <span className="mt-3 block text-xs font-semibold text-[#5a6a48] dark:text-[#a0b885]">
+                  <span className="mt-3 block text-xs font-semibold text-[#5a6a48] dark:text-[#a0b885] tabular-nums">
                     {new Intl.DateTimeFormat("en-AU", {
                       weekday: "short",
                       day: "numeric",
@@ -173,25 +173,25 @@ export function PassbookPage() {
                 {/* Dashed Tear Line */}
                 <div className="my-4 border-b border-dashed border-line" />
 
-                {/* Show Pass Button */}
+                {/* Show Pass Button with 48px touch target */}
                 <button
                   type="button"
                   onClick={() => {
                     void triggerHaptic("medium");
                     setSelectedPass(pass);
                   }}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-line bg-paper text-xs font-semibold text-ink transition hover:bg-card hover:border-brand/40 active:scale-[0.98] cursor-pointer"
+                  className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl border border-line bg-paper text-xs sm:text-sm font-semibold text-ink transition hover:bg-card hover:border-brand/40 active:scale-[0.98] cursor-pointer touch-manipulation"
                 >
-                  <QrCode size={16} className="text-accent" />
+                  <QrCode size={18} className="text-accent" />
                   <span>Show digital pass</span>
-                  <ArrowRight size={14} className="text-mute" />
+                  <ArrowRight size={15} className="text-mute" />
                 </button>
               </div>
             </article>
           ))}
         </div>
       ) : (
-        <div className="mt-6 rounded-3xl border border-dashed border-line bg-paper/50 p-12 text-center">
+        <div className="mt-6 rounded-3xl border border-dashed border-line bg-paper/50 p-8 sm:p-12 text-center">
           <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand/10 text-accent">
             <Ticket size={28} />
           </div>
@@ -202,7 +202,7 @@ export function PassbookPage() {
           <div className="mt-6">
             <Link
               href="/explore"
-              className="inline-flex min-h-[42px] items-center gap-1.5 rounded-full bg-brand px-6 text-xs font-semibold text-white shadow-xs hover:bg-brand-ink transition active:scale-95"
+              className="inline-flex min-h-[48px] items-center gap-1.5 rounded-full bg-brand px-6 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-brand-ink transition active:scale-95 cursor-pointer touch-manipulation"
             >
               <span>Explore events &amp; perks →</span>
             </Link>

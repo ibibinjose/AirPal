@@ -669,7 +669,7 @@ export function BioPublicPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-3 sm:px-4 md:px-0 pb-28 pb-safe pt-2 sm:pt-6">
+    <div className="mx-auto max-w-2xl px-3 sm:px-4 md:px-0 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-2 sm:pt-6">
       {/* Main Apple Liquid Glass Card Wrapper */}
       <div className="overflow-hidden bg-card/95 sm:rounded-[40px] sm:ring-1 sm:ring-line/80 sm:shadow-[0_24px_60px_rgba(0,0,0,0.08)] backdrop-blur-2xl">
         {/* Cover Hero Header with Cinematic Vignette */}
@@ -2118,7 +2118,7 @@ export function BioPublicPage() {
                 placeholder="Your Name"
                 autoComplete="name"
                 maxLength={80}
-                className="min-h-[44px] h-11 sm:h-12 w-full rounded-2xl sm:rounded-full bg-card px-4 text-xs sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus:border-brand shadow-2xs"
+                className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
               />
               <label htmlFor="guestlist-city" className="sr-only">
                 Your city
@@ -2127,7 +2127,7 @@ export function BioPublicPage() {
                 id="guestlist-city"
                 value={listCity}
                 onChange={(e) => setListCity(e.target.value)}
-                className="min-h-[44px] h-11 sm:h-12 w-full rounded-2xl sm:rounded-full bg-card px-4 text-xs sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus:border-brand shadow-2xs"
+                className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
               >
                 <option value="">Your City</option>
                 {CITY_OPTIONS.map((c) => (
@@ -2150,7 +2150,7 @@ export function BioPublicPage() {
                     placeholder="Your city or town"
                     autoComplete="address-level2"
                     maxLength={60}
-                    className="min-h-[44px] h-11 sm:h-12 w-full rounded-2xl sm:rounded-full bg-card px-4 text-xs sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus:border-brand shadow-2xs"
+                    className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
                   />
                 </>
               )}
@@ -2167,7 +2167,7 @@ export function BioPublicPage() {
                 value={listEmail}
                 onChange={(e) => setListEmail(e.target.value)}
                 placeholder="Your Email"
-                className="min-h-[44px] h-11 sm:h-12 w-full rounded-2xl sm:rounded-full bg-card px-4 text-xs sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus:border-brand shadow-2xs"
+                className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
               />
               <fieldset>
                 <legend className="text-[11px] font-semibold text-mute">I&apos;m into — pick any</legend>
@@ -2291,22 +2291,26 @@ export function BioPublicPage() {
       {/* Claim Redemption Modal */}
       {claim && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-black/60 px-6 backdrop-blur-sm animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Claim offer"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-6 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setClaim(null)}
         >
           <div
-            className="w-full max-w-sm rounded-[32px] bg-card p-6 text-center shadow-2xl ring-1 ring-line animate-in zoom-in-95 duration-200"
+            className="w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] bg-card p-6 text-center shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] sm:pb-6"
             onClick={(e) => e.stopPropagation()}
           >
+            <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent">{claim.badge}</p>
-            <p className="font-mono mt-3 text-4xl font-bold tracking-widest text-ink">{claim.code}</p>
+            <p className="font-mono mt-3 text-4xl font-bold tracking-widest text-ink tabular-nums">{claim.code}</p>
             <p className="mt-2 text-xs font-medium text-mute leading-relaxed">{claim.detail}</p>
             <div className="mt-4 rounded-2xl bg-gold/10 p-3 text-xs text-accent font-medium">
               Active offer · Show this code to your server or at the till.
             </div>
             <button
               type="button"
-              className="mt-5 min-h-[44px] w-full rounded-full bg-brand py-3 text-xs font-bold text-white transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation shadow-xs"
+              className="mt-5 min-h-[48px] h-12 w-full rounded-full bg-brand py-3 text-xs sm:text-sm font-bold text-white transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation shadow-xs"
               onClick={() => {
                 void triggerHaptic("light");
                 setClaim(null);

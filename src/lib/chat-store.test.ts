@@ -1,4 +1,8 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/functions", () => ({
+  askAirPalRemote: vi.fn().mockRejectedValue(new Error("offline")),
+}));
 import {
   __resetChatMemoryForTests,
   __seedChatMemoryForTests,

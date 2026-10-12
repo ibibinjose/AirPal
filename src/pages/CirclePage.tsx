@@ -57,7 +57,7 @@ export function CirclePage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6 pb-28 sm:px-6 sm:pb-32">
+    <div className="mx-auto max-w-2xl px-4 py-6 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] sm:px-6 sm:pb-32">
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

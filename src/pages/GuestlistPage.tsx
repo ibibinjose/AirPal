@@ -324,7 +324,7 @@ export function GuestlistPage() {
   const goingPct = capacity ? Math.min(100, Math.round((counts.goingHeads / capacity) * 100)) : null;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-28 pt-4 md:px-6">
+    <div className="mx-auto max-w-2xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-4 md:px-6">
       <Link
         href={header.backHref}
         className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-accent hover:underline"

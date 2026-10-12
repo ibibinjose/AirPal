@@ -297,17 +297,18 @@ export function BioCatchUpModal({
 
   const content = (
     <div
-      className="fixed inset-0 z-[9999] grid place-items-center overflow-y-auto bg-black/65 p-4 backdrop-blur-sm sm:p-6 animate-in fade-in duration-200 [padding-bottom:var(--keyboard-height,0px)] transition-[padding]"
+      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center overflow-y-auto bg-black/65 p-0 sm:p-6 backdrop-blur-sm animate-in fade-in duration-200 [padding-bottom:var(--keyboard-height,0px)] transition-[padding]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="catchup-modal-title"
     >
       <div
-        className="relative w-full max-w-lg overflow-hidden rounded-[32px] bg-paper shadow-2xl ring-1 ring-line animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden rounded-t-[32px] sm:rounded-[32px] bg-paper shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:pb-0"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative border-b border-line px-6 pb-4 pt-6 bg-card/60">
+        <div className="mx-auto mt-2 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />
+        <div className="relative border-b border-line px-6 pb-4 pt-4 sm:pt-6 bg-card/60">
           <button
             type="button"
             onClick={onClose}
@@ -415,7 +416,7 @@ export function BioCatchUpModal({
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand"
+                  className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
                 />
               </div>
               <div className="mt-1.5 flex gap-1.5">
@@ -431,7 +432,7 @@ export function BioCatchUpModal({
                       void triggerHaptic("light");
                       setDate(localDate(Number(days)));
                     }}
-                    className="rounded-lg bg-card px-2 py-0.5 text-[10px] font-semibold text-mute ring-1 ring-line hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                    className="min-h-[32px] sm:min-h-0 rounded-lg bg-card px-2.5 py-1 text-xs sm:text-[10px] font-semibold text-mute ring-1 ring-line hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
                   >
                     {label}
                   </button>
@@ -446,7 +447,7 @@ export function BioCatchUpModal({
                   type="time"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className="h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand"
+                  className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
                 />
               </div>
             </div>
@@ -471,7 +472,7 @@ export function BioCatchUpModal({
                   setMeetingPlatform("in_person");
                 }}
                 className={cn(
-                  "flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition cursor-pointer active:scale-95",
+                  "min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                   meetingPlatform === "in_person"
                     ? "bg-paper text-ink shadow-xs ring-1 ring-line/80 font-bold"
                     : "text-mute hover:text-ink",
@@ -488,7 +489,7 @@ export function BioCatchUpModal({
                   if (!meetingLink && defaultMeetingUrl) setMeetingLink(defaultMeetingUrl);
                 }}
                 className={cn(
-                  "flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition cursor-pointer active:scale-95",
+                  "min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                   meetingPlatform === "google_meet"
                     ? "bg-brand/10 text-accent ring-1 ring-brand/30 shadow-xs font-bold"
                     : "text-mute hover:text-ink",
@@ -505,7 +506,7 @@ export function BioCatchUpModal({
                   if (!meetingLink && defaultMeetingUrl) setMeetingLink(defaultMeetingUrl);
                 }}
                 className={cn(
-                  "flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition cursor-pointer active:scale-95",
+                  "min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                   meetingPlatform === "facetime"
                     ? "bg-emerald-500/15 text-emerald-800 ring-1 ring-emerald-500/30 shadow-xs font-bold"
                     : "text-mute hover:text-ink",
@@ -524,7 +525,7 @@ export function BioCatchUpModal({
                   value={venue}
                   onChange={(e) => setVenue(e.target.value)}
                   placeholder={city ? `Café or venue in ${city}` : "A café nearby"}
-                  className="h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand"
+                  className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
                 />
               </div>
             ) : meetingPlatform === "google_meet" ? (
@@ -536,7 +537,7 @@ export function BioCatchUpModal({
                     value={meetingLink}
                     onChange={(e) => setMeetingLink(e.target.value)}
                     placeholder="https://meet.google.com/xxx-yyyy-zzz"
-                    className="h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-24 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand"
+                    className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-24 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
                   />
                   <button
                     type="button"
@@ -544,7 +545,7 @@ export function BioCatchUpModal({
                       void triggerHaptic("light");
                       setMeetingLink("https://meet.google.com/new");
                     }}
-                    className="absolute right-2 top-2 rounded-xl bg-brand/10 px-2.5 py-1.5 text-[11px] font-bold text-accent hover:bg-brand/20 transition cursor-pointer"
+                    className="absolute right-2 top-2 rounded-xl bg-brand/10 px-2.5 py-1.5 text-[11px] font-bold text-accent hover:bg-brand/20 transition cursor-pointer touch-manipulation"
                     title="Use instant Google Meet link"
                   >
                     meet.new
@@ -572,7 +573,7 @@ export function BioCatchUpModal({
                     value={meetingLink}
                     onChange={(e) => setMeetingLink(e.target.value)}
                     placeholder="https://facetime.apple.com/... or Apple ID"
-                    className="h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand"
+                    className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
                   />
                 </div>
                 <p className="text-[11px] text-mute leading-relaxed">
@@ -594,7 +595,7 @@ export function BioCatchUpModal({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Optional notes, topic, or meetup idea"
-                className="w-full resize-none rounded-2xl border border-line bg-card py-2.5 pl-9 pr-3 text-[16px] sm:text-xs outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand"
+                className="w-full resize-none rounded-2xl border border-line bg-card py-2.5 pl-9 pr-3 text-[16px] sm:text-xs outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
               />
             </div>
           </div>
@@ -602,7 +603,7 @@ export function BioCatchUpModal({
 
         <div className="space-y-3 border-t border-line bg-card/60 p-5">
           <Button
-            className="h-12 w-full gap-2 rounded-full font-bold shadow-md cursor-pointer"
+            className="min-h-[48px] h-12 w-full gap-2 rounded-full font-bold shadow-md cursor-pointer touch-manipulation"
             onClick={handleLaunch}
             disabled={isSubmitting || conflict.hasConflict}
             title={conflict.hasConflict ? "Pick a free time slot before proposing" : undefined}
@@ -624,7 +625,7 @@ export function BioCatchUpModal({
               type="button"
               onClick={handleToggleReminder}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95",
+                "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
                 isRemembered
                   ? "bg-amber-500/15 text-amber-800 ring-amber-500/40 font-bold"
                   : "bg-card text-ink ring-line hover:bg-paper",
@@ -638,7 +639,7 @@ export function BioCatchUpModal({
               size="sm"
               variant="secondary"
               label="Sync to Phone Calendar"
-              buttonClassName="rounded-full text-xs font-semibold"
+              buttonClassName="rounded-full text-xs font-semibold min-h-[44px]"
             />
           </div>
         </div>

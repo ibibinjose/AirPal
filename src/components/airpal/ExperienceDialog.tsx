@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, MapPin, Clock, Sparkles, CalendarDays, Check, Share2, Ticket } from "lucide-react";
 import { type ExperienceItem } from "@/lib/curated-experiences";
 import { usePlans } from "@/contexts/PlanContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { toZonedDateStr } from "@/lib/local-time";
 import { triggerHaptic, shareNative } from "@/lib/native";
+import { readCachedBookings, writeCachedBookings, type BookingWithId } from "@/hooks/useMyBookings";
 import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 
@@ -14,14 +17,25 @@ interface Props {
 }
 
 export function ExperienceDialog({ item, onClose }: Props) {
+  const { user } = useAuth();
   const { myPlans, createPlan } = usePlans();
   const [selectedDate, setSelectedDate] = useState(() =>
-    item?.starts_at ? item.starts_at.split("T")[0] : new Date().toISOString().split("T")[0],
+    item?.starts_at ? item.starts_at.split("T")[0] : toZonedDateStr(new Date()),
   );
   const [booked, setBooked] = useState(false);
   const [planning, setPlanning] = useState(false);
 
   useScrollLock(Boolean(item));
+
+  // Support ESC key dismissal
+  useEffect(() => {
+    if (!item) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [item, onClose]);
 
   if (!item || typeof document === "undefined") return null;
 
@@ -52,6 +66,34 @@ export function ExperienceDialog({ item, onClose }: Props) {
   const handleClaimPass = () => {
     void triggerHaptic("medium");
     setBooked(true);
+    const passId = `pass-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    const passUid =
+      user?.uid || (typeof window !== "undefined" ? localStorage.getItem("airpal.anon.id") : null) || "guest";
+    const newBooking: BookingWithId = {
+      id: passId,
+      requestId: "",
+      planId: "",
+      customerUid: passUid,
+      providerUid: "airpal-experiences",
+      providerKind: "business",
+      providerName: item.venue,
+      title: item.title,
+      suburb: item.area,
+      date: selectedDate,
+      time: item.open_hour ? `${String(item.open_hour).padStart(2, "0")}:00` : "12:00",
+      priceCents: 0,
+      feeCents: 0,
+      paymentStatus: "paid",
+      status: "confirmed",
+      cancelReason: "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const cached = readCachedBookings(passUid);
+    writeCachedBookings(passUid, [newBooking, ...cached]);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("airpal:bookings-updated"));
+    }
     toast.success(
       item.kind === "deal"
         ? "Perk voucher claimed! Stored in your Passbook."
@@ -104,24 +146,24 @@ export function ExperienceDialog({ item, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="exp-dialog-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 sm:p-6"
     >
       {/* Backdrop */}
       <div onClick={onClose} className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
 
-      {/* Dialog card */}
-      <div className="relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-line bg-card shadow-2xl dark:border-line/70">
+      {/* Dialog / Bottom Sheet Card */}
+      <div className="apple-mobile-sheet relative z-10 flex max-h-[92vh] sm:max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-[32px] sm:rounded-3xl border border-line bg-card shadow-2xl dark:border-line/70">
         {/* Photo Header */}
         <div className="relative aspect-[16/9] w-full shrink-0 bg-paper">
           <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
 
-          {/* Close button */}
+          {/* Close button with HIG 44px touch target */}
           <button
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="absolute right-3.5 top-3.5 grid h-9 w-9 place-items-center rounded-full bg-black/50 text-white shadow-md backdrop-blur-md hover:bg-black/70 transition cursor-pointer"
+            className="absolute right-3.5 top-3.5 grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-black/60 text-white shadow-md backdrop-blur-md hover:bg-black/80 transition cursor-pointer touch-manipulation active:scale-95"
           >
             <X size={18} />
           </button>
@@ -138,7 +180,7 @@ export function ExperienceDialog({ item, onClose }: Props) {
         </div>
 
         {/* Content Body (Scrollable) */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-[max(1.75rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] sm:pb-6">
           <div className="text-[11px] font-bold uppercase tracking-wider text-accent">{item.category}</div>
           <h2 id="exp-dialog-title" className="font-display text-2xl font-bold text-ink mt-1 leading-snug">
             {item.title}
@@ -195,19 +237,19 @@ export function ExperienceDialog({ item, onClose }: Props) {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-xs text-ink outline-none transition focus:border-brand dark:bg-card"
+              className="min-h-[46px] w-full rounded-2xl border border-line bg-paper px-3.5 py-2.5 text-[16px] text-ink outline-none transition focus:border-brand dark:bg-card"
             />
           </div>
 
           {/* Action Row */}
-          <div className="mt-5 flex flex-col gap-2.5">
-            <div className="grid grid-cols-2 gap-2.5">
+          <div className="mt-5 flex flex-col gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={handleAddToDay}
                 disabled={planning}
                 className={cn(
-                  "inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full border px-4 text-xs font-semibold transition active:scale-95 cursor-pointer",
+                  "inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-full border px-5 text-sm font-semibold transition active:scale-95 cursor-pointer touch-manipulation",
                   isSavedInPlans
                     ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
                     : "border-line bg-card text-ink hover:bg-paper hover:border-brand/40",
@@ -215,12 +257,12 @@ export function ExperienceDialog({ item, onClose }: Props) {
               >
                 {isSavedInPlans ? (
                   <>
-                    <Check size={14} className="text-emerald-600" />
+                    <Check size={16} className="text-emerald-600" />
                     <span>In My Day</span>
                   </>
                 ) : (
                   <>
-                    <CalendarDays size={14} className="text-accent" />
+                    <CalendarDays size={16} className="text-accent" />
                     <span>{planning ? "Saving…" : "Add to My Day"}</span>
                   </>
                 )}
@@ -230,11 +272,11 @@ export function ExperienceDialog({ item, onClose }: Props) {
                 type="button"
                 onClick={handleClaimPass}
                 className={cn(
-                  "inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer",
+                  "inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-5 text-sm font-semibold shadow-xs transition active:scale-95 cursor-pointer touch-manipulation",
                   booked ? "bg-emerald-600 text-white hover:bg-emerald-700" : "bg-brand text-white hover:bg-brand-ink",
                 )}
               >
-                <Ticket size={14} />
+                <Ticket size={16} />
                 <span>
                   {booked ? "Pass In Pocket ✓" : item.kind === "deal" ? "Claim Perk Pass" : "Reserve Free Pass"}
                 </span>
@@ -245,18 +287,18 @@ export function ExperienceDialog({ item, onClose }: Props) {
               <button
                 type="button"
                 onClick={handleDownloadIcs}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-mute hover:text-ink transition cursor-pointer"
+                className="inline-flex min-h-[44px] items-center gap-1.5 text-xs sm:text-sm font-semibold text-mute hover:text-ink transition cursor-pointer touch-manipulation active:scale-95"
               >
-                <Clock size={13} />
+                <Clock size={15} />
                 <span>Add to Calendar (.ics)</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleShare}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-mute hover:text-ink transition cursor-pointer"
+                className="inline-flex min-h-[44px] items-center gap-1.5 text-xs sm:text-sm font-semibold text-mute hover:text-ink transition cursor-pointer touch-manipulation active:scale-95"
               >
-                <Share2 size={13} />
+                <Share2 size={15} />
                 <span>Share</span>
               </button>
             </div>

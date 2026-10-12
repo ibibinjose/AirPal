@@ -59,7 +59,7 @@ const CATEGORIES = CALENDAR_CATEGORIES;
 // Loading skeleton component with shimmer effect
 function CalendarSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-24 pt-4 md:px-6 md:pt-6">
+    <div className="mx-auto max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-4 md:px-6 md:pt-6">
       <div className="mb-8 space-y-4 animate-pulse">
         <div className="h-3 w-48 bg-gradient-to-r from-paper via-line to-paper bg-[length:200%_100%] animate-shimmer rounded" />
         <div className="h-10 w-80 bg-gradient-to-r from-paper via-line to-paper bg-[length:200%_100%] animate-shimmer rounded-xl" />
@@ -368,7 +368,7 @@ function CalendarPageContent() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-24 pt-4 md:px-6 md:pt-6">
+    <div className="mx-auto max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-4 md:px-6 md:pt-6">
       {/* Image header — laneway backdrop, controls float below the title */}
       <div className="relative mb-6 overflow-hidden rounded-[28px]">
         <div className="absolute inset-0" aria-hidden="true">

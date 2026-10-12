@@ -89,6 +89,73 @@ export function stallAsBio(stall: StallRecord, handle: string): BioProfile {
   };
 }
 
+export const BIBIN_JOSE_PROFILE: BioProfile = {
+  id: "bio-bibinjose",
+  handle: "bibinjose",
+  name: "Bibin Jose",
+  kind: "person",
+  shortWhy: "Founder & CTO at AirPal · Building Life Made Easy across Sydney & beyond.",
+  aboutText:
+    "17+ years in full-stack architecture, infrastructure, and product engineering. Building AirPal to make everyday city life, concerts, hangouts, and authentic experiences effortless.",
+  city: "Sydney",
+  category: "services",
+  categoryTag: "Founder & CTO",
+  pronouns: "he/him",
+  languages: "English",
+  avatar: "/media/harbour.jpg",
+  cover: "/media/harbour.jpg",
+  customStatus: "Building AirPal in Sydney 🇦🇺",
+  customStatusEmoji: "⚡",
+  availabilityStatus: "available",
+  hours: "9am–6pm",
+  openNow: true,
+  phone: "+61 400 000 000",
+  links: [
+    {
+      id: "l-web",
+      type: "website",
+      label: "AirPal · Life Made Easy",
+      href: "https://airpal.me",
+    },
+    {
+      id: "l-founders",
+      type: "website",
+      label: "Founding Member 100k Draw",
+      href: "https://airpal.me/founders",
+    },
+    {
+      id: "l-circle",
+      type: "website",
+      label: "AirPal Networking Circle",
+      href: "https://airpal.me/circle",
+    },
+    {
+      id: "l-guide",
+      type: "website",
+      label: "Sydney Curated Experiences",
+      href: "https://airpal.me/explore",
+    },
+  ],
+  deals: [],
+  products: [],
+  services: [
+    {
+      id: "srv-eng",
+      kind: "service",
+      title: "Full-Stack Architecture & Infra",
+      detail: "Advising and building high-scale distributed apps and real-time platforms.",
+      badge: "CTO & Architect",
+    },
+    {
+      id: "srv-airpal",
+      kind: "service",
+      title: "AirPal Ecosystem & Platform",
+      detail: "Unified discovery, ticketing passbook, and local arrival cohorts.",
+      badge: "Platform",
+    },
+  ],
+};
+
 export function resolvePublicBio(
   handle: string,
   byHandle: (h: string) => BioProfile | undefined,
@@ -96,6 +163,7 @@ export function resolvePublicBio(
   const h = normalizeHandle(handle);
   const owned = byHandle(h);
   if (owned) return owned;
+  if (h === "bibinjose") return BIBIN_JOSE_PROFILE;
   const place = placeByHandle(h);
   if (place) return placeAsBio(place, h);
   const stall = stallByHandle(h);

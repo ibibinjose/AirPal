@@ -192,7 +192,7 @@ export function PassPage() {
   }, [calendarEvents, events, today, activeCategory, searchQuery]);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-28 md:px-6">
+    <div className="mx-auto max-w-6xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] md:px-6">
       {/* Hero Pass Section */}
       <header className="relative mt-2 sm:mt-4 overflow-hidden rounded-[32px] bg-gradient-to-br from-neutral-950 via-neutral-900 to-amber-950 text-white shadow-lg">
         <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-amber-500/20 blur-3xl" />
