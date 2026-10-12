@@ -1,4 +1,5 @@
-import { Check, QrCode, ShieldCheck, Sparkles, Ticket } from "lucide-react";
+import { useState } from "react";
+import { Check, QrCode, ShieldCheck, Sparkles, Tag, Ticket } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { triggerHaptic } from "@/lib/native";
 
@@ -12,7 +13,7 @@ export interface EventRegistrationCardProps {
   spots: number;
   onTierChange: (tier: "standard" | "vip" | "group") => void;
   onSpotsChange: (spots: number) => void;
-  onSubmit: () => void;
+  onSubmit: (coupon?: string, finalPriceCents?: number) => void;
   onToggleGoing?: () => void;
   className?: string;
 }
@@ -33,10 +34,50 @@ export function EventRegistrationCard({
   const isPaid = paidCents > 0;
   const effectiveSpots = tier === "group" ? 4 : spots;
 
+  const [couponDraft, setCouponDraft] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [discountPercent, setDiscountPercent] = useState<number>(0);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
   const unitPriceCents =
     tier === "vip" ? Math.round(paidCents * 1.5) : tier === "group" ? Math.round(paidCents * 0.9) : paidCents;
 
-  const totalPriceCents = isPaid ? (tier === "group" ? Math.round(paidCents * 4 * 0.9) : unitPriceCents * spots) : 0;
+  const rawTotalPriceCents = isPaid ? (tier === "group" ? Math.round(paidCents * 4 * 0.9) : unitPriceCents * spots) : 0;
+  const discountCents = isPaid && appliedCoupon ? Math.round(rawTotalPriceCents * (discountPercent / 100)) : 0;
+  const totalPriceCents = Math.max(0, rawTotalPriceCents - discountCents);
+
+  const handleApplyCoupon = () => {
+    if (appliedCoupon) {
+      setAppliedCoupon(null);
+      setDiscountPercent(0);
+      setCouponDraft("");
+      setCouponError(null);
+      void triggerHaptic("light");
+      return;
+    }
+    const code = couponDraft.trim().toUpperCase();
+    if (!code) return;
+    void triggerHaptic("medium");
+    if (code === "AIRPAL5") {
+      setAppliedCoupon("AIRPAL5");
+      setDiscountPercent(5);
+      setCouponError(null);
+    } else if (code === "VIP10") {
+      setAppliedCoupon("VIP10");
+      setDiscountPercent(10);
+      setCouponError(null);
+    } else if (code === "EARLYBIRD") {
+      setAppliedCoupon("EARLYBIRD");
+      setDiscountPercent(15);
+      setCouponError(null);
+    } else if (code === "COMMUNITY20") {
+      setAppliedCoupon("COMMUNITY20");
+      setDiscountPercent(20);
+      setCouponError(null);
+    } else {
+      setCouponError("Invalid or expired coupon code");
+    }
+  };
 
   const handleTierClick = (newTier: "standard" | "vip" | "group") => {
     void triggerHaptic("selection");
@@ -136,6 +177,39 @@ export function EventRegistrationCard({
         </div>
       )}
 
+      {/* Coupon Code Input */}
+      {isPaid && (
+        <div className="pt-0.5">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={couponDraft}
+              onChange={(e) => {
+                setCouponDraft(e.target.value.toUpperCase());
+                setCouponError(null);
+              }}
+              disabled={Boolean(appliedCoupon)}
+              placeholder="Coupon or promo code"
+              aria-label="Coupon or promo code"
+              className="h-10 flex-1 rounded-xl bg-paper px-3 text-xs uppercase tracking-wider font-semibold text-ink ring-1 ring-line outline-none focus:ring-2 focus:ring-brand/30 disabled:opacity-75"
+            />
+            <button
+              type="button"
+              onClick={handleApplyCoupon}
+              className="h-10 px-3.5 rounded-xl bg-paper ring-1 ring-line text-xs font-bold text-accent hover:bg-card active:scale-95 cursor-pointer shrink-0"
+            >
+              {appliedCoupon ? "Remove" : "Apply"}
+            </button>
+          </div>
+          {couponError && <p className="text-[11px] text-red-500 font-medium mt-1">{couponError}</p>}
+          {appliedCoupon && (
+            <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1 flex items-center gap-1">
+              <Check size={12} strokeWidth={3} /> {appliedCoupon} applied ({discountPercent}% discount)
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Capacity & Price Breakdown */}
       <div className="rounded-2xl bg-paper p-3 border border-line/60 space-y-1.5 text-xs">
         {capacity && capacity > 0 && (
@@ -158,6 +232,14 @@ export function EventRegistrationCard({
             <span>Host Review Required</span>
           </div>
         )}
+        {isPaid && appliedCoupon && discountCents > 0 && (
+          <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400 font-semibold pt-1 border-t border-line/40">
+            <span className="flex items-center gap-1">
+              <Tag size={12} /> Coupon ({appliedCoupon}):
+            </span>
+            <span>-${(discountCents / 100).toFixed(2)} AUD</span>
+          </div>
+        )}
         {isPaid && (
           <div className="flex items-center justify-between pt-1 border-t border-line/50 text-ink font-bold">
             <span>Total:</span>
@@ -172,7 +254,7 @@ export function EventRegistrationCard({
           type="button"
           onClick={() => {
             void triggerHaptic("medium");
-            onSubmit();
+            onSubmit(appliedCoupon || undefined, totalPriceCents);
           }}
           disabled={buying}
           className={cn(

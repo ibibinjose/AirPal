@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRoute } from "wouter";
-import { ArrowLeft, BadgeCheck, Check, Minus, Plus, Search, UserPlus, Users } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Check, Download, Minus, Plus, Search, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { Button } from "@/components/ui/Button";
@@ -320,6 +320,40 @@ export function GuestlistPage() {
     }
   }
 
+  function onExportCsv() {
+    if (!rows.length) {
+      toast.info("No guests to export yet.");
+      return;
+    }
+    void triggerHaptic("medium");
+    const headers = ["Name", "Handle", "Status", "Party Size", "Source", "Checked In At", "Added At"];
+    const lines = [headers.join(",")];
+    for (const g of rows) {
+      const clean = (s?: string | number | null) => `"${String(s ?? "").replace(/"/g, '""')}"`;
+      lines.push(
+        [
+          clean(g.name),
+          clean(g.handle ? `@${g.handle}` : ""),
+          clean(g.status),
+          clean(g.partySize ?? 1),
+          clean(g.source),
+          clean(g.checkedInAt || ""),
+          clean(g.addedAt || ""),
+        ].join(","),
+      );
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(header?.title || "guestlist").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-guests.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${rows.length} guest records to CSV.`);
+  }
+
   const capacity = header.capacity;
   const goingPct = capacity ? Math.min(100, Math.round((counts.goingHeads / capacity) * 100)) : null;
 
@@ -411,10 +445,21 @@ export function GuestlistPage() {
       </div>
 
       <div className="mt-4">
-        <Button variant="tonal" onClick={() => setAddOpen((v) => !v)} className="h-11 w-full" aria-expanded={addOpen}>
-          <UserPlus size={16} className="mr-2" aria-hidden />
-          {addOpen ? "Close walk-in form" : "Add a walk-in at the door"}
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button variant="tonal" onClick={() => setAddOpen((v) => !v)} className="h-11 flex-1" aria-expanded={addOpen}>
+            <UserPlus size={16} className="mr-2" aria-hidden />
+            {addOpen ? "Close walk-in form" : "Add a walk-in at the door"}
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={onExportCsv}
+            className="h-11 px-4 ring-1 ring-line hover:bg-paper/80"
+            aria-label="Export guestlist as CSV"
+          >
+            <Download size={16} className="mr-2" aria-hidden />
+            Export CSV
+          </Button>
+        </div>
         {addOpen && (
           <div className="mt-2 rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
             <label htmlFor="door-name" className="text-sm font-semibold">

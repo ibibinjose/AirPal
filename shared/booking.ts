@@ -35,6 +35,18 @@ export const DEFAULT_FEE_CONFIG: FeeConfig = {
   minimumPlatformFeeCents: 0,
 };
 
+/** 5% platform fee for paid events, concerts, and festival tickets (500 basis points). */
+export const EVENT_FEE_CONFIG: FeeConfig = {
+  platformFeeBps: 500,
+  minimumPlatformFeeCents: 0,
+};
+
+export type FeeQuote = { priceCents: number; feeCents: number; providerCents: number };
+
+export function quoteEventFees(priceCents: number, config: FeeConfig = EVENT_FEE_CONFIG): FeeQuote {
+  return quoteFees(priceCents, config);
+}
+
 export interface Booking {
   id: string;
   /** Mate request id, or campaign id when providerKind is business. */

@@ -138,7 +138,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
       : unitPriceCents * spots
     : 0;
 
-  async function handleRegisterOrBuy() {
+  async function handleRegisterOrBuy(coupon?: string, finalPriceCents?: number) {
     if (!isPaid) {
       const applied = toggleGoing(event.id);
       if (applied && !event.isGoing) {
@@ -167,16 +167,18 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
       ? ""
       : `${String(at.getHours()).padStart(2, "0")}:${String(at.getMinutes()).padStart(2, "0")}`;
     setBuying(true);
+    const priceToCharge = typeof finalPriceCents === "number" ? finalPriceCents : effectivePriceCents;
+    const couponTitleSuffix = coupon ? ` · Coupon ${coupon}` : "";
     try {
       const bookingId = await createBookingForEvent({
         eventId: event.id,
         providerUid,
         providerName: String(providerName),
-        title: `${event.title}${tier === "vip" ? " (VIP Pass)" : tier === "group" ? " (Group Pass · 4 Tickets)" : ""}`,
+        title: `${event.title}${tier === "vip" ? " (VIP Pass)" : tier === "group" ? " (Group Pass · 4 Tickets)" : ""}${couponTitleSuffix}`,
         suburb: event.city,
         date,
         time,
-        priceCents: effectivePriceCents,
+        priceCents: priceToCharge,
         customerUid: user.uid,
         spots: effectiveSpots,
       });
