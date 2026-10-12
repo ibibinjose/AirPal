@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm run ci:install
+      - name: Check code formatting
+        run: npm run format:check
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Functions typecheck
+        run: npm run functions:typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Tests
+        run: npm test
+      - name: Functions tests
+        run: npm run functions:test
+      - name: Build web
+        run: npm run build
+      - name: Build Functions
+        run: npm run functions:build
+      - name: Validate Firebase rules
+        run: npm run rules:check
+      - name: Scan for leaked secrets
+        run: npm run secrets:check
+      - name: Validate SEO routes
+        run: npm run seo:check
+      - name: Security / dependency audit
+        run: npm run audit

@@ -1,0 +1,50 @@
+{
+  "id": "https://airpal.me/",
+  "lang": "en-AU",
+  "name": "AirPal.Me",
+  "short_name": "AirPal",
+  "description": "Find places and experiences. Make plans with family and friends. Stay concierge, in one app.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait",
+  "categories": ["travel", "lifestyle", "navigation", "entertainment"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan QR Code",
+      "short_name": "Scan",
+      "description": "Scan a place QR code to discover local experiences",
+      "url": "/scan",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Create a Plan",
+      "short_name": "Plan",
+      "description": "Plan something with family, friends, or people nearby",
+      "url": "/plan/new",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Your Circle",
+      "short_name": "Circle",
+      "description": "Invite family and friends, see who's nearby",
+      "url": "/circle",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Concierge",
+      "short_name": "Stay",
+      "description": "Access local concierge and guest tools",
+      "url": "/concierge",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

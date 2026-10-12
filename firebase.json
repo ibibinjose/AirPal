@@ -1,0 +1,202 @@
+{
+  "hosting": {
+    "public": "dist",
+    "ignore": ["firebase.json", "**/.DS_Store", "**/node_modules/**"],
+    "redirects": [
+      {
+        "source": "/auth",
+        "destination": "/start?tab=signin",
+        "type": 301
+      },
+      {
+        "source": "/reset",
+        "destination": "/start?tab=reset",
+        "type": 302
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/api/stripe/webhook",
+        "function": {
+          "functionId": "stripeWebhook",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/api/wallet/google/**",
+        "function": {
+          "functionId": "googleWalletPass",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/api/wallet/**",
+        "function": {
+          "functionId": "walletPass",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/e/**",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/p/**",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/pulse/**",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/invite/**",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/plan/**",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/@**",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/stay/**",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/g/**",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/DemoHotel",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/Demo",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/deals/**",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "/.well-known/apple-app-site-association",
+        "headers": [{ "key": "Content-Type", "value": "application/json" }]
+      },
+      {
+        "source": "/.well-known/assetlinks.json",
+        "headers": [{ "key": "Content-Type", "value": "application/json" }]
+      },
+      {
+        "source": "/sw.js",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "source": "/assets/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "/robots.txt",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
+      },
+      {
+        "source": "/sitemap.xml",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
+      },
+      {
+        "source": "/llms.txt",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
+      },
+      {
+        "source": "/.well-known/security.txt",
+        "headers": [
+          { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
+          { "key": "Cache-Control", "value": "public, max-age=86400" }
+        ]
+      },
+      {
+        "source": "**",
+        "headers": [
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "X-Frame-Options", "value": "DENY" },
+          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+          {
+            "key": "Permissions-Policy",
+            "value": "camera=(self), geolocation=(self), bluetooth=(self), fullscreen=(self), clipboard-write=(self), microphone=(), display-capture=(), usb=(), payment=()"
+          },
+          { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+          {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https://checkout.stripe.com https://connect.stripe.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.gstatic.com https://www.google.com https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com https://www.recaptcha.net https://www.gstatic.com/recaptcha/ https://apis.google.com https://js.stripe.com https://connect-js.stripe.com https://utt.impactcdn.com https://*.impactcdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com https://*.google.com https://*.gstatic.com https://www.recaptcha.net https://*.firebaseio.com https://*.firebasestorage.app https://*.cloudfunctions.net https://*.firebaseapp.com wss://*.firebaseio.com https://api.open-meteo.com https://api.bigdatacloud.net https://*.bigdatacloud.net https://api-bdc.io https://*.api-bdc.io https://nominatim.openstreetmap.org https://api.stripe.com https://*.stripe.com https://*.impactcdn.com https://*.impact.com data: blob:; frame-src https://www.google.com https://maps.google.com https://*.google.com https://www.recaptcha.net https://*.firebaseapp.com https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://connect-js.stripe.com; worker-src 'self' blob:"
+          }
+        ]
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "predeploy": ["npm --prefix functions run build"]
+    }
+  ],
+  "emulators": {
+    "auth": { "port": 9099 },
+    "firestore": { "port": 8080 },
+    "functions": { "port": 5001 },
+    "storage": { "port": 9199 },
+    "ui": { "enabled": true }
+  }
+}

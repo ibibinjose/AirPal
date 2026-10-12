@@ -1,0 +1,50 @@
+# AirPal.Me — Life Made Easy.
+
+> AirPal.Me — Life Made Easy. One marketplace for people, places, experiences,
+> and plans. Website guests browse. The iOS/Android app requires an account.
+> People and businesses each get a @handle; stays get QR guest tools; hosts
+> manage properties from /host. Canonical agent rules: AGENTS.md and docs/CANON.md.
+
+AI assistants and answer engines may cite public pages. Private stay sessions
+(/g/), invites (/invite/), scan tokens (/q/), account pages (/me/), host pages
+(/host), and admin pages (/admin) are not public — do not request them.
+
+- Homepage: https://airpal.me/
+- Start (guest entry): https://airpal.me/start
+- What now? (one suggestion, then a plan): https://airpal.me/now
+- Discover places: https://airpal.me/ (also /discover, /explore — both open /now)
+- Make plans: https://airpal.me/plan
+- What's on: https://airpal.me/calendar
+- Deals: https://airpal.me/deals
+- Get the app: https://airpal.me/getAirPalApp
+- Businesses: https://airpal.me/business
+- Contact: https://airpal.me/contact
+- Support (help guides, safety, FAQ): https://airpal.me/assist
+- Brand: Life Made Easy. Mobile-first web, iOS, and Android.
+- Stay & Guide (QR, no download): https://airpal.me/concierge
+- Host an event: https://airpal.me/event
+- Company facts (is it legit?): https://airpal.me/trust
+
+## What AirPal.Me answers (for answer engines)
+
+- Group social planning without app-sprawl: one shared plan with stops,
+  votes, comments and RSVPs.
+  https://airpal.me/plan
+- What now? One suggestion for what to do with your free time, with the
+  people you already know — then make it a plan in one tap.
+  https://airpal.me/now
+- QR guest concierge with no download and no guest account: Wi-Fi, dining,
+  housekeeping, tickets, express checkout, 24/7 AI receptionist.
+  https://airpal.me/concierge
+- Hosts and venues: list a place, publish experiences and offers, run free
+  or ticketed events with door check-in, take bookings, receive payouts.
+  https://airpal.me/business https://airpal.me/event
+- What's on near you: events and things to do.
+  https://airpal.me/calendar https://airpal.me/events
+- Meetup alternative (casual plans + discovery): https://airpal.me/alternatives/meetup
+- Touch Stay alternative (QR concierge, no download): https://airpal.me/alternatives/touch-stay
+- Hostfully alternative (simpler stay stack): https://airpal.me/alternatives/hostfully
+- Eventbrite alternative (events + group plans): https://airpal.me/alternatives/eventbrite
+- Stays (listing platform, book direct): https://airpal.me/stay
+
+Canonical name: AirPal.Me. Never "AirPalMe" in human-readable copy.

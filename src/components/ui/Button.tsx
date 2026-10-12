@@ -1,0 +1,64 @@
+import type { ButtonHTMLAttributes } from "react";
+import { cn } from "@/lib/cn";
+import { triggerHaptic, type HapticStyle } from "@/lib/native";
+
+type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "primary" | "ghost" | "dark" | "gold" | "light" | "onDark" | "tonal" | "elevated" | "outlined" | "glass";
+  size?: "md" | "lg" | "sm";
+  loading?: boolean;
+  haptic?: HapticStyle | false;
+};
+
+export function Button({
+  variant = "primary",
+  size = "md",
+  className,
+  loading,
+  disabled,
+  children,
+  onClick,
+  haptic = "light",
+  ...props
+}: Props) {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!disabled && !loading && haptic !== false) {
+      void triggerHaptic(haptic);
+    }
+    onClick?.(e);
+  };
+
+  return (
+    <button
+      className={cn(
+        "inline-flex touch-manipulation select-none items-center justify-center gap-2 rounded-full font-medium transition active:scale-[0.98] disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+        size === "sm" && "min-h-[44px] px-3.5 text-sm lg:h-9 lg:min-h-0",
+        size === "md" && "h-11 px-5 text-[15px]",
+        size === "lg" && "h-12 px-6 text-base",
+        variant === "primary" && "bg-brand text-white shadow-[0_10px_24px_-10px_rgba(18,22,20,0.28)]",
+        variant === "ghost" && "bg-card text-ink ring-1 ring-line hover:bg-paper",
+        variant === "dark" && "bg-brand text-white",
+        variant === "gold" && "bg-gold text-white",
+        variant === "light" && "bg-white text-zinc-950 hover:bg-white/90",
+        variant === "onDark" && "bg-neutral-900/80 text-white ring-1 ring-white/55 hover:bg-neutral-900",
+        variant === "tonal" && "bg-brand/10 text-accent font-semibold hover:bg-brand/15 active:bg-brand/20",
+        variant === "elevated" &&
+          "bg-card text-ink shadow-[var(--shadow-m3-1)] ring-1 ring-line hover:shadow-[var(--shadow-m3-2)]",
+        variant === "outlined" && "bg-transparent text-ink border border-line hover:bg-black/[0.04]",
+        variant === "glass" && "apple-liquid-glass-light text-ink ring-1 ring-white/60 hover:ring-brand/40 shadow-xs",
+        className,
+      )}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      onClick={handleClick}
+      {...props}
+    >
+      {loading ? (
+        <span
+          className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"
+          aria-hidden
+        />
+      ) : null}
+      {children}
+    </button>
+  );
+}
