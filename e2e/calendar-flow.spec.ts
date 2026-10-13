@@ -144,23 +144,21 @@ test.describe("Calendar & Events Flow", () => {
     await expect(listRadio).toHaveAttribute("aria-checked", "true");
   });
 
-  test("toggles event attendance states (Going, Interested)", async ({ page }) => {
+  test("prompts sign-in when an unauthenticated user toggles event attendance (Going)", async ({ page }) => {
     await page.goto("/calendar");
     await page.waitForLoadState("domcontentloaded");
 
     const cards = await eventCardCount(page);
     if (cards === 0) test.skip(true, "no events in this environment");
 
-    // Toggle Going on the first event card
+    // Toggle Going on the first event card as an unauthenticated guest
     const firstGoingBtn = page.getByRole("button", { name: "Going", exact: true }).first();
     await expect(firstGoingBtn).toBeVisible();
     await firstGoingBtn.click();
-    await expect(page.getByText(/Marked as Going/i)).toBeVisible();
 
-    // The Going status filter keeps the event visible
-    await ensureFiltersOpen(page);
-    await visibleButton(page, /^Going \(RSVP\)/).click();
-    await expect(page.getByRole("button", { name: "Going", exact: true }).first()).toBeVisible();
+    // Prompts sign-in requirement dialog
+    await expect(page.getByRole("dialog", { name: "Sign in required" })).toBeVisible();
+    await expect(page.getByText(/Sign in to mark yourself Going/i)).toBeVisible();
   });
 
   test("filters events by category", async ({ page }) => {

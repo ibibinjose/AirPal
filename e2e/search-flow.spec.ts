@@ -1,69 +1,54 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Search Engine Flow", () => {
-  test("loads dedicated /search page with input and explore suggestions", async ({ page }) => {
+  test("loads /search and redirects cleanly to /now discovery radar", async ({ page }) => {
     await page.goto("/search");
     await page.waitForLoadState("domcontentloaded");
 
-    await expect(page.getByRole("heading", { level: 1, name: "Search AirPal" })).toBeVisible();
-    await expect(page.getByPlaceholder(/Search places, events, deals, circles, plans/i)).toBeVisible();
-
-    // Verify category tabs exist
-    await expect(page.getByRole("button", { name: /^All/ })).toBeVisible();
-    await expect(page.getByRole("button", { name: /^Places/ })).toBeVisible();
-    await expect(page.getByRole("button", { name: /^Events/ })).toBeVisible();
-    await expect(page.getByRole("button", { name: /^Deals/ })).toBeVisible();
-    await expect(page.getByRole("button", { name: /^Circle/ })).toBeVisible();
-    await expect(page.getByRole("button", { name: /^Plans/ })).toBeVisible();
-
-    // Verify explore suggestions are rendered
-    await expect(page.getByText("Explore Sydney")).toBeVisible();
+    await expect(page).toHaveURL(/\/now/);
+    await expect(page.getByRole("heading", { level: 1, name: "What now?" })).toBeVisible();
   });
 
-  test("pre-fills query from URL and renders scored search results", async ({ page }) => {
-    await page.goto("/search?q=Glenmore");
+  test("loads discovery feed with category filters on /now", async ({ page }) => {
+    await page.goto("/now");
     await page.waitForLoadState("domcontentloaded");
 
-    const searchInput = page.getByPlaceholder(/Search places, events, deals, circles, plans/i);
-    await expect(searchInput).toHaveValue("Glenmore");
-
-    // Result card for The Glenmore Hotel
-    const glenmoreCard = page.getByRole("link", { name: /The Glenmore Hotel/i }).first();
-    await expect(glenmoreCard).toBeVisible();
+    // Verify mood chips exist on /now
+    await expect(page.getByRole("radio", { name: /Coffee/i })).toBeVisible();
+    await expect(page.getByRole("radio", { name: /Eat/i })).toBeVisible();
   });
 
-  test("category pill clicks filter results", async ({ page }) => {
-    await page.goto("/search?q=coffee");
+  test("category pill clicks filter discovery results on /now", async ({ page }) => {
+    await page.goto("/now");
     await page.waitForLoadState("domcontentloaded");
 
-    // Click Places tab
-    const placesTab = page.getByRole("button", { name: /^Places/ });
-    await placesTab.click();
-
-    await expect(page).toHaveURL(/category=places/);
+    // Click Coffee chip
+    const coffeeChip = page.getByRole("radio", { name: /Coffee/i });
+    await coffeeChip.click();
+    await expect(coffeeChip).toHaveAttribute("aria-checked", "true");
   });
 
-  test("modal command palette full search banner navigates directly to /search", async ({ page }) => {
+  test("modal command palette opens and navigates directly to /now", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    // Open search modal via search button
-    const searchTrigger = page.getByRole("button", { name: "Search" }).first();
-    await searchTrigger.click();
-
-    const modalInput = page.getByPlaceholder(/Search people, places, events/i);
+    // Open search modal via Cmd+K / Ctrl+K keyboard shortcut
+    await page.keyboard.press("Meta+k");
+    let modalInput = page.getByPlaceholder(/Search people, places, events/i);
+    if (!(await modalInput.isVisible())) {
+      await page.keyboard.press("Control+k");
+    }
     await expect(modalInput).toBeVisible();
 
     // Type query
     await modalInput.fill("harbour");
 
-    // Click "Full AirPal Search" banner
+    // Click full search banner
     const fullSearchBtn = page.getByRole("button", { name: /Full AirPal Search/i });
     await expect(fullSearchBtn).toBeVisible();
     await fullSearchBtn.click();
 
-    // Navigates to /search?q=harbour
-    await expect(page).toHaveURL(/\/search\?q=harbour/);
-    await expect(page.getByRole("heading", { level: 1, name: "Search AirPal" })).toBeVisible();
+    // Navigates to /now?q=harbour
+    await expect(page).toHaveURL(/\/now\?q=harbour/);
   });
 });

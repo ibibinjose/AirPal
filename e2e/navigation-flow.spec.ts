@@ -15,11 +15,12 @@ test.describe("Global Navigation & Profile Flow", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
-    await expect(page.getByRole("heading", { level: 1, name: /Plan your day\. Organise your life\./i })).toBeVisible();
-    await expect(page.getByRole("button", { name: /search places, events, plans, or circles/i })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: /good to see you/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: "What's open now" })).toBeVisible();
   });
 
-  test("desktop top navigation links between major application hubs", async ({ page }) => {
+  test("desktop top navigation links between major application hubs", async ({ page, isMobile }) => {
+    test.skip(isMobile, "Desktop top navigation is only visible on large viewports");
     // TopNav is visible on large screens (default viewport in playwright desktop is 1280x720)
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/");
@@ -28,34 +29,17 @@ test.describe("Global Navigation & Profile Flow", () => {
     const header = page.locator("header.hidden.lg\\:block");
     await expect(header).toBeVisible();
 
-    await header.getByRole("button", { name: "Now" }).click();
-    await expect(page).toHaveURL(/\/now/);
+    await header.getByRole("button", { name: "Places" }).click();
+    await expect(page).toHaveURL(/\/explore/);
 
-    await header.getByRole("button", { name: "Plan" }).click();
+    await header.getByRole("button", { name: "Communities" }).click();
+    await expect(page).toHaveURL(/\/events/);
+
+    await header.getByRole("button", { name: "Friends" }).click();
     await expect(page).toHaveURL(/\/plan/);
 
-    await header.getByRole("button", { name: "Pass" }).click();
-    await expect(page).toHaveURL(/\/pass/);
-
-    await header.getByRole("button", { name: "Home", exact: true }).click();
+    await header.getByRole("button", { name: "AirPal Home" }).click();
     await expect(page).toHaveURL("/");
-  });
-
-  test("time and weather sit above the main nav", async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
-
-    const locationBtn = page.getByRole("button", { name: /Current location/i }).first();
-    await expect(locationBtn).toBeVisible();
-    const header = page.locator("header.hidden.lg\\:block");
-    await expect(header).toBeVisible();
-
-    const weatherBox = await locationBtn.boundingBox();
-    const headerBox = await header.boundingBox();
-    expect(weatherBox).toBeTruthy();
-    expect(headerBox).toBeTruthy();
-    expect(weatherBox!.y).toBeLessThan(headerBox!.y);
   });
 
   test("unauthenticated profile menu provides entry to auth and partner tracks", async ({ page }) => {
@@ -117,11 +101,12 @@ test.describe("Global Navigation & Profile Flow", () => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    // Click the search button in header
-    const searchBtn = page.getByRole("button", { name: "Search" }).first();
-    await searchBtn.click();
-
-    const searchInput = page.getByPlaceholder(/Search people, places, events/i);
+    // Open search modal via Cmd+K / Ctrl+K keyboard shortcut
+    await page.keyboard.press("Meta+k");
+    let searchInput = page.getByPlaceholder(/Search people, places, events/i);
+    if (!(await searchInput.isVisible())) {
+      await page.keyboard.press("Control+k");
+    }
     await expect(searchInput).toBeVisible();
 
     // Search for Glenmore

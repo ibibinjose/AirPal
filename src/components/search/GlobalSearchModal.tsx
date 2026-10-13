@@ -868,7 +868,7 @@ export function GlobalSearchModal() {
               onClick={() => {
                 void triggerHaptic("light");
                 setOpen(false);
-                nav(`/search?q=${encodeURIComponent(query)}&category=${activeCategory}`);
+                nav(`/now?q=${encodeURIComponent(query)}&category=${activeCategory}`);
               }}
               className="mb-2 w-full rounded-2xl bg-brand/5 p-3 ring-1 ring-brand/15 hover:bg-brand/10 transition text-left cursor-pointer active:scale-[0.99]"
             >

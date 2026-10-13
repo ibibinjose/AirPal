@@ -5,44 +5,25 @@ import { test, expect } from "@playwright/test";
  * Tests modern v2.0 hero, quick search, prompts, and 6 marketplace pillars.
  */
 test.describe("Home journey", () => {
-  test("home exposes the journey: hero title, search trigger, and quick prompts", async ({ page }) => {
+  test("home exposes the journey: editorial greeting, hero banner, and discovery CTA", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    // Hero title and subtitle
-    await expect(page.getByRole("heading", { level: 1, name: /Plan your day\. Organise your life\./i })).toBeVisible();
-    await expect(page.getByText(/My life, organised by AirPal\./i)).toBeVisible();
-
-    // Search trigger
-    await expect(page.getByRole("button", { name: /search places, events, plans, or circles/i })).toBeVisible();
-
-    // Quick prompts
-    await expect(page.getByRole("button", { name: "⚡ What now?" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "🎭 Live Events" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "🗺️ Plan a Hangout" })).toBeVisible();
+    // Hero title and editorial greeting
+    await expect(page.getByRole("heading", { level: 1, name: /good to see you/i })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: /Less scrolling\./i })).toBeVisible();
 
     // Primary CTA buttons
-    await expect(page.locator("header").getByRole("button", { name: "What now?", exact: true })).toBeVisible();
-    await expect(page.locator("header").getByRole("button", { name: "Plan a Hangout", exact: true })).toBeVisible();
-    await expect(page.getByRole("link", { name: /AirPal Pass/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "What's open now" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Plan a hangout" })).toBeVisible();
   });
 
-  test("marketplace verticals grid displays ecosystem pillars and What's On leads to calendar", async ({ page }) => {
+  test("discovery CTA navigates to /now and category filters are interactive", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    const verticalsSection = page.getByRole("region", { name: /Explore AirPal Verticals/i });
-    await expect(verticalsSection).toBeVisible();
-
-    // Verify key vertical pillars exist
-    await expect(verticalsSection.getByRole("button", { name: /What now\?/i })).toBeVisible();
-    await expect(verticalsSection.getByRole("button", { name: /Deals/i })).toBeVisible();
-    await expect(verticalsSection.getByRole("button", { name: /Circle/i })).toBeVisible();
-    await expect(verticalsSection.getByRole("button", { name: /What's On/i })).toBeVisible();
-    await expect(verticalsSection.getByRole("button", { name: /Plans/i })).toBeVisible();
-
-    // What's On tile leads to calendar
-    await verticalsSection.getByRole("button", { name: /What's On/i }).click();
-    await expect(page).toHaveURL(/\/calendar/);
+    // Click What's open now CTA
+    await page.getByRole("link", { name: "What's open now" }).click();
+    await expect(page).toHaveURL(/\/now/);
   });
 });

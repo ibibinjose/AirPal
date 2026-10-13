@@ -7,19 +7,19 @@ import { test, expect } from "@playwright/test";
  * never exposed or broken for guests.
  */
 test.describe("AirPal loop proof (P0)", () => {
-  test("home answers what you want to do and offers What now? and Plan a Hangout", async ({ page }) => {
+  test("home answers what you want to do and offers What's open now and Plan a hangout", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
-    await expect(page.getByRole("heading", { level: 1, name: /Plan your day\. Organise your life\./i })).toBeVisible();
-    await expect(page.locator("header").getByRole("button", { name: "What now?", exact: true })).toBeVisible();
-    await expect(page.locator("header").getByRole("button", { name: "Plan a Hangout", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: /good to see you/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: "What's open now" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Plan a hangout" })).toBeVisible();
   });
 
-  test("home hero CTA deep-links straight to the Plan Hangout creation form", async ({ page }) => {
+  test("home hero CTA deep-links straight to what is open now", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
-    await page.locator("header").getByRole("button", { name: "Plan a Hangout", exact: true }).click();
-    await expect(page).toHaveURL(/\/plan\/new/);
+    await page.getByRole("link", { name: "What's open now" }).click();
+    await expect(page).toHaveURL(/\/now/);
   });
 
   test("canceled plan checkout shows a no-charge notice", async ({ page }) => {
