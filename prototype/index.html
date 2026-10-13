@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>AirPal · Rebuild V2 Interactive Prototype</title>
+  <style>
+    :root {
+      --brand: #1805db;
+      --brand-ink: #0f038a;
+      --brand-tint: rgba(24, 5, 219, 0.08);
+      --paper: #faf9f5;
+      --card: #ffffff;
+      --line: rgba(0, 0, 0, 0.08);
+      --ink: #121614;
+      --mute: #6b7280;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --shadow-clay: 0 10px 25px -4px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #0f1115;
+      color: var(--ink);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    /* Mobile Frame */
+    .phone-container {
+      width: 100%;
+      max-width: 412px;
+      height: 844px;
+      background: var(--paper);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-col;
+      box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.6), 0 0 0 10px #2a2c33;
+    }
+
+    /* Top Navigation Header */
+    .top-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 78px;
+      padding-top: 26px;
+      padding-left: 20px;
+      padding-right: 20px;
+      background: rgba(250, 249, 245, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      z-index: 30;
+    }
+
+    .brand-logo {
+      font-weight: 900;
+      font-size: 20px;
+      color: var(--brand);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--card);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 15px;
+      color: var(--ink);
+    }
+
+    /* Screen Canvas */
+    .screen-content {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      padding-top: 90px;
+      padding-bottom: 100px;
+      padding-left: 18px;
+      padding-right: 18px;
+      scroll-behavior: smooth;
+    }
+
+    /* Bottom Liquid Glass Tab Bar */
+    .bottom-dock {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 36px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-clay);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      z-index: 40;
+    }
+
+    .tab-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--mute);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 3px;
+      width: 58px;
+      height: 48px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn .tab-icon {
+      font-size: 18px;
+    }
+
+    .tab-btn.active {
+      color: var(--brand);
+      background: var(--brand-tint);
+    }
+
+    /* Cards & Components */
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-clay);
+      margin-bottom: 16px;
+    }
+
+    .pill-kicker {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--brand);
+      margin-bottom: 4px;
+    }
+
+    .heading {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .subtext {
+      font-size: 13px;
+      color: var(--mute);
+      line-height: 1.45;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, #1805db 0%, #0a0166 100%);
+      color: #ffffff;
+      border-radius: 28px;
+      padding: 24px 20px;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner h2 {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      gap: 6px;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-action:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      color: white;
+    }
+
+    .btn-white {
+      background: white;
+      color: var(--brand-ink);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    /* Tab Panes */
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Modal / Bottom Sheet */
+    .sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      display: none;
+      align-items: flex-end;
+    }
+
+    .sheet-overlay.open {
+      display: flex;
+    }
+
+    .sheet-modal {
+      width: 100%;
+      background: white;
+      border-radius: 32px 32px 0 0;
+      padding: 24px 20px 32px;
+      max-height: 85%;
+      overflow-y: auto;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: absolute;
+      top: 90px;
+      left: 20px;
+      right: 20px;
+      background: #111827;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      z-index: 60;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="phone-container">
+    <!-- Header -->
+    <header class="top-header">
+      <div class="brand-logo">
+        <span>AirPal</span>
+        <span style="font-size: 12px; background: var(--brand-tint); padding: 2px 7px; border-radius: 20px; color: var(--brand);">2.0</span>
+      </div>
+      <div class="header-icons">
+        <button class="icon-btn" onclick="showToast('Global Search: ⌘K')">🔍</button>
+        <button class="icon-btn" onclick="switchTab('tab-bio')">👤</button>
+      </div>
+    </header>
+
+    <!-- Screen Canvas -->
+    <main class="screen-content">
+
+      <!-- TAB 1: HOME -->
+      <section id="tab-home" class="tab-pane active">
+        <div class="pill-kicker">Sydney · Today</div>
+        <h1 class="heading">Less scrolling.<br>More <span style="color: var(--brand); font-style: italic;">living.</span></h1>
+        <p class="subtext" style="margin-bottom: 18px;">Curated places, local gigs, and plans with your friends.</p>
+
+        <div class="hero-banner">
+          <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.1em; color: rgba(255,255,255,0.8); margin-bottom: 6px;">WHAT ARE WE DOING TODAY?</div>
+          <h2>Find your next thing in 60 seconds</h2>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.85); margin-bottom: 16px;">Deterministic weather, open-now verified spots, and zero debate.</p>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-action btn-white" onclick="switchTab('tab-now')">What's Open Now →</button>
+            <button class="btn-action" style="background: rgba(255,255,255,0.2); color: white;" onclick="switchTab('tab-plan')">Plan Hangout</button>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="font-size: 16px; font-weight: 800;">Top Picks Right Now</h3>
+          <span style="font-size: 12px; font-weight: 600; color: var(--brand); cursor: pointer;" onclick="switchTab('tab-now')">View all</span>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('Single O Surry Hills', 'Specialty coffee & banana bread', 'Open until 3:00 PM · 250m away')" style="cursor: pointer;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <span style="display: inline-block; font-size: 10px; font-weight: 700; color: var(--emerald); background: rgba(16,185,129,0.1); padding: 2px 6px; border-radius: 6px; margin-bottom: 6px;">🟢 Open Now</span>
+              <h4 style="font-size: 15px; font-weight: 700;">Single O Surry Hills</h4>
+              <p class="subtext" style="margin-top: 2px;">Specialty coffee, legendary reservoir roast · Reservoir St</p>
+            </div>
+            <span style="font-size: 12px; font-weight: 700; color: var(--mute);">250m</span>
+          </div>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('The Argyle, The Rocks', 'Historic cobblestone courtyard & drinks', 'Open until 11:30 PM')" style="cursor: pointer;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <span style="display: inline-block; font-size: 10px; font-weight: 700; color: var(--emerald); background: rgba(16,185,129,0.1); padding: 2px 6px; border-radius: 6px; margin-bottom: 6px;">🟢 Open Now</span>
+              <h4 style="font-size: 15px; font-weight: 700;">The Argyle</h4>
+              <p class="subtext" style="margin-top: 2px;">Historic heritage courtyard, craft beers &amp; live music · Argyle St</p>
+            </div>
+            <span style="font-size: 12px; font-weight: 700; color: var(--mute);">1.2km</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: NOW -->
+      <section id="tab-now" class="tab-pane">
+        <div class="pill-kicker">Deterministic Intelligence</div>
+        <h1 class="heading">What Now?</h1>
+        <p class="subtext" style="margin-bottom: 16px;">Live weather, honest hours, zero guesswork.</p>
+
+        <!-- Weather & Outfit Banner -->
+        <div class="card" style="background: linear-gradient(135deg, #fef3c7 0%, #ede9fe 100%); border: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 12px; font-weight: 700; color: #92400e;">☀️ Sydney · 21°C Clear</span>
+            <span style="font-size: 11px; background: rgba(0,0,0,0.06); padding: 2px 8px; border-radius: 12px;">Deterministic</span>
+          </div>
+          <p style="font-size: 13px; font-weight: 700; color: #1f2937;">Outfit Tip: Light jacket or relaxed denim. Warm afternoon sun, cool evening breeze.</p>
+        </div>
+
+        <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px;">
+          <button class="btn-action btn-primary" style="padding: 6px 14px; font-size: 12px;">☕ Coffee</button>
+          <button class="btn-action btn-outline" style="padding: 6px 14px; font-size: 12px;">🍽️ Dining</button>
+          <button class="btn-action btn-outline" style="padding: 6px 14px; font-size: 12px;">🍸 Nightlife</button>
+          <button class="btn-action btn-outline" style="padding: 6px 14px; font-size: 12px;">🌳 Chill</button>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('Edition Coffee Roasters', 'Nordic-Japanese fusion breakfast', 'Open until 3:30 PM')" style="cursor: pointer;">
+          <h4 style="font-size: 15px; font-weight: 700;">Edition Coffee Roasters</h4>
+          <p class="subtext">Japanese souffle pancakes &amp; single-origin pour over · Darling Square</p>
+          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11px; color: var(--emerald); font-weight: 700;">🟢 Open Now · Closes 3:30 PM</span>
+            <button class="btn-action btn-primary" style="padding: 6px 12px; font-size: 11px;" onclick="event.stopPropagation(); showToast('Added to Saturday Plan!')">+ Add to Plan</button>
+          </div>
+        </div>
+
+        <div class="card" onclick="openPlaceModal('Opera Bar', 'Iconic waterfront drinks with harbour views', 'Open until 11:00 PM')" style="cursor: pointer;">
+          <h4 style="font-size: 15px; font-weight: 700;">Opera Bar</h4>
+          <p class="subtext">Panoramic Sydney Harbour views, crisp wine, sunset oysters · Circular Quay</p>
+          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11px; color: var(--emerald); font-weight: 700;">🟢 Open Now · Sunset prime</span>
+            <button class="btn-action btn-primary" style="padding: 6px 12px; font-size: 11px;" onclick="event.stopPropagation(); showToast('Added to Saturday Plan!')">+ Add to Plan</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: EVENTS -->
+      <section id="tab-events" class="tab-pane">
+        <div class="pill-kicker">Live Access &amp; Passes</div>
+        <h1 class="heading">Events &amp; Pass</h1>
+        <p class="subtext" style="margin-bottom: 16px;">Concerts, Indian festivals, and weekend gatherings.</p>
+
+        <div class="card" style="border-left: 4px solid var(--brand);">
+          <div style="font-size: 11px; font-weight: 800; color: var(--brand); text-transform: uppercase;">SATURDAY, OCT 18 · PARRAMATTA</div>
+          <h3 style="font-size: 17px; font-weight: 800; margin-top: 4px;">Diwali Lights &amp; Dandiya Night 2026</h3>
+          <p class="subtext" style="margin-top: 4px;">Live Dhol players, festive food stalls, traditional Garba &amp; dance.</p>
+          <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 16px; font-weight: 800; color: var(--ink);">$25</span>
+              <span style="font-size: 11px; color: var(--mute);"> / ticket</span>
+            </div>
+            <button class="btn-action btn-primary" onclick="openTicketModal('Diwali Lights & Dandiya Night', 25)">Get Tickets →</button>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid #f43f5e;">
+          <div style="font-size: 11px; font-weight: 800; color: #f43f5e; text-transform: uppercase;">FRIDAY, OCT 24 · SURRY HILLS</div>
+          <h3 style="font-size: 17px; font-weight: 800; margin-top: 4px;">Indie Vinyl &amp; Rooftop Sessions</h3>
+          <p class="subtext" style="margin-top: 4px;">Intimate live jazz &amp; indie acoustic sets with local vinyl DJs.</p>
+          <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 16px; font-weight: 800; color: var(--ink);">$15</span>
+              <span style="font-size: 11px; color: var(--mute);"> / ticket</span>
+            </div>
+            <button class="btn-action btn-primary" onclick="openTicketModal('Indie Vinyl & Rooftop Sessions', 15)">Get Tickets →</button>
+          </div>
+        </div>
+
+        <!-- Organiser Shortcut -->
+        <div style="text-align: center; margin-top: 24px;">
+          <p style="font-size: 12px; color: var(--mute); margin-bottom: 8px;">Are you an event host?</p>
+          <button class="btn-action btn-outline" style="font-size: 12px;" onclick="showToast('Organiser Studio: 5% flat fee with instant QR door scanner')">⚡ Launch Your Event (5% Fee)</button>
+        </div>
+      </section>
+
+      <!-- TAB 4: PLAN -->
+      <section id="tab-plan" class="tab-pane">
+        <div class="pill-kicker">Social Coordination</div>
+        <h1 class="heading">Hangouts</h1>
+        <p class="subtext" style="margin-bottom: 16px;">Coordinate outings with mates with 1-tap web RSVPs.</p>
+
+        <div class="card" style="background: white; border: 2px solid var(--brand-tint);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 11px; font-weight: 800; color: var(--brand); text-transform: uppercase;">THIS SATURDAY · 10:30 AM</span>
+            <span style="font-size: 11px; background: rgba(16,185,129,0.1); color: var(--emerald); font-weight: 700; padding: 2px 8px; border-radius: 12px;">Active Plan</span>
+          </div>
+          <h3 style="font-size: 17px; font-weight: 800;">Saturday Coffee &amp; Coast Walk</h3>
+          <p class="subtext" style="margin-top: 4px;">Stop 1: Single O Surry Hills → Stop 2: Bondi to Bronte trail.</p>
+
+          <div style="margin-top: 14px; display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; margin-left: 4px;">
+              <span style="width: 26px; height: 26px; border-radius: 50%; background: #3b82f6; color: white; display: grid; place-items: center; font-size: 11px; font-weight: 700; border: 2px solid white;">M</span>
+              <span style="width: 26px; height: 26px; border-radius: 50%; background: #ec4899; color: white; display: grid; place-items: center; font-size: 11px; font-weight: 700; margin-left: -8px; border: 2px solid white;">A</span>
+              <span style="width: 26px; height: 26px; border-radius: 50%; background: #10b981; color: white; display: grid; place-items: center; font-size: 11px; font-weight: 700; margin-left: -8px; border: 2px solid white;">L</span>
+            </div>
+            <span style="font-size: 12px; font-weight: 600; color: var(--ink);">3 Going · 1 Maybe</span>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; gap: 8px;">
+            <button class="btn-action btn-primary" style="flex: 1;" onclick="showToast('Link copied: airpal.me/invite/sat-walk')">🔗 Copy Invite Link</button>
+            <button class="btn-action btn-outline" onclick="showToast('Synced to Apple Calendar ✓')">📅 Calendar</button>
+          </div>
+        </div>
+
+        <button class="btn-action btn-primary" style="width: 100%; padding: 14px;" onclick="showToast('Composer: Create a new hangout in 3 taps')">+ New Hangout</button>
+      </section>
+
+      <!-- TAB 5: ME / BIO -->
+      <section id="tab-bio" class="tab-pane">
+        <div class="card" style="text-align: center; padding-top: 24px; position: relative;">
+          <!-- Status Ring -->
+          <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e7ff; margin: 0 auto 12px; position: relative; border: 3px solid var(--emerald); display: grid; place-items: center; font-size: 32px;">
+            🧔🏻
+            <span style="position: absolute; bottom: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--emerald); border: 2px solid white;"></span>
+          </div>
+
+          <h2 style="font-size: 20px; font-weight: 800;">Alex Vance</h2>
+          <p style="font-size: 12px; font-weight: 600; color: var(--brand);">@alex · Product Designer</p>
+          <p class="subtext" style="margin-top: 8px; max-width: 280px; margin-left: auto; margin-right: auto;">
+            Building community experiences in Sydney. Available for coffee chats and design jams.
+          </p>
+
+          <div style="margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.1); padding: 4px 12px; border-radius: 20px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--emerald);"></span>
+            <span style="font-size: 11px; font-weight: 700; color: #047857;">Available · ☕ Grabbing coffee</span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn-action btn-primary" onclick="simulateVCardDownload()">📇 Save Contact (.vcf)</button>
+            <button class="btn-action btn-outline" onclick="openCatchUpModal()">☕ Propose Catch-Up</button>
+          </div>
+        </div>
+
+        <!-- Passbook Wallet Shortcut -->
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="showToast('Passbook: 1 Active Ticket Ready')">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 24px;">🎟️</span>
+            <div>
+              <h4 style="font-size: 14px; font-weight: 700;">My Passes &amp; Tickets</h4>
+              <p style="font-size: 11px; color: var(--mute);">1 upcoming event · Apple Wallet enabled</p>
+            </div>
+          </div>
+          <span style="font-size: 14px; color: var(--mute);">→</span>
+        </div>
+
+        <!-- Host Scanner Shortcut -->
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="showToast('Door Scanner: Ready to scan QR passes')">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 24px;">📷</span>
+            <div>
+              <h4 style="font-size: 14px; font-weight: 700;">Host Door Scanner</h4>
+              <p style="font-size: 11px; color: var(--mute);">1-tap camera QR ticket validation</p>
+            </div>
+          </div>
+          <span style="font-size: 14px; color: var(--mute);">→</span>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Liquid Glass Dock -->
+    <nav class="bottom-dock">
+      <button class="tab-btn active" onclick="switchTab('tab-home')">
+        <span class="tab-icon">🏠</span>
+        <span>Home</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-now')">
+        <span class="tab-icon">🧭</span>
+        <span>Now</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-events')">
+        <span class="tab-icon">🎟️</span>
+        <span>Events</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-plan')">
+        <span class="tab-icon">📅</span>
+        <span>Plan</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-bio')">
+        <span class="tab-icon">👤</span>
+        <span>Bio</span>
+      </button>
+    </nav>
+
+    <!-- Interactive Sheet Modals -->
+    <div id="modal-sheet" class="sheet-overlay" onclick="closeModal(event)">
+      <div class="sheet-modal" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <div id="modal-content"></div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-bar" class="toast">
+      <span id="toast-msg">Notification</span>
+    </div>
+  </div>
+
+  <script>
+    // Tab Navigation Switcher
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+      const targetPane = document.getElementById(tabId);
+      if (targetPane) targetPane.classList.add('active');
+
+      const btnMap = {
+        'tab-home': 0,
+        'tab-now': 1,
+        'tab-events': 2,
+        'tab-plan': 3,
+        'tab-bio': 4
+      };
+      const buttons = document.querySelectorAll('.tab-btn');
+      if (buttons[btnMap[tabId]]) buttons[btnMap[tabId]].classList.add('active');
+
+      // Scroll container to top
+      document.querySelector('.screen-content').scrollTop = 0;
+    }
+
+    // Modal Sheet Handlers
+    function openPlaceModal(title, desc, hours) {
+      const content = `
+        <div style="font-size: 10px; font-weight: 800; color: var(--emerald); text-transform: uppercase;">🟢 Open Now Verified</div>
+        <h3 style="font-size: 20px; font-weight: 800; margin-top: 4px;">${title}</h3>
+        <p style="font-size: 13px; color: var(--mute); margin-top: 4px;">${desc}</p>
+        <p style="font-size: 12px; font-weight: 700; color: var(--ink); margin-top: 10px;">⏰ ${hours}</p>
+        <div style="margin-top: 20px; display: flex; gap: 8px;">
+          <button class="btn-action btn-primary" style="flex: 1;" onclick="showToast('Added to plan!'); closeModal();">+ Add to Hangout</button>
+          <button class="btn-action btn-outline" onclick="showToast('Opening Apple/Google Maps...'); closeModal();">🧭 Directions</button>
+        </div>
+      `;
+      document.getElementById('modal-content').innerHTML = content;
+      document.getElementById('modal-sheet').classList.add('open');
+    }
+
+    function openTicketModal(eventTitle, price) {
+      const content = `
+        <div style="font-size: 10px; font-weight: 800; color: var(--brand); text-transform: uppercase;">Stripe Native Checkout</div>
+        <h3 style="font-size: 19px; font-weight: 800; margin-top: 4px;">${eventTitle}</h3>
+        <p style="font-size: 13px; color: var(--mute); margin-top: 2px;">General Admission · Tier 1</p>
+        <div style="margin: 16px 0; padding: 12px; background: #f3f4f6; border-radius: 16px;">
+          <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 700;">
+            <span>1x Ticket</span>
+            <span>$${price}.00 AUD</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--mute); margin-top: 4px;">
+            <span>5% Service Fee included</span>
+            <span>$${(price * 0.05).toFixed(2)}</span>
+          </div>
+        </div>
+        <button class="btn-action btn-primary" style="width: 100%; padding: 14px; font-size: 14px;" onclick="completeTicketPurchase('${eventTitle}')">Pay with Apple Pay ($${price}.00)</button>
+      `;
+      document.getElementById('modal-content').innerHTML = content;
+      document.getElementById('modal-sheet').classList.add('open');
+    }
+
+    function completeTicketPurchase(eventTitle) {
+      closeModal();
+      showToast('Payment Succeeded! Added to Apple Wallet 🎟️');
+    }
+
+    function openCatchUpModal() {
+      const content = `
+        <h3 style="font-size: 18px; font-weight: 800;">Catch Up with Alex</h3>
+        <p style="font-size: 12px; color: var(--mute); margin-top: 2px;">Send an in-person catch-up proposal directly to Alex's inbox.</p>
+        <div style="margin: 14px 0;">
+          <label style="font-size: 11px; font-weight: 700; display: block; margin-bottom: 4px;">Activity</label>
+          <select style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--line); font-size: 13px;">
+            <option>☕ Casual Coffee (30 min)</option>
+            <option>📅 Professional Meeting (45 min)</option>
+            <option>🍻 Evening Drink (1 hour)</option>
+          </select>
+        </div>
+        <button class="btn-action btn-primary" style="width: 100%; padding: 12px;" onclick="closeModal(); showToast('Catch-up proposal sent to Alex! ☕');">Send Proposal</button>
+      `;
+      document.getElementById('modal-content').innerHTML = content;
+      document.getElementById('modal-sheet').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-sheet').classList.remove('open');
+    }
+
+    // Contact Export Simulation
+    function simulateVCardDownload() {
+      const vcard = "BEGIN:VCARD\\nVERSION:3.0\\nFN:Alex Vance\\nTITLE:Product Designer\\nURL:https://airpal.me/@alex\\nEND:VCARD";
+      showToast('Alex Vance saved to Contacts (.vcf) 📇');
+    }
+
+    // Toast Manager
+    let toastTimeout;
+    function showToast(message) {
+      const toast = document.getElementById('toast-bar');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.innerText = message;
+      toast.style.display = 'flex';
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2400);
+    }
+  </script>
+</body>
+</html>
