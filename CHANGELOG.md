@@ -108,3 +108,17 @@ The following 27 pages and their routes were eliminated from the codebase. Every
   - Firestore Security Rules: Verified least-privilege syntax
   - Secrets Check: Zero exposed API secrets
   - SEO Check: 31 canonical routes verified in sitemap
+
+---
+
+## 7. Goodtimes-Inspired Capabilities Adopted (`goodtimesapp.co`)
+
+- **"Find the Time" Multi-Slot Availability Poll ([`PlanCreatePage.tsx`](file:///Users/bibinjose/Projects/Codebase/Projects/AirPal/src/pages/PlanCreatePage.tsx) & [`PlanDatePoll.tsx`](file:///Users/bibinjose/Projects/Codebase/Projects/AirPal/src/components/plan/PlanDatePoll.tsx)):**
+  - Host can propose 2–4 candidate dates/times during plan creation.
+  - Mates can vote on times with 1-tap checkmarks without sharing or connecting private diaries/calendars.
+  - Host sees live vote counts and locks in the winning time slot.
+- **Group Chip-In / Split Bill Collection ([`PlanCreatePage.tsx`](file:///Users/bibinjose/Projects/Codebase/Projects/AirPal/src/pages/PlanCreatePage.tsx) & [`PlanDetailPage.tsx`](file:///Users/bibinjose/Projects/Codebase/Projects/AirPal/src/pages/PlanDetailPage.tsx)):**
+  - Host can optionally configure a per-person contribution amount (e.g. $25 AUD) for dinner deposits or shared activities.
+  - Guests pay their share with Apple Pay, Google Pay, or card via native Stripe Checkout.
+- **1-Tap "Plan Hangout Here" Bridge ([`PlacePage.tsx`](file:///Users/bibinjose/Projects/Codebase/Projects/AirPal/src/pages/PlacePage.tsx)):**
+  - Universal primary action on all venue/place pages that pre-fills venue title, destination, and hero image directly into a new Plan.
