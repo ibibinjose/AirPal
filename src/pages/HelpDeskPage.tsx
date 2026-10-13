@@ -309,7 +309,7 @@ export function HelpDeskPage() {
 
       {/* Real-time KPI Stats Bar */}
       <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-2xs">
+        <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-mute">Open Tickets</span>
             <ConciergeBell size={16} className="text-accent" />
@@ -318,7 +318,7 @@ export function HelpDeskPage() {
           <p className="mt-0.5 text-[11px] text-mute">Guest requests awaiting action</p>
         </div>
 
-        <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-2xs">
+        <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-mute">Urgent Priority</span>
             <ShieldAlert size={16} className="text-red-500" />
@@ -331,7 +331,7 @@ export function HelpDeskPage() {
           <p className="mt-0.5 text-[11px] text-mute">High-urgency guest alerts</p>
         </div>
 
-        <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-2xs">
+        <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-mute">Kitchen Orders</span>
             <Utensils size={16} className="text-amber-500" />
@@ -340,7 +340,7 @@ export function HelpDeskPage() {
           <p className="mt-0.5 text-[11px] text-mute">In-stay dining orders firing</p>
         </div>
 
-        <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-2xs">
+        <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-mute">Connected Entities</span>
             <Building2 size={16} className="text-emerald-500" />
@@ -353,7 +353,7 @@ export function HelpDeskPage() {
       </div>
 
       {/* Control Filters & Domain Tabs */}
-      <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-card p-3 ring-1 ring-line shadow-2xs">
+      <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-card p-3 ring-1 ring-line shadow-clay">
         {/* Domain Filters */}
         <div className="flex flex-wrap items-center gap-1.5">
           {[
@@ -465,12 +465,12 @@ export function HelpDeskPage() {
                   return (
                     <div
                       key={ticket.id}
-                      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl p-4 ring-1 ring-line shadow-xs transition ${
+                      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl p-4 ring-1 ring-line shadow-clay transition ${
                         isResolved
                           ? "bg-paper/40 opacity-80"
                           : ticket.urgency === "urgent"
                             ? "bg-red-500/5 ring-red-500/30"
-                            : "bg-card hover:bg-paper/70"
+                            : "bg-card hover:bg-paper/70 hover:shadow-clay-hover"
                       }`}
                     >
                       <div className="min-w-0 flex-1">
@@ -549,7 +549,7 @@ export function HelpDeskPage() {
                         : "Start Preparing";
 
                   return (
-                    <div key={order.id} className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
+                    <div key={order.id} className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
                       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2.5">
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-sm text-ink">Room {order.roomNumber}</span>
@@ -623,7 +623,7 @@ export function HelpDeskPage() {
 
         {/* Events & Festival Desk Section */}
         {(domainFilter === "all" || domainFilter === "events") && allEvents.length > 0 && (
-          <div className="mt-8 rounded-2xl bg-card p-5 ring-1 ring-line shadow-xs">
+          <div className="mt-8 rounded-2xl bg-card p-5 ring-1 ring-line shadow-clay">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2">
                 <CalendarDays size={16} className="text-indigo-500" />
@@ -657,7 +657,7 @@ export function HelpDeskPage() {
 
         {/* Local Business & Venue Info */}
         {(domainFilter === "all" || domainFilter === "venue") && businessListing && (
-          <div className="mt-8 rounded-2xl bg-card p-5 ring-1 ring-line shadow-xs">
+          <div className="mt-8 rounded-2xl bg-card p-5 ring-1 ring-line shadow-clay">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2">
                 <Building2 size={16} className="text-accent" />

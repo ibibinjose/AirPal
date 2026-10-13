@@ -299,7 +299,7 @@ export function PassPage() {
 
       {/* Active Pass Wallet Bar (For Signed-In Members) */}
       <section aria-label="Passbook Wallet" className="mt-6">
-        <div className="rounded-3xl bg-gradient-to-r from-card via-card to-paper p-5 ring-1 ring-line shadow-xs">
+        <div className="rounded-3xl bg-gradient-to-r from-card via-card to-paper p-5 ring-1 ring-line shadow-clay">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/30">

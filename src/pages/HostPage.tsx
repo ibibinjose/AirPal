@@ -1,10 +1,22 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
-import { ExternalLink } from "lucide-react";
+import {
+  ArrowUpRight,
+  BedDouble,
+  Building2,
+  CalendarDays,
+  ExternalLink,
+  HeartHandshake,
+  LayoutDashboard,
+  Printer,
+  Store,
+  UtensilsCrossed,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/PageLoading";
-import { TabPills } from "@/components/ui/TabPills";
 import { ValidField, fieldInput } from "@/components/forms/ValidField";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { VerifyEmailBanner } from "@/components/auth/VerifyEmailBanner";
@@ -29,18 +41,28 @@ import { HostTodaySummary } from "@/components/host/HostTodaySummary";
 import { HostTicketBoard } from "@/components/host/HostTicketBoard";
 import { HostOrderBoard } from "@/components/host/HostOrderBoard";
 import { BelongingReportPanel } from "@/components/host/BelongingReportPanel";
-import { subscribePropertyTickets } from "@/lib/tickets-store";
-import { subscribePropertyDiningOrders } from "@/lib/dining-store";
+import { openTicketCount, subscribePropertyTickets } from "@/lib/tickets-store";
+import { activeOrderCount, subscribePropertyDiningOrders } from "@/lib/dining-store";
 import { hostWorkspacePropertyId, roomTokenEntries } from "@/lib/host-workspace";
 import { getPropertyWifiRemote, liveBackendEnabled } from "@/lib/functions";
+import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
+import { cn } from "@/lib/cn";
 
-type Tab = "today" | "belonging" | "facilities" | "dining" | "rooms" | "place" | "print";
+export type HostTab = "today" | "belonging" | "rooms" | "dining" | "facilities" | "place" | "print";
+
+interface NavSectionItem {
+  id: HostTab;
+  label: string;
+  icon: typeof LayoutDashboard;
+  badge?: string | number | null;
+  badgeVariant?: "brand" | "danger" | "success" | "neutral";
+}
 
 export function HostPage() {
   const { user, isHost, isAdmin, authReady, createHostProperty, sendVerificationEmail } = useAuth();
   const { business } = useBio();
   const [, nav] = useLocation();
-  const [tab, setTab] = useState<Tab>("today");
+  const [tab, setTab] = useState<HostTab>("today");
   const workspaceId = hostWorkspacePropertyId(user?.propertyIds, isAdmin);
   const [property, setProperty] = useState<PropertyInfo>(() =>
     workspaceId ? unknownProperty(workspaceId) : unknownProperty("unknown"),
@@ -150,6 +172,89 @@ export function HostPage() {
     }
   }
 
+  // Key metrics for the top KPI row & sidebar badges
+  const openTickets = useMemo(() => openTicketCount(tickets), [tickets]);
+  const activeOrders = useMemo(() => activeOrderCount(orders), [orders]);
+  const roomCount = useMemo(() => roomTokenEntries(property.roomTokens).length, [property.roomTokens]);
+
+  const occupancy = useMemo(() => {
+    const statuses = Object.values(property.roomStatuses || {});
+    if (!statuses.length) return null;
+    const occupied = statuses.filter((s) => s === "occupied").length;
+    const vacant = statuses.filter((s) => s === "vacant").length;
+    const total = statuses.length;
+    const rate = total > 0 ? Math.round((occupied / total) * 100) : 0;
+    return { occupied, vacant, total, rate };
+  }, [property.roomStatuses]);
+
+  // Sidebar navigation structure grouped into clear domains
+  const navSections = useMemo<{ title: string; items: NavSectionItem[] }[]>(() => {
+    return [
+      {
+        title: "Operations",
+        items: [
+          {
+            id: "today",
+            label: "Today's Board",
+            icon: LayoutDashboard,
+            badge: openTickets > 0 ? `${openTickets} open` : null,
+            badgeVariant: openTickets > 0 ? "danger" : "neutral",
+          },
+          {
+            id: "belonging",
+            label: "Belonging Report",
+            icon: HeartHandshake,
+            badge: "Audited",
+            badgeVariant: "brand",
+          },
+        ],
+      },
+      {
+        title: "Guest Experience",
+        items: [
+          {
+            id: "rooms",
+            label: "Rooms & Cohorts",
+            icon: BedDouble,
+            badge: roomCount > 0 ? `${roomCount}` : null,
+            badgeVariant: "neutral",
+          },
+          {
+            id: "dining",
+            label: "Dining & Menu",
+            icon: UtensilsCrossed,
+            badge: activeOrders > 0 ? `${activeOrders} active` : menu.length > 0 ? `${menu.length}` : null,
+            badgeVariant: activeOrders > 0 ? "danger" : "neutral",
+          },
+          {
+            id: "facilities",
+            label: "Facilities & Wi-Fi",
+            icon: Wifi,
+            badge: wifiLive ? "Online" : "Setup",
+            badgeVariant: wifiLive ? "success" : "neutral",
+          },
+        ],
+      },
+      {
+        title: "Setup & Signage",
+        items: [
+          {
+            id: "place",
+            label: "Place Profile",
+            icon: Building2,
+          },
+          {
+            id: "print",
+            label: "Print & QR Signs",
+            icon: Printer,
+            badge: qrReady ? "Ready" : null,
+            badgeVariant: "success",
+          },
+        ],
+      },
+    ];
+  }, [openTickets, activeOrders, roomCount, menu.length, wifiLive, qrReady]);
+
   if (!authReady) {
     return <PageLoading />;
   }
@@ -168,7 +273,7 @@ export function HostPage() {
   if (showCreate) {
     return (
       <div className="mx-auto max-w-md px-4 py-8">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-accent">Host</p>
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-accent">Host Workspace</p>
         <h1 className="font-display mt-1 text-3xl font-semibold">List your place</h1>
         <p className="mt-2 text-sm text-mute">
           Create a hotel, venue, hostel, or campus workspace. Or list a local shop, or an event.
@@ -199,19 +304,19 @@ export function HostPage() {
           <ValidField label="City" ok={newPropCity.trim().length >= 2}>
             <input value={newPropCity} onChange={(e) => setNewPropCity(e.target.value)} className={fieldInput} />
           </ValidField>
-          <Button type="submit" className="w-full" disabled={creating} loading={creating}>
+          <Button type="submit" className="w-full min-h-[44px]" disabled={creating} loading={creating}>
             {creating ? "Creating…" : "Create host workspace"}
           </Button>
         </form>
         <div className="mt-6 space-y-2">
           <Button
             variant="ghost"
-            className="w-full"
+            className="w-full min-h-[44px]"
             onClick={() => nav(partnerAccountPath({ signedIn: true, hasPlace: Boolean(business) }))}
           >
             {business ? NAMES.yourPlace : NAMES.partnerAccount}
           </Button>
-          <Button variant="ghost" className="w-full" onClick={() => nav("/event")}>
+          <Button variant="ghost" className="w-full min-h-[44px]" onClick={() => nav("/event")}>
             Create an event
           </Button>
         </div>
@@ -219,90 +324,388 @@ export function HostPage() {
     );
   }
 
-  const liveName = property.name || (workspaceId ? "Loading stay…" : "Your stay");
+  const liveName = property.name || (workspaceId ? "Loading place…" : "Your place");
 
   return (
-    <div className="relative isolate overflow-hidden">
-      <div className="relative mx-auto max-w-3xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
-        {user.emailVerified === false && <VerifyEmailBanner email={user.email} onSend={sendVerificationEmail} />}
+    <div className="mx-auto max-w-7xl px-3 sm:px-6 py-4 md:py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
+      {user.emailVerified === false && <VerifyEmailBanner email={user.email} onSend={sendVerificationEmail} />}
 
-        <header className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
-                {property.city || "Host"} · {propertyKindLabel(property.kind)}
-              </p>
-              {property.name ? (
-                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-emerald-500/20">
-                  Live
-                </span>
-              ) : null}
-            </div>
-            <h1 className="font-display mt-1 text-3xl font-semibold tracking-tight md:text-4xl">{liveName}</h1>
-            {property.tagline ? <p className="mt-1 text-sm text-mute">{property.tagline}</p> : null}
+      {/* Top Mobile Operator Strip: Quick Pill Switcher (< lg) */}
+      <div className="mb-4 lg:hidden">
+        <div className="flex items-center justify-between mb-2 px-1">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Building2 size={16} className="text-accent shrink-0" />
+            <h1 className="font-display text-base font-bold text-ink truncate">{liveName}</h1>
           </div>
-          <Button variant="ghost" className="h-11" onClick={() => nav("/join")}>
-            Arrival Portal <ExternalLink size={14} className="opacity-70" />
-          </Button>
-        </header>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button
-            variant="ghost"
-            className="h-11 px-4 text-xs"
-            onClick={() => nav(partnerAccountPath({ signedIn: true, hasPlace: Boolean(business) }))}
-          >
-            {business ? NAMES.yourPlace : NAMES.partnerAccount}
-          </Button>
-          <Button variant="ghost" className="h-11 px-4 text-xs" onClick={() => nav("/event")}>
-            Event Host Console
-          </Button>
-          <Button
-            variant="ghost"
-            className="h-11 px-4 text-xs text-accent font-semibold"
-            onClick={() => nav("/business")}
-          >
-            Business Hub →
-          </Button>
+          <span className="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+            Live Host
+          </span>
         </div>
 
-        <TabPills
-          layout="contained"
-          ariaLabel="Host sections"
-          className="mt-5"
-          items={["today", "belonging", "facilities", "dining", "rooms", "place", "print"].map((t) => ({
-            id: t as Tab,
-            label: t === "belonging" ? "Belonging Report" : t,
-          }))}
-          active={tab}
-          onChange={setTab}
-        />
+        <nav
+          aria-label="Host sections"
+          className="flex items-center gap-1.5 overflow-x-auto no-scrollbar snap-x overscroll-x-contain py-1 -mx-3 px-3"
+        >
+          {navSections
+            .flatMap((s) => s.items)
+            .map((item) => {
+              const isActive = tab === item.id;
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    void triggerHapticSelection();
+                    setTab(item.id);
+                  }}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "inline-flex min-h-[44px] shrink-0 snap-start items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition active:scale-95 cursor-pointer touch-manipulation",
+                    isActive
+                      ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
+                      : "border border-line bg-card text-mute hover:text-ink hover:bg-paper",
+                  )}
+                >
+                  <Icon size={14} className={isActive ? "text-white" : "text-accent"} />
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span
+                      className={cn(
+                        "ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-bold",
+                        isActive
+                          ? "bg-white/20 text-white"
+                          : item.badgeVariant === "danger"
+                            ? "bg-rose-500/15 text-rose-700 dark:text-rose-400"
+                            : "bg-paper text-mute",
+                      )}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+        </nav>
+      </div>
 
-        {tab === "belonging" && <BelongingReportPanel />}
+      {/* Main Two-Column Layout (Side Menu Bar on Desktop + Content Panes) */}
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+        {/* ======================================================== */}
+        {/* DESKTOP SIDE MENU BAR (Operator Navigation Console) */}
+        {/* ======================================================== */}
+        <aside
+          aria-label="Host operator console navigation"
+          className="hidden lg:flex w-64 xl:w-72 shrink-0 flex-col gap-6 sticky top-24"
+        >
+          {/* Property Identity Card */}
+          <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
+            <div className="flex items-center justify-between">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand/10 text-accent">
+                <Building2 size={20} />
+              </span>
+              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+                Live Console
+              </span>
+            </div>
+            <h2 className="mt-3 font-display text-lg font-bold text-ink leading-tight truncate" title={liveName}>
+              {liveName}
+            </h2>
+            <p className="text-xs text-mute mt-0.5">
+              {property.city || "Sydney"} · {propertyKindLabel(property.kind)}
+            </p>
 
-        {tab === "today" && (
-          <>
-            <HostTodaySummary
-              property={property}
-              wifiLive={wifiLive}
-              qrReady={qrReady}
-              onManageRooms={() => setTab("rooms")}
-            />
-            <HostTicketBoard propertyId={property.id} tickets={tickets} />
-            <HostOrderBoard propertyId={property.id} orders={orders} />
-          </>
-        )}
+            <div className="mt-3 pt-3 border-t border-line/60 flex items-center justify-between text-[11px] text-mute">
+              <span>Arrival Code:</span>
+              <code className="font-mono font-bold text-accent">{property.id.slice(0, 8)}</code>
+            </div>
+          </div>
 
-        {tab === "facilities" && <HostFacilitiesPanel property={property} onSaved={setProperty} />}
-        {tab === "rooms" && (
-          <>
-            <HostRoomsPanel property={property} onSaved={setProperty} />
-            <StayBlocksPanel propertyId={property.id} />
-          </>
-        )}
-        {tab === "place" && <HostPlaceForm property={property} onSaved={setProperty} />}
-        {tab === "dining" && <HostDiningPanel propertyId={property.id} menu={menu} />}
-        {tab === "print" && <HostPrintPanel property={property} />}
+          {/* Grouped Sidebar Navigation Menu */}
+          <nav className="rounded-2xl bg-card p-2.5 ring-1 ring-line shadow-clay space-y-4">
+            {navSections.map((section) => (
+              <div key={section.title}>
+                <p className="px-3 pb-1 pt-1.5 text-[10px] font-black uppercase tracking-wider text-mute">
+                  {section.title}
+                </p>
+                <div className="mt-1 space-y-0.5">
+                  {section.items.map((item) => {
+                    const isActive = tab === item.id;
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          void triggerHapticSelection();
+                          setTab(item.id);
+                        }}
+                        aria-current={isActive ? "page" : undefined}
+                        className={cn(
+                          "flex w-full min-h-[44px] items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-semibold transition cursor-pointer active:scale-[0.98]",
+                          isActive
+                            ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
+                            : "text-ink hover:bg-paper",
+                        )}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <Icon size={16} className={isActive ? "text-white" : "text-accent"} />
+                          <span>{item.label}</span>
+                        </span>
+
+                        {item.badge && (
+                          <span
+                            className={cn(
+                              "rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums",
+                              isActive
+                                ? "bg-white/20 text-white"
+                                : item.badgeVariant === "danger"
+                                  ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 ring-1 ring-rose-500/30"
+                                  : item.badgeVariant === "brand"
+                                    ? "bg-brand/10 text-accent ring-1 ring-brand/20"
+                                    : item.badgeVariant === "success"
+                                      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20"
+                                      : "bg-paper text-mute ring-1 ring-line",
+                            )}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            {/* Quick Hub Portals in Sidebar Footer */}
+            <div className="border-t border-line/60 pt-2 space-y-0.5">
+              <p className="px-3 pb-1 pt-1 text-[10px] font-black uppercase tracking-wider text-mute">Portals</p>
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav("/join");
+                }}
+                className="flex w-full min-h-[40px] items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-medium text-mute hover:text-ink hover:bg-paper transition cursor-pointer"
+              >
+                <span className="flex items-center gap-2.5">
+                  <ExternalLink size={14} className="text-accent" />
+                  <span>Arrival Portal</span>
+                </span>
+                <ArrowUpRight size={13} className="text-mute" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav("/event");
+                }}
+                className="flex w-full min-h-[40px] items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-medium text-mute hover:text-ink hover:bg-paper transition cursor-pointer"
+              >
+                <span className="flex items-center gap-2.5">
+                  <CalendarDays size={14} className="text-accent" />
+                  <span>Event Host Console</span>
+                </span>
+                <ArrowUpRight size={13} className="text-mute" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav("/business");
+                }}
+                className="flex w-full min-h-[40px] items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-medium text-mute hover:text-ink hover:bg-paper transition cursor-pointer"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Store size={14} className="text-accent" />
+                  <span>Business Hub</span>
+                </span>
+                <ArrowUpRight size={13} className="text-mute" />
+              </button>
+            </div>
+          </nav>
+        </aside>
+
+        {/* ======================================================== */}
+        {/* MAIN OPERATOR CONTENT AREA */}
+        {/* ======================================================== */}
+        <main className="flex-1 min-w-0 w-full space-y-6">
+          {/* Executive Header Banner */}
+          <div className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-accent">
+                    {property.city || "Sydney"} · {propertyKindLabel(property.kind)}
+                  </span>
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+                <h1 className="font-display mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-ink">
+                  {liveName}
+                </h1>
+                {property.tagline && <p className="mt-1 text-xs sm:text-sm text-mute">{property.tagline}</p>}
+              </div>
+
+              {/* Header Action Buttons */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    void triggerHaptic("light");
+                    nav("/join");
+                  }}
+                  className="min-h-[44px] gap-1.5 px-3.5 text-xs font-semibold"
+                >
+                  <span>Guest Portal</span>
+                  <ExternalLink size={14} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    void triggerHaptic("light");
+                    nav(partnerAccountPath({ signedIn: true, hasPlace: Boolean(business) }));
+                  }}
+                  className="min-h-[44px] px-3.5 text-xs font-semibold"
+                >
+                  {business ? NAMES.yourPlace : NAMES.partnerAccount}
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    void triggerHaptic("medium");
+                    setTab("print");
+                  }}
+                  className="min-h-[44px] gap-1.5 px-4 text-xs font-semibold shadow-xs"
+                >
+                  <Printer size={14} />
+                  <span>Print Signs</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick KPI Stat Chips Row */}
+            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4 border-t border-line/60">
+              <div className="rounded-2xl bg-paper/80 p-3 ring-1 ring-line/60">
+                <p className="text-[10.5px] font-bold uppercase tracking-wider text-mute">Occupancy</p>
+                <p className="font-display text-xl sm:text-2xl font-black text-ink mt-0.5 tabular-nums">
+                  {occupancy ? `${occupancy.rate}%` : "—"}
+                </p>
+                <p className="text-[10px] text-mute mt-0.5">
+                  {occupancy ? `${occupancy.occupied}/${occupancy.total} rooms` : "No rooms tracked"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-paper/80 p-3 ring-1 ring-line/60">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10.5px] font-bold uppercase tracking-wider text-mute">Guest Tickets</p>
+                  {openTickets > 0 && <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />}
+                </div>
+                <p
+                  className={cn(
+                    "font-display text-xl sm:text-2xl font-black mt-0.5 tabular-nums",
+                    openTickets > 0 ? "text-rose-600 dark:text-rose-400" : "text-ink",
+                  )}
+                >
+                  {openTickets}
+                </p>
+                <p className="text-[10px] text-mute mt-0.5">
+                  {openTickets === 0 ? "All resolved" : "Requires attention"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-paper/80 p-3 ring-1 ring-line/60">
+                <p className="text-[10.5px] font-bold uppercase tracking-wider text-mute">Dining Orders</p>
+                <p className="font-display text-xl sm:text-2xl font-black text-ink mt-0.5 tabular-nums">
+                  {activeOrders}
+                </p>
+                <p className="text-[10px] text-mute mt-0.5">
+                  {activeOrders > 0 ? "Active kitchen orders" : "Ready for orders"}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-paper/80 p-3 ring-1 ring-line/60">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10.5px] font-bold uppercase tracking-wider text-mute">Digital Wi-Fi</p>
+                  {wifiLive ? (
+                    <Wifi size={13} className="text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <WifiOff size={13} className="text-amber-500" />
+                  )}
+                </div>
+                <p
+                  className={cn(
+                    "font-display text-base sm:text-lg font-black mt-0.5",
+                    wifiLive ? "text-emerald-700 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400",
+                  )}
+                >
+                  {wifiLive ? "Online" : "Setup Needed"}
+                </p>
+                <p className="text-[10px] text-mute mt-0.5">
+                  {wifiLive ? property.wifi?.network || "Connected" : "No network credentials"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ======================================================== */}
+          {/* TAB PANES */}
+          {/* ======================================================== */}
+          {tab === "today" && (
+            <div className="space-y-6">
+              <HostTodaySummary
+                property={property}
+                wifiLive={wifiLive}
+                qrReady={qrReady}
+                onManageRooms={() => {
+                  void triggerHapticSelection();
+                  setTab("rooms");
+                }}
+              />
+              <HostTicketBoard propertyId={property.id} tickets={tickets} />
+              <HostOrderBoard propertyId={property.id} orders={orders} />
+            </div>
+          )}
+
+          {tab === "belonging" && (
+            <div className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
+              <BelongingReportPanel />
+            </div>
+          )}
+
+          {tab === "rooms" && (
+            <div className="space-y-6">
+              <HostRoomsPanel property={property} onSaved={setProperty} />
+              <StayBlocksPanel propertyId={property.id} />
+            </div>
+          )}
+
+          {tab === "dining" && (
+            <div className="space-y-6">
+              <HostDiningPanel propertyId={property.id} menu={menu} />
+            </div>
+          )}
+
+          {tab === "facilities" && (
+            <div className="space-y-6">
+              <HostFacilitiesPanel property={property} onSaved={setProperty} />
+            </div>
+          )}
+
+          {tab === "place" && (
+            <div className="space-y-6">
+              <HostPlaceForm property={property} onSaved={setProperty} />
+            </div>
+          )}
+
+          {tab === "print" && (
+            <div className="space-y-6">
+              <HostPrintPanel property={property} />
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );

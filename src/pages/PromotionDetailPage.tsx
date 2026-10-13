@@ -375,7 +375,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
 
       {/* Voucher Breakdown & In-Store Barcode */}
       {activeVoucherCode && (
-        <div className="mt-4 rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+        <div className="mt-4 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between pb-3 border-b border-line/60">
             <span className="text-[11px] font-bold uppercase tracking-wider text-accent">Voucher Breakdown</span>
             <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">

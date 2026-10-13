@@ -928,7 +928,7 @@ function CalendarPageContent() {
             {/* AirPal Pass Event Passes */}
             <section
               aria-label="Event Passes & Tickets"
-              className="flex flex-col justify-between rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-sm md:p-6"
+              className="flex flex-col justify-between rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay md:p-6"
             >
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1006,7 +1006,7 @@ function CalendarPageContent() {
             {/* My plans — the repeat loop lives here, same chrome as events */}
             <section
               aria-label="My plans"
-              className="flex flex-col justify-between rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-sm md:p-6"
+              className="flex flex-col justify-between rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay md:p-6"
             >
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-2">

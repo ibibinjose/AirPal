@@ -513,7 +513,7 @@ export function BusinessPage() {
 
               {/* Venue Form */}
               <form
-                className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs space-y-5"
+                className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-5"
                 onSubmit={onPlace}
               >
                 <div>

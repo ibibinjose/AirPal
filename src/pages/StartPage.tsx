@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState, useMemo, type ComponentType, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, useMemo, type FormEvent } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
   AlertCircle,
   ArrowLeft,
-  BadgePercent,
+  ArrowRight,
+  ArrowUpRight,
   Building2,
   CalendarDays,
   Check,
@@ -13,16 +14,11 @@ import {
   EyeOff,
   Lock,
   Mail,
-  MapPin,
-  Megaphone,
   Phone,
-  QrCode,
   ShieldCheck,
   Sparkles,
   Store,
-  Ticket,
   User,
-  Users,
 } from "lucide-react";
 import { authErrorMessage } from "@shared/auth-email";
 import { normalizeHandle } from "@shared/bio";
@@ -36,7 +32,7 @@ import { PhoneLogin } from "@/components/auth/PhoneLogin";
 import { SignupFlow } from "@/components/auth/SignupFlow";
 import { SocialAuthButtons, SocialAuthDivider } from "@/components/auth/SocialAuthButtons";
 import { PhoneField } from "@/components/forms/PhoneField";
-import { isNativeApp, triggerHapticSelection } from "@/lib/native";
+import { isNativeApp, triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { useVirtualKeyboard } from "@/lib/keyboard";
 import { phonePasswordNeedsSms, phoneReady } from "@shared/phone-auth";
 import { MeAvatar } from "@/components/auth/MeAvatar";
@@ -44,74 +40,26 @@ import { BiometricAuthButton } from "@/components/auth/BiometricAuthButton";
 import { BiometricEnrollCard } from "@/components/auth/BiometricEnrollCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
-
 import { liveBackendEnabled } from "@/lib/functions";
 import { normalizeInviteCode, recordAppInvite, resolveInviter, stashInviteRef, takeInviteRef } from "@/lib/app-invites";
+import { PILLARS } from "@/lib/pillars";
 import { cn } from "@/lib/cn";
 
-type AuthMode = "signin" | "signup" | "reset";
-type AuthMethod = "email" | "phone";
+export type AuthMode = "signin" | "signup" | "reset";
+export type AuthMethod = "email" | "phone";
 
 /**
- * Keyboard hygiene: 16px stops iOS auto-zoom, focusing a field pulls it
- * above the keyboard on web + Android webviews.
+ * Mobile typography hygiene: 16px font prevents iOS Safari and Android webviews
+ * from triggering unexpected viewport auto-zooms upon input focus.
  */
-const KEYBOARD_SAFE_INPUT = "text-[16px]";
+const KEYBOARD_SAFE_INPUT = "text-[16px] sm:text-sm";
+
 function nudgeIntoView(e: React.FocusEvent<HTMLElement>) {
   try {
     e.currentTarget.scrollIntoView({ behavior: "smooth", block: "center" });
   } catch {
-    /* ignore */
+    /* ignore fallback */
   }
-}
-
-type RoleHeroItem = {
-  icon: ComponentType<{ size?: number | string; strokeWidth?: number | string }>;
-  title: string;
-  desc: string;
-  tint: string;
-};
-
-function RoleHero({
-  kicker,
-  title,
-  sub,
-  cta,
-  items,
-}: {
-  kicker: string;
-  title: ReactNode;
-  sub: string;
-  cta: string;
-  items: RoleHeroItem[];
-}) {
-  return (
-    <div className="mb-6 text-center">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">{kicker}</p>
-      <h1 className="font-display mt-2 text-3xl font-bold leading-tight">{title}</h1>
-      <p className="mx-auto mt-2 max-w-sm text-sm text-mute">{sub}</p>
-      <div className="mt-4 space-y-2 text-left">
-        {items.map((c) => (
-          <div key={c.title} className="flex items-center gap-3 rounded-2xl ring-1 ring-line bg-card p-3">
-            <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-xl", c.tint)}>
-              <c.icon size={17} strokeWidth={2.2} />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold leading-tight">{c.title}</span>
-              <span className="block truncate text-xs text-mute">{c.desc}</span>
-            </span>
-          </div>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={() => document.getElementById("auth-card")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-        className="mt-3 inline-flex min-h-[44px] items-center px-2 text-xs font-semibold text-accent hover:underline"
-      >
-        {cta}
-      </button>
-    </div>
-  );
 }
 
 export function StartPage() {
@@ -135,7 +83,7 @@ export function StartPage() {
     logout,
     hasEnrolledBiometrics,
   } = useAuth();
-  const { mine, business, biosReady, createProfile } = useBio();
+  const { mine, business, createProfile } = useBio();
   const { keyboardHeight } = useVirtualKeyboard();
   const [pendingGo, setPendingGo] = useState(false);
 
@@ -181,6 +129,7 @@ export function StartPage() {
   const emailOk = isEmail(email);
   const passOk = passwordIssues(password).length === 0;
 
+  // Password Strength Meter
   const passwordStrength = useMemo(() => {
     if (!password) return { label: "", score: 0, color: "bg-line" };
     if (password.length < 6) return { label: "Too short", score: 1, color: "bg-red-500" };
@@ -197,8 +146,7 @@ export function StartPage() {
     return { label: "Strong", score: 4, color: "bg-emerald-500" };
   }, [password]);
 
-  // Invite attribution: keep the inviter's code across the flow, show who
-  // invited, and record the join once the account exists.
+  // Invite Attribution
   const [inviterHandle, setInviterHandle] = useState<string | null>(null);
   const inviteRecorded = useRef(false);
   useEffect(() => {
@@ -216,6 +164,7 @@ export function StartPage() {
       alive = false;
     };
   }, [refParam]);
+
   useEffect(() => {
     if (inviteRecorded.current || !user) return;
     const code = takeInviteRef();
@@ -233,7 +182,7 @@ export function StartPage() {
     })();
   }, [user]);
 
-  // Sync tab param when search changes
+  // Sync tab param when search URL changes
   useEffect(() => {
     if (tabParam === "reset") setMode("reset");
     else if (tabParam === "signup" || tabParam === "email") {
@@ -247,26 +196,19 @@ export function StartPage() {
     if (emailParam && !email) setEmail(emailParam);
   }, [tabParam, emailParam]);
 
-  // Guest-first front door: default context (no host/business/event/club
-  // target) shows what AirPal is plus explore-first paths. Role contexts keep
-  // their focused banners.
+  // Context & Role Intent Detection
   const contextTarget = (roleParam || next).toLowerCase();
   const isGuestStart = !/host|business|place|event|club/.test(contextTarget);
-  const isBusinessStart = /business|place/.test(contextTarget);
-  const isHostStart = /host/.test(contextTarget) && !isBusinessStart;
-  const isEventStart = /event/.test(contextTarget);
-  const isClubStart = /club/.test(contextTarget);
 
-  // Determine role context
   const roleContext = useMemo(() => {
     const target = (roleParam || next).toLowerCase();
     if (target.includes("host")) {
       return {
         icon: Building2,
-        kicker: "Host Portal",
+        kicker: "Host Workspace",
         title: "Sign in to Host Console",
         signupTitle: "Create your Host Account",
-        desc: "Manage your PBSA building cohort, 60s Arrival Engine, Belonging Reports, and resident support.",
+        desc: "Manage PBSA cohorts, 60-second Arrival Engine, Belonging Reports, and resident support.",
         color: "text-amber-600 dark:text-amber-400",
         bg: "bg-amber-500/10",
       };
@@ -274,10 +216,10 @@ export function StartPage() {
     if (target.includes("business") || target.includes("place")) {
       return {
         icon: Store,
-        kicker: "Partner account",
-        title: "Sign in — same AirPal login",
-        signupTitle: "Open a partner account",
-        desc: "Same login as your AirPal Me account. Add the place, then guests find it on What's on and in search.",
+        kicker: "Local Business Hub",
+        title: "Sign in to Business Hub",
+        signupTitle: "Open a Business Account",
+        desc: "Publish verified perks and dining deals. Guests discover you on What's Open Now and in search.",
         color: "text-emerald-600 dark:text-emerald-400",
         bg: "bg-emerald-500/10",
       };
@@ -286,9 +228,9 @@ export function StartPage() {
       return {
         icon: CalendarDays,
         kicker: "Event Organiser",
-        title: "Sign in to Event Manager",
+        title: "Sign in to Event Console",
         signupTitle: "Create Organiser Account",
-        desc: "Set up weekend markets, street festivals, interactive stall directories, and gate QRs.",
+        desc: "Unlimited events, tiered tickets, interactive coupons, door QR scanning, and CSV export.",
         color: "text-indigo-600 dark:text-indigo-400",
         bg: "bg-indigo-500/10",
       };
@@ -296,20 +238,20 @@ export function StartPage() {
     if (target.includes("club")) {
       return {
         icon: Sparkles,
-        kicker: "AirPal Club",
-        title: "Sign in to AirPal Club",
-        signupTitle: "Join AirPal Club",
-        desc: "Unlock member invites, guest list perks, and save favourite stalls & events.",
+        kicker: "Circles & Hangouts",
+        title: "Sign in to Networking Circle",
+        signupTitle: "Join AirPal Circle",
+        desc: "Plan hangouts, vote on stops, RSVP with friends, and check in with live presence.",
         color: "text-accent",
         bg: "bg-brand/10",
       };
     }
     return {
       icon: ShieldCheck,
-      kicker: "AirPal.Me",
-      title: "Welcome back",
-      signupTitle: "Create your AirPal account",
-      desc: "One universal login for your digital bio, Circle, hangout plans, and event passes.",
+      kicker: "Single Universal Account",
+      title: "Welcome to AirPal",
+      signupTitle: "Create your AirPal Account",
+      desc: "One login across Places, Communities, Friends, and Me — verified across Web, iOS & Android.",
       color: "text-accent",
       bg: "bg-brand/10",
     };
@@ -413,6 +355,7 @@ export function StartPage() {
         /* profile may already be initialized */
       }
 
+      void triggerHaptic("medium");
       toast.success("Account created! Welcome to AirPal.");
       setPendingGo(true);
     } catch (err: unknown) {
@@ -440,6 +383,7 @@ export function StartPage() {
       try {
         await requestPasswordReset(email.trim());
         setResetSent(true);
+        void triggerHaptic("light");
         toast.success("Password reset link sent to your email.");
       } catch (err) {
         const msg = authErrorMessage(err, "Could not send reset email. Please try again.");
@@ -479,12 +423,14 @@ export function StartPage() {
     try {
       if (mode === "signin" && method === "phone" && phoneLoginMode === "password") {
         await loginWithPhonePassword(signInPhone, password);
+        void triggerHaptic("medium");
         toast.success("Signed in successfully!");
         setPendingGo(true);
       } else {
         const cleanEmail = email.trim();
         localStorage.setItem(LAST_EMAIL_KEY, cleanEmail);
         await login(cleanEmail, password);
+        void triggerHaptic("medium");
         toast.success("Signed in successfully!");
         setPendingGo(true);
       }
@@ -509,30 +455,55 @@ export function StartPage() {
     }
   }
 
-  // Already logged in view
+  // ========================================================
+  // ALREADY SIGNED IN VIEW: User & Identity Cockpit
+  // ========================================================
   if (user && !phoneSignup) {
     const isHostUser = Boolean(user.propertyIds?.length || user.role === "host_admin" || user.role === "super_admin");
     return (
-      <div className="mx-auto max-w-md px-4 py-10">
-        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-sm text-center">
+      <div className="mx-auto max-w-xl px-4 py-8 md:py-12 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
+        {/* Profile Card */}
+        <div className="rounded-3xl bg-card p-6 md:p-8 ring-1 ring-line shadow-clay text-center">
           <div className="mx-auto flex justify-center">
-            <MeAvatar faceClassName="h-16 w-16 text-xl" />
+            <MeAvatar faceClassName="h-20 w-20 text-2xl shadow-md ring-2 ring-brand/20" />
           </div>
-          <h1 className="font-display mt-4 text-2xl font-semibold">{user.displayName || "Your Account"}</h1>
-          {mine?.handle ? <p className="mt-0.5 text-xs font-bold text-accent">@{mine.handle}</p> : null}
-          <p className="text-xs text-mute mt-1">{user.email || user.phone || "Signed in"}</p>
+          <h1 className="font-display mt-4 text-2xl sm:text-3xl font-extrabold text-ink">
+            {user.displayName || "Your AirPal Account"}
+          </h1>
+          {mine?.handle ? (
+            <Link
+              href={`/@${mine.handle}`}
+              className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-accent hover:bg-brand/20 transition cursor-pointer"
+            >
+              <span>@{mine.handle}</span>
+              <ArrowUpRight size={13} />
+            </Link>
+          ) : null}
+          <p className="text-xs sm:text-sm text-mute mt-1.5">{user.email || user.phone || "Active Session"}</p>
 
+          {/* Pending Destination Continuation */}
           {next && (
-            <div className="mt-5 rounded-2xl bg-amber-500/10 p-3 text-left ring-1 ring-amber-500/20">
-              <p className="text-xs font-medium text-amber-800 dark:text-amber-300">You're heading to:</p>
-              <p className="truncate text-sm font-semibold text-ink">{next}</p>
-              <Button size="sm" className="mt-2 w-full" onClick={() => nav(next)}>
+            <div className="mt-5 rounded-2xl bg-amber-500/10 p-3.5 text-left ring-1 ring-amber-500/25">
+              <div className="flex items-center justify-between text-xs font-bold text-amber-800 dark:text-amber-300">
+                <span>Destination Pending</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider">Ready</span>
+              </div>
+              <p className="truncate text-sm font-semibold text-ink mt-0.5">{next}</p>
+              <Button
+                size="sm"
+                className="mt-2.5 w-full min-h-[44px] shadow-xs"
+                onClick={() => {
+                  void triggerHaptic("medium");
+                  nav(next);
+                }}
+              >
                 Continue to destination →
               </Button>
             </div>
           )}
 
-          <div className="mt-6 text-left">
+          {/* Biometrics & Security Status */}
+          <div className="mt-6 text-left space-y-3">
             <AccountContacts compact />
             <BiometricEnrollCard compact />
           </div>
@@ -543,47 +514,97 @@ export function StartPage() {
             </div>
           )}
 
-          <div className="mt-6 space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent text-left">
-              Quick Navigation
+          {/* 4 Core Pillars Shortcuts */}
+          <div className="mt-8 text-left">
+            <p className="text-[10px] font-black uppercase tracking-wider text-mute mb-2.5 px-1">
+              The 4 Pillars · Quick Jump
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {PILLARS.map((pillar) => {
+                const Icon = pillar.icon;
+                return (
+                  <button
+                    key={pillar.id}
+                    type="button"
+                    onClick={() => {
+                      void triggerHapticSelection();
+                      nav(pillar.href);
+                    }}
+                    className="flex items-center gap-2.5 rounded-2xl bg-paper/80 p-3 ring-1 ring-line/70 hover:bg-paper hover:ring-brand/30 transition text-left cursor-pointer active:scale-[0.98]"
+                  >
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand/10 text-accent">
+                      <Icon size={16} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-xs font-bold text-ink leading-tight">{pillar.label}</span>
+                      <span className="block text-[10px] text-mute truncate">{pillar.subLabel}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Connected Console Portals */}
+          <div className="mt-6 space-y-2 text-left">
+            <p className="text-[10px] font-black uppercase tracking-wider text-mute px-1">
+              Host &amp; Business Portals
             </p>
             <Button
-              className="w-full justify-between"
-              disabled={!mine && !biosReady}
-              onClick={() => nav(mine ? "/bio/edit" : "/bio/setup")}
+              variant="ghost"
+              className="w-full min-h-[44px] justify-between text-xs"
+              onClick={() => {
+                void triggerHaptic("light");
+                nav("/host");
+              }}
             >
-              <span>
-                {mine
-                  ? `Edit profile (@${mine.handle})`
-                  : biosReady
-                    ? "Set up your public @handle"
-                    : "Loading your @handle…"}
+              <span className="flex items-center gap-2">
+                <Building2 size={16} className="text-accent" />
+                <span>{isHostUser ? "Host Console · Live Operator" : "Host Console · List a Place"}</span>
               </span>
-              <User size={16} />
+              <ArrowRight size={14} className="text-mute" />
             </Button>
-            <Button variant="ghost" className="w-full justify-between" onClick={() => nav("/host")}>
-              <span>{isHostUser ? "Host Console · Belonging Reports" : "Host Console · PBSA & Venue"}</span>
-              <Building2 size={16} />
+
+            <Button
+              variant="ghost"
+              className="w-full min-h-[44px] justify-between text-xs"
+              onClick={() => {
+                void triggerHaptic("light");
+                nav("/business");
+              }}
+            >
+              <span className="flex items-center gap-2">
+                <Store size={16} className="text-accent" />
+                <span>{business ? `Local Business (@${business.handle})` : "Business Hub · Merchant Deals"}</span>
+              </span>
+              <ArrowRight size={14} className="text-mute" />
             </Button>
-            <Button variant="ghost" className="w-full justify-between" onClick={() => nav("/business")}>
-              <span>{business ? `Local Business (@${business.handle})` : "List a Business · Deals"}</span>
-              <Store size={16} />
-            </Button>
-            <Button variant="ghost" className="w-full justify-between" onClick={() => nav("/event")}>
-              <span>Event Organiser Dashboard</span>
-              <CalendarDays size={16} />
-            </Button>
-            <Button variant="ghost" className="w-full justify-between" onClick={() => nav("/me")}>
-              <span>Your Tickets, Passes & Memories</span>
-              <Sparkles size={16} />
+
+            <Button
+              variant="ghost"
+              className="w-full min-h-[44px] justify-between text-xs"
+              onClick={() => {
+                void triggerHaptic("light");
+                nav("/event");
+              }}
+            >
+              <span className="flex items-center gap-2">
+                <CalendarDays size={16} className="text-accent" />
+                <span>Event Organiser Dashboard</span>
+              </span>
+              <ArrowRight size={14} className="text-mute" />
             </Button>
           </div>
 
-          <div className="mt-6 border-t border-line/70 pt-4">
+          {/* Sign Out Button */}
+          <div className="mt-8 border-t border-line/60 pt-4">
             <button
               type="button"
-              onClick={() => void logout().then(() => nav("/"))}
-              className="text-xs text-mute hover:text-red-500 transition font-medium"
+              onClick={() => {
+                void triggerHaptic("light");
+                void logout().then(() => nav("/"));
+              }}
+              className="min-h-[44px] px-4 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
             >
               Sign out of this device
             </button>
@@ -594,183 +615,81 @@ export function StartPage() {
   }
 
   const RoleIcon = roleContext.icon;
-  // Guest /start already renders the page <h1> above; keep a single h1 per page.
   const RoleHeading = isGuestStart ? "h2" : "h1";
 
+  // ========================================================
+  // UNAUTHENTICATED AUTHENTICATION & ONBOARDING GATEWAY
+  // ========================================================
   return (
     <div
-      className="mx-auto max-w-md px-4 py-8 md:py-12"
-      style={keyboardHeight > 0 ? { paddingBottom: keyboardHeight + 24 } : undefined}
+      className="mx-auto max-w-lg px-4 py-8 md:py-12 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)]"
+      style={keyboardHeight > 0 ? { paddingBottom: keyboardHeight + 32 } : undefined}
     >
+      {/* Editorial Welcome Header */}
       {isGuestStart && (
         <div className="mb-6 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">Life Made Easy</p>
-          <h1 className="font-display mt-2 text-3xl font-bold leading-tight">
-            Find a place. Make&nbsp;a&nbsp;plan. Meet&nbsp;your&nbsp;people.
-          </h1>
-          <p className="mx-auto mt-2 max-w-sm text-sm text-mute">
-            Find places and experiences, make plans with family and friends, and use AirPal Pass & Guide — in one
-            account.
-          </p>
-          <div className="mt-4 grid grid-cols-3 gap-2 text-left">
-            {[
-              {
-                icon: MapPin,
-                title: "Find places",
-                desc: "Near you tonight",
-                to: "/",
-                tint: "bg-emerald-500/10 text-emerald-700",
-              },
-              {
-                icon: CalendarDays,
-                title: "Make plans",
-                desc: "Family & friends",
-                to: "/plan",
-                tint: "bg-brand/10 text-accent",
-              },
-              {
-                icon: Users,
-                title: "What now?",
-                desc: "One suggestion",
-                to: "/now",
-                tint: "bg-amber-500/10 text-amber-700",
-              },
-            ].map((c) => (
-              <button
-                key={c.to}
-                type="button"
-                onClick={() => nav(c.to)}
-                className="rounded-2xl ring-1 ring-line bg-card p-3 text-left transition-shadow hover:shadow-sm active:scale-[0.98]"
-              >
-                <span className={cn("grid h-8 w-8 place-items-center rounded-xl", c.tint)}>
-                  <c.icon size={16} strokeWidth={2.2} />
-                </span>
-                <span className="mt-2 block text-[13px] font-semibold leading-tight">{c.title}</span>
-                <span className="block text-[11px] text-mute">{c.desc}</span>
-              </button>
-            ))}
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-accent">
+            <Sparkles size={13} />
+            <span>LIFE MADE EASY</span>
           </div>
+          <h1 className="font-display mt-2.5 text-3xl sm:text-4xl font-black tracking-tight text-ink leading-tight">
+            Find your place. <br />
+            <span className="font-serif italic font-normal text-accent">Meet your people.</span>
+          </h1>
+          <p className="mx-auto mt-2 max-w-sm text-xs sm:text-sm text-mute leading-relaxed">
+            One universal account across Places, Communities, Friends, and Me — ready on Web, iOS, and Android.
+          </p>
+
+          {/* 4 Pillars Mini-Badges */}
+          <div className="mt-5 grid grid-cols-4 gap-2 text-center">
+            {PILLARS.map((p) => {
+              const Icon = p.icon;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => {
+                    void triggerHapticSelection();
+                    nav(p.href);
+                  }}
+                  className="flex flex-col items-center justify-center rounded-2xl bg-card p-2.5 ring-1 ring-line/80 hover:bg-paper hover:ring-brand/30 transition cursor-pointer active:scale-95"
+                >
+                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand/10 text-accent mb-1">
+                    <Icon size={16} />
+                  </span>
+                  <span className="text-[11px] font-bold text-ink">{p.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
           <button
             type="button"
-            onClick={() => nav("/")}
-            className="mt-3 inline-flex min-h-[44px] items-center px-2 text-xs font-semibold text-accent hover:underline"
+            onClick={() => {
+              void triggerHaptic("light");
+              nav("/explore");
+            }}
+            className="mt-3.5 inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
           >
-            Browse first, join later →
+            <span>Browse first, join later</span>
+            <ArrowRight size={13} />
           </button>
         </div>
       )}
 
-      {isBusinessStart && (
-        <RoleHero
-          kicker="Partner account"
-          title={<>Same login. Add the place.</>}
-          sub="Import your Google listing — logo, address, phone, website, hours — then guests find you on What's on and in search."
-          cta="Open the partner account below — it takes a minute ↓"
-          items={[
-            {
-              icon: Store,
-              title: "Import from Google",
-              desc: "Logo, location, contacts, website",
-              tint: "bg-emerald-500/10 text-emerald-700",
-            },
-            {
-              icon: BadgePercent,
-              title: "Publish offers",
-              desc: "Deals guests show at the till",
-              tint: "bg-brand/10 text-accent",
-            },
-            {
-              icon: QrCode,
-              title: "QR for your counter",
-              desc: "Guests scan and find you",
-              tint: "bg-amber-500/10 text-amber-700",
-            },
-          ]}
-        />
-      )}
-      {isHostStart && (
-        <RoleHero
-          kicker="For building operators & hosts"
-          title={<>Building community made easy.</>}
-          sub="Onboard residents via the 60s Arrival Engine, track Belonging Reports, and dispatch support — in one console."
-          cta="Access your operator console below ↓"
-          items={[
-            {
-              icon: Building2,
-              title: "60s Arrival Engine",
-              desc: "Instant building cohort & room check-in",
-              tint: "bg-emerald-500/10 text-emerald-700",
-            },
-            {
-              icon: ShieldCheck,
-              title: "Belonging Reports",
-              desc: "Loneliness mitigation & cohort connectivity",
-              tint: "bg-brand/10 text-accent",
-            },
-            {
-              icon: Users,
-              title: "Resident Support",
-              desc: "Quick helpdesk & staff dispatch",
-              tint: "bg-amber-500/10 text-amber-700",
-            },
-          ]}
-        />
-      )}
-      {isEventStart && (
-        <RoleHero
-          kicker="For organisers"
-          title={<>Fill every seat.</>}
-          sub="Publish your event, sell stalls to local vendors, and track RSVPs in one place — free to list."
-          cta="Publish your event below — it takes a minute ↓"
-          items={[
-            {
-              icon: Megaphone,
-              title: "Publish your event",
-              desc: "Your page on AirPal.Me",
-              tint: "bg-emerald-500/10 text-emerald-700",
-            },
-            { icon: Store, title: "Sell stalls", desc: "Vendors book & pay online", tint: "bg-brand/10 text-accent" },
-            { icon: Users, title: "Track RSVPs", desc: "Know who's coming", tint: "bg-amber-500/10 text-amber-700" },
-          ]}
-        />
-      )}
-      {isClubStart && (
-        <RoleHero
-          kicker="For clubs & circles"
-          title={<>Run your circle, minus the admin.</>}
-          sub="Plan outings together, vote on stops, and keep everyone in the loop — free to start."
-          cta="Start your circle below — it takes a minute ↓"
-          items={[
-            {
-              icon: CalendarDays,
-              title: "Plan together",
-              desc: "Propose dates & places",
-              tint: "bg-emerald-500/10 text-emerald-700",
-            },
-            { icon: Users, title: "Vote on stops", desc: "Everyone gets a say", tint: "bg-brand/10 text-accent" },
-            {
-              icon: Ticket,
-              title: "Keep everyone posted",
-              desc: "One page for the whole crew",
-              tint: "bg-amber-500/10 text-amber-700",
-            },
-          ]}
-        />
-      )}
-
-      {/* Context Role Banner */}
-      <div className="mb-6 rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
-        <div className="flex items-center gap-3">
+      {/* Role / Context Banner */}
+      <div className="mb-6 rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line shadow-clay">
+        <div className="flex items-center gap-3.5">
           <span
-            className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-xl", roleContext.bg, roleContext.color)}
+            className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-2xl", roleContext.bg, roleContext.color)}
           >
-            <RoleIcon size={20} strokeWidth={2} />
+            <RoleIcon size={22} strokeWidth={2} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className={cn("text-[10px] font-semibold uppercase tracking-[0.18em]", roleContext.color)}>
+            <p className={cn("text-[10px] font-bold uppercase tracking-widest", roleContext.color)}>
               {roleContext.kicker}
             </p>
-            <RoleHeading className="font-display text-lg font-semibold leading-tight text-ink">
+            <RoleHeading className="font-display text-lg sm:text-xl font-bold leading-tight text-ink mt-0.5">
               {mode === "reset"
                 ? "Reset your password"
                 : mode === "signup"
@@ -779,23 +698,28 @@ export function StartPage() {
             </RoleHeading>
           </div>
         </div>
-        <p className="mt-2 text-xs text-mute leading-relaxed">{roleContext.desc}</p>
+        <p className="mt-2.5 text-xs text-mute leading-relaxed">{roleContext.desc}</p>
       </div>
 
+      {/* Referral Banner */}
       {mode === "signup" && inviterHandle && (
-        <p className="mb-4 rounded-2xl ring-1 ring-line bg-card px-4 py-3 text-center text-sm">
-          You’re invited by <span className="font-semibold text-accent">@{inviterHandle}</span> — your signup lands you
-          in the{" "}
-          <Link href="/founders" className="font-semibold text-accent hover:underline">
+        <div className="mb-4 rounded-2xl ring-1 ring-brand/30 bg-brand/5 px-4 py-3 text-center text-xs sm:text-sm">
+          <span>You’re invited by </span>
+          <span className="font-bold text-accent">@{inviterHandle}</span>
+          <span> — unlocks access to the </span>
+          <Link href="/founders" className="font-bold text-accent hover:underline">
             Founders 100K pool
           </Link>
-        </p>
+          .
+        </div>
       )}
 
-      {/* Main Card */}
+      {/* ======================================================== */}
+      {/* MAIN AUTHENTICATION CARD */}
+      {/* ======================================================== */}
       <div
         id="auth-card"
-        className="rounded-3xl ring-1 ring-line/70 bg-card/95 backdrop-blur-md p-6 shadow-sm border border-line/40 scroll-mt-4"
+        className="rounded-3xl ring-1 ring-line bg-card/95 backdrop-blur-2xl p-6 sm:p-7 shadow-clay scroll-mt-6"
       >
         {mode === "reset" ? (
           /* Password Reset Flow */
@@ -803,32 +727,38 @@ export function StartPage() {
             <button
               type="button"
               onClick={() => switchMode("signin")}
-              className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:underline"
+              className="mb-4 inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-accent hover:underline cursor-pointer"
             >
-              <ArrowLeft size={14} /> Back to Sign In
+              <ArrowLeft size={14} />
+              <span>Back to Sign In</span>
             </button>
 
-            <h2 className="font-display text-xl font-semibold">Forgot your password?</h2>
-            <p className="mt-1 text-xs text-mute">
-              Enter your registered email. We’ll send you a secure link to choose a new password.
+            <h2 className="font-display text-xl sm:text-2xl font-bold text-ink">Forgot your password?</h2>
+            <p className="mt-1 text-xs text-mute leading-relaxed">
+              Enter your registered email address. We will send you a secure link to create a new password.
             </p>
 
             {inlineError && (
-              <div className="mt-4 flex items-start gap-2 rounded-xl bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-400 ring-1 ring-red-500/20">
+              <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-red-500/10 p-3.5 text-xs text-red-600 dark:text-red-400 ring-1 ring-red-500/25">
                 <AlertCircle size={16} className="shrink-0 mt-0.5" />
                 <span>{inlineError.message}</span>
               </div>
             )}
 
             {resetSent ? (
-              <div className="mt-5 rounded-2xl bg-emerald-500/10 p-4 text-center ring-1 ring-emerald-500/20">
-                <CheckCircle2 size={24} className="mx-auto text-emerald-600 dark:text-emerald-400" />
-                <p className="mt-2 text-sm font-semibold text-ink">Reset link sent!</p>
+              <div className="mt-5 rounded-2xl bg-emerald-500/10 p-5 text-center ring-1 ring-emerald-500/20">
+                <CheckCircle2 size={28} className="mx-auto text-emerald-600 dark:text-emerald-400" />
+                <p className="mt-2 text-sm font-bold text-ink">Reset link sent!</p>
                 <p className="mt-1 text-xs text-mute">
-                  Check your inbox for <span className="font-medium text-ink">{email}</span>. Please also check your
+                  Check your inbox for <span className="font-semibold text-ink">{email}</span>. Please also inspect your
                   spam folder.
                 </p>
-                <Button size="sm" variant="ghost" className="mt-4" onClick={() => switchMode("signin")}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="mt-4 min-h-[44px] px-4 font-semibold"
+                  onClick={() => switchMode("signin")}
+                >
                   Return to Sign In
                 </Button>
               </div>
@@ -846,13 +776,18 @@ export function StartPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       onFocus={nudgeIntoView}
-                      placeholder="you@example.com"
+                      placeholder="you@domain.com"
                       className={cn(fieldInput, "pl-10", KEYBOARD_SAFE_INPUT)}
                     />
                   </div>
                 </ValidField>
 
-                <Button type="submit" className="w-full" disabled={busy || !emailOk} loading={busy}>
+                <Button
+                  type="submit"
+                  className="w-full min-h-[48px] text-sm font-bold shadow-xs cursor-pointer"
+                  disabled={busy || !emailOk}
+                  loading={busy}
+                >
                   {busy ? "Sending link…" : "Email reset link"}
                 </Button>
               </form>
@@ -862,14 +797,16 @@ export function StartPage() {
           /* Normal Sign In / Sign Up Flow */
           <div>
             {/* Primary Mode Segmented Control: Sign In vs Create Account */}
-            <div className="relative flex rounded-full bg-paper p-1 ring-1 ring-line">
+            <div className="relative flex rounded-full bg-paper p-1 ring-1 ring-line shadow-2xs">
               <button
                 type="button"
                 onClick={() => switchMode("signin")}
                 aria-pressed={mode === "signin"}
                 className={cn(
-                  "flex-1 rounded-full min-h-[44px] text-center text-xs font-semibold transition active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
-                  mode === "signin" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
+                  "flex-1 rounded-full min-h-[44px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer",
+                  mode === "signin"
+                    ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
+                    : "text-mute hover:text-ink",
                 )}
               >
                 Sign In
@@ -879,29 +816,17 @@ export function StartPage() {
                 onClick={() => switchMode("signup")}
                 aria-pressed={mode === "signup"}
                 className={cn(
-                  "flex-1 rounded-full min-h-[44px] text-center text-xs font-semibold transition active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
-                  mode === "signup" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
+                  "flex-1 rounded-full min-h-[44px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer",
+                  mode === "signup"
+                    ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
+                    : "text-mute hover:text-ink",
                 )}
               >
                 Create Account
               </button>
             </div>
 
-            {/* Goal-Gradient & Zeigarnik Effect: Clear Progress Indication */}
-            {mode === "signup" && (
-              <div className="mt-3.5 rounded-2xl bg-paper/70 p-3 ring-1 ring-line/70">
-                <div className="flex items-center justify-between text-[11px] font-semibold mb-1.5">
-                  <span className="text-accent">Step 1 of 2: Create Free Account</span>
-                  <span className="text-mute font-medium">~30 sec setup</span>
-                </div>
-                <div className="flex gap-1.5 h-1">
-                  <div className="flex-1 rounded-full bg-brand" />
-                  <div className="flex-1 rounded-full bg-line" />
-                </div>
-              </div>
-            )}
-
-            {/* Method selector for Email vs Mobile SMS */}
+            {/* Method Toggle: Email vs Mobile SMS */}
             <div className="mt-4 flex items-center justify-center gap-2">
               <button
                 type="button"
@@ -911,11 +836,11 @@ export function StartPage() {
                   "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-xs font-semibold transition active:scale-[0.98] cursor-pointer",
                   method === "email"
                     ? "bg-brand text-white shadow-xs"
-                    : "bg-paper text-mute hover:text-ink ring-1 ring-line/80",
+                    : "bg-paper text-mute hover:text-ink ring-1 ring-line",
                 )}
               >
-                <Mail size={13} />
-                <span>Email</span>
+                <Mail size={14} />
+                <span>Email &amp; Password</span>
               </button>
               <button
                 type="button"
@@ -925,18 +850,18 @@ export function StartPage() {
                   "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-xs font-semibold transition active:scale-[0.98] cursor-pointer",
                   method === "phone"
                     ? "bg-brand text-white shadow-xs"
-                    : "bg-paper text-mute hover:text-ink ring-1 ring-line/80",
+                    : "bg-paper text-mute hover:text-ink ring-1 ring-line",
                 )}
               >
-                <Phone size={13} />
+                <Phone size={14} />
                 <span>Mobile SMS</span>
               </button>
             </div>
 
-            {/* Inline Actionable Error Banner */}
+            {/* Inline Error Banner */}
             {inlineError && (
-              <div className="mt-4 rounded-xl bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-400 ring-1 ring-red-500/20">
-                <div className="flex items-start gap-2">
+              <div className="mt-4 rounded-2xl bg-red-500/10 p-3.5 text-xs text-red-600 dark:text-red-400 ring-1 ring-red-500/25">
+                <div className="flex items-start gap-2.5">
                   <AlertCircle size={16} className="shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="font-medium">{inlineError.message}</p>
@@ -944,7 +869,7 @@ export function StartPage() {
                       <button
                         type="button"
                         onClick={() => switchMode("signin")}
-                        className="mt-1 font-semibold text-accent underline block cursor-pointer"
+                        className="mt-1 font-bold text-accent underline block cursor-pointer"
                       >
                         Sign in with this email instead →
                       </button>
@@ -953,7 +878,7 @@ export function StartPage() {
                       <button
                         type="button"
                         onClick={() => switchMode("reset")}
-                        className="mt-1 font-semibold text-accent underline block cursor-pointer"
+                        className="mt-1 font-bold text-accent underline block cursor-pointer"
                       >
                         Forgot your password? Reset it here →
                       </button>
@@ -963,12 +888,14 @@ export function StartPage() {
               </div>
             )}
 
+            {/* Passkey / Biometric Login on Supported Devices */}
             {mode === "signin" && hasEnrolledBiometrics && (
               <div className="mt-4">
                 <BiometricAuthButton variant="hero" onSuccess={() => setPendingGo(true)} />
               </div>
             )}
 
+            {/* Apple & Google 1-Tap Social Auth */}
             <div className="mt-4">
               <SocialAuthButtons
                 busy={busy}
@@ -976,6 +903,7 @@ export function StartPage() {
                 onSocial={async (provider) => {
                   setInlineError(null);
                   await loginWithSocial(provider);
+                  void triggerHaptic("medium");
                   toast.success("Signed in successfully!");
                   setPendingGo(true);
                 }}
@@ -983,6 +911,7 @@ export function StartPage() {
               <SocialAuthDivider />
             </div>
 
+            {/* Method Content: Mobile SMS vs Email Form */}
             {method === "phone" ? (
               mode === "signup" ? (
                 <div className="mt-2">
@@ -995,7 +924,7 @@ export function StartPage() {
                 </div>
               ) : (
                 <div className="mt-4">
-                  <div className="mb-3 flex justify-center gap-1 rounded-full bg-paper p-1 ring-1 ring-line">
+                  <div className="mb-3.5 flex justify-center gap-1 rounded-full bg-paper p-1 ring-1 ring-line">
                     <button
                       type="button"
                       onClick={() => setPhoneLoginMode("password")}
@@ -1016,7 +945,7 @@ export function StartPage() {
                         phoneLoginMode === "sms" ? "bg-brand text-white" : "text-mute",
                       )}
                     >
-                      SMS code
+                      SMS Code
                     </button>
                   </div>
                   {phoneLoginMode === "sms" ? (
@@ -1063,20 +992,20 @@ export function StartPage() {
                         <button
                           type="button"
                           onClick={() => switchMode("reset")}
-                          className="text-xs font-medium text-accent hover:underline cursor-pointer"
+                          className="text-xs font-semibold text-accent hover:underline cursor-pointer"
                         >
                           Forgot password?
                         </button>
                       </div>
                       <Button
                         type="submit"
-                        className="w-full h-11 text-sm font-bold shadow-[0_4px_16px_rgba(18,22,20,0.15)]"
+                        className="w-full min-h-[48px] text-sm font-bold shadow-xs cursor-pointer"
                         disabled={busy}
                         loading={busy}
                       >
                         {busy ? "Signing in…" : "Sign In"}
                       </Button>
-                      <p className="text-center text-[12px] text-mute">
+                      <p className="text-center text-[11px] text-mute">
                         SMS code always works if phone + password isn&apos;t set up yet.
                       </p>
                     </form>
@@ -1084,7 +1013,9 @@ export function StartPage() {
                 </div>
               )
             ) : mode === "signup" ? (
-              /* Enhanced Direct Email Signup */
+              /* ======================================================== */
+              /* EMAIL SIGNUP FLOW WITH INSTANT @HANDLE CLAIM */
+              /* ======================================================== */
               <form onSubmit={handleEmailSignup} className="mt-4 space-y-3.5">
                 <ValidField
                   label="Full Name"
@@ -1127,6 +1058,7 @@ export function StartPage() {
                   </div>
                 </ValidField>
 
+                {/* Live @handle claim */}
                 <ValidField
                   label="AirPal Me @handle"
                   ok={handleOk}
@@ -1192,7 +1124,7 @@ export function StartPage() {
                   </div>
                 </ValidField>
 
-                {/* Password Strength Indicator */}
+                {/* Password Strength Meter */}
                 {password.length > 0 && (
                   <div className="space-y-1.5 pt-0.5">
                     <div className="flex items-center justify-between text-[11px]">
@@ -1247,7 +1179,7 @@ export function StartPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-11 text-sm font-bold shadow-[0_4px_16px_rgba(18,22,20,0.15)] mt-2 cursor-pointer"
+                  className="w-full min-h-[48px] text-sm font-bold shadow-xs mt-2 cursor-pointer"
                   disabled={
                     busy || !emailOk || !passOk || !handleOk || signupName.trim().length < 2 || !signupAdultConfirmed
                   }
@@ -1255,20 +1187,20 @@ export function StartPage() {
                 >
                   {busy ? "Creating account…" : "Create My AirPal Account"}
                 </Button>
+
                 <div className="mt-2.5 flex items-center justify-center gap-3 text-[11px] text-mute font-medium">
                   <span className="inline-flex items-center gap-1">
-                    <Check size={12} className="text-emerald-500" /> Free to join
+                    <Check size={12} className="text-emerald-500" /> Free universal account
                   </span>
                   <span className="inline-flex items-center gap-1">
-                    <Check size={12} className="text-emerald-500" /> No credit card
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Check size={12} className="text-emerald-500" /> Cancel anytime
+                    <Check size={12} className="text-emerald-500" /> No credit card required
                   </span>
                 </div>
               </form>
             ) : (
-              /* Enhanced Direct Email Sign In */
+              /* ======================================================== */
+              /* EMAIL SIGN IN FLOW */
+              /* ======================================================== */
               <form onSubmit={onSubmit} className="mt-4 space-y-3.5">
                 <ValidField label="Email Address" ok={emailOk} error={email && !emailOk ? "Enter a valid email" : null}>
                   <div className="relative">
@@ -1334,7 +1266,7 @@ export function StartPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-11 text-sm font-bold shadow-[0_4px_16px_rgba(18,22,20,0.15)] mt-2"
+                  className="w-full min-h-[48px] text-sm font-bold shadow-xs mt-2"
                   disabled={busy || !emailOk || !password}
                   loading={busy}
                 >
@@ -1344,14 +1276,14 @@ export function StartPage() {
             )}
 
             {/* Quick Switch Helper */}
-            <div className="mt-5 border-t border-line/70 pt-4 text-center">
+            <div className="mt-5 border-t border-line/60 pt-4 text-center">
               {mode === "signin" ? (
                 <p className="text-xs text-mute">
                   New to AirPal?{" "}
                   <button
                     type="button"
                     onClick={() => switchMode("signup")}
-                    className="font-semibold text-accent hover:underline"
+                    className="font-bold text-accent hover:underline cursor-pointer"
                   >
                     Create an account
                   </button>
@@ -1362,7 +1294,7 @@ export function StartPage() {
                   <button
                     type="button"
                     onClick={() => switchMode("signin")}
-                    className="font-semibold text-accent hover:underline"
+                    className="font-bold text-accent hover:underline cursor-pointer"
                   >
                     Sign in
                   </button>
@@ -1371,36 +1303,38 @@ export function StartPage() {
             </div>
 
             {/* Trust & Security Badge */}
-            <div className="mt-4 flex flex-col items-center justify-center gap-1 text-[11px] text-mute/80">
+            <div className="mt-5 flex flex-col items-center justify-center gap-1 text-[11px] text-mute/80 pt-3 border-t border-line/50">
               <div className="flex items-center gap-1.5">
                 <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
-                <span className="font-semibold text-ink">AirPal Trust &amp; Safety Certified</span>
+                <span className="font-bold text-ink">AirPal Trust &amp; Privacy Rail</span>
               </div>
-              <span className="text-[10.5px]">
-                256-bit Encrypted · Australian Privacy Act Compliant · Human Moderated
-              </span>
+              <span className="text-[10px]">256-bit Encrypted · Universal Single Account · Australian Privacy Act</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Role Portal Quick Links */}
-      <div className="mt-6 text-center">
+      {/* Role Portal Quick Links Footer */}
+      <div className="mt-6 text-center space-y-2">
         <p className="text-xs text-mute">
           Explore partner options:{" "}
-          <Link href="/join" className="text-accent font-medium hover:underline">
+          <Link href="/join" className="text-accent font-semibold hover:underline">
             Become a Host, Business or Organiser
           </Link>
         </p>
-        <p className="mt-2 text-[11px] text-mute/80">
+        <div className="flex items-center justify-center gap-3 text-[11px] text-mute">
           <Link href="/terms" className="hover:underline">
             Terms of Service
           </Link>
-          {" · "}
+          <span>·</span>
           <Link href="/privacy" className="hover:underline">
             Privacy Policy
           </Link>
-        </p>
+          <span>·</span>
+          <Link href="/trust" className="hover:underline">
+            Trust &amp; Facts
+          </Link>
+        </div>
       </div>
     </div>
   );

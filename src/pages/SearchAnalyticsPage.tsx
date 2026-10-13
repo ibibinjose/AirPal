@@ -349,7 +349,7 @@ export function SearchAnalyticsPage() {
 
         {/* Top Metric KPI Cards */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-xs">
+          <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-clay">
             <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Total Logged Searches</span>
             <p className="font-display mt-1 text-2xl sm:text-3xl font-extrabold text-ink">
               {totalVolume.toLocaleString()}
@@ -360,13 +360,13 @@ export function SearchAnalyticsPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-xs">
+          <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-clay">
             <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Unique Search Terms</span>
             <p className="font-display mt-1 text-2xl sm:text-3xl font-extrabold text-ink">{popularTerms.length}</p>
             <p className="mt-1 text-[11px] text-mute font-medium">Aggregated in Firestore</p>
           </div>
 
-          <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-xs">
+          <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-clay">
             <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Top Trending Query</span>
             <p className="font-display mt-1 text-lg sm:text-xl font-bold text-accent truncate" title={topTerm}>
               &ldquo;{topTerm}&rdquo;
@@ -374,7 +374,7 @@ export function SearchAnalyticsPage() {
             <p className="mt-1 text-[11px] text-mute font-medium">Highest search frequency</p>
           </div>
 
-          <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-xs">
+          <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-clay">
             <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Conversion / CTR</span>
             <p className="font-display mt-1 text-2xl sm:text-3xl font-extrabold text-ink">74.2%</p>
             <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-accent">
@@ -385,7 +385,7 @@ export function SearchAnalyticsPage() {
         </div>
 
         {/* Time Filter Controls & Category Switcher */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-card p-3 ring-1 ring-line/80 shadow-xs">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-card p-3 ring-1 ring-line/80 shadow-clay">
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
             <span className="text-xs font-bold text-mute uppercase tracking-wider mr-1 flex items-center gap-1">
               <SlidersHorizontal size={13} />
@@ -445,7 +445,7 @@ export function SearchAnalyticsPage() {
         {/* Charts Grid */}
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Main Chart: Search Volume Over Time (7 cols) */}
-          <div className="lg:col-span-7 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs flex flex-col justify-between">
+          <div className="lg:col-span-7 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <div>
@@ -532,7 +532,7 @@ export function SearchAnalyticsPage() {
           </div>
 
           {/* Right Chart: Top Search Queries Bar Chart (5 cols) */}
-          <div className="lg:col-span-5 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs flex flex-col justify-between">
+          <div className="lg:col-span-5 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <div>
@@ -579,7 +579,7 @@ export function SearchAnalyticsPage() {
         {/* Secondary Charts: Category Breakdown & Live Query Simulation */}
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Category Distribution Pie Chart (5 cols) */}
-          <div className="lg:col-span-5 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
+          <div className="lg:col-span-5 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
             <h2 className="font-display text-base sm:text-lg font-bold text-ink">Search Share by Category</h2>
             <p className="text-xs text-mute mt-0.5">Distribution of user interests across verticals</p>
 
@@ -619,7 +619,7 @@ export function SearchAnalyticsPage() {
           </div>
 
           {/* Quick Real-Time Simulator & Test Queries (7 cols) */}
-          <div className="lg:col-span-7 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs flex flex-col justify-between">
+          <div className="lg:col-span-7 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-accent">
                 <Sparkles size={14} />
@@ -678,7 +678,7 @@ export function SearchAnalyticsPage() {
         </div>
 
         {/* Detailed Search Terms Inspection Table */}
-        <div className="mt-8 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
+        <div className="mt-8 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-line pb-4">
             <div>
               <h2 className="font-display text-lg font-bold text-ink">Popular Search Terms Table</h2>

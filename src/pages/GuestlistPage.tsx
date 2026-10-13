@@ -376,7 +376,7 @@ export function GuestlistPage() {
           { label: "Checked in", value: counts.checkedInHeads },
           { label: "No-show", value: counts.noshowHeads },
         ].map((c) => (
-          <div key={c.label} className="rounded-2xl bg-card p-3 text-center ring-1 ring-line shadow-xs">
+          <div key={c.label} className="rounded-2xl bg-card p-3 text-center ring-1 ring-line shadow-clay">
             <p className="font-display text-2xl font-bold tabular-nums">{c.value}</p>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-mute">{c.label}</p>
           </div>
@@ -384,7 +384,7 @@ export function GuestlistPage() {
       </div>
 
       {scope === "event" && (
-        <div className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
+        <div className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold">
               Capacity <span className="text-mute">{capacity ? `${counts.goingHeads} / ${capacity}` : "not set"}</span>
@@ -461,7 +461,7 @@ export function GuestlistPage() {
           </Button>
         </div>
         {addOpen && (
-          <div className="mt-2 rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
+          <div className="mt-2 rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
             <label htmlFor="door-name" className="text-sm font-semibold">
               Guest name
             </label>
@@ -524,7 +524,7 @@ export function GuestlistPage() {
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-line overflow-hidden rounded-2xl bg-card ring-1 ring-line shadow-xs">
+          <ul className="divide-y divide-line overflow-hidden rounded-2xl bg-card ring-1 ring-line shadow-clay">
             {visible.map((row) => (
               <li key={row.id} className="flex items-center gap-3 px-4 py-3">
                 <div className="min-w-0 flex-1">

@@ -701,7 +701,7 @@ export function SearchPage() {
                     href: item.href,
                   });
                 }}
-                className="group flex items-start sm:items-center justify-between gap-3.5 rounded-2xl bg-card p-3.5 ring-1 ring-line/80 shadow-xs hover:bg-paper/80 hover:ring-brand/30 transition cursor-pointer active:scale-[0.99]"
+                className="group flex items-start sm:items-center justify-between gap-3.5 rounded-2xl bg-card p-3.5 ring-1 ring-line/80 shadow-clay hover:bg-paper/80 hover:ring-brand/30 hover:shadow-clay-hover transition cursor-pointer active:scale-[0.99]"
               >
                 <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
                   {item.image ? (

@@ -59,7 +59,7 @@ export function JoinPage() {
 
       {/* Active Cohort State */}
       {isCohortMember && activeCohort && (
-        <div className="mt-6 overflow-hidden rounded-3xl bg-card p-6 ring-1 ring-line shadow-sm text-center">
+        <div className="mt-6 overflow-hidden rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay text-center">
           <div className="text-4xl">{activeCohort.badgeEmoji}</div>
           <h2 className="font-display mt-2 text-xl font-bold text-ink">{activeCohort.name}</h2>
           <p className="mt-1 text-xs text-mute">{activeCohort.address}</p>
@@ -103,7 +103,7 @@ export function JoinPage() {
 
       {/* Join Form */}
       {(!isCohortMember || !activeCohort) && (
-        <div className="mt-8 rounded-3xl bg-card p-6 sm:p-8 ring-1 ring-line shadow-xs">
+        <div className="mt-8 rounded-3xl bg-card p-6 sm:p-8 ring-1 ring-line shadow-clay">
           <h2 className="font-display text-lg font-bold text-ink">Enter Building or College Code</h2>
           <p className="mt-1 text-xs text-mute">
             Found on your room welcome card, move-in key pack, or lobby QR poster.

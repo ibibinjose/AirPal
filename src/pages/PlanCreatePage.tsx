@@ -641,7 +641,7 @@ export function PlanCreatePage() {
       {step === 1 && (
         <div className="mt-6 space-y-6 animate-in fade-in duration-200">
           {/* Plan Title & Suggestion Chips */}
-          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
             <label className="block">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold uppercase tracking-wider text-accent">1 · Plan Title</span>
@@ -682,7 +682,7 @@ export function PlanCreatePage() {
           </section>
 
           {/* Schedule: When (Date & Time) */}
-          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
                 <Calendar size={14} />2 · Date & Time
@@ -778,7 +778,7 @@ export function PlanCreatePage() {
           </section>
 
           {/* Location: Where */}
-          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
                 <MapPin size={14} />3 · Location & Venue
@@ -823,12 +823,12 @@ export function PlanCreatePage() {
           </section>
 
           {/* Cover artwork */}
-          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
             <PlanCoverPicker value={hero} onChange={setHero} />
           </section>
 
           {/* Details (optional): visibility lives here so the core flow stays minimal */}
-          <section className="overflow-hidden rounded-3xl bg-card ring-1 ring-line shadow-xs">
+          <section className="overflow-hidden rounded-3xl bg-card ring-1 ring-line shadow-clay">
             <button
               type="button"
               onClick={() => {
@@ -928,7 +928,7 @@ export function PlanCreatePage() {
       {step === 2 && (
         <div className="mt-6 space-y-6 animate-in fade-in duration-200">
           {/* Plan Preview Summary Card */}
-          <div className="overflow-hidden rounded-3xl border border-line bg-card shadow-sm">
+          <div className="overflow-hidden rounded-3xl border border-line bg-card shadow-clay">
             {hero && (
               <div className="relative aspect-[16/9] w-full overflow-hidden bg-paper">
                 <Photo src={hero} alt="" className="h-full w-full object-cover" />
@@ -968,7 +968,7 @@ export function PlanCreatePage() {
           </div>
 
           {/* Circle & Friends Selection */}
-          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
             <div className="flex items-center justify-between mb-2">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">

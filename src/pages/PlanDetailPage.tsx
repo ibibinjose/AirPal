@@ -720,7 +720,7 @@ export function PlanDetailPage() {
               void triggerHaptic("light");
               nav(`/plan/${plan.id}/guests`);
             }}
-            className="mt-4 flex w-full cursor-pointer items-center gap-3 rounded-3xl bg-card p-4 text-left ring-1 ring-line shadow-xs transition hover:ring-brand/30 active:scale-[0.99]"
+            className="mt-4 flex w-full cursor-pointer items-center gap-3 rounded-3xl bg-card p-4 text-left ring-1 ring-line shadow-clay transition hover:ring-brand/30 hover:shadow-clay-hover active:scale-[0.99]"
           >
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand text-white shadow-xs">
               <Users size={20} />
@@ -736,7 +736,7 @@ export function PlanDetailPage() {
 
           {/* Experience Showcase & Booking Card (When plan is marked as experience) */}
           {plan.isExperience && (
-            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-amber-500/30 shadow-md">
+            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-amber-500/30 shadow-clay">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line/60 pb-5">
                 <div>
                   <div className="flex items-center gap-2">

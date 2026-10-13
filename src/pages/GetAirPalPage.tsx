@@ -180,7 +180,7 @@ export function GetAirPalPage() {
       {/* Primary Action & Download Section */}
       <div className="mt-10 grid items-stretch gap-4 md:grid-cols-2">
         {/* Web App Launch Card */}
-        <div className="flex h-full flex-col justify-between rounded-[1.8rem] bg-card p-6 shadow-xs ring-1 ring-line md:p-7">
+        <div className="flex h-full flex-col justify-between rounded-[1.8rem] bg-card p-6 shadow-clay ring-1 ring-line md:p-7">
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-700">
@@ -202,7 +202,7 @@ export function GetAirPalPage() {
         </div>
 
         {/* Scan & Share Card */}
-        <div className="flex h-full flex-col items-center justify-between rounded-[1.8rem] bg-card p-6 text-center shadow-xs ring-1 ring-line md:p-7">
+        <div className="flex h-full flex-col items-center justify-between rounded-[1.8rem] bg-card p-6 text-center shadow-clay ring-1 ring-line md:p-7">
           <div className="w-full">
             <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-1 text-xs font-bold text-accent border border-brand/20">
               <Smartphone size={13} /> Scan on Mobile
@@ -372,7 +372,7 @@ export function GetAirPalPage() {
           {VERTICALS.map((v) => (
             <div
               key={v.title}
-              className="rounded-2xl ring-1 ring-line bg-card p-5 shadow-xs transition hover:-translate-y-0.5"
+              className="rounded-2xl ring-1 ring-line bg-card p-5 shadow-clay transition hover:-translate-y-0.5 hover:shadow-clay-hover"
             >
               <div className="flex items-center justify-between">
                 <div className={`rounded-xl p-2.5 border ${v.color}`}>
@@ -390,7 +390,7 @@ export function GetAirPalPage() {
       </div>
 
       {/* Trust & Safety Highlights */}
-      <div className="mt-12 rounded-3xl ring-1 ring-line bg-card p-6 md:p-8">
+      <div className="mt-12 rounded-3xl ring-1 ring-line bg-card p-6 md:p-8 shadow-clay">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
           <div className="flex flex-col items-center md:items-start">
             <div className="rounded-2xl bg-brand/10 p-3 text-accent border border-brand/20">

@@ -120,7 +120,7 @@ export function PartnerPage() {
         .
       </p>
 
-      <form onSubmit={onSubmit} className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs sm:p-7">
+      <form onSubmit={onSubmit} className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay sm:p-7">
         <p className="text-[13px] font-bold text-ink">
           Who are you? <span className="text-accent">*</span>
         </p>
@@ -253,7 +253,7 @@ export function PartnerPage() {
         </p>
       </form>
 
-      <section className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs sm:p-6">
+      <section className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay sm:p-6">
         <h2 className="font-display text-xl font-bold text-ink">What happens next</h2>
         <ol className="mt-3 space-y-2 text-[14px] text-ink/80">
           <li>

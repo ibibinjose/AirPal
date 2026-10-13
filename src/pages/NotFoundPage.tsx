@@ -48,7 +48,7 @@ export function NotFoundPage() {
       </div>
 
       {/* Pillar Recovery Links */}
-      <div className="mt-10 rounded-3xl bg-card p-5 ring-1 ring-line text-left shadow-xs">
+      <div className="mt-10 rounded-3xl bg-card p-5 ring-1 ring-line text-left shadow-clay">
         <p className="text-[11px] font-bold uppercase tracking-wider text-mute px-2 pb-2">
           Jump to an ecosystem pillar
         </p>

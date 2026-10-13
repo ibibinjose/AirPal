@@ -228,7 +228,7 @@ export function PlanEditPage() {
         </div>
 
         {/* Details & Destination */}
-        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs space-y-4">
+        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay space-y-4">
           <p className="text-xs font-bold uppercase tracking-wider text-accent">02 · Details</p>
           <label className="font-display text-base font-semibold text-ink block">Basic Information</label>
 
@@ -309,7 +309,7 @@ export function PlanEditPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs space-y-3">
+        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay space-y-3">
           <p className="text-xs font-bold uppercase tracking-wider text-accent">03 · Photo</p>
           <ImageField
             kind="square"
@@ -321,7 +321,7 @@ export function PlanEditPage() {
         </div>
 
         {/* VIP Theme */}
-        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
           <p className="text-xs font-bold uppercase tracking-wider text-accent">04 · Theme</p>
           <label className="font-display text-base font-semibold text-ink block mt-1">Invitation Card Theme</label>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -352,7 +352,7 @@ export function PlanEditPage() {
         </div>
 
         {/* Itinerary Stops Section */}
-        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
           <p className="text-xs font-bold uppercase tracking-wider text-accent">05 · Stops</p>
           <div className="flex items-center justify-between gap-3 mb-4 mt-1">
             <div>
@@ -413,7 +413,7 @@ export function PlanEditPage() {
 
       {/* Danger zone: cancel notifies the going crew; delete erases silently */}
       {canCancelPlanStatus(plan.status) && (
-        <div className="mt-6 rounded-3xl bg-card p-6 ring-1 ring-red-500/20 shadow-xs">
+        <div className="mt-6 rounded-3xl bg-card p-6 ring-1 ring-red-500/20 shadow-clay">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-red-500">Danger zone</p>
           <h2 className="font-display text-base font-bold text-ink">Cancel this plan</h2>
           <p className="mt-0.5 text-[13px] text-mute">

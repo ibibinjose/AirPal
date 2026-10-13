@@ -385,7 +385,7 @@ export function PlanHubPage() {
               key={starter.label}
               type="button"
               onClick={() => handleStarterClick(starter)}
-              className="group flex w-44 shrink-0 flex-col justify-between rounded-2xl bg-card p-3.5 text-left ring-1 ring-line transition-shadow duration-200 hover:ring-brand/30 hover:shadow-sm active:scale-95 sm:w-auto"
+              className="group flex w-44 shrink-0 flex-col justify-between rounded-2xl bg-card p-3.5 text-left ring-1 ring-line shadow-clay transition-shadow duration-200 hover:ring-brand/30 hover:shadow-clay-hover active:scale-95 sm:w-auto"
             >
               <div className="flex items-center justify-between">
                 <span className={cn("flex h-10 w-10 items-center justify-center rounded-xl", starter.color)}>

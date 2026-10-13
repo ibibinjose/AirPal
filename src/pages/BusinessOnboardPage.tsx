@@ -327,7 +327,7 @@ export function BusinessOnboardPage() {
         <ArrowLeft className="h-4 w-4" /> Back to Business Studio
       </Link>
 
-      <div className="mt-3 rounded-[32px] bg-card p-6 sm:p-8 ring-1 ring-line shadow-xs">
+      <div className="mt-3 rounded-[32px] bg-card p-6 sm:p-8 ring-1 ring-line shadow-clay">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-line/60 pb-5">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">

@@ -87,7 +87,7 @@ export function BelongingReportPanel() {
       {/* KPI Highlight Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: North Star */}
-        <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+        <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-xs font-bold uppercase tracking-wider text-mute">30-Day Activation</span>
             <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand/10 text-accent">
@@ -104,7 +104,7 @@ export function BelongingReportPanel() {
         </div>
 
         {/* Metric 2: Completed Experiences */}
-        <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+        <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-xs font-bold uppercase tracking-wider text-mute">Completions</span>
             <span className="grid h-8 w-8 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600">
@@ -121,7 +121,7 @@ export function BelongingReportPanel() {
         </div>
 
         {/* Metric 3: Event Attendance */}
-        <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+        <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-xs font-bold uppercase tracking-wider text-mute">Attendance vs RSVP</span>
             <span className="grid h-8 w-8 place-items-center rounded-xl bg-amber-500/10 text-amber-600">
@@ -138,7 +138,7 @@ export function BelongingReportPanel() {
         </div>
 
         {/* Metric 4: Safety & Trust */}
-        <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+        <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-xs font-bold uppercase tracking-wider text-mute">Safety Audit</span>
             <span className="grid h-8 w-8 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600">
@@ -155,7 +155,7 @@ export function BelongingReportPanel() {
       </div>
 
       {/* Cohort Health Summary */}
-      <div className="rounded-3xl bg-gradient-to-r from-card via-card to-paper p-6 ring-1 ring-line shadow-xs">
+      <div className="rounded-3xl bg-gradient-to-r from-card via-card to-paper p-6 ring-1 ring-line shadow-clay">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 className="font-display text-lg font-bold text-ink">{currentInst.name} — Belonging Health Score</h3>

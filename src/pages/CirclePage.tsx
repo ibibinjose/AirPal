@@ -84,7 +84,7 @@ export function CirclePage() {
       </header>
 
       {/* Real-World Social Level / Quests */}
-      <div className="mt-6 rounded-3xl bg-gradient-to-r from-card via-card to-paper p-5 ring-1 ring-line shadow-xs">
+      <div className="mt-6 rounded-3xl bg-gradient-to-r from-card via-card to-paper p-5 ring-1 ring-line shadow-clay">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand/10 text-xl font-bold text-accent">

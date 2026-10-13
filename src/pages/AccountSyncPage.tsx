@@ -143,7 +143,7 @@ export function AccountSyncPage() {
 
       <div className="mt-8 space-y-6">
         {/* Section 1: Google Calendar Integration */}
-        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 ring-1 ring-blue-500/20">
@@ -176,7 +176,7 @@ export function AccountSyncPage() {
         </div>
 
         {/* Section 2: Apple Calendar & Outlook ICS */}
-        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-paper text-ink ring-1 ring-line">
@@ -215,7 +215,7 @@ export function AccountSyncPage() {
         </div>
 
         {/* Section 3: Contacts Sync */}
-        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/20">

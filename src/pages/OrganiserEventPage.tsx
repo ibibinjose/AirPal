@@ -1594,19 +1594,19 @@ export function OrganiserEventPage() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
                 <p className="text-xs font-bold uppercase tracking-wider text-mute">Directory Supply</p>
                 <p className="font-display text-3xl sm:text-4xl font-bold mt-1 text-ink">{stalls.length}</p>
                 <p className="text-xs capitalize text-mute mt-0.5">{stallFieldLabels(myEvent.flavour).listNoun} live</p>
               </div>
 
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
                 <p className="text-xs font-bold uppercase tracking-wider text-mute">Guest Feedback</p>
                 <p className="font-display text-3xl sm:text-4xl font-bold mt-1 text-ink">{feedback.length}</p>
                 <p className="text-xs text-mute mt-0.5">Ratings received</p>
               </div>
 
-              <div className="col-span-2 sm:col-span-1 rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs flex flex-col justify-between">
+              <div className="col-span-2 sm:col-span-1 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-mute">Entrance QR</p>
                   <p className="text-xs text-ink font-semibold mt-1 truncate">{myEvent.gatePath}</p>
@@ -1616,7 +1616,7 @@ export function OrganiserEventPage() {
                 </Button>
               </div>
 
-              <div className="col-span-2 sm:col-span-1 rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs flex flex-col justify-between">
+              <div className="col-span-2 sm:col-span-1 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-mute">Guestlist</p>
                   <p className="font-display text-3xl sm:text-4xl font-bold mt-1 text-ink">
@@ -1637,7 +1637,7 @@ export function OrganiserEventPage() {
 
             {/* Description Preview Card */}
             {myEvent.description && (
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs space-y-2">
+              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay space-y-2">
                 <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
                   <FileText size={14} /> Description & Guest Story
                 </p>
@@ -1680,7 +1680,7 @@ export function OrganiserEventPage() {
             </div>
 
             {feedback.length > 0 && (
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs space-y-3">
+              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
                 <p className="text-xs font-bold uppercase tracking-wider text-mute">Recent Guest Ratings</p>
                 <ul className="space-y-2">
                   {feedback.slice(0, 8).map((r) => (
@@ -1710,7 +1710,7 @@ export function OrganiserEventPage() {
               const labels = stallFieldLabels(myEvent.flavour);
               return (
                 <>
-                  <form className="space-y-3 rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs" onSubmit={onAddStall}>
+                  <form className="space-y-3 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay" onSubmit={onAddStall}>
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h2 className="font-display text-lg font-bold text-ink">
@@ -1878,7 +1878,7 @@ export function OrganiserEventPage() {
                           <button
                             type="button"
                             onClick={() => editStall(s)}
-                            className="w-full rounded-2xl bg-card px-4 py-3.5 text-left border border-line/80 transition hover:border-brand/40 shadow-xs group"
+                            className="w-full rounded-2xl bg-card px-4 py-3.5 text-left border border-line/80 transition hover:border-brand/40 shadow-clay hover:shadow-clay-hover group"
                           >
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-mute font-medium">

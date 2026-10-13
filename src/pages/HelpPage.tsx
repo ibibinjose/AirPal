@@ -84,7 +84,7 @@ export function HelpPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-xs">
+        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-clay">
           <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
             <LifeBuoy size={26} />
           </div>
@@ -111,7 +111,7 @@ export function HelpPage() {
             return (
               <li
                 key={article.id}
-                className="overflow-hidden rounded-3xl bg-card ring-1 ring-line shadow-xs transition hover:shadow-md"
+                className="overflow-hidden rounded-3xl bg-card ring-1 ring-line shadow-clay transition hover:shadow-clay-hover"
               >
                 <button
                   type="button"

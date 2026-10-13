@@ -121,7 +121,7 @@ export function AboutPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:py-12">
       {/* Hero Card */}
-      <div className="relative overflow-hidden rounded-[32px] bg-card ring-1 ring-line shadow-xs">
+      <div className="relative overflow-hidden rounded-[32px] bg-card ring-1 ring-line shadow-clay">
         <div className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden">
           <Photo
             src="/media/harbour.jpg"
@@ -185,7 +185,7 @@ export function AboutPage() {
             return (
               <div
                 key={item.title}
-                className="group relative flex flex-col justify-between rounded-[28px] bg-card p-5 ring-1 ring-line/80 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-brand/30"
+                className="group relative flex flex-col justify-between rounded-[28px] bg-card p-5 ring-1 ring-line/80 shadow-clay transition-all duration-200 hover:-translate-y-0.5 hover:shadow-clay-hover hover:ring-brand/30"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
@@ -235,7 +235,7 @@ export function AboutPage() {
           {ARRIVAL_ENGINE_POINTS.map((pt) => {
             const Icon = pt.icon;
             return (
-              <div key={pt.title} className="rounded-[28px] bg-card p-5 ring-1 ring-line/80 shadow-xs">
+              <div key={pt.title} className="rounded-[28px] bg-card p-5 ring-1 ring-line/80 shadow-clay">
                 <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
                   <Icon size={20} strokeWidth={2} />
                 </span>
@@ -305,7 +305,7 @@ export function AboutPage() {
       </div>
 
       {/* Origin & Company Accreditation */}
-      <div className="mt-12 rounded-[32px] bg-card p-6 sm:p-8 ring-1 ring-line shadow-xs">
+      <div className="mt-12 rounded-[32px] bg-card p-6 sm:p-8 ring-1 ring-line shadow-clay">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-2xl">
             <p className="text-[11px] font-bold uppercase tracking-wider text-accent">Australian Roots</p>
