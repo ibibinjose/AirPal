@@ -56,7 +56,7 @@ export function HostTodaySummary({
       )}
 
       {property.roomTypes && property.roomTypes.length > 0 && (
-        <section className="mt-4 rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-sm">
+        <section className="mt-4 rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Room types</p>
             <button
