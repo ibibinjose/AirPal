@@ -371,7 +371,7 @@ export function HostPlaceForm({
         </Button>
       </form>
 
-      <form onSubmit={saveWifi} className="space-y-3 rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-sm md:p-6">
+      <form onSubmit={saveWifi} className="space-y-3 rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay md:p-6">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Wi-Fi</p>
           <h2 className="font-display text-xl font-semibold tracking-tight">Guest network</h2>
