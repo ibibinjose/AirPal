@@ -69,9 +69,10 @@ The following 27 pages and their routes were eliminated from the codebase. Every
 ## 4. Surfaces Simplified (SIMPLIFY)
 
 - **App Shell & Chrome (`AppShell.tsx`):**
+  - Restored `<LocalNowBar />` at the top of the sticky header with location picker, date, time, live weather condition, temperature, rain chance, and power saver indicator.
   - Removed stacked overhead alert banners (`TicketAlertBar`, `BatteryWarningBanner`, `SyncStatusBar`).
   - Removed the floating action button (FAB) that blocked mobile tap targets.
-  - Retained a single top bar and the 5-tab thumb-friendly bottom navigation dock (`Now`, `Pass`, `Plan`, `Circle`, `Me`).
+  - Retained clean top header and the 5-tab thumb-friendly bottom navigation dock (`Now`, `Pass`, `Plan`, `Circle`, `Me`).
 - **HomePage (`HomePage.tsx`):**
   - Replaced the fragmented 4-vertical landing matrix with a clean editorial greeting: "Less scrolling. More living."
   - Featured a single high-contrast primary CTA: "Discover What's Open Now $\to$" linking directly to `/now`.
