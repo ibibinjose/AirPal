@@ -122,3 +122,17 @@ The following 27 pages and their routes were eliminated from the codebase. Every
   - Guests pay their share with Apple Pay, Google Pay, or card via native Stripe Checkout.
 - **1-Tap "Plan Hangout Here" Bridge ([`PlacePage.tsx`](file:///Users/bibinjose/Projects/Codebase/Projects/AirPal/src/pages/PlacePage.tsx)):**
   - Universal primary action on all venue/place pages that pre-fills venue title, destination, and hero image directly into a new Plan.
+
+---
+
+## 8. Real Baseline Data Fallbacks & Offline Reliability
+
+- **The Rocks Weekend Market & Artisan Stalls:**
+  - Connected `SEED_EVENT` ("The Rocks Weekend Market") as immediate fallback in `loadEvents()` and `getEvent()`.
+  - Connected all 9 artisan market stalls in `SEED_STALLS` via `loadStalls()` and `stallsFor()` so `/e/evt-rocks-market` displays live artisan stalls on fresh installs without waiting for manual admin seeding.
+- **Realistic Discoverable Hangouts & Retreats:**
+  - Initialized `readFromStorage()` in [`plan-store.ts`](file:///Users/bibinjose/Projects/Codebase/Projects/AirPal/src/lib/plan-store.ts) with `SEED_PLANS` ("Friday Night Out in The Rocks", "Sunday Harbour Lunch & Walk", "5-Day Bali Surf & Yoga Retreat", and "Secret Laneways Cocktail Crawl").
+  - Extended [`seed-database.ts`](file:///Users/bibinjose/Projects/Codebase/Projects/AirPal/src/lib/seed-database.ts) to seed `plans` collection in Firestore alongside places, events, stays, and bios.
+- **Cross-Platform Mobile Search Navigation:**
+  - Refined mobile E2E interaction in `search-flow.spec.ts` so search palette opens cleanly via both keyboard shortcut and native mobile header search icon.
+
