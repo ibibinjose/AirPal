@@ -1,10 +1,11 @@
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Plus } from "@/components/icons";
+import { Plus, Search } from "@/components/icons";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { ProfileMenu } from "@/components/auth/ProfileMenu";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { openGlobalCreate } from "@/components/design-system/CreateFab";
+import { openGlobalSearch } from "@/components/search/openSearch";
 import { cn } from "@/lib/cn";
 import { enterEase } from "@/lib/motion";
 import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
@@ -70,6 +71,19 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
           <BrowseMenu path={path} isHost={isHost} />
         </nav>
         <div className="flex items-center justify-end gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              void triggerHaptic("medium");
+              openGlobalSearch();
+            }}
+            className="flex h-11 w-11 touch-manipulation place-items-center justify-center rounded-full text-mute hover:bg-card hover:text-ink ring-1 ring-line transition-transform active:scale-95 cursor-pointer"
+            aria-label="Search"
+            title="Search AirPal (⌘K)"
+          >
+            <Search size={16} />
+          </button>
+
           <button
             onClick={() => {
               void triggerHaptic("medium");

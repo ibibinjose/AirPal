@@ -32,24 +32,16 @@ test.describe("Search Engine Flow", () => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    // Open search modal via button or keyboard shortcut
-    const searchBtn = page.getByRole("button", { name: "Search", exact: true });
+    // Open search modal via header button or keyboard shortcut
+    const searchBtn = page.getByRole("button", { name: "Search" }).first();
     if (await searchBtn.isVisible().catch(() => false)) {
       await searchBtn.click();
     } else {
       await page.keyboard.press("Meta+k");
     }
-    let modalInput = page.getByPlaceholder(/Search people, places, events/i);
-    if (!(await modalInput.isVisible().catch(() => false))) {
-      await page.keyboard.press("Control+k");
-    }
-    if (!(await modalInput.isVisible().catch(() => false))) {
-      const fallbackBtn = page.getByLabel("Search").first();
-      if (await fallbackBtn.isVisible().catch(() => false)) {
-        await fallbackBtn.click();
-      }
-    }
-    await expect(modalInput).toBeVisible();
+
+    const modalInput = page.getByPlaceholder(/Search people, places, events/i);
+    await expect(modalInput).toBeVisible({ timeout: 10000 });
 
     // Type query
     await modalInput.fill("harbour");

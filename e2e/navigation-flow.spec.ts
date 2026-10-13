@@ -132,4 +132,19 @@ test.describe("Global Navigation & Profile Flow", () => {
     const placeLink = page.locator("a[href^='/@'], a[href^='/p/']").first();
     await expect(tourBtn.or(placeLink)).toBeVisible();
   });
+
+  test("header create button opens creation sheet and navigates to plan creation", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
+
+    const createBtn = page.getByRole("button", { name: /Create/i }).first();
+    await expect(createBtn).toBeVisible();
+    await createBtn.click();
+
+    await expect(page.getByRole("heading", { name: /What do you want to create\?/i })).toBeVisible();
+    await expect(page.getByText("Make a Plan")).toBeVisible();
+
+    await page.getByText("Make a Plan").click();
+    await expect(page).toHaveURL(/\/plan\/new/);
+  });
 });

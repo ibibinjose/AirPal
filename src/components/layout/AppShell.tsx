@@ -30,7 +30,7 @@ import { parseAtHandle } from "@shared/bio";
 import { shouldShowFooter } from "@/lib/footer-rules";
 import { isNativeApp, triggerHaptic } from "@/lib/native";
 import { SiteFooter } from "./SiteFooter";
-import { openGlobalCreate } from "@/components/design-system/CreateFab";
+import { CreateFab, openGlobalCreate } from "@/components/design-system/CreateFab";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useDataReload } from "@/hooks/useDataReload";
 import { PullToRefreshContainer } from "./PullToRefreshContainer";
@@ -228,6 +228,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </PullToRefreshContainer>
           </main>
           {!workspace && !isPlanDetail && <TabBar path={path} enter={play} />}
+          <CreateFab showFab={false} />
           <PresencePublisher />
           <DeviceMirror />
           {searchArmed && (

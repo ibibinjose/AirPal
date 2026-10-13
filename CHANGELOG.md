@@ -19,7 +19,7 @@ The Council of Seven Experts conducted a full-funnel audit, strategy formation, 
 | **Navigation Chrome**   | 5 stacked banners + FAB + pillar strip                                  | Clean single header + 5-tab mobile dock                           | **Zero vertical screen clutter**      |
 | **Discovery Core Loop** | Cluttered vertical silo list                                            | 60s Discovery Radar (`/now`), category chips, hero CTA            | **Time to value < 60s**               |
 | **Privacy Compliance**  | Generic policy text                                                     | GDPR / DPDP Art. 20 JSON data export, clear consent controls      | **Full regulatory compliance**        |
-| **Test Verification**   | Broken tests, skipped suites                                            | 177 Vitest files (1,058 tests) + 129 Playwright E2E tests passing | **100% test pass rate**               |
+| **Test Verification**   | Broken tests, skipped suites                                            | 177 Vitest files (1,058 tests) + 131 Playwright E2E tests passing | **100% test pass rate**               |
 
 ---
 
@@ -133,6 +133,10 @@ The following 27 pages and their routes were eliminated from the codebase. Every
 - **Realistic Discoverable Hangouts & Retreats:**
   - Initialized `readFromStorage()` in [`plan-store.ts`](file:///Users/bibinjose/Projects/Codebase/Projects/AirPal/src/lib/plan-store.ts) with `SEED_PLANS` ("Friday Night Out in The Rocks", "Sunday Harbour Lunch & Walk", "5-Day Bali Surf & Yoga Retreat", and "Secret Laneways Cocktail Crawl").
   - Extended [`seed-database.ts`](file:///Users/bibinjose/Projects/Codebase/Projects/AirPal/src/lib/seed-database.ts) to seed `plans` collection in Firestore alongside places, events, stays, and bios.
-- **Cross-Platform Mobile Search Navigation:**
-  - Refined mobile E2E interaction in `search-flow.spec.ts` so search palette opens cleanly via both keyboard shortcut and native mobile header search icon.
+- **Cross-Platform Mobile Search & Desktop TopNav Search:**
+  - Added dedicated accessible Search button to desktop `TopNav` alongside mobile header search, wired to `openGlobalSearch()`.
+  - Refined mobile E2E interaction in `search-flow.spec.ts` to cleanly await lazy-loaded modal appearance without timing flakes.
+- **Universal Header Create (+) Action & Creation Modal:**
+  - Connected the sticky mobile header and desktop TopNav Create (+) buttons to `<CreateFab showFab={false} />`, keeping the bottom tab bar uncluttered while opening the universal creation modal.
+  - Verified creation pathways for social hangouts (`/plan/new`), live event hosting (`/event`), and arrival onboarding (`/join`).
 

@@ -63,24 +63,24 @@ export const CREATE_OPTIONS: CreateOption[] = [
     id: "event",
     title: "Host an Event",
     subtitle: "Create a meetup, workshop, or ticketed experience",
-    href: "/event/new",
+    href: "/event",
     icon: Ticket,
     colorClass: "bg-amber-500/10 text-amber-600 ring-amber-500/20",
     group: "business",
   },
   {
     id: "pulse",
-    title: "Share Live Pulse",
-    subtitle: "Broadcast a live vibe check or what’s on right now",
-    href: "/pulse",
+    title: "Arrival & Cohorts",
+    subtitle: "Join or broadcast community arrivals & cohort passes",
+    href: "/join",
     icon: Sparkles,
     colorClass: "bg-rose-500/10 text-rose-600 ring-rose-500/20",
     group: "business",
   },
   {
     id: "scan",
-    title: "Scan Room / Code",
-    subtitle: "Scan Stay compendium, Wi-Fi, pass, or venue code",
+    title: "Scan Ticket / Pass",
+    subtitle: "Scan guest ticket, passbook, or venue door QR",
     href: "/scan",
     icon: QrCode,
     colorClass: "bg-purple-500/10 text-purple-600 ring-purple-500/20",
@@ -110,7 +110,7 @@ const HIDE_FAB_ROUTES = [
   /^\/auth\/action/,
 ];
 
-export function CreateFab() {
+export function CreateFab({ showFab = true }: { showFab?: boolean } = {}) {
   const [open, setOpen] = useState(false);
   const [path, nav] = useLocation();
   const { isKeyboardOpen } = useVirtualKeyboard();
@@ -151,7 +151,7 @@ export function CreateFab() {
   return (
     <>
       {/* Floating Action Button */}
-      {!shouldHide && (
+      {!shouldHide && showFab && (
         <motion.div
           className="fixed z-40 right-4 bottom-[calc(env(safe-area-inset-bottom,0px)+74px)] lg:bottom-6 lg:right-6 pointer-events-auto"
           initial={{ scale: 0.8, opacity: 0 }}
