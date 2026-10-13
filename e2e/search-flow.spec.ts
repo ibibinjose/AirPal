@@ -32,11 +32,22 @@ test.describe("Search Engine Flow", () => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    // Open search modal via Cmd+K / Ctrl+K keyboard shortcut
-    await page.keyboard.press("Meta+k");
+    // Open search modal via button or keyboard shortcut
+    const searchBtn = page.getByRole("button", { name: "Search", exact: true });
+    if (await searchBtn.isVisible().catch(() => false)) {
+      await searchBtn.click();
+    } else {
+      await page.keyboard.press("Meta+k");
+    }
     let modalInput = page.getByPlaceholder(/Search people, places, events/i);
-    if (!(await modalInput.isVisible())) {
+    if (!(await modalInput.isVisible().catch(() => false))) {
       await page.keyboard.press("Control+k");
+    }
+    if (!(await modalInput.isVisible().catch(() => false))) {
+      const fallbackBtn = page.getByLabel("Search").first();
+      if (await fallbackBtn.isVisible().catch(() => false)) {
+        await fallbackBtn.click();
+      }
     }
     await expect(modalInput).toBeVisible();
 

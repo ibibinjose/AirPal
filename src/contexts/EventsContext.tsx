@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { clearPendingIntent, peekPendingIntent } from "@/lib/pending-intent";
 import { onIdle } from "@/lib/on-idle";
 import {
+  SEED_EVENT,
+  SEED_STALLS,
   eventGatePath,
   parseStallCsv,
   type AttendanceStatus,
@@ -218,13 +220,21 @@ export function EventsProvider({ children }: { children: ReactNode }) {
           const ne = toNearbyEvent(data, row.id);
           if (ne) nearby.push(ne);
         }
+        if (bases.length === 0 && snap.empty) {
+          bases.push(recordToCalendarBase(SEED_EVENT));
+          records.push(SEED_EVENT);
+        }
         setRemoteBases(bases);
         setRemoteNearby(nearby);
         setRemoteRecords(records);
         setRemoteLoaded(true);
       })
       .catch(() => {
-        if (alive) setRemoteLoaded(true);
+        if (alive) {
+          setRemoteBases([recordToCalendarBase(SEED_EVENT)]);
+          setRemoteRecords([SEED_EVENT]);
+          setRemoteLoaded(true);
+        }
       });
     return () => {
       alive = false;
@@ -271,7 +281,11 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const stallsFor = useCallback(
-    (eventId: string) => stalls.filter((s) => s.eventId === eventId && s.status === "active"),
+    (eventId: string) => {
+      const active = stalls.filter((s) => s.eventId === eventId && s.status === "active");
+      if (active.length === 0 && eventId === SEED_EVENT.id) return SEED_STALLS;
+      return active;
+    },
     [stalls],
   );
 
@@ -518,7 +532,10 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       fetchRemoteEvent,
       userStates,
       stallsFor,
-      getEvent: (id) => events.find((e) => e.id === id) || remoteRecords.find((e) => e.id === id),
+      getEvent: (id) =>
+        events.find((e) => e.id === id) ||
+        remoteRecords.find((e) => e.id === id) ||
+        (id === SEED_EVENT.id ? SEED_EVENT : undefined),
       isSaved: (stallId) => savedStalls.some((s) => s.stallId === stallId),
       toggleGoing,
       toggleInterested,

@@ -131,7 +131,7 @@ export function AdminPage() {
       const res = await seedDatabase();
       if (res.ok) {
         toast.success(
-          `Seeded real database: ${res.propertiesCount} stays, ${res.placesCount} places, ${res.eventsCount} events, ${res.biosCount} bios`,
+          `Seeded real database: ${res.propertiesCount} stays, ${res.placesCount} places, ${res.eventsCount} events, ${res.plansCount} plans, ${res.biosCount} bios`,
         );
       } else {
         toast.error(`Seeding error: ${res.error}`);

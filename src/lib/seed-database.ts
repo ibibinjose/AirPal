@@ -10,6 +10,7 @@ import {
 import { SEED_BIO } from "@shared/bio";
 import { KERALA_PLACES } from "@shared/kerala-data";
 import { SEED_EVENT, SEED_STALLS } from "@shared/event";
+import { SEED_PLANS, type HangoutPlan } from "@shared/plan";
 import { WALKING_TOURS } from "@shared/tours";
 import { listingDefaults, upsertCachedListing } from "./listings";
 import { cachePlaces, loadPlaces } from "./places-store";
@@ -19,6 +20,7 @@ import { upsertStoredMarker } from "./markers-store";
 import { cacheTours } from "./tours-store";
 import { saveCachedProperty } from "./properties";
 import { harbourStaySeeds } from "./seed-stay";
+import { loadPlans, savePlan } from "./plan-store";
 
 export type SeedResult = {
   ok: boolean;
@@ -26,6 +28,7 @@ export type SeedResult = {
   eventsCount: number;
   biosCount: number;
   propertiesCount: number;
+  plansCount: number;
   error?: string;
 };
 
@@ -53,6 +56,7 @@ export async function seedDatabase(): Promise<SeedResult> {
   let eventsCount = 0;
   let biosCount = 0;
   let propertiesCount = 0;
+  let plansCount = 0;
 
   try {
     const db = getFirebaseDb();
@@ -270,12 +274,37 @@ export async function seedDatabase(): Promise<SeedResult> {
       }
     }
 
+    // 6. Seed Plans
+    const currentPlans = loadPlans();
+    const plansMap = new Map<string, HangoutPlan>();
+    for (const p of currentPlans) plansMap.set(p.id, p);
+    for (const p of SEED_PLANS) {
+      if (!plansMap.has(p.id)) {
+        savePlan(p, false);
+        plansCount++;
+      }
+      if (db) {
+        try {
+          void setDoc(
+            doc(db, "plans", p.id),
+            cleanDoc({
+              ...p,
+              updatedAt: new Date().toISOString(),
+            }),
+          ).catch(() => undefined);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+
     return {
       ok: true,
       placesCount,
       eventsCount,
       biosCount,
       propertiesCount,
+      plansCount,
     };
   } catch (err) {
     return {
@@ -284,6 +313,7 @@ export async function seedDatabase(): Promise<SeedResult> {
       eventsCount,
       biosCount,
       propertiesCount,
+      plansCount,
       error: err instanceof Error ? err.message : String(err),
     };
   }

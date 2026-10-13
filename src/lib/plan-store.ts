@@ -4,6 +4,7 @@ import {
   type PlanComment,
   type PlanStop,
   type StopChangeAction,
+  SEED_PLANS,
   buildStopChangeMessage,
   canCancelPlanStatus,
   randomInviteCode,
@@ -22,21 +23,22 @@ let cachedPlans: HangoutPlan[] = [];
 const subscribers = new Set<() => void>();
 let firestoreSyncInitialized = false;
 
-/** User plans only: device cache + Firestore `plans` sync. No bundled seeds — empty means empty. */
+/** User plans: device cache + Firestore `plans` sync, baseline-seeded with SEED_PLANS on first run. */
 function readFromStorage(): HangoutPlan[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
+    if (!raw) return SEED_PLANS;
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
+    if (!Array.isArray(parsed) || parsed.length === 0) return SEED_PLANS;
     const map = new Map<string, HangoutPlan>();
+    for (const p of SEED_PLANS) map.set(p.id, p);
     for (const p of parsed) {
       if (p && typeof p.id === "string") map.set(p.id, p);
     }
     return Array.from(map.values());
   } catch {
-    return [];
+    return SEED_PLANS;
   }
 }
 
