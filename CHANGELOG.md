@@ -139,4 +139,3 @@ The following 27 pages and their routes were eliminated from the codebase. Every
 - **Universal Header Create (+) Action & Creation Modal:**
   - Connected the sticky mobile header and desktop TopNav Create (+) buttons to `<CreateFab showFab={false} />`, keeping the bottom tab bar uncluttered while opening the universal creation modal.
   - Verified creation pathways for social hangouts (`/plan/new`), live event hosting (`/event`), and arrival onboarding (`/join`).
-
