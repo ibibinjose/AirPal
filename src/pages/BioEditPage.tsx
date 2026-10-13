@@ -803,7 +803,7 @@ export function BioEditPage() {
       {/* Main Page Content */}
       <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-5">
         {/* 2. Identity Switcher & Profile Distinction Card */}
-        <div className="rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line shadow-xs border border-line/40">
+        <div className="rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line shadow-clay border border-line/40">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3.5">
             {/* Identity Info */}
             <div className="flex items-center gap-3.5 min-w-0">
@@ -968,7 +968,7 @@ export function BioEditPage() {
             {tab === "profile" && (
               <form className="mt-6 space-y-6" onSubmit={(e) => void handleSaveAll(e)}>
                 {/* 1.1 Media & Visual Studio Section */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <Camera size={14} />
@@ -1010,7 +1010,7 @@ export function BioEditPage() {
                 </div>
 
                 {/* 1.2 Basic Profile Info Section */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <Edit3 size={14} />
@@ -1192,7 +1192,7 @@ export function BioEditPage() {
                 </div>
 
                 {/* 1.3 Live Availability & Presence Section */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <Sparkles size={14} />
@@ -1264,7 +1264,7 @@ export function BioEditPage() {
                 </div>
 
                 {/* 1.4 Location & Hours Section */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <MapPin size={14} />
@@ -1291,7 +1291,7 @@ export function BioEditPage() {
                 </div>
 
                 {/* 1.5 Virtual Sync & Video Call Platform */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <Video size={14} />
@@ -1366,7 +1366,7 @@ export function BioEditPage() {
 
                 {/* 1.6 Profile Visibility (Personal only) */}
                 {!isBusiness && (
-                  <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-xs space-y-4">
+                  <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-4">
                     <div className="flex items-center justify-between border-b border-line/60 pb-3">
                       <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                         <Shield size={14} />
@@ -1470,7 +1470,7 @@ export function BioEditPage() {
                 return (
                   <div className="mt-6 space-y-6">
                     {/* Quick-Pick Trays */}
-                    <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-xs space-y-5">
+                    <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
                       {/* Social Media Networks */}
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
@@ -1538,7 +1538,7 @@ export function BioEditPage() {
 
                     {/* Add Link Input Box */}
                     <form
-                      className="space-y-3 rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-xs"
+                      className="space-y-3 rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay"
                       onSubmit={(e) => {
                         e.preventDefault();
                         if (!href.trim()) return;
@@ -1617,7 +1617,7 @@ export function BioEditPage() {
                     </form>
 
                     {/* Active Links List */}
-                    <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-xs space-y-4">
+                    <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-4">
                       <div className="flex items-center justify-between">
                         <p className="text-xs font-semibold uppercase tracking-wider text-mute">
                           Active Bio Links ({links.length})
@@ -1702,7 +1702,7 @@ export function BioEditPage() {
 
             {/* TAB 3: SHOP & CATALOG */}
             {tab === "shop" && (
-              <div className="mt-6 rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-xs">
+              <div className="mt-6 rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay">
                 <div className="mb-4 pb-3 border-b border-line/60">
                   <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                     <Package size={14} />
@@ -1722,7 +1722,7 @@ export function BioEditPage() {
             {tab === "share" && (
               <div className="mt-6 space-y-6">
                 {/* Apple Passbook Style QR Card */}
-                <div className="rounded-3xl border border-line bg-card p-6 sm:p-8 text-center shadow-xs space-y-5">
+                <div className="rounded-3xl border border-line bg-card p-6 sm:p-8 text-center shadow-clay space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <QrCode size={14} />
@@ -1819,7 +1819,7 @@ export function BioEditPage() {
                 </div>
 
                 {/* Handle Configuration */}
-                <div className="rounded-3xl border border-line bg-card p-6 sm:p-7 shadow-xs">
+                <div className="rounded-3xl border border-line bg-card p-6 sm:p-7 shadow-clay">
                   <ChangeHandleForm current={activeProfile.handle} profileId={activeProfile.id} />
                 </div>
               </div>

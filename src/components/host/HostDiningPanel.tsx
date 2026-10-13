@@ -58,7 +58,7 @@ export function HostDiningPanel({ propertyId, menu }: { propertyId: string; menu
 
   return (
     <div className="mt-5 space-y-5">
-      <section className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-sm md:p-6">
+      <section className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay md:p-6">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">In-room dining</p>
         <h2 className="font-display text-xl font-semibold tracking-tight">Live menu</h2>
         <p className="mt-1 text-[13px] text-mute">Guests see this on Stay → Dining. Empty means ask the desk.</p>
@@ -104,7 +104,7 @@ export function HostDiningPanel({ propertyId, menu }: { propertyId: string; menu
         )}
       </section>
 
-      <form onSubmit={addItem} className="space-y-3 rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-sm md:p-6">
+      <form onSubmit={addItem} className="space-y-3 rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay md:p-6">
         <h3 className="font-display text-lg font-semibold">Add a dish</h3>
         <label className="block">
           <span className="text-[12px] font-semibold text-ink/70">Name</span>

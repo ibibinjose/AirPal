@@ -371,7 +371,7 @@ export function PulseHubPage() {
                 </div>
               </div>
 
-              <div className="space-y-4 rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-xs">
+              <div className="space-y-4 rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay">
                 <p className="text-xs font-bold uppercase tracking-wider text-mute">
                   2. Customize Question & Placement
                 </p>

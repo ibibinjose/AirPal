@@ -170,7 +170,7 @@ export function AuthGate({
 
   return (
     <div className="mx-auto max-w-md px-4 py-12 md:py-16">
-      <div className="rounded-3xl bg-card p-6 md:p-8 ring-1 ring-line shadow-sm text-center">
+      <div className="rounded-3xl bg-card p-6 md:p-8 ring-1 ring-line shadow-clay text-center">
         {/* Role Icon */}
         <div
           className={cn(

@@ -188,7 +188,7 @@ export function HostFacilitiesPanel({
   return (
     <div className="mt-5 space-y-6">
       {/* Current Facilities List */}
-      <section className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-sm sm:p-6">
+      <section className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay sm:p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Hotel Amenities</p>
@@ -285,7 +285,7 @@ export function HostFacilitiesPanel({
       <form
         id="facility-form"
         onSubmit={handleAdd}
-        className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-sm sm:p-6 space-y-3.5"
+        className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay sm:p-6 space-y-3.5"
       >
         <div className="flex items-center justify-between">
           <h3 className="font-display text-lg font-bold text-ink">

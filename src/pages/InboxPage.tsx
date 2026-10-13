@@ -44,7 +44,7 @@ function NotificationRows({
   onOpen: (n: PromotionNotification) => void;
 }) {
   return (
-    <ul className="mt-4 overflow-hidden rounded-[24px] bg-card ring-1 ring-line/80 shadow-xs">
+    <ul className="mt-4 overflow-hidden rounded-[24px] bg-card ring-1 ring-line/80 shadow-clay">
       {rows.map((n, i) => {
         const when = relativeAgo(n.at);
         const presentation = notificationPresentation(n.kind);
@@ -302,7 +302,7 @@ export function InboxPage() {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Direct &amp; AI Chats</span>
                 <span className="text-[11px] font-medium text-mute">{universalChats.length} active</span>
               </div>
-              <ul className="overflow-hidden rounded-[24px] bg-card ring-1 ring-line/80 shadow-xs">
+              <ul className="overflow-hidden rounded-[24px] bg-card ring-1 ring-line/80 shadow-clay">
                 {universalChats.map((conv, i) => {
                   const unread = getUnread(conv);
                   const hasUnread = unread > 0;
@@ -381,7 +381,7 @@ export function InboxPage() {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Trip Plans Chats</span>
                 <span className="text-[11px] font-medium text-mute">{tripConversations.length} trips</span>
               </div>
-              <ul className="overflow-hidden rounded-[24px] bg-card ring-1 ring-line/80 shadow-xs">
+              <ul className="overflow-hidden rounded-[24px] bg-card ring-1 ring-line/80 shadow-clay">
                 {tripConversations.map((p, i) => (
                   <li key={p.id} className={cn(i > 0 && "border-t border-line/70")}>
                     <button
@@ -405,7 +405,7 @@ export function InboxPage() {
               </ul>
             </div>
           ) : universalChats.length === 0 ? (
-            <div className="text-center rounded-[24px] bg-card ring-1 ring-line/80 px-4 py-10 shadow-xs">
+            <div className="text-center rounded-[24px] bg-card ring-1 ring-line/80 px-4 py-10 shadow-clay">
               <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-paper text-mute ring-1 ring-line">
                 <MessageCircle size={22} className="text-accent" />
               </span>

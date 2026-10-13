@@ -126,7 +126,7 @@ export function HostRoomsPanel({
       </div>
 
       {showForm && (
-        <section className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-sm">
+        <section className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">New room type</p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <ValidField label="Type name" ok={draft.name.trim().length >= 2}>
@@ -245,7 +245,7 @@ export function HostRoomsPanel({
         const addCount = addCounts[t.id] ?? 1;
         const editing = editingId === t.id;
         return (
-          <section key={t.id} className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-sm">
+          <section key={t.id} className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">

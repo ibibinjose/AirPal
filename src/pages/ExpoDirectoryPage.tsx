@@ -148,7 +148,7 @@ export function ExpoDirectoryPage({ event }: { event: EventRecord }) {
 
       {/* Host & Collaborators Attribution Card */}
       {(event.hostName || event.hostHandle || (event.collaboratorHandles && event.collaboratorHandles.length > 0)) && (
-        <div className="mt-3 rounded-2xl bg-card p-3.5 ring-1 ring-line shadow-xs space-y-2.5">
+        <div className="mt-3 rounded-2xl bg-card p-3.5 ring-1 ring-line shadow-clay space-y-2.5">
           {(event.hostName || event.hostHandle) && (
             <div className="flex items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2 min-w-0">
@@ -289,7 +289,7 @@ export function ExpoDirectoryPage({ event }: { event: EventRecord }) {
             <button
               type="button"
               onClick={() => nav(hrefForStall(s))}
-              className="flex w-full items-center justify-between rounded-2xl bg-card px-4 py-3 text-left ring-1 ring-line hover:ring-brand/30 transition shadow-xs group"
+              className="flex w-full items-center justify-between rounded-2xl bg-card px-4 py-3 text-left ring-1 ring-line hover:ring-brand/30 transition shadow-clay hover:shadow-clay-hover group"
             >
               <span>
                 <span className="block text-[11px] font-semibold text-mute">

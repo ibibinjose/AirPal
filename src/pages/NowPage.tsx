@@ -229,7 +229,7 @@ export function NowPage() {
 
         {/* Live Weather & Outfit Context */}
         {weather && outfitAdvice && (
-          <div className="mt-3 flex items-center gap-3 rounded-2xl bg-card p-3.5 text-xs ring-1 ring-line/80 shadow-xs">
+          <div className="mt-3 flex items-center gap-3 rounded-2xl bg-card p-3.5 text-xs ring-1 ring-line/80 shadow-clay">
             <span className="text-2xl shrink-0" aria-hidden="true">
               {outfitAdvice.icon}
             </span>
@@ -252,7 +252,7 @@ export function NowPage() {
         {/* B2B2C Arrival Layer: Institution Cohort Banner & Hosted Experiences */}
         {isCohortMember && activeCohort ? (
           <div className="mt-3 space-y-2.5">
-            <div className="flex items-center justify-between gap-3 rounded-2xl bg-card p-3.5 text-xs ring-1 ring-line/80 shadow-xs">
+            <div className="flex items-center justify-between gap-3 rounded-2xl bg-card p-3.5 text-xs ring-1 ring-line/80 shadow-clay">
               <div className="flex items-center gap-2.5 min-w-0">
                 <span className="text-xl shrink-0">{activeCohort.badgeEmoji}</span>
                 <div className="min-w-0">

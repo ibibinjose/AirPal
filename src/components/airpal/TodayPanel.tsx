@@ -63,7 +63,7 @@ export function TodayPanel({ className }: { className?: string }) {
       </section>
 
       {/* Your day at a glance */}
-      <section className="rounded-2xl border border-line bg-card p-5 shadow-xs transition hover:shadow-sm">
+      <section className="rounded-2xl border border-line bg-card p-5 shadow-clay transition hover:shadow-clay-hover">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-base font-bold text-ink">Your day, at a glance</h2>
           <CalendarDays size={18} className="text-accent" />
@@ -123,7 +123,7 @@ export function TodayPanel({ className }: { className?: string }) {
       {/* Wallet / Passbook Peek */}
       <Link
         href="/me/tickets"
-        className="group flex items-center gap-3 rounded-2xl border border-line bg-card p-4 shadow-xs transition hover:border-brand/40 hover:shadow-sm active:scale-[0.99] cursor-pointer"
+        className="group flex items-center gap-3 rounded-2xl border border-line bg-card p-4 shadow-clay transition hover:border-brand/40 hover:shadow-clay-hover active:scale-[0.99] cursor-pointer"
       >
         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand/10 text-accent transition group-hover:bg-brand group-hover:text-white">
           <Ticket size={20} />

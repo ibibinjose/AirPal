@@ -47,7 +47,7 @@ export function HostPrintPanel({ property }: { property: PropertyInfo }) {
         demo rooms.
       </p>
       <div className="grid gap-4 md:grid-cols-2">
-        <article className="flex flex-col rounded-[28px] bg-card/90 p-5 text-center ring-1 ring-line shadow-sm">
+        <article className="flex flex-col rounded-[28px] bg-card/90 p-5 text-center ring-1 ring-line shadow-clay">
           <p className="font-display text-lg font-semibold">{property.name} lobby</p>
           <p className="mt-1 text-xs text-mute">Entrance / reception scan</p>
           {lobbyQr ? (
@@ -65,7 +65,7 @@ export function HostPrintPanel({ property }: { property: PropertyInfo }) {
           </Button>
         </article>
         {rooms.length === 0 ? (
-          <article className="flex flex-col justify-center rounded-[28px] bg-card/90 p-5 text-center ring-1 ring-line shadow-sm">
+          <article className="flex flex-col justify-center rounded-[28px] bg-card/90 p-5 text-center ring-1 ring-line shadow-clay">
             <p className="font-display text-lg font-semibold">No room tokens yet</p>
             <p className="mt-1 text-sm text-mute">
               Room QRs appear here once this stay has live room tokens in the database.
@@ -75,7 +75,7 @@ export function HostPrintPanel({ property }: { property: PropertyInfo }) {
           rooms.map(([token, room]) => (
             <article
               key={token}
-              className="flex flex-col rounded-[28px] bg-card/90 p-5 text-center ring-1 ring-line shadow-sm"
+              className="flex flex-col rounded-[28px] bg-card/90 p-5 text-center ring-1 ring-line shadow-clay"
             >
               <p className="font-display text-lg font-semibold">Room {room}</p>
               <p className="mt-1 text-xs text-mute">Guest companion for this room</p>

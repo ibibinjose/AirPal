@@ -154,7 +154,10 @@ export function HostPlaceForm({
 
   return (
     <div className="mt-5 space-y-5">
-      <form onSubmit={savePlace} className="space-y-4 rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay md:p-6">
+      <form
+        onSubmit={savePlace}
+        className="space-y-4 rounded-[28px] bg-card/90 p-5 ring-1 ring-line shadow-clay md:p-6"
+      >
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Guest stay</p>
           <h2 className="font-display text-xl font-semibold tracking-tight">Place details</h2>

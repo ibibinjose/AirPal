@@ -1710,7 +1710,10 @@ export function OrganiserEventPage() {
               const labels = stallFieldLabels(myEvent.flavour);
               return (
                 <>
-                  <form className="space-y-3 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay" onSubmit={onAddStall}>
+                  <form
+                    className="space-y-3 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay"
+                    onSubmit={onAddStall}
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h2 className="font-display text-lg font-bold text-ink">
