@@ -9,7 +9,6 @@ import { ExperienceDialog } from "@/components/airpal/ExperienceDialog";
 import { AddPlanDialog } from "@/components/airpal/AddPlanDialog";
 import { CategoryFilters, type CategoryType } from "@/components/airpal/CategoryFilters";
 import { TodayPanel } from "@/components/airpal/TodayPanel";
-import { PILLARS } from "@/lib/pillars";
 import { triggerHaptic } from "@/lib/native";
 
 export function HomePage() {
@@ -83,10 +82,10 @@ export function HomePage() {
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link
-              href="/explore"
+              href="/now"
               className="inline-flex min-h-[48px] items-center gap-2 rounded-full bg-brand px-6 text-xs sm:text-sm font-semibold text-white shadow-sm transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
             >
-              <span>Find my next thing</span>
+              <span>What's open now</span>
               <ArrowUpRight size={16} />
             </Link>
 
@@ -111,52 +110,8 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* 4 Core Pillars Hub */}
-      <section className="mt-8" aria-label="Explore by category">
-        <div className="flex items-center justify-between mb-3 px-1">
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-accent">THE 4 PILLARS</span>
-            <h2 className="text-base sm:text-lg font-bold text-ink">Find what you need</h2>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {PILLARS.map((pillar) => {
-            const Icon = pillar.icon;
-            return (
-              <Link
-                key={pillar.id}
-                href={pillar.href}
-                className="group relative flex flex-col justify-between rounded-2xl bg-card p-4 ring-1 ring-line hover:ring-brand/40 hover:shadow-md transition active:scale-[0.98] cursor-pointer"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand/10 text-accent group-hover:bg-brand group-hover:text-white transition">
-                      <Icon size={20} />
-                    </span>
-                    <ArrowUpRight size={16} className="text-mute group-hover:text-ink transition" />
-                  </div>
-                  <h3 className="mt-3 text-base font-bold text-ink">{pillar.label}</h3>
-                  <p className="mt-0.5 text-xs text-mute line-clamp-1">{pillar.subLabel}</p>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-1 border-t border-line/60 pt-2.5">
-                  {pillar.subLinks.slice(0, 3).map((sub) => (
-                    <span
-                      key={sub.href}
-                      className="text-[10.5px] font-medium text-mute group-hover:text-accent transition"
-                    >
-                      {sub.label}
-                      <span className="last:hidden inline-block ml-1 text-line">·</span>
-                    </span>
-                  ))}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
       {/* Category Pills Bar */}
-      <div className="mt-8">
+      <div className="mt-6">
         <CategoryFilters value={category} onChange={setCategory} />
       </div>
 
