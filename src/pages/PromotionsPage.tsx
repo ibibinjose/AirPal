@@ -154,7 +154,7 @@ export function PromotionsPage() {
       </div>
 
       {/* Hero Section */}
-      <div className="rounded-3xl bg-card p-6 md:p-8 ring-1 ring-line shadow-xs">
+      <div className="rounded-3xl bg-card p-6 md:p-8 ring-1 ring-line shadow-clay">
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider ring-1 ring-amber-400/30">
             AirPal Pass · Member Perks
@@ -170,16 +170,13 @@ export function PromotionsPage() {
           Discounts, dining perks, secret barista codes, and member vouchers verified from local businesses across your
           city.
         </p>
-
-        {/* Search Bar */}
-        <div className="mt-5">
+        <div className="mt-4">
           <SearchBar
             value={search}
             onChange={setSearch}
-            sizeVariant="md"
+            placeholder="Search deals, perks, venues, or discounts..."
+            onClear={() => setSearch("")}
             variant="paper"
-            placeholder="Search deals by venue, dish, discount % or location…"
-            aria-label="Search deals"
           />
         </div>
       </div>
@@ -249,7 +246,7 @@ export function PromotionsPage() {
           <p className="text-xs font-medium">Loading local deals & perks…</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="mt-8 rounded-3xl bg-card p-8 md:p-12 text-center ring-1 ring-line shadow-xs">
+        <div className="mt-8 rounded-3xl bg-card p-8 md:p-12 text-center ring-1 ring-line shadow-clay">
           <div className="grid h-16 w-16 place-items-center rounded-3xl bg-brand/10 text-accent mx-auto mb-3 ring-1 ring-brand/20">
             <BadgePercent size={32} />
           </div>
@@ -298,7 +295,7 @@ export function PromotionsPage() {
             return (
               <div
                 key={p.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-card ring-1 ring-line shadow-xs hover:shadow-md transition duration-200"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-card ring-1 ring-line shadow-clay hover:shadow-clay-hover hover:ring-brand/30 transition duration-200"
               >
                 {/* Top Image Banner */}
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-paper">

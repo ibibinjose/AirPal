@@ -518,7 +518,7 @@ export function PlanDetailPage() {
       )}
 
       {brainHealth && plan.status !== "completed" && plan.status !== "cancelled" && (
-        <div className="mt-4 rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
+        <div className="mt-4 rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-xs font-bold text-accent uppercase tracking-wider">
               <Sparkles size={14} className="motion-safe:animate-pulse" />
@@ -580,7 +580,7 @@ export function PlanDetailPage() {
           {!ticketed && rsvpAllowed(plan) && (
             <>
               {/* RSVP Status Highlight Strip */}
-              <div className="mt-6 rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="mt-6 rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line shadow-clay flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5">
                   <span
                     className={cn(
@@ -930,7 +930,7 @@ export function PlanDetailPage() {
           )}
 
           {/* Calendar Export & Sync Actions */}
-          <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+          <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
             <h2 className="font-display text-xl font-bold text-ink mt-0.5">Sync with Calendar</h2>
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
@@ -979,7 +979,7 @@ export function PlanDetailPage() {
       {detailTab === "plan" && (
         <>
           {/* Co-Planning Itinerary Stops */}
-          <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+          <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
             <div className="flex items-center justify-between gap-3 mb-4">
               <div>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
@@ -1093,7 +1093,7 @@ export function PlanDetailPage() {
 
           {/* Host Controls: co-hosts */}
           {isHost && (
-            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
               <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">Crew</span>
               <h2 className="font-display text-xl font-bold text-ink">Co-hosts</h2>
               <p className="mt-0.5 text-[13px] text-mute">Co-hosts can manage, message, check in and lock dates.</p>
@@ -1164,7 +1164,7 @@ export function PlanDetailPage() {
 
           {/* Host Controls: door guestlist */}
           {isHost && plan && (
-            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
               <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">Door</span>
               <h2 className="font-display text-xl font-bold text-ink">Guestlist</h2>
               <p className="mt-0.5 text-[13px] text-mute">
@@ -1181,7 +1181,7 @@ export function PlanDetailPage() {
 
           {/* Host Controls: join requests */}
           {isHost && pendingList.length > 0 && (
-            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
               <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">Requests</span>
               <h2 className="font-display text-xl font-bold text-ink">Requests to join</h2>
               <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
@@ -1237,7 +1237,7 @@ export function PlanDetailPage() {
 
           {/* Host Controls: guest answers */}
           {isHost && (plan.guestQuestions || []).length > 0 && (
-            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
               <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">Guest answers</span>
               <h2 className="font-display text-xl font-bold text-ink">What the crew said</h2>
               <div className="mt-4 space-y-4">
@@ -1283,7 +1283,7 @@ export function PlanDetailPage() {
 
           {/* Host Controls: crew reviews */}
           {isHost && crewReviews.length > 0 && (
-            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+            <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
               <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">Crew reviews</span>
               <h2 className="font-display text-xl font-bold text-ink">
                 ★ {ratingSummary.average} · {ratingSummary.count} rating{ratingSummary.count === 1 ? "" : "s"}
@@ -1303,7 +1303,7 @@ export function PlanDetailPage() {
           )}
 
           {/* Attendees Guest List */}
-          <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs">
+          <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay">
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">Guest List</span>
@@ -1440,7 +1440,7 @@ export function PlanDetailPage() {
       )}
 
       {detailTab === "chat" && planConv && (
-        <div className="mt-6 overflow-hidden rounded-3xl bg-card ring-1 ring-line shadow-xs min-h-[520px] flex flex-col">
+        <div className="mt-6 overflow-hidden rounded-3xl bg-card ring-1 ring-line shadow-clay min-h-[520px] flex flex-col">
           <AirPalChatView conversation={planConv} />
         </div>
       )}

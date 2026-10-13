@@ -222,7 +222,7 @@ export function MePage() {
   return (
     <div className="mx-auto max-w-5xl px-3.5 sm:px-6 lg:px-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] pt-[max(1rem,env(safe-area-inset-top,0px))]">
       {/* 🌟 1. APPLE HIG NATIVE HERO PROFILE CARD */}
-      <div className="relative overflow-hidden rounded-[36px] bg-card ring-1 ring-line/80 shadow-sm mb-6 transition-all">
+      <div className="relative overflow-hidden rounded-[36px] bg-card ring-1 ring-line/80 shadow-clay mb-6 transition-all">
         {/* Ambient Top Glow & Pattern */}
         <div className="relative h-32 sm:h-44 bg-gradient-to-r from-brand-ink via-[#0d173f] to-[#1a0a52] overflow-hidden">
           <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#ffffff_1.2px,transparent_1.2px)] [background-size:18px_18px]" />
@@ -518,7 +518,7 @@ export function MePage() {
       <div className="space-y-6">
         {/* SECTION: TODAY'S AGENDA */}
         {showSection("today") && (
-          <section className="overflow-hidden rounded-[36px] bg-card p-5 sm:p-7 ring-1 ring-line/80 shadow-xs">
+          <section className="overflow-hidden rounded-[36px] bg-card p-5 sm:p-7 ring-1 ring-line/80 shadow-clay">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-2xl bg-brand/10 text-accent">
@@ -736,7 +736,7 @@ export function MePage() {
 
         {/* SECTION: APPOINTMENTS & CATCH-UPS */}
         {showSection("appointments") && (
-          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-xs">
+          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-2xl bg-sky-500/10 text-sky-600">
@@ -970,7 +970,7 @@ export function MePage() {
 
         {/* SECTION: TICKETS & PASSES */}
         {showSection("tickets") && (
-          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-xs">
+          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-2xl bg-amber-500/10 text-amber-600">
@@ -1074,7 +1074,7 @@ export function MePage() {
 
         {/* SECTION: UPCOMING PLANS */}
         {showSection("plans") && (
-          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-xs">
+          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-2xl bg-violet-500/10 text-violet-600">
@@ -1149,7 +1149,7 @@ export function MePage() {
 
         {/* SECTION: DIGITAL BIO PASS & QR CARD */}
         {showSection("pass") && mine && (
-          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-xs">
+          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600">
@@ -1227,7 +1227,7 @@ export function MePage() {
         {/* 🛠 4. TOOLS, WORKSPACES & ECOSYSTEM SHORTCUTS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {/* Invite Mates Card */}
-          <div className="rounded-[32px] ring-1 ring-line/80 bg-card p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+          <div className="rounded-[32px] ring-1 ring-line/80 bg-card p-5 sm:p-6 shadow-clay flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand/10 text-accent">
@@ -1243,7 +1243,7 @@ export function MePage() {
           </div>
 
           {/* Quick Shortcuts */}
-          <div className="rounded-[32px] ring-1 ring-line/80 bg-card p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+          <div className="rounded-[32px] ring-1 ring-line/80 bg-card p-5 sm:p-6 shadow-clay flex flex-col justify-between">
             <div>
               <h3 className="font-display text-base font-bold text-ink mb-3.5">Workspaces &amp; Tools</h3>
               <div className="grid grid-cols-2 gap-2.5">

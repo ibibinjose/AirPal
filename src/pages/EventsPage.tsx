@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
-import { ArrowLeft, CalendarDays, ChevronDown, MapPin, Plus, Search, Ticket, X } from "lucide-react";
+import { ArrowLeft, CalendarDays, ChevronDown, MapPin, Plus, Ticket } from "lucide-react";
 import { useEvents } from "@/contexts/EventsContext";
 import { useLocalNow } from "@/contexts/LocalNowContext";
 import type { CalendarEvent } from "@shared/event";
@@ -396,34 +396,11 @@ export function EventsPage() {
             );
           })}
         </div>
-
-        {/* Search Input */}
-        <div className="relative w-full sm:w-64 shrink-0">
-          <Search size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            aria-label="Search events and venues"
-            placeholder="Search events, venues…"
-            className="h-10 w-full rounded-2xl border border-line bg-card pl-9 pr-8 text-xs font-medium text-ink outline-none placeholder:text-mute focus:border-brand focus:ring-1 focus:ring-brand"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-mute hover:text-ink"
-              aria-label="Clear search"
-            >
-              <X size={13} />
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Event Results Section */}
       {visible.length === 0 ? (
-        <div className="mt-6 rounded-[28px] bg-card p-10 text-center ring-1 ring-line shadow-xs">
+        <div className="mt-6 rounded-[28px] bg-card p-10 text-center ring-1 ring-line shadow-clay">
           <Ticket size={36} className="mx-auto text-mute" />
           <p className="font-display text-lg font-bold text-ink mt-3">No events match this filter</p>
           <p className="mx-auto mt-1 max-w-sm text-xs text-mute">

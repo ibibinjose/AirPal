@@ -121,7 +121,7 @@ export function CalendarWeekView({
   return (
     <div className="space-y-6">
       {/* Week Navigation Header Card */}
-      <div className="rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-sm md:p-6">
+      <div className="rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay md:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
           <div>
             <div className="flex items-center gap-2">

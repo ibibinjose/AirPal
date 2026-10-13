@@ -76,7 +76,7 @@ function CalendarSkeleton() {
         ))}
       </div>
 
-      <div className="rounded-3xl bg-card p-4 md:p-6 ring-1 ring-line/80 shadow-sm">
+      <div className="rounded-3xl bg-card p-4 md:p-6 ring-1 ring-line/80 shadow-clay">
         <div className="space-y-4">
           <div className="h-8 w-40 bg-gradient-to-r from-paper via-line to-paper bg-[length:200%_100%] animate-shimmer rounded-xl mb-6" />
 

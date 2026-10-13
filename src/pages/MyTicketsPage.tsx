@@ -73,7 +73,7 @@ export function MyTicketsPage() {
       )}
 
       {!user && bookings.length === 0 ? (
-        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-xs">
+        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-clay">
           <Ticket size={28} className="mx-auto text-mute" />
           <p className="mt-2 font-display text-lg font-bold text-ink">Sign in to see your passes</p>
           <p className="mx-auto mt-1 max-w-sm text-[14px] text-mute">
@@ -111,7 +111,7 @@ export function MyTicketsPage() {
           </div>
         </>
       ) : failed && bookings.length === 0 ? (
-        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-xs">
+        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-clay">
           <Ticket size={28} className="mx-auto text-mute" />
           <p className="mt-2 font-display text-lg font-bold text-ink">Couldn&apos;t load your tickets</p>
           <p className="mx-auto mt-1 max-w-sm text-[14px] text-mute">
@@ -134,7 +134,7 @@ export function MyTicketsPage() {
           </div>
         </div>
       ) : bookings.length === 0 ? (
-        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-xs">
+        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-clay">
           <Ticket size={28} className="mx-auto text-mute" />
           <p className="mt-2 font-display text-lg font-bold text-ink">No tickets or passes yet</p>
           <p className="mx-auto mt-1 max-w-sm text-[14px] text-mute">
@@ -205,7 +205,7 @@ export function MyTicketsPage() {
           </div>
 
           {displayList.length === 0 ? (
-            <div className="rounded-3xl bg-card p-6 text-center ring-1 ring-line shadow-xs">
+            <div className="rounded-3xl bg-card p-6 text-center ring-1 ring-line shadow-clay">
               <p className="font-display text-base font-bold text-ink">
                 {tab === "upcoming" ? "No upcoming passes" : "No past passes found"}
               </p>

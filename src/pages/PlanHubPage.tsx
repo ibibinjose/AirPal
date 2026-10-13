@@ -27,8 +27,6 @@ import { useLocalNow } from "@/hooks/useLocalNow";
 import { EVENT_NEAR_M, locatedNear } from "@/lib/location-scope";
 import { triggerHaptic, triggerHapticSelection, shareNative } from "@/lib/native";
 import { Photo } from "@/components/ui/Photo";
-import { SearchBar } from "@/components/search/SearchBar";
-import { openGlobalSearch } from "@/components/search/openSearch";
 import { toPublicUrl } from "@/lib/public-origin";
 import { cn } from "@/lib/cn";
 import { toast } from "sonner";
@@ -268,7 +266,7 @@ export function PlanHubPage() {
 
       {/* Featured Spotlight: Next Upcoming Plan */}
       {tab === "my" && nextUpcomingPlan && (
-        <div className="mt-6 overflow-hidden rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs transition-all hover:shadow-md md:p-6">
+        <div className="mt-6 overflow-hidden rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay transition-all hover:shadow-clay-hover md:p-6">
           <div className="flex items-center justify-between gap-3 pb-3 border-b border-line/60">
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand/15 text-accent">
@@ -451,22 +449,8 @@ export function PlanHubPage() {
           </div>
         </div>
 
-        {/* Search and Category Filters */}
-        <div className="mt-4 flex flex-col gap-3 pb-3 sm:flex-row sm:items-center">
-          <div className="flex-1">
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              sizeVariant="md"
-              variant="card"
-              placeholder="Search plans by title, city, or stops…"
-              aria-label="Search plans"
-              showFullSearchAction={Boolean(searchQuery.trim())}
-              fullSearchLabel="Full Search"
-              onFullSearch={(q) => openGlobalSearch({ query: q, category: "plan" })}
-            />
-          </div>
-
+        {/* Category Filters */}
+        <div className="mt-4 pb-3">
           <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
             {CATEGORIES.map((c) => (
               <button
@@ -494,7 +478,7 @@ export function PlanHubPage() {
       <div className="mt-6">
         {tab === "saved" ? (
           savedDetailed.length === 0 ? (
-            <div className="rounded-3xl bg-card p-8 md:p-12 text-center ring-1 ring-line shadow-xs">
+            <div className="rounded-3xl bg-card p-8 md:p-12 text-center ring-1 ring-line shadow-clay">
               <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600">
                 <Heart size={24} />
               </div>
@@ -524,7 +508,7 @@ export function PlanHubPage() {
                       void triggerHaptic("light");
                       nav(`/calendar?event=${eventId}`);
                     }}
-                    className="flex w-full cursor-pointer touch-manipulation items-center gap-3.5 rounded-2xl bg-card p-4 text-left ring-1 ring-line transition hover:ring-brand/30 hover:shadow-xs active:scale-[0.99]"
+                    className="flex w-full cursor-pointer touch-manipulation items-center gap-3.5 rounded-2xl bg-card p-4 text-left ring-1 ring-line shadow-clay transition hover:ring-brand/30 hover:shadow-clay-hover active:scale-[0.99]"
                   >
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 font-bold">
                       <Calendar size={18} />
@@ -544,7 +528,7 @@ export function PlanHubPage() {
             </ul>
           )
         ) : displayedPlans.length === 0 ? (
-          <div className="rounded-3xl bg-card p-8 md:p-12 text-center ring-1 ring-line shadow-xs">
+          <div className="rounded-3xl bg-card p-8 md:p-12 text-center ring-1 ring-line shadow-clay">
             <div className="mx-auto mb-3.5 grid h-14 w-14 place-items-center rounded-2xl bg-brand/10 text-accent">
               <Compass size={28} />
             </div>

@@ -4,9 +4,8 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Plus, Search } from "lucide-react";
 import { TabBar } from "./TabBar";
 import { TopNav } from "./TopNav";
-import { BrowseStrip } from "./BrowseMenu";
+import { MobilePillarsNav } from "./MobilePillarsNav";
 import { isWorkspacePath } from "@/lib/workspace";
-import { showBrowseStrip } from "@/lib/browse-menu";
 import { LocalNowBar } from "./LocalNowBar";
 import { BatteryWarningBanner } from "./BatteryWarningBanner";
 import { SyncStatusBar } from "./SyncStatusBar";
@@ -16,8 +15,7 @@ import { isPassApp } from "@/lib/app-flavor";
 import { OPEN_SEARCH_EVENT, SEARCH_READY_EVENT, openGlobalSearch } from "@/components/search/openSearch";
 import { onIdle } from "@/lib/on-idle";
 
-// Search modal (catalog + stores) stays out of the boot bundle: mount on first
-// open request, preloaded at idle so the first tap is instant.
+// Search modal stays out of the boot bundle: mount on first open request
 const GlobalSearchModal = lazy(() =>
   import("@/components/search/GlobalSearchModal").then((m) => ({ default: m.GlobalSearchModal })),
 );
@@ -69,8 +67,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     disabled: bare,
   });
 
-  // Arm the lazy search modal on first open request; flush the queued open once
-  // the chunk mounts (the modal announces itself via SEARCH_READY_EVENT).
   const [searchArmed, setSearchArmed] = useState(false);
   const armedRef = useRef(false);
   const pendingSearch = useRef<{ detail: unknown } | null>(null);
@@ -86,7 +82,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       if (flushingSearch.current) return;
       queueOpen((e as CustomEvent).detail);
     };
-    // Pre-mount ⌘K/Ctrl+K: once mounted the modal owns the shortcut itself.
     const armOnKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k" && !armedRef.current) {
         e.preventDefault();
@@ -161,15 +156,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                     >
                       <Plus size={16} strokeWidth={2.5} />
                     </button>
-                    <button
-                      type="button"
-                      onClick={openGlobalSearch}
-                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-mute hover:bg-card hover:text-ink ring-1 ring-line transition after:absolute after:-inset-1 after:content-['']"
-                      aria-label="Search"
-                      title="Search AirPal (⌘K)"
-                    >
-                      <Search size={16} />
-                    </button>
                     <Link
                       href="/"
                       aria-current={path === "/" ? "page" : undefined}
@@ -233,12 +219,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                     >
                       <Search size={16} />
                     </button>
-
                     <NotificationBell />
                     <ProfileMenu />
                   </div>
                 </motion.div>
-                {showBrowseStrip(path) && <BrowseStrip path={path} />}
+                <MobilePillarsNav path={path} />
               </>
             )}
             <BatteryWarningBanner />

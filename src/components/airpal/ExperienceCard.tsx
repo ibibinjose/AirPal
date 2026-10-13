@@ -41,7 +41,7 @@ export function ExperienceCard({ item, onSelect, compact = false }: Props) {
     <article
       onClick={() => onSelect(item)}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-card shadow-xs transition duration-200 hover:border-brand/40 hover:shadow-md cursor-pointer",
+        "group relative flex flex-col overflow-hidden rounded-[28px] bg-card ring-1 ring-line/80 shadow-clay transition duration-200 hover:ring-brand/40 hover:shadow-clay-hover active:scale-[0.99] cursor-pointer",
         compact ? "max-w-sm" : "w-full",
       )}
     >

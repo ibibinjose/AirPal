@@ -195,7 +195,7 @@ export function CirclePage() {
 
       {/* Cohort Quick Link if active */}
       {activeCohort && (
-        <div className="mt-6 rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-xs flex items-center justify-between gap-3">
+        <div className="mt-6 rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-clay flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <span className="text-2xl shrink-0">{activeCohort.badgeEmoji}</span>
             <div className="min-w-0">
@@ -257,7 +257,7 @@ export function CirclePage() {
             {circleMembers.map((handle) => (
               <div
                 key={handle}
-                className="flex items-center justify-between gap-3 rounded-2xl bg-card p-3.5 ring-1 ring-line shadow-xs transition hover:bg-paper/50"
+                className="flex items-center justify-between gap-3 rounded-2xl bg-card p-3.5 ring-1 ring-line shadow-clay transition hover:shadow-clay-hover hover:bg-paper/50"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="grid h-10 w-10 place-items-center rounded-full bg-brand/10 font-bold text-accent shrink-0">
@@ -286,7 +286,7 @@ export function CirclePage() {
       </section>
 
       {/* Fast CTA */}
-      <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 className="font-display text-base font-bold text-ink">Need a quick plan with friends?</h3>
           <p className="text-xs text-mute mt-0.5">

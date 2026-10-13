@@ -1,10 +1,9 @@
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Plus, Search } from "@/components/icons";
+import { Plus } from "@/components/icons";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { ProfileMenu } from "@/components/auth/ProfileMenu";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
-import { openGlobalSearch } from "@/components/search/openSearch";
 import { openGlobalCreate } from "@/components/design-system/CreateFab";
 import { cn } from "@/lib/cn";
 import { enterEase } from "@/lib/motion";
@@ -14,51 +13,34 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
 import { partnerAccountPath } from "@/lib/partner-account";
 import { BrowseMenu } from "@/components/layout/BrowseMenu";
+import { PILLARS, type PillarItem } from "@/lib/pillars";
 import { NAMES } from "@shared/names";
-
-const LINKS = [
-  { href: "/", label: "Home", match: (p: string) => p === "/" },
-  { href: "/now", label: "Now", match: (p: string) => p.startsWith("/now") },
-  {
-    href: "/plan",
-    label: "Plan",
-    match: (p: string) => p.startsWith("/plan") || p.startsWith("/invite"),
-  },
-  {
-    href: "/pass",
-    label: "Pass",
-    match: (p: string) => p.startsWith("/pass") || p.startsWith("/events") || p.startsWith("/deals"),
-  },
-  {
-    href: "/me/tickets",
-    label: "Tickets",
-    match: (p: string) => p.startsWith("/me/tickets") || p.startsWith("/ticket"),
-  },
-];
 
 export function TopNav({ path, enter = false }: { path: string; enter?: boolean }) {
   const [, nav] = useLocation();
   const { user, isHost } = useAuth();
   const { business } = useBio();
 
-  const renderLink = (link: (typeof LINKS)[number]) => {
-    const isActive = link.match(path);
+  const renderPillar = (pillar: PillarItem) => {
+    const isActive = pillar.match(path);
+    const Icon = pillar.icon;
     return (
       <button
-        key={link.href}
+        key={pillar.href}
         onClick={() => {
           void triggerHapticSelection();
-          nav(link.href);
+          nav(pillar.href);
         }}
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "min-h-[40px] touch-manipulation rounded-full px-3.5 text-sm font-semibold transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
+          "flex min-h-[40px] touch-manipulation items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
           isActive
-            ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(18,22,20,0.25)]"
+            ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
             : "text-mute hover:bg-paper/80 hover:text-ink",
         )}
       >
-        {link.label}
+        <Icon size={14} className={isActive ? "text-white" : "text-accent"} />
+        <span>{pillar.label}</span>
       </button>
     );
   };
@@ -84,27 +66,10 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
           </button>
         </div>
         <nav className="flex items-center justify-center gap-1 rounded-full bg-card/80 p-1 ring-1 ring-line/80 shadow-xs">
-          {LINKS.slice(0, 2).map(renderLink)}
+          {PILLARS.map(renderPillar)}
           <BrowseMenu path={path} isHost={isHost} />
-          {LINKS.slice(2).map(renderLink)}
         </nav>
         <div className="flex items-center justify-end gap-2 shrink-0">
-          <button
-            onClick={() => {
-              void triggerHaptic("light");
-              openGlobalSearch();
-            }}
-            className="flex h-10 min-h-[44px] items-center gap-2 rounded-full bg-card px-3.5 text-xs font-medium text-mute ring-1 ring-line/80 hover:bg-paper hover:text-ink hover:ring-brand/30 transition-[background-color,color,box-shadow] shadow-xs cursor-pointer touch-manipulation"
-            title="Search AirPal (⌘K)"
-            aria-label="Search"
-          >
-            <Search size={15} className="text-accent" />
-            <span className="hidden xl:inline">Search</span>
-            <kbd className="hidden rounded border border-line bg-paper/90 px-1.5 py-0.5 text-[10px] font-semibold text-mute xl:inline-block">
-              ⌘K
-            </kbd>
-          </button>
-
           <button
             onClick={() => {
               void triggerHaptic("medium");

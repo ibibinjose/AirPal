@@ -155,7 +155,7 @@ export function BusinessPage() {
   if (!mine) {
     return (
       <div className="mx-auto min-h-[60vh] max-w-2xl px-4 py-12">
-        <div className="rounded-[32px] bg-card p-6 sm:p-10 text-center ring-1 ring-line shadow-xs">
+        <div className="rounded-[32px] bg-card p-6 sm:p-10 text-center ring-1 ring-line shadow-clay">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-brand/10 text-accent ring-1 ring-brand/20">
             <Building2 className="h-8 w-8" />
           </div>
@@ -307,7 +307,7 @@ export function BusinessPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8 pb-[max(6rem,calc(env(safe-area-inset-bottom,0px)+5rem))]">
       {/* Top Venue Switcher & Multi-Location Toolbar */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-card px-4 py-3 ring-1 ring-line shadow-xs">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-card px-4 py-3 ring-1 ring-line shadow-clay">
         <div className="flex items-center gap-3">
           <span className="text-xs font-bold uppercase tracking-wider text-mute">Active Venue:</span>
           {myListings.length > 1 ? (
@@ -358,7 +358,7 @@ export function BusinessPage() {
       </div>
 
       {/* Top Header Card with Cover & Fast Action Hub */}
-      <header className="overflow-hidden rounded-[32px] bg-card ring-1 ring-line shadow-xs">
+      <header className="overflow-hidden rounded-[32px] bg-card ring-1 ring-line shadow-clay">
         <div className="relative h-44 sm:h-56 w-full overflow-hidden bg-zinc-900">
           <Photo
             src={hero || mine.heroImage || "/media/harbour.jpg"}
@@ -435,7 +435,7 @@ export function BusinessPage() {
         {/* Left Column: Primary Management Subsystems (7-8 cols on desktop) */}
         <main className="space-y-6 lg:col-span-7 xl:col-span-8">
           {/* Wave NFC Check-in & Host Station */}
-          <div className="rounded-[28px] bg-card p-4 sm:p-5 ring-1 ring-line shadow-xs">
+          <div className="rounded-[28px] bg-card p-4 sm:p-5 ring-1 ring-line shadow-clay">
             <WaveHostCard placeName={mine.name} placeId={mine.placeId} listingId={mine.id} handle={handle} />
           </div>
 
@@ -454,7 +454,7 @@ export function BusinessPage() {
           {tab === "place" && (
             <div className="space-y-6">
               {/* Google Place Quick Sync Card */}
-              <section className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
+              <section className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <h2 className="font-display text-base font-bold text-ink">Google Place Sync</h2>
@@ -708,14 +708,14 @@ export function BusinessPage() {
 
           {/* TAB 3: DOOR & GUEST LIST */}
           {tab === "list" && (
-            <div className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
+            <div className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
               <GuestListPanel clubId={handle || mine.id} clubName={mine.name} />
             </div>
           )}
 
           {/* TAB 4: OFFERS & EXCLUSIVE DEALS */}
           {tab === "offer" && (
-            <div className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs space-y-6">
+            <div className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-6">
               <div>
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-base font-bold text-ink">Publish Neighbourhood Offer</h2>
@@ -792,7 +792,7 @@ export function BusinessPage() {
         {/* Right Column: Live Guest Preview, Visibility Score & Subscription (4-5 cols on desktop) */}
         <aside className="space-y-6 lg:col-span-5 xl:col-span-4">
           {/* Live Guest Preview Card */}
-          <section className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-xs">
+          <section className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Live Guest View</span>
               <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
@@ -819,7 +819,7 @@ export function BusinessPage() {
 
           {/* Partner Visibility Checklist */}
           {!(business?.products?.length || business?.services?.length || business?.deals?.length) && (
-            <section className="rounded-[28px] bg-card p-5 ring-1 ring-brand/20 shadow-xs">
+            <section className="rounded-[28px] bg-card p-5 ring-1 ring-brand/20 shadow-clay">
               <div className="flex items-center gap-2">
                 <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-brand/10 text-accent">
                   <Sparkles className="h-4 w-4" />
@@ -845,7 +845,7 @@ export function BusinessPage() {
           <BusinessSubscriptionCard />
 
           {/* Quick Operations Links */}
-          <section className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-xs space-y-2">
+          <section className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-2">
             <h3 className="font-display text-xs font-bold uppercase tracking-wider text-mute">Operations Hub</h3>
             <Link
               href="/helpdesk"

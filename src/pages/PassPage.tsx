@@ -10,7 +10,6 @@ import {
   MapPin,
   Plus,
   QrCode,
-  Search,
   ShieldCheck,
   Sparkles,
   Ticket,
@@ -228,21 +227,6 @@ export function PassPage() {
             Live concerts, cultural festivals, dining perks &amp; 1-tap Apple &amp; Google Wallet passes.
           </p>
 
-          {/* Quick Search Input */}
-          <div className="mt-6 max-w-xl">
-            <div className="relative flex items-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur-md focus-within:ring-amber-400">
-              <Search size={18} className="absolute left-4 text-white/60" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                aria-label="Search events, deals and experiences"
-                placeholder="Search concerts, Bollywood nights, hotels, food deals, festivals…"
-                className="w-full bg-transparent py-3.5 pl-11 pr-4 text-sm font-medium text-white placeholder-white/50 focus:outline-none"
-              />
-            </div>
-          </div>
-
           {/* Pass Action Highlights */}
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link
@@ -406,7 +390,7 @@ export function PassPage() {
         </div>
 
         {filteredEvents.length === 0 ? (
-          <div className="mt-4 rounded-3xl bg-card p-10 text-center ring-1 ring-line shadow-xs">
+          <div className="mt-4 rounded-3xl bg-card p-10 text-center ring-1 ring-line shadow-clay">
             <Ticket size={32} className="mx-auto text-mute" />
             <p className="font-display text-base font-bold text-ink mt-2">No events match this filter</p>
             <p className="text-xs text-mute mt-1">Try selecting "All Access" or explore upcoming calendar dates.</p>
@@ -416,7 +400,7 @@ export function PassPage() {
                 setActiveCategory("all");
                 setSearchQuery("");
               }}
-              className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-brand px-4 py-2 text-xs font-bold text-white"
+              className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
             >
               Reset Filters
             </button>
@@ -426,7 +410,7 @@ export function PassPage() {
             {filteredEvents.slice(0, 9).map((event) => (
               <div
                 key={event.id}
-                className="group flex flex-col justify-between overflow-hidden rounded-3xl bg-card ring-1 ring-line/80 shadow-xs transition hover:shadow-md hover:ring-brand/30"
+                className="group flex flex-col justify-between overflow-hidden rounded-3xl bg-card ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover transition hover:ring-brand/30"
               >
                 <div>
                   <div className="relative aspect-[16/9] w-full overflow-hidden bg-paper">
@@ -534,7 +518,7 @@ export function PassPage() {
               <Link
                 key={deal.id || idx}
                 href={deal.id.startsWith("demo") ? "/deals" : `/deals/${deal.id}`}
-                className="group flex items-center justify-between gap-3 rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-xs hover:shadow-md hover:ring-brand/30 transition active:scale-[0.98]"
+                className="group flex items-center justify-between gap-3 rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-brand/30 transition active:scale-[0.98]"
               >
                 <div className="flex items-center gap-3.5 min-w-0">
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-paper">
@@ -583,7 +567,7 @@ export function PassPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Pillar 1: Ticket Sales & Event Hosting */}
-          <div className="group flex flex-col justify-between rounded-3xl bg-card p-6 ring-1 ring-line/80 shadow-xs hover:shadow-md hover:ring-amber-500/30 transition">
+          <div className="group flex flex-col justify-between rounded-3xl bg-card p-6 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-amber-500/30 transition">
             <div>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
                 <Ticket size={24} />
@@ -612,7 +596,7 @@ export function PassPage() {
           </div>
 
           {/* Pillar 2: Arrival Engine & Cohort Host */}
-          <div className="group flex flex-col justify-between rounded-3xl bg-card p-6 ring-1 ring-line/80 shadow-xs hover:shadow-md hover:ring-emerald-500/30 transition">
+          <div className="group flex flex-col justify-between rounded-3xl bg-card p-6 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-emerald-500/30 transition">
             <div>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20">
                 <Building2 size={24} />
@@ -642,7 +626,7 @@ export function PassPage() {
           </div>
 
           {/* Pillar 3: Door Scanner & Operations */}
-          <div className="group flex flex-col justify-between rounded-3xl bg-card p-6 ring-1 ring-line/80 shadow-xs hover:shadow-md hover:ring-rose-500/30 transition">
+          <div className="group flex flex-col justify-between rounded-3xl bg-card p-6 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-rose-500/30 transition">
             <div>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/20">
                 <QrCode size={24} />

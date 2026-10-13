@@ -148,7 +148,7 @@ export function CalendarMonthGrid({
   }, [cells, selectedDate, onSelectDate]);
 
   return (
-    <div className="rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-sm md:p-6" ref={gridRef}>
+    <div className="rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay md:p-6" ref={gridRef}>
       {/* Month Navigation Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
         <div className="flex items-center gap-3">

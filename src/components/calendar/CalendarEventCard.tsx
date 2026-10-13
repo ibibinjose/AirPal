@@ -178,7 +178,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
         endDrag();
       }}
       className={cn(
-        "cv-auto group relative flex flex-col rounded-3xl bg-card p-4 ring-1 ring-line/80 transition-all duration-200 hover:shadow-md hover:ring-line md:p-5 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2",
+        "cv-auto group relative flex flex-col rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay transition-all duration-200 hover:shadow-clay-hover hover:ring-brand/30 active:scale-[0.99] md:p-5 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2",
         onSelect && "cursor-pointer",
         event.isGoing && "ring-emerald-500/50 bg-gradient-to-b from-emerald-500/5 via-card to-card",
         isCurrentlyDragged && "opacity-40 ring-2 ring-brand ring-dashed scale-[0.99]",

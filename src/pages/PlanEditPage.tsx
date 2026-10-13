@@ -160,7 +160,7 @@ export function PlanEditPage() {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
         {/* Occasion format */}
-        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-xs space-y-4">
+        <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay space-y-4">
           <p className="text-xs font-bold uppercase tracking-wider text-accent">01 · Occasion</p>
           <label className="font-display text-base font-semibold text-ink block">Occasion Format</label>
 

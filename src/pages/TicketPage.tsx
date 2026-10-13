@@ -262,7 +262,7 @@ export function TicketPage() {
             />
           </div>
         ) : (
-          <div className="rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-xs">
+          <div className="rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-clay">
             <Ticket size={32} className="mx-auto text-mute" />
             <p className="font-display text-lg font-bold text-ink mt-3">Pass Loaded for Gate Staff</p>
             <p className="text-xs text-mute mt-1">Ticket ID: {id}</p>

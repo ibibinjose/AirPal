@@ -42,7 +42,7 @@ export function Button({
         variant === "onDark" && "bg-neutral-900/80 text-white ring-1 ring-white/55 hover:bg-neutral-900",
         variant === "tonal" && "bg-brand/10 text-accent font-semibold hover:bg-brand/15 active:bg-brand/20",
         variant === "elevated" &&
-          "bg-card text-ink shadow-[var(--shadow-m3-1)] ring-1 ring-line hover:shadow-[var(--shadow-m3-2)]",
+          "bg-card text-ink shadow-clay ring-1 ring-line hover:shadow-clay-hover active:shadow-clay-active",
         variant === "outlined" && "bg-transparent text-ink border border-line hover:bg-black/[0.04]",
         variant === "glass" && "apple-liquid-glass-light text-ink ring-1 ring-white/60 hover:ring-brand/40 shadow-xs",
         className,

@@ -306,7 +306,7 @@ export function NowPage() {
         ) : (
           <Link
             href="/join"
-            className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-card border border-brand/20 p-3.5 text-xs text-ink transition hover:bg-paper active:scale-[0.99] shadow-xs"
+            className="mt-3 flex items-center justify-between gap-3 rounded-[28px] bg-card ring-1 ring-brand/25 p-3.5 text-xs text-ink transition hover:bg-paper active:scale-[0.99] shadow-clay hover:shadow-clay-hover"
           >
             <div className="flex items-center gap-2.5">
               <span className="text-xl">🏛️</span>
@@ -353,7 +353,7 @@ export function NowPage() {
         )}
 
         {!todayPass && nextPass && (
-          <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-card p-3 text-xs ring-1 ring-line/80 shadow-xs">
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-card p-3 text-xs ring-1 ring-line/80 shadow-clay">
             <div className="flex items-center gap-2.5 min-w-0">
               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
                 <Ticket size={14} />
@@ -475,7 +475,7 @@ export function NowPage() {
       {/* Assembled Suggestion or Honest State */}
       <div className="mt-6" aria-live="polite">
         {!remoteLoaded ? (
-          <div className="rounded-[32px] bg-card px-6 py-12 text-center ring-1 ring-line/80 shadow-xs">
+          <div className="rounded-[32px] bg-card px-6 py-12 text-center ring-1 ring-line/80 shadow-clay">
             <span
               className="mx-auto block h-7 w-7 animate-spin rounded-full border-2 border-brand border-t-transparent"
               aria-hidden
@@ -483,7 +483,7 @@ export function NowPage() {
             <p className="mt-3.5 text-[15px] font-medium text-mute">Finding something near you…</p>
           </div>
         ) : suggestion ? (
-          <article className="overflow-hidden rounded-[32px] bg-card ring-1 ring-line/80 shadow-xs transition-shadow duration-300">
+          <article className="overflow-hidden rounded-[32px] bg-card ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover transition-[box-shadow,transform] duration-300">
             {/* Place Hero Visual */}
             <div className="relative aspect-[16/9] w-full overflow-hidden bg-paper sm:aspect-[21/9]">
               <Photo

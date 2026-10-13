@@ -178,7 +178,7 @@ export function CalendarDayView({
           await dropOnDate(currentDateStr);
         }}
         className={cn(
-          "rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-sm transition-all duration-200 md:p-6",
+          "rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay transition-all duration-200 md:p-6",
           isOver &&
             (hasConflict
               ? "bg-amber-100/90 ring-2 ring-amber-500 scale-[1.01]"

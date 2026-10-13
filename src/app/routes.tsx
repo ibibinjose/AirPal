@@ -54,7 +54,6 @@ const BioPublicPage = lazy(() => import("@/pages/BioPublicPage").then((m) => ({ 
 const BioSetupPage = lazy(() => import("@/pages/BioSetupPage").then((m) => ({ default: m.BioSetupPage })));
 const BioEditPage = lazy(() => import("@/pages/BioEditPage").then((m) => ({ default: m.BioEditPage })));
 const BioRecoverPage = lazy(() => import("@/pages/BioRecoverPage").then((m) => ({ default: m.BioRecoverPage })));
-const SearchPage = lazy(() => import("@/pages/SearchPage").then((m) => ({ default: m.SearchPage })));
 const SearchAnalyticsPage = lazy(() =>
   import("@/pages/SearchAnalyticsPage").then((m) => ({ default: m.SearchAnalyticsPage })),
 );
@@ -129,6 +128,15 @@ export function AppRoutes() {
           <Route path="/now" component={NowPage} />
           <Route path="/explore/attractions" component={AttractionsPage} />
           <Route path="/explore" component={ExplorePage} />
+          <Route path="/places">
+            <Redirect to="/explore" />
+          </Route>
+          <Route path="/communities">
+            <Redirect to="/events" />
+          </Route>
+          <Route path="/friends">
+            <Redirect to="/plan" />
+          </Route>
           <Route path="/my-day">
             <Redirect to="/plan" />
           </Route>
@@ -141,7 +149,9 @@ export function AppRoutes() {
           <Route path="/discovery">
             <Redirect to="/explore" />
           </Route>
-          <Route path="/search" component={SearchPage} />
+          <Route path="/search">
+            <Redirect to="/now" />
+          </Route>
           <Route path="/admin/search-analytics" component={SearchAnalyticsPage} />
           <Route path="/search/analytics">
             <Redirect to="/admin/search-analytics" />

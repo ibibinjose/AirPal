@@ -158,8 +158,8 @@ export function CardShell({
   label?: string;
 }) {
   const cls = cn(
-    "block overflow-hidden rounded-[28px] bg-card text-left ring-1 ring-line/80 shadow-xs transition-[box-shadow,transform,ring] duration-280 active:scale-[0.99]",
-    (href || onClick) && "hover-lift hover:ring-brand/40",
+    "block overflow-hidden rounded-[28px] bg-card text-left ring-1 ring-line/80 shadow-clay transition-[box-shadow,transform,ring] duration-280 active:scale-[0.99]",
+    (href || onClick) && "hover-lift hover:shadow-clay-hover hover:ring-brand/40",
     className,
   );
   if (href) {

@@ -44,6 +44,13 @@
   --color-bone: #f5f0e6;
   --shadow-clay:
     0 1px 1px rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(18, 22, 20, 0.05), 0 12px 28px -16px rgba(18, 22, 20, 0.18);
+  --shadow-clay-hover:
+    0 1px 1.5px rgba(255, 255, 255, 0.95) inset, 0 2px 4px rgba(18, 22, 20, 0.06),
+    0 18px 36px -16px rgba(18, 22, 20, 0.22);
+  --shadow-clay-active: 0 1px 1px rgba(18, 22, 20, 0.06) inset, 0 1px 2px rgba(18, 22, 20, 0.08);
+  --shadow-clay-float:
+    0 1px 1.5px rgba(255, 255, 255, 0.95) inset, 0 4px 8px rgba(18, 22, 20, 0.06),
+    0 24px 48px -18px rgba(18, 22, 20, 0.24);
 
   /* Material Design 3 (M3) Elevation & Surface Hierarchy */
   --shadow-m3-0: none;
@@ -102,7 +109,13 @@
     --color-primary-container: rgba(120, 110, 255, 0.22);
     --color-on-primary-container: #cfc9ff;
     --color-accent: #8b83ff;
-    --shadow-clay: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 28px -16px rgba(0, 0, 0, 0.65);
+    --shadow-clay:
+      0 1px 1px rgba(255, 255, 255, 0.08) inset, 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 28px -16px rgba(0, 0, 0, 0.65);
+    --shadow-clay-hover:
+      0 1px 1.5px rgba(255, 255, 255, 0.12) inset, 0 2px 4px rgba(0, 0, 0, 0.6), 0 18px 36px -16px rgba(0, 0, 0, 0.75);
+    --shadow-clay-active: 0 1px 2px rgba(0, 0, 0, 0.6) inset, 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-clay-float:
+      0 1px 1.5px rgba(255, 255, 255, 0.14) inset, 0 4px 8px rgba(0, 0, 0, 0.6), 0 24px 48px -18px rgba(0, 0, 0, 0.85);
   }
 
   /* Liquid Glass follows the OS scheme automatically (same values as the
@@ -449,10 +462,58 @@ body.keyboard-open .keyboard-hide {
   background: linear-gradient(180deg, rgba(18, 22, 20, 0.08) 0%, rgba(18, 22, 20, 0.72) 100%);
 }
 
-/* Soft clay lift for the shared card recipe. Inputs use border, not ring, so fields stay flat. */
+/* Soft clay lift for the shared card recipe across Web, mobile iOS, and Android.
+ * Inputs and textareas use border without ring, so fields stay flat. */
 @layer components {
-  :where(a, button, div, section, article, li, form).bg-card.ring-1 {
+  :where(a, button, div, section, article, li, form, main, aside):is(
+      .bg-card,
+      [class*="bg-card/"],
+      .apple-solid-card
+    ):is(.ring-1, [class*="ring-1/"], .ring, [class*="ring-line"], [class*="border-line"]):not(input):not(textarea):not(
+      select
+    ):not(option):not(.no-clay):not([role="dialog"]):not([role="menuitem"]):not(.modal-sheet) {
     box-shadow: var(--shadow-clay);
+  }
+
+  /* Explicit reusable Soft Clay utility classes */
+  .clay-card,
+  .apple-clay-card {
+    background-color: var(--color-card);
+    box-shadow: var(--shadow-clay);
+    border-radius: 28px;
+  }
+
+  .clay-card-interactive,
+  .apple-clay-card-interactive {
+    background-color: var(--color-card);
+    box-shadow: var(--shadow-clay);
+    border-radius: 28px;
+    transition:
+      box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1),
+      transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .clay-card-interactive:hover,
+  .apple-clay-card-interactive:hover {
+    box-shadow: var(--shadow-clay-hover);
+    transform: translateY(-1px);
+  }
+  .clay-card-interactive:active,
+  .apple-clay-card-interactive:active {
+    box-shadow: var(--shadow-clay-active);
+    transform: translateY(0) scale(0.99);
+  }
+
+  .shadow-clay {
+    box-shadow: var(--shadow-clay);
+  }
+  .shadow-clay-hover {
+    box-shadow: var(--shadow-clay-hover);
+  }
+  .shadow-clay-active {
+    box-shadow: var(--shadow-clay-active);
+  }
+  .shadow-clay-float {
+    box-shadow: var(--shadow-clay-float);
   }
 }
 
@@ -678,7 +739,13 @@ body.keyboard-open .keyboard-hide {
   --color-primary-container: rgba(120, 110, 255, 0.22);
   --color-on-primary-container: #cfc9ff;
   --color-accent: #8b83ff;
-  --shadow-clay: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 28px -16px rgba(0, 0, 0, 0.65);
+  --shadow-clay:
+    0 1px 1px rgba(255, 255, 255, 0.08) inset, 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 28px -16px rgba(0, 0, 0, 0.65);
+  --shadow-clay-hover:
+    0 1px 1.5px rgba(255, 255, 255, 0.12) inset, 0 2px 4px rgba(0, 0, 0, 0.6), 0 18px 36px -16px rgba(0, 0, 0, 0.75);
+  --shadow-clay-active: 0 1px 2px rgba(0, 0, 0, 0.6) inset, 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-clay-float:
+    0 1px 1.5px rgba(255, 255, 255, 0.14) inset, 0 4px 8px rgba(0, 0, 0, 0.6), 0 24px 48px -18px rgba(0, 0, 0, 0.85);
 }
 
 .light,
@@ -708,7 +775,7 @@ body.keyboard-open .keyboard-hide {
 .apple-solid-card {
   background: var(--color-card, #ffffff);
   border: 1px solid var(--color-line, #e4e7ee);
-  box-shadow: var(--shadow-m3-1, 0 1px 3px 1px rgba(18, 22, 20, 0.06));
+  box-shadow: var(--shadow-clay);
 }
 
 .apple-solid-surface {
