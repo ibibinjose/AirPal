@@ -93,7 +93,9 @@ export function EventPage() {
     return <PageLoading />;
   }
 
-  const mappedExpo = expo ? ({ ...recordToCalendarBase(expo), isGoing: false, isInterested: false, isLiked: false } as CalendarEvent) : null;
+  const mappedExpo = expo
+    ? ({ ...recordToCalendarBase(expo), isGoing: false, isInterested: false, isLiked: false } as CalendarEvent)
+    : null;
   const targetCalEv = calEv || mappedExpo || directEv;
   const body = targetCalEv ? (
     <CalendarEventDetailView event={targetCalEv} />

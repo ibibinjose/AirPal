@@ -1248,7 +1248,6 @@ export const ALL_PROPERTIES: PropertyInfo[] = [
   },
 ];
 
-
 export const DEFAULT_DEALS: DealItem[] = [
   {
     id: "deal_sunset_cruise",

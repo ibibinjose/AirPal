@@ -1,11 +1,13 @@
 # AirPal Rebuild Progress
 
 ## Current Phase: Phase 3.5 (Approval Gate)
+
 **Branch:** `rebuild/v2`
 
 ---
 
 ## 1. Done
+
 - [x] Initialised and switched to branch `rebuild/v2`.
 - [x] Completed Phase 0 architectural audit and questions (`UNDERSTANDING.md`).
 - [x] Completed Phase 1 Full Inventory & Triage (`AUDIT.md`):
@@ -29,6 +31,7 @@
 ---
 
 ## 2. Next (Phase 4 Rebuild — Pending User `go`)
+
 - [ ] **Phase 4 Rebuild Execution:**
   - a) Security & Auth Hardening: Remove `getTestUser()` localStorage fallback, least-privilege Firestore rules.
   - b) Code Pruning: Delete the 32 CUT pages and dead contexts; configure seamless 301/client redirects for all deprecated URLs.
@@ -40,4 +43,5 @@
 ---
 
 ## 3. Blockers
+
 - **Gate 3.5 Approval:** Waiting for user reply `go` (or edits) to proceed to Phase 4 Rebuild.
