@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { HangoutPlan, PlanStop, PlanType, PlanTheme } from "@shared/plan";
+import type { HangoutPlan, PlanStop, PlanType, PlanTheme, PlanDateOption } from "@shared/plan";
 import { isDemoContent } from "@shared/content-meta";
 import {
   attendeeSeats,
@@ -87,6 +87,7 @@ export interface CreatePlanInput {
   invited?: Array<{ id: string; name: string; handle?: string }>;
   bookingId?: string;
   eventId?: string;
+  dateOptions?: PlanDateOption[];
 
   // Experience Marketplace Fields
   isExperience?: boolean;
@@ -303,6 +304,8 @@ export function PlanProvider({ children }: { children: ReactNode }) {
         geo: input.geo,
         bookingId: input.bookingId,
         eventId: input.eventId,
+        dateOptions: input.dateOptions || [],
+        datePollLocked: false,
 
         // Experience properties
         isExperience: input.isExperience,

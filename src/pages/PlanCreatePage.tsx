@@ -11,18 +11,21 @@ import {
   ChevronRight,
   Clock,
   Coffee,
+  CreditCard,
   Footprints,
   Globe,
   Lock,
   MapPin,
   Palmtree,
   PartyPopper,
+  Plus,
   Search,
   Share2,
   Sparkles,
   Ticket,
   Users,
   UtensilsCrossed,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
@@ -257,7 +260,13 @@ export function PlanCreatePage() {
     initialPlanTime(params.get("time"), solvedIntent ? timeForSlot(solvedIntent.timeSlot) : "18:00"),
   );
   const [place, setPlace] = useState(
-    params.get("dest") || params.get("destination") || solvedIntent?.suburb || city || "The Rocks, Sydney",
+    params.get("dest") ||
+      params.get("destination") ||
+      params.get("place") ||
+      params.get("placeName") ||
+      solvedIntent?.suburb ||
+      city ||
+      "The Rocks, Sydney",
   );
   const [placeGeo, setPlaceGeo] = useState<Geo | undefined>(() => {
     const lat = Number(params.get("lat"));
@@ -265,7 +274,18 @@ export function PlanCreatePage() {
     return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : undefined;
   });
   const [isPublic, setIsPublic] = useState(false);
-  const [hero, setHero] = useState<string | undefined>();
+  const [hero, setHero] = useState<string | undefined>(() => params.get("hero") || params.get("image") || undefined);
+  const [enableDatePoll, setEnableDatePoll] = useState(false);
+  const [candidateOptions, setCandidateOptions] = useState<Array<{ id: string; date: string; time: string }>>(() => {
+    const d1 = initialPlanDate(params.get("date"), today || toZonedDateStr(new Date()));
+    const d2 = today ? addDays(today, 1) : addDays(d1, 1);
+    return [
+      { id: "opt-1", date: d1, time: "18:00" },
+      { id: "opt-2", date: d2, time: "18:00" },
+    ];
+  });
+  const [chipInEnabled, setChipInEnabled] = useState(false);
+  const [chipInAmount, setChipInAmount] = useState<string>("25");
   const [invite, setInvite] = useState<Set<string>>(() => new Set(targetHandle ? [targetHandle] : []));
   const [peopleSearch, setPeopleSearch] = useState("");
   const [busy, setBusy] = useState(false);
@@ -368,6 +388,27 @@ export function PlanCreatePage() {
         isPublic,
         bookingId: bookingIdParam,
         eventId: eventIdParam,
+        ...(chipInEnabled && Number(chipInAmount) > 0
+          ? {
+              isExperience: true,
+              pricingModel: "fixed" as const,
+              pricePerPerson: Number(chipInAmount),
+              currency: "AUD",
+            }
+          : {}),
+        ...(enableDatePoll && candidateOptions.length > 0
+          ? {
+              dateOptions: candidateOptions.map((opt) => ({
+                id: opt.id,
+                date: opt.date,
+                time: opt.time,
+                votes: 0,
+                voterUids: [],
+                addedByUid: user?.uid,
+                addedByName: user?.displayName || "Host",
+              })),
+            }
+          : {}),
         invited: circle
           .filter((p) => invite.has(p.handle))
           .map((p) => ({ id: `h-${p.handle}`, name: p.name, handle: p.handle })),
@@ -775,6 +816,97 @@ export function PlanCreatePage() {
                 ))}
               </div>
             </div>
+
+            {/* Find the Time (When works?) availability poll toggle */}
+            <div className="mt-4 rounded-2xl bg-paper p-3.5 ring-1 ring-line/80">
+              <label className="flex items-start justify-between gap-3 cursor-pointer">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
+                    <CalendarDays size={14} className="text-accent" />
+                    <span>Propose multiple times ("Find the Time" poll)</span>
+                  </div>
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-mute">
+                    Don’t know when everyone’s free? Propose 2–4 options and let mates vote without sharing full
+                    calendars.
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={enableDatePoll}
+                  onChange={(e) => {
+                    void triggerHapticSelection();
+                    setEnableDatePoll(e.target.checked);
+                  }}
+                  className="mt-0.5 h-4 w-4 rounded accent-brand cursor-pointer"
+                />
+              </label>
+
+              {enableDatePoll && (
+                <div className="mt-3.5 space-y-2 border-t border-line/60 pt-3">
+                  <span className="block text-[11px] font-semibold text-accent">Candidate Date & Time Options:</span>
+                  {candidateOptions.map((opt, idx) => (
+                    <div key={opt.id} className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold text-mute w-4 shrink-0">{idx + 1}.</span>
+                      <input
+                        type="date"
+                        value={opt.date}
+                        min={today}
+                        onChange={(e) => {
+                          const next = [...candidateOptions];
+                          next[idx]!.date = e.target.value;
+                          setCandidateOptions(next);
+                        }}
+                        className="h-9 flex-1 rounded-xl bg-card px-2.5 text-xs ring-1 ring-line"
+                      />
+                      <input
+                        type="time"
+                        value={opt.time}
+                        onChange={(e) => {
+                          const next = [...candidateOptions];
+                          next[idx]!.time = e.target.value;
+                          setCandidateOptions(next);
+                        }}
+                        className="h-9 w-24 rounded-xl bg-card px-2.5 text-xs ring-1 ring-line"
+                      />
+                      {candidateOptions.length > 2 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void triggerHaptic("light");
+                            setCandidateOptions(candidateOptions.filter((_, i) => i !== idx));
+                          }}
+                          className="grid h-8 w-8 place-items-center rounded-lg text-mute hover:text-ink hover:bg-card"
+                          title="Remove option"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                  {candidateOptions.length < 4 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void triggerHaptic("light");
+                        setCandidateOptions([
+                          ...candidateOptions,
+                          {
+                            id: `opt-${Date.now()}`,
+                            date: today ? addDays(today, candidateOptions.length + 1) : "",
+                            time: "18:00",
+                          },
+                        ]);
+                      }}
+                      className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
+                    >
+                      <Plus size={13} />
+                      <span>Add another time slot ({candidateOptions.length}/4)</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </section>
 
           {/* Location: Where */}
@@ -820,6 +952,48 @@ export function PlanCreatePage() {
                 ))}
               </div>
             </div>
+          </section>
+
+          {/* Group Chip-in / Split collection */}
+          <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
+            <label className="flex items-start justify-between gap-3 cursor-pointer">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
+                  <CreditCard size={14} className="text-accent" />
+                  <span>Group Chip-In / Split (Optional)</span>
+                </div>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-mute">
+                  Collect shared dinner deposits, drinks contributions, or tickets per person via Apple Pay or card.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={chipInEnabled}
+                onChange={(e) => {
+                  void triggerHapticSelection();
+                  setChipInEnabled(e.target.checked);
+                }}
+                className="mt-0.5 h-4 w-4 rounded accent-brand cursor-pointer"
+              />
+            </label>
+
+            {chipInEnabled && (
+              <div className="mt-3.5 flex items-center gap-3 border-t border-line/60 pt-3">
+                <span className="text-xs font-semibold text-ink">Amount per person:</span>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-xs font-bold text-mute">$</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="1000"
+                    value={chipInAmount}
+                    onChange={(e) => setChipInAmount(e.target.value)}
+                    className="h-10 w-28 rounded-xl bg-paper pl-7 pr-3 text-sm font-bold text-ink ring-1 ring-line focus:ring-brand"
+                  />
+                </div>
+                <span className="text-xs font-medium text-mute">AUD · Powered by Stripe</span>
+              </div>
+            )}
           </section>
 
           {/* Cover artwork */}

@@ -101,12 +101,17 @@ test.describe("Global Navigation & Profile Flow", () => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    // Open search modal via Cmd+K / Ctrl+K keyboard shortcut
-    await page.keyboard.press("Meta+k");
-    let searchInput = page.getByPlaceholder(/Search people, places, events/i);
-    if (!(await searchInput.isVisible())) {
-      await page.keyboard.press("Control+k");
+    // Open search modal via search button (on mobile) or Cmd+K / Ctrl+K keyboard shortcut
+    const searchBtn = page.getByRole("button", { name: "Search", exact: true });
+    if (await searchBtn.isVisible()) {
+      await searchBtn.click();
+    } else {
+      await page.keyboard.press("Meta+k");
+      if (!(await page.getByPlaceholder(/Search people, places, events/i).isVisible())) {
+        await page.keyboard.press("Control+k");
+      }
     }
+    const searchInput = page.getByPlaceholder(/Search people, places, events/i);
     await expect(searchInput).toBeVisible();
 
     // Search for Glenmore

@@ -748,7 +748,11 @@ export function PlanDetailPage() {
                       {plan.durationMode === "multi_day" ? "🌴 Multi-Day Retreat" : "⚡ Single-Day Event"}
                     </span>
                   </div>
-                  <h2 className="font-display text-2xl font-bold text-ink mt-2">Curated Experience Pass & Pricing</h2>
+                  <h2 className="font-display text-2xl font-bold text-ink mt-2">
+                    {plan.type === "catchup" || plan.type === "lunch" || plan.type === "nightout"
+                      ? "Group Chip-In & Contribution"
+                      : "Curated Experience Pass & Pricing"}
+                  </h2>
                 </div>
 
                 <Button
@@ -757,7 +761,15 @@ export function PlanDetailPage() {
                   className="gap-2 rounded-2xl h-11 px-5 font-bold shadow-lg bg-amber-700 text-white hover:bg-amber-800"
                 >
                   <CreditCard size={16} />
-                  <span>{soldOut ? "Sold out" : ticketed ? "Buy ticket" : "Book spot"}</span>
+                  <span>
+                    {soldOut
+                      ? "Sold out"
+                      : plan.type === "catchup" || plan.type === "lunch" || plan.type === "nightout"
+                        ? `Chip in $${plan.pricePerPerson || 0}`
+                        : ticketed
+                          ? "Buy ticket"
+                          : "Book spot"}
+                  </span>
                 </Button>
               </div>
 

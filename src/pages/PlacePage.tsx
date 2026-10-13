@@ -133,22 +133,24 @@ export function PlacePage() {
                   .join(" · ")}
               </p>
             )}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Link
-                href={`/plan/new?title=${encodeURIComponent(place.name)}&dest=${encodeURIComponent(place.name)}`}
-                className="inline-flex min-h-[44px] items-center rounded-full bg-neutral-900 px-5 py-2 text-[14px] font-semibold text-white transition active:scale-95"
-              >
-                Plan it here
-              </Link>
-              <Link
-                href="/now"
-                className="inline-flex min-h-[44px] items-center rounded-full bg-card px-5 py-2 text-[14px] font-semibold ring-1 ring-line transition active:scale-95"
-              >
-                What now?
-              </Link>
-            </div>
           </div>
         )}
+
+        {/* 1-Tap Bridge: Plan Hangout Here + What Now */}
+        <div className="mt-4 flex flex-wrap gap-2.5">
+          <Link
+            href={`/plan/new?title=${encodeURIComponent("Hangout at " + place.name)}&dest=${encodeURIComponent(place.name)}&hero=${encodeURIComponent(img)}`}
+            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-full bg-brand px-5 py-2.5 text-[14px] font-bold text-white shadow-xs transition hover:bg-brand/90 active:scale-95 cursor-pointer"
+          >
+            <span>Plan Hangout Here</span>
+          </Link>
+          <Link
+            href="/now"
+            className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-card px-4 py-2.5 text-[14px] font-semibold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95 cursor-pointer"
+          >
+            <span>What now?</span>
+          </Link>
+        </div>
         {place.hours && (
           <TradingHoursScheduleView hours={place.hours} placeName={place.name} variant="inline" className="mt-4" />
         )}

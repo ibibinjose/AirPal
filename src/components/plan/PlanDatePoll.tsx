@@ -70,10 +70,16 @@ export function PlanDatePoll({
           <CalendarDays size={18} />
         </span>
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">When works?</p>
-          <h2 className="font-display text-base font-bold text-ink">Vote a date — host locks it in</h2>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
+            Find the Time · Zero Calendar Sharing
+          </p>
+          <h2 className="font-display text-base font-bold text-ink">Vote which times work for you</h2>
         </div>
       </div>
+      <p className="mt-2 text-xs leading-relaxed text-mute">
+        Tap the slots you can make. The host sees live votes and locks in the winning time without the group chat
+        spiral.
+      </p>
 
       {open && (
         <div className="mt-4 space-y-2">
