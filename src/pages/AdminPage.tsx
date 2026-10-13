@@ -182,25 +182,25 @@ export function AdminPage() {
           {/* Quick Hub Portals */}
           <div className="flex flex-wrap items-center gap-2">
             <Link
-              href="/helpdesk"
+              href="/support"
               className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs"
             >
               <Headphones className="h-3.5 w-3.5 text-accent" />
-              Help Desk
+              Support
             </Link>
             <Link
-              href="/pulse"
+              href="/now"
               className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs"
             >
               <Activity className="h-3.5 w-3.5 text-indigo-500" />
-              Pulse Hub
+              Now Radar
             </Link>
             <Link
-              href="/host"
+              href="/event"
               className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs"
             >
               <Building2 className="h-3.5 w-3.5 text-amber-500" />
-              Host Desk
+              Event Studio
             </Link>
             <Link
               href="/business"
