@@ -128,20 +128,8 @@ type AuthValue = {
 
 const AuthContext = createContext<AuthValue | undefined>(undefined);
 
-function getTestUser(): UserProfile | null {
-  if (typeof window !== "undefined") {
-    try {
-      const raw = localStorage.getItem("airpal.test.user");
-      if (raw) return JSON.parse(raw) as UserProfile;
-    } catch {
-      /* ignore */
-    }
-  }
-  return null;
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(() => getTestUser());
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [authReady, setAuthReady] = useState(!isFirebaseConfigured);
   const [signInPrompt, setSignInPrompt] = useState<{ reason: string } | null>(null);
   const [biometricsSupported, setBiometricsSupported] = useState(false);
@@ -161,7 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const auth = getFirebaseAuth();
     if (!auth) {
-      setUser(getTestUser());
+      setUser(null);
       setAuthReady(true);
       return;
     }
@@ -170,7 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const mine = ++gen;
       if (!fb || fb.isAnonymous) {
         if (mine === gen) {
-          setUser(getTestUser());
+          setUser(null);
           setAuthReady(true);
         }
         return;
@@ -542,11 +530,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Never leak the previous account: wipe device user data, then reload
         // to a truly fresh page (no stale name, avatar, or lists in memory).
         clearDeviceCache();
-        try {
-          localStorage.removeItem("airpal.test.user");
-        } catch {
-          /* ignore */
-        }
         setUser(null);
         if (typeof window !== "undefined") window.location.assign("/");
       },

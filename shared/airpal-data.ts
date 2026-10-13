@@ -1248,40 +1248,6 @@ export const ALL_PROPERTIES: PropertyInfo[] = [
   },
 ];
 
-export const DEMO_USERS: UserProfile[] = [
-  {
-    uid: "u-superadmin",
-    email: "admin@airpal.me",
-    displayName: "Elena Vance (Platform Director)",
-    role: "super_admin",
-    propertyIds: ["harbour-hotel", "bondi-breeze-suites", "blue-mountains-lodge"],
-    createdAt: "2026-01-10",
-  },
-  {
-    uid: "u-host",
-    email: "host@harbourhotel.com.au",
-    displayName: "Marcus Sterling (Harbour Hotel Owner)",
-    role: "host_admin",
-    propertyIds: ["harbour-hotel"],
-    createdAt: "2026-02-01",
-  },
-  {
-    uid: "u-staff",
-    email: "staff@harbourhotel.com.au",
-    displayName: "Liam Chen (Front Desk Duty Manager)",
-    role: "staff",
-    propertyIds: ["harbour-hotel"],
-    createdAt: "2026-02-15",
-  },
-  {
-    uid: "u-guest",
-    email: "guest@airpal.me",
-    displayName: "Bibin Jose (Room 508)",
-    role: "guest",
-    propertyIds: ["harbour-hotel"],
-    createdAt: "2026-03-01",
-  },
-];
 
 export const DEFAULT_DEALS: DealItem[] = [
   {
