@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
-import { Calendar, Check, ExternalLink, MapPin, Monitor, Moon, Sun } from "lucide-react";
+import { Calendar, Check, Download, ExternalLink, MapPin, Monitor, Moon, Sun } from "lucide-react";
 import { authErrorMessage } from "@shared/auth-email";
 import { BIRTHDAY_REGIONS, isBirthdayRegionCode, type BirthdayRegionCode } from "@shared/birthday-freebies";
 import { Button } from "@/components/ui/Button";
@@ -569,11 +569,11 @@ export function SettingsPage() {
         <button
           type="button"
           className="flex min-h-[52px] w-full cursor-pointer items-center justify-between rounded-2xl bg-card px-4 py-3 text-left ring-1 ring-line transition hover:bg-paper active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-          onClick={() => nav("/host")}
+          onClick={() => nav("/join")}
         >
           <span>
-            <span className="block text-[12px] text-mute">Host Console</span>
-            <span className="font-medium text-ink">Belonging Reports & PBSA Arrival Engine</span>
+            <span className="block text-[12px] text-mute">PBSA & Arrival Engine</span>
+            <span className="font-medium text-ink">Student arrival cohorts & belonging</span>
           </span>
           <span className="text-sm font-semibold text-accent">Open</span>
         </button>
@@ -648,6 +648,62 @@ export function SettingsPage() {
           </Link>
         ))}
       </div>
+
+      {user && (
+        <section className="mt-8">
+          <h2 className="font-display text-xl font-bold">Privacy & Data Portability</h2>
+          <p className="mt-1 text-xs text-mute">
+            Download a portable JSON copy of your profile, preferences, and account metadata (GDPR / DPDP Article 20).
+          </p>
+          <button
+            type="button"
+            className="mt-3 flex min-h-[48px] w-full cursor-pointer items-center justify-between rounded-2xl bg-card px-4 py-3 text-left ring-1 ring-line transition hover:bg-paper active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            onClick={() => {
+              void triggerHaptic("selection");
+              const exportData = {
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                user: {
+                  uid: user.uid,
+                  email: user.email,
+                  displayName: user.displayName,
+                  handle: mine?.handle ?? null,
+                  phone: user.phone ?? null,
+                  role: user.role,
+                  birthdayMonth: user.birthdayMonth,
+                  birthdayAlertsEnabled: user.birthdayAlertsEnabled,
+                  birthdayAlertsRegion: user.birthdayAlertsRegion,
+                },
+                bio: mine ?? null,
+                business: business ?? null,
+                preferences: {
+                  city,
+                  usingGps,
+                  theme,
+                  notifInvites,
+                  notifDeals,
+                  searchIndexing,
+                  circlePresence,
+                },
+              };
+              const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `airpal-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+              toast.success("Account data export downloaded.");
+            }}
+          >
+            <span className="flex items-center gap-2">
+              <Download className="h-4 w-4 text-accent" />
+              <span className="text-sm font-medium text-ink">Export My Data (JSON)</span>
+            </span>
+            <span className="text-xs font-semibold text-accent">Download</span>
+          </button>
+        </section>
+      )}
 
       {user ? (
         <>
