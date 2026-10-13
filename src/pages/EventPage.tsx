@@ -17,7 +17,7 @@ import { track } from "@/lib/analytics";
 import { AddToTripSheet } from "@/components/plan/AddToTripSheet";
 import type { CalendarEvent } from "@shared/event";
 import type { NearbyEvent } from "@shared/nearby";
-import { ExpoDirectoryPage } from "./ExpoDirectoryPage";
+import { recordToCalendarBase } from "@/lib/remote-events";
 import { SpeakerRow } from "@/components/event/SpeakerRow";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { NotFoundPage } from "./NotFoundPage";
@@ -93,14 +93,12 @@ export function EventPage() {
     return <PageLoading />;
   }
 
-  const body = expo ? (
-    <ExpoDirectoryPage event={expo} />
-  ) : calEv ? (
-    <CalendarEventDetailView event={calEv} />
+  const mappedExpo = expo ? ({ ...recordToCalendarBase(expo), isGoing: false, isInterested: false, isLiked: false } as CalendarEvent) : null;
+  const targetCalEv = calEv || mappedExpo || directEv;
+  const body = targetCalEv ? (
+    <CalendarEventDetailView event={targetCalEv} />
   ) : near ? (
     <NearbyEventDetailView event={near} />
-  ) : directEv ? (
-    <CalendarEventDetailView event={directEv} />
   ) : (
     <NotFoundPage />
   );
