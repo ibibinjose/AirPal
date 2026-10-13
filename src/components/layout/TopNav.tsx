@@ -96,7 +96,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
             <button
               onClick={() => {
                 void triggerHaptic("light");
-                nav("/host");
+                nav("/event");
               }}
               className="hidden xl:inline-flex h-9 shrink-0 items-center rounded-full bg-card px-4 text-sm font-semibold ring-1 ring-line hover:bg-paper transition lg:h-10 cursor-pointer"
             >

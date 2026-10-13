@@ -4,11 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Plus, Search } from "lucide-react";
 import { TabBar } from "./TabBar";
 import { TopNav } from "./TopNav";
-import { MobilePillarsNav } from "./MobilePillarsNav";
 import { isWorkspacePath } from "@/lib/workspace";
-import { LocalNowBar } from "./LocalNowBar";
-import { BatteryWarningBanner } from "./BatteryWarningBanner";
-import { SyncStatusBar } from "./SyncStatusBar";
 import { NetworkStatusToast } from "./NetworkStatusToast";
 import { applyRouteMeta } from "@/lib/share-meta";
 import { isPassApp } from "@/lib/app-flavor";
@@ -23,10 +19,7 @@ import { trackPageView } from "@/lib/analytics";
 import { forceUnlockBodyScroll } from "@/hooks/useScrollLock";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { ProfileMenu } from "@/components/auth/ProfileMenu";
-
 import { NotificationBell } from "@/components/notifications/NotificationBell";
-
-import { TicketAlertBar } from "@/components/host/TicketAlertBar";
 import { NotificationPopup } from "@/components/notifications/NotificationPopup";
 import { PresencePublisher } from "@/components/layout/PresencePublisher";
 import { DeviceMirror } from "@/components/layout/DeviceMirror";
@@ -36,7 +29,7 @@ import { parseAtHandle } from "@shared/bio";
 import { shouldShowFooter } from "@/lib/footer-rules";
 import { isNativeApp, triggerHaptic } from "@/lib/native";
 import { SiteFooter } from "./SiteFooter";
-import { CreateFab, openGlobalCreate } from "@/components/design-system/CreateFab";
+import { openGlobalCreate } from "@/components/design-system/CreateFab";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useDataReload } from "@/hooks/useDataReload";
 import { PullToRefreshContainer } from "./PullToRefreshContainer";
@@ -133,8 +126,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             Skip to content
           </a>
           <div className="fixed-element sticky top-0 z-40 bg-paper/95 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
-            <TicketAlertBar />
-            <LocalNowBar />
             {workspace ? (
               <header className="overflow-visible border-b border-line bg-paper">
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-3 sm:px-4 md:h-16 md:px-6">
@@ -150,7 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         void triggerHaptic("medium");
                         openGlobalCreate();
                       }}
-                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-accent bg-brand/10 hover:bg-brand/20 ring-1 ring-brand/25 transition cursor-pointer after:absolute after:-inset-1 after:content-['']"
+                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-accent bg-brand/10 hover:bg-brand/20 ring-1 ring-brand/25 transition cursor-pointer"
                       aria-label="Create something new"
                       title="Create (+)"
                     >
@@ -187,7 +178,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <TopNav path={path} enter={play} />
                 <motion.div
                   {...chrome}
-                  className="apple-liquid-glass-nav flex h-14 items-center justify-between px-3.5 sm:px-4 lg:hidden transition-colors"
+                  className="apple-liquid-glass-nav flex h-14 items-center justify-between px-3.5 sm:px-4 lg:hidden transition-colors border-b border-line/60"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <Link href={homePath} className="flex items-center min-w-0" aria-label="AirPal Home">
@@ -201,7 +192,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         void triggerHaptic("medium");
                         openGlobalCreate();
                       }}
-                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-accent bg-brand/10 hover:bg-brand/20 ring-1 ring-brand/25 transition-transform active:scale-95 cursor-pointer after:absolute after:-inset-1 after:content-['']"
+                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-accent bg-brand/10 hover:bg-brand/20 ring-1 ring-brand/25 transition-transform active:scale-95 cursor-pointer"
                       aria-label="Create something new"
                       title="Create (+)"
                     >
@@ -213,7 +204,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         void triggerHaptic("medium");
                         openGlobalSearch();
                       }}
-                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-mute hover:bg-card hover:text-ink ring-1 ring-line transition-transform active:scale-95 cursor-pointer after:absolute after:-inset-1 after:content-['']"
+                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-mute hover:bg-card hover:text-ink ring-1 ring-line transition-transform active:scale-95 cursor-pointer"
                       aria-label="Search"
                       title="Search AirPal (⌘K)"
                     >
@@ -223,11 +214,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <ProfileMenu />
                   </div>
                 </motion.div>
-                <MobilePillarsNav path={path} />
               </>
             )}
-            <BatteryWarningBanner />
-            <SyncStatusBar />
           </div>
           <main id="main-content" className="flex-1 flex flex-col min-w-0" tabIndex={-1}>
             <PullToRefreshContainer state={pullToRefresh}>
@@ -238,7 +226,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             </PullToRefreshContainer>
           </main>
           {!workspace && !isPlanDetail && <TabBar path={path} enter={play} />}
-          <CreateFab />
           <PresencePublisher />
           <DeviceMirror />
           {searchArmed && (
