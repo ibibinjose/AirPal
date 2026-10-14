@@ -9,6 +9,7 @@ import {
   Building2,
   CalendarDays,
   CheckCircle2,
+  Compass,
   Eye,
   EyeOff,
   Lock,
@@ -16,6 +17,8 @@ import {
   ShieldCheck,
   Sparkles,
   Store,
+  UserRound,
+  Users,
 } from "lucide-react";
 import { authErrorMessage } from "@shared/auth-email";
 import { isEmail } from "@shared/validate";
@@ -28,7 +31,7 @@ import { SignupFlow } from "@/components/auth/SignupFlow";
 import { SocialAuthButtons, SocialAuthDivider } from "@/components/auth/SocialAuthButtons";
 import { PhoneField } from "@/components/forms/PhoneField";
 import { isNativeApp, triggerHaptic, triggerHapticSelection } from "@/lib/native";
-import { useVirtualKeyboard } from "@/lib/keyboard";
+import { useVirtualKeyboard, ensureElementInView } from "@/lib/keyboard";
 import { phonePasswordNeedsSms, phoneReady } from "@shared/phone-auth";
 import { MeAvatar } from "@/components/auth/MeAvatar";
 import { BiometricAuthButton } from "@/components/auth/BiometricAuthButton";
@@ -49,11 +52,12 @@ export type AuthMode = "signin" | "signup" | "reset";
 const KEYBOARD_SAFE_INPUT = "text-[16px] sm:text-sm";
 
 function nudgeIntoView(e: React.FocusEvent<HTMLElement>) {
-  try {
-    e.currentTarget.scrollIntoView({ behavior: "smooth", block: "center" });
-  } catch {
-    /* ignore fallback */
-  }
+  ensureElementInView(e.currentTarget, {
+    block: "center",
+    topClearance: 70,
+    bottomClearance: 24,
+    behavior: "smooth",
+  });
 }
 
 export function StartPage() {
@@ -76,7 +80,7 @@ export function StartPage() {
     hasEnrolledBiometrics,
   } = useAuth();
   const { mine, business } = useBio();
-  const { keyboardHeight } = useVirtualKeyboard();
+  const { keyboardHeight, isKeyboardOpen } = useVirtualKeyboard();
   const [pendingGo, setPendingGo] = useState(false);
 
   const LAST_EMAIL_KEY = "airpal.last_signin_email";
@@ -466,435 +470,596 @@ export function StartPage() {
   // ========================================================
   return (
     <div
-      className="mx-auto max-w-lg px-4 py-8 md:py-12 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)]"
+      className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)]"
       style={keyboardHeight > 0 ? { paddingBottom: keyboardHeight + 32 } : undefined}
     >
-      {/* Editorial Welcome Header */}
-      {isGuestStart && (
-        <div className="mb-6 text-center">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-accent">
-            <Sparkles size={13} />
-            <span>LIFE MADE EASY</span>
-          </div>
-          <h1 className="font-display mt-2.5 text-3xl sm:text-4xl font-black tracking-tight text-ink leading-tight">
-            Find your place. <br />
-            <span className="font-serif italic font-normal text-accent">Meet your people.</span>
-          </h1>
-          <p className="mx-auto mt-2 max-w-sm text-xs sm:text-sm text-mute leading-relaxed">
-            One universal account across Places, Communities, Friends, and Me — ready on Web, iOS, and Android.
-          </p>
-
-          {/* 4 Pillars Mini-Badges */}
-          <div className="mt-5 grid grid-cols-4 gap-2 text-center">
-            {PILLARS.map((p) => {
-              const Icon = p.icon;
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => {
-                    void triggerHapticSelection();
-                    nav(p.href);
-                  }}
-                  className="flex flex-col items-center justify-center rounded-2xl bg-card p-2.5 ring-1 ring-line/80 hover:bg-paper hover:ring-brand/30 transition cursor-pointer active:scale-95"
-                >
-                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand/10 text-accent mb-1">
-                    <Icon size={16} />
-                  </span>
-                  <span className="text-[11px] font-bold text-ink">{p.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              void triggerHaptic("light");
-              nav("/explore");
-            }}
-            className="mt-3.5 inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
-          >
-            <span>Browse first, join later</span>
-            <ArrowRight size={13} />
-          </button>
-        </div>
-      )}
-
-      {/* Role / Context Banner */}
-      <div className="mb-6 rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line shadow-clay">
-        <div className="flex items-center gap-3.5">
-          <span
-            className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-2xl", roleContext.bg, roleContext.color)}
-          >
-            <RoleIcon size={22} strokeWidth={2} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className={cn("text-[10px] font-bold uppercase tracking-widest", roleContext.color)}>
-              {roleContext.kicker}
-            </p>
-            <RoleHeading className="font-display text-lg sm:text-xl font-bold leading-tight text-ink mt-0.5">
-              {mode === "reset"
-                ? "Reset your password"
-                : mode === "signup"
-                  ? roleContext.signupTitle
-                  : roleContext.title}
-            </RoleHeading>
-          </div>
-        </div>
-        <p className="mt-2.5 text-xs text-mute leading-relaxed">{roleContext.desc}</p>
-      </div>
-
-      {/* Referral Banner */}
-      {mode === "signup" && inviterHandle && (
-        <div className="mb-4 rounded-2xl ring-1 ring-brand/30 bg-brand/5 px-4 py-3 text-center text-xs sm:text-sm">
-          <span>You’re invited by </span>
-          <span className="font-bold text-accent">@{inviterHandle}</span>
-          <span> — unlocks access to the </span>
-          <Link href="/founders" className="font-bold text-accent hover:underline">
-            Founders 100K pool
-          </Link>
-          .
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* MAIN AUTHENTICATION CARD */}
-      {/* ======================================================== */}
-      <div
-        id="auth-card"
-        className="rounded-3xl ring-1 ring-line bg-card/95 backdrop-blur-2xl p-6 sm:p-7 shadow-clay scroll-mt-6"
-      >
-        {mode === "reset" ? (
-          /* Password Reset Flow */
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        {/* ======================================================== */}
+        {/* DESKTOP PRODUCT SHOWCASE (Left Column on lg:) */}
+        {/* ======================================================== */}
+        <div className="hidden lg:block lg:col-span-6 xl:col-span-7 space-y-6 lg:sticky lg:top-24">
           <div>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 border border-brand/20 px-3.5 py-1 text-xs font-bold text-accent">
+              <Sparkles size={13} />
+              <span>LIFE MADE EASY</span>
+            </div>
+            <h1 className="font-display mt-3 text-4xl xl:text-5xl font-black tracking-tight text-ink leading-[1.12]">
+              Find your place. <br />
+              <span className="font-serif italic font-normal text-accent">Meet your people.</span>
+            </h1>
+            <p className="mt-3 text-sm text-mute leading-relaxed max-w-xl">
+              AirPal connects live events, curated precinct discovery, group hangouts, merchant perks, and your digital
+              identity into one seamless ecosystem with a single universal account.
+            </p>
+          </div>
+
+          {/* 5 Core Pillars Showcase */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+            {/* 1. Events & Access */}
+            <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 hover:ring-brand/30 transition shadow-clay">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand/10 text-accent">
+                  <CalendarDays size={18} />
+                </span>
+                <div>
+                  <h3 className="text-xs font-bold text-ink">Events &amp; Access</h3>
+                  <p className="text-[11px] text-mute">AirPal Pass &amp; Tickets</p>
+                </div>
+              </div>
+              <p className="text-xs text-mute leading-relaxed">
+                Live concerts, festivals, native Stripe ticketing, Apple &amp; Google Wallet passbook, and door QR
+                scanning.
+              </p>
+            </div>
+
+            {/* 2. Curated Discovery */}
+            <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 hover:ring-brand/30 transition shadow-clay">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand/10 text-accent">
+                  <Compass size={18} />
+                </span>
+                <div>
+                  <h3 className="text-xs font-bold text-ink">Curated Discovery</h3>
+                  <p className="text-[11px] text-mute">60-Second Plans</p>
+                </div>
+              </div>
+              <p className="text-xs text-mute leading-relaxed">
+                Real-time What's Open Now, Sydney precinct guides, live weather feeds, and deterministic outfit
+                recommendations.
+              </p>
+            </div>
+
+            {/* 3. Hangouts & Planning */}
+            <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 hover:ring-brand/30 transition shadow-clay">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand/10 text-accent">
+                  <Users size={18} />
+                </span>
+                <div>
+                  <h3 className="text-xs font-bold text-ink">Hangouts &amp; Invites</h3>
+                  <p className="text-[11px] text-mute">Social Coordination</p>
+                </div>
+              </div>
+              <p className="text-xs text-mute leading-relaxed">
+                Coordinate meetups in seconds, vote on stops, 1-tap web RSVPs without logins, and shared calendar sync.
+              </p>
+            </div>
+
+            {/* 4. Business & Arrival Engine */}
+            <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 hover:ring-brand/30 transition shadow-clay">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand/10 text-accent">
+                  <Store size={18} />
+                </span>
+                <div>
+                  <h3 className="text-xs font-bold text-ink">Perks &amp; Arrival Engine</h3>
+                  <p className="text-[11px] text-mute">Local Businesses &amp; PBSA</p>
+                </div>
+              </div>
+              <p className="text-xs text-mute leading-relaxed">
+                Exclusive verified merchant perks, PBSA student arrival onboarding, and community belonging reports.
+              </p>
+            </div>
+          </div>
+
+          {/* 5. Personal Bio & Circle */}
+          <div className="rounded-2xl bg-brand/5 p-4 ring-1 ring-brand/20">
+            <div className="flex items-center gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand text-white shadow-xs">
+                <UserRound size={18} />
+              </span>
+              <div>
+                <h3 className="text-xs font-bold text-ink">Universal Identity &amp; Digital Bio</h3>
+                <p className="text-[11px] text-mute mt-0.5">
+                  Personal <span className="font-semibold text-accent">/@handle</span> profile, Networking Circle &amp;
+                  live presence check-in.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust & Facts Rail */}
+          <div className="flex flex-wrap items-center gap-5 pt-2 text-xs text-mute border-t border-line/60">
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="font-medium text-ink">Universal Account</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Lock size={15} className="text-accent shrink-0" />
+              <span>256-bit Encrypted</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>Privacy Act Compliant</span>
+            </div>
+          </div>
+
+          {/* Direct Browse & Partner Links */}
+          <div className="pt-1 flex items-center gap-4">
             <button
               type="button"
-              onClick={() => switchMode("signin")}
-              className="mb-4 inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-accent hover:underline cursor-pointer"
+              onClick={() => {
+                void triggerHaptic("light");
+                nav("/explore");
+              }}
+              className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-accent hover:underline cursor-pointer"
             >
-              <ArrowLeft size={14} />
-              <span>Back to Sign In</span>
+              <span>Browse first, join later</span>
+              <ArrowRight size={14} />
             </button>
-
-            <h2 className="font-display text-xl sm:text-2xl font-bold text-ink">Forgot your password?</h2>
-            <p className="mt-1 text-xs text-mute leading-relaxed">
-              Enter your registered email address. We will send you a secure link to create a new password.
-            </p>
-
-            {inlineError && (
-              <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-red-500/10 p-3.5 text-xs text-red-600 dark:text-red-400 ring-1 ring-red-500/25">
-                <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                <span>{inlineError.message}</span>
-              </div>
-            )}
-
-            {resetSent ? (
-              <div className="mt-5 rounded-2xl bg-emerald-500/10 p-5 text-center ring-1 ring-emerald-500/20">
-                <CheckCircle2 size={28} className="mx-auto text-emerald-600 dark:text-emerald-400" />
-                <p className="mt-2 text-sm font-bold text-ink">Reset link sent!</p>
-                <p className="mt-1 text-xs text-mute">
-                  Check your inbox for <span className="font-semibold text-ink">{resetEmail}</span>. Please also inspect
-                  your spam folder.
-                </p>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="mt-4 min-h-[44px] px-4 font-semibold"
-                  onClick={() => switchMode("signin")}
-                >
-                  Return to Sign In
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={onSubmit} className="mt-5 space-y-4">
-                <ValidField label="Email Address" ok={isEmail(resetEmail)}>
-                  <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
-                    <input
-                      type="email"
-                      inputMode="email"
-                      autoComplete="email"
-                      autoCapitalize="none"
-                      enterKeyHint="go"
-                      value={resetEmail}
-                      onChange={(e) => setResetEmail(e.target.value)}
-                      onFocus={nudgeIntoView}
-                      placeholder="you@domain.com"
-                      className={cn(fieldInput, "pl-10", KEYBOARD_SAFE_INPUT)}
-                    />
-                  </div>
-                </ValidField>
-
-                <Button
-                  type="submit"
-                  className="w-full min-h-[48px] text-sm font-bold shadow-xs cursor-pointer"
-                  disabled={busy || !isEmail(resetEmail)}
-                  loading={busy}
-                >
-                  {busy ? "Sending link…" : "Email reset link"}
-                </Button>
-              </form>
-            )}
+            <span className="text-line">|</span>
+            <Link href="/join" className="text-xs font-semibold text-mute hover:text-ink">
+              Become a Host, Business or Organiser →
+            </Link>
           </div>
-        ) : (
-          /* Normal Sign In / Create Account Flow (Phone-First + Social) */
-          <div>
-            {/* Primary Mode Segmented Control: Sign In vs Create Account */}
-            <div className="relative flex rounded-full bg-paper p-1 ring-1 ring-line shadow-2xs">
-              <button
-                type="button"
-                onClick={() => switchMode("signin")}
-                aria-pressed={mode === "signin"}
-                className={cn(
-                  "flex-1 rounded-full min-h-[44px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer",
-                  mode === "signin"
-                    ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
-                    : "text-mute hover:text-ink",
-                )}
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                onClick={() => switchMode("signup")}
-                aria-pressed={mode === "signup"}
-                className={cn(
-                  "flex-1 rounded-full min-h-[44px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer",
-                  mode === "signup"
-                    ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
-                    : "text-mute hover:text-ink",
-                )}
-              >
-                Create Account
-              </button>
-            </div>
+        </div>
 
-            {/* Apple & Google 1-Tap Social Auth */}
-            <div className="mt-4">
-              <SocialAuthButtons
-                busy={busy}
-                showBiometrics={false}
-                onSocial={async (provider) => {
-                  setInlineError(null);
-                  await loginWithSocial(provider);
-                  void triggerHaptic("medium");
-                  toast.success("Signed in successfully!");
-                  setPendingGo(true);
+        {/* ======================================================== */}
+        {/* RIGHT COLUMN: Mobile Header + Role Banner + Auth Card */}
+        {/* ======================================================== */}
+        <div className="lg:col-span-6 xl:col-span-5 w-full max-w-lg mx-auto lg:max-w-none">
+          {/* Mobile Welcome Header (collapses smoothly when keyboard appears) */}
+          {isGuestStart && (
+            <div
+              className={cn(
+                "transition-all duration-300 ease-in-out lg:hidden text-center",
+                isKeyboardOpen || keyboardHeight > 0
+                  ? "max-h-0 opacity-0 overflow-hidden mb-0"
+                  : "max-h-96 opacity-100 mb-6",
+              )}
+            >
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-accent">
+                <Sparkles size={13} />
+                <span>LIFE MADE EASY</span>
+              </div>
+              <h1 className="font-display mt-2 text-2xl sm:text-3xl font-black tracking-tight text-ink leading-tight">
+                Find your place. <br />
+                <span className="font-serif italic font-normal text-accent">Meet your people.</span>
+              </h1>
+              <p className="mx-auto mt-1.5 max-w-sm text-xs text-mute leading-relaxed">
+                One universal account across Places, Communities, Friends, and Me.
+              </p>
+
+              {/* 4 Pillars Mini-Badges */}
+              <div className="mt-3.5 grid grid-cols-4 gap-2 text-center">
+                {PILLARS.map((p) => {
+                  const Icon = p.icon;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        void triggerHapticSelection();
+                        nav(p.href);
+                      }}
+                      className="flex flex-col items-center justify-center rounded-2xl bg-card p-2 ring-1 ring-line/80 hover:bg-paper transition cursor-pointer active:scale-95"
+                    >
+                      <span className="grid h-7 w-7 place-items-center rounded-xl bg-brand/10 text-accent mb-1">
+                        <Icon size={14} />
+                      </span>
+                      <span className="text-[10px] font-bold text-ink">{p.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav("/explore");
                 }}
-              />
-              <SocialAuthDivider label="or continue with mobile" />
+                className="mt-2.5 inline-flex min-h-[38px] items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
+              >
+                <span>Browse first, join later</span>
+                <ArrowRight size={13} />
+              </button>
             </div>
+          )}
 
-            {/* Passkey / Biometric Login on Supported Devices */}
-            {mode === "signin" && hasEnrolledBiometrics && (
-              <div className="mb-4">
-                <BiometricAuthButton variant="hero" onSuccess={() => setPendingGo(true)} />
+          {/* Role / Context Banner */}
+          <div className="mb-6 rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line shadow-clay">
+            <div className="flex items-center gap-3.5">
+              <span
+                className={cn(
+                  "grid h-11 w-11 shrink-0 place-items-center rounded-2xl",
+                  roleContext.bg,
+                  roleContext.color,
+                )}
+              >
+                <RoleIcon size={22} strokeWidth={2} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className={cn("text-[10px] font-bold uppercase tracking-widest", roleContext.color)}>
+                  {roleContext.kicker}
+                </p>
+                <RoleHeading className="font-display text-lg sm:text-xl font-bold leading-tight text-ink mt-0.5">
+                  {mode === "reset"
+                    ? "Reset your password"
+                    : mode === "signup"
+                      ? roleContext.signupTitle
+                      : roleContext.title}
+                </RoleHeading>
               </div>
-            )}
+            </div>
+            <p className="mt-2.5 text-xs text-mute leading-relaxed">{roleContext.desc}</p>
+          </div>
 
-            {/* Inline Error Banner */}
-            {inlineError && (
-              <div className="mb-4 rounded-2xl bg-red-500/10 p-3.5 text-xs text-red-600 dark:text-red-400 ring-1 ring-red-500/25">
-                <div className="flex items-start gap-2.5">
-                  <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium">{inlineError.message}</p>
-                    {inlineError.code === "auth/email-already-in-use" && (
-                      <button
-                        type="button"
-                        onClick={() => switchMode("signin")}
-                        className="mt-1 font-bold text-accent underline block cursor-pointer"
-                      >
-                        Sign in with this account instead →
-                      </button>
-                    )}
-                    {(inlineError.code === "auth/wrong-password" || inlineError.code === "auth/invalid-credential") && (
-                      <button
-                        type="button"
-                        onClick={() => switchMode("reset")}
-                        className="mt-1 font-bold text-accent underline block cursor-pointer"
-                      >
-                        Forgot your password? Reset it here →
-                      </button>
-                    )}
+          {/* Referral Banner */}
+          {mode === "signup" && inviterHandle && (
+            <div className="mb-4 rounded-2xl ring-1 ring-brand/30 bg-brand/5 px-4 py-3 text-center text-xs sm:text-sm">
+              <span>You’re invited by </span>
+              <span className="font-bold text-accent">@{inviterHandle}</span>
+              <span> — unlocks access to the </span>
+              <Link href="/founders" className="font-bold text-accent hover:underline">
+                Founders 100K pool
+              </Link>
+              .
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* MAIN AUTHENTICATION CARD */}
+          {/* ======================================================== */}
+          <div
+            id="auth-card"
+            className="rounded-3xl ring-1 ring-line bg-card/95 backdrop-blur-2xl p-6 sm:p-7 shadow-clay scroll-mt-6"
+          >
+            {mode === "reset" ? (
+              /* Password Reset Flow */
+              <div>
+                <button
+                  type="button"
+                  onClick={() => switchMode("signin")}
+                  className="mb-4 inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-accent hover:underline cursor-pointer"
+                >
+                  <ArrowLeft size={14} />
+                  <span>Back to Sign In</span>
+                </button>
+
+                <h2 className="font-display text-xl sm:text-2xl font-bold text-ink">Forgot your password?</h2>
+                <p className="mt-1 text-xs text-mute leading-relaxed">
+                  Enter your registered email address. We will send you a secure link to create a new password.
+                </p>
+
+                {inlineError && (
+                  <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-red-500/10 p-3.5 text-xs text-red-600 dark:text-red-400 ring-1 ring-red-500/25">
+                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                    <span>{inlineError.message}</span>
                   </div>
-                </div>
-              </div>
-            )}
+                )}
 
-            {/* Mode Content: Sign Up Flow vs Sign In Flow */}
-            {mode === "signup" ? (
-              <div className="mt-2">
-                <SignupFlow
-                  initialPhone={signInPhone}
-                  onDone={() => {
-                    setPhoneSignup(false);
-                    setPendingGo(true);
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="mt-2">
-                {/* Sign-in Phone Sub-Mode Toggle: Password vs SMS Code */}
-                <div className="mb-3.5 flex justify-center gap-1 rounded-full bg-paper p-1 ring-1 ring-line">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void triggerHapticSelection();
-                      setPhoneLoginMode("password");
-                    }}
-                    aria-pressed={phoneLoginMode === "password"}
-                    className={cn(
-                      "inline-flex min-h-[40px] flex-1 items-center justify-center rounded-full px-4 text-xs font-semibold cursor-pointer transition active:scale-[0.98]",
-                      phoneLoginMode === "password" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
-                    )}
-                  >
-                    Password
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void triggerHapticSelection();
-                      setPhoneLoginMode("sms");
-                    }}
-                    aria-pressed={phoneLoginMode === "sms"}
-                    className={cn(
-                      "inline-flex min-h-[40px] flex-1 items-center justify-center rounded-full px-4 text-xs font-semibold cursor-pointer transition active:scale-[0.98]",
-                      phoneLoginMode === "sms" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
-                    )}
-                  >
-                    SMS Code
-                  </button>
-                </div>
-
-                {phoneLoginMode === "sms" ? (
-                  <PhoneLogin
-                    initialPhone={signInPhone}
-                    onPhoneChange={setSignInPhone}
-                    onBegin={() => setPhoneSignup(true)}
-                    onDone={() => {
-                      setPhoneSignup(false);
-                      setPendingGo(true);
-                    }}
-                    onNeedAccount={() => {
-                      setPhoneSignup(true);
-                      switchMode("signup");
-                    }}
-                  />
+                {resetSent ? (
+                  <div className="mt-5 rounded-2xl bg-emerald-500/10 p-5 text-center ring-1 ring-emerald-500/20">
+                    <CheckCircle2 size={28} className="mx-auto text-emerald-600 dark:text-emerald-400" />
+                    <p className="mt-2 text-sm font-bold text-ink">Reset link sent!</p>
+                    <p className="mt-1 text-xs text-mute">
+                      Check your inbox for <span className="font-semibold text-ink">{resetEmail}</span>. Please also
+                      inspect your spam folder.
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="mt-4 min-h-[44px] px-4 font-semibold"
+                      onClick={() => switchMode("signin")}
+                    >
+                      Return to Sign In
+                    </Button>
+                  </div>
                 ) : (
-                  <form onSubmit={onSubmit} className="space-y-3.5">
-                    <ValidField label="Mobile number" ok={phoneReady(signInPhone)}>
-                      <PhoneField value={signInPhone} onChange={setSignInPhone} />
-                    </ValidField>
-                    <ValidField label="Password" ok={Boolean(password)}>
+                  <form onSubmit={onSubmit} className="mt-5 space-y-4">
+                    <ValidField label="Email Address" ok={isEmail(resetEmail)}>
                       <div className="relative">
-                        <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
+                        <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
                         <input
-                          type={showPassword ? "text" : "password"}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="••••••••"
-                          autoComplete="current-password"
+                          type="email"
+                          inputMode="email"
+                          autoComplete="email"
+                          autoCapitalize="none"
                           enterKeyHint="go"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
                           onFocus={nudgeIntoView}
-                          className={cn(fieldInput, "pl-10 pr-10", KEYBOARD_SAFE_INPUT)}
-                          required
+                          placeholder="you@domain.com"
+                          className={cn(fieldInput, "pl-10", KEYBOARD_SAFE_INPUT)}
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-mute hover:text-ink cursor-pointer"
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                        >
-                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
                       </div>
                     </ValidField>
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => switchMode("reset")}
-                        className="text-xs font-semibold text-accent hover:underline cursor-pointer"
-                      >
-                        Forgot password?
-                      </button>
-                    </div>
+
                     <Button
                       type="submit"
                       className="w-full min-h-[48px] text-sm font-bold shadow-xs cursor-pointer"
-                      disabled={busy || !phoneReady(signInPhone) || !password}
+                      disabled={busy || !isEmail(resetEmail)}
                       loading={busy}
                     >
-                      {busy ? "Signing in…" : "Sign In"}
+                      {busy ? "Sending link…" : "Email reset link"}
                     </Button>
-                    <p className="text-center text-[11px] text-mute">
-                      SMS code always works if phone + password isn&apos;t set up yet.
-                    </p>
                   </form>
                 )}
               </div>
-            )}
-
-            {/* Quick Switch Helper */}
-            <div className="mt-5 border-t border-line/60 pt-4 text-center">
-              {mode === "signin" ? (
-                <p className="text-xs text-mute">
-                  New to AirPal?{" "}
-                  <button
-                    type="button"
-                    onClick={() => switchMode("signup")}
-                    className="font-bold text-accent hover:underline cursor-pointer"
-                  >
-                    Create an account
-                  </button>
-                </p>
-              ) : (
-                <p className="text-xs text-mute">
-                  Already have an account?{" "}
+            ) : (
+              /* Normal Sign In / Create Account Flow (Phone-First + Social) */
+              <div>
+                {/* Primary Mode Segmented Control: Sign In vs Create Account */}
+                <div className="relative flex rounded-full bg-paper p-1 ring-1 ring-line shadow-2xs">
                   <button
                     type="button"
                     onClick={() => switchMode("signin")}
-                    className="font-bold text-accent hover:underline cursor-pointer"
+                    aria-pressed={mode === "signin"}
+                    className={cn(
+                      "flex-1 rounded-full min-h-[44px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer",
+                      mode === "signin"
+                        ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
+                        : "text-mute hover:text-ink",
+                    )}
                   >
-                    Sign in
+                    Sign In
                   </button>
-                </p>
-              )}
-            </div>
+                  <button
+                    type="button"
+                    onClick={() => switchMode("signup")}
+                    aria-pressed={mode === "signup"}
+                    className={cn(
+                      "flex-1 rounded-full min-h-[44px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer",
+                      mode === "signup"
+                        ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
+                        : "text-mute hover:text-ink",
+                    )}
+                  >
+                    Create Account
+                  </button>
+                </div>
 
-            {/* Trust & Security Badge */}
-            <div className="mt-5 flex flex-col items-center justify-center gap-1 text-[11px] text-mute/80 pt-3 border-t border-line/50">
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
-                <span className="font-bold text-ink">AirPal Trust &amp; Privacy Rail</span>
+                {/* Apple & Google 1-Tap Social Auth */}
+                <div className="mt-4">
+                  <SocialAuthButtons
+                    busy={busy}
+                    showBiometrics={false}
+                    onSocial={async (provider) => {
+                      setInlineError(null);
+                      await loginWithSocial(provider);
+                      void triggerHaptic("medium");
+                      toast.success("Signed in successfully!");
+                      setPendingGo(true);
+                    }}
+                  />
+                  <SocialAuthDivider label="or continue with mobile" />
+                </div>
+
+                {/* Passkey / Biometric Login on Supported Devices */}
+                {mode === "signin" && hasEnrolledBiometrics && (
+                  <div className="mb-4">
+                    <BiometricAuthButton variant="hero" onSuccess={() => setPendingGo(true)} />
+                  </div>
+                )}
+
+                {/* Inline Error Banner */}
+                {inlineError && (
+                  <div className="mb-4 rounded-2xl bg-red-500/10 p-3.5 text-xs text-red-600 dark:text-red-400 ring-1 ring-red-500/25">
+                    <div className="flex items-start gap-2.5">
+                      <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-medium">{inlineError.message}</p>
+                        {inlineError.code === "auth/email-already-in-use" && (
+                          <button
+                            type="button"
+                            onClick={() => switchMode("signin")}
+                            className="mt-1 font-bold text-accent underline block cursor-pointer"
+                          >
+                            Sign in with this account instead →
+                          </button>
+                        )}
+                        {(inlineError.code === "auth/wrong-password" ||
+                          inlineError.code === "auth/invalid-credential") && (
+                          <button
+                            type="button"
+                            onClick={() => switchMode("reset")}
+                            className="mt-1 font-bold text-accent underline block cursor-pointer"
+                          >
+                            Forgot your password? Reset it here →
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mode Content: Sign Up Flow vs Sign In Flow */}
+                {mode === "signup" ? (
+                  <div className="mt-2">
+                    <SignupFlow
+                      initialPhone={signInPhone}
+                      onDone={() => {
+                        setPhoneSignup(false);
+                        setPendingGo(true);
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-2">
+                    {/* Sign-in Phone Sub-Mode Toggle: Password vs SMS Code */}
+                    <div className="mb-3.5 flex justify-center gap-1 rounded-full bg-paper p-1 ring-1 ring-line">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void triggerHapticSelection();
+                          setPhoneLoginMode("password");
+                        }}
+                        aria-pressed={phoneLoginMode === "password"}
+                        className={cn(
+                          "inline-flex min-h-[40px] flex-1 items-center justify-center rounded-full px-4 text-xs font-semibold cursor-pointer transition active:scale-[0.98]",
+                          phoneLoginMode === "password" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
+                        )}
+                      >
+                        Password
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void triggerHapticSelection();
+                          setPhoneLoginMode("sms");
+                        }}
+                        aria-pressed={phoneLoginMode === "sms"}
+                        className={cn(
+                          "inline-flex min-h-[40px] flex-1 items-center justify-center rounded-full px-4 text-xs font-semibold cursor-pointer transition active:scale-[0.98]",
+                          phoneLoginMode === "sms" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
+                        )}
+                      >
+                        SMS Code
+                      </button>
+                    </div>
+
+                    {phoneLoginMode === "sms" ? (
+                      <PhoneLogin
+                        initialPhone={signInPhone}
+                        onPhoneChange={setSignInPhone}
+                        onBegin={() => setPhoneSignup(true)}
+                        onDone={() => {
+                          setPhoneSignup(false);
+                          setPendingGo(true);
+                        }}
+                        onNeedAccount={() => {
+                          setPhoneSignup(true);
+                          switchMode("signup");
+                        }}
+                      />
+                    ) : (
+                      <form onSubmit={onSubmit} className="space-y-3.5">
+                        <ValidField label="Mobile number" ok={phoneReady(signInPhone)}>
+                          <PhoneField value={signInPhone} onChange={setSignInPhone} onFocus={nudgeIntoView} />
+                        </ValidField>
+                        <ValidField label="Password" ok={Boolean(password)}>
+                          <div className="relative">
+                            <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder="••••••••"
+                              autoComplete="current-password"
+                              enterKeyHint="go"
+                              onFocus={nudgeIntoView}
+                              className={cn(fieldInput, "pl-10 pr-10", KEYBOARD_SAFE_INPUT)}
+                              required
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-mute hover:text-ink cursor-pointer"
+                              aria-label={showPassword ? "Hide password" : "Show password"}
+                            >
+                              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                          </div>
+                        </ValidField>
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => switchMode("reset")}
+                            className="text-xs font-semibold text-accent hover:underline cursor-pointer"
+                          >
+                            Forgot password?
+                          </button>
+                        </div>
+                        <Button
+                          type="submit"
+                          className="w-full min-h-[48px] text-sm font-bold shadow-xs cursor-pointer"
+                          disabled={busy || !phoneReady(signInPhone) || !password}
+                          loading={busy}
+                        >
+                          {busy ? "Signing in…" : "Sign In"}
+                        </Button>
+                        <p className="text-center text-[11px] text-mute">
+                          SMS code always works if phone + password isn&apos;t set up yet.
+                        </p>
+                      </form>
+                    )}
+                  </div>
+                )}
+
+                {/* Quick Switch Helper */}
+                <div className="mt-5 border-t border-line/60 pt-4 text-center">
+                  {mode === "signin" ? (
+                    <p className="text-xs text-mute">
+                      New to AirPal?{" "}
+                      <button
+                        type="button"
+                        onClick={() => switchMode("signup")}
+                        className="font-bold text-accent hover:underline cursor-pointer"
+                      >
+                        Create an account
+                      </button>
+                    </p>
+                  ) : (
+                    <p className="text-xs text-mute">
+                      Already have an account?{" "}
+                      <button
+                        type="button"
+                        onClick={() => switchMode("signin")}
+                        className="font-bold text-accent hover:underline cursor-pointer"
+                      >
+                        Sign in
+                      </button>
+                    </p>
+                  )}
+                </div>
+
+                {/* Trust & Security Badge */}
+                <div className="mt-5 flex flex-col items-center justify-center gap-1 text-[11px] text-mute/80 pt-3 border-t border-line/50">
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
+                    <span className="font-bold text-ink">AirPal Trust &amp; Privacy Rail</span>
+                  </div>
+                  <span className="text-[10px]">
+                    256-bit Encrypted · Universal Single Account · Australian Privacy Act
+                  </span>
+                </div>
               </div>
-              <span className="text-[10px]">256-bit Encrypted · Universal Single Account · Australian Privacy Act</span>
+            )}
+          </div>
+
+          {/* Role Portal Quick Links Footer */}
+          <div className="mt-6 text-center space-y-2">
+            <p className="text-xs text-mute">
+              Explore partner options:{" "}
+              <Link href="/join" className="text-accent font-semibold hover:underline">
+                Become a Host, Business or Organiser
+              </Link>
+            </p>
+            <div className="flex items-center justify-center gap-3 text-[11px] text-mute">
+              <Link href="/terms" className="hover:underline">
+                Terms of Service
+              </Link>
+              <span>·</span>
+              <Link href="/privacy" className="hover:underline">
+                Privacy Policy
+              </Link>
+              <span>·</span>
+              <Link href="/trust" className="hover:underline">
+                Trust &amp; Facts
+              </Link>
             </div>
           </div>
-        )}
-      </div>
-
-      {/* Role Portal Quick Links Footer */}
-      <div className="mt-6 text-center space-y-2">
-        <p className="text-xs text-mute">
-          Explore partner options:{" "}
-          <Link href="/join" className="text-accent font-semibold hover:underline">
-            Become a Host, Business or Organiser
-          </Link>
-        </p>
-        <div className="flex items-center justify-center gap-3 text-[11px] text-mute">
-          <Link href="/terms" className="hover:underline">
-            Terms of Service
-          </Link>
-          <span>·</span>
-          <Link href="/privacy" className="hover:underline">
-            Privacy Policy
-          </Link>
-          <span>·</span>
-          <Link href="/trust" className="hover:underline">
-            Trust &amp; Facts
-          </Link>
         </div>
       </div>
     </div>

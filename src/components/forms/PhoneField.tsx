@@ -10,6 +10,7 @@ import {
   splitPhone,
 } from "@shared/geo-address";
 import { ValidField, fieldInput } from "./ValidField";
+import { ensureElementInView } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
 
 export function PhoneField({
@@ -18,12 +19,14 @@ export function PhoneField({
   required,
   label = "Mobile Number",
   stacked = false,
+  onFocus,
 }: {
   value: string;
   onChange: (next: string) => void;
   required?: boolean;
   label?: string;
   stacked?: boolean;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }) {
   const initialCountry = countryFromPhone(value)?.code || "AU";
   const [selectedCountry, setSelectedCountry] = useState<string>(initialCountry);
@@ -127,8 +130,17 @@ export function PhoneField({
               inputMode="tel"
               autoComplete="tel-national"
               placeholder={placeholder}
-              className={cn(fieldInput, "pl-14 w-full")}
+              className={cn(fieldInput, "pl-14 w-full text-[16px] sm:text-sm")}
               aria-label="Mobile Number"
+              onFocus={(e) => {
+                onFocus?.(e);
+                ensureElementInView(e.currentTarget, {
+                  block: "center",
+                  topClearance: 70,
+                  bottomClearance: 24,
+                  behavior: "smooth",
+                });
+              }}
             />
           </div>
         </ValidField>
@@ -166,14 +178,16 @@ export function PhoneField({
           autoComplete="tel-national"
           enterKeyHint="next"
           placeholder={placeholder}
-          className={cn(fieldInput, "flex-1 text-[16px]")}
+          className={cn(fieldInput, "flex-1 text-[16px] sm:text-sm")}
           aria-label="Mobile Number"
           onFocus={(e) => {
-            try {
-              e.currentTarget.scrollIntoView({ behavior: "smooth", block: "center" });
-            } catch {
-              /* ignore */
-            }
+            onFocus?.(e);
+            ensureElementInView(e.currentTarget, {
+              block: "center",
+              topClearance: 70,
+              bottomClearance: 24,
+              behavior: "smooth",
+            });
           }}
         />
       </div>

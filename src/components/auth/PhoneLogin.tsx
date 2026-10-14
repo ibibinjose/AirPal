@@ -14,7 +14,19 @@ import { useHandleStatus } from "@/hooks/useHandleStatus";
 import { PHONE_RECAPTCHA_ID, resetPhoneLogin } from "@/lib/phone-auth";
 import { loadBios } from "@/lib/bio-store";
 import { getFirebaseAuth } from "@/lib/firebase";
+import { ensureElementInView } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
+
+const KEYBOARD_SAFE_INPUT = "text-[16px] sm:text-sm";
+
+function nudgeIntoView(e: React.FocusEvent<HTMLElement>) {
+  ensureElementInView(e.currentTarget, {
+    block: "center",
+    topClearance: 70,
+    bottomClearance: 24,
+    behavior: "smooth",
+  });
+}
 
 export function PhoneLogin({
   initialPhone = "",
@@ -217,6 +229,7 @@ export function PhoneLogin({
                 setPhone(val);
                 onPhoneChange?.(val);
               }}
+              onFocus={nudgeIntoView}
               required
             />
           </div>
@@ -255,7 +268,12 @@ export function PhoneLogin({
                 autoComplete="one-time-code"
                 maxLength={6}
                 placeholder="123456"
-                className={cn(fieldInput, "font-mono tracking-[0.35em] text-center text-lg font-semibold")}
+                className={cn(
+                  fieldInput,
+                  "font-mono tracking-[0.35em] text-center text-lg font-semibold",
+                  KEYBOARD_SAFE_INPUT,
+                )}
+                onFocus={nudgeIntoView}
                 autoFocus
               />
             </ValidField>
@@ -294,7 +312,8 @@ export function PhoneLogin({
                 }}
                 placeholder="e.g. Jordan Lee"
                 autoComplete="name"
-                className={fieldInput}
+                className={cn(fieldInput, KEYBOARD_SAFE_INPUT)}
+                onFocus={nudgeIntoView}
                 autoFocus
               />
             </ValidField>
@@ -314,7 +333,8 @@ export function PhoneLogin({
                   }}
                   placeholder="username"
                   autoComplete="username"
-                  className={fieldInput}
+                  className={cn(fieldInput, KEYBOARD_SAFE_INPUT)}
+                  onFocus={nudgeIntoView}
                 />
                 <button
                   type="button"
@@ -322,7 +342,7 @@ export function PhoneLogin({
                     setHandleTouched(true);
                     setHandle(randomHexHandle(8));
                   }}
-                  className="shrink-0 rounded-2xl bg-paper px-3 text-xs font-medium text-mute ring-1 ring-line hover:text-ink"
+                  className="shrink-0 rounded-2xl bg-paper px-3 text-xs font-medium text-mute ring-1 ring-line hover:text-ink cursor-pointer"
                 >
                   Hex ID
                 </button>
@@ -342,8 +362,9 @@ export function PhoneLogin({
                 autoCapitalize="none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onFocus={nudgeIntoView}
                 placeholder="you@domain.com"
-                className={fieldInput}
+                className={cn(fieldInput, KEYBOARD_SAFE_INPUT)}
                 required
               />
             </ValidField>

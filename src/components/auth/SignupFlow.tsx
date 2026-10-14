@@ -12,10 +12,22 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
 import { useHandleStatus } from "@/hooks/useHandleStatus";
 import { resetPhoneLogin } from "@/lib/phone-auth";
+import { ensureElementInView } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
 import { ScanFace } from "lucide-react";
 
 type Step = "handle" | "code" | "account";
+
+const KEYBOARD_SAFE_INPUT = "text-[16px] sm:text-sm";
+
+function nudgeIntoView(e: React.FocusEvent<HTMLElement>) {
+  ensureElementInView(e.currentTarget, {
+    block: "center",
+    topClearance: 70,
+    bottomClearance: 24,
+    behavior: "smooth",
+  });
+}
 
 export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; initialPhone?: string }) {
   const {
@@ -228,7 +240,7 @@ export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; 
       <form className="space-y-3.5" onSubmit={(e) => void onSubmit(e)}>
         {step === "handle" && (
           <>
-            <PhoneField value={phone} onChange={setPhone} stacked label="Mobile Number" />
+            <PhoneField value={phone} onChange={setPhone} onFocus={nudgeIntoView} stacked label="Mobile Number" />
             <ValidField
               label="Choose your AirPal Me @handle"
               ok={handleOk}
@@ -238,9 +250,10 @@ export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; 
               <input
                 value={handle}
                 onChange={(e) => setHandle(e.target.value)}
+                onFocus={nudgeIntoView}
                 placeholder="maya"
                 autoComplete="username"
-                className={fieldInput}
+                className={cn(fieldInput, KEYBOARD_SAFE_INPUT)}
                 autoFocus={!phone}
               />
             </ValidField>
@@ -262,10 +275,15 @@ export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; 
               <input
                 value={code}
                 onChange={(e) => setCode(normalizeOtp(e.target.value))}
+                onFocus={nudgeIntoView}
                 inputMode="numeric"
                 autoComplete="one-time-code"
                 placeholder="000000"
-                className={fieldInput}
+                className={cn(
+                  fieldInput,
+                  "font-mono tracking-[0.35em] text-center text-lg font-semibold",
+                  KEYBOARD_SAFE_INPUT,
+                )}
                 autoFocus
               />
             </ValidField>
@@ -300,9 +318,10 @@ export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; 
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  onFocus={nudgeIntoView}
                   placeholder="e.g. Alex Rivera"
                   autoComplete="name"
-                  className={cn(fieldInput, "pl-10")}
+                  className={cn(fieldInput, "pl-10", KEYBOARD_SAFE_INPUT)}
                   autoFocus
                 />
               </div>
@@ -319,9 +338,10 @@ export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; 
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onFocus={nudgeIntoView}
                   placeholder="you@domain.com"
                   autoComplete="email"
-                  className={cn(fieldInput, "pl-10")}
+                  className={cn(fieldInput, "pl-10", KEYBOARD_SAFE_INPUT)}
                   required
                 />
               </div>
@@ -333,14 +353,15 @@ export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; 
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={nudgeIntoView}
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  className={cn(fieldInput, "pl-10 pr-10")}
+                  className={cn(fieldInput, "pl-10 pr-10", KEYBOARD_SAFE_INPUT)}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-mute hover:text-ink"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-mute hover:text-ink cursor-pointer"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -401,8 +422,9 @@ export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; 
                   value={birthDate}
                   max={sydneyToday()}
                   onChange={(e) => setBirthDate(e.target.value)}
+                  onFocus={nudgeIntoView}
                   aria-label="Date of birth"
-                  className={cn(fieldInput, "pl-10")}
+                  className={cn(fieldInput, "pl-10", KEYBOARD_SAFE_INPUT)}
                 />
               </div>
             </ValidField>

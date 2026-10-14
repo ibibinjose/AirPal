@@ -78,4 +78,35 @@ test.describe("Authentication & Security Flow", () => {
     await page.getByRole("button", { name: /Sign In with Mobile or Social/i }).click();
     await expect(page).toHaveURL(/\/start\?tab=signin&next=%2Fevent/);
   });
+
+  test("renders side-by-side product intro showcase on desktop viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/start");
+
+    // Desktop left column product showcase
+    await expect(page.getByText("Events & Access").first()).toBeVisible();
+    await expect(page.getByText("Curated Discovery").first()).toBeVisible();
+    await expect(page.getByText("Hangouts & Invites").first()).toBeVisible();
+    await expect(page.getByText("Perks & Arrival Engine").first()).toBeVisible();
+    await expect(page.getByText("Universal Identity & Digital Bio").first()).toBeVisible();
+
+    // Right column auth card simultaneously visible side-by-side
+    const authCard = page.locator("#auth-card");
+    await expect(authCard).toBeVisible();
+  });
+
+  test("renders mobile view with keyboard-safe inputs and responsive positioning", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/start");
+
+    // Mobile auth card is immediately visible
+    const authCard = page.locator("#auth-card");
+    await expect(authCard).toBeVisible();
+
+    // Inputs have font-size >= 16px to prevent iOS auto-zoom
+    const phoneInput = page.getByPlaceholder("412 345 678");
+    await expect(phoneInput).toBeVisible();
+    const fontSize = await phoneInput.evaluate((el) => window.getComputedStyle(el).fontSize);
+    expect(parseFloat(fontSize)).toBeGreaterThanOrEqual(16);
+  });
 });
