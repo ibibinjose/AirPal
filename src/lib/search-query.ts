@@ -1,5 +1,31 @@
 import { HANDLE_MIN, HANDLE_RE, normalizeHandle } from "@shared/bio";
 
+/**
+ * Validate that a query is a legitimate human search query and not a local file path,
+ * system URL, stack trace, or code artifact.
+ */
+export function isValidSearchQuery(query: string | undefined | null): boolean {
+  if (!query || typeof query !== "string") return false;
+  const trimmed = query.trim();
+  if (trimmed.length < 1 || trimmed.length > 100) return false;
+  // Reject absolute filesystem paths or file protocol
+  if (
+    trimmed.startsWith("/") ||
+    trimmed.startsWith("file:") ||
+    trimmed.includes("/Users/") ||
+    trimmed.includes("node_modules") ||
+    trimmed.includes("C:\\") ||
+    trimmed.includes("\\")
+  ) {
+    return false;
+  }
+  // Reject source code / developer file paths (e.g. .swift, .ts, .tsx, .js, .json)
+  if (/\.(swift|ts|tsx|js|jsx|mjs|py|json|md|html|css|gradle|plist|entitlements)$/i.test(trimmed)) {
+    return false;
+  }
+  return true;
+}
+
 /** Parse a search box value into a text needle and an optional exact @handle. */
 export function searchNeedle(raw: string): {
   text: string;
@@ -7,6 +33,9 @@ export function searchNeedle(raw: string): {
   /** True when the query is clearly a handle lookup (@prefix or whole-token handle shape). */
   looksLikeHandle: boolean;
 } {
+  if (!isValidSearchQuery(raw)) {
+    return { text: "", handle: "", looksLikeHandle: false };
+  }
   const trimmed = raw.trim();
   const text = trimmed.toLowerCase();
   const handle = normalizeHandle(trimmed);
@@ -33,6 +62,7 @@ export function profileMatchesSearch(
 
 /** Split search input into normalized search tokens, stripping punctuation. */
 export function tokenizeSearchQuery(raw: string): string[] {
+  if (!isValidSearchQuery(raw)) return [];
   return raw
     .toLowerCase()
     .replace(/[^a-zA-Z0-9\s@_-]/g, " ")
@@ -56,6 +86,7 @@ export interface SearchScorable {
  * Returns 0 if item does not match. Higher scores reflect closer relevance.
  */
 export function scoreSearchItem(item: SearchScorable, query: string): number {
+  if (!isValidSearchQuery(query)) return 0;
   const trimmed = query.trim().toLowerCase();
   if (!trimmed) return 0;
 

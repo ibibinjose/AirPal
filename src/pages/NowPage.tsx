@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
+import { isValidSearchQuery } from "@/lib/search-query";
 import {
   ArrowRight,
   Clock,
@@ -91,11 +92,25 @@ export function NowPage() {
   const searchString = useSearch();
   const searchParam = useMemo(() => {
     try {
-      return new URLSearchParams(searchString).get("q")?.trim() || "";
+      const q = new URLSearchParams(searchString).get("q")?.trim() || "";
+      if (!isValidSearchQuery(q)) return "";
+      return q;
     } catch {
       return "";
     }
   }, [searchString]);
+
+  // Strip invalid file paths, stack traces, or developer code links from URL query parameters
+  useEffect(() => {
+    try {
+      const rawQ = new URLSearchParams(searchString).get("q");
+      if (rawQ !== null && !isValidSearchQuery(rawQ)) {
+        navigate("/now", { replace: true });
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [searchString, navigate]);
 
   const effectiveCity = city && city !== "Choose a city" && city !== "Current location" ? city : "Sydney";
 

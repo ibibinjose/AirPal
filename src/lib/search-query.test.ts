@@ -5,6 +5,7 @@ import {
   tokenizeSearchQuery,
   scoreSearchItem,
   highlightSearchMatch,
+  isValidSearchQuery,
 } from "./search-query";
 
 describe("searchNeedle", () => {
@@ -78,5 +79,30 @@ describe("highlightSearchMatch", () => {
     expect(segments.find((s) => s.text === "Coffee")?.match).toBe(true);
     expect(segments.find((s) => s.text === "Brunch")?.match).toBe(true);
     expect(segments.find((s) => s.text === ", Drinks and ")?.match).toBe(false);
+  });
+});
+
+describe("isValidSearchQuery", () => {
+  it("accepts valid human search queries", () => {
+    expect(isValidSearchQuery("Bondi Beach")).toBe(true);
+    expect(isValidSearchQuery("coffee")).toBe(true);
+    expect(isValidSearchQuery("@theglenmore")).toBe(true);
+    expect(isValidSearchQuery("italian dinner")).toBe(true);
+  });
+
+  it("strictly rejects file paths, code URLs, and stack traces", () => {
+    expect(
+      isValidSearchQuery(
+        "/Users/bibinjose/Projects/Codebase/Projects/AirPalMe/node_modules/@capacitor/app/ios/Sources/AppPlugin/AppPlugin.swift",
+      ),
+    ).toBe(false);
+    expect(isValidSearchQuery("file:///path/to/something.ts")).toBe(false);
+    expect(isValidSearchQuery("/Users/someone/Desktop")).toBe(false);
+    expect(isValidSearchQuery("node_modules/package/index.js")).toBe(false);
+    expect(isValidSearchQuery("something.swift")).toBe(false);
+    expect(isValidSearchQuery("component.tsx")).toBe(false);
+    expect(isValidSearchQuery("")).toBe(false);
+    expect(isValidSearchQuery(null)).toBe(false);
+    expect(isValidSearchQuery(undefined)).toBe(false);
   });
 });

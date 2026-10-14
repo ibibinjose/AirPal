@@ -188,7 +188,11 @@ export async function initNativeApp(
       if (!data?.url) return;
       try {
         const u = new URL(data.url);
+        // Strictly ignore file:// URLs (e.g. Xcode opening source files or iOS document URLs)
+        if (u.protocol === "file:") return;
         const targetPath = `${u.pathname}${u.search}${u.hash}`;
+        // Prevent navigating to local files, system paths, or node_modules
+        if (targetPath.startsWith("/Users/") || targetPath.includes("node_modules")) return;
         if (targetPath && targetPath !== "/") {
           window.history.pushState(null, "", targetPath);
           window.dispatchEvent(new Event("popstate"));
@@ -197,6 +201,7 @@ export async function initNativeApp(
         const match = data.url.match(/^(?:https?:\/\/[^/]+|[a-z0-9.-]+:\/\/)(.*)$/i);
         if (match && match[1]) {
           const target = match[1].startsWith("/") ? match[1] : `/${match[1]}`;
+          if (target.startsWith("/Users/") || target.includes("node_modules")) return;
           window.history.pushState(null, "", target);
           window.dispatchEvent(new Event("popstate"));
         }

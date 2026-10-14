@@ -54,4 +54,17 @@ test.describe("Search Engine Flow", () => {
     // Navigates to /now?q=harbour
     await expect(page).toHaveURL(/\/now\?q=harbour/);
   });
+
+  test("rejects local file paths and cleans URL without showing invalid match banner", async ({ page }) => {
+    await page.goto(
+      "/now?q=/Users/bibinjose/Projects/Codebase/Projects/AirPalMe/node_modules/@capacitor/app/ios/Sources/AppPlugin/AppPlugin.swift",
+    );
+    await page.waitForLoadState("domcontentloaded");
+
+    // Should not show "Showing places matching" banner for file paths
+    await expect(page.getByText(/Showing places matching/i)).not.toBeVisible();
+
+    // Cleans up URL
+    await expect(page).toHaveURL(/\/now$/);
+  });
 });

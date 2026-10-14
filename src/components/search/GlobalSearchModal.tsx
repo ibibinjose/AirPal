@@ -27,7 +27,13 @@ import { loadTours } from "@/lib/tours-store";
 import { bioPath, bioKindLabel, type BioProfile } from "@shared/bio";
 import { fetchPublicBio, loadBios } from "@/lib/bio-store";
 import { listPeople } from "@/lib/people";
-import { highlightSearchMatch, profileMatchesSearch, scoreSearchItem, searchNeedle } from "@/lib/search-query";
+import {
+  highlightSearchMatch,
+  isValidSearchQuery,
+  profileMatchesSearch,
+  scoreSearchItem,
+  searchNeedle,
+} from "@/lib/search-query";
 import { type Promotion } from "@shared/promotions";
 import { getFirebaseDb } from "@/lib/firebase";
 import { collection, getDocs, query as firestoreQuery, where } from "firebase/firestore";
@@ -46,7 +52,22 @@ function loadRecent(): RecentItem[] {
   try {
     const raw = localStorage.getItem(RECENT_KEY);
     const parsed = raw ? (JSON.parse(raw) as RecentItem[]) : [];
-    return Array.isArray(parsed) ? parsed.slice(0, 5) : [];
+    if (!Array.isArray(parsed)) return [];
+    // Sanitize: filter out any items that contain file paths, node_modules, or invalid search queries
+    const valid = parsed.filter(
+      (r) =>
+        r &&
+        typeof r.title === "string" &&
+        typeof r.href === "string" &&
+        isValidSearchQuery(r.title) &&
+        !r.href.includes("/Users/") &&
+        !r.href.includes("node_modules") &&
+        !r.href.startsWith("file:"),
+    );
+    if (valid.length !== parsed.length) {
+      localStorage.setItem(RECENT_KEY, JSON.stringify(valid));
+    }
+    return valid.slice(0, 5);
   } catch {
     return [];
   }
@@ -54,6 +75,14 @@ function loadRecent(): RecentItem[] {
 
 function saveRecent(item: RecentItem) {
   try {
+    if (
+      !isValidSearchQuery(item.title) ||
+      item.href.includes("/Users/") ||
+      item.href.includes("node_modules") ||
+      item.href.startsWith("file:")
+    ) {
+      return;
+    }
     const next = [item, ...loadRecent().filter((r) => r.href !== item.href)].slice(0, 5);
     localStorage.setItem(RECENT_KEY, JSON.stringify(next));
   } catch {

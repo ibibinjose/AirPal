@@ -14,6 +14,7 @@ import {
 import { getFirebaseDb } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocalNow } from "@/hooks/useLocalNow";
+import { isValidSearchQuery } from "@/lib/search-query";
 
 export interface SearchLogPayload {
   query: string;
@@ -72,8 +73,8 @@ export function useSearchQueryLogger(options: UseSearchQueryLoggerOptions = {}) 
       const payload: SearchLogPayload = typeof payloadOrQuery === "string" ? { query: payloadOrQuery } : payloadOrQuery;
 
       const trimmed = (payload.query || "").trim();
-      // Ignore queries with less than 2 characters
-      if (trimmed.length < 2) return;
+      // Ignore queries with less than 2 characters or file/system paths
+      if (trimmed.length < 2 || !isValidSearchQuery(trimmed)) return;
 
       const normalized = normalizeSearchTerm(trimmed);
       if (!normalized) return;
@@ -242,18 +243,29 @@ export function usePopularSearches(options: { limit?: number; fallbackDefaults?:
       .then((snapshot) => {
         if (cancelled) return;
         if (!snapshot.empty) {
-          const list: PopularSearchTerm[] = snapshot.docs.map((docSnap) => {
-            const data = docSnap.data();
-            return {
-              id: docSnap.id,
-              term: data.term || docSnap.id,
-              count: typeof data.count === "number" ? data.count : 1,
-              category: data.category,
-              city: data.city,
-              lastSearchedAt: data.lastSearchedAt,
-            };
-          });
-          setPopularTerms(list);
+          const list: PopularSearchTerm[] = snapshot.docs
+            .map((docSnap) => {
+              const data = docSnap.data();
+              return {
+                id: docSnap.id,
+                term: data.term || docSnap.id,
+                count: typeof data.count === "number" ? data.count : 1,
+                category: data.category,
+                city: data.city,
+                lastSearchedAt: data.lastSearchedAt,
+              };
+            })
+            .filter((item) => isValidSearchQuery(item.term));
+          setPopularTerms(
+            list.length > 0
+              ? list
+              : fallbackDefaults.map((term, i) => ({
+                  id: `default-${i}`,
+                  term,
+                  count: 10 - i,
+                  category: "all",
+                })),
+          );
         } else {
           // If Firestore collection has not accumulated enough terms yet, provide initial curated terms
           setPopularTerms(
