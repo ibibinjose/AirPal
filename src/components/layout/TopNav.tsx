@@ -85,15 +85,16 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
           </button>
 
           <button
+            type="button"
             onClick={() => {
               void triggerHaptic("medium");
               openGlobalCreate();
             }}
-            className="flex h-11 min-h-[44px] items-center gap-1.5 shrink-0 rounded-full bg-brand px-4 text-sm font-semibold text-white shadow-[0_6px_16px_-8px_rgba(24,5,219,0.45)] hover:bg-brand-ink transition-[background-color,box-shadow,transform] active:scale-[0.97] cursor-pointer"
+            className="flex h-11 w-11 min-h-[44px] min-w-[44px] touch-manipulation place-items-center justify-center shrink-0 rounded-full bg-brand text-white shadow-[0_6px_16px_-8px_rgba(24,5,219,0.45)] hover:bg-brand-ink transition-[background-color,box-shadow,transform] active:scale-[0.97] cursor-pointer"
             aria-label="Create something new"
+            title="Create (+)"
           >
-            <Plus size={16} strokeWidth={2.5} />
-            <span>Create</span>
+            <Plus size={18} strokeWidth={2.5} />
           </button>
 
           <button
