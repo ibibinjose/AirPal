@@ -1,0 +1,168 @@
+rules_version = '2';
+// AirPal V3 clean-slate rules. Local cutover candidate: default deny on the
+// 14 canonical collections, public reads for published content only, and every
+// domain write through Cloud Functions. Production still runs firestore.rules
+// until the scheduled cutover; this file is exercised by the emulator suite
+// (firebase.v3.json) and scripts/check-v3.mjs.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function v3SignedIn() {
+      return request.auth != null;
+    }
+
+    function v3Uid() {
+      return request.auth.uid;
+    }
+
+    function v3PlatformAdmin() {
+      return v3SignedIn()
+        && (request.auth.token.platform_admin == true || request.auth.token.role == 'super_admin');
+    }
+
+    function v3Published(status) {
+      return status == 'published';
+    }
+
+    // Private account. Owner or platform admin reads; Functions-only writes.
+    match /users/{uid} {
+      allow get: if v3SignedIn() && (v3Uid() == uid || v3PlatformAdmin());
+      allow list, create, update, delete: if false;
+
+      // Server-only projections (blocks, travel, ...). No client access.
+      match /{subcollection}/{docId} {
+        allow read, write: if false;
+      }
+    }
+
+    // Handle routing record. Public get only when active; no enumeration.
+    match /handles/{handle} {
+      allow get: if resource.data.active == true;
+      allow list, create, update, delete: if false;
+    }
+
+    // Sanitised public bio. Owner always; public only when published.
+    match /profiles/{uid} {
+      allow get: if resource.data.visibility == 'public'
+        || (v3SignedIn() && (v3Uid() == uid || v3PlatformAdmin()));
+      allow list, create, update, delete: if false;
+    }
+
+    // Discoverable businesses. Published reads; discovery lists via callables.
+    match /places/{placeId} {
+      allow get: if v3Published(resource.data.status);
+      allow list, create, update, delete: if false;
+    }
+
+    // Events and access configuration. Published reads; lists via callables.
+    match /events/{eventId} {
+      allow get: if v3Published(resource.data.status);
+      allow list, create, update, delete: if false;
+    }
+
+    // A concrete shared plan. Creator, member, explicitly public, or admin.
+    match /plans/{planId} {
+      function v3PlanPublic() {
+        return resource.data.visibility == 'public' && resource.data.state == 'open';
+      }
+      function v3PlanOwner() {
+        return v3SignedIn() && resource.data.ownerUid == v3Uid();
+      }
+      function v3PlanMember() {
+        return v3SignedIn()
+          && exists(/databases/$(database)/documents/plans/$(planId)/members/$(v3Uid()));
+      }
+      allow get: if v3PlanPublic() || v3PlanOwner() || v3PlanMember() || v3PlatformAdmin();
+      allow list, create, update, delete: if false;
+
+      // RSVP and membership projection. Member or plan owner reads.
+      match /members/{memberUid} {
+        function v3ParentOwner() {
+          return v3SignedIn()
+            && get(/databases/$(database)/documents/plans/$(planId)).data.ownerUid == v3Uid();
+        }
+        function v3SelfOrMember() {
+          return v3SignedIn()
+            && (v3Uid() == memberUid
+              || exists(/databases/$(database)/documents/plans/$(planId)/members/$(v3Uid())));
+        }
+        allow get: if v3ParentOwner() || v3SelfOrMember() || v3PlatformAdmin();
+        allow list: if v3ParentOwner() || v3PlanMember() || v3PlatformAdmin();
+        allow create, update, delete: if false;
+      }
+    }
+
+    // Issued access record. Holder, issuer, event door team, or admin.
+    // Never client-written; never self-admitted through rules.
+    match /tickets/{ticketId} {
+      function v3EventHost(eventId) {
+        return v3SignedIn()
+          && eventId != null
+          && eventId != ''
+          && exists(/databases/$(database)/documents/events/$(eventId))
+          && get(/databases/$(database)/documents/events/$(eventId)).data.organiserUid == v3Uid();
+      }
+      allow get: if v3PlatformAdmin()
+        || (v3SignedIn()
+          && (resource.data.holderUid == v3Uid()
+            || resource.data.issuerUid == v3Uid()
+            || v3EventHost(resource.data.eventId)));
+      allow list, create, update, delete: if false;
+    }
+
+    // Payment and fulfilment projection. Purchaser, seller, or admin.
+    // Rules never infer payment completion: state is written by Functions /
+    // the verified webhook only.
+    match /orders/{orderId} {
+      allow get: if v3PlatformAdmin()
+        || (v3SignedIn()
+          && (resource.data.purchaserUid == v3Uid() || resource.data.sellerUid == v3Uid()));
+      allow list, create, update, delete: if false;
+    }
+
+    // Published business benefit. Active reads; no client writes.
+    match /deals/{dealId} {
+      allow get: if v3Published(resource.data.status);
+      allow list, create, update, delete: if false;
+    }
+
+    // Single-use deal claim. Claimant, issuer, or admin.
+    match /dealClaims/{claimId} {
+      allow get: if v3PlatformAdmin()
+        || (v3SignedIn()
+          && (resource.data.claimantUid == v3Uid() || resource.data.issuerUid == v3Uid()));
+      allow list, create, update, delete: if false;
+    }
+
+    // Arrival engine cohort. Member, host, or admin.
+    match /cohorts/{cohortId} {
+      allow get: if v3PlatformAdmin()
+        || (v3SignedIn()
+          && (resource.data.hostUid == v3Uid() || v3Uid() in resource.data.memberUids));
+      allow list, create, update, delete: if false;
+    }
+
+    // Universal conversations. Participants only; messages are server-only.
+    match /conversations/{conversationId} {
+      allow get: if v3SignedIn() && v3Uid() in resource.data.participantUids;
+      allow list, create, update, delete: if false;
+
+      match /{subcollection}/{docId} {
+        allow read, write: if false;
+      }
+    }
+
+    // Trust, abuse, and payment audit trail. Functions only.
+    match /audits/{auditId} {
+      allow read, write: if false;
+    }
+
+    match /rateLimits/{docId} {
+      allow read, write: if false;
+    }
+
+    // Default deny: any collection or subcollection not listed above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -23,6 +23,16 @@ export const RATE_LIMIT_ACTIONS = [
   "pay",
   "gate",
   "guestlistSignup",
+  "v3Identity",
+  "v3Discovery",
+  "v3Plan",
+  "v3Event",
+  "v3Place",
+  "v3Deal",
+  "v3Commerce",
+  "v3Trust",
+  "v3Cohort",
+  "v3Message",
 ] as const;
 
 export type RateLimitAction = (typeof RATE_LIMIT_ACTIONS)[number];
@@ -56,6 +66,16 @@ export const RATE_LIMITS: Record<RateLimitAction, RateLimitSpec> = {
   pay: { windowMs: 60_000, max: 8, anonymousMax: 0 },
   gate: { windowMs: 60_000, max: 60, anonymousMax: 0 },
   guestlistSignup: { windowMs: 5 * 60_000, max: 5, anonymousMax: 3 },
+  v3Identity: { windowMs: 60_000, max: 10, anonymousMax: 4 },
+  v3Discovery: { windowMs: 60_000, max: 60, anonymousMax: 40 },
+  v3Plan: { windowMs: 60_000, max: 15, anonymousMax: 10 },
+  v3Event: { windowMs: 60_000, max: 12, anonymousMax: 0 },
+  v3Place: { windowMs: 60_000, max: 12, anonymousMax: 0 },
+  v3Deal: { windowMs: 60_000, max: 12, anonymousMax: 6 },
+  v3Commerce: { windowMs: 60_000, max: 8, anonymousMax: 0 },
+  v3Trust: { windowMs: 60_000, max: 10, anonymousMax: 4 },
+  v3Cohort: { windowMs: 60_000, max: 12, anonymousMax: 6 },
+  v3Message: { windowMs: 60_000, max: 30, anonymousMax: 0 },
 };
 
 export function rateLimitMax(action: RateLimitAction, anonymous: boolean): number {
