@@ -14,7 +14,7 @@ import { persistOwnedProfile } from "@/lib/bio-persist";
 import { bumpTap, hydrateOwnedBios, loadBios, persistBios, subscribeBios, tapCount } from "@/lib/bio-store";
 import { syncBioToListing } from "@/lib/identity";
 import { placeByHandle } from "@/lib/catalog";
-import { stallByHandle } from "@/lib/bio-handle";
+import { resolvePublicBio, stallByHandle } from "@/lib/bio-handle";
 import { getCachedListings } from "@/lib/listings";
 
 type CreateBioInput = Pick<BioProfile, "handle" | "name" | "city" | "shortWhy"> & {
@@ -191,6 +191,7 @@ export function BioProvider({ children }: { children: ReactNode }) {
         registrationNumber: input.registrationNumber?.trim() || keep?.registrationNumber,
         domain: input.domain?.trim() || keep?.domain,
         trademark: input.trademark?.trim() || keep?.trademark,
+        visibility: kind === "person" ? "public" : undefined,
       };
       persistBios([
         profile,
@@ -211,19 +212,47 @@ export function BioProvider({ children }: { children: ReactNode }) {
 
   const updateProfile = useCallback(
     async (patch: Partial<BioProfile> & { handle: string }) => {
-      const current = loadBios().find((p) => p.handle === patch.handle);
-      if (!current) throw new Error("No profile");
-      const next = { ...current, ...patch };
+      const h = normalizeHandle(patch.handle);
+      const allBios = loadBios();
+      let current = allBios.find((p) => normalizeHandle(p.handle) === h);
+      if (!current) {
+        current =
+          profiles.find((p) => normalizeHandle(p.handle) === h) ||
+          (mine && normalizeHandle(mine.handle) === h ? mine : undefined) ||
+          resolvePublicBio(h, (hd) => profiles.find((p) => normalizeHandle(p.handle) === hd));
+      }
+      if (!current) {
+        current = {
+          id: `bio-${h}`,
+          handle: h,
+          kind: "person",
+          name: h,
+          shortWhy: "",
+          city: "Sydney",
+          category: "services",
+          hours: "",
+          openNow: true,
+          products: [],
+          services: [],
+          deals: [],
+          links: [],
+        };
+      }
+      const next: BioProfile = { ...current, ...patch, handle: h };
       if (patch.deals)
         next.offer = next.deals[0]
           ? { badge: next.deals[0].badge || next.deals[0].title, detail: next.deals[0].detail }
           : undefined;
-      persistBios([next, ...loadBios().filter((p) => p.handle !== next.handle)]);
+      persistBios([next, ...allBios.filter((p) => normalizeHandle(p.handle) !== h)]);
       if ((next.kind || "business") === "business") syncBioToListing(next);
       refresh();
-      await persistOwnedProfile(next);
+      try {
+        await persistOwnedProfile(next);
+      } catch (err) {
+        console.warn("Could not persist profile remotely:", err);
+      }
     },
-    [refresh],
+    [mine, profiles, refresh],
   );
 
   const setOffer = useCallback(

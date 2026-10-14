@@ -35,7 +35,7 @@ export function profileToRemotePatch(profile: BioProfile) {
     // Keep storefronts public and collapse the legacy friends-only value to
     // private whenever a personal profile is saved through the new toggle.
     visibility:
-      profile.kind === "person"
+      profile.kind === "person" || !profile.kind
         ? profile.visibility === "public"
           ? "public"
           : "private"

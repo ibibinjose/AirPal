@@ -229,6 +229,7 @@ export function BioPublicPage() {
   const [chatModalOpen, setChatModalOpen] = useState(false);
   const [chatConversation, setChatConversation] = useState<UniversalConversation | null>(null);
   const [visibilitySaving, setVisibilitySaving] = useState(false);
+  const [activeVisibility, setActiveVisibility] = useState<"public" | "private" | null>(null);
   const { stalls, getEvent } = useEvents();
   const { isFollowing, followerHandles } = useSocial();
   const local = resolvePublicBio(handle, byHandle);
@@ -265,7 +266,7 @@ export function BioPublicPage() {
     const owner = Boolean(
       (p.ownerUid && p.ownerUid === user.uid) ||
       (p.ownerEmail && p.ownerEmail === user.email) ||
-      (mine && mine.handle === p.handle),
+      (mine && normalizeHandle(mine.handle) === normalizeHandle(p.handle)),
     );
     if (!owner) return;
     if (p.ownerUid) return subscribeCatchUpsForOwner(p.ownerUid, setCatchUpsList);
@@ -462,7 +463,7 @@ export function BioPublicPage() {
   const isOwner = Boolean(
     (user && bio.ownerUid && bio.ownerUid === user.uid) ||
     (user && bio.ownerEmail && bio.ownerEmail === user.email) ||
-    (mine && mine.handle === bio.handle),
+    (mine && normalizeHandle(mine.handle) === normalizeHandle(bio.handle)),
   );
 
   const viewer = user ? { uid: user.uid, email: user.email || undefined, handle: mine?.handle } : null;
@@ -612,16 +613,21 @@ export function BioPublicPage() {
   };
 
   /** Owner-only privacy rail: persist first, then reveal the new state in-place. */
+  const isPersonBio = bio.kind === "person" || !bio.kind;
+  const isPublic = activeVisibility !== null ? activeVisibility === "public" : bio.visibility === "public";
+
   const handleVisibilityToggle = async () => {
-    if (!isOwner || bio.kind !== "person" || visibilitySaving) return;
-    const nextVisibility = bio.visibility === "public" ? "private" : "public";
+    if (!isOwner || !isPersonBio || visibilitySaving) return;
+    const nextVisibility = isPublic ? "private" : "public";
+    setActiveVisibility(nextVisibility);
     setVisibilitySaving(true);
     try {
       await updateProfile({ handle: bio.handle, visibility: nextVisibility });
-      if (remote) setRemote({ ...remote, visibility: nextVisibility });
+      setRemote((prev) => (prev ? { ...prev, visibility: nextVisibility } : { ...bio, visibility: nextVisibility }));
       void triggerHaptic("success");
       toast.success(nextVisibility === "public" ? "Your bio is now public" : "Your bio is now private");
     } catch (err) {
+      setActiveVisibility(isPublic ? "public" : "private");
       void triggerHaptic("error");
       toast.error(err instanceof Error ? err.message : "Could not update profile visibility. Try again.");
     } finally {
@@ -952,12 +958,12 @@ export function BioPublicPage() {
               {bio.languages && <span>· {bio.languages}</span>}
             </div>
 
-            {isOwner && bio.kind === "person" && (
+            {isOwner && isPersonBio && (
               <button
                 type="button"
                 role="switch"
-                aria-checked={bio.visibility === "public"}
-                aria-label={`Profile visibility: ${bio.visibility === "public" ? "public" : "private"}. Activate to switch.`}
+                aria-checked={isPublic}
+                aria-label={`Profile visibility: ${isPublic ? "public" : "private"}. Activate to switch.`}
                 disabled={visibilitySaving}
                 onClick={() => void handleVisibilityToggle()}
                 className="mt-4 flex min-h-[52px] w-full max-w-sm items-center gap-3 rounded-2xl bg-paper px-3.5 py-2 text-left ring-1 ring-line/80 transition-[background-color,color,opacity] duration-200 hover:bg-card disabled:cursor-wait disabled:opacity-70"
@@ -968,24 +974,20 @@ export function BioPublicPage() {
                 <span className="min-w-0 flex-1">
                   <span className="block text-xs font-bold text-ink">Profile visibility</span>
                   <span className="block text-[11px] leading-tight text-mute">
-                    {visibilitySaving
-                      ? "Saving…"
-                      : bio.visibility === "public"
-                        ? "Public — anyone with the link"
-                        : "Private — only you"}
+                    {visibilitySaving ? "Saving…" : isPublic ? "Public — anyone with the link" : "Private — only you"}
                   </span>
                 </span>
                 <span
                   className={cn(
                     "relative h-7 w-12 shrink-0 rounded-full p-1 transition-[background-color] duration-200",
-                    bio.visibility === "public" ? "bg-brand" : "bg-line",
+                    isPublic ? "bg-brand" : "bg-line",
                   )}
                   aria-hidden="true"
                 >
                   <span
                     className={cn(
                       "block h-5 w-5 rounded-full bg-card shadow-sm transition-transform duration-200",
-                      bio.visibility === "public" ? "translate-x-5" : "translate-x-0",
+                      isPublic ? "translate-x-5" : "translate-x-0",
                     )}
                   />
                 </span>

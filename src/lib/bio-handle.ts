@@ -94,6 +94,7 @@ export const BIBIN_JOSE_PROFILE: BioProfile = {
   handle: "bibinjose",
   name: "Bibin Jose",
   kind: "person",
+  visibility: "public",
   shortWhy: "Founder & CTO at AirPal · Building Life Made Easy across Sydney & beyond.",
   aboutText:
     "17+ years in full-stack architecture, infrastructure, and product engineering. Building AirPal to make everyday city life, concerts, hangouts, and authentic experiences effortless.",

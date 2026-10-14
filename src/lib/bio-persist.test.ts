@@ -44,6 +44,17 @@ describe("persistOwnedProfile", () => {
     expect(patch.links?.map((row) => row.type)).toEqual(["instagram", "x"]);
   });
 
+  it("preserves visibility for personal profile patch", () => {
+    const publicPatch = profileToRemotePatch({ ...profile, visibility: "public" });
+    expect(publicPatch.visibility).toBe("public");
+
+    const privatePatch = profileToRemotePatch({ ...profile, visibility: "private" });
+    expect(privatePatch.visibility).toBe("private");
+
+    const untypedPatch = profileToRemotePatch({ ...profile, kind: undefined, visibility: "public" });
+    expect(untypedPatch.visibility).toBe("public");
+  });
+
   it("writes the profile to Firebase", async () => {
     await persistOwnedProfile(profile);
     expect(updateBusinessProfileRemote).toHaveBeenCalledWith(expect.objectContaining({ handle: "maya" }));
