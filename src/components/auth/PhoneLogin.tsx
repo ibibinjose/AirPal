@@ -17,10 +17,14 @@ import { getFirebaseAuth } from "@/lib/firebase";
 import { cn } from "@/lib/cn";
 
 export function PhoneLogin({
+  initialPhone = "",
+  onPhoneChange,
   onBegin,
   onDone,
   onNeedAccount,
 }: {
+  initialPhone?: string;
+  onPhoneChange?: (phone: string) => void;
   onBegin?: () => void;
   onDone: () => void;
   /** SMS confirmed but no AirPal account yet — send them to Create account. */
@@ -28,7 +32,7 @@ export function PhoneLogin({
 }) {
   const { sendPhoneCode, confirmPhoneCode, completePhoneProfile } = useAuth();
   const { createProfile } = useBio();
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(initialPhone);
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [handle, setHandle] = useState("");
@@ -102,7 +106,13 @@ export function PhoneLogin({
     }
     setBusy(true);
     try {
-      await completePhoneProfile({ name: name.trim(), email: email.trim() });
+      const cleanEmail = email.trim().toLowerCase();
+      try {
+        localStorage.setItem("airpal.last_signin_email", cleanEmail);
+      } catch {
+        /* ignore */
+      }
+      await completePhoneProfile({ name: name.trim(), email: cleanEmail });
       await createProfile({
         handle: normalizeHandle(handle),
         name: name.trim(),
@@ -201,7 +211,14 @@ export function PhoneLogin({
             <p className="text-xs text-mute leading-relaxed">
               Enter your mobile number with country code. We’ll text an SMS code — no password needed.
             </p>
-            <PhoneField value={phone} onChange={setPhone} required />
+            <PhoneField
+              value={phone}
+              onChange={(val) => {
+                setPhone(val);
+                onPhoneChange?.(val);
+              }}
+              required
+            />
           </div>
         )}
 
@@ -312,7 +329,12 @@ export function PhoneLogin({
               </div>
             </ValidField>
 
-            <ValidField label="Recovery Email" ok={emailOk} error={email && !emailOk ? "Enter a valid email" : null}>
+            <ValidField
+              label="Email Address"
+              ok={emailOk}
+              error={email && !emailOk ? "Enter a valid email" : null}
+              hint="Required · Kept for account security, recovery & pass receipts"
+            >
               <input
                 type="email"
                 inputMode="email"
@@ -322,10 +344,11 @@ export function PhoneLogin({
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@domain.com"
                 className={fieldInput}
+                required
               />
             </ValidField>
             <p className="text-[11px] text-mute">
-              We'll email a verification link. Your primary login stays on mobile SMS.
+              We'll email a verification link. Your email is kept safely on your universal account.
             </p>
           </div>
         )}

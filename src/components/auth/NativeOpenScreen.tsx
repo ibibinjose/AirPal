@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
-import { Calendar, Compass, Mail, QrCode, ShieldCheck, Sparkles, Ticket, UserCheck } from "lucide-react";
+import { Calendar, Compass, Phone, QrCode, ShieldCheck, Sparkles, Ticket, UserCheck } from "lucide-react";
 import { BRAND_TAGLINE, ECOSYSTEM } from "@/lib/brand";
 import { isPassApp } from "@/lib/app-flavor";
 import { useAuth } from "@/contexts/AuthContext";
@@ -150,8 +150,8 @@ export function NativeOpenScreen() {
                 nav("/start?tab=signin");
               }}
             >
-              <Mail size={16} />
-              Sign in with email or phone
+              <Phone size={16} />
+              Sign in with mobile number
             </Button>
 
             <div className="flex items-center justify-center pt-1">

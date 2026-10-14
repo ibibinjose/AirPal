@@ -202,7 +202,7 @@ export function AuthGate({
         {/* Actions */}
         <div className="mt-6 space-y-2.5">
           <Button className="w-full text-sm font-semibold h-11" onClick={() => nav(`/start?tab=signin&${q}`)}>
-            Sign In with Email or Phone
+            Sign In with Mobile or Social
           </Button>
           <Button variant="ghost" className="w-full text-sm h-11" onClick={() => nav(`/start?tab=signup&${q}`)}>
             Create Free Account

@@ -9,28 +9,20 @@ test.describe("Authentication & Security Flow", () => {
   test("renders login and signup segmented controls on /start", async ({ page }) => {
     await expect(page.getByRole("button", { name: "Sign In", exact: true }).first()).toBeVisible();
     await expect(page.getByRole("button", { name: "Create Account", exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Email/i }).first()).toBeVisible();
-    await expect(page.getByRole("button", { name: /Mobile SMS/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Continue with Apple/i })).toBeVisible();
 
-    await expect(page.getByPlaceholder("you@domain.com")).toBeVisible();
+    await expect(page.getByPlaceholder("412 345 678")).toBeVisible();
     await expect(page.getByPlaceholder("••••••••")).toBeVisible();
     await expect(page.getByRole("button", { name: "Forgot password?" })).toBeVisible();
   });
 
-  test("create account offers direct signup and mobile SMS signup", async ({ page }) => {
+  test("create account starts with mobile number and handle, followed by account info", async ({ page }) => {
     await page.getByRole("button", { name: "Create Account", exact: true }).click();
 
-    // Default Email signup fields
-    await expect(page.getByPlaceholder("Alex Rivera")).toBeVisible();
-    await expect(page.getByPlaceholder("you@domain.com")).toBeVisible();
-    await expect(page.getByPlaceholder("alex", { exact: true })).toBeVisible();
-    await expect(page.getByPlaceholder("At least 8 characters")).toBeVisible();
-    await expect(page.getByText(/18 years or older/i)).toBeVisible();
-
-    // Switch to Mobile SMS method
-    await page.getByRole("button", { name: /Mobile SMS/i }).click();
-    await expect(page.getByPlaceholder("maya")).toBeVisible();
+    // Step 1: Mobile & Handle
     await expect(page.getByPlaceholder("412 345 678")).toBeVisible();
+    await expect(page.getByPlaceholder("maya")).toBeVisible();
     await expect(page.getByRole("button", { name: "Send SMS code" })).toBeVisible();
   });
 
@@ -48,7 +40,6 @@ test.describe("Authentication & Security Flow", () => {
   });
 
   test("mobile sign-in offers password and SMS", async ({ page }) => {
-    await page.getByRole("button", { name: /Mobile SMS/i }).click();
     await expect(page.getByRole("button", { name: "Password", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "SMS Code", exact: true })).toBeVisible();
     await page.getByRole("button", { name: "SMS Code", exact: true }).click();
@@ -75,16 +66,16 @@ test.describe("Authentication & Security Flow", () => {
 
     await page.getByRole("button", { name: "Back to Sign In" }).click();
     await expect(page.getByRole("button", { name: "Create Account", exact: true })).toBeVisible();
-    await expect(page.getByPlaceholder("you@domain.com")).toBeVisible();
+    await expect(page.getByPlaceholder("412 345 678")).toBeVisible();
   });
 
   test("displays AuthGate when navigating to protected role routes", async ({ page }) => {
     await page.goto("/event");
     await expect(page.getByRole("heading", { name: "Create an event" })).toBeVisible();
     await expect(page.getByText("Event Organiser", { exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("button", { name: /Sign in with Email or Phone/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Sign In with Mobile or Social/i })).toBeVisible();
 
-    await page.getByRole("button", { name: /Sign in with Email or Phone/i }).click();
+    await page.getByRole("button", { name: /Sign In with Mobile or Social/i }).click();
     await expect(page).toHaveURL(/\/start\?tab=signin&next=%2Fevent/);
   });
 });

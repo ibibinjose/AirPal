@@ -17,7 +17,7 @@ import { ScanFace } from "lucide-react";
 
 type Step = "handle" | "code" | "account";
 
-export function SignupFlow({ onDone }: { onDone: () => void }) {
+export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; initialPhone?: string }) {
   const {
     sendPhoneCode,
     confirmPhoneCode,
@@ -32,7 +32,7 @@ export function SignupFlow({ onDone }: { onDone: () => void }) {
 
   const [step, setStep] = useState<Step>("handle");
   const [handle, setHandle] = useState(mine?.handle || "");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(initialPhone);
   const [code, setCode] = useState("");
   const [name, setName] = useState(mine?.name || "");
   const [email, setEmail] = useState("");
@@ -124,12 +124,18 @@ export function SignupFlow({ onDone }: { onDone: () => void }) {
       return;
     }
     if (!nameOk || !emailOk || !passOk) {
-      toast.error("Add your name, email, and a strong password");
+      toast.error("Add your name, a valid email address, and a strong password");
       return;
     }
     setBusy(true);
     try {
-      await linkEmailPassword(email.trim(), password);
+      const cleanEmail = email.trim().toLowerCase();
+      try {
+        localStorage.setItem("airpal.last_signin_email", cleanEmail);
+      } catch {
+        /* ignore */
+      }
+      await linkEmailPassword(cleanEmail, password);
       const h = normalizeHandle(handle);
       if (mine?.handle) {
         await updateProfile({ handle: mine.handle, name: name.trim(), phone });
@@ -222,6 +228,7 @@ export function SignupFlow({ onDone }: { onDone: () => void }) {
       <form className="space-y-3.5" onSubmit={(e) => void onSubmit(e)}>
         {step === "handle" && (
           <>
+            <PhoneField value={phone} onChange={setPhone} stacked label="Mobile Number" />
             <ValidField
               label="Choose your AirPal Me @handle"
               ok={handleOk}
@@ -234,11 +241,15 @@ export function SignupFlow({ onDone }: { onDone: () => void }) {
                 placeholder="maya"
                 autoComplete="username"
                 className={fieldInput}
-                autoFocus
+                autoFocus={!phone}
               />
             </ValidField>
-            <PhoneField value={phone} onChange={setPhone} stacked label="Mobile Number" />
-            <Button type="submit" className="w-full" disabled={busy || !handleOk || !phoneOk} loading={busy}>
+            <Button
+              type="submit"
+              className="w-full min-h-[48px] text-sm font-bold shadow-xs cursor-pointer"
+              disabled={busy || !handleOk || !phoneOk}
+              loading={busy}
+            >
               {busy ? "Sending…" : "Send SMS code"}
             </Button>
           </>
@@ -258,12 +269,17 @@ export function SignupFlow({ onDone }: { onDone: () => void }) {
                 autoFocus
               />
             </ValidField>
-            <Button type="submit" className="w-full" disabled={busy || !codeOk} loading={busy}>
+            <Button
+              type="submit"
+              className="w-full min-h-[48px] text-sm font-bold shadow-xs cursor-pointer"
+              disabled={busy || !codeOk}
+              loading={busy}
+            >
               {busy ? "Checking…" : "Confirm mobile"}
             </Button>
             <button
               type="button"
-              className="w-full text-center text-xs font-medium text-accent disabled:text-mute"
+              className="w-full text-center text-xs font-medium text-accent disabled:text-mute cursor-pointer"
               disabled={wait > 0 || busy}
               onClick={() => void sendCode()}
             >
@@ -275,7 +291,8 @@ export function SignupFlow({ onDone }: { onDone: () => void }) {
         {step === "account" && (
           <>
             <p className="text-xs leading-relaxed text-mute">
-              Name, email, and a password so you can sign in again. We’ll send a verification link to the email.
+              Name, email, and password for your universal account. We will always keep your email for security,
+              recovery, and pass receipts.
             </p>
             <ValidField label="Your name" ok={nameOk} error={name && !nameOk ? "At least 2 characters" : null}>
               <div className="relative">
@@ -290,7 +307,12 @@ export function SignupFlow({ onDone }: { onDone: () => void }) {
                 />
               </div>
             </ValidField>
-            <ValidField label="Email" ok={emailOk} error={email && !emailOk ? "Enter a valid email" : null}>
+            <ValidField
+              label="Email Address"
+              ok={emailOk}
+              error={email && !emailOk ? "Enter a valid email" : null}
+              hint="Required · Kept for account security, recovery & pass receipts"
+            >
               <div className="relative">
                 <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
                 <input
@@ -300,6 +322,7 @@ export function SignupFlow({ onDone }: { onDone: () => void }) {
                   placeholder="you@domain.com"
                   autoComplete="email"
                   className={cn(fieldInput, "pl-10")}
+                  required
                 />
               </div>
             </ValidField>

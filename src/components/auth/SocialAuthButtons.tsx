@@ -9,8 +9,8 @@ import type { SocialProvider } from "@/lib/social-auth";
 import { useAuth } from "@/contexts/AuthContext";
 import { BiometricAuthButton } from "./BiometricAuthButton";
 
-// Social Login is disabled/hidden for now per user request
-export const SHOW_SOCIAL_AUTH = false;
+// Social Login enabled for Apple & Google
+export const SHOW_SOCIAL_AUTH = true;
 
 export function SocialAuthButtons({
   busy,
@@ -65,7 +65,7 @@ export function SocialAuthButtons({
             disabled={locked}
             onClick={() => void go("google")}
             className={cn(
-              "flex h-12 w-full items-center justify-center gap-2 rounded-full bg-card text-sm font-semibold ring-1 ring-line transition hover:bg-paper active:scale-[0.99] disabled:opacity-60 shadow-2xs",
+              "flex h-12 w-full items-center justify-center gap-2 rounded-full bg-card text-sm font-semibold ring-1 ring-line transition hover:bg-paper active:scale-[0.99] disabled:opacity-60 shadow-2xs cursor-pointer",
             )}
           >
             <GoogleMark />
@@ -75,7 +75,7 @@ export function SocialAuthButtons({
             type="button"
             disabled={locked}
             onClick={() => void go("apple")}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-neutral-900 text-sm font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.99] disabled:opacity-60 shadow-2xs"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-neutral-900 text-sm font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.99] disabled:opacity-60 shadow-2xs cursor-pointer"
           >
             <AppleMark />
             {pending === "apple" ? "Continuing with Apple…" : "Continue with Apple"}
@@ -117,12 +117,12 @@ function AppleMark() {
   );
 }
 
-export function SocialAuthDivider() {
+export function SocialAuthDivider({ label = "or continue with mobile" }: { label?: string }) {
   if (!SHOW_SOCIAL_AUTH) return null;
   return (
     <div className="my-4 flex items-center gap-3">
       <span className="h-px flex-1 bg-line" />
-      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-mute">or</span>
+      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-mute">{label}</span>
       <span className="h-px flex-1 bg-line" />
     </div>
   );
