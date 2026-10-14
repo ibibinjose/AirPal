@@ -138,6 +138,11 @@ export const updateBusinessProfile = onCall(CALLABLE, async (request) => {
   }
   if (typeof data.openNow === "boolean") patch.openNow = data.openNow;
   if (typeof data.zooHunt === "boolean") patch.zooHunt = data.zooHunt;
+  // This callable verifies the handle owner above. Store visibility only for
+  // personal profiles; business pages remain publicly accessible storefronts.
+  if (kind === "person" && (data.visibility === "public" || data.visibility === "private")) {
+    patch.visibility = data.visibility;
+  }
   if (data.geo && Number.isFinite(data.geo.lat) && Number.isFinite(data.geo.lng)) patch.geo = data.geo;
   if (data.links) patch.links = sanitizeBioLinks(data.links);
   if (data.products) patch.products = sanitizeCatalog("product", data.products);

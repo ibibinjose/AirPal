@@ -3,10 +3,11 @@
  * to the /now composer; legacy /explore + /discover redirect there).
  * "scan" is a path bucket, not a tab — Scan lives behind + Create.
  */
-export type GuestTab = "home" | "explore" | "trips" | "scan" | "inbox" | "me" | "bio";
+export type GuestTab = "home" | "explore" | "trips" | "scan" | "inbox" | "me" | "circle" | "bio";
 
 /** Map a route path to the bottom-tab it belongs to. Pure: safe to unit test. */
 export function tabFromPath(path: string): GuestTab {
+  if (path.startsWith("/circle")) return "circle";
   if (path.startsWith("/scan") || path.startsWith("/w/")) return "scan";
   if (path.startsWith("/bio") || path.startsWith("/@")) return "bio";
   if (path.startsWith("/me/inbox")) return "me";

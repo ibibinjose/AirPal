@@ -281,6 +281,7 @@ export function updateBusinessProfileRemote(data: {
   availabilityStatus?: string;
   customStatus?: string;
   customStatusEmoji?: string;
+  visibility?: "public" | "private";
   geo?: { lat: number; lng: number };
   zooHunt?: boolean;
 }) {

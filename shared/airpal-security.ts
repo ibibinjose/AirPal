@@ -522,6 +522,8 @@ export type UpdateBusinessProfileRequest = {
   availabilityStatus?: string;
   customStatus?: string;
   customStatusEmoji?: string;
+  /** Personal @handle visibility. Business storefronts are always public. */
+  visibility?: "public" | "private";
   geo?: { lat: number; lng: number };
   zooHunt?: boolean;
   links?: Array<{ id: string; type: string; label: string; href: string }>;

@@ -17,7 +17,8 @@ describe("tabFromPath", () => {
     expect(tabFromPath("/q/sydney/harbour")).toBe("explore");
   });
 
-  it("maps personal bio to the Bio tab and dashboard/settings to the Me tab", () => {
+  it("maps personal bio to the Bio tab, circle to Circle tab, and dashboard/settings to the Me tab", () => {
+    expect(tabFromPath("/circle")).toBe("circle");
     expect(tabFromPath("/me")).toBe("me");
     expect(tabFromPath("/me/inbox")).toBe("me");
     expect(tabFromPath("/settings")).toBe("me");
@@ -32,7 +33,6 @@ describe("tabFromPath", () => {
   it("falls back to explore for removed Phase 6 routes", () => {
     expect(tabFromPath("/mate")).toBe("explore");
     expect(tabFromPath("/mate/request")).toBe("explore");
-    expect(tabFromPath("/circle")).toBe("explore");
     expect(tabFromPath("/experiences")).toBe("explore");
   });
 

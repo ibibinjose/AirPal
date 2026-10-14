@@ -359,6 +359,8 @@ body.keyboard-open .keyboard-hide {
 
 .bio-page-card {
   background: color-mix(in srgb, var(--color-card) 96%, transparent);
+  border-radius: 1.75rem;
+  box-shadow: 0 18px 48px -30px rgba(18, 22, 20, 0.3);
 }
 
 .bio-hero {

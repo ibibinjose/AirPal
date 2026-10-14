@@ -1,4 +1,4 @@
-import { AtSign, CalendarDays, Compass, Home, QrCode, ScanLine, Ticket, UserRound } from "@/components/icons";
+import { AtSign, CalendarDays, Compass, Home, QrCode, ScanLine, Ticket, Users } from "@/components/icons";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -16,12 +16,12 @@ import { passTabFromPath, tabFromPath, type GuestTab, type PassTab } from "@/lib
 
 export { tabFromPath };
 
-/** Shipped companion dock: Home / Now / Plan / Me / Bio. */
+/** Shipped companion dock: Home / Now / Plan / Circle / Bio. */
 const TABS: { href: string; id: GuestTab; label: string; icon: typeof Compass }[] = [
   { href: "/", id: "home", label: "Home", icon: Home },
   { href: "/now", id: "explore", label: "Now", icon: Compass },
   { href: "/plan", id: "trips", label: "Plan", icon: CalendarDays },
-  { href: "/me", id: "me", label: "Me", icon: UserRound },
+  { href: "/circle", id: "circle", label: "Circle", icon: Users },
   { href: "/bio", id: "bio", label: "Bio", icon: AtSign },
 ];
 
@@ -107,7 +107,15 @@ export function TabBar({ path, enter = false }: { path: string; enter?: boolean 
                 key={tab.id}
                 type="button"
                 aria-current={on ? "page" : undefined}
-                aria-label={tab.id === "bio" ? "My bio" : tab.id === "me" ? "Me dashboard" : tab.label}
+                aria-label={
+                  tab.id === "bio"
+                    ? "My bio"
+                    : tab.id === "circle"
+                      ? "Networking Circle"
+                      : tab.id === "me"
+                        ? "Me dashboard"
+                        : tab.label
+                }
                 onClick={() => {
                   void triggerHapticSelection();
                   nav(href);
@@ -133,7 +141,7 @@ export function TabBar({ path, enter = false }: { path: string; enter?: boolean 
                   ) : (
                     <span className="relative">
                       <Icon size={20} strokeWidth={on ? 2.35 : 1.8} fill="none" />
-                      {tab.id === "me" && inboxUnread > 0 && (
+                      {(tab.id === "circle" || tab.id === "me") && inboxUnread > 0 && (
                         <span
                           className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white"
                           aria-label={`${inboxUnread} unread`}

@@ -211,7 +211,7 @@ export function BioPublicPage() {
   const handle = normalizeHandle(params?.handle || params?.[0] || parseAtHandle(path) || "");
   const { user, requireUser } = useAuth();
   const { plans } = usePlans();
-  const { byHandle, recordTap, mine } = useBio();
+  const { byHandle, recordTap, mine, updateProfile } = useBio();
   const { addGuest, joinClub } = useClub();
   const [listEmail, setListEmail] = useState("");
   const [listName, setListName] = useState("");
@@ -228,6 +228,7 @@ export function BioPublicPage() {
   const [copiedCode, setCopiedCode] = useState(false);
   const [chatModalOpen, setChatModalOpen] = useState(false);
   const [chatConversation, setChatConversation] = useState<UniversalConversation | null>(null);
+  const [visibilitySaving, setVisibilitySaving] = useState(false);
   const { stalls, getEvent } = useEvents();
   const { isFollowing, followerHandles } = useSocial();
   const local = resolvePublicBio(handle, byHandle);
@@ -610,6 +611,24 @@ export function BioPublicPage() {
     }
   };
 
+  /** Owner-only privacy rail: persist first, then reveal the new state in-place. */
+  const handleVisibilityToggle = async () => {
+    if (!isOwner || bio.kind !== "person" || visibilitySaving) return;
+    const nextVisibility = bio.visibility === "public" ? "private" : "public";
+    setVisibilitySaving(true);
+    try {
+      await updateProfile({ handle: bio.handle, visibility: nextVisibility });
+      if (remote) setRemote({ ...remote, visibility: nextVisibility });
+      void triggerHaptic("success");
+      toast.success(nextVisibility === "public" ? "Your bio is now public" : "Your bio is now private");
+    } catch (err) {
+      void triggerHaptic("error");
+      toast.error(err instanceof Error ? err.message : "Could not update profile visibility. Try again.");
+    } finally {
+      setVisibilitySaving(false);
+    }
+  };
+
   const handleCopyInviteCode = async () => {
     void triggerHaptic("light");
     try {
@@ -677,9 +696,9 @@ export function BioPublicPage() {
   };
 
   return (
-    <div className="bio-page-shell px-0 sm:px-4 lg:px-0 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-0 sm:pt-8">
+    <div className="bio-page-shell px-3 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-4 sm:pt-8 lg:px-0">
       {/* A solid content card keeps the profile readable; glass is reserved for navigation. */}
-      <main className="bio-page-card overflow-hidden sm:ring-1 sm:ring-line/80" aria-label={`${bio.name}'s AirPal bio`}>
+      <main className="bio-page-card overflow-hidden ring-1 ring-line/80" aria-label={`${bio.name}'s AirPal bio`}>
         {/* Cover Hero Header with Cinematic Vignette */}
         <div className="relative overflow-hidden">
           {bio.cover ? (
@@ -936,16 +955,40 @@ export function BioPublicPage() {
             {isOwner && bio.kind === "person" && (
               <button
                 type="button"
-                onClick={() => {
-                  void triggerHaptic("light");
-                  nav("/bio/edit");
-                }}
-                className="mt-3 inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-paper px-3 text-[11px] font-semibold text-mute ring-1 ring-line/80 transition-[background-color,color] duration-200 hover:bg-card hover:text-ink"
-                aria-label={`Profile is ${bio.visibility === "public" ? "public" : "private"}. Edit visibility.`}
+                role="switch"
+                aria-checked={bio.visibility === "public"}
+                aria-label={`Profile visibility: ${bio.visibility === "public" ? "public" : "private"}. Activate to switch.`}
+                disabled={visibilitySaving}
+                onClick={() => void handleVisibilityToggle()}
+                className="mt-4 flex min-h-[52px] w-full max-w-sm items-center gap-3 rounded-2xl bg-paper px-3.5 py-2 text-left ring-1 ring-line/80 transition-[background-color,color,opacity] duration-200 hover:bg-card disabled:cursor-wait disabled:opacity-70"
               >
-                <Lock size={12} className="text-accent" aria-hidden="true" />
-                {bio.visibility === "public" ? "Public profile" : "Private profile"}
-                <Edit3 size={11} aria-hidden="true" />
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-card text-accent ring-1 ring-line/80">
+                  <Lock size={14} aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs font-bold text-ink">Profile visibility</span>
+                  <span className="block text-[11px] leading-tight text-mute">
+                    {visibilitySaving
+                      ? "Saving…"
+                      : bio.visibility === "public"
+                        ? "Public — anyone with the link"
+                        : "Private — only you"}
+                  </span>
+                </span>
+                <span
+                  className={cn(
+                    "relative h-7 w-12 shrink-0 rounded-full p-1 transition-[background-color] duration-200",
+                    bio.visibility === "public" ? "bg-brand" : "bg-line",
+                  )}
+                  aria-hidden="true"
+                >
+                  <span
+                    className={cn(
+                      "block h-5 w-5 rounded-full bg-card shadow-sm transition-transform duration-200",
+                      bio.visibility === "public" ? "translate-x-5" : "translate-x-0",
+                    )}
+                  />
+                </span>
               </button>
             )}
 

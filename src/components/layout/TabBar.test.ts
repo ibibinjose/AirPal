@@ -36,12 +36,12 @@ describe("TabBar", () => {
     expect(markup).toContain(">Bio<");
   });
 
-  it("renders Me cockpit and Bio profile tabs in companion mode", () => {
+  it("renders Circle cockpit and Bio profile tabs in companion mode", () => {
     const markup = renderToStaticMarkup(createElement(TabBar, { path: "/now" }));
     expect(markup).toContain(">Home<");
     expect(markup).toContain(">Now<");
     expect(markup).toContain(">Plan<");
-    expect(markup).toContain(">Me<");
+    expect(markup).toContain(">Circle<");
     expect(markup).toContain(">Bio<");
   });
 });
