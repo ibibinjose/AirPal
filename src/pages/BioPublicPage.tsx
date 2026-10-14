@@ -18,6 +18,7 @@ import {
   HeartHandshake,
   KeyRound,
   Luggage,
+  Lock,
   MapPin,
   MessageCircle,
   MessageSquare,
@@ -473,22 +474,29 @@ export function BioPublicPage() {
 
   if (!canView) {
     return (
-      <div className="mx-auto max-w-md px-4 py-16 text-center">
-        <div className="rounded-[32px] border border-line bg-card p-6 sm:p-8 shadow-clay">
-          <h1 className="font-display mt-2 text-2xl font-bold text-ink">{bio.name}</h1>
-          <p className="mt-1 text-sm font-medium text-mute">@{bio.handle}</p>
-          <p className="mt-3 text-sm text-mute leading-relaxed">
-            {bio.visibility === "private"
-              ? "This profile is private."
-              : "This profile is visible to friends. Follow to view it."}
-          </p>
-          {bio.visibility !== "private" && (
-            <div className="mt-6">
-              <FollowButton handle={bio.handle} name={bio.name} className="w-full" />
-            </div>
-          )}
+      <main className="bio-page-shell px-4 py-16 sm:py-24" aria-label="Private AirPal bio">
+        <div className="overflow-hidden rounded-[32px] border border-line bg-card text-center shadow-clay">
+          <div className="h-24 bg-gradient-to-br from-[#0c1024] via-[#141b38] to-[#0a0d1e]" />
+          <div className="px-6 pb-8 sm:px-8 sm:pb-10">
+            <span className="-mt-9 mx-auto grid h-[72px] w-[72px] place-items-center rounded-[26px] bg-card text-accent shadow-clay ring-1 ring-line">
+              <Lock size={28} aria-hidden="true" />
+            </span>
+            <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Profile protected</p>
+            <h1 className="font-display mt-2 text-2xl font-bold text-ink">{bio.name}</h1>
+            <p className="mt-1 text-sm font-medium text-mute">@{bio.handle}</p>
+            <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-mute">
+              {bio.visibility === "private"
+                ? "This profile is private."
+                : "This profile is visible to friends. Follow to view it."}
+            </p>
+            {bio.visibility !== "private" && (
+              <div className="mt-6">
+                <FollowButton handle={bio.handle} name={bio.name} className="w-full" />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -669,18 +677,18 @@ export function BioPublicPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-3 sm:px-4 md:px-0 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-2 sm:pt-6">
-      {/* Main Apple Liquid Glass Card Wrapper */}
-      <div className="overflow-hidden bg-card/95 sm:rounded-[40px] sm:ring-1 sm:ring-line/80 sm:shadow-[0_24px_60px_rgba(0,0,0,0.08)] backdrop-blur-2xl">
+    <div className="bio-page-shell px-0 sm:px-4 lg:px-0 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-0 sm:pt-8">
+      {/* A solid content card keeps the profile readable; glass is reserved for navigation. */}
+      <main className="bio-page-card overflow-hidden sm:ring-1 sm:ring-line/80" aria-label={`${bio.name}'s AirPal bio`}>
         {/* Cover Hero Header with Cinematic Vignette */}
         <div className="relative overflow-hidden">
           {bio.cover ? (
-            <div className="relative h-56 w-full sm:h-64 overflow-hidden">
+            <div className="bio-hero relative w-full overflow-hidden">
               <Photo src={bio.cover} className="h-full w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/10" />
             </div>
           ) : (
-            <div className="relative h-56 w-full sm:h-64 overflow-hidden bg-gradient-to-br from-[#0c1024] via-[#141b38] to-[#0a0d1e]">
+            <div className="bio-hero relative w-full overflow-hidden bg-gradient-to-br from-[#0c1024] via-[#141b38] to-[#0a0d1e]">
               <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#2563eb_1.5px,transparent_1.5px)] [background-size:22px_22px]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
             </div>
@@ -752,7 +760,7 @@ export function BioPublicPage() {
         </div>
 
         {/* Profile Content Body */}
-        <div className="px-4 sm:px-8 pb-10">
+        <div className="px-4 pb-10 sm:px-8 sm:pb-12">
           {/* Avatar & Action Button Row */}
           <div className="flex items-end justify-between gap-3">
             {/* Round Circular Profile Avatar */}
@@ -924,6 +932,22 @@ export function BioPublicPage() {
               )}
               {bio.languages && <span>· {bio.languages}</span>}
             </div>
+
+            {isOwner && bio.kind === "person" && (
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav("/bio/edit");
+                }}
+                className="mt-3 inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-paper px-3 text-[11px] font-semibold text-mute ring-1 ring-line/80 transition-[background-color,color] duration-200 hover:bg-card hover:text-ink"
+                aria-label={`Profile is ${bio.visibility === "public" ? "public" : "private"}. Edit visibility.`}
+              >
+                <Lock size={12} className="text-accent" aria-hidden="true" />
+                {bio.visibility === "public" ? "Public profile" : "Private profile"}
+                <Edit3 size={11} aria-hidden="true" />
+              </button>
+            )}
 
             {bio.kind === "person" && completedCount > 0 && (
               <p className="mt-2 text-xs font-bold text-ink tabular-nums flex items-center gap-1.5">
@@ -2286,7 +2310,7 @@ export function BioPublicPage() {
             </button>
           </footer>
         </div>
-      </div>
+      </main>
 
       {/* Claim Redemption Modal */}
       {claim && (

@@ -337,6 +337,47 @@ body.keyboard-open .keyboard-hide {
   display: none;
 }
 
+/* Digital bio: a deliberately narrow reading surface with breathing room on
+ * desktop and an edge-to-edge, native-feeling canvas on phones. The content
+ * remains solid; only the navigation controls use glass. */
+.bio-page-shell {
+  width: min(100%, 48rem);
+  margin-inline: auto;
+  position: relative;
+}
+
+.bio-page-shell::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 14% 8%, color-mix(in srgb, var(--color-brand) 10%, transparent), transparent 28rem),
+    radial-gradient(circle at 88% 26%, color-mix(in srgb, var(--color-accent) 7%, transparent), transparent 24rem);
+}
+
+.bio-page-card {
+  background: color-mix(in srgb, var(--color-card) 96%, transparent);
+}
+
+.bio-hero {
+  min-height: clamp(14rem, 38vw, 18rem);
+}
+
+@media (min-width: 640px) {
+  .bio-page-card {
+    border-radius: 2.5rem;
+    box-shadow: 0 28px 80px -42px rgba(18, 22, 20, 0.38);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .bio-page-card {
+    background: var(--color-card);
+  }
+}
+
 /* Skip rendering for off-screen sections/cards (mobile scroll perf). No visual
  * change: `auto` sizes keep the scrollbar stable after first paint. */
 .cv-auto {

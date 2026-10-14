@@ -945,9 +945,7 @@ export function StartPage() {
                       />
                     ) : (
                       <form onSubmit={onSubmit} className="space-y-3.5">
-                        <ValidField label="Mobile number" ok={phoneReady(signInPhone)}>
-                          <PhoneField value={signInPhone} onChange={setSignInPhone} onFocus={nudgeIntoView} />
-                        </ValidField>
+                        <PhoneField value={signInPhone} onChange={setSignInPhone} onFocus={nudgeIntoView} />
                         <ValidField label="Password" ok={Boolean(password)}>
                           <div className="relative">
                             <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />

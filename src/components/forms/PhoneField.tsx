@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Check } from "lucide-react";
 import {
   HOST_COUNTRIES,
   composePhone,
@@ -9,7 +10,6 @@ import {
   nationalDigits,
   splitPhone,
 } from "@shared/geo-address";
-import { ValidField, fieldInput } from "./ValidField";
 import { ensureElementInView } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
 
@@ -18,15 +18,19 @@ export function PhoneField({
   onChange,
   required,
   label = "Mobile Number",
-  stacked = false,
+  stacked: _stacked = false,
   onFocus,
+  error: customError,
+  hint: customHint,
 }: {
   value: string;
   onChange: (next: string) => void;
   required?: boolean;
-  label?: string;
+  label?: string | null;
   stacked?: boolean;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  error?: string | null;
+  hint?: string | null;
 }) {
   const initialCountry = countryFromPhone(value)?.code || "AU";
   const [selectedCountry, setSelectedCountry] = useState<string>(initialCountry);
@@ -54,6 +58,9 @@ export function PhoneField({
 
   const activeCountry = countryByCode(selectedCountry) || HOST_COUNTRIES[0];
   const ok = isValidPhone(value);
+  const hasError = Boolean(value && !ok);
+  const displayError = customError || (hasError ? "Enter a valid mobile number (8–15 digits)" : null);
+  const displayHint = customHint || (!value && required ? "Enter local mobile number" : null);
 
   function handleCountryChange(newCode: string) {
     setSelectedCountry(newCode);
@@ -95,82 +102,50 @@ export function PhoneField({
                 ? "9123 4567"
                 : "Mobile number";
 
-  if (stacked) {
-    return (
-      <div className="space-y-3">
-        <ValidField label="Choose your Country" ok={true}>
-          <div className="relative">
-            <select
-              value={selectedCountry}
-              onChange={(e) => handleCountryChange(e.target.value)}
-              className="h-12 w-full rounded-2xl bg-card pl-3.5 pr-8 text-xs font-semibold border border-line outline-none focus:ring-2 focus:ring-brand/40 appearance-none cursor-pointer focus:border-brand"
-              aria-label="Choose your Country"
-            >
-              {HOST_COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {countryFlag(c.code)} {c.name} ({c.dial})
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-mute text-xs">▼</div>
-          </div>
-        </ValidField>
-
-        <ValidField
-          label={label}
-          ok={ok}
-          error={value && !ok ? "Enter a valid mobile number (8–15 digits)" : null}
-          hint={!value && required ? "Enter local mobile number" : undefined}
-        >
-          <div className="relative flex items-center">
-            <span className="absolute left-3.5 text-xs font-semibold text-mute select-none">{activeCountry.dial}</span>
-            <input
-              value={national}
-              onChange={(e) => handleNumberChange(e.target.value)}
-              inputMode="tel"
-              autoComplete="tel-national"
-              placeholder={placeholder}
-              className={cn(fieldInput, "pl-14 w-full text-[16px] sm:text-sm")}
-              aria-label="Mobile Number"
-              onFocus={(e) => {
-                onFocus?.(e);
-                ensureElementInView(e.currentTarget, {
-                  block: "center",
-                  topClearance: 70,
-                  bottomClearance: 24,
-                  behavior: "smooth",
-                });
-              }}
-            />
-          </div>
-        </ValidField>
-      </div>
-    );
-  }
-
   return (
-    <ValidField
-      label={label}
-      ok={ok}
-      error={value && !ok ? "Enter a valid mobile number (8–15 digits)" : null}
-      hint={!value && required ? "Choose country and enter local number" : undefined}
-    >
-      <div className="flex gap-2">
-        <div className="relative shrink-0">
+    <div className="w-full">
+      {/* Country Name Separately on the Top + Label */}
+      <div className="flex items-center justify-between mb-1.5 px-0.5">
+        {label ? <span className="text-[12px] font-semibold text-ink/80">{label}</span> : <span />}
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-0.5 text-[11px] font-semibold text-ink/80 border border-line shadow-2xs">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" aria-hidden="true" />
+          <span>{activeCountry.name}</span>
+        </span>
+      </div>
+
+      {/* Clean Single Container Phone Field */}
+      <div
+        className={cn(
+          "relative flex h-12 w-full rounded-2xl border bg-card shadow-2xs transition-all",
+          displayError
+            ? "border-red-500/80 focus-within:ring-2 focus-within:ring-red-500/20"
+            : "border-line focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20",
+        )}
+      >
+        {/* Chooser: Only Flag & Country Code */}
+        <div className="relative flex items-center shrink-0 border-r border-line/70 bg-paper/40 px-3 hover:bg-paper/80 transition rounded-l-2xl group cursor-pointer">
+          <div className="flex items-center gap-1.5 pointer-events-none select-none">
+            <span className="text-base leading-none" aria-hidden="true">
+              {countryFlag(activeCountry.code)}
+            </span>
+            <span className="text-xs font-bold text-ink tracking-tight">{activeCountry.dial}</span>
+            <span className="text-[8px] text-mute group-hover:text-ink transition ml-0.5">▼</span>
+          </div>
           <select
             value={selectedCountry}
             onChange={(e) => handleCountryChange(e.target.value)}
-            className="h-12 w-32 md:w-36 rounded-2xl bg-card pl-3 pr-7 text-xs font-semibold border border-line outline-none focus:ring-2 focus:ring-brand/40 appearance-none cursor-pointer focus:border-brand"
+            className="absolute inset-0 h-full w-full opacity-0 cursor-pointer text-xs"
             aria-label="Country Code"
           >
             {HOST_COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>
-                {countryFlag(c.code)} {c.code} ({c.dial}) · {c.name}
+                {countryFlag(c.code)} {c.name} ({c.dial})
               </option>
             ))}
           </select>
-          <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-mute text-[9px]">▼</div>
         </div>
+
+        {/* National Number Input */}
         <input
           value={national}
           onChange={(e) => handleNumberChange(e.target.value)}
@@ -178,7 +153,7 @@ export function PhoneField({
           autoComplete="tel-national"
           enterKeyHint="next"
           placeholder={placeholder}
-          className={cn(fieldInput, "flex-1 text-[16px] sm:text-sm")}
+          className="h-full flex-1 bg-transparent px-3.5 pr-10 text-[16px] sm:text-sm text-ink outline-none placeholder:text-mute/60 font-medium"
           aria-label="Mobile Number"
           onFocus={(e) => {
             onFocus?.(e);
@@ -190,7 +165,24 @@ export function PhoneField({
             });
           }}
         />
+
+        {/* Validation checkmark */}
+        {ok && !displayError && (
+          <span
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600"
+            aria-hidden="true"
+          >
+            <Check size={18} strokeWidth={2.6} />
+          </span>
+        )}
       </div>
-    </ValidField>
+
+      {/* Error or Hint message */}
+      {(displayError || displayHint) && (
+        <span className={cn("mt-1 block text-[12px] px-0.5", displayError ? "text-red-600 font-medium" : "text-mute")}>
+          {displayError || displayHint}
+        </span>
+      )}
+    </div>
   );
 }

@@ -258,7 +258,9 @@ export function BioEditPage() {
   const [hours, setHours] = useState("");
   const [openNow, setOpenNow] = useState(true);
   const [availabilityStatus, setAvailabilityStatus] = useState<AvailabilityStatus>("available");
-  const [visibility, setVisibility] = useState<BioVisibility>("friends");
+  // Existing friends-only profiles remain readable, while this control keeps
+  // the privacy choice explicit: either share the link or keep it to yourself.
+  const [visibility, setVisibility] = useState<BioVisibility>("private");
   const [customStatus, setCustomStatus] = useState("");
   const [customStatusEmoji, setCustomStatusEmoji] = useState("☕");
   const [phone, setPhone] = useState("");
@@ -299,7 +301,7 @@ export function BioEditPage() {
     setHours(activeProfile.hours || "");
     setOpenNow(activeProfile.openNow ?? true);
     setAvailabilityStatus(activeProfile.availabilityStatus || "available");
-    setVisibility(activeProfile.visibility || "friends");
+    setVisibility(activeProfile.visibility === "public" ? "public" : "private");
     setCustomStatus(activeProfile.customStatus || "");
     setCustomStatusEmoji(activeProfile.customStatusEmoji || "☕");
     setPhone(activeProfile.phone || "");
@@ -330,7 +332,7 @@ export function BioEditPage() {
       city !== (activeProfile.city || "") ||
       hours !== (activeProfile.hours || "") ||
       availabilityStatus !== (activeProfile.availabilityStatus || "available") ||
-      visibility !== (activeProfile.visibility || "friends") ||
+      visibility !== (activeProfile.visibility === "public" ? "public" : "private") ||
       customStatus !== (activeProfile.customStatus || "") ||
       phone !== (activeProfile.phone || "") ||
       meetingUrl !== (activeProfile.meetingUrl || "") ||
@@ -1280,10 +1282,7 @@ export function BioEditPage() {
 
                   {/* Contact Phone */}
                   <div className="space-y-1.5 pt-2 border-t border-line/60">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-mute">
-                      Contact Phone Number
-                    </label>
-                    <PhoneField value={phone} onChange={setPhone} />
+                    <PhoneField value={phone} onChange={setPhone} label="Contact Phone Number" />
                     <p className="text-[11px] text-mute">
                       Used for one-tap WhatsApp messaging and direct calling from your profile card.
                     </p>
@@ -1366,50 +1365,72 @@ export function BioEditPage() {
 
                 {/* 1.6 Profile Visibility (Personal only) */}
                 {!isBusiness && (
-                  <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-4">
-                    <div className="flex items-center justify-between border-b border-line/60 pb-3">
-                      <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
-                        <Shield size={14} />
-                        <span>Profile Privacy & Visibility</span>
-                      </p>
+                  <section
+                    className="rounded-[28px] border border-line bg-card p-5 shadow-clay sm:p-6"
+                    aria-labelledby="visibility-title"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/15">
+                        <Shield size={19} aria-hidden="true" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h2 id="visibility-title" className="text-sm font-bold text-ink">
+                          Profile visibility
+                        </h2>
+                        <p className="mt-0.5 text-xs leading-relaxed text-mute">
+                          Choose who can open your @handle page. You can change this any time.
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Profile visibility">
-                      {(
-                        [
-                          { id: "public", label: "Public", hint: "Everyone on AirPal" },
-                          { id: "friends", label: "Friends", hint: "Connected members" },
-                          { id: "private", label: "Private", hint: "Only you" },
-                        ] as Array<{ id: BioVisibility; label: string; hint: string }>
-                      ).map((opt) => {
-                        const isSelected = visibility === opt.id;
-                        return (
-                          <button
-                            key={opt.id}
-                            type="button"
-                            role="radio"
-                            aria-checked={isSelected}
-                            onClick={() => {
-                              void triggerHaptic("selection");
-                              setVisibility(opt.id);
-                            }}
-                            className={cn(
-                              "flex min-h-[48px] flex-col items-center justify-center gap-0.5 rounded-2xl border p-2 text-center transition active:scale-95 cursor-pointer",
-                              isSelected
-                                ? "bg-brand/10 border-brand text-accent font-bold shadow-xs ring-1 ring-brand/30"
-                                : "bg-paper border-line text-ink hover:bg-card",
-                            )}
-                          >
-                            <span className="text-xs font-bold">{opt.label}</span>
-                            <span className="text-[10px] font-medium opacity-70">{opt.hint}</span>
-                          </button>
-                        );
-                      })}
+                    <div
+                      className="mt-5 rounded-2xl bg-paper/80 p-1 ring-1 ring-line/80"
+                      role="radiogroup"
+                      aria-label="Profile visibility"
+                    >
+                      <div className="grid grid-cols-2 gap-1">
+                        {(
+                          [
+                            { id: "public", label: "Public", hint: "Anyone with your link" },
+                            { id: "private", label: "Private", hint: "Only you can view" },
+                          ] as Array<{ id: Extract<BioVisibility, "public" | "private">; label: string; hint: string }>
+                        ).map((opt) => {
+                          const isSelected = visibility === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              role="radio"
+                              aria-checked={isSelected}
+                              onClick={() => {
+                                void triggerHaptic("selection");
+                                setVisibility(opt.id);
+                              }}
+                              className={cn(
+                                "min-h-[60px] rounded-[13px] px-3 py-2 text-left transition-[background-color,color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+                                isSelected
+                                  ? "bg-card text-ink shadow-sm ring-1 ring-line/80"
+                                  : "text-mute hover:bg-card/70",
+                              )}
+                            >
+                              <span className="flex items-center gap-2 text-xs font-bold">
+                                <span className={cn("h-2 w-2 rounded-full", isSelected ? "bg-brand" : "bg-line")} />
+                                {opt.label}
+                              </span>
+                              <span className="mt-0.5 block pl-4 text-[11px] font-medium leading-tight">
+                                {opt.hint}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <p className="text-[11px] text-mute">
-                      Friends means mutual connections — anyone following you or connected via hangouts.
+                    <p className="mt-3 text-[11px] leading-relaxed text-mute">
+                      {visibility === "public"
+                        ? "Your bio can be opened by anyone who has its link."
+                        : "Your bio, contact details, and links are hidden from everyone else."}
                     </p>
-                  </div>
+                  </section>
                 )}
 
                 {/* 1.7 Business-Only Google Place Import Card vs Personal Hint */}

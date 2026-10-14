@@ -683,10 +683,7 @@ export function BusinessPage() {
                     </p>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-mute mb-1">
-                      Direct Inquiries Phone
-                    </label>
-                    <PhoneField value={phone} onChange={setPhone} />
+                    <PhoneField value={phone} onChange={setPhone} label="Direct Inquiries Phone" />
                   </div>
                 </div>
 
