@@ -62,20 +62,20 @@ export function NotFoundPage() {
             <span>AirPal Pass</span>
           </Link>
           <Link
-            href="/now"
+            href="/events"
             onClick={() => void triggerHaptic("light")}
             className="flex min-h-[44px] items-center gap-2 rounded-2xl bg-paper/60 p-3 text-ink ring-1 ring-line/50 transition hover:bg-paper active:scale-95"
           >
             <Compass size={16} className="text-blue-500 shrink-0" />
-            <span>What now?</span>
+            <span>Events</span>
           </Link>
           <Link
-            href="/plan"
+            href="/calendar"
             onClick={() => void triggerHaptic("light")}
             className="flex min-h-[44px] items-center gap-2 rounded-2xl bg-paper/60 p-3 text-ink ring-1 ring-line/50 transition hover:bg-paper active:scale-95"
           >
             <CalendarDays size={16} className="text-accent shrink-0" />
-            <span>Hangouts</span>
+            <span>Calendar</span>
           </Link>
           <Link
             href="/circle"

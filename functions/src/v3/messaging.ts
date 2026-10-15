@@ -26,7 +26,6 @@ export const v3StartConversation = onCall(CALLABLE, async (request) => {
   if (!isV3ConversationKind(data.kind)) throw new HttpsError("invalid-argument", "Conversation kind is invalid.");
   const input = v3Arg(() => ({
     participantUids: ((data.participantUids || []) as unknown[]).map((row) => parseV3Uid(row, "Participant")),
-    planId: data.planId === undefined ? undefined : parseV3Id(data.planId, "Plan"),
     eventId: data.eventId === undefined ? undefined : parseV3Id(data.eventId, "Event"),
   }));
   const participants = [...new Set([uid, ...input.participantUids])];
@@ -42,11 +41,6 @@ export const v3StartConversation = onCall(CALLABLE, async (request) => {
       throw new HttpsError("permission-denied", "This conversation is unavailable.");
     }
   }
-  if (data.kind === "plan") {
-    if (!input.planId) throw new HttpsError("invalid-argument", "Plan chats need a plan.");
-    const member = await db.collection("plans").doc(input.planId).collection("members").doc(uid).get();
-    if (!member.exists) throw new HttpsError("permission-denied", "Only plan members can start this chat.");
-  }
   if (data.kind === "event") {
     if (!input.eventId) throw new HttpsError("invalid-argument", "Event chats need an event.");
     const event = await db.collection("events").doc(input.eventId).get();
@@ -60,7 +54,6 @@ export const v3StartConversation = onCall(CALLABLE, async (request) => {
       v3Clean({
         kind: data.kind,
         participantUids: participants,
-        planId: input.planId,
         eventId: input.eventId,
         lastMessageAt: FieldValue.serverTimestamp(),
         lastMessagePreview: "",

@@ -30,7 +30,6 @@ function asPin(id: string, data: Record<string, unknown>): HerePin {
     name: String(data.name || data.handle || id),
     placeKey: String(data.placeKey || ""),
     placeName: String(data.placeName || ""),
-    planId: data.planId ? String(data.planId) : undefined,
     placeId: data.placeId ? String(data.placeId) : undefined,
     eventId: data.eventId ? String(data.eventId) : undefined,
     geo: (() => {

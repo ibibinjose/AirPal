@@ -5,8 +5,6 @@
  */
 export const NAMES = {
   explore: "Explore",
-  plans: "Plans",
-  plan: "Plan",
   stay: "Stay",
   circle: "Circle",
   scan: "Scan",

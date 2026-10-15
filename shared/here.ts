@@ -19,7 +19,6 @@ export type HerePin = {
   name: string;
   placeKey: string;
   placeName: string;
-  planId?: string;
   placeId?: string;
   eventId?: string;
   geo?: Geo;
@@ -33,7 +32,6 @@ export type HerePin = {
 export type ShareHereRequest = {
   placeName: string;
   placeKey?: string;
-  planId?: string;
   placeId?: string;
   eventId?: string;
   lat?: number;
@@ -49,9 +47,7 @@ export function roundHereGeo(geo: Geo): Geo {
   return { lat: Math.round(geo.lat * n) / n, lng: Math.round(geo.lng * n) / n };
 }
 
-export function herePlaceKey(input: { planId?: string; placeId?: string; eventId?: string; geo?: Geo }): string {
-  const planId = String(input.planId || "").trim();
-  if (planId) return `plan_${planId}`.slice(0, 80);
+export function herePlaceKey(input: { placeId?: string; eventId?: string; geo?: Geo }): string {
   const placeId = String(input.placeId || "").trim();
   if (placeId) return `place_${placeId}`.slice(0, 80);
   const eventId = String(input.eventId || "").trim();

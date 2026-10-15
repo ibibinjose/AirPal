@@ -25,21 +25,17 @@ describe("match messaging", () => {
     expect(unreadCount(msgs, "u1")).toBe(1);
   });
 
-  it("offers book + plan chips to the customer on a fresh match", () => {
+  it("offers a book chip to the customer on a fresh match", () => {
     expect(matchChatActions({ viewerIsCustomer: true, matched: true, booked: false, budget: 80 })).toEqual([
       { id: "book", label: "Book · about $80" },
-      { id: "plan", label: "Make a Plan" },
     ]);
     expect(matchChatActions({ viewerIsCustomer: true, matched: true, booked: false, budget: 0 })).toEqual([
       { id: "book", label: "Book · free" },
-      { id: "plan", label: "Make a Plan" },
     ]);
   });
 
   it("drops the book chip once booked, and stays silent off the match", () => {
-    expect(matchChatActions({ viewerIsCustomer: true, matched: true, booked: true, budget: 80 })).toEqual([
-      { id: "plan", label: "Make a Plan" },
-    ]);
+    expect(matchChatActions({ viewerIsCustomer: true, matched: true, booked: true, budget: 80 })).toEqual([]);
     expect(matchChatActions({ viewerIsCustomer: true, matched: false, booked: false, budget: 80 })).toEqual([]);
     expect(matchChatActions({ viewerIsCustomer: false, matched: true, booked: false, budget: 80 })).toEqual([]);
   });

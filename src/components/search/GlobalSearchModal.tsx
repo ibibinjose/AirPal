@@ -11,19 +11,15 @@ import {
   ArrowRight,
   X,
   Compass,
-  Footprints,
   HeartHandshake,
   TrendingUp,
   Ticket,
 } from "lucide-react";
 import { useSearchQueryLogger, usePopularSearches } from "@/hooks/useSearchQueryLogger";
-import { activePlaces, placeByHandle, placesForLocation, toursForPrecinct } from "@/lib/catalog";
+import { activePlaces, placeByHandle, placesForLocation } from "@/lib/catalog";
 import { hrefForPlace, handleOfPlace, resolvePublicBio } from "@/lib/bio-handle";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { cityMatches } from "@/lib/remote-events";
-import { EVENT_NEAR_M, locatedNear } from "@/lib/location-scope";
-import { isTicketed } from "@shared/plan";
-import { loadTours } from "@/lib/tours-store";
 import { bioPath, bioKindLabel, type BioProfile } from "@shared/bio";
 import { fetchPublicBio, loadBios } from "@/lib/bio-store";
 import { listPeople } from "@/lib/people";
@@ -39,7 +35,6 @@ import { getFirebaseDb } from "@/lib/firebase";
 import { collection, getDocs, query as firestoreQuery, where } from "firebase/firestore";
 import { useEvents } from "@/contexts/EventsContext";
 import { useListings } from "@/contexts/ListingsContext";
-import { usePlans } from "@/contexts/PlanContext";
 import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { cn } from "@/lib/cn";
@@ -91,16 +86,14 @@ function saveRecent(item: RecentItem) {
 }
 
 const EXPLORE_GROUPS = [
-  { label: "What now?", href: "/now", icon: Compass },
   { label: "AirPal Pass", href: "/pass", icon: Ticket },
   { label: "Deals & Perks", href: "/deals", icon: Sparkles },
   { label: "Circle & Presence", href: "/circle", icon: Users },
-  { label: "Plans & Hangouts", href: "/plan", icon: CalendarDays },
 ];
 
 interface SearchResultItem {
   id: string;
-  category: "place" | "event" | "deal" | "plan" | "partner" | "person";
+  category: "place" | "event" | "deal" | "partner" | "person";
   title: string;
   subtitle: string;
   badge?: string;
@@ -118,7 +111,6 @@ export function GlobalSearchModal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [, nav] = useLocation();
   const { calendarEvents } = useEvents();
-  const { plans } = usePlans();
   const { here, city, usingGps } = useLocalNow();
   const [handleBio, setHandleBio] = useState<BioProfile | null>(null);
   const [promotions, setPromotions] = useState<Promotion[]>([]);
@@ -297,35 +289,6 @@ export function GlobalSearchModal() {
             subtitle: p.handle ? `@${p.handle}` : p.whereMet || "Member",
             badge: "Person",
             href: p.handle ? `/@${p.handle}` : `/circle`,
-            icon: Users,
-          });
-        }
-        return items;
-      }
-      if (activeCategory === "plan" || activeCategory === "plans") {
-        items.push({
-          id: "plan-create",
-          category: "plan",
-          title: "Create a Plan",
-          subtitle: "Invite friends, family, or mates with RSVP",
-          badge: "New Plan",
-          href: "/plan/new",
-          icon: Users,
-        });
-        const openPlans = plans.filter(
-          (p) =>
-            p.isPublic &&
-            p.status === "open" &&
-            locatedNear({ geo: p.geo, city: p.city || p.destination }, here, city, usingGps, EVENT_NEAR_M),
-        );
-        for (const p of openPlans.slice(0, 8)) {
-          items.push({
-            id: `plan-${p.id}`,
-            category: "plan",
-            title: p.title,
-            subtitle: `${p.destination || p.city} · ${p.date}`,
-            badge: isTicketed(p) ? `$${p.pricePerPerson}` : p.isExperience ? "Free" : "Plan",
-            href: `/plan/${p.id}`,
             icon: Users,
           });
         }
@@ -623,75 +586,7 @@ export function GlobalSearchModal() {
       });
     }
 
-    // 6. Match Planning keywords & Open Plans
-    const planKeywords = ["plan", "friends", "night", "dinner", "lunch", "movie", "cinema", "roadtrip", "hangout"];
-    if (planKeywords.some((k) => q.includes(k))) {
-      items.push({
-        id: "plan-create",
-        category: "plan",
-        title: "New Plan",
-        subtitle: "Invite link with RSVP",
-        badge: "Plan",
-        href: "/plan/new",
-        icon: Users,
-        score: 82,
-      });
-    }
-    const openPlans = plans.filter(
-      (p) =>
-        p.isPublic &&
-        p.status === "open" &&
-        locatedNear({ geo: p.geo, city: p.city || p.destination }, here, city, usingGps, EVENT_NEAR_M),
-    );
-    for (const p of openPlans) {
-      const planScore = scoreSearchItem(
-        {
-          title: p.title,
-          subtitle: `${p.destination || p.city} · ${p.date}`,
-          description: p.notes,
-          keywords: [p.destination, p.city],
-        },
-        query,
-      );
-      if (planScore > 0) {
-        items.push({
-          id: `plan-${p.id}`,
-          category: "plan",
-          title: p.title,
-          subtitle: `${p.destination || p.city} · ${p.date}`,
-          badge: isTicketed(p) ? `$${p.pricePerPerson}` : p.isExperience ? "Free" : "Plan",
-          href: `/plan/${p.id}`,
-          icon: Users,
-          score: planScore,
-        });
-      }
-    }
-
-    // 7. Match Walks / Tours
-    for (const t of toursForPrecinct(usingGps ? city : city || "", loadTours())) {
-      const tourScore = scoreSearchItem(
-        {
-          title: t.title,
-          subtitle: `${t.city} · guided walk`,
-          keywords: [t.city],
-        },
-        query,
-      );
-      if (tourScore > 0) {
-        items.push({
-          id: `tour-${t.id}`,
-          category: "place",
-          title: t.title,
-          subtitle: `${t.city} · guided walk`,
-          badge: "Walk",
-          href: `/tour/${t.id}`,
-          icon: Footprints,
-          score: tourScore,
-        });
-      }
-    }
-
-    // 8. Match Arrival Engine / Campus Cohort keywords
+    // 6. Match Arrival Engine / Campus Cohort keywords
     const arrivalKeywords = [
       "arrival",
       "campus",
@@ -719,7 +614,7 @@ export function GlobalSearchModal() {
       });
     }
 
-    // 9. Match Partner / Roles keywords
+    // 7. Match Partner / Roles keywords
     const partnerKeywords = ["host", "business", "list", "partner", "organise", "creator", "merchant"];
     if (partnerKeywords.some((k) => q.includes(k))) {
       items.push({
@@ -741,14 +636,12 @@ export function GlobalSearchModal() {
     else if (activeCategory === "events") filtered = items.filter((i) => i.category === "event");
     else if (activeCategory === "deals") filtered = items.filter((i) => i.category === "deal");
     else if (activeCategory === "circle") filtered = items.filter((i) => i.category === "person");
-    else if (activeCategory === "plan" || activeCategory === "plans")
-      filtered = items.filter((i) => i.category === "plan");
 
     // Sort by relevance score descending
     filtered.sort((a, b) => (b.score || 0) - (a.score || 0));
 
     return filtered;
-  }, [query, calendarEvents, catalogVersion, plans, promotions, activeCategory, handleBio, here, city, usingGps]);
+  }, [query, calendarEvents, catalogVersion, promotions, activeCategory, handleBio, here, city, usingGps]);
 
   // Keyboard navigation within list
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -825,8 +718,8 @@ export function GlobalSearchModal() {
               setSelectedIndex(0);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Search people, places, events, deals, circles, plans…"
-            aria-label="Search people, places, events, deals, circles, plans"
+            placeholder="Search people, places, events, deals, circles…"
+            aria-label="Search people, places, events, deals, circles"
             className="min-h-[44px] w-full bg-transparent text-[16px] sm:text-[15px] font-medium text-ink placeholder:text-mute focus:outline-none [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-webkit-search-results-button]:hidden"
           />
           {query && (
@@ -866,7 +759,6 @@ export function GlobalSearchModal() {
               { id: "events", label: "Events" },
               { id: "deals", label: "Deals" },
               { id: "circle", label: "Circle" },
-              { id: "plan", label: "Plans" },
               { id: "people", label: "People" },
             ] as const
           ).map((c) => (
@@ -891,36 +783,6 @@ export function GlobalSearchModal() {
 
         {/* Results List: Mobile-first flex scroll container */}
         <div className="flex-1 overflow-y-auto overscroll-contain p-2.5 sm:p-3 space-y-1 sm:max-h-[min(60vh,calc(var(--visual-viewport-height,100dvh)-12rem))]">
-          {query.trim() && (
-            <button
-              type="button"
-              onClick={() => {
-                void triggerHaptic("light");
-                setOpen(false);
-                nav(`/now?q=${encodeURIComponent(query)}&category=${activeCategory}`);
-              }}
-              className="mb-2 w-full rounded-2xl bg-brand/5 p-3 ring-1 ring-brand/15 hover:bg-brand/10 transition text-left cursor-pointer active:scale-[0.99]"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand text-white shadow-xs">
-                    <Search size={15} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-accent uppercase tracking-wider">Full AirPal Search</p>
-                    <p className="truncate text-xs font-semibold text-ink">
-                      &ldquo;{query}&rdquo; · {results.length} {results.length === 1 ? "result" : "results"}
-                    </p>
-                  </div>
-                </div>
-                <span className="text-xs font-semibold text-accent inline-flex items-center gap-1 shrink-0">
-                  <span>View page</span>
-                  <ArrowRight size={13} />
-                </span>
-              </div>
-            </button>
-          )}
-
           {!query.trim() ? (
             <div className="px-2 py-3">
               <p className="px-1 text-[15px] font-semibold text-ink">What are you looking for?</p>

@@ -11,7 +11,6 @@ import {
   Plus,
   QrCode,
   ShieldCheck,
-  Sparkles,
   Ticket,
   Users,
 } from "lucide-react";
@@ -452,14 +451,6 @@ export function PassPage() {
                   >
                     <Ticket size={13} />
                     <span>Get Pass</span>
-                  </Link>
-                  <Link
-                    href={`/plan/new?title=${encodeURIComponent(event.title)}&date=${event.date}`}
-                    title="Add to my AirPal.Me Day Plan"
-                    className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-3 py-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95"
-                  >
-                    <Sparkles size={13} className="text-accent" />
-                    <span className="hidden sm:inline">Add to Plan</span>
                   </Link>
                 </div>
               </div>

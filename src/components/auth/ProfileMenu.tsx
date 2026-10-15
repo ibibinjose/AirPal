@@ -7,7 +7,6 @@ import {
   Building2,
   CalendarDays,
   ChevronRight,
-  Compass,
   Headphones,
   Images,
   Info,
@@ -462,13 +461,6 @@ export function ProfileMenu() {
           highlight
           onClick={() => go("/me")}
         />
-        <Row icon={Compass} label="What now?" hint="One suggestion, then a plan" onClick={() => go("/now")} />
-        <Row
-          icon={CalendarDays}
-          label="Plans & Invites"
-          hint="Group plans, RSVPs & meetups"
-          onClick={() => go("/plan")}
-        />
         {mine ? (
           <Row
             icon={Sparkles}
@@ -586,7 +578,7 @@ export function ProfileMenu() {
       <div className="rounded-2xl bg-paper/70 p-3.5 ring-1 ring-line/80 shadow-2xs">
         <p className="font-display text-sm font-bold text-ink">Welcome to AirPal</p>
         <p className="mt-0.5 text-xs text-mute leading-relaxed">
-          Sign in to plan your day, get event passes, connect with friends, and discover experiences.
+          Sign in to see what&#39;s on, get event passes, connect with friends, and discover experiences.
         </p>
 
         {/* Language selector under welcome header */}
@@ -616,7 +608,6 @@ export function ProfileMenu() {
       <div className="my-1.5 h-px bg-line/80" />
       <p className="px-3 pt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">AirPal Me</p>
       <div className="mt-1 space-y-0.5">
-        <Row icon={Compass} label="What now?" hint="One suggestion, then a plan" highlight onClick={() => go("/now")} />
         <Row
           icon={Sparkles}
           label="Claim @handle"

@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, onSnapshot, query, type Firestore } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, type Firestore } from "firebase/firestore";
 import type {
   V3Cohort,
   V3Conversation,
@@ -7,8 +7,6 @@ import type {
   V3Event,
   V3Order,
   V3Place,
-  V3Plan,
-  V3PlanMember,
   V3Profile,
   V3Ticket,
   V3User,
@@ -51,7 +49,6 @@ export function parseV3User(id: string, data: unknown): V3Doc<V3User> | null {
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     preferences: { marketingEmail: (asRecord(row.preferences)?.marketingEmail as boolean) === true },
-    planIds: index("planIds"),
     cohortIds: index("cohortIds"),
     ticketIds: index("ticketIds"),
     orderIds: index("orderIds"),
@@ -162,42 +159,6 @@ export function parseV3Profile(id: string, viewerUid: string | null, data: unkno
   };
 }
 
-export function parseV3Plan(id: string, data: unknown): V3Doc<V3Plan> | null {
-  const row = asRecord(data);
-  const ownerUid = row ? asString(row.ownerUid) : null;
-  const visibility = row ? asString(row.visibility) : null;
-  const state = row ? asString(row.state) : null;
-  const title = row ? asString(row.title) : null;
-  if (!row || !ownerUid || (visibility !== "public" && visibility !== "private") || !title) return null;
-  if (state !== "open" && state !== "completed" && state !== "cancelled") return null;
-  return {
-    id,
-    ownerUid,
-    visibility,
-    state,
-    title,
-    description: asString(row.description) || "",
-    city: asString(row.city) || "",
-    startsAt: asString(row.startsAt) || "",
-    placeId: asString(row.placeId) || undefined,
-    inviteCode: asString(row.inviteCode) || "",
-    stops: Array.isArray(row.stops) ? (row.stops as V3Plan["stops"]) : [],
-    attendeeCount: typeof row.attendeeCount === "number" ? row.attendeeCount : 0,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-  };
-}
-
-export function parseV3PlanMember(id: string, data: unknown): V3Doc<V3PlanMember> | null {
-  const row = asRecord(data);
-  const rsvp = row ? asString(row.rsvp) : null;
-  const role = row ? asString(row.role) : null;
-  if (!row || asString(row.uid) !== id) return null;
-  if (rsvp !== "invited" && rsvp !== "going" && rsvp !== "maybe" && rsvp !== "declined") return null;
-  if (role !== "owner" && role !== "member") return null;
-  return { id, uid: id, role, rsvp, updatedAt: row.updatedAt };
-}
-
 export function parseV3Ticket(id: string, data: unknown): V3Doc<V3Ticket> | null {
   const row = asRecord(data);
   const eventId = row ? asString(row.eventId) : null;
@@ -301,12 +262,11 @@ export function parseV3Conversation(id: string, data: unknown): V3Doc<V3Conversa
   const kind = row ? asString(row.kind) : null;
   const participants = row ? asStringArray(row.participantUids) : null;
   if (!row || !participants) return null;
-  if (kind !== "direct" && kind !== "plan" && kind !== "event") return null;
+  if (kind !== "direct" && kind !== "event") return null;
   return {
     id,
     kind,
     participantUids: participants,
-    planId: asString(row.planId) || undefined,
     eventId: asString(row.eventId) || undefined,
     lastMessageAt: row.lastMessageAt,
     lastMessagePreview: asString(row.lastMessagePreview) || "",
@@ -336,7 +296,6 @@ export const v3Users = reader("users", parseV3User);
 export const v3Places = reader("places", parseV3PublishedPlace);
 export const v3Events = reader("events", parseV3PublishedEvent);
 export const v3Deals = reader("deals", parseV3PublishedDeal);
-export const v3Plans = reader("plans", parseV3Plan);
 export const v3Tickets = reader("tickets", parseV3Ticket);
 export const v3Orders = reader("orders", parseV3Order);
 export const v3DealClaims = reader("dealClaims", parseV3DealClaim);
@@ -363,22 +322,5 @@ export function subscribeV3Profile(
   requireV3Adapters();
   return onSnapshot(doc(db, "profiles", uid), (snap) => {
     next(snap.exists() ? parseV3Profile(snap.id, viewerUid, snap.data()) : null);
-  });
-}
-
-/** The only V3 list query: plan members, which rules scope to member/owner. */
-export function subscribeV3PlanMembers(
-  db: Firestore,
-  planId: string,
-  next: (members: V3Doc<V3PlanMember>[]) => void,
-): () => void {
-  requireV3Adapters();
-  return onSnapshot(query(collection(db, "plans", planId, "members")), (snap) => {
-    const members: V3Doc<V3PlanMember>[] = [];
-    for (const change of snap.docs) {
-      const member = parseV3PlanMember(change.id, change.data());
-      if (member) members.push(member);
-    }
-    next(members);
   });
 }

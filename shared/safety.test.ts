@@ -15,7 +15,7 @@ describe("safety reports", () => {
   it("accepts a detailed report", () => {
     expect(
       reportValid({
-        ...emptyReport("plan-1", "uid-2"),
+        ...emptyReport("uid-2"),
         reason: "no-show",
         details: "They never arrived at the station.",
       }),
@@ -23,8 +23,8 @@ describe("safety reports", () => {
   });
 
   it("rejects thin or malformed reports", () => {
-    expect(reportValid({ ...emptyReport("plan-1", ""), details: "They never arrived at all." })).toBe(false);
-    expect(reportValid({ ...emptyReport("plan-1", "uid-2"), details: "bad" })).toBe(false);
+    expect(reportValid({ ...emptyReport(""), details: "They never arrived at all." })).toBe(false);
+    expect(reportValid({ ...emptyReport("uid-2"), details: "bad" })).toBe(false);
     expect(isReportReason("spam")).toBe(false);
   });
 

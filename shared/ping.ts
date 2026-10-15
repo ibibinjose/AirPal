@@ -1,6 +1,6 @@
 /**
  * AirPal Ping — a lightweight "are you around / want to hang out" nudge
- * between two people. Heavier intent becomes a mate request or a plan;
+ * between two people. Heavier intent becomes a mate request or a catch-up;
  * a ping is just the tap on the shoulder.
  *
  * Lifecycle: sent → pinged_back → hanging_out, with dismissed/cancelled

@@ -2,26 +2,13 @@ import { describe, expect, it } from "vitest";
 import { PILLARS, getActivePillar } from "./pillars";
 
 describe("pillars model", () => {
-  it("defines the 4 core pillars in requested order", () => {
-    expect(PILLARS.map((p) => p.id)).toEqual(["places", "communities", "friends", "me"]);
-    expect(PILLARS.map((p) => p.label)).toEqual(["Places", "Communities", "Friends", "Me"]);
-  });
-
-  it("maps places paths correctly", () => {
-    const places = PILLARS[0];
-    expect(places.match("/places")).toBe(true);
-    expect(places.match("/explore")).toBe(true);
-    expect(places.match("/guide")).toBe(true);
-    expect(places.match("/now")).toBe(true);
-    expect(places.match("/deals")).toBe(true);
-    expect(places.match("/offers")).toBe(true);
-    expect(places.match("/tour/harbour")).toBe(true);
-    expect(places.match("/p/the-rocks")).toBe(true);
-    expect(getActivePillar("/explore")?.id).toBe("places");
+  it("defines the 2 core pillars in requested order", () => {
+    expect(PILLARS.map((p) => p.id)).toEqual(["communities", "me"]);
+    expect(PILLARS.map((p) => p.label)).toEqual(["Communities", "Me"]);
   });
 
   it("maps communities paths correctly", () => {
-    const comm = PILLARS[1];
+    const comm = PILLARS[0];
     expect(comm.match("/communities")).toBe(true);
     expect(comm.match("/events")).toBe(true);
     expect(comm.match("/pass")).toBe(true);
@@ -31,18 +18,8 @@ describe("pillars model", () => {
     expect(getActivePillar("/events")?.id).toBe("communities");
   });
 
-  it("maps friends paths correctly", () => {
-    const friends = PILLARS[2];
-    expect(friends.match("/friends")).toBe(true);
-    expect(friends.match("/plan")).toBe(true);
-    expect(friends.match("/plan/123")).toBe(true);
-    expect(friends.match("/invite/abc")).toBe(true);
-    expect(friends.match("/calendar")).toBe(true);
-    expect(getActivePillar("/plan")?.id).toBe("friends");
-  });
-
   it("maps me paths correctly", () => {
-    const me = PILLARS[3];
+    const me = PILLARS[1];
     expect(me.match("/me")).toBe(true);
     expect(me.match("/me/tickets")).toBe(true);
     expect(me.match("/bio")).toBe(true);
@@ -52,8 +29,13 @@ describe("pillars model", () => {
     expect(getActivePillar("/me/tickets")?.id).toBe("me");
   });
 
-  it("returns undefined for home or unrelated roots", () => {
+  it("returns undefined for home, removed Discovery/Planning routes, or unrelated roots", () => {
     expect(getActivePillar("/")).toBeUndefined();
+    expect(getActivePillar("/now")).toBeUndefined();
+    expect(getActivePillar("/explore")).toBeUndefined();
+    expect(getActivePillar("/guide")).toBeUndefined();
+    expect(getActivePillar("/plan")).toBeUndefined();
+    expect(getActivePillar("/invite/abc")).toBeUndefined();
     expect(getActivePillar("/privacy")).toBeUndefined();
   });
 });

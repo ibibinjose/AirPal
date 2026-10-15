@@ -1,6 +1,6 @@
 /**
  * Device cache hygiene: signing out must never leak the previous account's
- * name, avatar, plans, saves, people, or memories into the next session.
+ * name, avatar, bookings, saves, people, or memories into the next session.
  *
  * Strategy: sweep every `airpal`/`airpal:` storage key EXCEPT device-level
  * preferences (door, notification prefs, location choice, power-save,

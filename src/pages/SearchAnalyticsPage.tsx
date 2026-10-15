@@ -63,9 +63,9 @@ const SEED_POPULAR_TERMS: PopularItem[] = [
   { id: "surry-hills", term: "Surry Hills Dining Perks", count: 42, category: "deals", city: "Sydney" },
   { id: "live-music", term: "Live Music & Concerts Tonight", count: 35, category: "events", city: "Sydney" },
   { id: "the-rocks", term: "The Rocks Historic Precinct", count: 29, category: "places", city: "Sydney" },
-  { id: "morning-run", term: "Morning Run & Coffee Hangout", count: 26, category: "plans", city: "Sydney" },
+  { id: "morning-run", term: "Morning Run & Coffee Hangout", count: 26, category: "circle", city: "Sydney" },
   { id: "diwali-mela", term: "Diwali Mela Festival Passes", count: 23, category: "events", city: "Sydney" },
-  { id: "botanic-gardens", term: "Botanic Gardens Picnic Plan", count: 19, category: "plans", city: "Sydney" },
+  { id: "botanic-gardens", term: "Botanic Gardens Picnic", count: 19, category: "circle", city: "Sydney" },
   { id: "circle-meetup", term: "Networking Circle Check-in", count: 16, category: "circle", city: "Sydney" },
   { id: "dining-perk", term: "Merchant Dining 20% Off Perk", count: 14, category: "deals", city: "Sydney" },
   { id: "arrival-cohort", term: "PBSA Resident Arrival Cohort", count: 12, category: "circle", city: "Sydney" },
@@ -74,7 +74,6 @@ const SEED_POPULAR_TERMS: PopularItem[] = [
 const CATEGORY_COLORS: Record<string, string> = {
   places: "#1805db",
   events: "#e11d48",
-  plans: "#7c3aed",
   deals: "#d97706",
   circle: "#059669",
   all: "#4b5563",
@@ -205,7 +204,6 @@ export function SearchAnalyticsPage() {
     const counts: Record<string, number> = {
       events: 0,
       places: 0,
-      plans: 0,
       deals: 0,
       circle: 0,
     };
@@ -220,14 +218,7 @@ export function SearchAnalyticsPage() {
     }
 
     return Object.entries(counts).map(([name, value]) => ({
-      name:
-        name === "circle"
-          ? "Circle"
-          : name === "plans"
-            ? "Hangouts"
-            : name === "deals"
-              ? "Deals"
-              : name.charAt(0).toUpperCase() + name.slice(1),
+      name: name === "circle" ? "Circle" : name === "deals" ? "Deals" : name.charAt(0).toUpperCase() + name.slice(1),
       key: name,
       value: Math.max(value, 5),
       color: CATEGORY_COLORS[name] || "#1805db",
@@ -259,7 +250,6 @@ export function SearchAnalyticsPage() {
         total: Math.max(12, baseSearches),
         places: Math.round(baseSearches * 0.35),
         events: Math.round(baseSearches * 0.3),
-        plans: Math.round(baseSearches * 0.2),
         deals: Math.round(baseSearches * 0.15),
       });
     }
@@ -395,7 +385,6 @@ export function SearchAnalyticsPage() {
               { id: "all", label: "All" },
               { id: "events", label: "Events & Access" },
               { id: "places", label: "Places & Guide" },
-              { id: "plans", label: "Hangouts & Plans" },
               { id: "deals", label: "Deals & Perks" },
               { id: "circle", label: "Circle & People" },
             ].map((cat) => (

@@ -19,7 +19,6 @@ import {
   MapPin,
   MessageSquare,
   PhoneCall,
-  Plus,
   QrCode,
   Settings,
   Share2,
@@ -34,14 +33,18 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
 import { useCohort } from "@/contexts/CohortContext";
-import { usePlans } from "@/contexts/PlanContext";
 import { useLocalNow } from "@/contexts/LocalNowContext";
 import { useMyBookings } from "@/hooks/useMyBookings";
-import { listCatchUps, subscribeCatchUpsForOwner, updateCatchUpStatus, type CatchUpItem } from "@/lib/catchup";
+import {
+  listCatchUps,
+  subscribeCatchUpsForOwner,
+  updateCatchUpStatus,
+  type CatchUpItem,
+  type CatchUpType,
+} from "@/lib/catchup";
 import { getDailyOutfitRecommendation } from "@/lib/outfit";
 import { BioCatchUpModal } from "@/components/bio/BioCatchUpModal";
 import { AddToCalendarMenu } from "@/components/calendar/AddToCalendarMenu";
-import { PlanGridCard } from "@/components/airpal/PlanGridCard";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { VerifyEmailBanner } from "@/components/auth/VerifyEmailBanner";
 import { Button } from "@/components/ui/Button";
@@ -65,24 +68,22 @@ import { toPublicUrl } from "@/lib/public-origin";
 import { bioPath } from "@shared/bio";
 import { partnerAccountPath } from "@/lib/partner-account";
 import { NAMES } from "@shared/names";
-import type { PlanType } from "@shared/plan";
 import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 
-type CockpitTab = "all" | "today" | "appointments" | "tickets" | "plans" | "pass";
+type CockpitTab = "all" | "today" | "appointments" | "tickets" | "pass";
 
 export function MePage() {
   const [, nav] = useLocation();
   const { user, logout, sendVerificationEmail, isHost } = useAuth();
   const { mine, business, biosReady, updateProfile } = useBio();
   const { activeCohort } = useCohort();
-  const { myPlans } = usePlans();
   const { today, weather, city, day } = useLocalNow();
   const { upcomingBookings } = useMyBookings();
 
   const [catchUpsList, setCatchUpsList] = useState<CatchUpItem[]>(() => listCatchUps());
   const [catchUpModalOpen, setCatchUpModalOpen] = useState(false);
-  const [catchUpInitialType, setCatchUpInitialType] = useState<PlanType>("catchup");
+  const [catchUpInitialType, setCatchUpInitialType] = useState<CatchUpType>("catchup");
   const [bioQrData, setBioQrData] = useState<string>("");
   const [copiedBioLink, setCopiedBioLink] = useState(false);
   const [activeTab, setActiveTab] = useState<CockpitTab>("all");
@@ -123,11 +124,7 @@ export function MePage() {
     return upcomingBookings.filter((b) => b.date === today);
   }, [upcomingBookings, today]);
 
-  const todayPlans = useMemo(() => {
-    return myPlans.filter((p) => p.date === today && p.status !== "cancelled");
-  }, [myPlans, today]);
-
-  const todayTotalCount = todayAppointments.length + todayTickets.length + todayPlans.length;
+  const todayTotalCount = todayAppointments.length + todayTickets.length;
 
   // UPCOMING ITEMS
   const pendingAppointments = useMemo(() => {
@@ -144,12 +141,6 @@ export function MePage() {
     if (!upcomingBookings) return [];
     return upcomingBookings.filter((b) => !b.date || b.date >= today);
   }, [upcomingBookings, today]);
-
-  const upcomingPlansList = useMemo(() => {
-    return myPlans
-      .filter((p) => (!p.date || p.date >= today) && p.status !== "cancelled")
-      .sort((a, b) => ((a.date || "") > (b.date || "") ? 1 : -1));
-  }, [myPlans, today]);
 
   const handleCopyBioLink = async () => {
     if (!mine?.handle) {
@@ -207,7 +198,7 @@ export function MePage() {
         next="/me"
         kicker="AirPal Me"
         title="Universal AirPal Identity"
-        lede="Sign in or create an account to access your AirPal Me cockpit, tickets, appointments, and plans."
+        lede="Sign in or create an account to access your AirPal Me cockpit, tickets, and appointments."
       />
     );
   }
@@ -452,29 +443,6 @@ export function MePage() {
                 </span>
               </div>
             </button>
-
-            <button
-              type="button"
-              onClick={() => handleTabChange("plans")}
-              className={cn(
-                "group flex items-center gap-3 rounded-2xl p-3 text-left transition cursor-pointer ring-1",
-                activeTab === "plans"
-                  ? "bg-violet-500/10 ring-violet-500/40 shadow-xs"
-                  : "bg-paper/60 ring-line/60 hover:bg-paper hover:ring-line",
-              )}
-            >
-              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 group-hover:scale-105 transition shrink-0">
-                <Users size={17} />
-              </span>
-              <div className="min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-mute block leading-tight">
-                  Plans
-                </span>
-                <span className="font-display text-base font-black text-ink tabular-nums leading-tight">
-                  {myPlans.length}
-                </span>
-              </div>
-            </button>
           </div>
         </div>
       </div>
@@ -491,7 +459,6 @@ export function MePage() {
               icon: Coffee,
             },
             { id: "tickets" as const, label: `Tickets (${upcomingTickets.length})`, icon: Ticket },
-            { id: "plans" as const, label: `Plans (${upcomingPlansList.length})`, icon: Users },
             { id: "pass" as const, label: "Bio & QR Pass", icon: QrCode },
           ].map((tab) => {
             const isCurrent = activeTab === tab.id;
@@ -665,40 +632,13 @@ export function MePage() {
                     </div>
                   </div>
                 ))}
-
-                {/* Today's Plans */}
-                {todayPlans.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 rounded-2xl bg-paper/60 p-4 ring-1 ring-line/80 shadow-2xs hover:ring-brand/30 transition"
-                  >
-                    <div className="min-w-0">
-                      <span className="font-bold text-sm text-ink truncate block">{plan.title}</span>
-                      <p className="text-xs text-mute mt-1 flex items-center gap-1.5 truncate">
-                        <Users size={12} className="text-accent shrink-0" />
-                        <span>Today {plan.time ? `@ ${plan.time}` : ""}</span>
-                        <span>
-                          · {plan.destination || plan.city || "Sydney"} ({plan.attendees?.length || 1} going)
-                        </span>
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="min-h-[40px] rounded-full border border-line/80 px-4 text-xs font-bold text-ink hover:bg-paper active:scale-95 shrink-0 self-end sm:self-center"
-                      onClick={() => nav(`/plan/${plan.id}`)}
-                    >
-                      Open Thread →
-                    </Button>
-                  </div>
-                ))}
               </div>
             ) : (
               <div className="rounded-3xl border border-dashed border-line/80 p-6 text-center bg-paper/40">
                 <Sun size={26} className="mx-auto text-mute/80 mb-2" />
                 <p className="font-display text-base font-bold text-ink">Your day is open</p>
                 <p className="text-xs text-mute mt-1 max-w-md mx-auto leading-relaxed">
-                  No appointments, tickets, or plans scheduled for today. Turn free time into an experience!
+                  No appointments or tickets scheduled for today. Turn free time into an experience!
                 </p>
                 <div className="mt-4 flex flex-wrap justify-center gap-2.5">
                   <button
@@ -712,13 +652,6 @@ export function MePage() {
                   >
                     <Coffee size={14} />
                     <span>Propose a Catch-Up</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => nav("/now")}
-                    className="inline-flex min-h-[42px] items-center gap-2 rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
-                  >
-                    <span>🧭 Plan on Now</span>
                   </button>
                   <button
                     type="button"
@@ -784,7 +717,7 @@ export function MePage() {
                   {
                     type: "nightout" as const,
                     label: "Hangout",
-                    sub: "Group plan",
+                    sub: "Group catch-up",
                     Icon: Users,
                     tint: "bg-violet-500/15 text-violet-700 dark:text-violet-400",
                   },
@@ -1067,81 +1000,6 @@ export function MePage() {
                 >
                   Browse AirPal Pass →
                 </Button>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* SECTION: UPCOMING PLANS */}
-        {showSection("plans") && (
-          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay">
-            <div className="flex items-center justify-between gap-3 mb-5">
-              <div className="flex items-center gap-2.5">
-                <span className="grid h-9 w-9 place-items-center rounded-2xl bg-violet-500/10 text-violet-600">
-                  <Users size={18} />
-                </span>
-                <div>
-                  <h2 className="font-display text-lg sm:text-xl font-black text-ink">Upcoming Plans</h2>
-                  <p className="text-xs text-mute font-medium">
-                    Hangouts &amp; Itineraries ({upcomingPlansList.length})
-                  </p>
-                </div>
-              </div>
-
-              <Button
-                size="sm"
-                className="min-h-[40px] rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink active:scale-95"
-                onClick={() => nav("/plan/new")}
-              >
-                <Plus size={14} className="mr-1.5" />
-                New Plan
-              </Button>
-            </div>
-
-            {upcomingPlansList.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {upcomingPlansList.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className="flex flex-col justify-between rounded-3xl bg-paper/60 p-5 ring-1 ring-line/80 shadow-2xs hover:ring-brand/40 transition"
-                  >
-                    <PlanGridCard plan={plan} />
-                    <div className="mt-4 pt-3.5 border-t border-line/60 flex items-center justify-between gap-2">
-                      <span className="text-xs text-mute font-medium truncate">
-                        {plan.destination || plan.city || "Sydney"}
-                      </span>
-                      <AddToCalendarMenu
-                        event={{
-                          title: plan.title,
-                          description: plan.notes || "AirPal Plan",
-                          startsAt: `${plan.date}T${plan.time || "12:00"}:00`,
-                          venue: plan.destination || plan.city,
-                        }}
-                        size="sm"
-                        variant="ghost"
-                        label="Calendar"
-                        buttonClassName="h-9 px-3 text-xs rounded-full border border-line/80 font-semibold"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-3xl border border-dashed border-line/80 p-6 text-center bg-paper/40">
-                <Users size={28} className="mx-auto text-mute/80" />
-                <p className="font-display text-sm font-bold text-ink mt-2">
-                  You don&apos;t have any upcoming plans yet.
-                </p>
-                <p className="text-xs text-mute mt-1 max-w-md mx-auto leading-relaxed">
-                  Coordinate an outing, coffee walk, or weekend dinner with friends.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => nav("/plan/new")}
-                  className="mt-3.5 inline-flex items-center gap-1.5 text-xs font-bold text-accent underline cursor-pointer hover:text-brand transition"
-                >
-                  Create an outing or day trip →
-                </button>
               </div>
             )}
           </section>

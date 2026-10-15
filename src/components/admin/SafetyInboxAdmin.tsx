@@ -18,7 +18,6 @@ interface CaseRow {
   reporterUid: string;
   target: string;
   targetUid: string;
-  planId: string;
   reason: string;
   details: string;
   status: SafetyReportStatus;
@@ -147,7 +146,7 @@ export function SafetyInboxAdmin() {
                     {(REPORT_REASON_LABELS as Record<string, string>)[r.reason] ?? r.reason} · {r.target}
                   </span>
                   <span className="block truncate text-xs text-mute">
-                    {slaAgeLabel(r.createdAt)} old · {r.createdAt.slice(0, 10)} · plan {r.planId.slice(0, 8)}…
+                    {slaAgeLabel(r.createdAt)} old · {r.createdAt.slice(0, 10)} · {(r.targetUid || "").slice(0, 8)}…
                   </span>
                 </span>
                 <span className="flex shrink-0 items-center gap-1.5">

@@ -11,7 +11,7 @@
     "title": "About · AirPal.Me",
     "description": "One trusted marketplace for people, places, things and experiences.",
     "heading": "About AirPal.Me",
-    "summary": "AirPal.Me — Life Made Easy — is one trusted marketplace for people, places, things and experiences. Born in The Rocks, Sydney, it connects mates, stays, experiences and plans on one identity, with human-reviewed trust and safety."
+    "summary": "AirPal.Me — Life Made Easy — is one trusted marketplace for people, places, things and experiences. Born in The Rocks, Sydney, it connects mates, stays and experiences on one identity, with human-reviewed trust and safety."
   },
   {
     "path": "/concierge",
@@ -21,25 +21,11 @@
     "summary": "The guest companion for AirPal Stay: Wi-Fi, dining, the front desk and what's around your stay. Guests scan a code — no download, no account — and everything for the stay is in one place."
   },
   {
-    "path": "/plan",
-    "title": "Plans · AirPal.Me",
-    "description": "Make plans with family and friends — pick a place, gather the crew, go.",
-    "heading": "Plans",
-    "summary": "Make plans with family and friends on AirPal.Me — pick a place, gather the crew, and go: stops, votes and RSVPs in one shared plan. Guests can browse plans on the web without an account."
-  },
-  {
-    "path": "/now",
-    "title": "What now? · AirPal.Me",
-    "description": "Tell AirPal.Me your urge and time window — get one suggestion for what to do right now, then make it a plan.",
-    "heading": "What now?",
-    "summary": "Tell AirPal.Me your urge and time window — tonight, this weekend, right now — and get one suggestion for what to do, with the people you already know. Make it a plan in one tap."
-  },
-  {
     "path": "/circle",
     "title": "Networking Circle · AirPal.Me",
     "description": "Check in, see who is around, and hang out with your trusted inner circle.",
     "heading": "Networking Circle",
-    "summary": "Connect with your inner circle in real life. Check in at your building or local hub, share status, and plan spontaneous hangouts with people you know."
+    "summary": "Connect with your inner circle in real life. Check in at your building or local hub, share status, and join spontaneous hangouts with people you know."
   },
   {
     "path": "/business",
@@ -47,13 +33,6 @@
     "description": "List your place, publish experiences and offers, take bookings on AirPal.Me.",
     "heading": "AirPal for Business",
     "summary": "List your place, publish experiences and offers, and take bookings on AirPal.Me — one backend for your venue, events and brand."
-  },
-  {
-    "path": "/guide",
-    "title": "Guides · AirPal.Me",
-    "description": "Local guides and curated ways to experience the city.",
-    "heading": "Guide",
-    "summary": "The AirPal.Me guide — local guides and curated ways to experience the city."
   },
   {
     "path": "/join",
@@ -128,7 +107,7 @@
             "name": "Do I need to download an app?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. Guests can browse places, stays, plans and events on the airpal.me website without an account. Native iOS and Android apps exist for members who want them; they require sign-in."
+              "text": "No. Guests can browse places, stays and events on the airpal.me website without an account. Native iOS and Android apps exist for members who want them; they require sign-in."
             }
           }
         ]
@@ -138,7 +117,7 @@
   {
     "path": "/calendar",
     "title": "Event calendar · AirPal.Me",
-    "description": "What's on near you — month, week and day views for planning ahead.",
+    "description": "What's on near you — month, week and day views of events and bookings.",
     "heading": "What's on",
     "summary": "What's on near you — upcoming events, experiences and things to do, with month, week and day views."
   },
@@ -158,10 +137,10 @@
   },
   {
     "path": "/alternatives/meetup",
-    "title": "Meetup alternative for casual plans · AirPal.Me",
-    "description": "Blend social planning with local discovery: group plans with friends, and what's on nearby.",
-    "heading": "A Meetup alternative for casual plans",
-    "summary": "Meetup organises strangers into groups. AirPal.Me starts from your own people: shared plans with stops, votes and RSVPs, and what's on nearby."
+    "title": "Meetup alternative for casual catch-ups · AirPal.Me",
+    "description": "Blend catch-ups with local discovery: meet friends, and see what's on nearby.",
+    "heading": "A Meetup alternative for casual catch-ups",
+    "summary": "Meetup organises strangers into groups. AirPal.Me starts from your own people: catch-ups with your circle, and what's on nearby."
   },
   {
     "path": "/alternatives/touch-stay",
@@ -180,9 +159,9 @@
   {
     "path": "/alternatives/eventbrite",
     "title": "Eventbrite alternative · AirPal.Me",
-    "description": "List events and let groups coordinate plans around them: ticketing, check-in, payouts.",
-    "heading": "An Eventbrite alternative with group planning",
-    "summary": "Eventbrite is an event discovery and ticketing platform. AirPal.Me lists free or ticketed events, and groups make shared plans with stops, votes and RSVPs on the same platform."
+    "description": "List events and let groups coordinate around them: ticketing, check-in, payouts.",
+    "heading": "An Eventbrite alternative with group coordination",
+    "summary": "Eventbrite is an event discovery and ticketing platform. AirPal.Me lists free or ticketed events, and groups coordinate around them on the same platform."
   },
   {
     "path": "/stay",
@@ -196,7 +175,7 @@
     "title": "Help & support · AirPal.Me",
     "description": "Contact AirPal.Me support: help guides, safety, and how to reach the Sydney team.",
     "heading": "Help & support",
-    "summary": "Customer support for AirPal.Me: write to the Sydney team, browse help guides for stays, plans, tickets and safety, and verify the company behind the app.",
+    "summary": "Customer support for AirPal.Me: write to the Sydney team, browse help guides for stays, tickets and safety, and verify the company behind the app.",
     "jsonLd": [
       {
         "@context": "https://schema.org",
@@ -253,12 +232,5 @@
         ]
       }
     ]
-  },
-  {
-    "path": "/explore/attractions",
-    "title": "DayPasses · AirPal.Me",
-    "description": "Sydney DayPasses — compare, bundle and book SEA LIFE, WILD LIFE, Madame Tussauds, Sydney Tower Eye and Taronga. Life Made Easy.",
-    "heading": "Sydney DayPasses",
-    "summary": "AirPal DayPasses are how you book a Sydney day: compare a short cluster, bundle it, and book. The first cluster is SEA LIFE Sydney, WILD LIFE Sydney, Madame Tussauds Sydney, Sydney Tower Eye and Taronga Zoo. Booking links stay placeholders until partner tracking links exist."
   }
 ]

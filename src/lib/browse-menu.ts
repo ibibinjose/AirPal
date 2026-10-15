@@ -2,8 +2,6 @@ import {
   Activity,
   BadgePercent,
   CalendarDays,
-  CalendarPlus,
-  Compass,
   Gift,
   Handshake,
   Headphones,
@@ -17,7 +15,6 @@ import {
   Settings,
   ShieldCheck,
   Smartphone,
-  Sparkles,
   Store,
   Tag,
   Ticket,
@@ -59,12 +56,6 @@ export const BROWSE_LINKS: BrowseLink[] = [
     icon: BadgePercent,
     match: (p) => p.startsWith("/offers") || p.startsWith("/deals") || p.startsWith("/promotions"),
   },
-  {
-    href: "/now",
-    label: "What now?",
-    icon: Sparkles,
-    match: (p) => p.startsWith("/now"),
-  },
   { href: "/circle", label: "Circle", icon: Users, match: (p) => p.startsWith("/circle") },
 ];
 
@@ -85,37 +76,13 @@ export const HOST_LINKS: BrowseLink[] = [
   },
 ];
 
-/** Plan & Go: the plan loop pages. */
-export const PLAN_LINKS: BrowseLink[] = [
-  {
-    href: "/plan",
-    label: "My plans",
-    icon: Users,
-    match: (p) => p.startsWith("/plan") || p.startsWith("/invite"),
-  },
-  { href: "/plan/new", label: "New plan", icon: CalendarPlus, match: (p) => p === "/plan/new" },
-  { href: "/calendar", label: "Calendar", icon: CalendarDays, match: (p) => p.startsWith("/calendar") },
-];
-
-/** Discover & Connect: personal bio, guide, and scanning. */
+/** Discover & Connect: personal bio and scanning. */
 export const GUIDE_LINKS: BrowseLink[] = [
-  {
-    href: "/explore",
-    label: "Explore",
-    icon: Compass,
-    match: (p) => p.startsWith("/explore"),
-  },
   {
     href: "/bio/setup",
     label: "Personal Bio",
     icon: UserRound,
     match: (p) => p.startsWith("/bio"),
-  },
-  {
-    href: "/guide",
-    label: "Guide",
-    icon: Compass,
-    match: (p) => p.startsWith("/guide") || p.startsWith("/tour/"),
   },
   {
     href: "/scan",
@@ -180,7 +147,6 @@ export const HELP_LINKS: BrowseLink[] = [
 /** Full Browse dropdown sitemap, in display order. */
 export const BROWSE_SECTIONS: BrowseSection[] = [
   { title: "Browse AirPal", links: BROWSE_LINKS },
-  { title: "Plan & Go", links: PLAN_LINKS },
   { title: "Discover & Connect", links: GUIDE_LINKS },
   { title: "Business", links: BUSINESS_LINKS },
   { title: "Account", links: ACCOUNT_LINKS },
@@ -188,19 +154,7 @@ export const BROWSE_SECTIONS: BrowseSection[] = [
   { title: "Host", links: HOST_LINKS, hostsOnly: true },
 ];
 
-const STRIP_PREFIXES = [
-  "/explore",
-  "/now",
-  "/pass",
-  "/circle",
-  "/stay",
-  "/events",
-  "/calendar",
-  "/e/",
-  "/offers",
-  "/deals",
-  "/promotions",
-];
+const STRIP_PREFIXES = ["/pass", "/circle", "/stay", "/events", "/calendar", "/e/", "/offers", "/deals", "/promotions"];
 
 /** Mobile category strip shows on Home and browse-context routes only. */
 export function showBrowseStrip(path: string): boolean {

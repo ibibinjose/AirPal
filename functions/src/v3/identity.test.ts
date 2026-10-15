@@ -56,7 +56,6 @@ describe("v3 identity", () => {
     expect(readDoc("users/uid-1")).toMatchObject({
       displayName: "Ava",
       preferences: { marketingEmail: true },
-      planIds: [],
       blockedUids: [],
     });
     const second = await runV3(v3BootstrapAccount, "uid-1", {});
@@ -70,7 +69,7 @@ describe("v3 identity", () => {
   });
 
   it("claims a handle and releases the previous one", async () => {
-    seedDoc("users/uid-1", { uid: "uid-1", handle: "ava.old", planIds: [] });
+    seedDoc("users/uid-1", { uid: "uid-1", handle: "ava.old" });
     await runV3(v3ClaimHandle, "uid-1", { handle: "ava.new" });
     expect(readDoc("handles/ava.new")).toMatchObject({ ownerUid: "uid-1", active: true });
     expect(readDoc("handles/ava.old")).toMatchObject({ active: false });

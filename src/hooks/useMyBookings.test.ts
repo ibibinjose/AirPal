@@ -33,7 +33,6 @@ describe("useMyBookings helpers", () => {
   const sampleBooking = (overrides?: Partial<Booking>): Booking => ({
     id: "b-1",
     requestId: "req-1",
-    planId: "p-1",
     customerUid: "usr-1",
     providerUid: "prov-1",
     providerKind: "business",

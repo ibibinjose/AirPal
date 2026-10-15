@@ -10,11 +10,9 @@ import { getDoc } from "firebase/firestore";
 import {
   completePaidBookingRemote,
   createBookingCheckoutSessionRemote,
-  payBookingBalanceRemote,
   refundPaidBookingRemote,
 } from "@/lib/functions";
 import {
-  balanceDueCents,
   bookingValid,
   canCustomerCancel,
   canProviderComplete,
@@ -67,16 +65,13 @@ export function BookingsSection() {
   // checkout session for the same booking (double charge risk).
   const guardRef = useRef(createSubmitGuard());
 
-  const [balances, setBalances] = useState<Record<string, number>>({});
-
   async function reload(uid: string) {
     const db = getFirebaseDb();
     if (!db) return;
     try {
-      const [asCustomer, asProvider, ledger] = await Promise.all([
+      const [asCustomer, asProvider] = await Promise.all([
         getDocs(query(collection(db, "bookings"), where("customerUid", "==", uid))),
         getDocs(query(collection(db, "bookings"), where("providerUid", "==", uid))),
-        getDocs(query(collection(db, "plan_bookings"), where("guestUid", "==", uid))),
       ]);
       const seen = new Map<string, Booking>();
       for (const d of [...asCustomer.docs, ...asProvider.docs]) {
@@ -85,19 +80,9 @@ export function BookingsSection() {
       const list = Array.from(seen.values());
       list.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       setRows(list);
-      // C2 — remaining balance per deposit ledger, computed from server totals.
-      const due: Record<string, number> = {};
-      for (const d of ledger.docs) {
-        const row = d.data() as { totalAmount?: number; amountPaidCents?: number; status?: string };
-        if (row.status !== "confirmed") continue;
-        const left = balanceDueCents(Math.round(Number(row.totalAmount || 0) * 100), Number(row.amountPaidCents || 0));
-        if (left > 0) due[d.id] = left;
-      }
-      setBalances(due);
       setLoadError(false);
     } catch {
       setRows([]);
-      setBalances({});
       setLoadError(true);
     }
   }
@@ -105,7 +90,6 @@ export function BookingsSection() {
   useEffect(() => {
     if (!user) {
       setRows([]);
-      setBalances({});
       return;
     }
     void reload(user.uid);
@@ -117,23 +101,6 @@ export function BookingsSection() {
     setBusy(b.id);
     try {
       const res = await createBookingCheckoutSessionRemote({ bookingId: b.id });
-      if (res.checkoutUrl) {
-        window.location.href = res.checkoutUrl;
-        return;
-      }
-      await reload(user.uid);
-    } finally {
-      guardRef.current.release();
-      setBusy(null);
-    }
-  }
-
-  async function payBalance(planBookingId: string) {
-    if (!user) return;
-    if (!guardRef.current.tryAcquire()) return;
-    setBusy(planBookingId);
-    try {
-      const res = await payBookingBalanceRemote({ planBookingId });
       if (res.checkoutUrl) {
         window.location.href = res.checkoutUrl;
         return;
@@ -166,7 +133,6 @@ export function BookingsSection() {
       const guestName = user.displayName?.trim().split(/\s+/)[0]?.slice(0, 40) || "Guest";
       await setDoc(doc(db, "experience_reviews", b.id), {
         guestUid: user.uid,
-        planId: b.planId,
         bookingId: b.id,
         rating: stars,
         reviewText: reviewText.trim(),
@@ -284,16 +250,6 @@ export function BookingsSection() {
                     Pay now
                   </Button>
                 )}
-                {mine && balances[b.id] !== undefined && balances[b.id]! > 0 && (
-                  <Button
-                    size="sm"
-                    disabled={busy === b.id}
-                    loading={busy === b.id}
-                    onClick={() => void payBalance(b.id)}
-                  >
-                    Pay balance ${(balances[b.id]! / 100).toFixed(0)}
-                  </Button>
-                )}
                 {mine && canCustomerCancel(b.status) && (
                   <Button
                     size="sm"
@@ -335,23 +291,19 @@ export function BookingsSection() {
                     Refund guest
                   </Button>
                 )}
-                {mine &&
-                  b.status === "completed" &&
-                  b.paymentStatus === "paid" &&
-                  b.providerKind === "host" &&
-                  b.planId && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        setReviewFor(reviewFor === b.id ? null : b.id);
-                        setStars(5);
-                        setReviewText("");
-                      }}
-                    >
-                      Review experience
-                    </Button>
-                  )}
+                {mine && b.status === "completed" && b.paymentStatus === "paid" && b.providerKind === "host" && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setReviewFor(reviewFor === b.id ? null : b.id);
+                      setStars(5);
+                      setReviewText("");
+                    }}
+                  >
+                    Review experience
+                  </Button>
+                )}
               </span>
               {reviewFor === b.id && (
                 <span className="mt-2 block rounded-2xl bg-paper p-3 ring-1 ring-line/60">
@@ -400,39 +352,6 @@ export function BookingsSection() {
   );
 }
 
-/** Plan-linked pay-later booking for ticketed experiences (host providers). */
-export async function createBookingForPlan(args: {
-  planId: string;
-  providerUid: string;
-  providerName: string;
-  title: string;
-  suburb: string;
-  date: string;
-  time: string;
-  customerUid: string;
-  priceCents?: number;
-}): Promise<string> {
-  const db = getFirebaseDb();
-  if (!db || !isFirebaseConfigured) throw new Error("Connect Firebase first.");
-  const { priceCents: requestedPrice = 0, ...rest } = args;
-  const priceCents = Math.max(0, Math.round(requestedPrice));
-  const input = { ...rest, requestId: "", providerKind: "host" as const, priceCents };
-  if (!bookingValid(input)) throw new Error("Booking details are incomplete.");
-  const fees = quoteFees(priceCents, await loadFeeConfig());
-  const now = new Date().toISOString();
-  const ref = await addDoc(collection(db, "bookings"), {
-    ...input,
-    feeCents: fees.feeCents,
-    paymentStatus: paymentStatusForPrice(priceCents),
-    payoutStatus: payoutStatusForPrice(priceCents),
-    status: "pending",
-    cancelReason: "",
-    createdAt: now,
-    updatedAt: now,
-  });
-  return ref.id;
-}
-
 export async function createBookingForRequest(args: {
   requestId: string;
   providerUid: string;
@@ -448,7 +367,7 @@ export async function createBookingForRequest(args: {
   if (!db || !isFirebaseConfigured) throw new Error("Connect Firebase first.");
   const { priceCents: requestedPrice = 0, ...rest } = args;
   const priceCents = Math.max(0, Math.round(requestedPrice));
-  const input = { ...rest, planId: "", providerKind: "mate" as const, priceCents };
+  const input = { ...rest, providerKind: "mate" as const, priceCents };
   if (!bookingValid(input)) throw new Error("Booking details are incomplete.");
   const fees = quoteFees(priceCents, await loadFeeConfig());
   const now = new Date().toISOString();
@@ -483,7 +402,6 @@ export async function createBookingForCampaign(args: {
   const priceCents = Math.max(0, Math.round(args.priceCents || 0));
   const input = {
     requestId: "",
-    planId: "",
     providerUid: args.providerUid,
     providerKind: "business" as const,
     providerName: args.providerName,
@@ -541,7 +459,6 @@ export async function createBookingForEvent(args: {
   const priceCents = Math.max(0, Math.round(args.priceCents || 0));
   const input = {
     requestId: args.eventId,
-    planId: "",
     providerUid: args.providerUid,
     providerKind: "business" as const,
     providerName: args.providerName,

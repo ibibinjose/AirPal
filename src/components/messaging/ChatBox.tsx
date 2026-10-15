@@ -189,7 +189,7 @@ export function ChatBox({
       </p>
       {peerUid && peerName && user && (
         <div className="mb-2">
-          <SafetyMenu targetUid={peerUid} targetName={peerName} planId={requestId} />
+          <SafetyMenu targetUid={peerUid} targetName={peerName} />
         </div>
       )}
       {actions && actions.length > 0 && (

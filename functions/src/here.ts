@@ -55,7 +55,6 @@ export const shareHere = onCall(CALLABLE, async (request) => {
   const placeKey =
     String(data.placeKey || "").trim() ||
     herePlaceKey({
-      planId: data.planId,
       placeId: data.placeId,
       eventId: data.eventId,
       geo,
@@ -86,7 +85,6 @@ export const shareHere = onCall(CALLABLE, async (request) => {
     name,
     placeKey,
     placeName,
-    planId: String(data.planId || "").trim() || null,
     placeId: String(data.placeId || "").trim() || null,
     eventId: String(data.eventId || "").trim() || null,
     geo: geo || null,
@@ -97,13 +95,7 @@ export const shareHere = onCall(CALLABLE, async (request) => {
     updatedAt,
   };
 
-  const href = data.planId
-    ? `/plan/${data.planId}`
-    : data.placeId
-      ? `/p/${data.placeId}`
-      : data.eventId
-        ? `/e/${data.eventId}`
-        : `/circle?here=${encodeURIComponent(placeKey)}`;
+  const href = data.eventId ? `/e/${data.eventId}` : `/circle?here=${encodeURIComponent(placeKey)}`;
 
   await db.collection("here_pins").doc(handle).set(pin);
   if (previousKey && previousKey !== placeKey) {

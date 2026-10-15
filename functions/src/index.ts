@@ -24,33 +24,10 @@ export {
   transferHandle,
   listBioDirectory,
 } from "./bio";
-export {
-  createPlan,
-  createPlanRemote,
-  rsvpPlan,
-  rsvpPlanRemote,
-  addPlanStop,
-  addPlanStopRemote,
-  votePlanStop,
-  votePlanStopRemote,
-  voteDateOption,
-  voteDateOptionRemote,
-  postPlanComment,
-  postPlanCommentRemote,
-  completePlan,
-  completePlanRemote,
-  getPlanByInviteCode,
-  getExperienceProof,
-  getExperienceProofRemote,
-} from "./plans";
 export { createManagedProduct, createManagedCheckoutSession } from "./managed-payments";
 export { placeDiningOrder, updateDiningOrderStatus } from "./dining";
 export {
-  createExperienceCheckoutSession,
-  confirmExperienceBooking,
-  confirmExperienceBookingRemote,
   createBookingCheckoutSession,
-  payBookingBalance,
   createStayCheckoutSession,
   createConnectAccountLink,
   refreshConnectAccount,
@@ -87,7 +64,6 @@ export { joinGuestlistSignup, listGuestlistSignups, unsubscribeGuestlist } from 
 export { shareMeta } from "./share-meta";
 export { walletPass } from "./wallet";
 export { googleWalletPass } from "./google-wallet";
-export { sendPlanBroadcast, sendPlanReminders, onPlanUpdated, inviteToPlan } from "./plan-notify";
 export { scheduleCatchUp } from "./catchup-agent";
 export { shareHere, stopHere } from "./here";
 export { startWave, waveAt, stopWave } from "./wave";
@@ -114,12 +90,7 @@ export {
   v3ListEvents,
   v3ListDeals,
   v3FetchHandle,
-  v3CreatePlan,
-  v3InviteToPlan,
-  v3RsvpPlan,
-  v3AddPlanStop,
-  v3VotePlanStop,
-  v3CompletePlan,
+  v3LookupGooglePlace,
   v3UpsertEvent,
   v3IssueTicket,
   v3VerifyTicket,
@@ -131,6 +102,10 @@ export {
   v3CreateCohort,
   v3JoinCohort,
   v3LeaveCohort,
+  v3RequestPlaceClaim,
+  v3ReviewPlaceClaim,
+  v3WithdrawPlaceClaim,
+  v3ListPlaceClaims,
   v3CreateCheckout,
   v3StripeWebhook,
   v3RefundOrder,

@@ -7,7 +7,6 @@ import {
   GUIDE_LINKS,
   HELP_LINKS,
   HOST_LINKS,
-  PLAN_LINKS,
   showBrowseStrip,
 } from "./browse-menu";
 
@@ -15,7 +14,7 @@ function matched(path: string) {
   return BROWSE_LINKS.filter((link) => link.match(path)).map((link) => link.label);
 }
 
-function matchedIn(links: typeof PLAN_LINKS, path: string) {
+function matchedIn(links: typeof BROWSE_LINKS, path: string) {
   return links.filter((link) => link.match(path)).map((link) => link.label);
 }
 
@@ -29,12 +28,12 @@ describe("browse menu", () => {
     expect(matched("/offers")).toEqual(["Offers & Deals"]);
     expect(matched("/deals/summer")).toEqual(["Offers & Deals"]);
     expect(matched("/promotions/1")).toEqual(["Offers & Deals"]);
-    expect(matched("/now")).toEqual(["What now?"]);
   });
 
   it("matches nothing outside the browse categories", () => {
     expect(matched("/")).toEqual([]);
     expect(matched("/explore")).toEqual([]);
+    expect(matched("/now")).toEqual([]);
     expect(matched("/mate")).toEqual([]);
     expect(matched("/plan")).toEqual([]);
     expect(matched("/pulse")).toEqual([]);
@@ -50,32 +49,19 @@ describe("browse menu", () => {
   });
 
   it("shows the mobile strip on Home and browse-context routes only", () => {
-    for (const path of [
-      "/",
-      "/explore",
-      "/now",
-      "/pass",
-      "/circle",
-      "/stay",
-      "/stay/@x",
-      "/events",
-      "/calendar",
-      "/offers",
-    ]) {
+    for (const path of ["/", "/pass", "/circle", "/stay", "/stay/@x", "/events", "/calendar", "/offers"]) {
       expect(showBrowseStrip(path)).toBe(true);
     }
-    for (const path of ["/mate", "/plan", "/pulse", "/inbox", "/me", "/host", "/settings"]) {
+    for (const path of ["/mate", "/plan", "/pulse", "/inbox", "/me", "/host", "/settings", "/explore", "/now"]) {
       expect(showBrowseStrip(path)).toBe(false);
     }
   });
 
-  it("matches plan, guide, business, account, and help sections to their pages", () => {
-    expect(matchedIn(PLAN_LINKS, "/plan")).toEqual(["My plans"]);
-    expect(matchedIn(PLAN_LINKS, "/invite/abc")).toEqual(["My plans"]);
-    expect(matchedIn(PLAN_LINKS, "/calendar")).toEqual(["Calendar"]);
+  it("matches guide, business, account, and help sections to their pages", () => {
     expect(matchedIn(GUIDE_LINKS, "/bio/setup")).toEqual(["Personal Bio"]);
     expect(matchedIn(GUIDE_LINKS, "/bio")).toEqual(["Personal Bio"]);
-    expect(matchedIn(GUIDE_LINKS, "/tour/abc")).toEqual(["Guide"]);
+    expect(matchedIn(GUIDE_LINKS, "/tour/abc")).toEqual([]);
+    expect(matchedIn(GUIDE_LINKS, "/guide")).toEqual([]);
     expect(matchedIn(GUIDE_LINKS, "/scan")).toEqual(["Scan code"]);
     expect(matchedIn(BUSINESS_LINKS, "/business")).toEqual(["Business hub"]);
     expect(matchedIn(BUSINESS_LINKS, "/business/onboard")).toEqual(["Business hub"]);
@@ -91,15 +77,7 @@ describe("browse menu", () => {
 
   it("lists every sitemap href once across sections, hosts-only last", () => {
     const titles = BROWSE_SECTIONS.map((s) => s.title);
-    expect(titles).toEqual([
-      "Browse AirPal",
-      "Plan & Go",
-      "Discover & Connect",
-      "Business",
-      "Account",
-      "Help & Trust",
-      "Host",
-    ]);
+    expect(titles).toEqual(["Browse AirPal", "Discover & Connect", "Business", "Account", "Help & Trust", "Host"]);
     const hrefs = BROWSE_SECTIONS.flatMap((s) => s.links.map((l) => l.href));
     expect(new Set(hrefs).size).toBe(hrefs.length);
     for (const href of hrefs) expect(href.startsWith("/")).toBe(true);

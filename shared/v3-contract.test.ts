@@ -1,20 +1,25 @@
 import { describe, expect, it } from "vitest";
 import {
   V3_CANONICAL_COLLECTIONS,
+  V3_PLACE_CLAIM_STATES,
   isV3OrderState,
-  isV3Rsvp,
+  isV3PlaceClaimState,
   parseV3Capacity,
+  parseV3ContactEmail,
   parseV3Currency,
+  parseV3GooglePlaceId,
   parseV3Handle,
   parseV3IdempotencyKey,
   parseV3IsoTime,
   parseV3ListLimit,
   parseV3MoneyCents,
+  parseV3PlaceId,
   parseV3RedemptionLimit,
   parseV3Uid,
   publicV3Event,
   publicV3Place,
   sanitizeV3Links,
+  v3PlaceIdForGooglePlace,
 } from "./v3-contract";
 
 describe("V3 contract validation", () => {
@@ -49,14 +54,13 @@ describe("V3 contract validation", () => {
     );
   });
 
-  it("pins the 14 canonical collections", () => {
+  it("pins the 13 canonical collections", () => {
     expect([...V3_CANONICAL_COLLECTIONS]).toEqual([
       "users",
       "handles",
       "profiles",
       "places",
       "events",
-      "plans",
       "tickets",
       "orders",
       "deals",
@@ -68,12 +72,7 @@ describe("V3 contract validation", () => {
     ]);
   });
 
-  it("accepts invited RSVPs and all order states", () => {
-    expect(isV3Rsvp("invited")).toBe(true);
-    expect(isV3Rsvp("going")).toBe(true);
-    expect(isV3Rsvp("maybe")).toBe(true);
-    expect(isV3Rsvp("declined")).toBe(true);
-    expect(isV3Rsvp("ghosting")).toBe(false);
+  it("accepts all order states", () => {
     for (const state of ["pending", "paid", "refunded", "cancelled", "failed"]) {
       expect(isV3OrderState(state)).toBe(true);
     }
@@ -132,5 +131,24 @@ describe("V3 contract validation", () => {
     expect(event).not.toHaveProperty("organiserUid");
     expect(event).not.toHaveProperty("issuedCount");
     expect(event).toMatchObject({ id: "event-1", priceCents: 4500 });
+  });
+
+  it("pins the claim verification states", () => {
+    expect([...V3_PLACE_CLAIM_STATES]).toEqual(["pending", "approved", "rejected", "withdrawn"]);
+    expect(isV3PlaceClaimState("pending")).toBe(true);
+    expect(isV3PlaceClaimState("squatted")).toBe(false);
+  });
+
+  it("validates Google Place IDs, derived place ids, and contact emails", () => {
+    expect(parseV3GooglePlaceId("ChIJN1t_tDeuEmsRUsoyG83frY4")).toBe("ChIJN1t_tDeuEmsRUsoyG83frY4");
+    expect(() => parseV3GooglePlaceId("short")).toThrow("Place ID is invalid.");
+    expect(() => parseV3GooglePlaceId("has spaces here!")).toThrow("Place ID is invalid.");
+    expect(v3PlaceIdForGooglePlace("ChIJN1t_tDeuEmsRUsoyG83frY4")).toBe("gp_ChIJN1t_tDeuEmsRUsoyG83frY4");
+    expect(v3PlaceIdForGooglePlace("abc:def")).toBe("gp_abc_def");
+    expect(parseV3ContactEmail(undefined)).toBeUndefined();
+    expect(parseV3ContactEmail("Owner@Example.com")).toBe("owner@example.com");
+    expect(() => parseV3ContactEmail("not-an-email")).toThrow("Contact email is invalid.");
+    expect(parseV3PlaceId("gp_ChIJN1t_tDeuEmsRUsoyG83frY4")).toBe("gp_ChIJN1t_tDeuEmsRUsoyG83frY4");
+    expect(() => parseV3PlaceId("has spaces")).toThrow("Place is invalid.");
   });
 });

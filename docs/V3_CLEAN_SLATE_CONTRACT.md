@@ -12,13 +12,14 @@ cutover. It is intentionally independent of any V1 collection shape.
 
 ## Product Boundary
 
-V3 serves the five AirPal pillars:
+V3 serves the AirPal pillars:
 
 1. Events and access.
-2. Discovery.
-3. Planning.
-4. Business and arrival.
-5. Personal bio and Networking Circle.
+2. Business and arrival.
+3. Personal bio and Networking Circle.
+
+Discovery and Planning were removed from the product; their routes redirect
+to Home and their collections and callables are out of contract.
 
 It excludes a second chat engine, a second booking engine, and any separate
 identity partition.
@@ -32,8 +33,6 @@ identity partition.
 | `profiles/{uid}`                    | public only when published; owner always | profile callable          | Sanitised public bio and owner-controlled visibility.      |
 | `places/{placeId}`                  | public when published                    | business/admin callable   | Discoverable businesses and venues.                        |
 | `events/{eventId}`                  | public when published                    | event callable            | Events, availability, host identity, access configuration. |
-| `plans/{planId}`                    | creator, member, or explicitly public    | plan callable             | A concrete shared plan.                                    |
-| `plans/{planId}/members/{uid}`      | member or plan owner                     | plan callable             | RSVP and membership projection.                            |
 | `tickets/{ticketId}`                | holder, issuer, door staff               | commerce/access callable  | Issued access record; never client-written.                |
 | `orders/{orderId}`                  | purchaser, seller, admin                 | commerce callable/webhook | Payment and fulfilment projection.                         |
 | `deals/{dealId}`                    | public when active                       | business callable         | Published business benefit.                                |
@@ -51,7 +50,7 @@ use Firebase `uid` and small display snapshots only where a read requires it.
 - Default deny every collection and subcollection.
 - Public reads expose published discovery content and public profiles only.
 - A signed-in user may read their own account and private membership records.
-- All writes to profiles, places, events, plans, tickets, orders, deals,
+- All writes to profiles, places, events, tickets, orders, deals,
   cohorts, conversations, audits, and access state go through Cloud Functions.
 - Firestore rules never infer payment completion from browser input.
 - Door access, role grants, handle claims, profile visibility, and deal claims
@@ -63,7 +62,6 @@ use Firebase `uid` and small display snapshots only where a read requires it.
 | ----------------- | ------------------------------------------------------------------------------ |
 | Identity          | bootstrap account, claim/change handle, update public profile, set visibility. |
 | Discovery         | list published places and events, fetch public handle.                         |
-| Planning          | create plan, invite, RSVP, vote, complete.                                     |
 | Events and access | create/publish event, issue ticket, verify and admit ticket.                   |
 | Business          | create place, publish deal, claim/redeem deal, manage cohort.                  |
 | Commerce          | create checkout, consume verified webhook, refund/reconcile.                   |
@@ -94,7 +92,7 @@ adapters over these contracts rather than independent local databases.
    explicitly approved Firestore/Storage targets, deploy V3, then seed only
    reviewed real content and admin access.
 6. Re-enable writes after post-cutover checks for account bootstrap, public
-   bio visibility, plan RSVP, event ticket issuance, and payment webhook
+   bio visibility, event ticket issuance, and payment webhook
    reconciliation.
 
 No production deletion, Firebase project replacement, or deployment belongs to

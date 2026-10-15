@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { collection, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
-import { Bell, MessageCircle, Sparkles, Building2, Store, User, Plane } from "lucide-react";
+import { Bell, MessageCircle, Sparkles, Building2, Store, User } from "lucide-react";
 import { SegmentedControl } from "@/components/design-system/companions";
 import { PingsPanel } from "@/components/social/PingsPanel";
-import { usePlans } from "@/contexts/PlanContext";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { useAuth } from "@/contexts/AuthContext";
 import { getFirebaseDb } from "@/lib/firebase";
@@ -28,8 +27,6 @@ function ConversationTypeIcon({ type }: { type: ConversationType }) {
       return <Building2 size={16} className="text-sky-500" />;
     case "business":
       return <Store size={16} className="text-emerald-500" />;
-    case "plan":
-      return <Plane size={16} className="text-indigo-500" />;
     case "direct":
     default:
       return <User size={16} className="text-accent" />;
@@ -82,7 +79,6 @@ export function InboxPage() {
   const [, nav] = useLocation();
   const search = useSearch();
   const openedChat = useRef("");
-  const { myPlans } = usePlans();
   const [notes, setNotes] = useState<PromotionNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -95,14 +91,6 @@ export function InboxPage() {
   const [activeChat, setActiveChat] = useState<UniversalConversation | null>(null);
   const [showChatModal, setShowChatModal] = useState(false);
 
-  const tripConversations = useMemo(
-    () =>
-      myPlans
-        .filter((p) => p.status !== "completed")
-        .sort((a, b) => a.date.localeCompare(b.date))
-        .slice(0, 10),
-    [myPlans],
-  );
   // All hooks stay above the early returns — anything below breaks hook order
   // between the loading render and the loaded render.
   const updateNotes = useMemo(() => notes.filter((n) => isUpdateNoteKind(n.kind)), [notes]);
@@ -196,7 +184,7 @@ export function InboxPage() {
         next="/me/inbox"
         kicker="Notifications"
         title="Your inbox"
-        lede="Announcements from Circles you follow, plans, and results — in one quiet list."
+        lede="Announcements from Circles you follow and results — in one quiet list."
       />
     );
   }
@@ -212,7 +200,7 @@ export function InboxPage() {
       await markNotificationRead(n.id);
       setNotes((rows) => rows.map((row) => (row.id === n.id ? { ...row, read: true } : row)));
     }
-    nav(n.href || "/plan");
+    nav(n.href || "/");
   }
 
   async function markSegmentRead(rows: PromotionNotification[]) {
@@ -374,44 +362,14 @@ export function InboxPage() {
             </div>
           )}
 
-          {/* Trip Plans Collaboration Chats */}
-          {tripConversations.length > 0 ? (
-            <div>
-              <div className="flex items-center justify-between mb-2 px-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Trip Plans Chats</span>
-                <span className="text-[11px] font-medium text-mute">{tripConversations.length} trips</span>
-              </div>
-              <ul className="overflow-hidden rounded-[24px] bg-card ring-1 ring-line/80 shadow-clay">
-                {tripConversations.map((p, i) => (
-                  <li key={p.id} className={cn(i > 0 && "border-t border-line/70")}>
-                    <button
-                      type="button"
-                      onClick={() => nav(`/plan/${p.id}`)}
-                      className="flex min-h-[56px] w-full cursor-pointer items-center gap-3 px-4 py-3.5 text-left transition hover:bg-paper/60 active:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-                    >
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand/10 font-display text-[15px] font-bold text-accent ring-1 ring-brand/20">
-                        {p.title.trim()[0]?.toUpperCase() || "•"}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[15px] font-semibold text-ink">{p.title}</span>
-                        <span className="mt-0.5 block truncate text-[13px] text-mute">
-                          {p.destination || p.city || "Trip chat"}
-                          {p.attendees?.length ? ` · ${p.attendees.length} going` : ""}
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : universalChats.length === 0 ? (
+          {universalChats.length === 0 ? (
             <div className="text-center rounded-[24px] bg-card ring-1 ring-line/80 px-4 py-10 shadow-clay">
               <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-paper text-mute ring-1 ring-line">
                 <MessageCircle size={22} className="text-accent" />
               </span>
               <p className="font-display mt-4 text-xl font-bold text-ink">No conversations yet</p>
               <p className="mx-auto mt-1 max-w-xs text-[14px] leading-relaxed text-mute">
-                Start an AirPal AI chat, message your stay front desk, or invite mates to a trip.
+                Start an AirPal AI chat, message your stay front desk, or invite mates to AirPal.
               </p>
               <div className="mt-5 flex justify-center gap-3">
                 <button
@@ -422,44 +380,14 @@ export function InboxPage() {
                   Chat with AirPal AI
                 </button>
                 <Link
-                  href="/plan/new"
+                  href="/me"
                   className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 py-2 text-xs font-bold text-ink ring-1 ring-line hover:bg-card active:scale-95"
                 >
-                  Plan a Trip
+                  Invite Mates
                 </Link>
               </div>
             </div>
           ) : null}
-
-          {/* Have an invite code form */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const code = new FormData(e.currentTarget).get("code");
-              const norm = typeof code === "string" ? code.trim() : "";
-              if (norm) nav(`/invite/${encodeURIComponent(norm)}`);
-            }}
-            className="flex items-center gap-2 rounded-[20px] bg-card px-4 py-3 ring-1 ring-line/80 shadow-2xs"
-          >
-            <label htmlFor="invite-code" className="shrink-0 text-[13px] font-semibold text-mute">
-              Have an invite?
-            </label>
-            <input
-              id="invite-code"
-              name="code"
-              type="text"
-              autoComplete="off"
-              placeholder="Enter code"
-              aria-label="Enter trip invite code"
-              className="min-w-0 flex-1 bg-transparent text-[16px] font-medium placeholder:text-mute focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="inline-flex min-h-[44px] shrink-0 cursor-pointer items-center rounded-full bg-neutral-900 px-4 py-2 text-[13px] font-semibold text-white active:scale-95"
-            >
-              Join
-            </button>
-          </form>
 
           <button
             type="button"
@@ -492,7 +420,7 @@ export function InboxPage() {
               className="mt-3 w-full rounded-[20px] bg-brand/10 px-4 py-3.5 text-left ring-1 ring-brand/20 transition hover:bg-brand/15 active:scale-95"
             >
               <span className="block text-[15px] font-semibold text-accent">Turn on alerts</span>
-              <span className="block text-[13px] text-mute">Giveaways, rewards, messages, and plan updates.</span>
+              <span className="block text-[13px] text-mute">Giveaways, rewards, and messages.</span>
             </button>
           )}
 

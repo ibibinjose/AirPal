@@ -7,7 +7,6 @@ import {
   isUseCase,
   matchAssignmentValid,
   matchReasons,
-  mateRequestPlanHref,
   mateRequestValid,
   reviewValid,
 } from "./mate-request";
@@ -69,16 +68,6 @@ describe("mate requests", () => {
     expect(mateRequestValid({ ...base, date: "2026-10-04" }, "2026-10-03")).toBe(true);
     // No today supplied: legacy shape-only check stays unchanged.
     expect(mateRequestValid({ ...base, date: "2026-10-02" })).toBe(true);
-  });
-
-  it("builds a prefilled plan handoff link from a filed request", () => {
-    expect(
-      mateRequestPlanHref({ what: "Enmore show Friday", suburb: "Newtown", date: "2026-10-03", time: "19:30" }),
-    ).toBe("/plan/new?title=Enmore%20show%20Friday&dest=Newtown&date=2026-10-03&time=19%3A30");
-    expect(mateRequestPlanHref({ what: "Dinner & drinks?", suburb: "CBD", date: "", time: "" })).toBe(
-      "/plan/new?title=Dinner%20%26%20drinks%3F&dest=CBD",
-    );
-    expect(mateRequestPlanHref({ what: "  ", suburb: "  ", date: "", time: "" })).toBe("/plan/new");
   });
 
   it("guards use cases and statuses", () => {

@@ -2,39 +2,36 @@ import { httpsCallable } from "firebase/functions";
 import { getFirebaseFunctions } from "../firebase";
 import { requireV3Adapters } from "./gate";
 import type {
-  V3AddPlanStopRequest,
   V3BlockUserRequest,
   V3BootstrapAccountRequest,
   V3ClaimDealRequest,
   V3ClaimHandleRequest,
-  V3CompletePlanRequest,
   V3CreateCheckoutRequest,
   V3CreateCohortRequest,
-  V3CreatePlanRequest,
   V3FetchHandleRequest,
   V3IssueTicketRequest,
   V3JoinCohortRequest,
   V3LeaveCohortRequest,
   V3ListAuditsRequest,
+  V3ListPlaceClaimsRequest,
   V3ListPublicQuery,
-  V3PlanStop,
+  V3LookupGooglePlaceRequest,
   V3PublishDealRequest,
   V3RedeemDealRequest,
   V3ReconcileOrderRequest,
   V3RefundOrderRequest,
   V3ReportRequest,
-  V3RespondToPlanRequest,
-  V3RsvpState,
+  V3RequestPlaceClaimRequest,
+  V3ReviewPlaceClaimRequest,
   V3SendMessageRequest,
   V3SetProfileVisibilityRequest,
   V3StartConversationRequest,
   V3TicketActionRequest,
   V3UnblockUserRequest,
   V3UpdateProfileRequest,
+  V3WithdrawPlaceClaimRequest,
   V3UpsertEventRequest,
   V3UpsertPlaceRequest,
-  V3VotePlanStopRequest,
-  V3InviteToPlanRequest,
 } from "@shared/v3-contract";
 
 /**
@@ -45,7 +42,6 @@ import type {
 
 export type V3PlaceResult = { placeId: string; status: string };
 export type V3EventResult = { eventId: string; status: string };
-export type V3PlanResult = { planId: string; inviteCode: string };
 export type V3DealResult = { dealId: string; status: string };
 export type V3CohortResult = { cohortId: string };
 export type V3ClaimResult = { claimId: string; code: string; created: boolean };
@@ -67,9 +63,6 @@ export type V3CheckoutResult = {
   created: boolean;
 };
 export type V3OrderResult = { orderId: string; state: string };
-export type V3StopResult = { planId: string; stop: V3PlanStop };
-export type V3VoteResult = { planId: string; stopId: string; votes: number; voted: boolean };
-export type V3RsvpResult = { planId: string; rsvp: V3RsvpState };
 export type V3HandleResult = { handle: string; changed: boolean; previous?: string | null };
 
 async function callV3<Request, Response>(name: string, request: Request): Promise<Response> {
@@ -103,20 +96,11 @@ export const v3FetchHandle = (request: V3FetchHandleRequest) =>
     V3FetchHandleRequest,
     { handle: string; found: boolean; ownerUid?: string; profile: Record<string, unknown> | null }
   >("v3FetchHandle", request);
-
-// Planning
-export const v3CreatePlan = (request: V3CreatePlanRequest) =>
-  callV3<V3CreatePlanRequest, V3PlanResult>("v3CreatePlan", request);
-export const v3InviteToPlan = (request: V3InviteToPlanRequest) =>
-  callV3<V3InviteToPlanRequest, { planId: string; uid: string; invited: boolean }>("v3InviteToPlan", request);
-export const v3RsvpPlan = (request: V3RespondToPlanRequest) =>
-  callV3<V3RespondToPlanRequest, V3RsvpResult>("v3RsvpPlan", request);
-export const v3AddPlanStop = (request: V3AddPlanStopRequest) =>
-  callV3<V3AddPlanStopRequest, V3StopResult>("v3AddPlanStop", request);
-export const v3VotePlanStop = (request: V3VotePlanStopRequest) =>
-  callV3<V3VotePlanStopRequest, V3VoteResult>("v3VotePlanStop", request);
-export const v3CompletePlan = (request: V3CompletePlanRequest) =>
-  callV3<V3CompletePlanRequest, { planId: string; state: string }>("v3CompletePlan", request);
+export const v3LookupGooglePlace = (request: V3LookupGooglePlaceRequest) =>
+  callV3<
+    V3LookupGooglePlaceRequest,
+    { placeId: string; provider: string; verified: boolean; place: Record<string, unknown> | null }
+  >("v3LookupGooglePlace", request);
 
 // Events and access
 export const v3UpsertEvent = (request: V3UpsertEventRequest) =>
@@ -143,6 +127,20 @@ export const v3JoinCohort = (request: V3JoinCohortRequest) =>
   callV3<V3JoinCohortRequest, { cohortId: string; joined: boolean }>("v3JoinCohort", request);
 export const v3LeaveCohort = (request: V3LeaveCohortRequest) =>
   callV3<V3LeaveCohortRequest, { cohortId: string; left: boolean }>("v3LeaveCohort", request);
+export const v3RequestPlaceClaim = (request: V3RequestPlaceClaimRequest) =>
+  callV3<V3RequestPlaceClaimRequest, { placeId: string; state: string; created: boolean }>(
+    "v3RequestPlaceClaim",
+    request,
+  );
+export const v3ReviewPlaceClaim = (request: V3ReviewPlaceClaimRequest) =>
+  callV3<V3ReviewPlaceClaimRequest, { placeId: string; claimantUid: string; state: string }>(
+    "v3ReviewPlaceClaim",
+    request,
+  );
+export const v3WithdrawPlaceClaim = (request: V3WithdrawPlaceClaimRequest) =>
+  callV3<V3WithdrawPlaceClaimRequest, { placeId: string; state: string }>("v3WithdrawPlaceClaim", request);
+export const v3ListPlaceClaims = (request: V3ListPlaceClaimsRequest) =>
+  callV3<V3ListPlaceClaimsRequest, { claims: Record<string, unknown>[] }>("v3ListPlaceClaims", request);
 
 // Commerce
 export const v3CreateCheckout = (request: V3CreateCheckoutRequest) =>

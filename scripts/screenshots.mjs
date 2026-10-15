@@ -17,12 +17,11 @@ const FLAVOR = process.argv.includes("--flavor=pass") ? "pass" : "airpal";
 
 const SHOTS = [
   { route: "/", name: "01-home" },
-  { route: "/now", name: "02-now" },
-  { route: "/plan", name: "03-plan" },
-  { route: "/pass", name: "04-pass" },
-  { route: "/calendar", name: "05-calendar" },
-  { route: "/scan", name: "06-scan" },
-  { route: "/getAirPalApp", name: "07-getairpal" },
+  { route: "/circle", name: "02-circle" },
+  { route: "/pass", name: "03-pass" },
+  { route: "/calendar", name: "04-calendar" },
+  { route: "/scan", name: "05-scan" },
+  { route: "/getAirPalApp", name: "06-getairpal" },
 ];
 
 const SHOTS_PASS = [

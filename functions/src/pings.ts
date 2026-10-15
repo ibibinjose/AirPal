@@ -67,7 +67,7 @@ async function handlePingWrite(
   if (target.event === "pinged") {
     await pushPing(target.toUid, `${name} pinged you`, "See who's around and ping back.", pingId);
   } else {
-    await pushPing(target.toUid, `${name} pinged you back`, "Say hi — plan something together.", pingId);
+    await pushPing(target.toUid, `${name} pinged you back`, "Say hi — catch up together.", pingId);
   }
 }
 

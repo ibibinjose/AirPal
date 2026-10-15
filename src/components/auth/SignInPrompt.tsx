@@ -61,7 +61,7 @@ export function SignInPrompt() {
         </div>
         <h2 className="font-display mt-3 text-xl font-bold">Sign in to continue</h2>
         <p className="mt-1.5 text-sm leading-relaxed text-mute">{signInPrompt.reason}</p>
-        <p className="mt-1 text-xs text-mute">Free account · syncs likes, follows and plans everywhere.</p>
+        <p className="mt-1 text-xs text-mute">Free account · syncs likes, follows and tickets everywhere.</p>
         <div className="mt-5 space-y-2">
           <SocialAuthButtons
             onSocial={async (provider) => {

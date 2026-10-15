@@ -3,18 +3,18 @@ import { omitUndefinedDeep } from "./firestore-data";
 
 describe("omitUndefinedDeep", () => {
   it("drops endTime and nested undefined before Firestore writes", () => {
-    const plan = omitUndefinedDeep({
-      id: "plan-1",
+    const doc = omitUndefinedDeep({
+      id: "doc-1",
       endTime: undefined,
       geo: undefined,
       creator: { name: "Maya", handle: undefined },
-      stops: [{ name: "Cafe", time: undefined }],
+      spots: [{ name: "Cafe", time: undefined }],
     });
-    expect(plan).toEqual({
-      id: "plan-1",
+    expect(doc).toEqual({
+      id: "doc-1",
       creator: { name: "Maya" },
-      stops: [{ name: "Cafe" }],
+      spots: [{ name: "Cafe" }],
     });
-    expect("endTime" in plan).toBe(false);
+    expect("endTime" in doc).toBe(false);
   });
 });

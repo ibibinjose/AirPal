@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TabBar } from "./TabBar";
 
 vi.mock("wouter", () => ({
-  useLocation: () => ["/explore", vi.fn()],
+  useLocation: () => ["/", vi.fn()],
 }));
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ user: undefined }) }));
 vi.mock("@/contexts/BioContext", () => ({ useBio: () => ({ mine: undefined }) }));
@@ -12,7 +12,7 @@ vi.mock("@/lib/keyboard", () => ({ useVirtualKeyboard: () => ({ isKeyboardOpen: 
 
 describe("TabBar", () => {
   it("keeps the active tab icon an outline (never a solid fill)", () => {
-    const markup = renderToStaticMarkup(createElement(TabBar, { path: "/explore" }));
+    const markup = renderToStaticMarkup(createElement(TabBar, { path: "/" }));
     // The active tab carries aria-current and renders its lucide icon.
     expect(markup).toContain('aria-current="page"');
     expect(markup).toContain("<svg");
@@ -21,9 +21,9 @@ describe("TabBar", () => {
     expect(markup).toContain('fill="none"');
   });
 
-  it("labels the plan tab Plan", () => {
+  it("has no plan tab", () => {
     const markup = renderToStaticMarkup(createElement(TabBar, { path: "/plan" }));
-    expect(markup).toContain(">Plan<");
+    expect(markup).not.toContain(">Plan<");
     expect(markup).not.toContain(">Trips<");
   });
 
@@ -36,12 +36,12 @@ describe("TabBar", () => {
     expect(markup).toContain(">Bio<");
   });
 
-  it("renders Circle cockpit and Bio profile tabs in companion mode", () => {
-    const markup = renderToStaticMarkup(createElement(TabBar, { path: "/now" }));
+  it("renders Home, Circle and Bio tabs in companion mode", () => {
+    const markup = renderToStaticMarkup(createElement(TabBar, { path: "/" }));
     expect(markup).toContain(">Home<");
-    expect(markup).toContain(">Now<");
-    expect(markup).toContain(">Plan<");
     expect(markup).toContain(">Circle<");
     expect(markup).toContain(">Bio<");
+    expect(markup).not.toContain(">Now<");
+    expect(markup).not.toContain(">Plan<");
   });
 });

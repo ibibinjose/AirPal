@@ -36,7 +36,7 @@ export function ValidField({
 /**
  * Shared field system: light line at rest, brand ring on focus.
  * Use these constants for every text input / select / textarea so all
- * forms across bio, host, business, companion, plans, and auth match.
+ * forms across bio, host, business, companion, circle, and auth match.
  */
 export const fieldInput =
   "h-12 w-full rounded-2xl border border-line bg-card px-4 pr-10 text-[16px] sm:text-sm outline-none transition placeholder:text-mute/60 focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:opacity-60";

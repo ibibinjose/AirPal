@@ -15,15 +15,7 @@ import {
 } from "@shared/safety";
 
 /** Per-person safety actions: report user/booking, or block immediately. */
-export function SafetyMenu({
-  targetUid,
-  targetName,
-  planId,
-}: {
-  targetUid: string;
-  targetName: string;
-  planId: string;
-}) {
+export function SafetyMenu({ targetUid, targetName }: { targetUid: string; targetName: string }) {
   const { user, requireUser } = useAuth();
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"menu" | "report" | "blocked">("menu");
@@ -57,7 +49,7 @@ export function SafetyMenu({
     setError(null);
     if (!requireUser("Sign in to file a safety report.")) return;
     if (!user) return;
-    const input = { ...emptyReport(planId, targetUid), target, reason, details: details.trim() };
+    const input = { ...emptyReport(targetUid), target, reason, details: details.trim() };
     if (!reportValid(input)) {
       setError("Tell us what happened in at least 10 characters so the team can act.");
       return;
@@ -74,7 +66,6 @@ export function SafetyMenu({
         reporterUid: user.uid,
         target: input.target,
         targetUid,
-        planId,
         reason,
         details: input.details,
         status: "new",
@@ -105,7 +96,6 @@ export function SafetyMenu({
       await setDoc(doc(db, "blocks", blockDocId(user.uid, targetUid)), {
         blockerUid: user.uid,
         blockedUid: targetUid,
-        planId,
         createdAt: now,
         updatedAt: now,
       });

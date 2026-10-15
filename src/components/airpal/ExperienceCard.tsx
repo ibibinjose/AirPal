@@ -1,8 +1,5 @@
-import { ArrowUpRight, MapPin, Plus, Check } from "lucide-react";
+import { ArrowUpRight, MapPin } from "lucide-react";
 import { type ExperienceItem } from "@/lib/curated-experiences";
-import { usePlans } from "@/contexts/PlanContext";
-import { toZonedDateStr } from "@/lib/local-time";
-import { triggerHaptic } from "@/lib/native";
 import { cn } from "@/lib/cn";
 
 interface Props {
@@ -12,31 +9,6 @@ interface Props {
 }
 
 export function ExperienceCard({ item, onSelect, compact = false }: Props) {
-  const { myPlans, createPlan, deletePlan } = usePlans();
-
-  // Check if item is saved in user's plans
-  const existingPlan = myPlans.find((p) => p.title.toLowerCase() === item.title.toLowerCase() || p.id === item.id);
-  const isSaved = Boolean(existingPlan);
-
-  const handleToggleSave = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    void triggerHaptic("medium");
-    if (isSaved && existingPlan) {
-      await deletePlan(existingPlan.id);
-    } else {
-      await createPlan({
-        title: item.title,
-        type: "walk",
-        theme: "sunset",
-        date: item.starts_at ? item.starts_at.split("T")[0] : toZonedDateStr(new Date()),
-        time: item.open_hour ? `${String(item.open_hour).padStart(2, "0")}:00` : "12:00",
-        destination: item.venue,
-        heroImage: item.image,
-        notes: item.description,
-      });
-    }
-  };
-
   return (
     <article
       onClick={() => onSelect(item)}
@@ -94,21 +66,6 @@ export function ExperienceCard({ item, onSelect, compact = false }: Props) {
             <span className="mx-1.5 opacity-40">·</span>
             <span>{item.duration || "Drop in"}</span>
           </div>
-
-          <button
-            type="button"
-            onClick={handleToggleSave}
-            title={isSaved ? "Saved to your day" : "Add to your day"}
-            aria-label={isSaved ? "Saved to your day" : "Add to your day"}
-            className={cn(
-              "grid min-h-[44px] min-w-[44px] place-items-center rounded-full border transition active:scale-90 cursor-pointer touch-manipulation",
-              isSaved
-                ? "border-emerald-500 bg-emerald-500 text-white shadow-xs"
-                : "border-line bg-paper text-mute hover:border-brand hover:text-accent",
-            )}
-          >
-            {isSaved ? <Check size={16} strokeWidth={2.5} /> : <Plus size={18} strokeWidth={2.5} />}
-          </button>
         </div>
       </div>
     </article>

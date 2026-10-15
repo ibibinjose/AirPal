@@ -1,11 +1,19 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Arrival Engine & Redirect Flows", () => {
-  test("legacy /concierge route redirects to /now", async ({ page }) => {
+  test("legacy /concierge route redirects to home", async ({ page }) => {
     await page.goto("/concierge");
     await page.waitForLoadState("domcontentloaded");
-    await expect(page).toHaveURL(/\/now/);
-    await expect(page.getByRole("heading", { level: 1, name: "What now?" })).toBeVisible();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole("heading", { level: 1, name: /good to see you/i })).toBeVisible();
+  });
+
+  test("removed Discovery routes redirect to home", async ({ page }) => {
+    for (const route of ["/now", "/explore", "/explore/attractions", "/guide", "/p/glenmore", "/tour/abc"]) {
+      await page.goto(route);
+      await page.waitForLoadState("domcontentloaded");
+      await expect(page).toHaveURL(/\/$/);
+    }
   });
 
   test("legacy /g/:id route redirects to /join/:id arrival engine", async ({ page }) => {

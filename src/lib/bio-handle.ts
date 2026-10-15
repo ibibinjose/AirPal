@@ -133,8 +133,8 @@ export const BIBIN_JOSE_PROFILE: BioProfile = {
     {
       id: "l-guide",
       type: "website",
-      label: "Sydney Curated Experiences",
-      href: "https://airpal.me/explore",
+      label: "Sydney Events & Experiences",
+      href: "https://airpal.me/events",
     },
   ],
   deals: [],

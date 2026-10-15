@@ -10,9 +10,10 @@ the V1 rules, indexes, and callables; every V3 artifact is additive and gated.
 | -------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Shared contracts + validation          | `shared/v3-contract.ts`, `shared/v3-contract.test.ts`, `shared/abuse.ts` (V3 rate limits) |
 | Default-deny rules + canonical indexes | `firestore.rules.v3`, `firestore.indexes.v3.json`, `firebase.v3.json`                     |
-| Callable domains (33 callables)        | `functions/src/v3/*.ts` + 4 test files, wired in `functions/src/index.ts`                 |
+| Callable domains (38 callables)        | `functions/src/v3/*.ts` + 5 test files, wired in `functions/src/index.ts`                 |
 | Emulator seed + gates                  | `scripts/seed-v3-emulator.mjs`, `scripts/check-v3.mjs`                                    |
 | Frontend adapters (local-only gate)    | `src/lib/v3/{gate,client,reads}.ts` + tests                                               |
+| Claim UI (evolved brand)               | `src/pages/ClaimVenuePage.tsx` (`/claim`), `src/components/claim/*`, admin Claims tab     |
 | Browser rules journeys                 | `e2e/v3-journeys.spec.ts`                                                                 |
 
 Design notes:
@@ -33,6 +34,29 @@ Design notes:
 - `docs/AIRPAL.md` is absent from this checkout, so the V3 contract document
   is the operative source; a brain review against the skill invariants passed
   (single Firebase identity, no parallel engines, experience-loop mapping).
+
+## Venue claims (no bulk import)
+
+Google-sourced venues are looked up per request and claimed — never
+bulk-imported (Places ToS forbids building a stored venue database).
+
+- `v3LookupGooglePlace` verifies one Place ID live (honest `stub` without
+  `GOOGLE_PLACES_API_KEY`) and returns a sanitised snapshot for the claim form.
+- `v3RequestPlaceClaim` files a pending claim in the server-only
+  `places/{placeId}/claims` subcollection (one per claimant per venue).
+  Claimants need email accounts; proof of association is required.
+- `v3ReviewPlaceClaim` (admin) approves — minting the owned draft place — or
+  rejects with a reason. Review details override the claimant's.
+- `v3WithdrawPlaceClaim` cancels the caller's pending claim;
+  `v3ListPlaceClaims` (admin) is the cross-venue review queue.
+- States: `pending → approved | rejected`, `pending → withdrawn`; rejected or
+  withdrawn claims may re-request with better proof. Every transition is
+  audited. Venues already on AirPal refuse fresh claims (ownership transfers
+  out of band).
+- UI: `/claim` reuses the Google autocomplete import card for venue search,
+  then the evolved-brand claim shell (ink masthead, stepper, paper body) with
+  shared field styles. Review lives in the admin Claims tab. Everything stays
+  behind the V3 gate; without the flags `/claim` shows the locked preview.
 
 ## Run it
 
@@ -73,7 +97,7 @@ fails the build if `src/lib/v3/*` ever uses
 
 ## Follow-ups before staging
 
-1. Consume `src/lib/v3/*` from UI contexts (plan, tickets, bio, places,
+1. Consume `src/lib/v3/*` from UI contexts (tickets, bio, places,
    events) behind the gate; add authenticated browser journeys then.
 2. Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `V3_CHECKOUT_BASE_URL`,
    and `ENFORCE_APPCHECK=true` in the staging environment. Note: the local

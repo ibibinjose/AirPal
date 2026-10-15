@@ -4,8 +4,6 @@ import {
   parseV3Conversation,
   parseV3DealClaim,
   parseV3Order,
-  parseV3Plan,
-  parseV3PlanMember,
   parseV3Profile,
   parseV3PublishedDeal,
   parseV3PublishedEvent,
@@ -21,7 +19,6 @@ describe("V3 read parsers fail closed", () => {
         uid: "uid-1",
         displayName: "Ava",
         preferences: { marketingEmail: true },
-        planIds: ["plan-1"],
         cohortIds: [],
         ticketIds: [],
         orderIds: [],
@@ -29,7 +26,7 @@ describe("V3 read parsers fail closed", () => {
         conversationIds: [],
         blockedUids: ["uid-9"],
       }),
-    ).toMatchObject({ id: "uid-1", planIds: ["plan-1"], blockedUids: ["uid-9"] });
+    ).toMatchObject({ id: "uid-1", blockedUids: ["uid-9"] });
     expect(parseV3User("uid-1", { uid: "uid-2", displayName: "X" })).toBeNull();
     expect(parseV3User("uid-1", null)).toBeNull();
   });
@@ -74,13 +71,7 @@ describe("V3 read parsers fail closed", () => {
     expect(parseV3Profile("uid-1", null, { ...profile, visibility: "public", links: [{ href: 1 }] })).toBeNull();
   });
 
-  it("validates plans, members, tickets, and orders", () => {
-    expect(parseV3Plan("plan-1", { ownerUid: "u", visibility: "public", state: "open", title: "T" })).toMatchObject({
-      id: "plan-1",
-    });
-    expect(parseV3Plan("plan-1", { ownerUid: "u", visibility: "public", state: "lost", title: "T" })).toBeNull();
-    expect(parseV3PlanMember("u", { uid: "u", role: "member", rsvp: "going" })).toMatchObject({ rsvp: "going" });
-    expect(parseV3PlanMember("u", { uid: "u", role: "member", rsvp: "ghosting" })).toBeNull();
+  it("validates tickets and orders", () => {
     const ticket = { eventId: "e", holderUid: "h", issuerUid: "i", state: "valid", kind: "paid" };
     expect(parseV3Ticket("t", ticket)).toMatchObject({ id: "t" });
     expect(parseV3Ticket("t", { ...ticket, state: "used" })).toBeNull();

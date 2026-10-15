@@ -4,7 +4,7 @@ import { getEcosystemMode } from "./EcosystemSwitcher";
 describe("getEcosystemMode", () => {
   it("classifies personal life and companion routes as 'me'", () => {
     expect(getEcosystemMode("/")).toBe("me");
-    expect(getEcosystemMode("/now")).toBe("me");
+    expect(getEcosystemMode("/circle")).toBe("me");
     expect(getEcosystemMode("/plan")).toBe("me");
     expect(getEcosystemMode("/calendar")).toBe("me");
     expect(getEcosystemMode("/me")).toBe("me");

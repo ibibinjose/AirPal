@@ -12,31 +12,6 @@ import {
   type LoginWithPhonePasswordRequest,
   type LoginWithPhonePasswordResponse,
 } from "@shared/airpal-security";
-import type {
-  CreatePlanRequest,
-  CreatePlanResponse,
-  RsvpPlanRequest,
-  RsvpPlanResponse,
-  AddPlanStopRequest,
-  AddPlanStopResponse,
-  VotePlanStopRequest,
-  VotePlanStopResponse,
-  VoteDateOptionRequest,
-  VoteDateOptionResponse,
-  PostPlanCommentRequest,
-  PostPlanCommentResponse,
-  CompletePlanRequest,
-  CompletePlanResponse,
-  GetPlanByInviteCodeRequest,
-  GetPlanByInviteCodeResponse,
-  ExperienceProofResponse,
-} from "@shared/plan";
-import type {
-  InviteToPlanRequest,
-  InviteToPlanResponse,
-  SendPlanBroadcastRequest,
-  SendPlanBroadcastResponse,
-} from "@shared/plan-notify";
 import { getFirebaseFunctions, isFirebaseConfigured } from "./firebase";
 
 export function liveBackendEnabled() {
@@ -338,55 +313,17 @@ export function submitVenueRatingRemote(data: {
   return callFunction<typeof data, { ok: true }>(CALLABLES.submitVenueRating, data);
 }
 
-export function createPlanRemote(data: CreatePlanRequest) {
-  return callFunction<CreatePlanRequest, CreatePlanResponse>(CALLABLES.createPlan, data);
-}
-export const createPlanRemoteCall = createPlanRemote;
-
-export function rsvpPlanRemote(data: RsvpPlanRequest) {
-  return callFunction<RsvpPlanRequest, RsvpPlanResponse>(CALLABLES.rsvpPlan, data);
-}
-export const rsvpPlanRemoteCall = rsvpPlanRemote;
-
-export function addPlanStopRemote(data: AddPlanStopRequest) {
-  return callFunction<AddPlanStopRequest, AddPlanStopResponse>(CALLABLES.addPlanStop, data);
-}
-export const addPlanStopRemoteCall = addPlanStopRemote;
-
-export function votePlanStopRemote(data: VotePlanStopRequest) {
-  return callFunction<VotePlanStopRequest, VotePlanStopResponse>(CALLABLES.votePlanStop, data);
-}
-export const votePlanStopRemoteCall = votePlanStopRemote;
-
-export function voteDateOptionRemote(data: VoteDateOptionRequest) {
-  return callFunction<VoteDateOptionRequest, VoteDateOptionResponse>(CALLABLES.voteDateOption, data);
-}
-
-export function postPlanCommentRemote(data: PostPlanCommentRequest) {
-  return callFunction<PostPlanCommentRequest, PostPlanCommentResponse>(CALLABLES.postPlanComment, data);
-}
-export const postPlanCommentRemoteCall = postPlanCommentRemote;
-
-export function completePlanRemoteCall(data: CompletePlanRequest) {
-  return callFunction<CompletePlanRequest, CompletePlanResponse>(CALLABLES.completePlan, data);
-}
-export const completePlanRemote = completePlanRemoteCall;
-
-export function getPlanByInviteCodeRemote(data: GetPlanByInviteCodeRequest) {
-  return callFunction<GetPlanByInviteCodeRequest, GetPlanByInviteCodeResponse>(CALLABLES.getPlanByInviteCode, data);
-}
-export const getPlanByInviteCodeRemoteCall = getPlanByInviteCodeRemote;
-
-export function getExperienceProofRemote() {
-  return callFunction<Record<string, never>, ExperienceProofResponse>(CALLABLES.getExperienceProof, {});
-}
-
-export function sendPlanBroadcastRemote(data: SendPlanBroadcastRequest) {
-  return callFunction<SendPlanBroadcastRequest, SendPlanBroadcastResponse>(CALLABLES.sendPlanBroadcast, data);
-}
-
-export function inviteToPlanRemote(data: InviteToPlanRequest) {
-  return callFunction<InviteToPlanRequest, InviteToPlanResponse>(CALLABLES.inviteToPlan, data);
+export function createBookingCheckoutSessionRemote(data: { bookingId: string }) {
+  return callFunction<
+    typeof data,
+    {
+      ok: boolean;
+      mode?: string;
+      bookingId?: string;
+      sessionId?: string;
+      checkoutUrl?: string | null;
+    }
+  >(CALLABLES.createBookingCheckoutSession, data);
 }
 
 export function scheduleCatchUpRemote(data: { catchupId: string; action: "open" | "accept"; slotId?: string }) {
@@ -399,52 +336,6 @@ export function scheduleCatchUpRemote(data: { catchupId: string; action: "open" 
       proposals: { id: string; date: string; time: string; label: string }[];
     }
   >(CALLABLES.scheduleCatchUp, data);
-}
-
-export function createExperienceCheckoutSessionRemote(data: {
-  planId: string;
-  tierId?: string;
-  spots?: number;
-  isDeposit?: boolean;
-  guestName?: string;
-  guestEmail?: string;
-  successUrl?: string;
-  cancelUrl?: string;
-}) {
-  return callFunction<
-    typeof data,
-    {
-      ok: boolean;
-      mode?: string;
-      bookingId?: string;
-      sessionId?: string;
-      checkoutUrl?: string;
-      totalAmount?: number;
-      currency?: string;
-      message?: string;
-    }
-  >(CALLABLES.createExperienceCheckoutSession, data);
-}
-
-export function confirmExperienceBookingRemote(data: { planId: string; bookingId: string; paymentIntentId?: string }) {
-  return callFunction<typeof data, { ok: boolean; status: string; bookingId: string }>(
-    CALLABLES.confirmExperienceBooking,
-    data,
-  );
-}
-export const confirmExperienceBookingRemoteCall = confirmExperienceBookingRemote;
-
-export function createBookingCheckoutSessionRemote(data: { bookingId: string }) {
-  return callFunction<
-    typeof data,
-    {
-      ok: boolean;
-      mode?: string;
-      bookingId?: string;
-      sessionId?: string;
-      checkoutUrl?: string | null;
-    }
-  >(CALLABLES.createBookingCheckoutSession, data);
 }
 
 export function createStayCheckoutSessionRemote(data: {
@@ -466,27 +357,12 @@ export function createStayCheckoutSessionRemote(data: {
   >(CALLABLES.createStayCheckoutSession, data);
 }
 
-export function payBookingBalanceRemote(data: { planBookingId: string }) {
-  return callFunction<
-    typeof data,
-    {
-      ok: boolean;
-      mode?: string;
-      bookingId?: string;
-      planBookingId?: string;
-      sessionId?: string;
-      checkoutUrl?: string | null;
-    }
-  >(CALLABLES.payBookingBalance, data);
-}
-
 export function createManagedProductRemote(data: {
   name: string;
   description?: string;
   amountCents: number;
   currency?: string;
   taxCode?: string;
-  planId?: string;
 }) {
   return callFunction<typeof data, { ok: boolean; productId: string; stripeProductId: string; stripePriceId: string }>(
     CALLABLES.createManagedProduct,
@@ -593,18 +469,15 @@ export function admitTicketRemote(data: { ticketId: string }) {
   );
 }
 
-export function checkInGuestRemote(data: { scope: "event" | "plan"; id: string; entryId: string }) {
+export function checkInGuestRemote(data: { scope: "event"; id: string; entryId: string }) {
   return callFunction<
     typeof data,
-    { scope: "event" | "plan"; id: string; entryId: string; checkedInAt: string; already: boolean }
+    { scope: "event"; id: string; entryId: string; checkedInAt: string; already: boolean }
   >(CALLABLES.checkInGuest, data);
 }
 
-export function closeGuestlistRemote(data: { scope: "event" | "plan"; id: string }) {
-  return callFunction<typeof data, { scope: "event" | "plan"; id: string; closed: number }>(
-    CALLABLES.closeGuestlist,
-    data,
-  );
+export function closeGuestlistRemote(data: { scope: "event"; id: string }) {
+  return callFunction<typeof data, { scope: "event"; id: string; closed: number }>(CALLABLES.closeGuestlist, data);
 }
 
 export function joinGuestlistSignupRemote(data: {
@@ -646,11 +519,11 @@ export function unsubscribeGuestlistRemote(data: { email: string }) {
   return callFunction<typeof data, { ok: boolean }>(CALLABLES.unsubscribeGuestlist, data);
 }
 
-export function listDoorTeamRemote(data: { scope: "event" | "plan"; id: string }) {
+export function listDoorTeamRemote(data: { scope: "event"; id: string }) {
   return callFunction<
     typeof data,
     {
-      scope: "event" | "plan";
+      scope: "event";
       id: string;
       members: Array<{ uid: string; name: string; handle?: string; owner: boolean }>;
     }

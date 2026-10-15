@@ -37,14 +37,6 @@ export function toPublicUrl(href?: string | null): string {
 }
 
 /** Canonical deep link builders */
-export function buildPlanUrl(planId: string): string {
-  return toPublicUrl(`/plan/${encodeURIComponent(planId)}`);
-}
-
-export function buildPlanInviteUrl(inviteCode: string): string {
-  return toPublicUrl(`/invite/${encodeURIComponent(inviteCode)}`);
-}
-
 export function buildEventUrl(eventId: string): string {
   return toPublicUrl(`/e/${encodeURIComponent(eventId)}`);
 }

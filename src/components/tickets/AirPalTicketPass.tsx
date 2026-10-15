@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { CalendarDays, CheckCircle2, Download, Share2, Ticket } from "lucide-react";
+import { CheckCircle2, Download, Share2, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
@@ -42,7 +42,7 @@ export function AirPalTicketPass({ booking, guestName, hostName, showActions = t
     return () => {
       cancelled = true;
     };
-  }, [booking.id, booking.eventId, booking.planId]);
+  }, [booking.id, booking.eventId]);
 
   const when = [booking.date, booking.time].filter(Boolean).join(" · ");
   const where = [booking.suburb].filter(Boolean).join("");
@@ -120,21 +120,14 @@ export function AirPalTicketPass({ booking, guestName, hostName, showActions = t
 
       {showActions && (
         <div className="no-print flex flex-col gap-2 bg-white px-4 py-3 text-ink">
-          {booking.planId ? (
+          {booking.eventId ? (
             <Link
-              href={`/plan/${booking.planId}`}
+              href={`/e/${booking.eventId}`}
               className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-2xl bg-brand/10 px-4 py-2 text-xs font-semibold text-accent transition hover:bg-brand/20 active:scale-[0.98]"
             >
-              <CalendarDays size={14} /> Open Hangout Day Plan
+              <Ticket size={14} /> View Event
             </Link>
-          ) : (
-            <Link
-              href={`/plan/new?title=${encodeURIComponent(booking.title)}&date=${encodeURIComponent(booking.date || "")}&time=${encodeURIComponent(booking.time || "")}&dest=${encodeURIComponent(booking.suburb || "")}&type=nightout&bookingId=${encodeURIComponent(booking.id)}`}
-              className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-2xl bg-brand/10 px-4 py-2 text-xs font-semibold text-accent transition hover:bg-brand/20 active:scale-[0.98]"
-            >
-              <CalendarDays size={14} /> Plan Day Around This Event
-            </Link>
-          )}
+          ) : null}
 
           <AppleWalletButton
             className="w-full justify-center"

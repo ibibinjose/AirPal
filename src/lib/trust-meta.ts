@@ -31,7 +31,7 @@ export const TRUST_FAQ: TrustFaq[] = [
   },
   {
     q: "Do I need to download an app?",
-    a: "No. Guests can browse places, stays, plans and events on the airpal.me website without an account. Native iOS and Android apps exist for members who want them; they require sign-in.",
+    a: "No. Guests can browse places, stays and events on the airpal.me website without an account. Native iOS and Android apps exist for members who want them; they require sign-in.",
   },
 ];
 

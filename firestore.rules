@@ -64,23 +64,13 @@ service cloud.firestore {
       );
     }
 
-    // Door team: the owner or a listed co-host. Drives guestlist access on both scopes.
+    // Door team: the owner or a listed co-host. Drives event guestlist access.
     function eventHosts(eventId) {
       return platformAdmin() || (signedIn() && (
         get(/databases/$(database)/documents/events/$(eventId)).data.organiserUid == request.auth.uid
         || (
           get(/databases/$(database)/documents/events/$(eventId)).data.keys().hasAny(['coHostUids'])
           && request.auth.uid in get(/databases/$(database)/documents/events/$(eventId)).data.coHostUids
-        )
-      ));
-    }
-
-    function planHosts(planId) {
-      return platformAdmin() || (signedIn() && (
-        get(/databases/$(database)/documents/plans/$(planId)).data.creator.uid == request.auth.uid
-        || (
-          get(/databases/$(database)/documents/plans/$(planId)).data.keys().hasAny(['coHostUids'])
-          && request.auth.uid in get(/databases/$(database)/documents/plans/$(planId)).data.coHostUids
         )
       ));
     }
@@ -179,8 +169,8 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Star ledger: server-written on first completed experiences (see
-    // completePlanRemote). Clients read only their own rows, never write.
+    // Star ledger: earned balances. No live writer while earning is paused
+    // (Planning removal). Clients read only their own rows, never write.
     match /star_ledger/{entryId} {
       allow get, list: if signedIn() && resource.data.uid == request.auth.uid;
       allow create, update, delete: if false;
@@ -735,16 +725,6 @@ match /dining_orders/{orderId} {
       allow write: if false;
     }
 
-    // C2 deposit ledger: guest + host read their own rows; money moves via Functions only.
-    match /plan_bookings/{bookingId} {
-      allow read: if signedIn() && (
-        platformAdmin()
-        || resource.data.guestUid == request.auth.uid
-        || resource.data.hostUid == request.auth.uid
-      );
-      allow write: if false;
-    }
-
     // C4 Partner subscriptions: owner + admin read; Stripe webhooks own the writes.
     match /business_subscriptions/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || platformAdmin());
@@ -760,7 +740,6 @@ match /dining_orders/{orderId} {
       allow create: if signedIn()
         && !isAnonymous()
         && request.resource.data.guestUid == request.auth.uid
-        && request.resource.data.planId is string
         && request.resource.data.bookingId == bookingId
         && request.resource.data.rating is int
         && request.resource.data.rating >= 1
@@ -770,9 +749,8 @@ match /dining_orders/{orderId} {
         && request.resource.data.guestName is string
         && request.resource.data.guestName.size() >= 1
         && request.resource.data.guestName.size() <= 40
-        && request.resource.data.keys().hasOnly(['guestUid', 'planId', 'bookingId', 'rating', 'reviewText', 'guestName', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['guestUid', 'bookingId', 'rating', 'reviewText', 'guestName', 'createdAt', 'updatedAt'])
         && reviewedBooking().customerUid == request.auth.uid
-        && reviewedBooking().planId == request.resource.data.planId
         && reviewedBooking().status == 'completed'
         && reviewedBooking().paymentStatus == 'paid';
       allow get, list: if true;
@@ -1192,78 +1170,6 @@ match /dining_orders/{orderId} {
       allow list, update, delete: if platformAdmin();
     }
 
-    // Hangout & Outing Plans collection
-    match /plans/{planId} {
-      allow get: if resource.data.isPublic == true
-        || platformAdmin()
-        || (signedIn() && resource.data.creator.uid == request.auth.uid)
-        || (signedIn() && resource.data.keys().hasAny(['coHostUids'])
-          && request.auth.uid in resource.data.coHostUids)
-        || resource.data.status in ['open', 'confirmed'];
-      allow list: if resource.data.isPublic == true
-        || platformAdmin()
-        || (signedIn() && resource.data.creator.uid == request.auth.uid)
-        || (signedIn() && resource.data.keys().hasAny(['coHostUids'])
-          && request.auth.uid in resource.data.coHostUids);
-      allow create: if signedIn()
-        && request.resource.data.id is string
-        && request.resource.data.title is string
-        && request.resource.data.date is string
-        && request.resource.data.time is string;
-      allow update: if platformAdmin()
-        || (signedIn() && resource.data.creator.uid == request.auth.uid)
-        || (signedIn() && (
-          // Collaborators/Guests can RSVP, add stops, or add comments
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendees', 'stops', 'comments', 'subscribers', 'updatedAt'])
-        ));
-      allow delete: if platformAdmin()
-        || (signedIn() && resource.data.creator.uid == request.auth.uid);
-
-      match /activity/{activityId} {
-        allow read: if resource.data.isPublic == true
-          || platformAdmin()
-          || (signedIn() && get(/databases/$(database)/documents/plans/$(planId)).data.creator.uid == request.auth.uid);
-        allow create: if signedIn()
-          && request.resource.data.text is string
-          && request.resource.data.text.size() > 0
-          && request.resource.data.text.size() <= 500
-          && request.resource.data.keys().hasOnly(['text', 'authorId', 'authorName', 'createdAt'])
-          && request.resource.data.authorId == request.auth.uid;
-        allow update, delete: if platformAdmin()
-          || (signedIn() && resource.data.authorId == request.auth.uid);
-      }
-
-      // Same contract as the event guestlist: door team manages, guests read own row.
-      match /guestlist/{entryId} {
-        allow get: if signedIn() && (
-          resource.data.uid == request.auth.uid
-          || planHosts(planId)
-        );
-        allow list: if planHosts(planId);
-        allow create: if !isAnonymous()
-          && planHosts(planId)
-          && request.resource.data.name is string
-          && request.resource.data.name.size() >= 1
-          && request.resource.data.name.size() <= 80
-          && request.resource.data.status in ['invited', 'going', 'checked-in', 'no-show', 'cancelled']
-          && request.resource.data.source in ['rsvp', 'ticket', 'door', 'invite', 'import']
-          && request.resource.data.partySize is int
-          && request.resource.data.partySize >= 1
-          && request.resource.data.partySize <= 20
-          && request.resource.data.addedBy == request.auth.uid;
-        allow update: if !isAnonymous()
-          && planHosts(planId)
-          && request.resource.data.name is string
-          && request.resource.data.name.size() >= 1
-          && request.resource.data.name.size() <= 80
-          && request.resource.data.status in ['invited', 'going', 'checked-in', 'no-show', 'cancelled']
-          && request.resource.data.partySize is int
-          && request.resource.data.partySize >= 1
-          && request.resource.data.partySize <= 20
-          && request.resource.data.addedBy == resource.data.addedBy;
-        allow delete: if planHosts(planId);
-      }
-    }
 
     // 1-on-1 catch-up / meeting / hangout proposals from a public bio.
     match /catchups/{catchupId} {

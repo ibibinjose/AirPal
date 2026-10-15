@@ -72,6 +72,7 @@ export type FakeDocSnap = {
 export type FakeDocRef = {
   id: string;
   path: string;
+  parent: { id: string; parent: { id: string } | null };
   get: () => Promise<FakeDocSnap>;
   set: (data: Record<string, unknown>, opts?: { merge?: boolean }) => Promise<void>;
   delete: () => Promise<void>;
@@ -96,10 +97,14 @@ export type FakeCollection = {
 };
 
 function docRef(path: string): FakeDocRef {
-  const id = path.split("/").pop() as string;
+  const parts = path.split("/");
+  const id = parts.pop() as string;
+  const parentId = parts.pop() as string;
+  const grandparentId = parts.length > 0 ? (parts.pop() as string) : null;
   return {
     id,
     path,
+    parent: { id: parentId, parent: grandparentId ? { id: grandparentId } : null },
     get: async () => ({ exists: fakes.store.has(path), id, data: () => fakes.store.get(path), ref: docRef(path) }),
     set: async (data, opts) => {
       applyWrite(path, data, opts?.merge === true);
@@ -117,12 +122,17 @@ function runQuery(
   order: { field: string; dir: string } | null,
   limit: number | null,
   startAfterId: string | null,
+  group = false,
 ): FakeDocSnap[] {
   const depth = collPath.split("/").length + 1;
   let docs: FakeDocSnap[] = [];
   for (const [path, data] of fakes.store.entries()) {
     const parts = path.split("/");
-    if (parts.length !== depth || parts.slice(0, -1).join("/") !== collPath) continue;
+    if (group) {
+      if (parts.length < 2 || parts.length % 2 !== 0 || parts[parts.length - 2] !== collPath) continue;
+    } else if (parts.length !== depth || parts.slice(0, -1).join("/") !== collPath) {
+      continue;
+    }
     const matches = filters.every((filter) => (data as Record<string, unknown>)[filter.field] === filter.value);
     if (!matches) continue;
     const id = parts[parts.length - 1] as string;
@@ -150,15 +160,16 @@ function queryRef(
   order: { field: string; dir: string } | null = null,
   limit: number | null = null,
   startAfterId: string | null = null,
+  group = false,
 ): FakeQuery {
   return {
     where: (field: string, _op: string, value: unknown) =>
-      queryRef(collPath, [...filters, { field, value }], order, limit, startAfterId),
-    orderBy: (field: string, dir = "asc") => queryRef(collPath, filters, { field, dir }, limit, startAfterId),
-    limit: (n: number) => queryRef(collPath, filters, order, n, startAfterId),
-    startAfter: (snap: { id: string }) => queryRef(collPath, filters, order, limit, snap.id),
+      queryRef(collPath, [...filters, { field, value }], order, limit, startAfterId, group),
+    orderBy: (field: string, dir = "asc") => queryRef(collPath, filters, { field, dir }, limit, startAfterId, group),
+    limit: (n: number) => queryRef(collPath, filters, order, n, startAfterId, group),
+    startAfter: (snap: { id: string }) => queryRef(collPath, filters, order, limit, snap.id, group),
     get: async () => {
-      const docs = runQuery(collPath, filters, order, limit, startAfterId);
+      const docs = runQuery(collPath, filters, order, limit, startAfterId, group);
       return { docs, size: docs.length, empty: docs.length === 0 };
     },
   };
@@ -184,6 +195,7 @@ function collectionRef(collPath: string): FakeCollection {
 
 export const fakeDb = {
   collection: (name: string) => collectionRef(name),
+  collectionGroup: (groupId: string) => queryRef(groupId, [], null, null, null, true),
   runTransaction: async (fn: (tx: unknown) => Promise<unknown>) =>
     fn({
       get: (ref: FakeDocRef | FakeQuery) => ref.get(),

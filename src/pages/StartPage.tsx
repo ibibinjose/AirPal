@@ -9,7 +9,6 @@ import {
   Building2,
   CalendarDays,
   CheckCircle2,
-  Compass,
   Eye,
   EyeOff,
   Lock,
@@ -18,7 +17,6 @@ import {
   Sparkles,
   Store,
   UserRound,
-  Users,
 } from "lucide-react";
 import { authErrorMessage } from "@shared/auth-email";
 import { isEmail } from "@shared/validate";
@@ -30,7 +28,7 @@ import { PhoneLogin } from "@/components/auth/PhoneLogin";
 import { SignupFlow } from "@/components/auth/SignupFlow";
 import { SocialAuthButtons, SocialAuthDivider } from "@/components/auth/SocialAuthButtons";
 import { PhoneField } from "@/components/forms/PhoneField";
-import { isNativeApp, triggerHaptic, triggerHapticSelection } from "@/lib/native";
+import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { useVirtualKeyboard, ensureElementInView } from "@/lib/keyboard";
 import { phonePasswordNeedsSms, phoneReady } from "@shared/phone-auth";
 import { MeAvatar } from "@/components/auth/MeAvatar";
@@ -195,7 +193,7 @@ export function StartPage() {
         kicker: "Circles & Hangouts",
         title: "Sign in to Networking Circle",
         signupTitle: "Join AirPal Circle",
-        desc: "Plan hangouts, vote on stops, RSVP with friends, and check in with live presence.",
+        desc: "Meet people nearby, propose catch-ups, and check in with live presence.",
         color: "text-accent",
         bg: "bg-brand/10",
       };
@@ -205,7 +203,7 @@ export function StartPage() {
       kicker: "Single Universal Account",
       title: "Welcome to AirPal",
       signupTitle: "Create your AirPal Account",
-      desc: "One login across Places, Communities, Friends, and Me — verified across Web, iOS & Android.",
+      desc: "One login across Communities, Circle, and Bio — verified across Web, iOS & Android.",
       color: "text-accent",
       bg: "bg-brand/10",
     };
@@ -217,8 +215,7 @@ export function StartPage() {
     if (roleParam === "host") return "/host";
     if (roleParam === "business" || business) return "/business";
     if (roleParam === "event") return "/event";
-    if (isNativeApp()) return "/";
-    return "/now";
+    return "/";
   }
 
   useEffect(() => {
@@ -362,11 +359,9 @@ export function StartPage() {
             </div>
           )}
 
-          {/* 4 Core Pillars Shortcuts */}
+          {/* Core Pillars Shortcuts */}
           <div className="mt-8 text-left">
-            <p className="text-[10px] font-black uppercase tracking-wider text-mute mb-2.5 px-1">
-              The 4 Pillars · Quick Jump
-            </p>
+            <p className="text-[10px] font-black uppercase tracking-wider text-mute mb-2.5 px-1">Quick Jump</p>
             <div className="grid grid-cols-2 gap-2">
               {PILLARS.map((pillar) => {
                 const Icon = pillar.icon;
@@ -488,12 +483,12 @@ export function StartPage() {
               <span className="font-serif italic font-normal text-accent">Meet your people.</span>
             </h1>
             <p className="mt-3 text-sm text-mute leading-relaxed max-w-xl">
-              AirPal connects live events, curated precinct discovery, group hangouts, merchant perks, and your digital
-              identity into one seamless ecosystem with a single universal account.
+              AirPal connects live events, merchant perks, and your digital identity into one seamless ecosystem with a
+              single universal account.
             </p>
           </div>
 
-          {/* 5 Core Pillars Showcase */}
+          {/* Core Pillars Showcase */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
             {/* 1. Events & Access */}
             <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 hover:ring-brand/30 transition shadow-clay">
@@ -512,40 +507,7 @@ export function StartPage() {
               </p>
             </div>
 
-            {/* 2. Curated Discovery */}
-            <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 hover:ring-brand/30 transition shadow-clay">
-              <div className="flex items-center gap-2.5 mb-1.5">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand/10 text-accent">
-                  <Compass size={18} />
-                </span>
-                <div>
-                  <h3 className="text-xs font-bold text-ink">Curated Discovery</h3>
-                  <p className="text-[11px] text-mute">60-Second Plans</p>
-                </div>
-              </div>
-              <p className="text-xs text-mute leading-relaxed">
-                Real-time What's Open Now, Sydney precinct guides, live weather feeds, and deterministic outfit
-                recommendations.
-              </p>
-            </div>
-
-            {/* 3. Hangouts & Planning */}
-            <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 hover:ring-brand/30 transition shadow-clay">
-              <div className="flex items-center gap-2.5 mb-1.5">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand/10 text-accent">
-                  <Users size={18} />
-                </span>
-                <div>
-                  <h3 className="text-xs font-bold text-ink">Hangouts &amp; Invites</h3>
-                  <p className="text-[11px] text-mute">Social Coordination</p>
-                </div>
-              </div>
-              <p className="text-xs text-mute leading-relaxed">
-                Coordinate meetups in seconds, vote on stops, 1-tap web RSVPs without logins, and shared calendar sync.
-              </p>
-            </div>
-
-            {/* 4. Business & Arrival Engine */}
+            {/* 2. Business & Arrival Engine */}
             <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 hover:ring-brand/30 transition shadow-clay">
               <div className="flex items-center gap-2.5 mb-1.5">
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand/10 text-accent">
@@ -562,7 +524,7 @@ export function StartPage() {
             </div>
           </div>
 
-          {/* 5. Personal Bio & Circle */}
+          {/* 3. Personal Bio & Circle */}
           <div className="rounded-2xl bg-brand/5 p-4 ring-1 ring-brand/20">
             <div className="flex items-center gap-3">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand text-white shadow-xs">
@@ -600,7 +562,7 @@ export function StartPage() {
               type="button"
               onClick={() => {
                 void triggerHaptic("light");
-                nav("/explore");
+                nav("/");
               }}
               className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-accent hover:underline cursor-pointer"
             >
@@ -637,11 +599,11 @@ export function StartPage() {
                 <span className="font-serif italic font-normal text-accent">Meet your people.</span>
               </h1>
               <p className="mx-auto mt-1.5 max-w-sm text-xs text-mute leading-relaxed">
-                One universal account across Places, Communities, Friends, and Me.
+                One universal account across Communities, Friends, and Me.
               </p>
 
-              {/* 4 Pillars Mini-Badges */}
-              <div className="mt-3.5 grid grid-cols-4 gap-2 text-center">
+              {/* Pillars Mini-Badges */}
+              <div className="mt-3.5 grid grid-cols-2 gap-2 text-center">
                 {PILLARS.map((p) => {
                   const Icon = p.icon;
                   return (
@@ -667,7 +629,7 @@ export function StartPage() {
                 type="button"
                 onClick={() => {
                   void triggerHaptic("light");
-                  nav("/explore");
+                  nav("/");
                 }}
                 className="mt-2.5 inline-flex min-h-[38px] items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
               >

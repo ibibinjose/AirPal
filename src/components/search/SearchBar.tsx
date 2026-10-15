@@ -94,9 +94,6 @@ function getCategoryIcon(cat?: string) {
       return <Users size={13} className="text-emerald-600" />;
     case "deals":
       return <Sparkles size={13} className="text-emerald-600" />;
-    case "plans":
-    case "plan":
-      return <Users size={13} className="text-indigo-600" />;
     case "places":
     default:
       return <MapPin size={13} className="text-accent" />;

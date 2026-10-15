@@ -63,13 +63,6 @@ export function SettingsPage() {
   }
 
   const [theme, setTheme] = useState<ThemeMode>(() => getThemePreference());
-  const [notifInvites, setNotifInvites] = useState(() => {
-    try {
-      return localStorage.getItem("airpal_notif_invites") !== "false";
-    } catch {
-      return true;
-    }
-  });
   const [notifDeals, setNotifDeals] = useState(() => {
     try {
       return localStorage.getItem("airpal_notif_deals") !== "false";
@@ -132,19 +125,6 @@ export function SettingsPage() {
     setTheme(mode);
     setThemePreference(mode);
     toast.success(`Theme set to ${mode}`);
-  };
-
-  const handleInvitesToggle = () => {
-    void triggerHaptic("light");
-    setNotifInvites((prev) => {
-      const nextVal = !prev;
-      try {
-        localStorage.setItem("airpal_notif_invites", String(nextVal));
-      } catch {
-        /* ignore */
-      }
-      return nextVal;
-    });
   };
 
   const handleDealsToggle = () => {
@@ -264,31 +244,6 @@ export function SettingsPage() {
                 <Check size={16} />
               </span>
             )}
-          </div>
-
-          <div className="flex min-h-[52px] items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
-            <div className="min-w-0 pr-3">
-              <span className="block text-sm font-medium text-ink">Hangout Invites & RSVPs</span>
-              <span className="block text-xs text-mute">Alerts when friends invite you to plans</span>
-            </div>
-            <button
-              type="button"
-              onClick={handleInvitesToggle}
-              className={cn(
-                "relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
-                notifInvites ? "bg-brand" : "bg-line",
-              )}
-              role="switch"
-              aria-checked={notifInvites}
-              aria-label="Toggle Hangout Invites alerts"
-            >
-              <span
-                className={cn(
-                  "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out mt-1 ml-1",
-                  notifInvites ? "translate-x-5" : "translate-x-0",
-                )}
-              />
-            </button>
           </div>
 
           <div className="flex min-h-[52px] items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
@@ -680,7 +635,6 @@ export function SettingsPage() {
                   city,
                   usingGps,
                   theme,
-                  notifInvites,
                   notifDeals,
                   searchIndexing,
                   circlePresence,

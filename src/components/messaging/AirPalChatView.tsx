@@ -181,7 +181,7 @@ export function AirPalChatView({
             </div>
             <p className="mt-3 font-display text-sm font-bold text-ink">Start the conversation</p>
             <p className="mt-1 text-xs text-mute max-w-xs">
-              Say hello or ask questions about plans, places, and recommendations.
+              Say hello or ask questions about events, places, and recommendations.
             </p>
           </div>
         ) : (

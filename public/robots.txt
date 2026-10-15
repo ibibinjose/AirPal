@@ -9,7 +9,6 @@ Disallow: /auth
 Disallow: /g/
 Disallow: /invite/
 Disallow: /q/
-Disallow: /plan/new
 
 # Social Media Preview & Rich Snippet Crawlers
 User-agent: Twitterbot

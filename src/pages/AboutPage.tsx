@@ -29,24 +29,6 @@ const VERTICALS = [
     badge: "Events",
   },
   {
-    icon: Compass,
-    title: "What now?",
-    subtitle: "Discovery",
-    desc: "Tell AirPal your urge and time window — get ambient suggestions for right now, with live weather, outfit recommendations, and precinct guides.",
-    href: "/now",
-    cta: "What now?",
-    badge: "Discovery",
-  },
-  {
-    icon: CalendarDays,
-    title: "Hangouts & Plans",
-    subtitle: "Planning",
-    desc: "Coordinate with your crew: stops voting, one-tap web RSVPs, and synced personal calendar — no account required to view.",
-    href: "/plan",
-    cta: "Create a Plan",
-    badge: "Planning",
-  },
-  {
     icon: Building2,
     title: "Arrival & Business",
     subtitle: "PBSA & Commerce",
@@ -153,7 +135,7 @@ export function AboutPage() {
           <p className="text-base sm:text-lg leading-relaxed text-ink/85 max-w-3xl">
             <strong className="font-bold text-ink">AirPal.me</strong> is a trusted, people-powered master ecosystem and
             discovery platform. In Sydney and worldwide, we connect friends, family, colleagues, and mates with live
-            events, social plans, resident arrival cohorts, and real-time community discovery.
+            events, resident arrival cohorts, and real-time community discovery.
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold text-mute">
             <span className="rounded-full bg-brand/10 px-3 py-1 text-accent">ME = Made Easy</span>

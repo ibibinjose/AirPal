@@ -95,14 +95,7 @@ const BUSINESS_CATEGORY_PRESETS = [
 ] as const;
 
 // Personal Action Button Presets
-const PERSONAL_CTA_PRESETS = [
-  "Catch Up",
-  "Say Hello",
-  "Plan Hangout",
-  "Message WhatsApp",
-  "Connect",
-  "Follow Me",
-] as const;
+const PERSONAL_CTA_PRESETS = ["Catch Up", "Say Hello", "Hang Out", "Message WhatsApp", "Connect", "Follow Me"] as const;
 
 // Business Action Button Presets
 const BUSINESS_CTA_PRESETS = [

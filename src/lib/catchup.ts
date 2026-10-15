@@ -1,8 +1,10 @@
 import { collection, deleteDoc, doc, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore";
 import type { CatchUpSlot } from "@shared/catchup-agent";
-import type { PlanType } from "@shared/plan";
 import { getFirebaseDb, isFirebaseConfigured } from "./firebase";
 import { safeLocalStorage } from "./safe-storage";
+
+/** Catch-up proposal kinds. Free-form strings stay valid for legacy rows. */
+export type CatchUpType = "catchup" | "meeting" | "nightout" | "casual" | string;
 
 export interface CatchUpItem {
   id: string;
@@ -12,14 +14,13 @@ export interface CatchUpItem {
   requesterHandle?: string;
   requesterName: string;
   requesterPhoto?: string;
-  type: PlanType | "catchup" | "meeting" | "nightout" | "casual" | string;
+  type: CatchUpType;
   date?: string;
   time?: string;
   venue?: string;
   meetingLink?: string;
   meetingPlatform?: "in_person" | "google_meet" | "facetime" | "zoom";
   notes?: string;
-  planId?: string;
   proposals?: CatchUpSlot[];
   conversationId?: string;
   createdAt: string;
@@ -215,14 +216,13 @@ export function recordCatchUpInterest(input: {
   requesterHandle?: string;
   requesterName: string;
   requesterPhoto?: string;
-  type?: PlanType | "catchup" | "meeting" | "nightout" | "casual" | string;
+  type?: CatchUpType;
   date?: string;
   time?: string;
   venue?: string;
   meetingLink?: string;
   meetingPlatform?: "in_person" | "google_meet" | "facetime" | "zoom";
   notes?: string;
-  planId?: string;
 }): CatchUpItem {
   const norm = normalizeHandle(input.targetHandle);
 
@@ -241,7 +241,6 @@ export function recordCatchUpInterest(input: {
     meetingLink: input.meetingLink,
     meetingPlatform: input.meetingPlatform,
     notes: input.notes,
-    planId: input.planId,
     createdAt: new Date().toISOString(),
     isReminderOnly: false,
     status: "pending",
@@ -349,7 +348,7 @@ export interface TimeConflict {
   conflictingType?: string;
 }
 
-/** Check if a date & time slot conflicts with existing plans or scheduled meetups (+/- 60 mins) */
+/** Check if a date & time slot conflicts with existing catch-ups or scheduled meetups (+/- 60 mins) */
 export function checkTimeConflict(
   date: string,
   time: string,
@@ -370,7 +369,7 @@ export function checkTimeConflict(
           hasConflict: true,
           conflictingTitle: p.title,
           conflictingTime: p.time,
-          conflictingType: p.type || "Plan",
+          conflictingType: p.type || "catchup",
         };
       }
     }

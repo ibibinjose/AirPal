@@ -13,7 +13,6 @@ const { fakes, FakeHttpsError } = vi.hoisted(() => {
     fakes: {
       isAdmin: false,
       events: {} as Record<string, Record<string, unknown>>,
-      plans: {} as Record<string, Record<string, unknown>>,
       guestlist: {} as Record<string, Record<string, Record<string, unknown>>>,
       users: {} as Record<string, Record<string, unknown>>,
       audits: [] as unknown[],
@@ -67,8 +66,8 @@ vi.mock("./admin", () => ({
   isPlatformAdmin: () => fakes.isAdmin,
   db: {
     collection: (name: string) => {
-      if (name === "events" || name === "plans") {
-        const docs = name === "events" ? fakes.events : fakes.plans;
+      if (name === "events") {
+        const docs = fakes.events;
         return {
           doc: (id: string) => ({
             get: async () => {
@@ -139,7 +138,6 @@ import {
   markTicketCheckedIn,
   onGuestBookingWritten,
   onGuestRsvpWritten,
-  syncPlanRsvpGuest,
 } from "./guestlist";
 
 type Handler = (request: unknown) => Promise<Record<string, unknown>>;
@@ -160,7 +158,6 @@ describe("guestlist server", () => {
   afterEach(() => {
     fakes.isAdmin = false;
     fakes.events = {};
-    fakes.plans = {};
     fakes.guestlist = {};
     fakes.users = {};
     fakes.audits.length = 0;
@@ -182,21 +179,19 @@ describe("guestlist server", () => {
     });
   });
 
-  it("checkInGuest admits co-hosts on both scopes", async () => {
+  it("checkInGuest admits co-hosts and rejects the removed plan scope", async () => {
     fakes.events = { "evt-1": { organiserUid: "org-1", coHostUids: ["co-1"] } };
-    fakes.plans = { "plan-1": { creator: { uid: "own-1" }, coHostUids: ["co-2"] } };
     fakes.guestlist = {
       "events/evt-1": { door1: { name: "Walk In", status: "going", partySize: 2 } },
-      "plans/plan-1": { door2: { name: "Mate", status: "going", partySize: 1 } },
     };
     const first = await run(checkInGuest, "co-1", { scope: "event", id: "evt-1", entryId: "door1" });
     expect(first.already).toBe(false);
     expect(fakes.guestlist["events/evt-1"].door1.status).toBe("checked-in");
     const second = await run(checkInGuest, "co-1", { scope: "event", id: "evt-1", entryId: "door1" });
     expect(second.already).toBe(true);
-    const third = await run(checkInGuest, "co-2", { scope: "plan", id: "plan-1", entryId: "door2" });
-    expect(third.already).toBe(false);
-    expect(fakes.plans["plan-1"].guestCounts).toMatchObject({ checkedInHeads: 1 });
+    await expect(run(checkInGuest, "co-1", { scope: "plan", id: "evt-1", entryId: "door1" })).rejects.toMatchObject({
+      code: "invalid-argument",
+    });
   });
 
   it("closeGuestlist turns the waiting into no-shows, never the checked-in", async () => {
@@ -270,19 +265,6 @@ describe("guestlist server", () => {
     expect(fakes.guestlist["events/local-only"]).toBeUndefined();
   });
 
-  it("plan RSVPs sync going/maybe/declined onto the plan list", async () => {
-    fakes.plans = { "plan-1": { creator: { uid: "own-1" } } };
-    fakes.users = { "m-1": { displayName: "Mo Mate" } };
-    await syncPlanRsvpGuest("plan-1", "m-1", "maybe", "Mo");
-    expect(fakes.guestlist["plans/plan-1"]["rsvp_m-1"]).toMatchObject({ status: "invited", name: "Mo" });
-    await syncPlanRsvpGuest("plan-1", "m-1", "going", "Mo Mate");
-    expect(fakes.guestlist["plans/plan-1"]["rsvp_m-1"].status).toBe("going");
-    await syncPlanRsvpGuest("plan-1", "m-1", "declined", "Mo Mate");
-    expect(fakes.guestlist["plans/plan-1"]["rsvp_m-1"].status).toBe("cancelled");
-    await syncPlanRsvpGuest("ghost-plan", "m-1", "going", "Mo");
-    expect(fakes.guestlist["plans/ghost-plan"]).toBeUndefined();
-  });
-
   it("paid ticket bookings upsert the ticket row; pending ones wait", async () => {
     fakes.events = { "evt-1": { organiserUid: "org-1" } };
     fakes.users = { "g-1": { displayName: "Theo" } };
@@ -313,14 +295,13 @@ describe("guestlist server", () => {
     expect(fakes.guestlist["events/evt-1"]["t_bk-2"]).toBeUndefined();
   });
 
-  it("plan ticket bookings land on the plan list", async () => {
-    fakes.plans = { "plan-1": { creator: { uid: "own-1" } } };
+  it("bookings without an event are ignored", async () => {
     fakes.users = { "g-7": { displayName: "Pip" } };
     await fire(
       onGuestBookingWritten,
       { bookingId: "bk-7" },
       {
-        planId: "plan-1",
+        requestId: "req-7",
         customerUid: "g-7",
         priceCents: 0,
         paymentStatus: "paid",
@@ -328,7 +309,8 @@ describe("guestlist server", () => {
         spots: 2,
       },
     );
-    expect(fakes.guestlist["plans/plan-1"]["t_bk-7"]).toMatchObject({ status: "going", partySize: 2 });
+    expect(fakes.guestlist["events/evt-1"]).toBeUndefined();
+    expect(Object.keys(fakes.guestlist)).toHaveLength(0);
   });
 
   it("refunded bookings cancel the ticket row", async () => {

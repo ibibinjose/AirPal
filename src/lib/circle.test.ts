@@ -33,7 +33,6 @@ describe("circle", () => {
       sharingCity: false,
       invited: false,
       memberCount: 0,
-      planCount: 0,
     });
     expect(empty.completed).toBe(0);
     expect(empty.level.name).toBe("New");
@@ -43,10 +42,9 @@ describe("circle", () => {
       sharingCity: true,
       invited: true,
       memberCount: 2,
-      planCount: 1,
     });
-    expect(live.completed).toBe(5);
-    expect(live.points).toBe(110);
+    expect(live.completed).toBe(4);
+    expect(live.points).toBe(85);
     expect(live.level.name).toBe("Circle host");
   });
 });

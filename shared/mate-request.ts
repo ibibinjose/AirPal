@@ -122,23 +122,6 @@ export function canAcceptRequest(
   return null;
 }
 
-/**
- * Request → Plan handoff: prefill the plan form from a filed request.
- * The plan form validates date/time itself; blanks are omitted here.
- */
-export function mateRequestPlanHref(input: Pick<MateRequestInput, "what" | "suburb" | "date" | "time">): string {
-  const parts: string[] = [];
-  const title = input.what.trim();
-  const dest = input.suburb.trim();
-  const date = input.date.trim();
-  const time = input.time.trim();
-  if (title) parts.push(`title=${encodeURIComponent(title)}`);
-  if (dest) parts.push(`dest=${encodeURIComponent(dest)}`);
-  if (date) parts.push(`date=${encodeURIComponent(date)}`);
-  if (time) parts.push(`time=${encodeURIComponent(time)}`);
-  return parts.length ? `/plan/new?${parts.join("&")}` : "/plan/new";
-}
-
 /** Understandable match reasons — never a mystery score (AGENTS.md §5). */
 export function matchReasons(req: Pick<MateRequest, "suburb" | "date" | "time" | "mateKind" | "useCase">): string[] {
   const out: string[] = [];

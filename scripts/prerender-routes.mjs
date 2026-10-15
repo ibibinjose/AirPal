@@ -28,13 +28,11 @@ const ORIGIN = "https://airpal.me";
 /** Shared crawlable nav, mirrored from the homepage placeholder in index.html. */
 const NAV_LINKS = [
   ["/about", "About"],
-  ["/concierge", "Stay & Guide"],
-  ["/plan", "Plans"],
-  ["/now", "What now?"],
+  ["/circle", "Circle"],
+  ["/events", "Events"],
   ["/deals", "Deals"],
   ["/calendar", "What's on"],
   ["/business", "Business"],
-  ["/guide", "Guide"],
   ["/join", "Join"],
   ["/partners", "Partners"],
   ["/trust", "Trust"],

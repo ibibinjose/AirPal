@@ -85,8 +85,7 @@ export function TrustPage() {
         <p className="mt-3 text-base leading-relaxed text-white/90 sm:text-lg">
           AirPal.Me is an all-in-one event, discovery, and arrival platform built in Sydney by SarvamDaily Pty Ltd (ABN
           83 702 462 977). It is not Arjo&apos;s AirPal patient-transfer mattress and not the airpal.app flight-search
-          tool. One account connects events, plans, arrival cohorts, and personal bio, with human-reviewed trust and
-          safety.
+          tool. One account connects events, arrival cohorts, and personal bio, with human-reviewed trust and safety.
         </p>
       </div>
 
@@ -215,17 +214,13 @@ export function TrustPage() {
           We&apos;re early — here is exactly what is live, and nothing we cannot stand behind.
         </p>
         <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-ink/80">
-          <li>The public website is live: guests can browse events, places, plans, and guides without an account.</li>
+          <li>The public website is live: guests can browse events and experiences without an account.</li>
           <li>
-            Live precinct guides (
-            <Link href="/guide" className="font-semibold text-accent hover:underline">
-              guides
-            </Link>
-            ) and the PBSA Arrival Engine (
+            The PBSA Arrival Engine (
             <Link href="/join" className="font-semibold text-accent hover:underline">
               arrival
             </Link>
-            ) show the instant community onboarding loop.
+            ) shows the instant community onboarding loop.
           </li>
           <li>
             Reporting, blocking, encrypted Stripe payments, and human admin review are part of the product from day one.

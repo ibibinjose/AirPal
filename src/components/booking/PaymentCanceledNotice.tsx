@@ -7,7 +7,7 @@ import { hasCanceledParam } from "@shared/booking";
 /**
  * No-charge notice for Stripe cancel returns. Self-gating: renders null
  * unless the URL carries a canceled param. Mount near the top of every
- * cancel_url landing surface (/mate, /plan/:id, /experiences).
+ * cancel_url landing surface (/me/tickets, /business).
  */
 export function PaymentCanceledNotice() {
   const search = useSearch();

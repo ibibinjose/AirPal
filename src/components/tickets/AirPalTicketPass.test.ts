@@ -28,16 +28,13 @@ describe("ticketQrHref", () => {
     expect(ticketQrHref({ ...base, id: "b1", eventId: "spark26-001" })).toContain("/e/spark26-001?ticket=b1");
   });
 
-  it("falls back to plan then the dedicated gate page", () => {
-    expect(ticketQrHref({ ...base, id: "b2", planId: "p1" })).toContain("/plan/p1?ticket=b2");
+  it("falls back to the dedicated gate page", () => {
     expect(ticketQrHref({ ...base, id: "b3" })).toContain("/ticket/b3");
   });
 
   it("emits links the gate panel parses back", () => {
     const eventHref = ticketQrHref({ ...base, id: "b1", eventId: "spark26-001" });
-    const planHref = ticketQrHref({ ...base, id: "b2", planId: "p1" });
     expect(ticketIdFromSearch(eventHref.slice(eventHref.indexOf("?")))).toBe("b1");
-    expect(ticketIdFromSearch(planHref.slice(planHref.indexOf("?")))).toBe("b2");
     const gateHref = ticketQrHref({ ...base, id: "b3" });
     const segment = gateHref.slice(gateHref.lastIndexOf("/") + 1);
     expect(segment).toBe("b3");

@@ -44,10 +44,7 @@ export const CALLABLES = {
   listBioDirectory: "listBioDirectory",
   recordAnalyticsBatch: "recordAnalyticsBatch",
   runAnalyticsAggregation: "runAnalyticsAggregation",
-  createExperienceCheckoutSession: "createExperienceCheckoutSession",
-  confirmExperienceBookingRemote: "confirmExperienceBookingRemote",
   createBookingCheckoutSession: "createBookingCheckoutSession",
-  payBookingBalance: "payBookingBalance",
   createStayCheckoutSession: "createStayCheckoutSession",
   createConnectAccountLink: "createConnectAccountLink",
   refreshConnectAccount: "refreshConnectAccount",
@@ -65,25 +62,6 @@ export const CALLABLES = {
   updateDiningOrderStatus: "updateDiningOrderStatus",
   askAirPal: "askAirPal",
   scheduleCatchUp: "scheduleCatchUp",
-  createPlan: "createPlanRemote",
-  createPlanRemote: "createPlanRemote",
-  rsvpPlan: "rsvpPlanRemote",
-  rsvpPlanRemote: "rsvpPlanRemote",
-  addPlanStop: "addPlanStopRemote",
-  addPlanStopRemote: "addPlanStopRemote",
-  votePlanStop: "votePlanStopRemote",
-  votePlanStopRemote: "votePlanStopRemote",
-  voteDateOption: "voteDateOptionRemote",
-  voteDateOptionRemote: "voteDateOptionRemote",
-  postPlanComment: "postPlanCommentRemote",
-  postPlanCommentRemote: "postPlanCommentRemote",
-  completePlan: "completePlanRemote",
-  completePlanRemote: "completePlanRemote",
-  getPlanByInviteCode: "getPlanByInviteCode",
-  getExperienceProof: "getExperienceProof",
-  sendPlanBroadcast: "sendPlanBroadcast",
-  inviteToPlan: "inviteToPlan",
-  confirmExperienceBooking: "confirmExperienceBookingRemote",
   completeAccountSignup: "completeAccountSignup",
   ensureUserProfile: "ensureUserProfile",
   loginWithPhonePassword: "loginWithPhonePassword",
@@ -146,10 +124,10 @@ export type AdmitTicketResponse = {
 };
 
 /** Door check-in for one guestlist row. Door team or admin only. */
-export type CheckInGuestRequest = { scope: "event" | "plan"; id: string; entryId: string };
+export type CheckInGuestRequest = { scope: "event"; id: string; entryId: string };
 
 export type CheckInGuestResponse = {
-  scope: "event" | "plan";
+  scope: "event";
   id: string;
   entryId: string;
   checkedInAt: string;
@@ -157,15 +135,15 @@ export type CheckInGuestResponse = {
 };
 
 /** Close the list after doors: still-going rows become no-shows. */
-export type CloseGuestlistRequest = { scope: "event" | "plan"; id: string };
+export type CloseGuestlistRequest = { scope: "event"; id: string };
 
-export type CloseGuestlistResponse = { scope: "event" | "plan"; id: string; closed: number };
+export type CloseGuestlistResponse = { scope: "event"; id: string; closed: number };
 
 /** Door-team roster with display names. Door team or admin only. */
-export type ListDoorTeamRequest = { scope: "event" | "plan"; id: string };
+export type ListDoorTeamRequest = { scope: "event"; id: string };
 
 export type ListDoorTeamResponse = {
-  scope: "event" | "plan";
+  scope: "event";
   id: string;
   members: Array<{ uid: string; name: string; handle?: string; owner: boolean }>;
 };

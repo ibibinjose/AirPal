@@ -5,7 +5,6 @@ export const CIRCLE_QUESTS = [
   { id: "city", title: "Share your city", hint: "City only — never your address.", points: 20 },
   { id: "invite", title: "Invite family or a friend", hint: "Send your Circle link in one tap.", points: 25 },
   { id: "people", title: "Add someone to your Circle", hint: "Follow, meet, or get a follow back.", points: 20 },
-  { id: "plan", title: "Make a plan together", hint: "Brunch, a walk, a night out.", points: 25 },
 ] as const;
 
 export type CircleQuestId = (typeof CIRCLE_QUESTS)[number]["id"];
@@ -29,9 +28,8 @@ export function markCircleInviteSent(): void {
 }
 
 export function circleLevel(completed: number): { rank: number; name: string } {
-  if (completed >= 5) return { rank: 5, name: "Circle host" };
-  if (completed >= 4) return { rank: 4, name: "Planner" };
-  if (completed >= 3) return { rank: 3, name: "Connected" };
+  if (completed >= 4) return { rank: 4, name: "Circle host" };
+  if (completed >= 3) return { rank: 3, name: "Connector" };
   if (completed >= 2) return { rank: 2, name: "Local" };
   if (completed >= 1) return { rank: 1, name: "Named" };
   return { rank: 0, name: "New" };
@@ -42,7 +40,6 @@ export function circleQuestProgress(input: {
   sharingCity: boolean;
   invited: boolean;
   memberCount: number;
-  planCount: number;
 }): {
   done: Record<CircleQuestId, boolean>;
   completed: number;
@@ -55,7 +52,6 @@ export function circleQuestProgress(input: {
     city: input.sharingCity,
     invite: input.invited,
     people: input.memberCount > 0,
-    plan: input.planCount > 0,
   };
   const completed = CIRCLE_QUESTS.filter((q) => done[q.id]).length;
   const points = CIRCLE_QUESTS.reduce((sum, q) => sum + (done[q.id] ? q.points : 0), 0);

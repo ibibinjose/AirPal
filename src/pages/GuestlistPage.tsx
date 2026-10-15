@@ -68,9 +68,8 @@ interface DoorMember {
 
 export function GuestlistPage() {
   const [, eventParams] = useRoute("/e/:id/guests");
-  const [, planParams] = useRoute("/plan/:id/guests");
-  const scope: GuestScope | null = eventParams?.id ? "event" : planParams?.id ? "plan" : null;
-  const id = eventParams?.id || planParams?.id || "";
+  const scope: GuestScope | null = eventParams?.id ? "event" : null;
+  const id = eventParams?.id || "";
   const { user, isAdmin } = useAuth();
 
   const [header, setHeader] = useState<ListHeader | null>(null);
@@ -182,7 +181,7 @@ export function GuestlistPage() {
   if (!user || !scope) {
     return (
       <AuthGate
-        next={scope ? `/${scope === "event" ? "e" : "plan"}/${id}/guests` : "/"}
+        next={scope ? `/e/${id}/guests` : "/"}
         kicker="Door team"
         title="Guestlist"
         lede="Sign in to manage this guestlist."
@@ -199,11 +198,11 @@ export function GuestlistPage() {
         <Users size={28} aria-hidden className="mx-auto text-mute" />
         <h1 className="font-display mt-3 text-2xl font-bold">Door team only</h1>
         <p className="mt-2 text-sm leading-6 text-mute">
-          The guestlist is only visible to the {scope === "event" ? "event organiser" : "plan host"} and co-hosts. If
-          this is yours, sign in with the host account.
+          The guestlist is only visible to the event organiser and co-hosts. If this is yours, sign in with the host
+          account.
         </p>
         <Link href={header.backHref} className="mt-4 inline-block text-sm font-semibold text-accent hover:underline">
-          Back to {scope === "event" ? "the event" : "the plan"}
+          Back to the event
         </Link>
       </div>
     );
@@ -245,7 +244,7 @@ export function GuestlistPage() {
   }
 
   async function onSaveCapacity() {
-    if (capSaving || scope !== "event") return;
+    if (capSaving) return;
     const next = Number.parseInt(capDraft, 10);
     setCapSaving(true);
     try {
@@ -284,7 +283,7 @@ export function GuestlistPage() {
   }
 
   async function onAddCoHost() {
-    if (teamBusy || scope !== "event" || !header) return;
+    if (teamBusy || !header) return;
     setTeamBusy(true);
     try {
       const resolved = await resolveHandleOwner(handleDraft);
@@ -306,7 +305,7 @@ export function GuestlistPage() {
   }
 
   async function onRemoveCoHost(member: DoorMember) {
-    if (teamBusy || scope !== "event") return;
+    if (teamBusy) return;
     setTeamBusy(true);
     try {
       await removeEventCoHost(id, member.uid);
@@ -383,7 +382,7 @@ export function GuestlistPage() {
         ))}
       </div>
 
-      {scope === "event" && (
+      {
         <div className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold">
@@ -423,7 +422,7 @@ export function GuestlistPage() {
             </Button>
           </div>
         </div>
-      )}
+      }
 
       <div className="mt-4 flex flex-col gap-2">
         <SearchBar
@@ -569,9 +568,7 @@ export function GuestlistPage() {
       <section aria-label="Door team" className="mt-6 rounded-2xl bg-card p-4 ring-1 ring-line">
         <h2 className="text-[15px] font-bold">Door team</h2>
         <p className="mt-1 text-sm leading-6 text-mute">
-          {scope === "event"
-            ? "Co-hosts check guests in and see this list. Only the organiser can change the team."
-            : "Co-hosts check guests in and see this list. Manage them from the plan page."}
+          Co-hosts check guests in and see this list. Only the organiser can change the team.
         </p>
         {teamLoading ? (
           <p className="mt-3 text-sm text-mute">Loading team…</p>
@@ -589,7 +586,7 @@ export function GuestlistPage() {
                     {m.owner ? "Organiser" : "Co-host"}
                   </span>
                 </span>
-                {owns && !m.owner && scope === "event" && (
+                {owns && !m.owner && (
                   <button
                     type="button"
                     onClick={() => void onRemoveCoHost(m)}
@@ -606,7 +603,7 @@ export function GuestlistPage() {
         ) : (
           <p className="mt-3 text-sm text-mute">Just you on the door so far.</p>
         )}
-        {owns && scope === "event" && (
+        {owns && (
           <div className="mt-3 flex gap-2">
             <label htmlFor="door-team-handle" className="sr-only">
               Add co-host by handle
@@ -626,11 +623,6 @@ export function GuestlistPage() {
               {teamBusy ? "Adding…" : "Add"}
             </Button>
           </div>
-        )}
-        {scope === "plan" && (
-          <Link href={header.backHref} className="mt-3 inline-block text-sm font-semibold text-accent hover:underline">
-            Manage co-hosts on the plan page
-          </Link>
         )}
       </section>
 

@@ -34,7 +34,6 @@ export interface CreateManagedProductRequest {
   amountCents: number;
   currency?: string;
   taxCode?: string;
-  planId?: string;
 }
 
 export interface CreateManagedCheckoutSessionRequest {
@@ -51,7 +50,6 @@ export interface ManagedProductDoc {
   amountCents: number;
   currency: string;
   taxCode: string;
-  planId: string;
   stripeProductId: string;
   stripePriceId: string;
   createdBy: string;
@@ -93,7 +91,6 @@ function validatedProductInput(data: CreateManagedProductRequest): {
   amountCents: number;
   currency: string;
   taxCode: string;
-  planId: string;
 } {
   const name = String(data.name || "").trim();
   if (name.length < 1 || name.length > 120) throw new HttpsError("invalid-argument", "Product name is required.");
@@ -110,7 +107,6 @@ function validatedProductInput(data: CreateManagedProductRequest): {
     amountCents,
     currency: normalizeCurrency(data.currency),
     taxCode: normalizeTaxCode(data.taxCode),
-    planId: String(data.planId || "").trim(),
   };
 }
 
@@ -185,10 +181,6 @@ export const createManagedProduct = onCall(CALLABLE, async (request) => {
   if (!stripeLiveConfigured()) throw new HttpsError("failed-precondition", "Stripe is not configured yet.");
 
   const input = validatedProductInput((request.data || {}) as CreateManagedProductRequest);
-  if (input.planId) {
-    const planSnap = await db.collection("plans").doc(input.planId).get();
-    if (!planSnap.exists) throw new HttpsError("not-found", "Experience plan not found.");
-  }
 
   const stripe = makeStripe();
   const product = await stripe.products.create(buildProductCreateParams(input));
@@ -204,19 +196,12 @@ export const createManagedProduct = onCall(CALLABLE, async (request) => {
     amountCents: input.amountCents,
     currency: input.currency,
     taxCode: input.taxCode,
-    planId: input.planId,
     stripeProductId: product.id,
     stripePriceId: priceId,
     createdBy: uid,
     createdAt: now,
   };
   await db.collection("managed_products").doc(productId).set(doc);
-  if (input.planId) {
-    await db
-      .collection("plans")
-      .doc(input.planId)
-      .set({ stripeProductId: product.id, stripePriceId: priceId, updatedAt: now }, { merge: true });
-  }
   return { ok: true as const, productId, stripeProductId: product.id, stripePriceId: priceId };
 });
 

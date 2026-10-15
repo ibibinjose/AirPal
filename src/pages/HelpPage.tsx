@@ -1,16 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
-import {
-  ArrowRight,
-  Building2,
-  CalendarDays,
-  ChevronDown,
-  LifeBuoy,
-  ShieldCheck,
-  Sparkles,
-  Ticket,
-  User,
-} from "lucide-react";
+import { ArrowRight, Building2, ChevronDown, LifeBuoy, ShieldCheck, Sparkles, Ticket, User } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { TabPills } from "@/components/ui/TabPills";
 import { SearchBar } from "@/components/search/SearchBar";
@@ -22,7 +12,6 @@ type CategoryFilter = "all" | HelpCategoryId;
 
 const CATEGORY_ICONS: Record<CategoryFilter, typeof Sparkles> = {
   all: Sparkles,
-  plans: CalendarDays,
   tickets: Ticket,
   safety: ShieldCheck,
   account: User,
@@ -51,7 +40,7 @@ export function HelpPage() {
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Knowledge Hub</p>
       <h1 className="font-display mt-2 text-3xl font-bold tracking-tight">How can we help?</h1>
       <p className="mt-1 text-sm leading-6 text-mute">
-        Short guides to plans, tickets, safety, and your account. Still stuck?{" "}
+        Short guides to tickets, safety, and your account. Still stuck?{" "}
         <Link href="/assist" className="font-semibold text-accent hover:underline">
           Contact support
         </Link>

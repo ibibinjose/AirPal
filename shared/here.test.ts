@@ -6,9 +6,9 @@ describe("here share", () => {
     expect(roundHereGeo({ lat: -33.85955123, lng: 151.20715999 })).toEqual({ lat: -33.86, lng: 151.207 });
   });
 
-  it("keys a plan, place, or rounded geo", () => {
-    expect(herePlaceKey({ planId: "abc" })).toBe("plan_abc");
+  it("keys a place, event, or rounded geo", () => {
     expect(herePlaceKey({ placeId: "glenmore" })).toBe("place_glenmore");
+    expect(herePlaceKey({ eventId: "spark26-001" })).toBe("event_spark26-001");
     expect(herePlaceKey({ geo: { lat: -33.85955, lng: 151.20716 } })).toBe("geo_-33.86_151.207");
   });
 

@@ -59,22 +59,19 @@ export function guestStatusLabel(status: GuestStatus): string {
   }
 }
 
-/** Header for either scope: title, owner, co-hosts, capacity. Throws when missing. */
+/** Event header: title, owner, co-hosts, capacity. Throws when missing. */
 export async function fetchListHeader(scope: GuestScope, id: string): Promise<ListHeader> {
   const db = getFirebaseDb();
   if (!db || !id) throw new Error("Guestlist is unavailable right now.");
   const snap = await getDoc(doc(db, guestScopeCollection(scope), id));
   if (!snap.exists()) throw new Error("Not found.");
   const d = snap.data() as Record<string, unknown>;
-  const ownerUid =
-    scope === "event"
-      ? String(d.organiserUid || "")
-      : String((d.creator as Record<string, unknown> | undefined)?.uid || "");
+  const ownerUid = String(d.organiserUid || "");
   const coHostUids = Array.isArray(d.coHostUids)
     ? (d.coHostUids as unknown[]).filter((v): v is string => typeof v === "string")
     : [];
   const capacity = typeof d.capacity === "number" && Number.isInteger(d.capacity) && d.capacity > 0 ? d.capacity : null;
-  const title = String(d.name || d.title || (scope === "event" ? "Event" : "Plan"));
+  const title = String(d.name || d.title || "Event");
   return {
     scope,
     id,
@@ -82,7 +79,7 @@ export async function fetchListHeader(scope: GuestScope, id: string): Promise<Li
     ownerUid,
     coHostUids,
     capacity,
-    backHref: scope === "event" ? `/e/${id}` : `/plan/${id}`,
+    backHref: `/e/${id}`,
   };
 }
 

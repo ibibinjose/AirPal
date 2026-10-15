@@ -22,6 +22,8 @@ import { useSocial } from "@/contexts/SocialContext";
 import { useCohort } from "@/contexts/CohortContext";
 import { useEvents } from "@/contexts/EventsContext";
 import { HereCheckIn } from "@/components/circle/HereCheckIn";
+import { BioCatchUpModal } from "@/components/bio/BioCatchUpModal";
+import { openGlobalSearch } from "@/components/search/openSearch";
 import { CIRCLE_QUESTS, circleQuestProgress, hasMarkedCircleInvite, markCircleInviteSent } from "@/lib/circle";
 import { listPeople } from "@/lib/people";
 import { triggerHaptic } from "@/lib/native";
@@ -61,6 +63,7 @@ export function CirclePage() {
   const [filter, setFilter] = useState<CircleFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showQuests, setShowQuests] = useState(false);
+  const [catchUpContact, setCatchUpContact] = useState<{ handle: string; name: string } | null>(null);
 
   // Met people from direct in-person connections
   const metList = useMemo(() => listPeople(), []);
@@ -337,7 +340,6 @@ export function CirclePage() {
       sharingCity: Boolean(mine?.city),
       invited: hasMarkedCircleInvite(),
       memberCount: allContacts.length,
-      planCount: 1,
     });
   }, [mine?.handle, mine?.city, allContacts.length]);
 
@@ -463,8 +465,7 @@ export function CirclePage() {
                         if (q.id === "handle") nav("/bio/setup");
                         else if (q.id === "city") nav("/bio/edit");
                         else if (q.id === "invite") handleShareCircleInvite();
-                        else if (q.id === "people") nav("/now");
-                        else if (q.id === "plan") nav("/plan/new");
+                        else if (q.id === "people") openGlobalSearch({ category: "people" });
                       }}
                     >
                       Start →
@@ -491,14 +492,6 @@ export function CirclePage() {
               {allContacts.length}
             </span>
           </div>
-
-          <Link
-            href="/plan/new"
-            className="inline-flex min-h-[36px] items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
-          >
-            <CalendarDays size={14} />
-            <span>Plan with Circle</span>
-          </Link>
         </div>
 
         {/* Filter Tabs: Places | Communities | Friends */}
@@ -658,7 +651,7 @@ export function CirclePage() {
                     ? "Follow local spots, cafes, and bars to stay updated on perks and live events."
                     : filter === "communities"
                       ? "Join a residential building cohort or campus group to connect with neighbors."
-                      : "Add friends by sharing your plan links or connecting in person."}
+                      : "Add friends by sharing your bio link or connecting in person."}
               </p>
               <div className="mt-5 flex justify-center gap-2">
                 {searchQuery ? (
@@ -666,8 +659,8 @@ export function CirclePage() {
                     Clear search
                   </Button>
                 ) : filter === "places" ? (
-                  <Button variant="primary" size="sm" onClick={() => nav("/now")}>
-                    Discover Places
+                  <Button variant="primary" size="sm" onClick={() => openGlobalSearch({ category: "places" })}>
+                    Search Places
                   </Button>
                 ) : filter === "communities" ? (
                   <Button variant="primary" size="sm" onClick={() => nav("/join")}>
@@ -807,7 +800,7 @@ export function CirclePage() {
                     </Button>
                   )}
 
-                  {/* Contextual Action (Plan Hangout, Hub, or View Place) */}
+                  {/* Contextual Action (Catch Up, Hub, or View Place) */}
                   {contact.category === "places" ? (
                     <Link
                       href={`/@${contact.handle}`}
@@ -825,14 +818,15 @@ export function CirclePage() {
                       Hub →
                     </Link>
                   ) : (
-                    <Link
-                      href={`/plan/new?dest=@${contact.handle}&title=${encodeURIComponent(`Hangout with ${contact.name}`)}`}
-                      className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
-                      aria-label={`Plan hangout with ${contact.name}`}
+                    <button
+                      type="button"
+                      onClick={() => setCatchUpContact({ handle: contact.handle, name: contact.name })}
+                      className="inline-flex min-h-[44px] cursor-pointer items-center gap-1 rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
+                      aria-label={`Propose a catch-up with ${contact.name}`}
                     >
                       <CalendarDays size={13} />
-                      <span>Plan</span>
-                    </Link>
+                      <span>Catch up</span>
+                    </button>
                   )}
                 </div>
               </div>
@@ -844,19 +838,26 @@ export function CirclePage() {
       {/* Fast CTA */}
       <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="font-display text-base font-bold text-ink">Need a quick plan with friends?</h3>
-          <p className="text-xs text-mute mt-0.5">
-            Assemble a plan in 60s and send a one-tap RSVP link to your circle.
-          </p>
+          <h3 className="font-display text-base font-bold text-ink">Grow your circle?</h3>
+          <p className="text-xs text-mute mt-0.5">Invite family or a friend with your Circle link in one tap.</p>
         </div>
         <Button
           variant="primary"
-          onClick={() => nav("/plan/new")}
+          onClick={handleShareCircleInvite}
           className="shrink-0 min-h-[44px] px-5 text-xs font-semibold shadow-xs active:scale-95"
         >
-          Create Hangout Plan
+          Invite to Circle
         </Button>
       </div>
+      {catchUpContact && (
+        <BioCatchUpModal
+          open
+          onClose={() => setCatchUpContact(null)}
+          handle={catchUpContact.handle}
+          name={catchUpContact.name}
+          initialType="catchup"
+        />
+      )}
     </div>
   );
 }

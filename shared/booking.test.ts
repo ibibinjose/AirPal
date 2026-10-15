@@ -84,13 +84,12 @@ describe("booking engine", () => {
       bookingValid({
         ...good,
         requestId: "",
-        planId: "",
         providerKind: "business",
         providerName: "Spark Foundation",
         eventId: "spark26-001",
       }),
     ).toBe(true);
-    expect(bookingValid({ ...good, requestId: "", planId: "" })).toBe(false);
+    expect(bookingValid({ ...good, requestId: "" })).toBe(false);
   });
 
   it("re-prices sourced bookings from the source row", () => {
@@ -103,17 +102,17 @@ describe("booking engine", () => {
     expect(repriceSourcedBooking(null)).toEqual({ error: "no-longer-on-sale" });
   });
 
-  it("accepts host plan bookings without a mate request", () => {
+  it("accepts host event bookings without a mate request", () => {
     expect(
       bookingValid({
         ...good,
         requestId: "",
-        planId: "plan-42",
+        eventId: "evt-42",
         providerKind: "host",
         providerName: "Harbour Hotel",
       }),
     ).toBe(true);
-    expect(bookingValid({ ...good, requestId: "", planId: "" })).toBe(false);
+    expect(bookingValid({ ...good, requestId: "" })).toBe(false);
   });
 
   it("gates the lifecycle", () => {
@@ -250,7 +249,7 @@ describe("booking engine", () => {
 
   it("builds the same gate URL the ticket QR and wallet barcodes use", () => {
     expect(ticketGatePath({ id: "b1", eventId: "spark26-001" })).toBe("/e/spark26-001?ticket=b1");
-    expect(ticketGatePath({ id: "b2", planId: "p1" })).toBe("/plan/p1?ticket=b2");
+    expect(ticketGatePath({ id: "b2" })).toBe("/ticket/b2");
     expect(ticketGateUrl({ id: "b3" })).toBe("https://airpal.me/ticket/b3");
     expect(ticketIdFromSearch(ticketGateUrl({ id: "b1", eventId: "spark26-001" }).split("airpal.me")[1] || "")).toBe(
       "b1",

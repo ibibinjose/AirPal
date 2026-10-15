@@ -248,7 +248,6 @@ async function ticketPassBuffer(bookingId: string, cfg: SignerConfig): Promise<B
   const gateUrl = ticketGateUrl({
     id: bookingId,
     eventId: str(booking.eventId) || undefined,
-    planId: str(booking.planId) || undefined,
   });
   return buildPassBuffer(cfg, passJson, `ticket-${bookingId}`, gateUrl);
 }

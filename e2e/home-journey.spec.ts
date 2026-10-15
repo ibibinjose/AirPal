@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Home exposes the AirPal journey: Discover → Connect → Plan → Go.
- * Tests modern v2.0 hero, quick search, prompts, and 6 marketplace pillars.
+ * Home exposes the AirPal journey: Discover → Connect → Go.
+ * Tests the editorial hero, primary CTAs, and events navigation.
  */
 test.describe("Home journey", () => {
   test("home exposes the journey: editorial greeting, hero banner, and discovery CTA", async ({ page }) => {
@@ -14,16 +14,16 @@ test.describe("Home journey", () => {
     await expect(page.getByRole("heading", { level: 2, name: /Less scrolling\./i })).toBeVisible();
 
     // Primary CTA buttons
-    await expect(page.getByRole("link", { name: "What's open now" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Plan a hangout" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "What's on" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Find your circle" })).toBeVisible();
   });
 
-  test("discovery CTA navigates to /now and category filters are interactive", async ({ page }) => {
+  test("events CTA navigates to /events", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    // Click What's open now CTA
-    await page.getByRole("link", { name: "What's open now" }).click();
-    await expect(page).toHaveURL(/\/now/);
+    // Click What's on CTA
+    await page.getByRole("link", { name: "What's on" }).click();
+    await expect(page).toHaveURL(/\/events/);
   });
 });

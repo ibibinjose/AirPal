@@ -3,7 +3,7 @@ import { haversineMeters } from "./geo";
 import { cityMatches } from "./remote-events";
 import { AROUND_YOU_M } from "./catalog";
 
-/** Events/plans people will travel a bit further for than a walk to a cafe. */
+/** Events people will travel a bit further for than a walk to a cafe. */
 export const EVENT_NEAR_M = 15_000;
 
 export function locatedNear(

@@ -1,6 +1,7 @@
-import { onCall } from "firebase-functions/v2/https";
+import { HttpsError, onCall } from "firebase-functions/v2/https";
 import {
   cleanV3Text,
+  parseV3GooglePlaceId,
   parseV3Handle,
   parseV3ListLimit,
   publicV3Deal,
@@ -11,6 +12,7 @@ import {
   type V3Event,
   type V3FetchHandleRequest,
   type V3ListPublicQuery,
+  type V3LookupGooglePlaceRequest,
   type V3Place,
   type V3Profile,
 } from "../../../shared/v3-contract";
@@ -126,4 +128,53 @@ export const v3FetchHandle = onCall(CALLABLE, async (request) => {
     return { handle, found: true as const, ownerUid: link.ownerUid, profile: null };
   }
   return { handle, found: true as const, ownerUid: link.ownerUid, profile: readableV3Profile(profile) };
+});
+
+/**
+ * Verify a Google Place ID live and return a sanitised snapshot for the
+ * claim form. Never bulk-imported or stored: lookup happens per request so
+ * Google stays the source of truth. Without an API key it reports an honest
+ * stub so local claim flows still exercise validation and review.
+ */
+export const v3LookupGooglePlace = onCall(CALLABLE, async (request) => {
+  await discoveryKey(request, "v3LookupGooglePlace");
+  const data = (request.data || {}) as V3LookupGooglePlaceRequest;
+  const placeId = v3Arg(() => parseV3GooglePlaceId(data.placeId));
+  const key = String(process.env.GOOGLE_PLACES_API_KEY || "").trim();
+  if (!key) {
+    return { placeId, provider: "stub" as const, verified: false as const, place: null };
+  }
+  let res: Response;
+  try {
+    res = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
+      headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": "id,displayName,formattedAddress,types,businessStatus" },
+    });
+  } catch {
+    throw new HttpsError("unavailable", "Place lookup failed. Try again shortly.");
+  }
+  if (res.status === 404) {
+    return { placeId, provider: "google" as const, verified: false as const, place: null };
+  }
+  if (!res.ok) {
+    console.error("v3LookupGooglePlace upstream status", res.status);
+    throw new HttpsError("unavailable", "Place lookup failed. Try again shortly.");
+  }
+  const body = (await res.json()) as {
+    displayName?: { text?: unknown };
+    formattedAddress?: unknown;
+    types?: unknown;
+    businessStatus?: unknown;
+  };
+  const types = Array.isArray(body.types) ? body.types.filter((row): row is string => typeof row === "string") : [];
+  return {
+    placeId,
+    provider: "google" as const,
+    verified: true as const,
+    place: {
+      name: typeof body.displayName?.text === "string" ? body.displayName.text.slice(0, 140) : "",
+      address: typeof body.formattedAddress === "string" ? body.formattedAddress.slice(0, 200) : "",
+      types: types.slice(0, 20),
+      businessStatus: typeof body.businessStatus === "string" ? body.businessStatus.slice(0, 40) : "",
+    },
+  };
 });

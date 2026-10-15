@@ -24,13 +24,13 @@ import { CampaignInboxAdmin } from "@/components/admin/CampaignInboxAdmin";
 import { FestivalAdmin } from "@/components/admin/FestivalAdmin";
 import { AuditTrailAdmin } from "@/components/admin/AuditTrailAdmin";
 import { GuestlistSignupsAdmin } from "@/components/admin/GuestlistSignupsAdmin";
+import { ClaimReviewQueue } from "@/components/claim/ClaimReviewQueue";
 import { SearchQueriesDashboardTab } from "@/components/admin/SearchQueriesDashboardTab";
 import { ADMIN_TABS, AdminOverview, type AdminTab } from "@/components/admin/AdminOverview";
 import { AIRPAL_CLUB_ID } from "@/contexts/ClubContext";
 import { seedDatabase } from "@/lib/seed-database";
 import { toast } from "sonner";
 import {
-  Activity,
   ArrowLeft,
   ArrowUpRight,
   Award,
@@ -131,7 +131,7 @@ export function AdminPage() {
       const res = await seedDatabase();
       if (res.ok) {
         toast.success(
-          `Seeded real database: ${res.propertiesCount} stays, ${res.placesCount} places, ${res.eventsCount} events, ${res.plansCount} plans, ${res.biosCount} bios`,
+          `Seeded real database: ${res.propertiesCount} stays, ${res.placesCount} places, ${res.eventsCount} events, ${res.biosCount} bios`,
         );
       } else {
         toast.error(`Seeding error: ${res.error}`);
@@ -187,13 +187,6 @@ export function AdminPage() {
             >
               <Headphones className="h-3.5 w-3.5 text-accent" />
               Support
-            </Link>
-            <Link
-              href="/now"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs"
-            >
-              <Activity className="h-3.5 w-3.5 text-indigo-500" />
-              Now Radar
             </Link>
             <Link
               href="/event"
@@ -556,6 +549,7 @@ export function AdminPage() {
           {tab === "mates" && <CompanionAdmin />}
           {tab === "marketplace" && <MateRequestsAdmin />}
           {tab === "partners" && <PartnerLeadsAdmin />}
+          {tab === "claims" && <ClaimReviewQueue />}
           {tab === "safety" && <SafetyInboxAdmin />}
           {tab === "search" && <SearchQueriesDashboardTab />}
           {tab === "experiences" && (

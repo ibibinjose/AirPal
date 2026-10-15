@@ -55,18 +55,22 @@ test.describe("V3 rules journeys", () => {
     expect(audit.status).toBe(403);
   });
 
-  test("plans, deals, tickets, orders, cohorts, and chats stay scoped", async ({ page }) => {
+  test("deals, tickets, orders, cohorts, and chats stay scoped", async ({ page }) => {
     await page.goto("/");
 
     expect((await getInBrowser(page, "events/v3-event-pub")).status).toBe(200);
-    expect((await getInBrowser(page, "plans/v3-plan-open")).status).toBe(200);
-    expect((await getInBrowser(page, "plans/v3-plan-private")).status).toBe(403);
-    expect((await getInBrowser(page, "plans/v3-plan-open/members/v3-owner-1")).status).toBe(403);
     expect((await getInBrowser(page, "deals/v3-deal-pub")).status).toBe(200);
     expect((await getInBrowser(page, "dealClaims/v3-claim-1")).status).toBe(403);
+    expect((await getInBrowser(page, "places/gp_ChIJseedclaim000000000001/claims/v3-guest-1")).status).toBe(403);
     expect((await getInBrowser(page, "tickets/v3-ticket-1")).status).toBe(403);
     expect((await getInBrowser(page, "orders/v3-order-pending")).status).toBe(403);
     expect((await getInBrowser(page, "cohorts/v3-cohort-open")).status).toBe(403);
     expect((await getInBrowser(page, "conversations/v3-chat-1")).status).toBe(403);
+  });
+
+  test("claim UI stays locked without the local preview flags", async ({ page }) => {
+    await page.goto("/claim");
+    await expect(page.getByRole("heading", { name: "Claim your venue" })).toBeVisible();
+    await expect(page.getByText("Local Preview")).toBeVisible();
   });
 });

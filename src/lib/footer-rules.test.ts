@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { shouldShowFooter } from "./footer-rules";
 
 describe("shouldShowFooter", () => {
-  it("shows footer on primary public and discovery pages", () => {
+  it("shows footer on primary public pages", () => {
     expect(shouldShowFooter("/")).toBe(true);
     expect(shouldShowFooter("/calendar")).toBe(true);
-    expect(shouldShowFooter("/guide")).toBe(true);
+    expect(shouldShowFooter("/events")).toBe(true);
     expect(shouldShowFooter("/solutions")).toBe(true);
     expect(shouldShowFooter("/solutions/hotel-concierge")).toBe(true);
     expect(shouldShowFooter("/about")).toBe(true);
@@ -19,7 +19,7 @@ describe("shouldShowFooter", () => {
     expect(shouldShowFooter("/concierge")).toBe(true);
     expect(shouldShowFooter("/g/prop_123")).toBe(true);
     expect(shouldShowFooter("/e/event_456")).toBe(true);
-    expect(shouldShowFooter("/p/place_789")).toBe(true);
+    expect(shouldShowFooter("/deals")).toBe(true);
     expect(shouldShowFooter("/clubs")).toBe(true);
     expect(shouldShowFooter("/club/club_abc")).toBe(true);
     expect(shouldShowFooter("/plan/new")).toBe(true);

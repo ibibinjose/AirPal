@@ -35,18 +35,11 @@ const AnalyticsContext = createContext<AnalyticsContextValue | undefined>(undefi
 
 /** Maps pathname patterns to human-readable screen names for analytics. */
 function screenNameForPath(path: string): string {
-  if (path === "/" || path === "") return "Discover";
+  if (path === "/" || path === "") return "Home";
   if (path === "/stay") return "Stay listings";
-  if (path === "/explore") return "Explore Precinct";
-  if (path === "/guide") return "Curated Guide";
-  if (path.startsWith("/tour/")) return "Walking Tour";
   if (path === "/scan") return "QR Scanner";
   if (path === "/calendar") return "Local Events Calendar";
-  if (path === "/plan") return "Plan Hub";
-  if (path === "/plan/new") return "New Plan";
-  if (path.startsWith("/plan/")) return "Plan Detail";
   if (path === "/settings") return "Settings";
-  if (path.startsWith("/p/")) return "Place Detail";
   if (path.startsWith("/e/")) return "Event Detail";
   if (path.startsWith("/host")) return "Host Workspace";
   if (path.startsWith("/bio/")) return "Bio Profile";

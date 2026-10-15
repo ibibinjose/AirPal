@@ -2,18 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Plus,
-  X,
-  CalendarPlus,
-  Users,
-  Ticket,
-  QrCode,
-  Sparkles,
-  Building2,
-  ChevronRight,
-  ArrowRight,
-} from "lucide-react";
+import { Plus, X, Ticket, QrCode, Sparkles, Building2, ChevronRight, ArrowRight } from "lucide-react";
 import { triggerHaptic } from "@/lib/native";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { useVirtualKeyboard } from "@/lib/keyboard";
@@ -28,7 +17,7 @@ interface CreateOption {
   title: string;
   subtitle: string;
   href: string;
-  icon: typeof CalendarPlus;
+  icon: typeof Ticket;
   colorClass: string;
   badge?: string;
   group: "you" | "business";
@@ -40,25 +29,6 @@ export const CREATE_GROUPS = [
 ] as const;
 
 export const CREATE_OPTIONS: CreateOption[] = [
-  {
-    id: "plan",
-    title: "Make a Plan",
-    subtitle: "Coordinate an activity, hangout, or trip with mates",
-    href: "/plan/new",
-    icon: CalendarPlus,
-    colorClass: "bg-brand/10 text-accent ring-brand/20",
-    badge: "Popular",
-    group: "you",
-  },
-  {
-    id: "now",
-    title: "What now?",
-    subtitle: "One suggestion for your free time, then make it a plan",
-    href: "/now",
-    icon: Users,
-    colorClass: "bg-emerald-500/10 text-emerald-600 ring-emerald-500/20",
-    group: "you",
-  },
   {
     id: "event",
     title: "Host an Event",
@@ -99,10 +69,7 @@ export const CREATE_OPTIONS: CreateOption[] = [
 
 // Pages where the FAB should hide (already in creation or editing flows)
 const HIDE_FAB_ROUTES = [
-  /^\/plan\/new/,
-  /^\/plan\/[^/]+\/edit/,
   /^\/event(\/|$)/,
-  /^\/now(\/|$)/,
   /^\/bio\/setup/,
   /^\/bio\/edit/,
   /^\/business\/onboard/,

@@ -17,7 +17,7 @@ export interface ChatMessage extends ChatMessageInput {
   readBy: string[];
 }
 
-export type ConversationType = "direct" | "business" | "stay" | "plan" | "ai";
+export type ConversationType = "direct" | "business" | "stay" | "ai";
 
 export interface ChatParticipant {
   uid: string;
@@ -35,7 +35,7 @@ export interface UniversalConversation {
   title: string;
   subtitle?: string;
   photo?: string;
-  targetId?: string; // propertyId, handle, planId, etc.
+  targetId?: string; // propertyId, handle, eventId, etc.
   lastMessage?: string;
   lastSenderUid?: string;
   lastMessageAt?: string;
@@ -79,7 +79,7 @@ export function unreadCount(messages: Pick<ChatMessage, "senderUid" | "readBy">[
   return messages.filter((m) => m.senderUid !== uid && !m.readBy.includes(uid)).length;
 }
 
-export type MatchChatActionId = "book" | "plan";
+export type MatchChatActionId = "book";
 
 export interface MatchChatAction {
   id: MatchChatActionId;
@@ -87,8 +87,8 @@ export interface MatchChatAction {
 }
 
 /**
- * Match → book handoff chips inside the request_chats thread. Customer-only:
- * book while unbooked (label mirrors the Mate page Book button), then plan.
+ * Match → book handoff chip inside the request_chats thread. Customer-only:
+ * book while unbooked (label mirrors the Mate page Book button).
  */
 export function matchChatActions(opts: {
   viewerIsCustomer: boolean;
@@ -102,6 +102,5 @@ export function matchChatActions(opts: {
     const amount = Number.isFinite(opts.budget) ? Math.max(0, Math.floor(opts.budget)) : 0;
     actions.push({ id: "book", label: amount > 0 ? `Book · about $${amount}` : "Book · free" });
   }
-  actions.push({ id: "plan", label: "Make a Plan" });
   return actions;
 }

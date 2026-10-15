@@ -20,7 +20,7 @@ import { WaveListenCard } from "@/components/wave/WaveListenCard";
 
 /**
  * Universal Scanner for AirPal — Scans live QR camera feed, user photo library images,
- * room numbers, @handles, stays, plans, and events across iOS, Android & Web.
+ * room numbers, @handles, stays, tickets, and events across iOS, Android & Web.
  */
 
 export function ScanPage() {
@@ -177,11 +177,6 @@ export function ScanPage() {
       go(`/ticket/${encodeURIComponent(tid)}`);
       return;
     }
-    // Handle invite codes
-    if (clean.toUpperCase().startsWith("INV-") || (clean.length === 6 && !clean.includes("/"))) {
-      go(`/invite/${clean.toUpperCase()}`);
-      return;
-    }
     // Handle direct path
     if (clean.startsWith("/")) {
       go(clean);
@@ -199,7 +194,7 @@ export function ScanPage() {
       go(`/ticket/${encodeURIComponent(clean)}`);
       return;
     }
-    toast.error("Code not recognised. Try entering a ticket ID, room #, @handle, or invite code.");
+    toast.error("Code not recognised. Try entering a ticket ID, room #, or @handle.");
   };
 
   return (
@@ -298,14 +293,14 @@ export function ScanPage() {
       {/* Manual Code / PIN Entry */}
       <form onSubmit={handleManualSubmit} className="mt-4 flex gap-2">
         <label htmlFor="scan-manual-code" className="sr-only">
-          Room number, invite code, or handle
+          Room number, ticket code, or handle
         </label>
         <input
           id="scan-manual-code"
           type="text"
           value={manualCode}
           onChange={(e) => setManualCode(e.target.value)}
-          placeholder="Enter room # (e.g. 101), invite code, or @handle…"
+          placeholder="Enter room # (e.g. 101), ticket code, or @handle…"
           className="h-11 flex-1 rounded-2xl bg-card px-4 text-[16px] md:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand placeholder:text-mute focus-visible:border-brand"
         />
         <button
@@ -324,12 +319,7 @@ export function ScanPage() {
         </div>
       ) : quickPlaces.length === 0 ? (
         <div className="mt-5 pb-6">
-          <EmptyState
-            title="Nothing nearby to try yet"
-            body="Enter a room number, invite code, or @handle — or open Explore."
-            action={() => nav("/now")}
-            actionLabel={t("explore")}
-          />
+          <EmptyState title="Nothing nearby to try yet" body="Enter a room number, ticket code, or @handle." />
         </div>
       ) : (
         <>

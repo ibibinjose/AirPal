@@ -182,14 +182,6 @@
       ]
     },
     {
-      "collectionGroup": "experience_reviews",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "planId", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "pings",
       "queryScope": "COLLECTION",
       "fields": [

@@ -41,24 +41,6 @@ vi.mock("@/contexts/EventsContext", () => ({
   }),
 }));
 
-vi.mock("@/contexts/PlanContext", () => ({
-  usePlans: () => ({
-    myPlans: [
-      {
-        id: "plan-1",
-        title: "Saturday Rocks Hangout",
-        destination: "The Rocks",
-        city: "Sydney",
-        date: "2026-10-10",
-        time: "14:00",
-        status: "active",
-        attendees: [{ uid: "u123", name: "Test User", status: "yes" }],
-        isPublic: true,
-      },
-    ],
-  }),
-}));
-
 vi.mock("@/contexts/LocalNowContext", () => ({
   useLocalNow: () => ({
     today: "2026-10-10",
@@ -126,7 +108,7 @@ vi.mock("@/lib/catchup", async (importOriginal) => {
 });
 
 describe("MePage", () => {
-  it("renders Me cockpit with today's agenda, appointments, tickets and plans", () => {
+  it("renders Me cockpit with today's agenda, appointments, tickets and catch-ups", () => {
     const markup = renderToStaticMarkup(createElement(MePage));
 
     // Identity and handle
@@ -138,7 +120,6 @@ describe("MePage", () => {
     expect(markup).toContain("Today&#x27;s Agenda");
     expect(markup).toContain("Sarah M");
     expect(markup).toContain("Sydney Opera Live Concert");
-    expect(markup).toContain("Saturday Rocks Hangout");
 
     // Appointments Section
     expect(markup).toContain("Appointments &amp; Catch-ups");
@@ -147,9 +128,6 @@ describe("MePage", () => {
     // Tickets Section
     expect(markup).toContain("AirPal Pass · Digital Wallet");
     expect(markup).toContain("Circular Quay");
-
-    // Upcoming Plans Section
-    expect(markup).toContain("Upcoming Plans");
 
     // Digital Bio Pass card
     expect(markup).toContain("My Digital Bio Pass");

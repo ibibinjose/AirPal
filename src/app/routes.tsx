@@ -8,11 +8,8 @@ import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
 import { HomePage } from "@/pages/HomePage";
 
 // V2 Canonical Rebuilt Routes
-const NowPage = lazy(() => import("@/pages/NowPage").then((m) => ({ default: m.NowPage })));
 const CirclePage = lazy(() => import("@/pages/CirclePage").then((m) => ({ default: m.CirclePage })));
-const GuidePage = lazy(() => import("@/pages/GuidePage").then((m) => ({ default: m.GuidePage })));
 const ScanPage = lazy(() => import("@/pages/ScanPage").then((m) => ({ default: m.ScanPage })));
-const PlacePage = lazy(() => import("@/pages/PlacePage").then((m) => ({ default: m.PlacePage })));
 const EventPage = lazy(() => import("@/pages/EventPage").then((m) => ({ default: m.EventPage })));
 const TicketPage = lazy(() => import("@/pages/TicketPage").then((m) => ({ default: m.TicketPage })));
 const CalendarPage = lazy(() => import("@/pages/CalendarPage").then((m) => ({ default: m.CalendarPage })));
@@ -32,6 +29,7 @@ const StartPage = lazy(() => import("@/pages/StartPage").then((m) => ({ default:
 const AuthActionPage = lazy(() => import("@/pages/AuthActionPage").then((m) => ({ default: m.AuthActionPage })));
 const JoinPage = lazy(() => import("@/pages/JoinPage").then((m) => ({ default: m.JoinPage })));
 const BusinessPage = lazy(() => import("@/pages/BusinessPage").then((m) => ({ default: m.BusinessPage })));
+const ClaimVenuePage = lazy(() => import("@/pages/ClaimVenuePage").then((m) => ({ default: m.ClaimVenuePage })));
 const BioPublicPage = lazy(() => import("@/pages/BioPublicPage").then((m) => ({ default: m.BioPublicPage })));
 const BioSetupPage = lazy(() => import("@/pages/BioSetupPage").then((m) => ({ default: m.BioSetupPage })));
 const BioEditPage = lazy(() => import("@/pages/BioEditPage").then((m) => ({ default: m.BioEditPage })));
@@ -52,12 +50,6 @@ const UnsubscribePage = lazy(() => import("@/pages/UnsubscribePage").then((m) =>
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage").then((m) => ({ default: m.PrivacyPage })));
 const TermsPage = lazy(() => import("@/pages/TermsPage").then((m) => ({ default: m.TermsPage })));
 const CookiesPage = lazy(() => import("@/pages/CookiesPage").then((m) => ({ default: m.CookiesPage })));
-const AttractionsPage = lazy(() => import("@/pages/AttractionsPage").then((m) => ({ default: m.AttractionsPage })));
-const PlanHubPage = lazy(() => import("@/pages/PlanHubPage").then((m) => ({ default: m.PlanHubPage })));
-const PlanCreatePage = lazy(() => import("@/pages/PlanCreatePage").then((m) => ({ default: m.PlanCreatePage })));
-const PlanDetailPage = lazy(() => import("@/pages/PlanDetailPage").then((m) => ({ default: m.PlanDetailPage })));
-const PlanEditPage = lazy(() => import("@/pages/PlanEditPage").then((m) => ({ default: m.PlanEditPage })));
-const ExplorePage = lazy(() => import("@/pages/ExplorePage").then((m) => ({ default: m.ExplorePage })));
 
 function RouteFallback() {
   return (
@@ -79,43 +71,52 @@ export function AppRoutes() {
       <Suspense fallback={<RouteFallback />}>
         <Switch>
           <Route path="/">{isPassApp() ? <Redirect to="/pass" /> : <HomePage />}</Route>
-          <Route path="/now" component={NowPage} />
-          <Route path="/explore/attractions" component={AttractionsPage} />
-          <Route path="/explore" component={ExplorePage} />
+          {/* Discovery removed — legacy /now, /explore, /guide, /p/* URLs land on Home. */}
+          <Route path="/now">
+            <Redirect to="/" />
+          </Route>
+          <Route path="/explore/attractions">
+            <Redirect to="/" />
+          </Route>
+          <Route path="/explore">
+            <Redirect to="/" />
+          </Route>
           <Route path="/places">
-            <Redirect to="/explore" />
+            <Redirect to="/" />
           </Route>
           <Route path="/communities">
             <Redirect to="/events" />
           </Route>
           <Route path="/friends">
-            <Redirect to="/plan" />
+            <Redirect to="/circle" />
           </Route>
           <Route path="/my-day">
-            <Redirect to="/plan" />
+            <Redirect to="/" />
           </Route>
           <Route path="/passbook">
             <Redirect to="/me/tickets" />
           </Route>
           <Route path="/discover">
-            <Redirect to="/explore" />
+            <Redirect to="/" />
           </Route>
           <Route path="/discovery">
-            <Redirect to="/explore" />
+            <Redirect to="/" />
           </Route>
           <Route path="/search">
-            <Redirect to="/now" />
+            <Redirect to="/" />
           </Route>
           <Route path="/admin/search-analytics" component={SearchAnalyticsPage} />
           <Route path="/search/analytics">
             <Redirect to="/admin/search-analytics" />
           </Route>
-          <Route path="/guide" component={GuidePage} />
+          <Route path="/guide">
+            <Redirect to="/" />
+          </Route>
           <Route path="/venues">
-            <Redirect to="/guide" />
+            <Redirect to="/" />
           </Route>
           <Route path="/tour/:id">
-            <Redirect to="/now" />
+            <Redirect to="/" />
           </Route>
           <Route path="/scan" component={ScanPage} />
           <Route path="/qr-scanner">
@@ -126,7 +127,7 @@ export function AppRoutes() {
           </Route>
           <Route path="/circle" component={CirclePage} />
           <Route path="/concierge">
-            <Redirect to="/now" />
+            <Redirect to="/" />
           </Route>
           <Route path="/stay">
             <Redirect to="/business" />
@@ -144,15 +145,17 @@ export function AppRoutes() {
             <Redirect to="/business" />
           </Route>
           <Route path="/q/:city/:handle">
-            <Redirect to="/now" />
+            <Redirect to="/" />
           </Route>
           <Route path="/q/:a">
-            <Redirect to="/now" />
+            <Redirect to="/" />
           </Route>
           <Route path="/q">
-            <Redirect to="/now" />
+            <Redirect to="/" />
           </Route>
-          <Route path="/p/:id" component={PlacePage} />
+          <Route path="/p/:id">
+            <Redirect to="/" />
+          </Route>
           <Route path="/e/:eventId/s/:stallId">{(p) => <Redirect to={`/e/${p.eventId}`} />}</Route>
           <Route path="/e/:id/guests" component={GuestlistPage} />
           <Route path="/e/:id/manage">{(p) => <Redirect to={`/e/${p.id}/guests`} />}</Route>
@@ -190,15 +193,28 @@ export function AppRoutes() {
           <Route path="/pass/scan">
             <Redirect to="/scan" />
           </Route>
+          {/* Planning removed — legacy /plan/* and /invite/* URLs land on Home. */}
           <Route path="/plans">
-            <Redirect to="/plan" />
+            <Redirect to="/" />
           </Route>
-          <Route path="/plan/new" component={PlanCreatePage} />
-          <Route path="/plan/:id/edit" component={PlanEditPage} />
-          <Route path="/plan/:id/guests" component={GuestlistPage} />
-          <Route path="/plan/:id" component={PlanDetailPage} />
-          <Route path="/plan" component={PlanHubPage} />
-          <Route path="/invite/:code" component={PlanDetailPage} />
+          <Route path="/plan/new">
+            <Redirect to="/" />
+          </Route>
+          <Route path="/plan/:id/edit">
+            <Redirect to="/" />
+          </Route>
+          <Route path="/plan/:id/guests">
+            <Redirect to="/" />
+          </Route>
+          <Route path="/plan/:id">
+            <Redirect to="/" />
+          </Route>
+          <Route path="/plan">
+            <Redirect to="/" />
+          </Route>
+          <Route path="/invite/:code">
+            <Redirect to="/" />
+          </Route>
           <Route path="/events/new">
             <Redirect to="/event" />
           </Route>
@@ -249,7 +265,7 @@ export function AppRoutes() {
             <Redirect to="/event" />
           </Route>
           <Route path="/pulse/:publicToken">
-            <Redirect to="/now" />
+            <Redirect to="/" />
           </Route>
           <Route path="/start" component={StartPage} />
           <Route path="/reset">
@@ -279,6 +295,7 @@ export function AppRoutes() {
             <Redirect to="/help" />
           </Route>
           <Route path="/business" component={BusinessPage} />
+          <Route path="/claim" component={ClaimVenuePage} />
           <Route path="/bio/setup" component={BioSetupPage} />
           <Route path="/bio/edit" component={BioEditPage} />
           <Route path="/bio/recover">
@@ -366,7 +383,7 @@ export function AppRoutes() {
             <Redirect to="/privacy" />
           </Route>
           <Route path="/os">
-            <Redirect to="/now" />
+            <Redirect to="/" />
           </Route>
           <Route path={BIO_PUBLIC_PATH} component={BioPublicPage} />
           <Route component={NotFoundPage} />

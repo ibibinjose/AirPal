@@ -1,6 +1,6 @@
-import { Compass, Users, CalendarDays, UserRound, type LucideIcon } from "lucide-react";
+import { Users, UserRound, type LucideIcon } from "lucide-react";
 
-export type PillarId = "places" | "communities" | "friends" | "me";
+export type PillarId = "communities" | "me";
 
 export interface PillarSubLink {
   href: string;
@@ -21,30 +21,6 @@ export interface PillarItem {
 
 export const PILLARS: PillarItem[] = [
   {
-    id: "places",
-    label: "Places",
-    href: "/explore",
-    icon: Compass,
-    kicker: "Explore & Discover",
-    subLabel: "Precincts, Guides & What's Open Now",
-    match: (p: string) =>
-      p === "/places" ||
-      p.startsWith("/explore") ||
-      p.startsWith("/guide") ||
-      p.startsWith("/now") ||
-      p.startsWith("/deals") ||
-      p.startsWith("/offers") ||
-      p.startsWith("/promotions") ||
-      p.startsWith("/tour/") ||
-      p.startsWith("/p/"),
-    subLinks: [
-      { href: "/explore", label: "Explore" },
-      { href: "/now", label: "Open Now" },
-      { href: "/guide", label: "Guides" },
-      { href: "/deals", label: "Perks & Deals" },
-    ],
-  },
-  {
     id: "communities",
     label: "Communities",
     href: "/events",
@@ -63,20 +39,6 @@ export const PILLARS: PillarItem[] = [
       { href: "/pass", label: "AirPal Pass" },
       { href: "/circle", label: "Circle" },
       { href: "/event", label: "Host" },
-    ],
-  },
-  {
-    id: "friends",
-    label: "Friends",
-    href: "/plan",
-    icon: CalendarDays,
-    kicker: "Coordinate & Meet Up",
-    subLabel: "Hangouts, RSVPs & Shared Calendar",
-    match: (p: string) =>
-      p === "/friends" || p.startsWith("/plan") || p.startsWith("/invite") || p.startsWith("/calendar"),
-    subLinks: [
-      { href: "/plan", label: "My Plans" },
-      { href: "/plan/new", label: "New Hangout" },
       { href: "/calendar", label: "Calendar" },
     ],
   },

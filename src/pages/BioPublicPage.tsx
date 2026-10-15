@@ -15,7 +15,6 @@ import {
   Dumbbell,
   Edit3,
   Globe,
-  HeartHandshake,
   KeyRound,
   Luggage,
   Lock,
@@ -77,16 +76,16 @@ import {
   hasCatchUpReminder,
   toggleCatchUpReminder,
   type CatchUpItem,
+  type CatchUpType,
 } from "@/lib/catchup";
 import { toZonedDateStr } from "@/lib/local-time";
 import { Photo } from "@/components/ui/Photo";
 import { Button } from "@/components/ui/Button";
 import { useBio } from "@/contexts/BioContext";
 import { useSocial } from "@/contexts/SocialContext";
-import { canViewProfile, completedExperiencesCount } from "@/lib/profile-stats";
+import { canViewProfile } from "@/lib/profile-stats";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEvents } from "@/contexts/EventsContext";
-import { usePlans } from "@/contexts/PlanContext";
 import { fetchPublicBio } from "@/lib/bio-store";
 import { TradingHoursScheduleView } from "@/components/discovery/TradingHoursScheduleView";
 import { resolvePublicBio } from "@/lib/bio-handle";
@@ -114,14 +113,12 @@ import {
   socialLinks,
   stackLinks,
 } from "@shared/bio";
-import type { PlanType, HangoutPlan } from "@shared/plan";
 import { mapsPlaceIdUrl, mapsPlaceUrl } from "@/lib/maps";
 import { toPublicUrl } from "@/lib/public-origin";
 import { NotFoundPage } from "./NotFoundPage";
 import { cn } from "@/lib/cn";
 import { useClub } from "@/contexts/ClubContext";
 import { PingButton } from "@/components/social/PingButton";
-import { PlanGridCard } from "@/components/airpal/PlanGridCard";
 import { triggerHaptic } from "@/lib/native";
 
 /** Round action circle button with brand icon and subtitle */
@@ -210,7 +207,6 @@ export function BioPublicPage() {
   const [, params] = useRoute(BIO_PUBLIC_PATH);
   const handle = normalizeHandle(params?.handle || params?.[0] || parseAtHandle(path) || "");
   const { user, requireUser } = useAuth();
-  const { plans } = usePlans();
   const { byHandle, recordTap, mine, updateProfile } = useBio();
   const { addGuest, joinClub } = useClub();
   const [listEmail, setListEmail] = useState("");
@@ -222,7 +218,7 @@ export function BioPublicPage() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [catchUpModalOpen, setCatchUpModalOpen] = useState(false);
-  const [catchUpInitialType, setCatchUpInitialType] = useState<PlanType>("catchup");
+  const [catchUpInitialType, setCatchUpInitialType] = useState<CatchUpType>("catchup");
   const [catchUpsList, setCatchUpsList] = useState<CatchUpItem[]>([]);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -237,25 +233,6 @@ export function BioPublicPage() {
   const [tried, setTried] = useState(!handle);
   const [claim, setClaim] = useState<{ code: string; badge: string; detail: string } | null>(null);
   const viewed = useRef("");
-
-  const userPlans: HangoutPlan[] = useMemo(() => {
-    const target = remote || local;
-    if (!target) return [];
-    const h = target.handle.toLowerCase();
-    return plans.filter(
-      (p) =>
-        p.isPublic &&
-        p.status !== "cancelled" &&
-        ((p.creator?.handle && p.creator.handle.toLowerCase() === h) ||
-          (target.ownerUid && p.creator?.uid === target.ownerUid)),
-    );
-  }, [plans, remote, local]);
-
-  const completedCount = useMemo(() => {
-    const target = remote || local;
-    if (!target) return 0;
-    return completedExperiencesCount(plans, { uid: target.ownerUid, handle: target.handle });
-  }, [plans, remote, local]);
 
   useEffect(() => {
     const p = remote || local;
@@ -994,16 +971,6 @@ export function BioPublicPage() {
               </button>
             )}
 
-            {bio.kind === "person" && completedCount > 0 && (
-              <p className="mt-2 text-xs font-bold text-ink tabular-nums flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>
-                  {completedCount.toLocaleString("en-AU")} completed{" "}
-                  {completedCount === 1 ? "experience" : "experiences"}
-                </span>
-              </p>
-            )}
-
             {/* Interactive Apple Availability / Focus Capsule without green frame */}
             <div className="mt-3">
               <button
@@ -1055,18 +1022,11 @@ export function BioPublicPage() {
             )}
           </div>
 
-          {/* Social Engagement Deck (Follow, Like, Website, QR Share) */}
-          <div className="mt-5 flex items-center gap-2">
-            <FollowButton
-              handle={bio.handle}
-              name={bio.name}
-              className="flex-1 min-w-0 min-h-[44px] text-xs font-semibold px-2.5 sm:px-4 rounded-full"
-            />
-            <LikeButton
-              handle={bio.handle}
-              name={bio.name}
-              className="flex-1 min-w-0 min-h-[44px] text-xs font-semibold px-2.5 sm:px-4 rounded-full"
-            />
+          {/* Social Engagement Deck: proper labeled buttons (Follow, Like, www, QR).
+              2-col grid on phones so nothing pushes off-screen; one row on sm+. */}
+          <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:items-center">
+            <FollowButton handle={bio.handle} name={bio.name} className="min-h-[44px] w-full min-w-0 sm:flex-1" />
+            <LikeButton handle={bio.handle} name={bio.name} className="min-h-[44px] w-full min-w-0 sm:flex-1" />
             {websiteUrl ? (
               <a
                 href={websiteUrl}
@@ -1076,12 +1036,12 @@ export function BioPublicPage() {
                   void triggerHaptic("light");
                   recordTap(bio.handle, websiteLink?.type || "website");
                 }}
-                className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-paper px-4 text-xs font-bold text-ink shadow-2xs ring-1 ring-line/80 transition hover:bg-paper/80 active:scale-95 shrink-0"
-                title={`Visit ${bio.domain || "website"}`}
-                aria-label="Website"
+                className="inline-flex h-11 min-h-[44px] w-full min-w-0 items-center justify-center gap-1.5 rounded-full bg-paper px-4 text-xs font-bold text-ink shadow-2xs ring-1 ring-line/80 transition hover:bg-paper/80 active:scale-95 sm:w-auto sm:flex-none"
+                title={`Visit ${websiteUrl}`}
+                aria-label="Visit website"
               >
-                <Globe size={14} className="text-accent mr-1.5" />
-                <span>Website</span>
+                <Globe size={15} className="shrink-0 text-accent" />
+                <span>www</span>
               </a>
             ) : null}
             <button
@@ -1090,11 +1050,11 @@ export function BioPublicPage() {
                 void triggerHaptic("light");
                 setShareModalOpen(true);
               }}
-              className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-4 text-xs font-bold text-ink shadow-2xs ring-1 ring-line/80 transition hover:bg-paper/80 active:scale-95 shrink-0 cursor-pointer"
+              className="inline-flex h-11 min-h-[44px] w-full min-w-0 cursor-pointer items-center justify-center rounded-full bg-paper text-ink shadow-2xs ring-1 ring-line/80 transition hover:bg-paper/80 active:scale-95 sm:w-11 sm:flex-none"
               title="Share & QR Code"
+              aria-label="Open share and QR code"
             >
-              <QrCode size={15} className="text-accent" />
-              <span>QR</span>
+              <QrCode size={18} className="text-accent" />
             </button>
           </div>
 
@@ -1623,7 +1583,7 @@ export function BioPublicPage() {
                     {
                       type: "nightout" as const,
                       label: "Hangout",
-                      sub: "Group plan",
+                      sub: "Group catch-up",
                       Icon: Users,
                       tint: "bg-violet-500/15 text-violet-700",
                     },
@@ -1658,7 +1618,7 @@ export function BioPublicPage() {
                 <div className="mt-6 border-t border-line/70 pt-5">
                   <div className="flex items-center justify-between mb-3.5">
                     <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-amber-700">
-                      <HeartHandshake size={14} className="text-amber-600" />
+                      <Users size={14} className="text-amber-600" />
                       <span>Meetup Proposals ({catchUpsList.length})</span>
                     </div>
                     <span className="text-[10px] font-bold rounded-full bg-amber-500/20 px-2.5 py-0.5 text-amber-800">
@@ -1829,7 +1789,7 @@ export function BioPublicPage() {
                 </div>
                 <h3 className="font-display mt-2.5 text-lg sm:text-xl font-bold text-ink">Catch up with {bio.name}</h3>
                 <p className="mt-1 text-xs sm:text-sm leading-relaxed text-mute">
-                  Propose a 1-on-1 coffee, schedule a sync meeting, or create a group hangout plan.
+                  Propose a 1-on-1 coffee, schedule a sync meeting, or create a group hangout.
                 </p>
 
                 <div className="mt-5 grid grid-cols-3 gap-2.5 sm:gap-3.5">
@@ -1852,7 +1812,7 @@ export function BioPublicPage() {
                       {
                         type: "nightout" as const,
                         label: "Hangout",
-                        sub: "Group plan",
+                        sub: "Group catch-up",
                         Icon: Users,
                         tint: "bg-violet-500/15 text-violet-700",
                       },
@@ -1883,54 +1843,6 @@ export function BioPublicPage() {
                 </div>
               </div>
             )}
-
-          {/* Public Plans & Hangouts created by this creator */}
-          {userPlans.length > 0 && (
-            <div className="mt-8">
-              <div className="flex items-center justify-between mb-3.5 px-0.5">
-                <h3 className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
-                  <Sparkles size={13} className="text-accent" />
-                  <span>Public Plans &amp; Hangouts</span>
-                </h3>
-                <span className="text-[10px] font-bold text-mute uppercase tracking-wider">
-                  {userPlans.length} {userPlans.length === 1 ? "Public Plan" : "Public Plans"}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-                {userPlans.map((plan) => {
-                  const planEventPayload = {
-                    title: plan.title,
-                    description: `${plan.notes || `AirPal Public Plan with @${bio.handle}`}\nhttps://airpal.me/plan/${plan.id}`,
-                    startsAt: `${plan.date}T${plan.time || "12:00"}:00`,
-                    venue: plan.destination || plan.city,
-                    city: plan.city,
-                  };
-
-                  return (
-                    <div
-                      key={plan.id}
-                      className="group flex flex-col justify-between rounded-[26px] bg-card p-4 ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:ring-brand/40 hover:shadow-xs"
-                    >
-                      <PlanGridCard plan={plan} />
-                      <div className="mt-3 pt-3 border-t border-line/60 flex items-center justify-between gap-2">
-                        <span className="text-xs font-medium text-mute truncate">
-                          {plan.destination || plan.city || "Sydney"}
-                        </span>
-                        <AddToCalendarMenu
-                          event={planEventPayload}
-                          size="sm"
-                          variant="ghost"
-                          label="Sync"
-                          buttonClassName="min-h-[44px] px-3.5 text-xs font-semibold rounded-full border border-line"
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {/* What's On / Appearing at Events */}
           {appearing.length > 0 && (
@@ -2332,7 +2244,7 @@ export function BioPublicPage() {
               </span>
             </Link>
             <p className="text-xs text-mute leading-relaxed max-w-md">
-              AirPal.Me · Plan your day, organise your life &amp; share who you are ·{" "}
+              AirPal.Me · See what&#39;s on, catch up &amp; share who you are ·{" "}
               <Link href="/bio/setup" className="font-bold text-ink underline hover:text-accent">
                 Claim your free @handle
               </Link>
@@ -2356,6 +2268,50 @@ export function BioPublicPage() {
           </footer>
         </div>
       </main>
+
+      {/* Floating QR — instant access to the branded share screen.
+          Left side so it never collides with the global Create FAB (right)
+          or the bottom tab dock; hidden while the share sheet is open. */}
+      {!shareModalOpen && (
+        <button
+          type="button"
+          onClick={() => {
+            void triggerHaptic("medium");
+            setShareModalOpen(true);
+          }}
+          aria-label={`Open QR code for @${bio.handle}`}
+          title="My QR code"
+          className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+92px)] left-4 z-40 flex cursor-pointer touch-manipulation flex-col items-center gap-1 rounded-[22px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 lg:bottom-6 lg:left-6"
+        >
+          <span className="relative grid h-16 w-16 place-items-center rounded-[22px] bg-white p-1.5 shadow-lg ring-2 ring-brand/70 transition-transform duration-150 active:scale-95">
+            {bioQrUrl ? (
+              <img
+                src={bioQrUrl}
+                alt=""
+                aria-hidden="true"
+                width={52}
+                height={52}
+                className="h-full w-full rounded-[14px] object-contain"
+              />
+            ) : (
+              <QrCode size={28} className="text-accent" aria-hidden="true" />
+            )}
+            <span className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center overflow-hidden rounded-full bg-white shadow ring-1 ring-line">
+              <img
+                src="/logo-mark.png"
+                alt=""
+                aria-hidden="true"
+                width={16}
+                height={16}
+                className="h-4 w-4 object-contain"
+              />
+            </span>
+          </span>
+          <span className="rounded-full bg-ink/85 px-2.5 py-0.5 text-[10px] font-bold text-white shadow backdrop-blur">
+            My QR
+          </span>
+        </button>
+      )}
 
       {/* Claim Redemption Modal */}
       {claim && (

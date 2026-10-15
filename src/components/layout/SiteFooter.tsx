@@ -8,9 +8,7 @@ import { openDebugOverlay } from "@/components/debug/DebugInfoOverlay";
 import { cn } from "@/lib/cn";
 
 const NAV_ME = [
-  { href: "/now", label: "What now? (Day Planner)" },
   { href: "/circle", label: "Networking Circle" },
-  { href: "/plan", label: "Plans & Invites" },
   { href: "/me", label: "Me Cockpit" },
   { href: "/calendar", label: "Personal Calendar" },
   { href: "/bio/setup", label: "Claim @handle" },

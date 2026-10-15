@@ -45,10 +45,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [path]);
   const workspace = isWorkspacePath(path);
   const homePath = isPassApp() || path.startsWith("/pass") ? "/pass" : "/";
-  // Plan detail + invite links own the bottom slot with their Share/RSVP bar —
-  // rendering the tab bar too would stack two fixed bars on mobile.
-  // (/plan/new keeps the tab bar: it has no action bar of its own.)
-  const isPlanDetail = (path.startsWith("/plan/") && path !== "/plan/new") || path.startsWith("/invite/");
   const showFooter = !isNativeApp() && shouldShowFooter(path);
   const bare = Boolean(parseAtHandle(path));
   const reduce = useReducedMotion();
@@ -159,17 +155,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                     >
                       Home
                     </Link>
-                    <Link
-                      href="/now"
-                      aria-current={path.startsWith("/now") ? "page" : undefined}
-                      className={cn(
-                        "hidden md:inline-flex h-9 touch-manipulation items-center rounded-full px-3 text-sm font-medium",
-                        path.startsWith("/now") ? "bg-brand text-white" : "text-mute hover:text-ink",
-                      )}
-                    >
-                      Now
-                    </Link>
-
                     <NotificationBell />
                     <ProfileMenu />
                   </div>
@@ -227,7 +212,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {showFooter && <SiteFooter hasTabBar={!workspace} />}
             </PullToRefreshContainer>
           </main>
-          {!workspace && !isPlanDetail && <TabBar path={path} enter={play} />}
+          {!workspace && <TabBar path={path} enter={play} />}
           <CreateFab showFab={false} />
           <PresencePublisher />
           <DeviceMirror />

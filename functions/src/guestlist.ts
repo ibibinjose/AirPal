@@ -1,7 +1,6 @@
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { ticketAdmitCheck, type Booking } from "../../shared/booking";
-import type { PlanAttendeeStatus } from "../../shared/plan";
 import {
   guestEntryIdForRsvp,
   guestEntryIdForTicket,
@@ -25,14 +24,13 @@ import { enforceRateLimit, noteAppCheck, writeAudit } from "./abuse";
 import { CALLABLE, db, isPlatformAdmin, requireAccount } from "./admin";
 
 /**
- * Guestlist server for events and plans: triggers keep rows in sync with
- * RSVPs and tickets, callables power the door. Every write is idempotent
+ * Guestlist server for events: triggers keep rows in sync with RSVPs and
+ * tickets, callables power the door. Every write is idempotent
  * (deterministic ids, status guards) so redeliveries can't duplicate rows.
  *
- * The door team is the owner plus listed co-hosts (events grow coHostUids,
- * plans reuse theirs). Status guards never downgrade a checked-in guest:
- * refunds and RSVP withdrawals after the door stay visible instead of
- * vanishing.
+ * The door team is the owner plus listed co-hosts. Status guards never
+ * downgrade a checked-in guest: refunds and RSVP withdrawals after the
+ * door stay visible instead of vanishing.
  */
 
 const TERMINAL_KEEP = new Set(["checked-in", "no-show"]);
@@ -42,16 +40,13 @@ export interface ScopeHosts {
   coHostUids: string[];
 }
 
-/** Owner + co-hosts for either scope. Null when the event/plan doesn't exist. */
+/** Owner + co-hosts for the event. Null when the event doesn't exist. */
 export async function scopeHostUids(scope: GuestScope, id: string): Promise<ScopeHosts | null> {
   if (!id) return null;
   const snap = await db.collection(guestScopeCollection(scope)).doc(id).get();
   if (!snap.exists) return null;
   const data = (snap.data() || {}) as Record<string, unknown>;
-  const ownerUid =
-    scope === "event"
-      ? String(data.organiserUid || "")
-      : String((data.creator as Record<string, unknown> | undefined)?.uid || "");
+  const ownerUid = String(data.organiserUid || "");
   const coHostUids = Array.isArray(data.coHostUids)
     ? (data.coHostUids as unknown[]).filter((v): v is string => typeof v === "string")
     : [];
@@ -61,14 +56,9 @@ export async function scopeHostUids(scope: GuestScope, id: string): Promise<Scop
 
 async function requireHost(scope: GuestScope, id: string, uid: string, claims: AccessClaims | undefined) {
   const hosts = await scopeHostUids(scope, id);
-  if (!hosts) throw new HttpsError("not-found", scope === "event" ? "Event not found." : "Plan not found.");
+  if (!hosts) throw new HttpsError("not-found", "Event not found.");
   if (!isListManager(hosts, uid) && !isPlatformAdmin(claims)) {
-    throw new HttpsError(
-      "permission-denied",
-      scope === "event"
-        ? "Only the event organiser can manage the guestlist."
-        : "Only the plan host can manage the guestlist.",
-    );
+    throw new HttpsError("permission-denied", "Only the event organiser can manage the guestlist.");
   }
 }
 
@@ -112,7 +102,7 @@ export async function refreshGuestCounts(scope: GuestScope, id: string): Promise
 }
 
 function parseScope(value: unknown): GuestScope {
-  if (!isGuestScope(value)) throw new HttpsError("invalid-argument", "scope must be event or plan.");
+  if (!isGuestScope(value)) throw new HttpsError("invalid-argument", "scope must be event.");
   return value;
 }
 
@@ -164,66 +154,18 @@ export const onGuestRsvpWritten = onDocumentWritten("users/{uid}/calendar/{event
 });
 
 /**
- * Plan RSVP → guestlist. Called by rsvpPlan after the attendee array lands:
- * going→going, maybe→invited, declined→cancelled. Terminal rows keep their
- * door state; names come from the RSVP itself.
- */
-export async function syncPlanRsvpGuest(
-  planId: string,
-  uid: string,
-  status: PlanAttendeeStatus,
-  name: string,
-): Promise<void> {
-  if (!planId || !uid || (status !== "going" && status !== "maybe" && status !== "declined")) return;
-  if ((await scopeHostUids("plan", planId)) === null) return;
-  const ref = guestlistCol("plan", planId).doc(guestEntryIdForRsvp(uid));
-  const existing = await ref.get();
-  const current = existing.exists ? String(existing.data()?.status) : "";
-  if (TERMINAL_KEEP.has(current)) {
-    await refreshGuestCounts("plan", planId);
-    return;
-  }
-  const now = new Date().toISOString();
-  if (status === "declined") {
-    if (!existing.exists) return;
-    const data = existing.data() as { source?: string };
-    if (data.source !== "rsvp") return;
-    await ref.set({ status: "cancelled" }, { merge: true });
-  } else {
-    const display = await guestDisplayFor(uid);
-    await ref.set(
-      {
-        name: (name || display.name).slice(0, 80),
-        uid,
-        ...(display.handle ? { handle: display.handle } : {}),
-        verified: display.verified,
-        status: status === "going" ? "going" : "invited",
-        partySize: 1,
-        source: "rsvp",
-        addedBy: uid,
-        addedAt: now,
-        checkedInAt: null,
-      },
-      { merge: true },
-    );
-  }
-  await refreshGuestCounts("plan", planId);
-}
-
-/**
  * Ticket → guestlist. Admissible bookings (paid or free, still open)
- * upsert the ticket row on the event list, else the plan list;
- * cancelled/refunded/disputed bookings cancel it. Pending-unpaid and
- * completed bookings are skipped.
+ * upsert the ticket row on the event list; cancelled/refunded/disputed
+ * bookings cancel it. Pending-unpaid and completed bookings are skipped.
  */
 export const onGuestBookingWritten = onDocumentWritten("bookings/{bookingId}", async (event) => {
   const bookingId = String(event.params.bookingId || "");
   if (!bookingId) return;
   const after = event.data?.after.data() as Omit<Booking, "id"> | undefined;
   if (!after) return;
-  const scope: GuestScope | null = after.eventId ? "event" : after.planId ? "plan" : null;
-  if (!scope) return;
-  const id = String(scope === "event" ? after.eventId : after.planId);
+  const scope: GuestScope = "event";
+  if (!after.eventId) return;
+  const id = String(after.eventId);
   if (!id || (await scopeHostUids(scope, id)) === null) return;
 
   const ref = guestlistCol(scope, id).doc(guestEntryIdForTicket(bookingId));

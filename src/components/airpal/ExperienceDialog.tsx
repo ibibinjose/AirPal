@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, MapPin, Clock, Sparkles, CalendarDays, Check, Share2, Ticket } from "lucide-react";
+import { X, MapPin, Clock, Sparkles, Share2, Ticket } from "lucide-react";
 import { type ExperienceItem } from "@/lib/curated-experiences";
-import { usePlans } from "@/contexts/PlanContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { toZonedDateStr } from "@/lib/local-time";
@@ -18,12 +17,10 @@ interface Props {
 
 export function ExperienceDialog({ item, onClose }: Props) {
   const { user } = useAuth();
-  const { myPlans, createPlan } = usePlans();
   const [selectedDate, setSelectedDate] = useState(() =>
     item?.starts_at ? item.starts_at.split("T")[0] : toZonedDateStr(new Date()),
   );
   const [booked, setBooked] = useState(false);
-  const [planning, setPlanning] = useState(false);
 
   useScrollLock(Boolean(item));
 
@@ -39,30 +36,6 @@ export function ExperienceDialog({ item, onClose }: Props) {
 
   if (!item || typeof document === "undefined") return null;
 
-  const isSavedInPlans = myPlans.some((p) => p.title.toLowerCase() === item.title.toLowerCase() || p.id === item.id);
-
-  const handleAddToDay = async () => {
-    setPlanning(true);
-    try {
-      void triggerHaptic("medium");
-      await createPlan({
-        title: item.title,
-        type: "walk",
-        theme: "sunset",
-        date: selectedDate,
-        time: item.open_hour ? `${String(item.open_hour).padStart(2, "0")}:00` : "14:00",
-        destination: item.venue,
-        heroImage: item.image,
-        notes: item.description,
-      });
-      toast.success("Added to your day!");
-    } catch {
-      toast.error("Could not add to day.");
-    } finally {
-      setPlanning(false);
-    }
-  };
-
   const handleClaimPass = () => {
     void triggerHaptic("medium");
     setBooked(true);
@@ -72,7 +45,6 @@ export function ExperienceDialog({ item, onClose }: Props) {
     const newBooking: BookingWithId = {
       id: passId,
       requestId: "",
-      planId: "",
       customerUid: passUid,
       providerUid: "airpal-experiences",
       providerKind: "business",
@@ -243,45 +215,19 @@ export function ExperienceDialog({ item, onClose }: Props) {
 
           {/* Action Row */}
           <div className="mt-5 flex flex-col gap-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={handleAddToDay}
-                disabled={planning}
-                className={cn(
-                  "inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-full border px-5 text-sm font-semibold transition active:scale-95 cursor-pointer touch-manipulation",
-                  isSavedInPlans
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
-                    : "border-line bg-card text-ink hover:bg-paper hover:border-brand/40",
-                )}
-              >
-                {isSavedInPlans ? (
-                  <>
-                    <Check size={16} className="text-emerald-600" />
-                    <span>In My Day</span>
-                  </>
-                ) : (
-                  <>
-                    <CalendarDays size={16} className="text-accent" />
-                    <span>{planning ? "Saving…" : "Add to My Day"}</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleClaimPass}
-                className={cn(
-                  "inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-5 text-sm font-semibold shadow-xs transition active:scale-95 cursor-pointer touch-manipulation",
-                  booked ? "bg-emerald-600 text-white hover:bg-emerald-700" : "bg-brand text-white hover:bg-brand-ink",
-                )}
-              >
-                <Ticket size={16} />
-                <span>
-                  {booked ? "Pass In Pocket ✓" : item.kind === "deal" ? "Claim Perk Pass" : "Reserve Free Pass"}
-                </span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleClaimPass}
+              className={cn(
+                "inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-5 text-sm font-semibold shadow-xs transition active:scale-95 cursor-pointer touch-manipulation",
+                booked ? "bg-emerald-600 text-white hover:bg-emerald-700" : "bg-brand text-white hover:bg-brand-ink",
+              )}
+            >
+              <Ticket size={16} />
+              <span>
+                {booked ? "Pass In Pocket ✓" : item.kind === "deal" ? "Claim Perk Pass" : "Reserve Free Pass"}
+              </span>
+            </button>
 
             <div className="flex items-center justify-between pt-1">
               <button

@@ -80,12 +80,12 @@ function str(value: unknown): string {
 
 /**
  * Card copy per shareable surface. Inputs are raw Firestore fields; outputs
- * are escaped and fallback-filled. Privacy gates (draft events, private
- * plans, inactive pulse tokens) live in the function — this maps data that
+ * are escaped and fallback-filled. Privacy gates (draft events,
+ * inactive pulse tokens) live in the function — this maps data that
  * already passed them.
  */
 export function shareCardFor(
-  kind: "event" | "place" | "pulse" | "plan" | "bio" | "property" | "promotion" | "demoHotel" | "demo",
+  kind: "event" | "place" | "pulse" | "bio" | "property" | "promotion" | "demoHotel" | "demo",
   doc: Record<string, unknown>,
   origin: string,
 ): ShareCard {
@@ -130,46 +130,6 @@ export function shareCardFor(
         image: imageOf(doc.imageUrl, doc.propertyHeroImage),
       };
     }
-    case "plan": {
-      const rawTitle = str(doc.title);
-      const isInvite = Boolean(doc.inviteCode) || doc._isInvite === true;
-      const title = rawTitle
-        ? isInvite && !rawTitle.toLowerCase().startsWith("you're invited")
-          ? `You're invited: ${rawTitle}`
-          : rawTitle
-        : SHARE_DEFAULTS.title;
-
-      const creator = doc.creator as { name?: string } | undefined;
-      const host = str(doc.hostName || creator?.name);
-      const when = [str(doc.date), str(doc.time)].filter(Boolean).join(" at ");
-      const where = [str(doc.destination), str(doc.city)].filter(Boolean).join(", ");
-      const stops = Array.isArray(doc.stops) ? doc.stops : [];
-      const stopsCount = stops.length > 0 ? `${stops.length} stop${stops.length === 1 ? "" : "s"}` : "";
-
-      const parts: string[] = [];
-      if (host) parts.push(`Join ${host}`);
-      if (when) parts.push(`on ${when}`);
-      if (where) parts.push(`at ${where}`);
-      if (stopsCount) parts.push(`(${stopsCount})`);
-      const inviteLine = parts.join(" ");
-
-      const notes = str(doc.notes);
-      const descLine =
-        inviteLine || notes
-          ? [inviteLine, notes, isInvite ? "RSVP on AirPal.me · Life Made Easy." : undefined]
-              .filter(Boolean)
-              .join(" — ")
-          : isInvite
-            ? "RSVP on AirPal.me · Life Made Easy."
-            : "";
-
-      const firstStopPhoto = stops.length > 0 ? stops[0]?.photo || stops[0]?.image : undefined;
-      return {
-        title: escapeShareText(title, 90) || SHARE_DEFAULTS.title,
-        description: escapeShareText(descLine || where || when, 200) || SHARE_DEFAULTS.description,
-        image: imageOf(doc.heroImage, doc.coverImage, doc.imageUrl, doc.image, firstStopPhoto),
-      };
-    }
     case "bio": {
       const handle = str(doc.handle);
       return {
@@ -206,7 +166,7 @@ export function shareCardFor(
     case "demo":
       return {
         title: "AirPal.me in five minutes · Showcase tour",
-        description: "Walk the full AirPal loop — mates, plans, stays, events, business — every stop live.",
+        description: "Walk the full AirPal loop — mates, stays, events, business — every stop live.",
         image: fallbackImage,
       };
   }

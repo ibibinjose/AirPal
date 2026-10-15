@@ -5,7 +5,6 @@ import { db } from "../admin";
 
 /** Private per-user id indexes kept on users/{uid} (see shared/v3-contract). */
 export const V3_USER_INDEX_FIELDS = [
-  "planIds",
   "cohortIds",
   "ticketIds",
   "orderIds",

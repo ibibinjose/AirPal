@@ -7,8 +7,6 @@
         "paths": [
           "/*",
           "/b/*",
-          "/plan/*",
-          "/invite/*",
           "/e/*",
           "/concierge/*"
         ]

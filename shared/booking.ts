@@ -51,7 +51,6 @@ export interface Booking {
   id: string;
   /** Mate request id, or campaign id when providerKind is business. */
   requestId: string;
-  planId: string;
   customerUid: string;
   providerUid: string;
   providerKind: BookingProviderKind;
@@ -81,7 +80,7 @@ export interface Booking {
   stripeAccountId?: string;
   /** Ticket quantity for events/experiences. Mate bookings are 1. */
   spots?: number;
-  /** Balance payment: points at the original deposit booking on the same plan. */
+  /** Balance payment: points at the original deposit booking. */
   parentBookingId?: string;
   /** D3 stay nights: property + range on the same bookings engine. */
   propertyId?: string;
@@ -96,7 +95,6 @@ export interface Booking {
 
 export interface BookingInput {
   requestId?: string;
-  planId?: string;
   providerUid: string;
   providerKind: BookingProviderKind;
   providerName: string;
@@ -162,18 +160,14 @@ export function ticketIdFromSearch(search: string): string | null {
 }
 
 /** Gate path the on-screen ticket and both wallet QRs share. */
-export function ticketGatePath(booking: { id: string; eventId?: string; planId?: string }): string {
+export function ticketGatePath(booking: { id: string; eventId?: string }): string {
   const id = encodeURIComponent(booking.id);
   if (booking.eventId) return `/e/${encodeURIComponent(booking.eventId)}?ticket=${id}`;
-  if (booking.planId) return `/plan/${encodeURIComponent(booking.planId)}?ticket=${id}`;
   return `/ticket/${id}`;
 }
 
 /** Absolute gate URL. Wallet barcodes use this so a camera opens the same gate as the ticket. */
-export function ticketGateUrl(
-  booking: { id: string; eventId?: string; planId?: string },
-  origin = "https://airpal.me",
-): string {
+export function ticketGateUrl(booking: { id: string; eventId?: string }, origin = "https://airpal.me"): string {
   return origin.replace(/\/$/, "") + ticketGatePath(booking);
 }
 
@@ -304,7 +298,6 @@ export function isPaymentStatus(s: string): s is PaymentStatus {
 export function bookingValid(input: BookingInput): boolean {
   const hasTarget =
     Boolean(input.requestId?.trim()) ||
-    Boolean(input.planId?.trim()) ||
     Boolean(input.campaignId?.trim()) ||
     Boolean(input.eventId?.trim()) ||
     Boolean(input.listingId?.trim());

@@ -235,7 +235,6 @@ export const googleWalletPass = onRequest(
           gateUrl: ticketGateUrl({
             id: key,
             eventId: eventId || undefined,
-            planId: str(booking.planId) || undefined,
           }),
           spots: Number.isFinite(spots) && spots > 1 ? spots : undefined,
         });

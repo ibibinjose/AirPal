@@ -32,10 +32,7 @@ import {
   type CalendarViewMode,
 } from "@/lib/calendar-utils";
 import { downloadMultipleIcs } from "@/lib/calendar-export";
-import { usePlans } from "@/contexts/PlanContext";
 import { useMyBookings } from "@/hooks/useMyBookings";
-import { downloadPlanIcs } from "@/lib/plan-store";
-import { formatPlanDate } from "@shared/plan";
 import { CalendarAgendaView } from "@/components/calendar/CalendarAgendaView";
 import { CalendarMonthGrid } from "@/components/calendar/CalendarMonthGrid";
 import { CalendarWeekView } from "@/components/calendar/CalendarWeekView";
@@ -110,17 +107,8 @@ function CalendarPageContent() {
   const [, nav] = useLocation();
   const searchStr = useSearch();
   const { calendarEvents, exportItinerary } = useEvents();
-  const { myPlans } = usePlans();
   const { upcomingBookings } = useMyBookings();
   const { today, city, usingGps, chooseLocation } = useLocalNow();
-  const upcomingPlans = useMemo(
-    () =>
-      [...myPlans]
-        .filter((p) => !p.date || p.date >= today)
-        .sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`))
-        .slice(0, 6),
-    [myPlans, today],
-  );
   const { reschedulingEvent, setReschedulingEvent } = useCalendarDrag();
   const [isLoading, setIsLoading] = useState(true);
   // Skeleton only for genuinely slow loads — fast event data renders the
@@ -726,13 +714,6 @@ function CalendarPageContent() {
                 >
                   <span>View Pass (QR)</span>
                 </Link>
-                <Link
-                  href={`/plan/new?title=${encodeURIComponent(selectedDateBooking.title)}&date=${encodeURIComponent(selectedDateBooking.date || "")}&time=${encodeURIComponent(selectedDateBooking.time || "")}&dest=${encodeURIComponent(selectedDateBooking.suburb || "")}&type=nightout&bookingId=${encodeURIComponent(selectedDateBooking.id)}`}
-                  className="inline-flex min-h-[38px] items-center gap-1 rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95"
-                >
-                  <Sparkles size={12} className="text-accent" />
-                  <span>Plan Day</span>
-                </Link>
               </div>
             </div>
           )}
@@ -923,8 +904,8 @@ function CalendarPageContent() {
             />
           )}
 
-          {/* Dual Integration Grid: AirPal Pass Tickets & AirPal.Me Hangout Plans */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* AirPal Pass Tickets */}
+          <div className="grid grid-cols-1 gap-6">
             {/* AirPal Pass Event Passes */}
             <section
               aria-label="Event Passes & Tickets"
@@ -975,14 +956,6 @@ function CalendarPageContent() {
                           </span>
                         </Link>
                         <Link
-                          href={`/plan/new?title=${encodeURIComponent(b.title)}&date=${encodeURIComponent(b.date || "")}&time=${encodeURIComponent(b.time || "")}&dest=${encodeURIComponent(b.suburb || "")}&type=nightout&bookingId=${encodeURIComponent(b.id)}`}
-                          title="Plan day around this event"
-                          className="inline-flex min-h-[36px] items-center gap-1 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-accent hover:bg-brand/20 transition active:scale-95"
-                        >
-                          <Sparkles size={12} />
-                          <span className="hidden sm:inline">Plan Day</span>
-                        </Link>
-                        <Link
                           href="/me/tickets"
                           className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card ring-1 ring-line text-accent hover:ring-brand/40 transition active:scale-90"
                           title="View Gate QR Pass"
@@ -1001,68 +974,6 @@ function CalendarPageContent() {
                   </Link>
                 </div>
               )}
-            </section>
-
-            {/* My plans — the repeat loop lives here, same chrome as events */}
-            <section
-              aria-label="My plans"
-              className="flex flex-col justify-between rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay md:p-6"
-            >
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-accent">
-                      AirPal.Me Hangouts
-                    </span>
-                    <h3 className="font-display text-xl font-bold text-ink mt-0.5">My plans</h3>
-                    <p className="mt-0.5 text-xs text-mute">
-                      Your upcoming plans — open one to coordinate, or save it to your calendar.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => nav("/plan/new")}
-                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-neutral-900 px-4 py-2 text-xs font-semibold text-white transition active:scale-95 cursor-pointer"
-                  >
-                    <PlusCircle size={13} />
-                    <span>New plan</span>
-                  </button>
-                </div>
-                {upcomingPlans.length === 0 ? (
-                  <p className="mt-4 rounded-2xl bg-paper px-4 py-3 text-[13px] text-mute ring-1 ring-line/60">
-                    No upcoming plans yet. Create one, invite your crew, and it will show up here.
-                  </p>
-                ) : (
-                  <ul className="mt-4 space-y-2">
-                    {upcomingPlans.map((p) => (
-                      <li
-                        key={p.id}
-                        className="flex items-center gap-3 rounded-2xl bg-paper px-3 py-2.5 ring-1 ring-line/60"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => nav(`/plan/${p.id}`)}
-                          className="min-w-0 flex-1 cursor-pointer text-left"
-                        >
-                          <span className="block truncate text-[14px] font-semibold text-ink">{p.title}</span>
-                          <span className="block text-[12px] text-mute">
-                            {formatPlanDate(p.date, p.time)}
-                            {p.destination ? ` · ${p.destination}` : ""}
-                          </span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => downloadPlanIcs(p)}
-                          aria-label={`Save ${p.title} to calendar`}
-                          className="grid h-10 w-10 shrink-0 cursor-pointer place-items-center rounded-full bg-card ring-1 ring-line transition hover:ring-brand/40 active:scale-90"
-                        >
-                          <Download size={15} className="text-mute" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
             </section>
           </div>
         </div>

@@ -2,11 +2,8 @@ import { randomBytes } from "node:crypto";
 import { defineSecret } from "firebase-functions/params";
 import { HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import Stripe from "stripe";
-import type { HangoutPlan, PlanAttendee } from "../../shared/plan";
-import { isSoldOut, normalizePlusOnes, spotsLeft } from "../../shared/plan";
 import {
   DEFAULT_FEE_CONFIG,
-  balanceDueCents,
   canProviderComplete,
   checkoutPaymentCollected,
   canReleasePayout,
@@ -21,23 +18,6 @@ import { isStayDay, nightsBetween, quoteStayNights, stayDateList, stayRangesOver
 import { CALLABLE, db, isPlatformAdmin, requireAuth } from "./admin";
 import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "./abuse";
 import type { AccessClaims } from "../../shared/airpal-security";
-
-export interface CreateCheckoutRequest {
-  planId: string;
-  tierId?: string;
-  spots?: number;
-  isDeposit?: boolean;
-  guestName?: string;
-  guestEmail?: string;
-  successUrl?: string;
-  cancelUrl?: string;
-}
-
-export interface ConfirmBookingRequest {
-  planId: string;
-  bookingId: string;
-  paymentIntentId?: string;
-}
 
 const APP_ORIGIN = "https://airpal.me";
 const STRIPE_API_VERSION = "2026-07-29.dahlia" as Stripe.LatestApiVersion;
@@ -173,34 +153,6 @@ export async function markBookingPaid(args: {
   return changed;
 }
 
-async function applyPaidTicketToPlan(booking: Booking, spots: number, guestName: string) {
-  const planId = String(booking.planId || "").trim();
-  if (!planId) return;
-  const planRef = db.collection("plans").doc(planId);
-  const now = new Date().toISOString();
-  await db.runTransaction(async (tx) => {
-    const snap = await tx.get(planRef);
-    if (!snap.exists) return;
-    const plan = snap.data() as HangoutPlan;
-    const qty = Math.max(1, Math.floor(spots || booking.spots || 1));
-    const nextBooked = Math.max(0, Number(plan.spotsBooked || 0)) + qty;
-    const party = normalizePlusOnes(qty - 1);
-    const guestAttendee: PlanAttendee = {
-      id: booking.customerUid,
-      name: guestName || "Guest",
-      status: "going",
-      plusOnes: party > 0 ? party : undefined,
-      notes: `Ticket ×${qty}`,
-      respondedAt: now,
-    };
-    const attendees = [...(plan.attendees || [])];
-    const idx = attendees.findIndex((a) => a.id === booking.customerUid);
-    if (idx >= 0) attendees[idx] = { ...attendees[idx]!, ...guestAttendee };
-    else attendees.push(guestAttendee);
-    tx.update(planRef, { spotsBooked: nextBooked, attendees, updatedAt: now });
-  });
-}
-
 export function safeReturnPath(raw: unknown): string {
   const s = String(raw || "").trim();
   if (!s.startsWith("/") || s.startsWith("//") || s.includes("://")) return "/me";
@@ -281,32 +233,20 @@ async function transferProviderShare(booking: Booking): Promise<{
 }
 
 /**
- * Stay checkout returns land on /concierge directly: /stay redirects
- * there and wouter drops the query, which would lose booked/canceled.
+ * Checkout returns land on the ticket passbook: every booking — stay,
+ * event, dining — is readable there without extra routing.
  */
 export function stayCheckoutReturnUrls(origin: string, bookingId: string): { success: string; cancel: string } {
   return {
-    success: `${origin}/concierge?booked=${bookingId}`,
-    cancel: `${origin}/concierge?canceled=true`,
+    success: `${origin}/me/tickets?booked=${bookingId}`,
+    cancel: `${origin}/me/tickets?canceled=true`,
   };
 }
 
-function checkoutReturnUrls(origin: string, booking: Booking, bookingId: string): { success: string; cancel: string } {
-  if (booking.planId) {
-    return {
-      success: `${origin}/plan/${booking.planId}?booked=${bookingId}`,
-      cancel: `${origin}/plan/${booking.planId}?canceled=1`,
-    };
-  }
-  if (booking.campaignId) {
-    return {
-      success: `${origin}/experiences?booked=${bookingId}`,
-      cancel: `${origin}/experiences?canceled=1`,
-    };
-  }
+function checkoutReturnUrls(origin: string, _booking: Booking, bookingId: string): { success: string; cancel: string } {
   return {
-    success: `${origin}/mate?booked=${bookingId}`,
-    cancel: `${origin}/mate?canceled=1`,
+    success: `${origin}/me/tickets?booked=${bookingId}`,
+    cancel: `${origin}/me/tickets?canceled=true`,
   };
 }
 
@@ -333,223 +273,6 @@ export function assertChargeableAmount(totalAmount: number): void {
     throw new HttpsError("failed-precondition", "This experience has no chargeable amount.");
   }
 }
-
-export const createExperienceCheckoutSession = onCall(STRIPE_CALLABLE, async (request) => {
-  await noteAppCheck(request, "createExperienceCheckoutSession");
-  const uid = requireAuth(request.auth?.uid);
-  await enforceRateLimit(uid, "pay", isAnonymousAuth(request));
-
-  const data = (request.data || {}) as CreateCheckoutRequest;
-  const planId = String(data.planId || "").trim();
-  const spots = Math.max(1, Math.min(20, Number(data.spots || 1)));
-  const isDeposit = Boolean(data.isDeposit);
-
-  if (!planId) throw new HttpsError("invalid-argument", "Plan ID is required.");
-
-  const planRef = db.collection("plans").doc(planId);
-  const planSnap = await planRef.get();
-  if (!planSnap.exists) {
-    throw new HttpsError("not-found", "Experience plan not found.");
-  }
-
-  const plan = planSnap.data() as HangoutPlan;
-  if (!plan.isExperience) {
-    throw new HttpsError("failed-precondition", "This plan is not a paid experience.");
-  }
-
-  let unitAmount = Number(plan.pricePerPerson || 0);
-  let tierName = "Standard Booking";
-
-  if (data.tierId && plan.pricingTiers && plan.pricingTiers.length > 0) {
-    const matchedTier = plan.pricingTiers.find((t) => t.id === data.tierId);
-    if (matchedTier) {
-      unitAmount = Number(matchedTier.price || unitAmount);
-      tierName = matchedTier.name;
-    }
-  }
-
-  if (isDeposit && plan.depositConfig?.depositAmount) {
-    unitAmount = Number(plan.depositConfig.depositAmount);
-  }
-
-  const totalAmount = unitAmount * spots;
-  assertChargeableAmount(totalAmount);
-  if (isSoldOut(plan) || (spotsLeft(plan) !== null && spots > (spotsLeft(plan) || 0))) {
-    throw new HttpsError("failed-precondition", "Those tickets are sold out.");
-  }
-  const currency = String(plan.currency || "AUD").toLowerCase();
-  const bookingId = `bk-${Date.now().toString(36)}-${randomBytes(4).toString("hex")}`;
-  const now = new Date().toISOString();
-  const origin = headerOrigin(request);
-  const fees = quoteFees(Math.round(totalAmount * 100), await loadFeeConfig());
-
-  if (stripeLiveConfigured()) {
-    try {
-      const stripe = makeStripe();
-      const session = await stripe.checkout.sessions.create({
-        mode: "payment",
-        // Marketplace Connect is unsupported by Stripe Managed Payments.
-        managed_payments: { enabled: false },
-        client_reference_id: uid,
-        customer_email: data.guestEmail || request.auth?.token?.email || undefined,
-        submit_type: "book",
-        integration_identifier: integrationId("experience"),
-        line_items: [
-          {
-            quantity: spots,
-            price_data: {
-              currency,
-              unit_amount: Math.round(unitAmount * 100),
-              product_data: {
-                name: `${plan.title} - ${tierName}${isDeposit ? " (Deposit)" : ""}`,
-                images: plan.heroImage ? [plan.heroImage] : undefined,
-              },
-            },
-          },
-        ],
-        success_url: data.successUrl || `${origin}/plan/${planId}?booked=${bookingId}`,
-        cancel_url: data.cancelUrl || `${origin}/plan/${planId}?canceled=true`,
-        metadata: {
-          bookingId,
-          planId,
-          planBookingId: bookingId,
-          spots: String(spots),
-          isDeposit: String(isDeposit),
-          providerUid: plan.creator.uid || "",
-        },
-        payment_intent_data: {
-          metadata: {
-            bookingId,
-            planId,
-            providerUid: plan.creator.uid || "",
-          },
-        },
-      });
-
-      await db
-        .collection("plan_bookings")
-        .doc(bookingId)
-        .set({
-          id: bookingId,
-          planId,
-          hostUid: plan.creator.uid || "",
-          guestUid: uid,
-          guestName: data.guestName || request.auth?.token?.name || "Guest",
-          guestEmail: data.guestEmail || request.auth?.token?.email || "",
-          spots,
-          unitAmount,
-          totalAmount,
-          currency,
-          tierName,
-          isDeposit,
-          status: "pending_payment",
-          stripeSessionId: session.id,
-          createdAt: now,
-        });
-
-      await db
-        .collection("bookings")
-        .doc(bookingId)
-        .set({
-          id: bookingId,
-          requestId: "",
-          planId,
-          customerUid: uid,
-          providerUid: plan.creator.uid || "",
-          providerKind: "host",
-          providerName: plan.creator.name || "Host",
-          title: plan.title,
-          suburb: plan.city || plan.destination || "Sydney",
-          date: plan.date || now.slice(0, 10),
-          time: plan.time || "",
-          priceCents: fees.priceCents,
-          feeCents: fees.feeCents,
-          paymentStatus: "unpaid",
-          payoutStatus: "unpaid",
-          status: "pending",
-          cancelReason: "",
-          spots,
-          stripeCheckoutSessionId: session.id,
-          createdAt: now,
-          updatedAt: now,
-        });
-
-      return {
-        ok: true,
-        mode: "live_stripe",
-        bookingId,
-        sessionId: session.id,
-        checkoutUrl: session.url,
-      };
-    } catch (err) {
-      if (!sandboxBookingsAllowed()) {
-        const message = err instanceof Error ? err.message : "Stripe checkout failed.";
-        throw new HttpsError("failed-precondition", message);
-      }
-    }
-  }
-
-  if (!sandboxBookingsAllowed()) {
-    throw new HttpsError(
-      "failed-precondition",
-      "Card payments are not configured for this experience yet. Please contact the host.",
-    );
-  }
-  await db
-    .collection("plan_bookings")
-    .doc(bookingId)
-    .set({
-      id: bookingId,
-      planId,
-      hostUid: plan.creator.uid || "",
-      guestUid: uid,
-      guestName: data.guestName || request.auth?.token?.name || "Guest",
-      guestEmail: data.guestEmail || request.auth?.token?.email || "",
-      spots,
-      unitAmount,
-      totalAmount,
-      currency,
-      tierName,
-      isDeposit,
-      status: "confirmed",
-      simulated: true,
-      createdAt: now,
-    });
-
-  const sandboxParty = normalizePlusOnes(Number(spots) - 1);
-  const guestAttendee: PlanAttendee = {
-    id: uid,
-    name: data.guestName || request.auth?.token?.name || "You",
-    status: "going",
-    isAnonymous: Boolean(request.auth?.token?.firebase?.sign_in_provider === "anonymous"),
-    plusOnes: sandboxParty > 0 ? sandboxParty : undefined,
-    notes: `Booked ${spots} spot${spots > 1 ? "s" : ""} (${isDeposit ? "Deposit Paid" : "Paid in Full"})`,
-    respondedAt: now,
-  };
-
-  const currentAttendees = plan.attendees || [];
-  const existingIdx = currentAttendees.findIndex((a) => a.id === uid);
-  let updatedAttendees: PlanAttendee[];
-  if (existingIdx >= 0) {
-    updatedAttendees = currentAttendees.map((a, i) => (i === existingIdx ? guestAttendee : a));
-  } else {
-    updatedAttendees = [...currentAttendees, guestAttendee];
-  }
-
-  await planRef.update({
-    attendees: updatedAttendees,
-    updatedAt: now,
-  });
-
-  return {
-    ok: true,
-    mode: "sandbox_simulated",
-    bookingId,
-    totalAmount,
-    currency,
-    message: "Stripe booking confirmed (Sandbox / Instant Booking)",
-  };
-});
 
 export const createBookingCheckoutSession = onCall(STRIPE_CALLABLE, async (request) => {
   await noteAppCheck(request, "createBookingCheckoutSession");
@@ -651,7 +374,6 @@ export const createBookingCheckoutSession = onCall(STRIPE_CALLABLE, async (reque
       providerUid: booking.providerUid,
       providerKind: booking.providerKind,
       spots: String(booking.spots || 1),
-      planId: booking.planId || "",
       campaignId: booking.campaignId || "",
     },
     payment_intent_data: {
@@ -668,126 +390,6 @@ export const createBookingCheckoutSession = onCall(STRIPE_CALLABLE, async (reque
   });
 
   return { ok: true, mode: "live_stripe", bookingId, sessionId: session.id, checkoutUrl: session.url };
-});
-
-/**
- * C2 — collect the remaining balance on a deposit booking via a second
- * Checkout session. The server recomputes the remainder from the ledger
- * (`plan_bookings.amountPaidCents`), never from client input. The balance is
- * its own `bookings` row (parentBookingId) so fees, payout holds, and refunds
- * stay per-payment on the one engine.
- */
-export const payBookingBalance = onCall(STRIPE_CALLABLE, async (request) => {
-  await noteAppCheck(request, "payBookingBalance");
-  const uid = requireAuth(request.auth?.uid);
-  await enforceRateLimit(uid, "pay", isAnonymousAuth(request));
-  const planBookingId = String((request.data as { planBookingId?: string } | undefined)?.planBookingId || "").trim();
-  if (!planBookingId) throw new HttpsError("invalid-argument", "planBookingId is required.");
-
-  const ledgerRef = db.collection("plan_bookings").doc(planBookingId);
-  const ledgerSnap = await ledgerRef.get();
-  if (!ledgerSnap.exists) throw new HttpsError("not-found", "Booking record not found.");
-  const ledger = ledgerSnap.data() as {
-    guestUid?: string;
-    planId?: string;
-    status?: string;
-    totalAmount?: number;
-    amountPaidCents?: number;
-    spots?: number;
-    currency?: string;
-  };
-  if (ledger.guestUid !== uid) {
-    throw new HttpsError("permission-denied", "Only the guest who booked can pay the balance.");
-  }
-  if (ledger.status !== "confirmed") {
-    throw new HttpsError("failed-precondition", "The deposit payment is not confirmed yet.");
-  }
-  const remaining = balanceDueCents(
-    Math.round(Number(ledger.totalAmount || 0) * 100),
-    Number(ledger.amountPaidCents || 0),
-  );
-  if (remaining <= 0) return { ok: true, mode: "already_paid", planBookingId };
-
-  const planId = String(ledger.planId || "").trim();
-  const planSnap = planId ? await db.collection("plans").doc(planId).get() : null;
-  const plan = (planSnap?.exists ? (planSnap.data() as HangoutPlan) : null) as HangoutPlan | null;
-
-  if (!stripeLiveConfigured()) {
-    throw new HttpsError(
-      "failed-precondition",
-      "Card payments are not configured yet. Ask the host about paying the balance.",
-    );
-  }
-
-  const currency = String(ledger.currency || plan?.currency || "AUD").toLowerCase();
-  const spots = Math.max(1, Math.min(20, Math.floor(Number(ledger.spots || 1))));
-  const fees = quoteFees(remaining, await loadFeeConfig());
-  const now = new Date().toISOString();
-  const origin = headerOrigin(request);
-  const childId = `bk-${Date.now().toString(36)}-${randomBytes(4).toString("hex")}`;
-  const stripe = makeStripe();
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    // Marketplace Connect is unsupported by Stripe Managed Payments.
-    managed_payments: { enabled: false },
-    client_reference_id: uid,
-    customer_email: request.auth?.token?.email || undefined,
-    submit_type: "pay",
-    integration_identifier: integrationId("balance"),
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency,
-          unit_amount: remaining,
-          product_data: { name: `Balance · ${plan?.title || "Experience booking"}` },
-        },
-      },
-    ],
-    success_url: `${origin}/plan/${planId}?booked=${childId}`,
-    cancel_url: `${origin}/plan/${planId}?canceled=true`,
-    metadata: {
-      bookingId: childId,
-      planBookingId,
-      planId,
-      isBalance: "true",
-      spots: String(spots),
-      providerUid: plan?.creator?.uid || "",
-    },
-    payment_intent_data: {
-      metadata: { bookingId: childId, planBookingId, providerUid: plan?.creator?.uid || "" },
-    },
-  });
-
-  await db
-    .collection("bookings")
-    .doc(childId)
-    .set({
-      id: childId,
-      requestId: "",
-      planId,
-      customerUid: uid,
-      providerUid: plan?.creator?.uid || "",
-      providerKind: "host",
-      providerName: plan?.creator?.name || "Host",
-      title: plan?.title || "Experience booking",
-      suburb: plan?.city || plan?.destination || "Sydney",
-      date: plan?.date || now.slice(0, 10),
-      time: plan?.time || "",
-      priceCents: fees.priceCents,
-      feeCents: fees.feeCents,
-      paymentStatus: "unpaid",
-      payoutStatus: "unpaid",
-      status: "pending",
-      cancelReason: "",
-      spots,
-      parentBookingId: planBookingId,
-      stripeCheckoutSessionId: session.id,
-      createdAt: now,
-      updatedAt: now,
-    });
-
-  return { ok: true, mode: "live_stripe", bookingId: childId, sessionId: session.id, checkoutUrl: session.url };
 });
 
 export interface CreateStayCheckoutRequest {
@@ -923,7 +525,6 @@ export const createStayCheckoutSession = onCall(STRIPE_CALLABLE, async (request)
     .set({
       id: bookingId,
       requestId: "",
-      planId: "",
       customerUid: uid,
       providerUid: String(prop.ownerId || ""),
       providerKind: "host",
@@ -950,64 +551,6 @@ export const createStayCheckoutSession = onCall(STRIPE_CALLABLE, async (request)
 
   return { ok: true, mode: "live_stripe", bookingId, sessionId: session.id, checkoutUrl: session.url };
 });
-
-export const confirmExperienceBookingRemote = onCall(STRIPE_CALLABLE, async (request) => {
-  await noteAppCheck(request, "confirmExperienceBookingRemote");
-  const uid = requireAuth(request.auth?.uid);
-  const data = (request.data || {}) as ConfirmBookingRequest;
-  const planId = String(data.planId || "").trim();
-  const bookingId = String(data.bookingId || "").trim();
-
-  if (!planId || !bookingId) {
-    throw new HttpsError("invalid-argument", "planId and bookingId are required.");
-  }
-
-  const bookingRef = db.collection("plan_bookings").doc(bookingId);
-  const bookingSnap = await bookingRef.get();
-  if (!bookingSnap.exists) {
-    throw new HttpsError("not-found", "Booking record not found.");
-  }
-
-  const booking = bookingSnap.data() as Record<string, unknown> | undefined;
-  if (booking?.planId !== planId) {
-    throw new HttpsError("invalid-argument", "Booking does not belong to this plan.");
-  }
-
-  const planSnap = await db.collection("plans").doc(planId).get();
-  const hostUid = (planSnap.data() as HangoutPlan | undefined)?.creator?.uid;
-  if (booking?.guestUid !== uid && hostUid !== uid) {
-    throw new HttpsError("permission-denied", "Only the guest or host can confirm this booking.");
-  }
-
-  if (booking?.status === "confirmed") {
-    return { ok: true, status: "confirmed", bookingId };
-  }
-
-  const isSandboxSimulated = booking?.simulated === true;
-  const sandboxAllowed = sandboxBookingsAllowed();
-  let paid = false;
-  const sessionId = String(booking?.stripeSessionId || "");
-  if (sessionId && stripeLiveConfigured()) {
-    const session = await makeStripe().checkout.sessions.retrieve(sessionId);
-    paid = checkoutPaymentCollected(session.payment_status);
-  }
-  if (!isSandboxSimulated && !paid) {
-    throw new HttpsError("failed-precondition", "Payment has not been verified for this booking.");
-  }
-  if (isSandboxSimulated && !sandboxAllowed) {
-    throw new HttpsError("failed-precondition", "Sandbox bookings are disabled.");
-  }
-
-  const now = new Date().toISOString();
-  await bookingRef.update({
-    status: "confirmed",
-    confirmedAt: now,
-    paymentIntentId: paid ? "stripe_verified" : "sandbox_simulated",
-  });
-
-  return { ok: true, status: "confirmed", bookingId };
-});
-export const confirmExperienceBooking = confirmExperienceBookingRemote;
 
 export interface BillingConfig {
   businessPriceId: string;
@@ -1603,53 +1146,14 @@ export const stripeWebhook = onRequest(
           const paymentIntentId =
             typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id || "";
           const chargeId = await chargeIdFromSession(stripe, session);
-          const newlyPaid = await markBookingPaid({
+          await markBookingPaid({
             bookingId,
             sessionId: session.id,
             paymentIntentId,
             chargeId,
           });
-          if (newlyPaid) {
-            const bookingSnap = await db.collection("bookings").doc(bookingId).get();
-            if (bookingSnap.exists) {
-              const booking = { id: bookingSnap.id, ...(bookingSnap.data() as Omit<Booking, "id">) };
-              const spots = Math.max(1, Number(session.metadata?.spots || booking.spots || 1));
-              const guestName = String(session.customer_details?.name || session.metadata?.guestName || "Guest");
-              await applyPaidTicketToPlan(booking, spots, guestName);
-            }
-          }
-          const planBookingId = String(session.metadata?.planBookingId || bookingId);
-          const isBalance = String(session.metadata?.isBalance || "") === "true";
-          const planRef = db.collection("plan_bookings").doc(planBookingId);
-          const planSnap = await planRef.get();
-          // C2 — Stripe may redeliver: accumulate the ledger once per session.
+          // Stripe may redeliver: record the session once for idempotency.
           const payRef = db.collection("payments").doc(session.id);
-          const paySnap = await payRef.get();
-          if (planSnap.exists && !paySnap.exists) {
-            const prev = planSnap.data() as { amountPaidCents?: unknown };
-            const paid = Math.max(0, Math.floor(Number(prev.amountPaidCents || 0)));
-            await planRef.update({
-              status: "confirmed",
-              paymentIntentId: paymentIntentId || "stripe_verified",
-              confirmedAt: new Date().toISOString(),
-              amountPaidCents: paid + (session.amount_total || 0),
-            });
-          } else if (planSnap.exists) {
-            await planRef.update({
-              status: "confirmed",
-              paymentIntentId: paymentIntentId || "stripe_verified",
-              confirmedAt: new Date().toISOString(),
-            });
-          }
-          if (!isBalance && newlyPaid) {
-            const bookingSnap = await db.collection("bookings").doc(bookingId).get();
-            if (bookingSnap.exists) {
-              const booking = { id: bookingSnap.id, ...(bookingSnap.data() as Omit<Booking, "id">) };
-              const spots = Math.max(1, Number(session.metadata?.spots || booking.spots || 1));
-              const guestName = String(session.customer_details?.name || session.metadata?.guestName || "Guest");
-              await applyPaidTicketToPlan(booking, spots, guestName);
-            }
-          }
           await payRef.set({
             id: session.id,
             bookingId,
@@ -1657,7 +1161,6 @@ export const stripeWebhook = onRequest(
             currency: session.currency || "aud",
             paymentIntentId,
             chargeId,
-            isBalance,
             createdAt: new Date().toISOString(),
           });
         }

@@ -16,7 +16,7 @@ import { CALLABLE, db, isPlatformAdmin, requireAccount, requireAuth } from "../a
 import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "../abuse";
 import { indexUserDoc, unindexUserDoc, v3Arg, writeV3Audit } from "./common";
 
-const REPORT_SUBJECTS = ["profile", "plan", "event", "place", "message"] as const;
+const REPORT_SUBJECTS = ["profile", "event", "place", "message"] as const;
 
 /** File a trust report. Stored in the admin-only audit trail. */
 export const v3ReportContent = onCall(CALLABLE, async (request) => {

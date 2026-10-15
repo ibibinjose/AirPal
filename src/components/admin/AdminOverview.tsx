@@ -11,6 +11,7 @@ export type AdminTab =
   | "search"
   | "safety"
   | "partners"
+  | "claims"
   | "system"
   | "audit"
   | "audience"
@@ -24,6 +25,7 @@ export const ADMIN_TABS: { id: AdminTab; label: string }[] = [
   { id: "search", label: "Search" },
   { id: "safety", label: "Safety" },
   { id: "partners", label: "Partners" },
+  { id: "claims", label: "Claims" },
   { id: "system", label: "System" },
   { id: "audit", label: "Audit" },
   { id: "audience", label: "Audience" },
@@ -120,7 +122,7 @@ export function AdminOverview({ onSelectTab }: { onSelectTab: (t: AdminTab) => v
             badgeClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
           },
           {
-            label: "Completed Plans",
+            label: "Completed Requests",
             value: String(completed),
             hint: "awaiting review",
             tab: "marketplace",

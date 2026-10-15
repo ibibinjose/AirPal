@@ -45,11 +45,11 @@ describe("checkTimeConflict", () => {
     __resetCatchUpMemoryForTests();
   });
 
-  it("flags a plan within 60 minutes on the same date", () => {
+  it("flags a catch-up within 60 minutes on the same date", () => {
     const result = checkTimeConflict(
       "2026-09-25",
       "14:00",
-      [{ date: "2026-09-25", time: "14:30", title: "Coffee with Sam", type: "Plan" }],
+      [{ date: "2026-09-25", time: "14:30", title: "Coffee with Sam", type: "catchup" }],
       [],
     );
     expect(result.hasConflict).toBe(true);
@@ -61,7 +61,7 @@ describe("checkTimeConflict", () => {
     const result = checkTimeConflict(
       "2026-09-25",
       "14:00",
-      [{ date: "2026-09-25", time: "16:00", title: "Later plan", type: "Plan" }],
+      [{ date: "2026-09-25", time: "16:00", title: "Later meetup", type: "meeting" }],
       [],
     );
     expect(result.hasConflict).toBe(false);

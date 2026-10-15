@@ -3,7 +3,7 @@
   "lang": "en-AU",
   "name": "AirPal.Me",
   "short_name": "AirPal",
-  "description": "Find places and experiences. Make plans with family and friends. Stay concierge, in one app.",
+  "description": "Find places and experiences. Catch up with family and friends. Stay concierge, in one app.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -26,10 +26,10 @@
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Create a Plan",
-      "short_name": "Plan",
-      "description": "Plan something with family, friends, or people nearby",
-      "url": "/plan/new",
+      "name": "My Tickets",
+      "short_name": "Tickets",
+      "description": "Your passes and tickets, ready to scan at the door",
+      "url": "/me/tickets",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {

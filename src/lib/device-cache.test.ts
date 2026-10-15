@@ -25,7 +25,7 @@ if (typeof globalThis.localStorage === "undefined" || !globalThis.localStorage.g
 
 describe("clearDeviceCache", () => {
   it("removes user data but keeps device prefs", () => {
-    localStorage.setItem("airpal.plans.v3", "[]");
+    localStorage.setItem("airpal.bookings.v3", "[]");
     localStorage.setItem("airpal:memories:v1", "[]");
     localStorage.setItem("airpal.anon.id", "anon-1");
     localStorage.setItem("airpal.door.v1", "explore");
@@ -34,7 +34,7 @@ describe("clearDeviceCache", () => {
 
     clearDeviceCache();
 
-    expect(localStorage.getItem("airpal.plans.v3")).toBeNull();
+    expect(localStorage.getItem("airpal.bookings.v3")).toBeNull();
     expect(localStorage.getItem("airpal:memories:v1")).toBeNull();
     expect(localStorage.getItem("airpal.anon.id")).toBeNull();
     expect(localStorage.getItem("airpal.door.v1")).toBe("explore");

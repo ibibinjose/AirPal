@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useListings } from "@/contexts/ListingsContext";
 import { useBio } from "@/contexts/BioContext";
 import { withWalk } from "@/lib/catalog";
+import { isV3AdaptersEnabled } from "@/lib/v3/gate";
 import { hrefForPlace } from "@/lib/bio-handle";
 import { partnerAccountPath } from "@/lib/partner-account";
 import { cn } from "@/lib/cn";
@@ -509,6 +510,15 @@ export function BusinessPage() {
                     }
                   }}
                 />
+                {isV3AdaptersEnabled() ? (
+                  <p className="mt-3 text-sm text-mute">
+                    New here?{" "}
+                    <Link href="/claim" className="font-semibold text-accent underline-offset-2 hover:underline">
+                      Claim your venue
+                    </Link>{" "}
+                    to take ownership through verification.
+                  </p>
+                ) : null}
               </section>
 
               {/* Venue Form */}
@@ -793,11 +803,11 @@ export function BusinessPage() {
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Live Guest View</span>
               <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                Live on What&apos;s on
+                Live Preview
               </span>
             </div>
             <p className="text-xs text-mute mb-3">
-              This is how your place card renders on guest discovery screens and nearby searches:
+              This is how your place card renders in search results and on your public bio:
             </p>
             <div className="mx-auto max-w-sm overflow-hidden rounded-2xl ring-1 ring-line shadow-2xs">
               <PlaceCard place={preview} walk={preview.walk} />
@@ -809,7 +819,7 @@ export function BusinessPage() {
                 onClick={() => nav(hrefForPlace(listingToPlace(mine)))}
                 className="font-semibold text-accent hover:underline inline-flex items-center gap-1"
               >
-                Open Place Page <ExternalLink className="h-3 w-3" />
+                Open Bio Page <ExternalLink className="h-3 w-3" />
               </button>
             </div>
           </section>

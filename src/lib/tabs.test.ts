@@ -3,18 +3,9 @@ import { passTabFromPath, tabFromPath } from "./tabs";
 
 describe("tabFromPath", () => {
   it("maps the companion tabs", () => {
-    expect(tabFromPath("/now")).toBe("explore");
-    expect(tabFromPath("/pass")).toBe("explore");
-    expect(tabFromPath("/explore")).toBe("explore");
-    expect(tabFromPath("/calendar")).toBe("explore");
-    expect(tabFromPath("/plan")).toBe("trips");
-    expect(tabFromPath("/plan/new")).toBe("trips");
-    expect(tabFromPath("/invite/abc")).toBe("trips");
+    expect(tabFromPath("/")).toBe("home");
     expect(tabFromPath("/scan")).toBe("scan");
     expect(tabFromPath("/w/abcd")).toBe("scan");
-    expect(tabFromPath("/concierge")).toBe("explore");
-    expect(tabFromPath("/g/harbour-hotel")).toBe("explore");
-    expect(tabFromPath("/q/sydney/harbour")).toBe("explore");
   });
 
   it("maps personal bio to the Bio tab, circle to Circle tab, and dashboard/settings to the Me tab", () => {
@@ -26,20 +17,26 @@ describe("tabFromPath", () => {
     expect(tabFromPath("/@maya")).toBe("bio");
   });
 
-  it("maps home route to home (accessible via top App icon)", () => {
-    expect(tabFromPath("/")).toBe("home");
+  it("falls back to home for removed Discovery, Planning, and Phase 6 routes", () => {
+    expect(tabFromPath("/now")).toBe("home");
+    expect(tabFromPath("/pass")).toBe("home");
+    expect(tabFromPath("/explore")).toBe("home");
+    expect(tabFromPath("/calendar")).toBe("home");
+    expect(tabFromPath("/concierge")).toBe("home");
+    expect(tabFromPath("/g/harbour-hotel")).toBe("home");
+    expect(tabFromPath("/q/sydney/harbour")).toBe("home");
+    expect(tabFromPath("/mate")).toBe("home");
+    expect(tabFromPath("/mate/request")).toBe("home");
+    expect(tabFromPath("/experiences")).toBe("home");
+    expect(tabFromPath("/plan")).toBe("home");
+    expect(tabFromPath("/plan/new")).toBe("home");
+    expect(tabFromPath("/invite/abc")).toBe("home");
   });
 
-  it("falls back to explore for removed Phase 6 routes", () => {
-    expect(tabFromPath("/mate")).toBe("explore");
-    expect(tabFromPath("/mate/request")).toBe("explore");
-    expect(tabFromPath("/experiences")).toBe("explore");
-  });
-
-  it("parks directory and account under Explore, not extra tabs", () => {
-    expect(tabFromPath("/deals")).toBe("explore");
-    expect(tabFromPath("/guide")).toBe("explore");
-    expect(tabFromPath("/join")).toBe("explore");
+  it("parks directory and account under Home, not extra tabs", () => {
+    expect(tabFromPath("/deals")).toBe("home");
+    expect(tabFromPath("/guide")).toBe("home");
+    expect(tabFromPath("/join")).toBe("home");
   });
 });
 

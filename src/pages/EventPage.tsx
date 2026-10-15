@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useRoute, useLocation, useSearch, Link } from "wouter";
-import { ArrowLeft, Calendar, Heart, Plus, Share2, Sparkles, Star, Ticket } from "lucide-react";
+import { useRoute, useLocation, useSearch } from "wouter";
+import { ArrowLeft, Heart, Share2, Sparkles, Star, Ticket } from "lucide-react";
 import { toast } from "sonner";
 import { StickyAction } from "@/components/design-system/companions";
 import { Button } from "@/components/ui/Button";
@@ -14,7 +14,6 @@ import { setShareMeta } from "@/lib/share-meta";
 import { toPublicUrl } from "@/lib/public-origin";
 import { cn } from "@/lib/cn";
 import { track } from "@/lib/analytics";
-import { AddToTripSheet } from "@/components/plan/AddToTripSheet";
 import type { CalendarEvent } from "@shared/event";
 import type { NearbyEvent } from "@shared/nearby";
 import { recordToCalendarBase } from "@/lib/remote-events";
@@ -123,7 +122,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
   const [buying, setBuying] = useState(false);
   const [tier, setTier] = useState<"standard" | "vip" | "group">("standard");
   const [spots, setSpots] = useState<number>(1);
-  const [tripOpen, setTripOpen] = useState(false);
+
   const [shareOpen, setShareOpen] = useState(false);
 
   const paidCents = event.ticketPriceCents || 0;
@@ -309,15 +308,6 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
                 >
                   <Heart size={16} className={event.isLiked ? "fill-white" : ""} strokeWidth={2} />
                 </button>
-
-                <button
-                  type="button"
-                  onClick={() => setTripOpen(true)}
-                  className="inline-flex h-11 items-center justify-center gap-1.5 rounded-full bg-paper px-3.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition active:scale-[0.98] cursor-pointer"
-                >
-                  <Plus size={14} className="text-accent" />
-                  <span>Trip</span>
-                </button>
               </div>
             </div>
           </div>
@@ -347,12 +337,6 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
                   <Sparkles size={11} /> Local Event
                 </span>
               )}
-              <Link
-                href={`/plan/new?title=${encodeURIComponent(event.title)}&date=${event.date}`}
-                className="inline-flex items-center gap-1 rounded-full bg-paper px-2.5 py-0.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition"
-              >
-                <Calendar size={11} className="text-accent" /> Add to Day Plan
-              </Link>
             </div>
 
             {/* Event Title & Highlight */}
@@ -434,16 +418,6 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
           </div>
         </div>
       </div>
-
-      <AddToTripSheet
-        open={tripOpen}
-        onClose={() => setTripOpen(false)}
-        stop={{
-          name: event.title,
-          address: `${event.venue}, ${event.city}`,
-          notes: `${event.date} · ${event.timeLabel}`,
-        }}
-      />
 
       <EventShareModal
         open={shareOpen}

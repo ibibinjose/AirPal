@@ -1,14 +1,25 @@
-import { Heart, UserCheck, UserPlus } from "lucide-react";
+import { UserCheck, UserPlus } from "lucide-react";
 import { useSocial } from "@/contexts/SocialContext";
 import { cn } from "@/lib/cn";
 
 /**
  * Like / Follow buttons for businesses and bios. Signed-in users toggle
  * immediately (Liked / Following states persist + sync); guests get the
- * sign-in prompt and the tap resumes after login. Fixed min-widths keep the
- * row from jerking when the label flips.
+ * sign-in prompt and the tap resumes after login. No fixed min-widths —
+ * the parent row controls sizing so the buttons never push siblings
+ * (Website / QR) off-screen on small phones.
  */
-export function LikeButton({ handle, name, className }: { handle: string; name?: string; className?: string }) {
+export function LikeButton({
+  handle,
+  name,
+  className,
+  iconOnly,
+}: {
+  handle: string;
+  name?: string;
+  className?: string;
+  iconOnly?: boolean;
+}) {
   const { isLiked, toggleLike } = useSocial();
   const liked = isLiked(handle);
   return (
@@ -19,22 +30,35 @@ export function LikeButton({ handle, name, className }: { handle: string; name?:
       title={liked ? "Liked" : "Like"}
       onClick={() => toggleLike(handle, name)}
       className={cn(
-        "inline-flex h-10 min-w-[104px] items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition active:scale-95",
+        "inline-flex h-10 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition active:scale-95",
         liked
           ? "bg-rose-500 text-white shadow-sm ring-1 ring-rose-600"
-          : "bg-card text-ink ring-1 ring-line hover:bg-rose-50",
+          : "bg-rose-50 text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-500/30 dark:hover:bg-rose-500/20",
         className,
       )}
     >
-      <Heart size={15} className={liked ? "fill-white" : ""} strokeWidth={liked ? 2.5 : 2} />
-      <span>{liked ? "Liked" : "Like"}</span>
+      <span aria-hidden="true" className={iconOnly ? "text-lg leading-none" : "text-sm leading-none"}>
+        ❤️
+      </span>
+      {!iconOnly && <span className="truncate">{liked ? "Liked" : "Like"}</span>}
     </button>
   );
 }
 
-export function FollowButton({ handle, name, className }: { handle: string; name?: string; className?: string }) {
+export function FollowButton({
+  handle,
+  name,
+  className,
+  iconOnly,
+}: {
+  handle: string;
+  name?: string;
+  className?: string;
+  iconOnly?: boolean;
+}) {
   const { isFollowing, toggleFollow } = useSocial();
   const following = isFollowing(handle);
+  const Icon = following ? UserCheck : UserPlus;
   return (
     <button
       type="button"
@@ -43,13 +67,13 @@ export function FollowButton({ handle, name, className }: { handle: string; name
       title={following ? "Following" : "Follow"}
       onClick={() => toggleFollow(handle, name)}
       className={cn(
-        "inline-flex h-10 min-w-[120px] flex-1 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition active:scale-95",
+        "inline-flex h-10 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition active:scale-95",
         following ? "bg-brand text-white shadow-sm" : "bg-brand text-white shadow-sm hover:brightness-110",
         className,
       )}
     >
-      {following ? <UserCheck size={15} /> : <UserPlus size={15} />}
-      <span>{following ? "Following" : "Follow"}</span>
+      <Icon size={iconOnly ? 18 : 15} className="shrink-0" />
+      {!iconOnly && <span className="truncate">{following ? "Following" : "Follow"}</span>}
     </button>
   );
 }

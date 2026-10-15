@@ -25,11 +25,11 @@ export function AuthGate({
         role: "guest",
         badge: kicker || "AirPal Circle",
         title: title || "Start your Circle",
-        description: lede || "Sign in to invite your audience, set a status, announce, and make a plan.",
+        description: lede || "Sign in to invite your audience, set a status, announce, and catch up.",
         benefits: [
           "Bring followers and friends into one Circle",
           "Announce, or share I’m here at an event",
-          "Set a status. Plan together.",
+          "Set a status. Catch up together.",
         ],
         accentColor: "text-accent",
         accentBg: "bg-brand/10",
@@ -57,24 +57,8 @@ export function AuthGate({
         role: "guest",
         badge: kicker || "Notifications",
         title: title || "Your inbox",
-        description: lede || "Announcements from Circles you follow, plans, and results — in one quiet list.",
-        benefits: ["Circle announcements from people you follow", "Plan updates in one list", "Alerts you control"],
-        accentColor: "text-accent",
-        accentBg: "bg-brand/10",
-      };
-    }
-    if (target.includes("plan")) {
-      return {
-        icon: Sparkles,
-        role: "guest",
-        badge: kicker || "AirPal Plan",
-        title: title || "Make a plan",
-        description: lede || "Sign in or create a free AirPal account to plan with family, friends, and people nearby.",
-        benefits: [
-          "Plan with family and friends",
-          "Invite your Circle with a link",
-          "Ticketed public nights live under Create event",
-        ],
+        description: lede || "Announcements from Circles you follow, events, and results — in one quiet list.",
+        benefits: ["Circle announcements from people you follow", "Event updates in one list", "Alerts you control"],
         accentColor: "text-accent",
         accentBg: "bg-brand/10",
       };
@@ -104,8 +88,7 @@ export function AuthGate({
         badge: kicker || "Your place",
         title: title || "Add your place",
         description:
-          lede ||
-          "Sign in to import your Google listing, publish offers, and show up when people nearby are making plans.",
+          lede || "Sign in to import your Google listing, publish offers, and show up when people nearby are looking.",
         benefits: [
           "Claim your verified local @handle and public card",
           "Publish live discounts & perks (e.g. 15% off for guests)",
@@ -121,7 +104,7 @@ export function AuthGate({
         role: "event",
         badge: kicker || "Event",
         title: title || "Create an event",
-        description: lede || "Public nights and ticketed shows. Plans with family stay on Create plan.",
+        description: lede || "Public nights and ticketed shows — list yours in minutes.",
         benefits: [
           "Free or paid tickets for a public event",
           "Show up in Explore and Calendar",
@@ -149,15 +132,32 @@ export function AuthGate({
         accentBg: "bg-indigo-500/10",
       };
     }
+    if (target.includes("claim") || target.includes("venue")) {
+      return {
+        icon: Store,
+        role: "business",
+        badge: kicker || "Venue Claims",
+        title: title || "Claim Your Venue",
+        description:
+          lede || "Sign in to prove your link to a venue, request ownership, and manage it as the verified owner.",
+        benefits: [
+          "Request ownership of your Google-listed venue",
+          "Approval mints your draft venue page",
+          "Publish it when ready — nothing goes public first",
+        ],
+        accentColor: "text-accent",
+        accentBg: "bg-brand/10",
+      };
+    }
     return {
       icon: ShieldCheck,
       role: "guest",
       badge: kicker || "AirPal Account",
       title: title || "Sign in to continue",
-      description: lede || "Log in or sign up to start a Circle, make plans, save places, and use Stay & Guide.",
+      description: lede || "Log in or sign up to start a Circle, catch up, save places, and use Stay & Guide.",
       benefits: [
         "Invite family and friends into your Circle",
-        "Make plans with people nearby",
+        "Catch up with people nearby",
         "Stay Wi-Fi, tickets, and saved places on one login",
       ],
       accentColor: "text-accent",

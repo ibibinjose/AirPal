@@ -65,7 +65,7 @@ export function InvitePanel({ handle, loading }: { handle?: string; loading?: bo
   function share() {
     void shareContent({
       title: "Join me on AirPal",
-      text: `Join me on AirPal — people, places and plans made easy. Use my code @${handle}.`,
+      text: `Join me on AirPal — people, places and experiences made easy. Use my code @${handle}.`,
       url: link,
     });
   }

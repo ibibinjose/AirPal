@@ -134,7 +134,7 @@ export async function searchPlaces(input: string, sessionToken: string, bias?: G
   return searchOsmPlaces(input, bias);
 }
 
-/** Venues and street addresses for plan/event “Where” fields. */
+/** Venues and street addresses for event “Where” fields. */
 export async function searchAddressPlaces(
   input: string,
   sessionToken: string,

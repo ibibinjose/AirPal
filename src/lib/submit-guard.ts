@@ -3,7 +3,7 @@
  *
  * State-based `busy` flags only disable a button after React re-renders, so a
  * second tap/click can fire the same mutation twice before the first resolves
- * (duplicate plans, double Stripe checkout sessions, duplicate mate requests).
+ * (duplicate bookings, double Stripe checkout sessions, duplicate mate requests).
  * A guard object held in a `useRef` closes that window synchronously:
  *
  *   const guard = useRef(createSubmitGuard());

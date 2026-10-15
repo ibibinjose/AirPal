@@ -6,7 +6,7 @@ describe("createSubmitGuard", () => {
     const guard = createSubmitGuard();
     expect(guard.tryAcquire()).toBe(true);
     // A second tap before the first resolves must be ignored — this is the
-    // double-submit race that duplicated plans and Stripe sessions.
+    // double-submit race that duplicated bookings and Stripe sessions.
     expect(guard.tryAcquire()).toBe(false);
     expect(guard.held).toBe(true);
   });

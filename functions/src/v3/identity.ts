@@ -16,7 +16,6 @@ import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "../abuse";
 import { v3Arg, writeV3Audit } from "./common";
 
 const USER_INDEX_DEFAULTS = {
-  planIds: [],
   cohortIds: [],
   ticketIds: [],
   orderIds: [],

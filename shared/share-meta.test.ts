@@ -81,28 +81,6 @@ describe("share meta", () => {
     expect(card.image).toBe("https://images.example/hero.jpg");
   });
 
-  it("cards plans with rich invitation copy and hero image", () => {
-    const card = shareCardFor(
-      "plan",
-      {
-        title: "Bondi Sunrise Catchup",
-        destination: "Bondi Beach",
-        city: "Sydney",
-        date: "2026-10-12",
-        time: "07:00",
-        heroImage: "https://images.example/plan-hero.jpg",
-        creator: { name: "Alex" },
-        inviteCode: "ABC123",
-      },
-      ORIGIN,
-    );
-    expect(card.title).toBe("You&#39;re invited: Bondi Sunrise Catchup");
-    expect(card.description).toContain("Join Alex");
-    expect(card.description).toContain("Bondi Beach, Sydney");
-    expect(card.description).toContain("RSVP on AirPal.me");
-    expect(card.image).toBe("https://images.example/plan-hero.jpg");
-  });
-
   it("cards pulses with property and question count", () => {
     const card = shareCardFor(
       "pulse",
@@ -141,7 +119,7 @@ describe("share meta", () => {
   });
 
   it("falls back to brand copy on empty docs", () => {
-    for (const kind of ["event", "place", "plan", "bio", "property"] as const) {
+    for (const kind of ["event", "place", "bio", "property"] as const) {
       const card = shareCardFor(kind, {}, ORIGIN);
       expect(card.title).toBe(SHARE_DEFAULTS.title);
       expect(card.description).toBe(SHARE_DEFAULTS.description);

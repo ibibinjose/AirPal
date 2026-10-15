@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const { fakes } = vi.hoisted(() => ({
   fakes: {
     docs: {} as Record<string, Record<string, unknown> | undefined>,
-    invitePlans: [] as Record<string, unknown>[],
     fetchedUrls: [] as string[],
     fetchOk: true,
   },
@@ -25,16 +24,6 @@ vi.mock("./admin", () => ({
   db: {
     collection: (name: string) => ({
       doc: (id: string) => docRef(`${name}/${id}`),
-      where: (field: string, op: string, value: unknown) => ({
-        limit: (_n: number) => ({
-          get: async () => {
-            expect(field).toBe("inviteCode");
-            expect(op).toBe("==");
-            const docs = fakes.invitePlans.filter((p) => p.inviteCode === value).map((data) => ({ data: () => data }));
-            return { empty: docs.length === 0, docs };
-          },
-        }),
-      }),
     }),
   },
 }));
@@ -86,7 +75,6 @@ function run(path: string, ua: string) {
 describe("shareMeta", () => {
   afterEach(() => {
     fakes.docs = {};
-    fakes.invitePlans = [];
     fakes.fetchedUrls.length = 0;
     fakes.fetchOk = true;
     resetShareMetaCacheForTests();
@@ -205,33 +193,6 @@ describe("shareMeta", () => {
     expect(missing.body).toBe(res.body.replaceAll("/pulse/tok-9", "/pulse/nope"));
   });
 
-  it("protects unshared private plan IDs from enumeration while unfurling invite codes", async () => {
-    fakes.docs["plans/plan-1"] = { title: "Secret Birthday", isPublic: false };
-    fakes.invitePlans = [
-      {
-        title: "Secret Birthday",
-        inviteCode: "ABC123",
-        isPublic: false,
-        heroImage: "https://images.example/cake.jpg",
-        date: "2026-10-15",
-      },
-    ];
-    // Guessing a private plan ID directly does not reveal title
-    const byId = await run("/plan/plan-1", BOT_UA);
-    expect(byId.body).not.toContain("Secret Birthday");
-
-    // The shared invitation link unfurls with title, metadata, and hero image
-    const byInvite = await run("/invite/abc123", BOT_UA);
-    expect(byInvite.body).toContain("Secret Birthday");
-    expect(byInvite.body).toContain("https://images.example/cake.jpg");
-
-    // Cancelled plan invites return generic card
-    fakes.invitePlans.push({ title: "Cancelled Party", inviteCode: "XYZ999", status: "cancelled" });
-    const cancelled = await run("/invite/xyz999", BOT_UA);
-    expect(cancelled.body).not.toContain("Cancelled Party");
-    expect(cancelled.body).toContain("AirPal.me · Life Made Easy.");
-  });
-
   it("serves event cards for active events with heroImage", async () => {
     fakes.docs["events/evt-active"] = {
       title: "Harbour Jazz Night",
@@ -246,10 +207,7 @@ describe("shareMeta", () => {
     expect(res.body).toContain('<meta property="og:image" content="https://images.example/jazz.jpg">');
   });
 
-  it("serves public plan and bio cards", async () => {
-    fakes.docs["plans/plan-2"] = { title: "Bondi Sunrise", destination: "Bondi Beach", isPublic: true };
-    const plan = await run("/plan/plan-2", BOT_UA);
-    expect(plan.body).toContain('<meta property="og:title" content="Bondi Sunrise">');
+  it("serves public bio cards", async () => {
     fakes.docs["handles/ava"] = { profileId: "prof-1" };
     fakes.docs["profiles/prof-1"] = { name: "Ava", shortWhy: "Bondi local" };
     const bio = await run("/@ava", BOT_UA);

@@ -51,44 +51,18 @@ service cloud.firestore {
     match /places/{placeId} {
       allow get: if v3Published(resource.data.status);
       allow list, create, update, delete: if false;
+
+      // Venue claim requests. Server-only: claimants and admins act through
+      // callables; contact details never reach clients.
+      match /claims/{claimId} {
+        allow read, write: if false;
+      }
     }
 
     // Events and access configuration. Published reads; lists via callables.
     match /events/{eventId} {
       allow get: if v3Published(resource.data.status);
       allow list, create, update, delete: if false;
-    }
-
-    // A concrete shared plan. Creator, member, explicitly public, or admin.
-    match /plans/{planId} {
-      function v3PlanPublic() {
-        return resource.data.visibility == 'public' && resource.data.state == 'open';
-      }
-      function v3PlanOwner() {
-        return v3SignedIn() && resource.data.ownerUid == v3Uid();
-      }
-      function v3PlanMember() {
-        return v3SignedIn()
-          && exists(/databases/$(database)/documents/plans/$(planId)/members/$(v3Uid()));
-      }
-      allow get: if v3PlanPublic() || v3PlanOwner() || v3PlanMember() || v3PlatformAdmin();
-      allow list, create, update, delete: if false;
-
-      // RSVP and membership projection. Member or plan owner reads.
-      match /members/{memberUid} {
-        function v3ParentOwner() {
-          return v3SignedIn()
-            && get(/databases/$(database)/documents/plans/$(planId)).data.ownerUid == v3Uid();
-        }
-        function v3SelfOrMember() {
-          return v3SignedIn()
-            && (v3Uid() == memberUid
-              || exists(/databases/$(database)/documents/plans/$(planId)/members/$(v3Uid())));
-        }
-        allow get: if v3ParentOwner() || v3SelfOrMember() || v3PlatformAdmin();
-        allow list: if v3ParentOwner() || v3PlanMember() || v3PlatformAdmin();
-        allow create, update, delete: if false;
-      }
     }
 
     // Issued access record. Holder, issuer, event door team, or admin.

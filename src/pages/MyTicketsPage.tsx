@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Calendar, RefreshCw, Ticket, WifiOff } from "lucide-react";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { PaymentCanceledNotice } from "@/components/booking/PaymentCanceledNotice";
 import { AirPalTicketPass } from "@/components/tickets/AirPalTicketPass";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyBookings } from "@/hooks/useMyBookings";
@@ -12,7 +13,7 @@ type FilterTab = "upcoming" | "past" | "all";
 
 /**
  * AirPal Wallet — every ticket the guest holds, in one place.
- * Powered by unified AirPal account, offline resilient, with 1-tap day planning.
+ * Powered by unified AirPal account, offline resilient, with calendar export.
  */
 export function MyTicketsPage() {
   const { user } = useAuth();
@@ -35,6 +36,8 @@ export function MyTicketsPage() {
         </Link>
         <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Wallet &amp; Passbook</span>
       </div>
+
+      <PaymentCanceledNotice />
 
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
@@ -138,8 +141,8 @@ export function MyTicketsPage() {
           <Ticket size={28} className="mx-auto text-mute" />
           <p className="mt-2 font-display text-lg font-bold text-ink">No tickets or passes yet</p>
           <p className="mx-auto mt-1 max-w-sm text-[14px] text-mute">
-            Passes and tickets you get on AirPal Pass live here — ready to scan at the door, save to Apple Wallet /
-            Google Wallet, and coordinate in day plans.
+            Passes and tickets you get on AirPal Pass live here — ready to scan at the door and save to Apple Wallet /
+            Google Wallet.
           </p>
           <Link
             href="/pass"

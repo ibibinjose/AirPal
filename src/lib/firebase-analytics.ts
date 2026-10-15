@@ -10,7 +10,6 @@ export type CoreFeature =
   | "guide"
   | "calendar"
   | "scan"
-  | "plan"
   | "companion"
   | "weather"
   | "battery_saver"

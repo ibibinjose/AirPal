@@ -200,7 +200,7 @@ export function NotificationBell() {
             </Link>
           </div>
           {notes.length === 0 && (
-            <p className="px-4 pb-4 text-[13px] text-mute">Circle announcements and plan updates land here.</p>
+            <p className="px-4 pb-4 text-[13px] text-mute">Circle announcements and event updates land here.</p>
           )}
           {notes.map((n) => (
             <Link

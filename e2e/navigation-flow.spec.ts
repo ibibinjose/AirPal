@@ -16,7 +16,7 @@ test.describe("Global Navigation & Profile Flow", () => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
     await expect(page.getByRole("heading", { level: 1, name: /good to see you/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: "What's open now" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "What's on" })).toBeVisible();
   });
 
   test("desktop top navigation links between major application hubs", async ({ page, isMobile }) => {
@@ -29,14 +29,11 @@ test.describe("Global Navigation & Profile Flow", () => {
     const header = page.locator("header.hidden.lg\\:block");
     await expect(header).toBeVisible();
 
-    await header.getByRole("button", { name: "Places" }).click();
-    await expect(page).toHaveURL(/\/explore/);
-
     await header.getByRole("button", { name: "Communities" }).click();
     await expect(page).toHaveURL(/\/events/);
 
-    await header.getByRole("button", { name: "Friends" }).click();
-    await expect(page).toHaveURL(/\/plan/);
+    await header.getByRole("button", { name: "Me" }).click();
+    await expect(page).toHaveURL(/\/me/);
 
     await header.getByRole("button", { name: "AirPal Home" }).click();
     await expect(page).toHaveURL("/");
@@ -80,24 +77,18 @@ test.describe("Global Navigation & Profile Flow", () => {
     const tabNav = page.locator("nav.lg\\:hidden");
     await expect(tabNav).toBeVisible();
 
-    // Shipped companion dock: Home / Now / Plan / Me / Bio.
-    await tabNav.getByRole("button", { name: "Now" }).click();
-    await expect(page).toHaveURL(/\/now/);
-
-    await tabNav.getByRole("button", { name: /Plan|Trips/i }).click();
-    await expect(page).toHaveURL(/\/plan/);
+    // Shipped companion dock: Home / Circle / Bio.
+    await tabNav.getByRole("button", { name: "Networking Circle" }).click();
+    await expect(page).toHaveURL(/\/circle/);
 
     await tabNav.getByRole("button", { name: "Home" }).click();
-    await expect(page).toHaveURL("/");
-
-    await tabNav.getByRole("button", { name: "Me dashboard" }).click();
-    await expect(page).toHaveURL(/\/me|\/start/);
+    await expect(page).toHaveURL(/localhost:3000\/$/);
 
     await tabNav.getByRole("button", { name: "My bio" }).click();
     await expect(page).toHaveURL(/\/start|\/bio\/setup|\/@|\/bio/);
   });
 
-  test("universal quick search command palette opens and navigates to places and tools", async ({ page }) => {
+  test("universal quick search command palette opens and navigates to explore shortcuts", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
@@ -114,26 +105,14 @@ test.describe("Global Navigation & Profile Flow", () => {
     const searchInput = page.getByPlaceholder(/Search people, places, events/i);
     await expect(searchInput).toBeVisible();
 
-    // Search for Glenmore
-    await searchInput.fill("Glenmore");
-    const result = page.getByRole("button", { name: /The Glenmore/i }).first();
-    await expect(result).toBeVisible();
-
-    // Click the result to navigate
-    await result.click();
-    await expect(page).toHaveURL(/\/@glenmore|\/p\/glenmore/);
+    // Static Explore shortcuts resolve without backend data.
+    const shortcut = page.getByRole("button", { name: /Circle & Presence/i });
+    await expect(shortcut).toBeVisible();
+    await shortcut.click();
+    await expect(page).toHaveURL(/\/circle/);
   });
 
-  test("showcase tour opens for guests and links live stops", async ({ page }) => {
-    await page.goto("/guide");
-    await page.waitForLoadState("domcontentloaded");
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    const tourBtn = page.getByRole("button", { name: /min|km|walk/i }).first();
-    const placeLink = page.locator("a[href^='/@'], a[href^='/p/']").first();
-    await expect(tourBtn.or(placeLink)).toBeVisible();
-  });
-
-  test("header create button opens creation sheet and navigates to plan creation", async ({ page }) => {
+  test("header create button opens creation sheet and navigates to event hosting", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
@@ -142,9 +121,9 @@ test.describe("Global Navigation & Profile Flow", () => {
     await createBtn.click();
 
     await expect(page.getByRole("heading", { name: /What do you want to create\?/i })).toBeVisible();
-    await expect(page.getByText("Make a Plan")).toBeVisible();
+    await expect(page.getByText("Host an Event")).toBeVisible();
 
-    await page.getByText("Make a Plan").click();
-    await expect(page).toHaveURL(/\/plan\/new/);
+    await page.getByText("Host an Event").click();
+    await expect(page).toHaveURL(/\/event/);
   });
 });

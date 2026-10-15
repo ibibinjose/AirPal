@@ -14,7 +14,7 @@ import { markTicketCheckedIn, scopeHostUids } from "./guestlist";
 
 /**
  * Gate scan: load a ticket the caller is entitled to verify. Providers,
- * the event or plan door team (owner + co-hosts), and platform admins.
+ * the event door team (owner + co-hosts), and platform admins.
  * Everyone else — including the ticket owner — is denied: owners read
  * their own pass from the wallet, they never self-admit.
  */
@@ -24,10 +24,7 @@ async function loadEntitledTicket(ticketId: string, uid: string, claims: AccessC
   if (!snap.exists) throw new HttpsError("not-found", "Ticket not found.");
   const booking = { id: snap.id, ...(snap.data() as Omit<Booking, "id">) };
   const entitled =
-    isPlatformAdmin(claims) ||
-    booking.providerUid === uid ||
-    (await isScopeHost("event", booking.eventId, uid)) ||
-    (await isScopeHost("plan", booking.planId, uid));
+    isPlatformAdmin(claims) || booking.providerUid === uid || (await isScopeHost("event", booking.eventId, uid));
   if (!entitled) {
     throw new HttpsError("permission-denied", "Only the host team can verify tickets.");
   }
@@ -39,7 +36,7 @@ async function loadEntitledTicket(ticketId: string, uid: string, claims: AccessC
   return { ref, booking, eventName };
 }
 
-async function isScopeHost(scope: "event" | "plan", id: string | undefined, uid: string): Promise<boolean> {
+async function isScopeHost(scope: "event", id: string | undefined, uid: string): Promise<boolean> {
   if (!id) return false;
   return isListManager(await scopeHostUids(scope, id), uid);
 }
@@ -124,8 +121,6 @@ export const admitTicket = onCall(CALLABLE, async (request) => {
   });
   if (booking.eventId) {
     await markTicketCheckedIn("event", String(booking.eventId), ticketId, String(booking.customerUid || ""));
-  } else if (booking.planId) {
-    await markTicketCheckedIn("plan", String(booking.planId), ticketId, String(booking.customerUid || ""));
   }
   const admitted: AdmitTicketResponse = { ticketId, admittedAt: result.admittedAt, already: false };
   return admitted;

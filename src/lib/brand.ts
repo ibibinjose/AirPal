@@ -15,7 +15,7 @@ export const BRAND_TAGLINE = BRAND.tagline;
 /**
  * AirPal Ecosystem Architecture:
  * - AIRPAL: Master brand & universal identity (1 account, 1 engine).
- * - AirPal.Me: Personal Life & Identity (companion, bio, day plan, weather, outfit, schedule).
+ * - AirPal.Me: Personal Life & Identity (companion, bio, calendar, weather, outfit, schedule).
  * - AirPal Pass: Events, Deals & Experiences (tickets, festivals, perks, QR passbook, organiser tools).
  */
 export const ECOSYSTEM = {
@@ -28,7 +28,7 @@ export const ECOSYSTEM = {
     id: "me",
     name: "AirPal.Me",
     shortName: "Me",
-    coreJob: "Plan your day. Organise your life. Share who you are.",
+    coreJob: "See what's on. Catch up. Share who you are.",
     tagline: "My life, organised by AirPal.",
     path: "/",
   },

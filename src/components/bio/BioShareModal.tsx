@@ -4,6 +4,7 @@ import { Copy, Check, Download, Share2, X, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { makeQrDataUrl } from "@/lib/qr";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { BrandMark } from "@/components/brand/BrandMark";
 import { Button } from "@/components/ui/Button";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
@@ -105,35 +106,49 @@ export function BioShareModal({ open, onClose, handle, name, url }: BioShareModa
         className="modal-safe relative w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] bg-paper p-6 text-center shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] sm:pb-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />
+        <div className="absolute left-1/2 top-2.5 z-10 h-1.5 w-12 -translate-x-1/2 rounded-full bg-white/25 sm:hidden" />
         <button
           type="button"
           onClick={() => {
             void triggerHaptic("light");
             onClose();
           }}
-          className="absolute right-4 top-4 grid h-10 w-10 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute transition hover:bg-black/5 hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="absolute right-4 top-4 z-10 grid h-10 w-10 min-h-[44px] min-w-[44px] place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           aria-label="Close"
         >
           <X size={18} />
         </button>
 
-        <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
-          <QrCode size={14} />
-          <span>Share Profile</span>
+        {/* AirPal-branded Bio Pass header */}
+        <div className="-mx-6 -mt-6 overflow-hidden rounded-t-[32px] bg-gradient-to-br from-[#0c1024] via-[#141b38] to-[#0a0d1e] px-6 pb-5 pt-7 text-center sm:rounded-t-[32px]">
+          <div className="flex items-center justify-center gap-2">
+            <BrandMark compact invert />
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/80">
+              AirPal.me · Bio Pass
+            </span>
+          </div>
+          <h2 className="font-display mt-2 truncate text-2xl font-bold text-white">@{handle}</h2>
+          <p className="mt-0.5 truncate text-xs text-white/60">{name}</p>
         </div>
-        <h2 className="font-display mt-1 text-2xl font-bold">@{handle}</h2>
-        <p className="mt-0.5 text-xs text-mute truncate">{name}</p>
 
-        <div className="mx-auto mt-5 flex h-60 w-60 items-center justify-center rounded-2xl bg-white p-3 shadow-inner ring-1 ring-black/5">
+        <div className="mx-auto mt-5 flex h-56 w-56 max-h-[62vw] max-w-[62vw] items-center justify-center rounded-2xl bg-white p-3 shadow-inner ring-1 ring-black/5 sm:h-60 sm:w-60 sm:max-h-none sm:max-w-none">
           {qrData ? (
-            <img src={qrData} alt={`QR Code for @${handle}`} className="h-full w-full object-contain" />
+            <img
+              src={qrData}
+              alt={`QR Code for @${handle}`}
+              width={224}
+              height={224}
+              className="h-full w-full object-contain"
+            />
           ) : (
             <div className="text-xs text-mute animate-pulse">Generating QR…</div>
           )}
         </div>
 
-        <p className="mt-3 font-mono text-[13px] text-mute">{url.replace(/^https?:\/\//, "")}</p>
+        <p className="mt-3 flex items-center justify-center gap-1.5 font-mono text-[13px] text-mute break-all">
+          <QrCode size={13} className="shrink-0 text-accent" aria-hidden="true" />
+          <span className="truncate">{url.replace(/^https?:\/\//, "")}</span>
+        </p>
 
         <div className="mt-5 grid grid-cols-2 gap-2">
           <Button

@@ -18,19 +18,19 @@ export type GuestSource = (typeof GUEST_SOURCES)[number];
 export const GUESTLIST_MAX_PARTY = 20;
 export const GUESTLIST_MAX_NAME = 80;
 
-/** Sanity cap, mirroring PLAN_COHOSTS_MAX — an event needs a door team, not a committee. */
+/** Sanity cap — an event needs a door team, not a committee. */
 export const EVENT_COHOSTS_MAX = 5;
 
-/** Guestlists live under events and plans. Plans reuse their coHostUids; events grow their own. */
-export const GUEST_SCOPES = ["event", "plan"] as const;
+/** Guestlists live under events. */
+export const GUEST_SCOPES = ["event"] as const;
 export type GuestScope = (typeof GUEST_SCOPES)[number];
 
 export function isGuestScope(value: unknown): value is GuestScope {
-  return value === "event" || value === "plan";
+  return value === "event";
 }
 
-export function guestScopeCollection(scope: GuestScope): "events" | "plans" {
-  return scope === "event" ? "events" : "plans";
+export function guestScopeCollection(_scope: GuestScope): "events" {
+  return "events";
 }
 
 /** Owner, co-host, or nobody: the one door-team check, shared by client copy and server enforcement. */

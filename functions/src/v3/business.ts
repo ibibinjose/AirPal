@@ -2,22 +2,34 @@ import { FieldValue } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import {
   cleanV3Text,
+  isV3PlaceClaimState,
   isV3PublicationState,
+  parseV3ContactEmail,
+  parseV3GooglePlaceId,
   parseV3Id,
   parseV3IsoTime,
+  parseV3ListLimit,
   parseV3OptionalIsoTime,
+  parseV3PlaceId,
   parseV3RedemptionLimit,
+  parseV3Uid,
   requiredV3Text,
+  v3PlaceIdForGooglePlace,
   type V3ClaimDealRequest,
   type V3CreateCohortRequest,
   type V3Deal,
   type V3DealClaim,
   type V3JoinCohortRequest,
   type V3LeaveCohortRequest,
+  type V3ListPlaceClaimsRequest,
   type V3Place,
+  type V3PlaceClaim,
   type V3PublishDealRequest,
   type V3RedeemDealRequest,
+  type V3RequestPlaceClaimRequest,
+  type V3ReviewPlaceClaimRequest,
   type V3UpsertPlaceRequest,
+  type V3WithdrawPlaceClaimRequest,
 } from "../../../shared/v3-contract";
 import type { AccessClaims } from "../../../shared/airpal-security";
 import { CALLABLE, db, isPlatformAdmin, requireAccount, requireAuth } from "../admin";
@@ -293,4 +305,190 @@ export const v3LeaveCohort = onCall(CALLABLE, async (request) => {
     await writeV3Audit({ action: "cohort.leave", actorUid: uid, subjectType: "cohort", subjectId: cohortId });
   }
   return outcome;
+});
+
+/**
+ * Request ownership of a Google-sourced venue. One pending claim per claimant
+ * per venue (doc id is the claimant uid); a rejected or withdrawn claim may
+ * be re-requested with better proof. Venues already on AirPal are refused:
+ * those transfer ownership out of band, never through a fresh claim.
+ */
+export const v3RequestPlaceClaim = onCall(CALLABLE, async (request) => {
+  await noteAppCheck(request, "v3RequestPlaceClaim");
+  const uid = requireAccount(request, "Create an email account to claim a venue.");
+  await enforceRateLimit(uid, "v3Place", false);
+  const data = (request.data || {}) as V3RequestPlaceClaimRequest;
+  const input = v3Arg(() => ({
+    googlePlaceId: parseV3GooglePlaceId(data.googlePlaceId),
+    businessName: requiredV3Text(data.businessName, "Business name", 140),
+    city: requiredV3Text(data.city, "City", 80),
+    category: requiredV3Text(data.category, "Category", 80),
+    address: cleanV3Text(data.address, 200),
+    proofNote: requiredV3Text(data.proofNote, "Proof of association", 2000),
+    contactEmail: parseV3ContactEmail(data.contactEmail),
+  }));
+  const placeId = v3PlaceIdForGooglePlace(input.googlePlaceId);
+  const placeSnap = await db.collection("places").doc(placeId).get();
+  if (placeSnap.exists) throw new HttpsError("already-exists", "This venue is already on AirPal.");
+  const ref = db.collection("places").doc(placeId).collection("claims").doc(uid);
+  const existing = await ref.get();
+  const prior = existing.data() as V3PlaceClaim | undefined;
+  if (existing.exists && prior?.state === "pending") {
+    return { placeId, state: "pending" as const, created: false as const };
+  }
+  await ref.set(
+    v3Clean({
+      placeId,
+      googlePlaceId: input.googlePlaceId,
+      claimantUid: uid,
+      state: "pending",
+      businessName: input.businessName,
+      city: input.city,
+      category: input.category,
+      address: input.address,
+      proofNote: input.proofNote,
+      contactEmail: input.contactEmail,
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    }),
+  );
+  await writeV3Audit({
+    action: "place.claim.request",
+    actorUid: uid,
+    subjectType: "placeClaim",
+    subjectId: `${placeId}/${uid}`,
+    detail: input.googlePlaceId,
+  });
+  return { placeId, state: "pending" as const, created: true as const };
+});
+
+/**
+ * Admin review of a venue claim. Approving mints the owned V3 place as a
+ * draft (the owner publishes via v3UpsertPlace); rejecting records a reason.
+ * Review-time details override the claimant's where provided.
+ */
+export const v3ReviewPlaceClaim = onCall(CALLABLE, async (request) => {
+  await noteAppCheck(request, "v3ReviewPlaceClaim");
+  const uid = requireAccount(request, "Sign in to review claims.");
+  if (!isPlatformAdmin(claimsOf(request))) throw new HttpsError("permission-denied", "Admins only.");
+  await enforceRateLimit(uid, "v3Trust", false);
+  const data = (request.data || {}) as V3ReviewPlaceClaimRequest;
+  const input = v3Arg(() => ({
+    placeId: parseV3PlaceId(data.placeId, "Place"),
+    claimantUid: parseV3Uid(data.claimantUid, "Claimant"),
+    reason: cleanV3Text(data.reason, 500),
+    businessName: cleanV3Text(data.businessName, 140),
+    city: cleanV3Text(data.city, 80),
+    category: cleanV3Text(data.category, 80),
+    address: cleanV3Text(data.address, 200),
+  }));
+  if (data.decision !== "approved" && data.decision !== "rejected") {
+    throw new HttpsError("invalid-argument", "Decision must be approved or rejected.");
+  }
+  const claimRef = db.collection("places").doc(input.placeId).collection("claims").doc(input.claimantUid);
+  const placeRef = db.collection("places").doc(input.placeId);
+  await db.runTransaction(async (tx) => {
+    const claimSnap = await tx.get(claimRef);
+    const claim = claimSnap.data() as V3PlaceClaim | undefined;
+    if (!claimSnap.exists || !claim) throw new HttpsError("not-found", "Claim not found.");
+    if (claim.state !== "pending") throw new HttpsError("failed-precondition", "This claim is already decided.");
+    if (data.decision === "rejected") {
+      tx.set(
+        claimRef,
+        v3Clean({
+          state: "rejected",
+          reason: input.reason,
+          decidedByUid: uid,
+          decidedAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        }),
+        { merge: true },
+      );
+      return;
+    }
+    const businessName = input.businessName || claim.businessName;
+    const city = input.city || claim.city;
+    const category = input.category || claim.category;
+    const address = input.address || claim.address;
+    if (!businessName || !city || !category || !address) {
+      throw new HttpsError("invalid-argument", "Name, city, category, and address are required to approve.");
+    }
+    const placeSnap = await tx.get(placeRef);
+    if (placeSnap.exists) throw new HttpsError("already-exists", "This venue is already on AirPal.");
+    tx.set(
+      claimRef,
+      v3Clean({
+        state: "approved",
+        reason: input.reason,
+        decidedByUid: uid,
+        decidedAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      }),
+      { merge: true },
+    );
+    tx.set(placeRef, {
+      ownerUid: claim.claimantUid,
+      status: "draft",
+      name: businessName,
+      description: "",
+      city,
+      category,
+      address,
+      googlePlaceId: claim.googlePlaceId,
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  });
+  await writeV3Audit({
+    action: data.decision === "approved" ? "place.claim.approve" : "place.claim.reject",
+    actorUid: uid,
+    subjectType: "placeClaim",
+    subjectId: `${input.placeId}/${input.claimantUid}`,
+    detail: input.reason || undefined,
+  });
+  return { placeId: input.placeId, claimantUid: input.claimantUid, state: data.decision };
+});
+
+/** Withdraw the caller's own pending claim. */
+export const v3WithdrawPlaceClaim = onCall(CALLABLE, async (request) => {
+  await noteAppCheck(request, "v3WithdrawPlaceClaim");
+  const uid = requireAccount(request, "Sign in to manage your claims.");
+  await enforceRateLimit(uid, "v3Place", false);
+  const data = (request.data || {}) as V3WithdrawPlaceClaimRequest;
+  const placeId = v3Arg(() => parseV3PlaceId(data.placeId, "Place"));
+  const ref = db.collection("places").doc(placeId).collection("claims").doc(uid);
+  const snap = await ref.get();
+  const claim = snap.data() as V3PlaceClaim | undefined;
+  if (!snap.exists || !claim) throw new HttpsError("not-found", "Claim not found.");
+  if (claim.claimantUid !== uid) throw new HttpsError("permission-denied", "Only the claimant can withdraw.");
+  if (claim.state !== "pending") throw new HttpsError("failed-precondition", "Only pending claims can be withdrawn.");
+  await ref.set({ state: "withdrawn", updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+  await writeV3Audit({
+    action: "place.claim.withdraw",
+    actorUid: uid,
+    subjectType: "placeClaim",
+    subjectId: `${placeId}/${uid}`,
+  });
+  return { placeId, state: "withdrawn" as const };
+});
+
+/** Admin-only review queue across every venue's claims. */
+export const v3ListPlaceClaims = onCall(CALLABLE, async (request) => {
+  await noteAppCheck(request, "v3ListPlaceClaims");
+  const uid = requireAccount(request, "Sign in to read claims.");
+  if (!isPlatformAdmin(claimsOf(request))) throw new HttpsError("permission-denied", "Admins only.");
+  await enforceRateLimit(uid, "v3Trust", false);
+  const data = (request.data || {}) as V3ListPlaceClaimsRequest;
+  const state = data.state === undefined ? "pending" : data.state;
+  if (!isV3PlaceClaimState(state)) throw new HttpsError("invalid-argument", "Claim state is invalid.");
+  const limit = v3Arg(() => parseV3ListLimit(data.limit));
+  const snap = await db
+    .collectionGroup("claims")
+    .where("state", "==", state)
+    .orderBy("createdAt", "desc")
+    .limit(limit)
+    .get();
+  return {
+    claims: snap.docs.map((doc) => ({ id: doc.id, placeId: doc.ref.parent.parent?.id || "", ...doc.data() })),
+  };
 });

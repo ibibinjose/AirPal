@@ -1,15 +1,4 @@
-import type { HangoutPlan } from "@shared/plan";
 import type { BioProfile, BioVisibility } from "@shared/bio";
-
-/** Completed plans created by uid or @handle — reputation from real experiences only. */
-export function completedExperiencesCount(plans: HangoutPlan[], owner: { uid?: string; handle?: string }): number {
-  const handle = owner.handle?.trim().toLowerCase();
-  return plans.filter(
-    (p) =>
-      p.status === "completed" &&
-      ((owner.uid && p.creator?.uid === owner.uid) || (handle && p.creator?.handle?.trim().toLowerCase() === handle)),
-  ).length;
-}
 
 export type ProfileViewer = {
   uid?: string;

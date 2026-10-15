@@ -30,8 +30,6 @@
           "NOT /stay*",
           "NOT /host*",
           "/b/*",
-          "/plan/*",
-          "/invite/*",
           "/concierge/*"
         ]
       }

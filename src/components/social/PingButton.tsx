@@ -13,7 +13,7 @@ import { isOpenPing, type PingStatus } from "@shared/ping";
 /**
  * AirPal Ping — the tap on the shoulder. Sends a lightweight "want to hang
  * out" nudge to a person on AirPal; the recipient answers from their inbox
- * (ping back → make a plan). Guests are routed through sign-in first.
+ * (ping back → catch up). Guests are routed through sign-in first.
  */
 export function PingButton({ toUid, toHandle, toName }: { toUid: string; toHandle: string; toName: string }) {
   const { user, requireUser } = useAuth();

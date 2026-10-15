@@ -48,8 +48,8 @@ export function NativeOpenScreen() {
         },
         {
           icon: Sparkles,
-          title: "Plans & Social Circles",
-          desc: "Effortless group hangouts, shared itineraries, and shared memories.",
+          title: "Catch-ups & Social Circles",
+          desc: "Effortless group hangouts, live presence, and shared memories.",
           tint: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
         },
         {

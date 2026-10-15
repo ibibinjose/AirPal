@@ -5,7 +5,7 @@ import type { LatLng } from "@/lib/cities";
 
 export type MapPin = {
   id: string;
-  kind: "place" | "plan";
+  kind: "place";
   title: string;
   sub?: string;
   lat: number;
@@ -14,8 +14,8 @@ export type MapPin = {
   area: boolean;
 };
 
-function dotIcon(kind: MapPin["kind"]): L.DivIcon {
-  const color = kind === "plan" ? "#f43f5e" : "#1c1917";
+function dotIcon(): L.DivIcon {
+  const color = "#1c1917";
   return L.divIcon({
     className: "airpal-pin",
     html: `<span style="display:block;width:14px;height:14px;border-radius:9999px;background:${color};border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.35)"></span>`,
@@ -104,7 +104,7 @@ export function CityMap({
           .addTo(layer);
       }
       const marker = L.marker([pin.lat, pin.lng], {
-        icon: dotIcon(pin.kind),
+        icon: dotIcon(),
         title: pin.title,
         opacity: selectedId && selectedId !== pin.id ? 0.45 : 1,
       })

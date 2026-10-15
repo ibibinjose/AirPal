@@ -48,12 +48,16 @@ import {
   v3CreateCohort,
   v3JoinCohort,
   v3LeaveCohort,
+  v3ListPlaceClaims,
   v3PublishDeal,
   v3RedeemDealClaim,
+  v3RequestPlaceClaim,
+  v3ReviewPlaceClaim,
   v3UpsertPlace,
+  v3WithdrawPlaceClaim,
 } from "./business";
 import { v3BlockUser, v3ListAuditEntries, v3ReportContent, v3UnblockUser } from "./trust";
-import { v3FetchHandle, v3ListEvents, v3ListPlaces } from "./discovery";
+import { v3FetchHandle, v3ListEvents, v3ListPlaces, v3LookupGooglePlace } from "./discovery";
 import { v3SendMessage, v3StartConversation } from "./messaging";
 
 function seedPlace() {
@@ -161,6 +165,117 @@ describe("v3 business", () => {
   });
 });
 
+describe("v3 venue claims", () => {
+  beforeEach(() => {
+    resetFakes();
+  });
+
+  const CLAIM = {
+    googlePlaceId: "ChIJclaimtest000000000001",
+    businessName: "Quay Bar",
+    city: "Sydney",
+    category: "bar",
+    address: "1 Quay St",
+    proofNote: "I manage this venue; ABN papers on request.",
+    contactEmail: "owner@example.com",
+  };
+  const PLACE_ID = "gp_ChIJclaimtest000000000001";
+
+  it("requests a claim once per claimant and validates input", async () => {
+    const res = (await runV3(v3RequestPlaceClaim, "uid-1", CLAIM)) as { placeId: string; created: boolean };
+    expect(res).toMatchObject({ placeId: PLACE_ID, created: true });
+    expect(readDoc(`places/${PLACE_ID}/claims/uid-1`)).toMatchObject({
+      state: "pending",
+      claimantUid: "uid-1",
+      businessName: "Quay Bar",
+    });
+    const retry = await runV3(v3RequestPlaceClaim, "uid-1", CLAIM);
+    expect(retry).toMatchObject({ created: false });
+    await expect(runV3(v3RequestPlaceClaim, "uid-1", { ...CLAIM, googlePlaceId: "bad" })).rejects.toMatchObject({
+      code: "invalid-argument",
+    });
+    await expect(runV3(v3RequestPlaceClaim, "uid-1", { ...CLAIM, proofNote: " " })).rejects.toMatchObject({
+      code: "invalid-argument",
+    });
+    await expect(runV3(v3RequestPlaceClaim, "uid-2", CLAIM, true)).rejects.toMatchObject({
+      code: "failed-precondition",
+    });
+  });
+
+  it("refuses claims for venues already on AirPal", async () => {
+    seedDoc(`places/${PLACE_ID}`, { ownerUid: "owner-1", status: "draft" });
+    await expect(runV3(v3RequestPlaceClaim, "uid-1", CLAIM)).rejects.toMatchObject({ code: "already-exists" });
+  });
+
+  it("approves by minting an owned draft place, once only", async () => {
+    await runV3(v3RequestPlaceClaim, "uid-1", CLAIM);
+    await expect(
+      runV3(v3ReviewPlaceClaim, "uid-9", { placeId: PLACE_ID, claimantUid: "uid-1", decision: "approved" }),
+    ).rejects.toMatchObject({ code: "permission-denied" });
+    fakes.isAdmin = true;
+    const res = await runV3(v3ReviewPlaceClaim, "admin-1", {
+      placeId: PLACE_ID,
+      claimantUid: "uid-1",
+      decision: "approved",
+      address: "2 Quay St",
+    });
+    expect(res).toMatchObject({ state: "approved" });
+    expect(readDoc(`places/${PLACE_ID}/claims/uid-1`)).toMatchObject({ state: "approved" });
+    expect(readDoc(`places/${PLACE_ID}`)).toMatchObject({
+      ownerUid: "uid-1",
+      status: "draft",
+      name: "Quay Bar",
+      address: "2 Quay St",
+      googlePlaceId: CLAIM.googlePlaceId,
+    });
+    await expect(
+      runV3(v3ReviewPlaceClaim, "admin-1", { placeId: PLACE_ID, claimantUid: "uid-1", decision: "approved" }),
+    ).rejects.toMatchObject({ code: "failed-precondition" });
+  });
+
+  it("rejects with a reason and allows re-request with better proof", async () => {
+    await runV3(v3RequestPlaceClaim, "uid-1", CLAIM);
+    fakes.isAdmin = true;
+    await runV3(v3ReviewPlaceClaim, "admin-1", {
+      placeId: PLACE_ID,
+      claimantUid: "uid-1",
+      decision: "rejected",
+      reason: "Need stronger proof.",
+    });
+    expect(readDoc(`places/${PLACE_ID}/claims/uid-1`)).toMatchObject({ state: "rejected" });
+    expect(readDoc(`places/${PLACE_ID}`)).toBeUndefined();
+    const reopened = (await runV3(v3RequestPlaceClaim, "uid-1", {
+      ...CLAIM,
+      proofNote: "ABN papers attached via email.",
+    })) as { created: boolean };
+    expect(reopened.created).toBe(true);
+    expect(readDoc(`places/${PLACE_ID}/claims/uid-1`)).toMatchObject({ state: "pending" });
+  });
+
+  it("withdraws own pending claims only", async () => {
+    await runV3(v3RequestPlaceClaim, "uid-1", CLAIM);
+    await expect(runV3(v3WithdrawPlaceClaim, "uid-2", { placeId: PLACE_ID })).rejects.toMatchObject({
+      code: "not-found",
+    });
+    const res = await runV3(v3WithdrawPlaceClaim, "uid-1", { placeId: PLACE_ID });
+    expect(res).toMatchObject({ state: "withdrawn" });
+    await expect(runV3(v3WithdrawPlaceClaim, "uid-1", { placeId: PLACE_ID })).rejects.toMatchObject({
+      code: "failed-precondition",
+    });
+  });
+
+  it("lists the admin review queue across venues", async () => {
+    await runV3(v3RequestPlaceClaim, "uid-1", CLAIM);
+    await runV3(v3RequestPlaceClaim, "uid-2", { ...CLAIM, googlePlaceId: "ChIJclaimtest000000000002" });
+    await expect(runV3(v3ListPlaceClaims, "uid-1", {})).rejects.toMatchObject({ code: "permission-denied" });
+    fakes.isAdmin = true;
+    const res = (await runV3(v3ListPlaceClaims, "admin-1", {})) as { claims: Record<string, unknown>[] };
+    expect(res.claims).toHaveLength(2);
+    expect(res.claims[0]).toHaveProperty("placeId", expect.stringMatching(/^gp_/));
+    expect(res.claims.every((row) => row.state === "pending")).toBe(true);
+  });
+});
+
 describe("v3 trust", () => {
   beforeEach(() => {
     resetFakes();
@@ -253,6 +368,15 @@ describe("v3 discovery", () => {
     expect(shown.profile).toMatchObject({ displayName: "Ava" });
     const missing = await runV3(v3FetchHandle, undefined, { handle: "ghost.guy" });
     expect(missing).toMatchObject({ found: false });
+  });
+
+  it("reports an honest stub lookup without an API key", async () => {
+    delete process.env.GOOGLE_PLACES_API_KEY;
+    const res = await runV3(v3LookupGooglePlace, undefined, { placeId: "ChIJN1t_tDeuEmsRUsoyG83frY4" });
+    expect(res).toMatchObject({ provider: "stub", verified: false, place: null });
+    await expect(runV3(v3LookupGooglePlace, undefined, { placeId: "bad" })).rejects.toMatchObject({
+      code: "invalid-argument",
+    });
   });
 });
 

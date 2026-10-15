@@ -474,10 +474,10 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 className="font-bold text-accent hover:underline inline-flex items-center gap-1 cursor-pointer"
                 onClick={() => {
                   onClose();
-                  nav("/now");
+                  nav("/events");
                 }}
               >
-                <span>What now?</span>
+                <span>Browse events</span>
                 <span>→</span>
               </button>
             </div>

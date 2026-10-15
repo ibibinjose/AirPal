@@ -9,8 +9,8 @@ export function MobilePillarsNav({ path }: { path: string }) {
 
   return (
     <div className="border-b border-line/60 bg-paper/90 backdrop-blur-2xl lg:hidden">
-      {/* 4 Core Pillar Buttons */}
-      <nav aria-label="Core categories" className="grid grid-cols-4 gap-1.5 px-3 py-1.5">
+      {/* Core Pillar Buttons */}
+      <nav aria-label="Core categories" className="grid grid-cols-2 gap-1.5 px-3 py-1.5">
         {PILLARS.map((pillar) => {
           const isActive = pillar.id === activePillar?.id;
           const Icon = pillar.icon;
@@ -42,12 +42,7 @@ export function MobilePillarsNav({ path }: { path: string }) {
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-3 pb-2 pt-0.5">
           {activePillar.subLinks.map((sub) => {
             const isSubActive =
-              sub.href === path ||
-              (sub.href !== "/explore" &&
-                sub.href !== "/events" &&
-                sub.href !== "/plan" &&
-                sub.href !== "/me" &&
-                path.startsWith(sub.href));
+              sub.href === path || (sub.href !== "/events" && sub.href !== "/me" && path.startsWith(sub.href));
             return (
               <button
                 key={sub.href}

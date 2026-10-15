@@ -55,10 +55,9 @@ describe("guestlist model", () => {
 
   it("maps scopes to collections", () => {
     expect(isGuestScope("event")).toBe(true);
-    expect(isGuestScope("plan")).toBe(true);
+    expect(isGuestScope("plan")).toBe(false);
     expect(isGuestScope("venue")).toBe(false);
     expect(guestScopeCollection("event")).toBe("events");
-    expect(guestScopeCollection("plan")).toBe("plans");
   });
 
   it("treats the owner and co-hosts as managers", () => {

@@ -17,7 +17,6 @@ export function CircleHereSheet({
   onClose,
   people,
   defaultPlaceName,
-  planId,
   placeId,
   eventId,
   onShared,
@@ -26,7 +25,6 @@ export function CircleHereSheet({
   onClose: () => void;
   people: Person[];
   defaultPlaceName?: string;
-  planId?: string;
   placeId?: string;
   eventId?: string;
   onShared?: () => void;
@@ -68,7 +66,6 @@ export function CircleHereSheet({
       const geo = await requestDeviceGeo();
       await shareHereRemote({
         placeName: placeName.trim(),
-        planId,
         placeId,
         eventId,
         lat: geo?.lat,

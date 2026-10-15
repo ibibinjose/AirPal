@@ -10,29 +10,25 @@ export type V3ProfileVisibility = (typeof V3_PROFILE_VISIBILITIES)[number];
 export const V3_PUBLICATION_STATES = ["draft", "published", "archived"] as const;
 export type V3PublicationState = (typeof V3_PUBLICATION_STATES)[number];
 
-export const V3_PLAN_STATES = ["open", "completed", "cancelled"] as const;
-export type V3PlanState = (typeof V3_PLAN_STATES)[number];
-
-export const V3_RSVP_STATES = ["invited", "going", "maybe", "declined"] as const;
-export type V3RsvpState = (typeof V3_RSVP_STATES)[number];
-
 export const V3_ORDER_STATES = ["pending", "paid", "refunded", "cancelled", "failed"] as const;
 export type V3OrderState = (typeof V3_ORDER_STATES)[number];
 
 export const V3_COHORT_STATES = ["open", "closed"] as const;
 export type V3CohortState = (typeof V3_COHORT_STATES)[number];
 
-export const V3_CONVERSATION_KINDS = ["direct", "plan", "event"] as const;
+export const V3_CONVERSATION_KINDS = ["direct", "event"] as const;
 export type V3ConversationKind = (typeof V3_CONVERSATION_KINDS)[number];
 
-/** The 14 canonical V3 collections. Anything else is server-only. */
+export const V3_PLACE_CLAIM_STATES = ["pending", "approved", "rejected", "withdrawn"] as const;
+export type V3PlaceClaimState = (typeof V3_PLACE_CLAIM_STATES)[number];
+
+/** The 13 canonical V3 collections. Anything else is server-only. */
 export const V3_CANONICAL_COLLECTIONS = [
   "users",
   "handles",
   "profiles",
   "places",
   "events",
-  "plans",
   "tickets",
   "orders",
   "deals",
@@ -43,9 +39,6 @@ export const V3_CANONICAL_COLLECTIONS = [
   "rateLimits",
 ] as const;
 export type V3CanonicalCollection = (typeof V3_CANONICAL_COLLECTIONS)[number];
-
-/** The only client-readable subcollection in V3. */
-export const V3_PLAN_MEMBERS_SUBCOLLECTION = "members" as const;
 
 export const V3_TICKET_STATES = ["valid", "admitted", "void"] as const;
 export type V3TicketState = (typeof V3_TICKET_STATES)[number];
@@ -71,7 +64,6 @@ export type V3User = {
    * own user doc, then fetches each referenced doc by id with `get`.
    * Maintained only by Cloud Functions via arrayUnion/arrayRemove.
    */
-  planIds: string[];
   cohortIds: string[];
   ticketIds: string[];
   orderIds: string[];
@@ -109,39 +101,6 @@ export type V3Profile = {
   updatedAt: unknown;
 };
 
-export type V3PlanStop = {
-  id: string;
-  name: string;
-  time?: string;
-  placeId?: string;
-  addedByUid: string;
-  votes: number;
-  voterUids: string[];
-};
-
-export type V3Plan = {
-  ownerUid: string;
-  visibility: V3ProfileVisibility;
-  state: V3PlanState;
-  title: string;
-  description: string;
-  city: string;
-  startsAt: string;
-  placeId?: string;
-  inviteCode: string;
-  stops: V3PlanStop[];
-  attendeeCount: number;
-  createdAt: unknown;
-  updatedAt: unknown;
-};
-
-export type V3PlanMember = {
-  uid: string;
-  role: "owner" | "member";
-  rsvp: V3RsvpState;
-  updatedAt: unknown;
-};
-
 export type V3Event = {
   organiserUid: string;
   status: V3PublicationState;
@@ -168,8 +127,33 @@ export type V3Place = {
   city: string;
   category: string;
   address: string;
+  /** Google Place ID link for claimed venues. A public reference, not ownership proof. */
+  googlePlaceId?: string;
   createdAt: unknown;
   updatedAt: unknown;
+};
+
+/**
+ * Venue claim request. Stored in the server-only `places/{placeId}/claims`
+ * subcollection: claimants and admins act through callables only. Contact
+ * details never appear in public projections.
+ */
+export type V3PlaceClaim = {
+  placeId: string;
+  googlePlaceId: string;
+  claimantUid: string;
+  state: V3PlaceClaimState;
+  businessName: string;
+  city: string;
+  category: string;
+  address: string;
+  proofNote: string;
+  contactEmail?: string;
+  reason?: string;
+  decidedByUid?: string;
+  createdAt: unknown;
+  updatedAt: unknown;
+  decidedAt?: unknown;
 };
 
 export type V3Deal = {
@@ -241,7 +225,6 @@ export type V3Cohort = {
 export type V3Conversation = {
   kind: V3ConversationKind;
   participantUids: string[];
-  planId?: string;
   eventId?: string;
   lastMessageAt: unknown;
   lastMessagePreview: string;
@@ -286,24 +269,6 @@ export type V3UpdateProfileRequest = {
 
 export type V3SetProfileVisibilityRequest = {
   visibility: V3ProfileVisibility;
-};
-
-export type V3CreatePlanRequest = {
-  title: string;
-  description?: string;
-  city: string;
-  startsAt: string;
-  placeId?: string;
-  visibility?: V3ProfileVisibility;
-};
-
-export type V3RespondToPlanRequest = {
-  planId: string;
-  rsvp: V3RsvpState;
-};
-
-export type V3CompletePlanRequest = {
-  planId: string;
 };
 
 export type V3UpsertEventRequest = {
@@ -359,28 +324,10 @@ export type V3RedeemDealRequest = {
 };
 
 export type V3ReportRequest = {
-  subjectType: "profile" | "plan" | "event" | "place" | "message";
+  subjectType: "profile" | "event" | "place" | "message";
   subjectId: string;
   reason: string;
   detail?: string;
-};
-
-export type V3InviteToPlanRequest = {
-  planId: string;
-  uid?: string;
-  handle?: string;
-};
-
-export type V3AddPlanStopRequest = {
-  planId: string;
-  name: string;
-  time?: string;
-  placeId?: string;
-};
-
-export type V3VotePlanStopRequest = {
-  planId: string;
-  stopId: string;
 };
 
 export type V3IssueTicketRequest = {
@@ -441,7 +388,6 @@ export type V3FetchHandleRequest = {
 export type V3StartConversationRequest = {
   kind: V3ConversationKind;
   participantUids?: string[];
-  planId?: string;
   eventId?: string;
 };
 
@@ -456,6 +402,40 @@ export type V3ListAuditsRequest = {
   limit?: number;
 };
 
+export type V3RequestPlaceClaimRequest = {
+  googlePlaceId: string;
+  businessName: string;
+  city: string;
+  category: string;
+  address?: string;
+  proofNote: string;
+  contactEmail?: string;
+};
+
+export type V3ReviewPlaceClaimRequest = {
+  placeId: string;
+  claimantUid: string;
+  decision: "approved" | "rejected";
+  reason?: string;
+  businessName?: string;
+  city?: string;
+  category?: string;
+  address?: string;
+};
+
+export type V3WithdrawPlaceClaimRequest = {
+  placeId: string;
+};
+
+export type V3ListPlaceClaimsRequest = {
+  state?: V3PlaceClaimState;
+  limit?: number;
+};
+
+export type V3LookupGooglePlaceRequest = {
+  placeId: string;
+};
+
 const TEXT_MAX = 2_000;
 const ID_RE = /^[A-Za-z0-9_-]{3,120}$/;
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/;
@@ -464,16 +444,16 @@ export function isV3Visibility(value: unknown): value is V3ProfileVisibility {
   return value === "public" || value === "private";
 }
 
-export function isV3Rsvp(value: unknown): value is V3RsvpState {
-  return value === "invited" || value === "going" || value === "maybe" || value === "declined";
-}
-
 export function isV3OrderState(value: unknown): value is V3OrderState {
   return value === "pending" || value === "paid" || value === "refunded" || value === "cancelled" || value === "failed";
 }
 
 export function isV3ConversationKind(value: unknown): value is V3ConversationKind {
-  return value === "direct" || value === "plan" || value === "event";
+  return value === "direct" || value === "event";
+}
+
+export function isV3PlaceClaimState(value: unknown): value is V3PlaceClaimState {
+  return value === "pending" || value === "approved" || value === "rejected" || value === "withdrawn";
 }
 
 export function isV3PublicationState(value: unknown): value is Extract<V3PublicationState, "draft" | "published"> {
@@ -608,6 +588,36 @@ export function parseV3Uid(value: unknown, field = "User"): string {
   return uid;
 }
 
+const GOOGLE_PLACE_ID_RE = /^[A-Za-z0-9_.:-]{8,255}$/;
+
+export function parseV3GooglePlaceId(value: unknown, field = "Place"): string {
+  const id = cleanV3Text(value, 255);
+  if (!GOOGLE_PLACE_ID_RE.test(id)) throw new Error(field + " ID is invalid.");
+  return id;
+}
+
+/** Deterministic V3 place id for a Google-sourced venue, before it is claimed. */
+export function v3PlaceIdForGooglePlace(googlePlaceId: string): string {
+  return `gp_${googlePlaceId.replace(/[^A-Za-z0-9_-]/g, "_")}`.slice(0, 300);
+}
+
+const V3_PLACE_ID_RE = /^[A-Za-z0-9_-]{3,300}$/;
+
+export function parseV3PlaceId(value: unknown, field = "Place"): string {
+  const id = cleanV3Text(value, 300);
+  if (!V3_PLACE_ID_RE.test(id)) throw new Error(field + " is invalid.");
+  return id;
+}
+
+const CONTACT_EMAIL_RE = /^[^\s@]{1,128}@[^\s@]{1,128}\.[^\s@]{2,32}$/;
+
+export function parseV3ContactEmail(value: unknown): string | undefined {
+  if (value === undefined || value === null || value === "") return undefined;
+  const email = cleanV3Text(value, 254).toLowerCase();
+  if (!CONTACT_EMAIL_RE.test(email)) throw new Error("Contact email is invalid.");
+  return email;
+}
+
 /** Public discovery projections. Never include owner contact, trust, or money state. */
 export function publicV3Place(place: V3Place & { id: string }) {
   return {
@@ -617,6 +627,7 @@ export function publicV3Place(place: V3Place & { id: string }) {
     city: place.city,
     category: place.category,
     address: place.address,
+    googlePlaceId: place.googlePlaceId,
     status: place.status,
     updatedAt: place.updatedAt,
   };

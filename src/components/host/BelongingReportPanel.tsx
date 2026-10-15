@@ -173,7 +173,7 @@ export function BelongingReportPanel() {
           <h4 className="text-xs font-bold uppercase tracking-wider text-mute">Duty of Care & Privacy Guarantee</h4>
           <p className="mt-1 text-xs text-mute leading-relaxed">
             All belonging analytics are aggregated strictly in accordance with Australian Privacy Principles (APPs).
-            Individual private plans, personal messages, and location pins are encrypted and never disclosed to
+            Individual private catch-ups, personal messages, and location pins are encrypted and never disclosed to
             institutions.
           </p>
         </div>

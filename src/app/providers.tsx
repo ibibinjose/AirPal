@@ -8,7 +8,6 @@ import { SocialProvider } from "@/contexts/SocialContext";
 import { BioProvider } from "@/contexts/BioContext";
 import { ClubProvider } from "@/contexts/ClubContext";
 import { SyncProvider } from "@/contexts/SyncContext";
-import { PlanProvider } from "@/contexts/PlanContext";
 import { CompanionProvider } from "@/contexts/CompanionContext";
 import { LocalNowProvider } from "@/contexts/LocalNowContext";
 import { AnalyticsProvider } from "@/contexts/AnalyticsContext";
@@ -30,7 +29,6 @@ const PROVIDERS: ProviderComponent[] = [
   BioProvider,
   SocialProvider,
   ClubProvider,
-  PlanProvider,
   CompanionProvider,
 ];
 

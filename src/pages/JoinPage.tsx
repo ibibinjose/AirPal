@@ -33,7 +33,7 @@ export function JoinPage() {
     if (outcome.success && outcome.institution) {
       setJoinedSuccess(outcome.institution.name);
       setTimeout(() => {
-        nav("/now");
+        nav("/circle");
       }, 1200);
     } else {
       setErrorMessage(outcome.message);
@@ -52,7 +52,7 @@ export function JoinPage() {
           I Just Got Here
         </h1>
         <p className="mt-2 text-base text-mute">
-          Enter your building or college code to connect with your verified cohort, join hosted events, and make plans
+          Enter your building or college code to connect with your verified cohort, join hosted events, and meet people
           in under a minute.
         </p>
       </header>
@@ -71,7 +71,7 @@ export function JoinPage() {
               variant="primary"
               onClick={() => {
                 void triggerHaptic("light");
-                nav("/now");
+                nav("/events");
               }}
             >
               <span>{activeCohort.shortName} Experiences</span>
@@ -139,7 +139,7 @@ export function JoinPage() {
           {joinedSuccess && (
             <div className="mt-4 flex items-center gap-2 rounded-2xl bg-emerald-500/10 p-3 text-xs font-bold text-emerald-700 dark:text-emerald-400">
               <CheckCircle2 size={16} />
-              <span>Joined {joinedSuccess}! Taking you to your daily plans…</span>
+              <span>Joined {joinedSuccess}! Taking you to your Circle…</span>
             </div>
           )}
 
@@ -177,7 +177,7 @@ export function JoinPage() {
           <span>Not staying in a partner college or hotel?</span>
           <button
             type="button"
-            onClick={() => nav("/now")}
+            onClick={() => nav("/events")}
             className="inline-flex min-h-[44px] items-center font-semibold text-accent underline cursor-pointer"
           >
             Explore Sydney as a general guest

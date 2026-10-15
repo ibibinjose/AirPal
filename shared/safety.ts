@@ -29,13 +29,12 @@ export type SafetyReportStatus = "new" | "reviewed" | "actioned";
 export interface SafetyReportInput {
   target: ReportTarget;
   targetUid: string;
-  planId: string;
   reason: ReportReason;
   details: string;
 }
 
-export function emptyReport(planId: string, targetUid: string): SafetyReportInput {
-  return { target: "user", targetUid, planId, reason: "harassment", details: "" };
+export function emptyReport(targetUid: string): SafetyReportInput {
+  return { target: "user", targetUid, reason: "harassment", details: "" };
 }
 
 export function isReportTarget(t: string): t is ReportTarget {

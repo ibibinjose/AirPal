@@ -1,4 +1,4 @@
-import { AtSign, CalendarDays, Compass, Home, QrCode, ScanLine, Ticket, Users } from "@/components/icons";
+import { AtSign, CalendarDays, Home, QrCode, ScanLine, Ticket, Users } from "@/components/icons";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -16,17 +16,15 @@ import { passTabFromPath, tabFromPath, type GuestTab, type PassTab } from "@/lib
 
 export { tabFromPath };
 
-/** Shipped companion dock: Home / Now / Plan / Circle / Bio. */
-const TABS: { href: string; id: GuestTab; label: string; icon: typeof Compass }[] = [
+/** Shipped companion dock: Home / Circle / Bio. */
+const TABS: { href: string; id: GuestTab; label: string; icon: typeof Home }[] = [
   { href: "/", id: "home", label: "Home", icon: Home },
-  { href: "/now", id: "explore", label: "Now", icon: Compass },
-  { href: "/plan", id: "trips", label: "Plan", icon: CalendarDays },
   { href: "/circle", id: "circle", label: "Circle", icon: Users },
   { href: "/bio", id: "bio", label: "Bio", icon: AtSign },
 ];
 
 /** Pass shell dock: Pass / Events / Tickets / Scan / Bio. */
-const PASS_TABS: { href: string; id: PassTab; label: string; icon: typeof Compass }[] = [
+const PASS_TABS: { href: string; id: PassTab; label: string; icon: typeof Home }[] = [
   { href: "/pass", id: "pass", label: "Pass", icon: Ticket },
   { href: "/events", id: "events", label: "Events", icon: CalendarDays },
   { href: "/me/tickets", id: "tickets", label: "Tickets", icon: QrCode },

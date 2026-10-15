@@ -19,10 +19,10 @@ export function PrivacyPage() {
 
       <h2>1. Who we are</h2>
       <p>
-        {LEGAL.brand} ({LEGAL.site}) is the all-in-one platform for live events, ambient discovery, group plans, PBSA
-        student arrival cohorts, and public digital bios at airpal.me/@handle. Guests may browse without an account.
-        Individuals and partners use one universal login. After sign-in you choose a personal @handle. You may add a
-        registered-business handle later.
+        {LEGAL.brand} ({LEGAL.site}) is the all-in-one platform for live events, ambient discovery, PBSA student arrival
+        cohorts, and public digital bios at airpal.me/@handle. Guests may browse without an account. Individuals and
+        partners use one universal login. After sign-in you choose a personal @handle. You may add a registered-business
+        handle later.
       </p>
       <p>
         Ticketed events, passes, and real-world bookings are processed by Stripe. Card numbers never touch our servers
@@ -60,9 +60,9 @@ export function PrivacyPage() {
             </td>
           </tr>
           <tr>
-            <td>Arrival, plan and scan context</td>
+            <td>Arrival, catch-up and scan context</td>
             <td>
-              Building cohort, precinct guide or marker scanned, room token, campus, saved stops, messages you send a
+              Building cohort, precinct guide or marker scanned, room token, campus, saved places, messages you send a
               host.
             </td>
           </tr>

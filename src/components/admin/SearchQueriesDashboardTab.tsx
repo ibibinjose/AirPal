@@ -5,6 +5,7 @@ import { BarChart3, Calendar, Search, RefreshCw, TrendingUp, Sparkles, ArrowUpRi
 import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
 import { toZonedDateStr } from "@/lib/local-time";
 import { Button } from "@/components/ui/Button";
+import { openGlobalSearch } from "@/components/search/openSearch";
 import { triggerHaptic } from "@/lib/native";
 import { cn } from "@/lib/cn";
 import { useLocation } from "wouter";
@@ -399,7 +400,11 @@ export function SearchQueriesDashboardTab() {
               <RefreshCw size={13} className={cn(refreshing && "animate-spin text-accent")} />
               <span>Refresh</span>
             </Button>
-            <Button size="sm" onClick={() => nav("/now")} className="rounded-full text-xs font-bold gap-1 shadow-xs">
+            <Button
+              size="sm"
+              onClick={() => openGlobalSearch()}
+              className="rounded-full text-xs font-bold gap-1 shadow-xs"
+            >
               <Search size={13} />
               <span>Test Search</span>
             </Button>
@@ -791,7 +796,7 @@ export function SearchQueriesDashboardTab() {
                           if (item.category === "events") {
                             nav(`/events?q=${encodeURIComponent(item.query)}`);
                           } else {
-                            nav(`/now?q=${encodeURIComponent(item.query)}`);
+                            openGlobalSearch({ query: item.query });
                           }
                         }}
                         className="inline-flex min-h-[36px] items-center gap-1 text-[11px] font-bold text-accent hover:underline cursor-pointer"

@@ -65,10 +65,10 @@ describe("sandboxBookingsAllowed", () => {
 });
 
 describe("stayCheckoutReturnUrls", () => {
-  it("lands on /concierge so booked/canceled survive (no /stay redirect)", () => {
+  it("lands on the ticket passbook so booked/canceled survive", () => {
     expect(stayCheckoutReturnUrls("https://airpal.me", "b1")).toEqual({
-      success: "https://airpal.me/concierge?booked=b1",
-      cancel: "https://airpal.me/concierge?canceled=true",
+      success: "https://airpal.me/me/tickets?booked=b1",
+      cancel: "https://airpal.me/me/tickets?canceled=true",
     });
   });
 });

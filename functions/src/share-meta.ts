@@ -11,8 +11,8 @@ import { db } from "./admin";
 /**
  * Server-rendered link previews. firebase.json rewrites shareable deep links
  * here: crawler user-agents get static OG/Twitter HTML for the actual doc,
- * humans pass through to the SPA. Misses and gated docs (drafts, private
- * plans, inactive pulse tokens) all render the same generic brand card, so
+ * humans pass through to the SPA. Misses and gated docs (drafts,
+ * inactive pulse tokens) all render the same generic brand card, so
  * the endpoint is not an existence oracle.
  */
 
@@ -91,23 +91,6 @@ async function resolvePulseCard(token: string, origin: string): Promise<ShareCar
   );
 }
 
-async function resolvePlanCardById(id: string, origin: string): Promise<ShareCard> {
-  const doc = await getDocData("plans", id);
-  // Keep unshared private plan IDs from being enumerated; public plans resolve.
-  if (!doc || doc.status === "cancelled" || doc.isPublic !== true) return genericCard(origin);
-  return shareCardFor("plan", doc, origin);
-}
-
-async function resolvePlanCardByInvite(code: string, origin: string): Promise<ShareCard> {
-  const normalized = code.trim().toUpperCase();
-  if (!normalized) return genericCard(origin);
-  const snap = await db.collection("plans").where("inviteCode", "==", normalized).limit(1).get();
-  const doc = snap.empty ? null : (snap.docs[0]!.data() as Record<string, unknown>);
-  // The unguessable 6-character invite code is the bearer token for the invitation.
-  if (!doc || doc.status === "cancelled") return genericCard(origin);
-  return shareCardFor("plan", { ...doc, _isInvite: true }, origin);
-}
-
 async function resolveBioCard(handle: string, origin: string): Promise<ShareCard> {
   const normalized = handle.trim().toLowerCase();
   if (!normalized) return genericCard(origin);
@@ -167,12 +150,6 @@ async function resolveCard(pathname: string, origin: string): Promise<ShareCard 
   if ((match = /^\/p\/([^/]+)/.exec(path))) return resolvePlaceCard(match[1]!, origin);
   if ((match = /^\/pulse\/([^/]+)/.exec(path))) return resolvePulseCard(match[1]!, origin);
   if ((match = /^\/deals\/([^/]+)/.exec(path))) return resolvePromotionCard(match[1]!, origin);
-  if ((match = /^\/invite\/([^/]+)/.exec(path))) return resolvePlanCardByInvite(match[1]!, origin);
-  if ((match = /^\/plan\/([^/]+)/.exec(path))) {
-    const id = match[1]!;
-    if (id === "new") return null;
-    return resolvePlanCardById(id, origin);
-  }
   if ((match = /^\/@([^/]+)/.exec(path))) return resolveBioCard(match[1]!, origin);
   if ((match = /^\/(?:stay|g)\/([^/]+)/.exec(path))) return resolvePropertyCard(match[1]!, origin);
   if (/^\/demohotel\/?$/i.test(path)) return resolveDemoHotelCard(origin);
@@ -247,6 +224,6 @@ export const shareMeta = onRequest({ invoker: "public" }, async (req, res) => {
   }
   res.set("Content-Type", "text/html; charset=utf-8");
   res.set("Cache-Control", "public, max-age=300");
-  const ogType = /^\/(?:e|plan|invite)\//.test(pathname) ? "event" : /^\/@/.test(pathname) ? "profile" : "website";
+  const ogType = /^\/e\//.test(pathname) ? "event" : /^\/@/.test(pathname) ? "profile" : "website";
   res.status(200).send(buildShareMetaHtml(card, `${origin}${pathname}`, ogType));
 });

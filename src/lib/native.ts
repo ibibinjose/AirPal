@@ -183,7 +183,7 @@ export async function initNativeApp(
       /* inbox still works */
     }
 
-    // Handle incoming Universal Links & Deep Links (e.g. https://airpal.me/plan/plan-xyz or me.airpal.app://...)
+    // Handle incoming Universal Links & Deep Links (e.g. https://airpal.me/e/event-xyz or me.airpal.app://...)
     App.addListener("appUrlOpen", (data: { url: string }) => {
       if (!data?.url) return;
       try {

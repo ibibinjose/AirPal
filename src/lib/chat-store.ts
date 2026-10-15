@@ -206,7 +206,6 @@ export function buildConversationId(
   if (type === "ai") return `ai_${userUid || "guest"}`;
   if (type === "stay") return `stay_${targetId || "hotel"}_${userUid || "guest"}`;
   if (type === "business") return `biz_${targetId}_${userUid || "guest"}`;
-  if (type === "plan") return `plan_${targetId}`;
   const uids = [userUid, peerUid || "unknown"].sort();
   return `direct_${uids[0]}_${uids[1]}`;
 }

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useLocation } from "wouter";
 import {
   AlertTriangle,
   Bell,
@@ -20,7 +19,6 @@ import {
 } from "lucide-react";
 import { Photo } from "@/components/ui/Photo";
 import { Button } from "@/components/ui/Button";
-import { usePlans } from "@/contexts/PlanContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
 import { useScrollLock } from "@/hooks/useScrollLock";
@@ -33,10 +31,10 @@ import {
   checkTimeConflict,
   subscribeMyCatchUps,
   type CatchUpItem,
+  type CatchUpType,
 } from "@/lib/catchup";
 import { toZonedDateStr } from "@/lib/local-time";
 import { triggerHaptic } from "@/lib/native";
-import type { PlanType } from "@shared/plan";
 import { toast } from "sonner";
 import { scheduleCatchUpRemote } from "@/lib/functions";
 import { cn } from "@/lib/cn";
@@ -49,7 +47,7 @@ interface BioCatchUpModalProps {
   city?: string;
   avatar?: string;
   ownerUid?: string;
-  initialType?: PlanType;
+  initialType?: CatchUpType;
   defaultMeetingUrl?: string;
   defaultMeetingPlatform?: "in_person" | "google_meet" | "facetime" | "zoom";
 }
@@ -72,11 +70,9 @@ export function BioCatchUpModal({
   defaultMeetingUrl,
   defaultMeetingPlatform,
 }: BioCatchUpModalProps) {
-  const [, nav] = useLocation();
-  const { createPlan, myPlans } = usePlans();
   const { user, requireUser } = useAuth();
   const { mine } = useBio();
-  const [selectedType, setSelectedType] = useState<PlanType>(initialType);
+  const [selectedType, setSelectedType] = useState<CatchUpType>(initialType);
   const [meetingPlatform, setMeetingPlatform] = useState<"in_person" | "google_meet" | "facetime">("in_person");
   const [meetingLink, setMeetingLink] = useState("");
   const [date, setDate] = useState(() => localDate(1));
@@ -124,13 +120,12 @@ export function BioCatchUpModal({
   }, [open, initialType, handle, city, defaultMeetingUrl, defaultMeetingPlatform, onClose]);
 
   const typeOptions: Array<{
-    type: PlanType;
+    type: CatchUpType;
     label: string;
     sublabel: string;
     icon: typeof Coffee;
     badge: string;
     color: string;
-    defaultTitle: string;
   }> = [
     {
       type: "catchup",
@@ -139,7 +134,6 @@ export function BioCatchUpModal({
       icon: Coffee,
       badge: "1-on-1",
       color: "from-amber-500/20 to-orange-500/20 text-amber-600 border-amber-500/30",
-      defaultTitle: `Coffee with ${name}`,
     },
     {
       type: "meeting",
@@ -148,23 +142,21 @@ export function BioCatchUpModal({
       icon: Calendar,
       badge: "1-on-1",
       color: "from-sky-500/20 to-blue-500/20 text-sky-600 border-sky-500/30",
-      defaultTitle: `Sync with ${name}`,
     },
     {
       type: "nightout",
       label: "Hangout",
-      sublabel: "Group plan",
+      sublabel: "Group catch-up",
       icon: Users,
       badge: "Group",
       color: "from-purple-500/20 to-pink-500/20 text-purple-600 border-purple-500/30",
-      defaultTitle: `Hangout with ${name}`,
     },
   ];
 
   const currentOption = typeOptions.find((o) => o.type === selectedType) || typeOptions[0]!;
 
-  // Double-booking collision detection against user's plans and existing meetups
-  const conflict = checkTimeConflict(date, time, myPlans, myCatchups);
+  // Double-booking collision detection against user's catch-ups and existing meetups
+  const conflict = checkTimeConflict(date, time, [], myCatchups);
 
   if (!open) return null;
 
@@ -180,7 +172,7 @@ export function BioCatchUpModal({
   const handleLaunch = async () => {
     if (!requireUser("Sign in to propose a catch-up, meeting, or hangout.")) return;
     // Re-check at click time so a stale render cannot bypass the hard block.
-    const liveConflict = checkTimeConflict(date, time, myPlans, myCatchups);
+    const liveConflict = checkTimeConflict(date, time, [], myCatchups);
     if (liveConflict.hasConflict) {
       toast.error(
         `That time overlaps “${liveConflict.conflictingTitle}” at ${liveConflict.conflictingTime}. Pick another slot.`,
@@ -204,42 +196,6 @@ export function BioCatchUpModal({
     setIsSubmitting(true);
     try {
       void triggerHaptic("success");
-      const oneOnOne = selectedType !== "nightout";
-      const created = createPlan({
-        title: currentOption.defaultTitle,
-        type: selectedType,
-        theme: selectedType === "catchup" ? "emerald" : selectedType === "meeting" ? "jetblack" : "gold",
-        date,
-        time,
-        city,
-        destination: place,
-        notes: notes || `With @${handle}`,
-        isPublic: !oneOnOne,
-        invited: [{ id: ownerUid || `h-${handle}`, name, handle }],
-        initialStops:
-          selectedType === "catchup"
-            ? [
-                {
-                  name: meetingPlatform === "in_person" ? `Coffee at ${place}` : place,
-                  time,
-                  notes: "Catch up",
-                  icon: meetingPlatform === "in_person" ? "coffee" : "drinks",
-                  address: place,
-                },
-              ]
-            : selectedType === "meeting"
-              ? [
-                  {
-                    name: meetingPlatform === "in_person" ? `Meeting at ${place}` : place,
-                    time,
-                    notes: notes || "Sync",
-                    icon: "pin",
-                    address: place,
-                  },
-                ]
-              : [{ name: place, time, notes: "Meet here", icon: "drinks", address: place }],
-      });
-
       const interest = recordCatchUpInterest({
         targetHandle: handle,
         targetOwnerUid: ownerUid,
@@ -254,20 +210,18 @@ export function BioCatchUpModal({
         meetingLink: effectiveMeetingLink,
         meetingPlatform,
         notes,
-        planId: created.id,
       });
       try {
         await persistCatchUp(interest);
         await scheduleCatchUpRemote({ catchupId: interest.id, action: "open" });
       } catch {
-        /* The plan and the catch-up row still exist. Suggest times retries the thread. */
+        /* The catch-up row still exists locally. Suggest times retries the thread. */
       }
 
       toast.success(`Proposed ${currentOption.label} with ${name}`);
       onClose();
-      nav(`/plan/${created.id}?share=true`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn’t create the plan");
+      toast.error(err instanceof Error ? err.message : "Couldn’t propose the catch-up");
     } finally {
       setIsSubmitting(false);
     }
@@ -611,12 +565,12 @@ export function BioCatchUpModal({
             {isSubmitting ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
-                Creating Plan…
+                Proposing…
               </>
             ) : (
               <>
                 <Zap size={16} />
-                {conflict.hasConflict ? "Pick a free time first" : "Create Plan & Propose"}
+                {conflict.hasConflict ? "Pick a free time first" : "Propose Catch-up"}
               </>
             )}
           </Button>

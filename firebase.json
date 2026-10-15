@@ -58,20 +58,6 @@
         }
       },
       {
-        "source": "/invite/**",
-        "function": {
-          "functionId": "shareMeta",
-          "region": "us-central1"
-        }
-      },
-      {
-        "source": "/plan/**",
-        "function": {
-          "functionId": "shareMeta",
-          "region": "us-central1"
-        }
-      },
-      {
         "source": "/@**",
         "function": {
           "functionId": "shareMeta",

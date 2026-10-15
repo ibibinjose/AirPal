@@ -15,12 +15,10 @@ import { circleHandles } from "@/lib/circle";
 
 export function HereCheckIn({
   placeName,
-  planId,
   placeId,
   eventId,
 }: {
   placeName: string;
-  planId?: string;
   placeId?: string;
   eventId?: string;
 }) {
@@ -31,7 +29,7 @@ export function HereCheckIn({
   const [open, setOpen] = useState(false);
   const [minePin, setMinePin] = useState<HerePin | null>(null);
   const [pins, setPins] = useState<HerePin[]>([]);
-  const placeKey = herePlaceKey({ planId, placeId, eventId });
+  const placeKey = herePlaceKey({ placeId, eventId });
 
   const people = useMemo(() => {
     const met = new Set(
@@ -103,7 +101,6 @@ export function HereCheckIn({
         onClose={() => setOpen(false)}
         people={people}
         defaultPlaceName={placeName}
-        planId={planId}
         placeId={placeId}
         eventId={eventId}
         onShared={() => void load()}
