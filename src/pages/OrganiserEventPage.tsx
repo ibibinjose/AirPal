@@ -1438,6 +1438,12 @@ export function OrganiserEventPage() {
           </div>
           <div className="flex items-center gap-2">
             <Link
+              href={`/e/${myEvent.id}/manage`}
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition"
+            >
+              <span>Manage Event</span>
+            </Link>
+            <Link
               href={`/e/${myEvent.id}/guests`}
               className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-accent ring-1 ring-line hover:bg-paper transition"
             >

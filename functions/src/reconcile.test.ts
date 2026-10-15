@@ -177,10 +177,7 @@ describe("reconcile classifiers", () => {
   it("flags stuck held payouts, ledger gaps, drift, and missing charges", () => {
     expect(firestoreFindings({ id: "b", ...PAID, status: "completed" } as never, false)).toContain("stuck_held");
     expect(
-      firestoreFindings(
-        { id: "b", ...PAID, payoutStatus: "transferred", stripeTransferId: "tr_1" } as never,
-        false,
-      ),
+      firestoreFindings({ id: "b", ...PAID, payoutStatus: "transferred", stripeTransferId: "tr_1" } as never, false),
     ).toContain("missing_ledger");
     expect(firestoreFindings({ id: "b", ...PAID, payoutStatus: "held" } as never, true)).toContain("status_drift");
     expect(firestoreFindings({ id: "b", ...PAID, stripeChargeId: undefined } as never, false)).toContain(
@@ -194,10 +191,7 @@ describe("reconcile classifiers", () => {
   });
 
   it("routes held bookings with a transfer id to drift verification, not re-release", () => {
-    const kinds = firestoreFindings(
-      { id: "b", ...PAID, status: "completed", stripeTransferId: "tr_1" } as never,
-      true,
-    );
+    const kinds = firestoreFindings({ id: "b", ...PAID, status: "completed", stripeTransferId: "tr_1" } as never, true);
     expect(kinds).not.toContain("stuck_held");
     expect(kinds).toContain("status_drift");
   });
@@ -206,12 +200,9 @@ describe("reconcile classifiers", () => {
     const booking = { id: "b", ...PAID } as MoneyBooking;
     expect(stripeFindings(booking, null)).toEqual(["stripe_missing"]);
     expect(stripeFindings(booking, charge({ refunded: true }) as never)).toEqual(["stripe_refunded"]);
-    expect(
-      stripeFindings(
-        { ...booking, stripeTransferId: "tr_1" },
-        charge({ refunded: true }) as never,
-      ),
-    ).toEqual(["refunded_after_transfer"]);
+    expect(stripeFindings({ ...booking, stripeTransferId: "tr_1" }, charge({ refunded: true }) as never)).toEqual([
+      "refunded_after_transfer",
+    ]);
     expect(stripeFindings(booking, charge({ amount_refunded: 100 }) as never)).toEqual(["partial_refund"]);
     expect(stripeFindings(booking, charge({ disputed: true }) as never)).toEqual(["stripe_disputed"]);
     expect(stripeFindings(booking, charge({ amount: 4999 }) as never)).toEqual(["amount_mismatch"]);
@@ -251,12 +242,12 @@ describe("payout reconciliation callables", () => {
       "bk-open": { ...PAID },
     };
     fakes.payments = {
-      "cs_1": { amountTotal: 5000, currency: "aud" },
-      "cs_2": { amountTotal: 2500, currency: "aud" },
-      "cs_fx": { amountTotal: 9999, currency: "usd" },
-      "cs_bad": { amountTotal: "oops", currency: "aud" },
+      cs_1: { amountTotal: 5000, currency: "aud" },
+      cs_2: { amountTotal: 2500, currency: "aud" },
+      cs_fx: { amountTotal: 9999, currency: "usd" },
+      cs_bad: { amountTotal: "oops", currency: "aud" },
     };
-    fakes.payouts = { "tr_9": { amountCents: 4000, feeCents: 1000 } };
+    fakes.payouts = { tr_9: { amountCents: 4000, feeCents: 1000 } };
     fakes.charges = { ch_1: charge() };
 
     const res = (await run(payoutReconciliationReport, "admin-1", true)) as unknown as {
@@ -316,9 +307,7 @@ describe("payout reconciliation callables", () => {
     };
     expect(res.findings).toContainEqual({ kind: "missing_ledger", bookingId: "bk-gap", corrected: true });
     expect(fakes.payouts["tr_gap"]).toMatchObject({ bookingId: "bk-gap", amountCents: 4250, feeCents: 750 });
-    expect(res.findings).toContainEqual(
-      expect.objectContaining({ kind: "ledger_orphan", bookingId: "bk-orphan" }),
-    );
+    expect(res.findings).toContainEqual(expect.objectContaining({ kind: "ledger_orphan", bookingId: "bk-orphan" }));
     expect(fakes.payouts["tr_nope"]).toBeUndefined();
   });
 
@@ -378,7 +367,7 @@ describe("payout reconciliation callables", () => {
   it("degrades to Firestore-only findings when Stripe is unconfigured", async () => {
     fakes.live = false;
     fakes.bookings = { "bk-held": { ...PAID, status: "completed" } };
-    fakes.payments = { "cs_1": { amountTotal: 5000, currency: "aud" } };
+    fakes.payments = { cs_1: { amountTotal: 5000, currency: "aud" } };
 
     const res = (await run(payoutReconciliationReport, "admin-1", true)) as unknown as {
       stripeLive: boolean;

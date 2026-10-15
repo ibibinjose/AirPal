@@ -16,6 +16,7 @@ const CalendarPage = lazy(() => import("@/pages/CalendarPage").then((m) => ({ de
 const EventsPage = lazy(() => import("@/pages/EventsPage").then((m) => ({ default: m.EventsPage })));
 const PassPage = lazy(() => import("@/pages/PassPage").then((m) => ({ default: m.PassPage })));
 const GuestlistPage = lazy(() => import("@/pages/GuestlistPage").then((m) => ({ default: m.GuestlistPage })));
+const ManageEventPage = lazy(() => import("@/pages/ManageEventPage").then((m) => ({ default: m.ManageEventPage })));
 const OrganiserEventPage = lazy(() =>
   import("@/pages/OrganiserEventPage").then((m) => ({ default: m.OrganiserEventPage })),
 );
@@ -161,7 +162,8 @@ export function AppRoutes() {
           </Route>
           <Route path="/e/:eventId/s/:stallId">{(p) => <Redirect to={`/e/${p.eventId}`} />}</Route>
           <Route path="/e/:id/guests" component={GuestlistPage} />
-          <Route path="/e/:id/manage">{(p) => <Redirect to={`/e/${p.id}/guests`} />}</Route>
+          <Route path="/e/:id/manage" component={ManageEventPage} />
+          <Route path="/event/manage" component={ManageEventPage} />
           <Route path="/experience-details/:id">{(p) => <Redirect to={`/e/${p.id}`} />}</Route>
           <Route path="/experience-details">
             <Redirect to="/events" />

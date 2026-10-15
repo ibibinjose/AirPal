@@ -273,7 +273,11 @@ async function scanMoney(apply: boolean, adminUid: string): Promise<ReconcileRep
     if (Number.isFinite(fee) && fee > 0) totals.feesCents += Math.round(fee);
   }
 
-  const bookingsSnap = await db.collection("bookings").where("paymentStatus", "==", "paid").limit(RECONCILE_BOOKING_LIMIT).get();
+  const bookingsSnap = await db
+    .collection("bookings")
+    .where("paymentStatus", "==", "paid")
+    .limit(RECONCILE_BOOKING_LIMIT)
+    .get();
   if (bookingsSnap.docs.length >= RECONCILE_BOOKING_LIMIT) truncated = true;
 
   for (const docSnap of bookingsSnap.docs) {

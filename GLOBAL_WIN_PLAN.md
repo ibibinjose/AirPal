@@ -66,8 +66,15 @@ Help any community gather in real life without platform tax or chaos:
 - DONE (telemetry only, no payout logic): `admitTicket` emits server-side
   `event_check_in` on fresh admits. Verify checks, denials, and re-scans
   intentionally emit nothing (read-only / idempotent by `checkInId`).
-- OPEN (needs money-rails approval): payout reconciliation; $500 GMV
-  validation.
+- DONE: payout reconciliation (`payoutReconciliationReport` read-only GMV +
+  health report, `reconcilePayouts` admin-only safe auto-corrections:
+  stuck-held release, ledger recreate, drift sync, Stripe-refund sync,
+  dispute reversal). Never auto-touches: amount mismatches, missing charges,
+  partial refunds, refunded-after-transfer, ledger orphans (all flagged for
+  human review). No rules changes; all writes idempotent + audited.
+- OPEN (needs live data + deploy approval): $500 GMV validation milestone.
+  Run the report callable post-deploy; not verifiable locally (test Stripe
+  key rejected by API, no live key present).
 
 ## 6. Acquisition bets (in order)
 
@@ -80,5 +87,6 @@ Help any community gather in real life without platform tax or chaos:
 
 Done: cohort joining, cohort provider/store, dead host panels, arrival engine
 marketing, concierge/stay SEO, PBSA help article (rewritten), arrival
-search/FAB entries, fabricated Circle counts and auto-follow. Open: money
-rails (server analytics, payout reconciliation, $500 GMV).
+search/FAB entries, fabricated Circle counts and auto-follow, server-side
+check-in emission, payout reconciliation. Open: live deploy + $500 GMV
+validation (needs live data).

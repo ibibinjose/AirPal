@@ -79,7 +79,7 @@ export async function fetchListHeader(scope: GuestScope, id: string): Promise<Li
     ownerUid,
     coHostUids,
     capacity,
-    backHref: `/e/${id}`,
+    backHref: `/e/${id}/manage`,
   };
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useRoute, useLocation, useSearch } from "wouter";
-import { ArrowLeft, Heart, Share2, Sparkles, Star, Ticket } from "lucide-react";
+import { Link, useRoute, useLocation, useSearch } from "wouter";
+import { ArrowLeft, Heart, Settings, Share2, Sparkles, Star, Ticket } from "lucide-react";
 import { toast } from "sonner";
 import { StickyAction } from "@/components/design-system/companions";
 import { Button } from "@/components/ui/Button";
@@ -235,15 +235,26 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
           <span>AirPal Pass</span>
         </div>
 
-        <button
-          type="button"
-          onClick={handleShare}
-          aria-label="Share event"
-          className="grid h-10 w-10 place-items-center rounded-full bg-card ring-1 ring-line text-mute hover:text-ink transition cursor-pointer active:scale-95 shadow-xs"
-          title="Share"
-        >
-          <Share2 size={16} />
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/e/${event.id}/manage`}
+            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-3 py-1 text-xs font-bold transition hover:opacity-90 shadow-xs active:scale-95"
+            title="Manage Event"
+          >
+            <Settings size={13} />
+            <span>Manage</span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={handleShare}
+            aria-label="Share event"
+            className="grid h-9 w-9 place-items-center rounded-full bg-card ring-1 ring-line text-mute hover:text-ink transition cursor-pointer active:scale-95 shadow-xs"
+            title="Share"
+          >
+            <Share2 size={15} />
+          </button>
+        </div>
       </div>
 
       {/* Main Responsive Grid Layout (Luma 2-Column Desktop Architecture) */}
