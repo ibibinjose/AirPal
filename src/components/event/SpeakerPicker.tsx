@@ -206,7 +206,7 @@ export function SpeakerPicker({ speakers, onChange }: Props) {
   );
 }
 
-export function SpeakerPickerRow({ speaker, onRemove }: { speaker: Speaker; onRemove?: () => void }) {
+function SpeakerPickerRow({ speaker, onRemove }: { speaker: Speaker; onRemove?: () => void }) {
   const [photo, setPhoto] = useState<string | null | undefined>(undefined);
   const [name, setName] = useState<string | undefined>(undefined);
 

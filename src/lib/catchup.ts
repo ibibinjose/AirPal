@@ -151,10 +151,6 @@ export function listCatchUpsForHandle(targetHandle: string): CatchUpItem[] {
   return listCatchUps().filter((item) => normalizeHandle(item.targetHandle) === norm && item.status !== "dismissed");
 }
 
-export function listMyCatchUpReminders(): CatchUpItem[] {
-  return listCatchUps().filter((item) => item.isReminderOnly && item.status !== "dismissed");
-}
-
 export function hasCatchUpReminder(targetHandle: string): boolean {
   const norm = normalizeHandle(targetHandle);
   return listCatchUps().some(
@@ -331,14 +327,6 @@ export function updateCatchUpStatus(id: string, status: "pending" | "accepted" |
   const db = getFirebaseDb();
   if (!db) return;
   void updateDoc(doc(db, "catchups", id), { status }).catch(() => undefined);
-}
-
-export function removeCatchUp(id: string): void {
-  removeFromMemory(id);
-  if (!isFirebaseConfigured) return;
-  const db = getFirebaseDb();
-  if (!db) return;
-  void deleteDoc(doc(db, "catchups", id)).catch(() => undefined);
 }
 
 export interface TimeConflict {

@@ -30,11 +30,6 @@ function write(rows: MarkerDoc[]) {
   }
 }
 
-/** Cached marker docs (Firestore `markers` + migrated curated markers). Sync read. */
-export function loadMarkers(): MarkerDoc[] {
-  return read();
-}
-
 /** Sync cache lookup for Stay sessions and marker pages. */
 export function getStoredMarker(id: string): MarkerDoc | undefined {
   if (!id) return undefined;

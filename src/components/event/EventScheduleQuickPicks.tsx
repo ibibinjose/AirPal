@@ -32,7 +32,7 @@ function getDateAhead(targetDay: number, startHour: number, durationHours: numbe
   return { startsLocal: toLocal(d), endsLocal: toLocal(end) };
 }
 
-export const SCHEDULE_PICKS: SchedulePick[] = [
+const SCHEDULE_PICKS: SchedulePick[] = [
   {
     id: "fri_night",
     label: "Friday Night",

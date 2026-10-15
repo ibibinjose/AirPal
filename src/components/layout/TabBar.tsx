@@ -14,8 +14,6 @@ import { getEcosystemMode } from "@/components/brand/EcosystemSwitcher";
 import { useVirtualKeyboard } from "@/lib/keyboard";
 import { passTabFromPath, tabFromPath, type GuestTab, type PassTab } from "@/lib/tabs";
 
-export { tabFromPath };
-
 /** Shipped companion dock: Home / Circle / Bio. */
 const TABS: { href: string; id: GuestTab; label: string; icon: typeof Home }[] = [
   { href: "/", id: "home", label: "Home", icon: Home },

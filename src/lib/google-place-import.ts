@@ -87,7 +87,7 @@ async function placesFetch(path: string, init: RequestInit, fieldMask: string): 
   });
 }
 
-export async function searchGooglePlaces(
+async function searchGooglePlaces(
   input: string,
   sessionToken: string,
   bias?: Geo,
@@ -229,7 +229,7 @@ export async function fetchPlace(placeId: string, sessionToken: string): Promise
   return fetchGooglePlace(placeId, sessionToken);
 }
 
-export async function fetchGooglePlace(placeId: string, sessionToken: string): Promise<GooglePlaceImport> {
+async function fetchGooglePlace(placeId: string, sessionToken: string): Promise<GooglePlaceImport> {
   const id = placeId.replace(/^places\//, "");
   const res = await placesFetch(
     `places/${encodeURIComponent(id)}?sessionToken=${encodeURIComponent(sessionToken)}&languageCode=en`,
@@ -285,7 +285,7 @@ export function canImportGooglePlaces(): boolean {
 }
 
 /** Resolves a Places photo resource to a durable googleusercontent URL (no API key in the src). */
-export async function fetchGooglePhotoUri(photoName: string, maxPx = 800): Promise<string> {
+async function fetchGooglePhotoUri(photoName: string, maxPx = 800): Promise<string> {
   const key = mapsKey();
   const path = photoName.replace(/^\//, "");
   if (!key || !path) return "";

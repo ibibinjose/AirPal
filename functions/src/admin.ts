@@ -44,7 +44,7 @@ export function isPlatformAdmin(claims: AccessClaims | undefined): boolean {
   return claims?.platform_admin === true || claims?.role === "super_admin";
 }
 
-export function highestRole(properties: Record<string, PropertyMemberRole>, platformAdmin: boolean): UserRole {
+function highestRole(properties: Record<string, PropertyMemberRole>, platformAdmin: boolean): UserRole {
   if (platformAdmin) return "super_admin";
   const values = Object.values(properties);
   if (values.includes("host_admin")) return "host_admin";

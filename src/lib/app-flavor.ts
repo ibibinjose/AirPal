@@ -12,13 +12,7 @@
 
 export type AppFlavor = "airpal" | "pass";
 
-export const AIRPAL_APP_ID = "me.airpal.app";
 export const PASS_APP_ID = "me.airpal.pass";
-
-export const FLAVOR_START_ROUTE: Record<AppFlavor, string> = {
-  airpal: "/",
-  pass: "/pass",
-};
 
 /** Parse a raw flavor value (env override). Unknown/empty → null (no override). */
 export function parseAppFlavor(value: unknown): AppFlavor | null {
@@ -72,15 +66,11 @@ export async function initAppFlavor(): Promise<AppFlavor> {
 }
 
 /** Boot-cached flavor. Safe before init (defaults to airpal). */
-export function getAppFlavor(): AppFlavor {
+function getAppFlavor(): AppFlavor {
   return cached ?? "airpal";
 }
 
 /** True inside the Pass native shell (or VITE_APP_FLAVOR=pass previews). */
 export function isPassApp(): boolean {
   return getAppFlavor() === "pass";
-}
-
-export function flavorStartRoute(flavor: AppFlavor = getAppFlavor()): string {
-  return FLAVOR_START_ROUTE[flavor];
 }

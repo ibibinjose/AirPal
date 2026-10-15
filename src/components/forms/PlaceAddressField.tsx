@@ -4,7 +4,6 @@ import { cn } from "@/lib/cn";
 import { fieldInput } from "@/components/forms/ValidField";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import type { Geo } from "@shared/nearby";
-import { mapsPlaceUrl, mapsSearchUrl } from "@/lib/maps";
 import {
   fetchPlace,
   googleSearchErrorMessage,
@@ -21,16 +20,6 @@ export type PickedPlace = {
   geo?: Geo;
   placeId?: string;
 };
-
-export function PlaceAddressLink({ label, geo, className }: { label: string; geo?: Geo; className?: string }) {
-  if (!label.trim()) return null;
-  const href = geo ? mapsPlaceUrl(geo, label) : mapsSearchUrl(label);
-  return (
-    <a href={href} target="_blank" rel="noreferrer" className={cn("truncate hover:underline", className)}>
-      {label}
-    </a>
-  );
-}
 
 export function formatPickedPlace(place: { name: string; address?: string }): string {
   const name = place.name.trim();

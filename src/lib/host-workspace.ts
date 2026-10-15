@@ -1,5 +1,5 @@
 /** Live Harbour stay written by seed — platform admins operate this when they have no own property. */
-export const LIVE_HOST_PROPERTY_ID = "harbour-hotel";
+const LIVE_HOST_PROPERTY_ID = "harbour-hotel";
 
 /** Room QR pairs from the live property. Never invent tok-101-demo. */
 export function roomTokenEntries(roomTokens?: Record<string, string> | null): Array<[token: string, room: string]> {

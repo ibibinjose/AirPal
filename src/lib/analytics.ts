@@ -66,7 +66,7 @@ export function setAnalyticsConsent(consent: AnalyticsConsent) {
   storageSet(localStorage, CONSENT_KEY, consent);
 }
 
-export function anonymousSessionId(): string {
+function anonymousSessionId(): string {
   if (typeof window === "undefined") return "ssr";
   const existing = storageGet(sessionStorage, SESSION_KEY);
   if (existing) return existing;
@@ -270,7 +270,7 @@ export async function track(
   }
 }
 
-export function trackFirstValue(valueType: ValueType, contextId: string, extra?: AnalyticsProperties) {
+function trackFirstValue(valueType: ValueType, contextId: string, extra?: AnalyticsProperties) {
   const nowIso = new Date().toISOString();
   try {
     const day = calendarDay(nowIso);
@@ -303,11 +303,6 @@ export function trackFirstValue(valueType: ValueType, contextId: string, extra?:
   });
 }
 
-/** True while the web build has no live backend (seed/demo data on screen). */
-export function demoModeActive(): boolean {
-  return !liveBackendEnabled();
-}
-
 /**
  * Door-admit completion signal for the North Star (Completed Experiences).
  * Call only after the server confirms the admit (see TicketGatePanel).
@@ -317,7 +312,7 @@ export function trackDoorAdmitCompleted(ticketId: string): Promise<void> {
   return track("content_action", { actionType: "experience_completed", contextId: ticketId }, { contextType: "event" });
 }
 
-export function trackContentAction(actionType: ContentActionType, contextId: string, extra?: AnalyticsProperties) {
+function trackContentAction(actionType: ContentActionType, contextId: string, extra?: AnalyticsProperties) {
   void track("content_action", { actionType, contextId, ...extra });
   // first_value keeps the action subtype instead of collapsing to "faq", and
   // receives only allowlisted keys: anything else in `extra` (destination,
@@ -380,16 +375,6 @@ export function noteQrContext(
     { contextType, contextId, source: "qr", placementType: extra?.source || "scan" },
     { contextId, contextType, source: "qr" },
   );
-}
-
-export function openMap(url: string, extra?: { contextId?: string; contentId?: string; destination?: string }) {
-  const ctx = extra?.contextId || stayContext()?.contextId || contextFromPath(window.location.pathname)?.contextId;
-  if (ctx)
-    trackContentAction("map_open", ctx, {
-      contentId: extra?.contentId || null,
-      destination: extra?.destination || "maps",
-    });
-  window.open(url, "_blank", "noopener,noreferrer");
 }
 
 export function trackMapClick(extra?: { contextId?: string; placeId?: string; propertyId?: string; source?: string }) {

@@ -65,7 +65,7 @@ export function persistBios(rows: BioProfile[]) {
   listeners.forEach((fn) => fn());
 }
 
-export function todayKey() {
+function todayKey() {
   return toZonedDateStr(new Date());
 }
 
@@ -207,7 +207,7 @@ export function mergeOwnedBios(local: BioProfile[], remote: BioProfile[], uid: s
   return out;
 }
 
-export async function fetchOwnedBios(uid: string): Promise<{ rows: BioProfile[]; needsBackfill: boolean }> {
+async function fetchOwnedBios(uid: string): Promise<{ rows: BioProfile[]; needsBackfill: boolean }> {
   const db = getFirebaseDb();
   if (!db || !uid) return { rows: [], needsBackfill: false };
   try {

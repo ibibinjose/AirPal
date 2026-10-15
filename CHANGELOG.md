@@ -4,6 +4,27 @@ All major structural, architectural, and security changes made during the Rebuil
 
 ---
 
+## Release 2.0.1 — 2026-10-15 (market-ready build)
+
+- Version: web/package `2.0.1`, Android `versionCode 9` / `versionName 2.0.1`
+  (flavors `airpal` + `pass`), iOS `MARKETING_VERSION 2.0.1` (build 17).
+- Zero-dead-code sweep: ~75 dead symbols removed (22 dead callable
+  wrappers, Discover/cohort/stay leftovers, unused imports), 3 empty dirs
+  removed, 3 unused map deps uninstalled. No behavior change.
+- E2E honesty: retired `/partners` asserts its `/business` redirect.
+- Gates: `npm run verify` green (959 web + 157 functions tests, both
+  typechecks, lint zero, web + functions builds, rules/v3/secrets/seo).
+- Artifacts: `dist/` (web), signed Android release AAB/APK (both
+  flavors, upload cert), iOS Release archive + dev IPA (2.0.1/17).
+- iOS store-export blocker (portal-side, 5 min): the App Store
+  provisioning profile for `me.airpal.app` lacks the
+  `com.apple.developer.pass-type-identifiers` entitlement. In the Apple
+  Developer portal, enable Wallet/Pass Type IDs on the App ID (or open
+  the project in Xcode → Signing → regenerate profiles), then re-run
+  `xcodebuild -exportArchive` with `ios/App/ExportOptions.plist`.
+
+---
+
 ## 1. Summary of Changes
 
 The Council of Seven Experts conducted a full-funnel audit, strategy formation, UX overhaul, and code rebuild to transform AirPal from a legacy hotel/PMS concierge prototype into a high-converting, unified **Dual-Lens Experience Ecosystem**:

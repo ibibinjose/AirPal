@@ -568,10 +568,6 @@ export function parsePlatformAdminEmails(raw: string | undefined): string[] {
   return Array.from(new Set([...CANONICAL_PLATFORM_ADMIN_EMAILS, ...extra]));
 }
 
-export function isPlatformAdminEmail(email: string, extra: string[] = []): boolean {
-  return parsePlatformAdminEmails(extra.join(",")).includes(normalizeEmail(email));
-}
-
 /** Client-requested roles never include staff or super_admin. Allowlist is server-only. */
 export function resolveRegistrationRole(email: string, requested: string, platformAdminEmails: string[]): UserRole {
   const normalized = normalizeEmail(email);

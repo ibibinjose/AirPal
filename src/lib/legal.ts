@@ -16,11 +16,3 @@ export const LEGAL = {
   contacts: "AirPal.Me@gmail.com",
   updated: "20 September 2026",
 } as const;
-
-export const LEGAL_NAV = [
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-  { href: "/privacy", label: "Privacy" },
-  { href: "/cookies", label: "Cookies" },
-  { href: "/terms", label: "Terms" },
-] as const;

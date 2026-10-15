@@ -5,7 +5,7 @@ export const LANGS: { id: Lang; label: string }[] = [
   { id: "zh", label: "中文" },
 ];
 
-export const DICT: Record<Lang, Record<string, string>> = {
+const DICT: Record<Lang, Record<string, string>> = {
   en: {
     discover: "Discover",
     me: "Me",

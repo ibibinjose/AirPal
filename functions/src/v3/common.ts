@@ -4,17 +4,9 @@ import { HttpsError } from "firebase-functions/v2/https";
 import { db } from "../admin";
 
 /** Private per-user id indexes kept on users/{uid} (see shared/v3-contract). */
-export const V3_USER_INDEX_FIELDS = [
-  "cohortIds",
-  "ticketIds",
-  "orderIds",
-  "claimIds",
-  "conversationIds",
-  "blockedUids",
-] as const;
-export type V3UserIndexField = (typeof V3_USER_INDEX_FIELDS)[number];
+export type V3UserIndexField = "cohortIds" | "ticketIds" | "orderIds" | "claimIds" | "conversationIds" | "blockedUids";
 
-export function nowIso(): string {
+function nowIso(): string {
   return new Date().toISOString();
 }
 
@@ -76,14 +68,6 @@ export function v3Clean<T extends Record<string, unknown>>(row: T): T {
     if (value !== undefined) out[key] = value;
   }
   return out as T;
-}
-
-export function v3InviteCode(length = 6): string {
-  return randomBytes(8)
-    .toString("base64url")
-    .replace(/[^A-Za-z0-9]/g, "")
-    .slice(0, length)
-    .toUpperCase();
 }
 
 export function v3ClaimCode(length = 6): string {

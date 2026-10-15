@@ -15,7 +15,7 @@ export function getThemePreference(): ThemeMode {
   return "system";
 }
 
-export function applyTheme(mode: ThemeMode): void {
+function applyTheme(mode: ThemeMode): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
   if (mode === "dark") {

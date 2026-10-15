@@ -4,7 +4,7 @@ import { ArrowLeft, Heart, Settings, Share2, Sparkles, Star, Ticket } from "luci
 import { toast } from "sonner";
 import { StickyAction } from "@/components/design-system/companions";
 import { Button } from "@/components/ui/Button";
-import { createBookingForEvent } from "@/components/booking/BookingsSection";
+import { createBookingForEvent } from "@/components/booking/createBooking";
 import { createBookingCheckoutSessionRemote } from "@/lib/functions";
 import { useAuth } from "@/contexts/AuthContext";
 import { toZonedDateStr } from "@/lib/local-time";

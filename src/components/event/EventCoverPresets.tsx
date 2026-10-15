@@ -8,7 +8,7 @@ export interface EventCoverPreset {
   url: string;
 }
 
-export const EVENT_COVER_PRESETS: EventCoverPreset[] = [
+const EVENT_COVER_PRESETS: EventCoverPreset[] = [
   {
     id: "concert",
     label: "Live Concert & Gigs",

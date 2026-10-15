@@ -1,32 +1,11 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback } from "react";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { useEvents } from "@/contexts/EventsContext";
 import { useStay } from "@/contexts/StayContext";
 import { fetchPlaces } from "@/lib/places-store";
 import { fetchProperty } from "@/lib/properties";
 
-export const RELOAD_DATA_EVENT = "airpal:reload-data";
-
-/**
- * Hook for components/pages to register a callback that runs whenever
- * the user triggers a manual reload (e.g. via pull-to-refresh).
- */
-export function useOnDataReload(callback: () => void | Promise<void>) {
-  const savedCallback = useRef(callback);
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-
-  useEffect(() => {
-    const handleEvent = () => {
-      void savedCallback.current();
-    };
-    window.addEventListener(RELOAD_DATA_EVENT, handleEvent);
-    return () => {
-      window.removeEventListener(RELOAD_DATA_EVENT, handleEvent);
-    };
-  }, []);
-}
+const RELOAD_DATA_EVENT = "airpal:reload-data";
 
 /**
  * Top-level data reload orchestrator. Refreshes clock, weather,

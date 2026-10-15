@@ -1,6 +1,4 @@
-import { collection, onSnapshot } from "firebase/firestore";
 import type { DiningOrder, DiningOrderStatus } from "@shared/airpal-data";
-import { getFirebaseDb } from "./firebase";
 
 const ACTIVE: DiningOrderStatus[] = ["pending", "paid", "preparing", "ready"];
 
@@ -40,33 +38,4 @@ export function orderFromDoc(id: string, data: Record<string, unknown>): DiningO
 /** Orders still needing desk action (unpaid desk orders count — the kitchen fires on place). */
 export function activeOrderCount(orders: DiningOrder[]) {
   return orders.filter((o) => ACTIVE.includes(o.status)).length;
-}
-
-/** Live desk feed for one property. Host-only read (see firestore.rules). */
-export function subscribePropertyDiningOrders(
-  propertyId: string,
-  onChange: (orders: DiningOrder[]) => void,
-): () => void {
-  if (!propertyId || propertyId === "unknown") {
-    onChange([]);
-    return () => undefined;
-  }
-  const db = getFirebaseDb();
-  if (!db) {
-    onChange([]);
-    return () => undefined;
-  }
-  return onSnapshot(
-    collection(db, "properties", propertyId, "dining_orders"),
-    (snap) => {
-      const rows: DiningOrder[] = [];
-      for (const row of snap.docs) {
-        const order = orderFromDoc(row.id, row.data() as Record<string, unknown>);
-        if (order) rows.push(order);
-      }
-      rows.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-      onChange(rows);
-    },
-    () => onChange([]),
-  );
 }

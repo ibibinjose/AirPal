@@ -1,5 +1,5 @@
-import { deleteToken, getMessaging, getToken, isSupported, onMessage } from "firebase/messaging";
-import { deleteDoc, doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { getMessaging, getToken, isSupported, onMessage } from "firebase/messaging";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { getFirebaseApp, getFirebaseAuth, getFirebaseDb } from "./firebase";
 
 const PREF_KEY = "airpal.host.ticketPush";
@@ -57,27 +57,7 @@ export async function enableHostTicketPush(): Promise<"granted" | "denied" | "un
   return "granted";
 }
 
-export async function disableHostTicketPush() {
-  setPref(false);
-  const app = getFirebaseApp();
-  const auth = getFirebaseAuth();
-  const db = getFirebaseDb();
-  const key = vapidKey();
-  if (!app || !auth?.currentUser || !db || !key) return;
-  try {
-    if (!(await isSupported())) return;
-    const messaging = getMessaging(app);
-    const token = await getToken(messaging, { vapidKey: key });
-    if (token) {
-      await deleteToken(messaging);
-      await deleteDoc(doc(db, "users", auth.currentUser.uid, "fcmTokens", tokenDocId(token)));
-    }
-  } catch {
-    /* ignore */
-  }
-}
-
-export async function registerHostFcmToken() {
+async function registerHostFcmToken() {
   const app = getFirebaseApp();
   const auth = getFirebaseAuth();
   const db = getFirebaseDb();

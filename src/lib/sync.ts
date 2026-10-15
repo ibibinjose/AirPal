@@ -1,7 +1,6 @@
 import { powerSaveRetryDelayMs } from "./battery";
 
-export const SYNC_STATES = ["local", "syncing", "synced", "failed", "pending_retry"] as const;
-export type SyncState = (typeof SYNC_STATES)[number];
+export type SyncState = "local" | "syncing" | "synced" | "failed" | "pending_retry";
 
 export type SyncJob = {
   id: string;

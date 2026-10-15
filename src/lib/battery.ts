@@ -9,7 +9,7 @@ export type BatteryState = {
 };
 
 export const POWER_SAVE_STORAGE_KEY = "airpal.power_save.mode";
-export const LOW_BATTERY_THRESHOLD = 0.2; // 20%
+const LOW_BATTERY_THRESHOLD = 0.2; // 20%
 
 /**
  * Checks if the Web Battery API is supported in the current environment.

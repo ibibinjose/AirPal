@@ -1,21 +1,9 @@
-import {
-  collection,
-  deleteDoc,
-  deleteField,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  onSnapshot,
-  query,
-  setDoc,
-  where,
-} from "firebase/firestore";
-import type { MenuItem, PropertyInfo } from "@shared/airpal-data";
+import { collection, doc, getDoc, getDocs, limit, onSnapshot, query, where } from "firebase/firestore";
+import type { PropertyInfo } from "@shared/airpal-data";
 import { buildHostProperty, parseHostPropertyKind } from "@shared/host-property";
 import { isoFromUnknown } from "@shared/freshness";
 import { getFirebaseDb } from "./firebase";
-import { liveBackendEnabled, updatePropertyProfileRemote, updatePropertyWifiRemote } from "./functions";
+import { liveBackendEnabled, updatePropertyWifiRemote } from "./functions";
 
 const CACHE_KEY = "airpal.properties.v1";
 
@@ -44,7 +32,7 @@ function notifyPropertyChange(prop: PropertyInfo) {
   listeners.forEach((fn) => fn(prop.id, prop));
 }
 
-export function subscribePropertyChanges(fn: (propertyId: string, property: PropertyInfo) => void) {
+function subscribePropertyChanges(fn: (propertyId: string, property: PropertyInfo) => void) {
   listeners.add(fn);
   return () => {
     listeners.delete(fn);
@@ -302,38 +290,6 @@ export async function fetchProperty(id: string): Promise<PropertyInfo> {
   return unknownProperty(id);
 }
 
-/** In-room dining from `properties/{id}/menu`. Empty when the stay has none. */
-export async function fetchPropertyMenu(propertyId: string): Promise<MenuItem[]> {
-  if (!propertyId || propertyId === "unknown") return [];
-  const db = getFirebaseDb();
-  if (!db) return [];
-  try {
-    const snap = await withTimeout(getDocs(collection(db, "properties", propertyId, "menu")), REMOTE_TIMEOUT_MS);
-    if (!snap) return [];
-    const items: MenuItem[] = [];
-    for (const row of snap.docs) {
-      const data = row.data() as Partial<MenuItem>;
-      const name = String(data.name || "").trim();
-      const price = Number(data.price);
-      if (!name || !Number.isFinite(price)) continue;
-      items.push({
-        id: String(data.id || row.id),
-        propertyId,
-        name,
-        category: (data.category as MenuItem["category"]) || "Mains",
-        price,
-        description: String(data.description || ""),
-        dietary: Array.isArray(data.dietary) ? data.dietary.map(String) : undefined,
-        popular: Boolean(data.popular),
-        available: data.available !== false,
-      });
-    }
-    return items;
-  } catch {
-    return [];
-  }
-}
-
 export function subscribeProperty(id: string, callback: (prop: PropertyInfo) => void): () => void {
   // Always trigger immediately with the cached DB copy when present.
   const initial = id ? getCachedProperty(id) : undefined;
@@ -424,97 +380,3 @@ export type PropertyProfilePatch = {
   roomStatuses?: PropertyInfo["roomStatuses"];
   confirmHours?: boolean;
 };
-
-export async function savePropertyProfile(propertyId: string, patch: PropertyProfilePatch): Promise<PropertyInfo> {
-  const current = getCachedProperty(propertyId) || (await fetchProperty(propertyId));
-  const next: PropertyInfo = {
-    ...current,
-    ...patch,
-    id: propertyId,
-    wifi: { ...current.wifi, password: current.wifi?.password || "" },
-    hoursVerifiedAt: patch.confirmHours ? new Date().toISOString() : current.hoursVerifiedAt,
-  };
-  saveCachedProperty(next);
-
-  const db = getFirebaseDb();
-  if (db) {
-    const { confirmHours, ...rest } = patch;
-    // Firestore rejects undefined: an explicitly-undefined field clears the stored value.
-    const cleaned: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(rest)) {
-      cleaned[key] = value === undefined ? deleteField() : value;
-    }
-    await setDoc(
-      doc(db, "properties", propertyId),
-      {
-        ...cleaned,
-        ...(confirmHours ? { hoursVerifiedAt: new Date().toISOString() } : {}),
-        updatedAt: new Date().toISOString(),
-      },
-      { merge: true },
-    );
-  }
-  if (liveBackendEnabled()) {
-    try {
-      await updatePropertyProfileRemote({ propertyId, ...patch });
-    } catch {
-      /* client write already applied; callable may not be deployed yet */
-    }
-  }
-  return next;
-}
-
-export function subscribePropertyMenu(propertyId: string, callback: (rows: MenuItem[]) => void): () => void {
-  if (!propertyId || propertyId === "unknown") {
-    callback([]);
-    return () => undefined;
-  }
-  const db = getFirebaseDb();
-  if (!db) {
-    void fetchPropertyMenu(propertyId).then(callback);
-    return () => undefined;
-  }
-  return onSnapshot(
-    collection(db, "properties", propertyId, "menu"),
-    (snap) => {
-      const items: MenuItem[] = [];
-      for (const row of snap.docs) {
-        const data = row.data() as Partial<MenuItem>;
-        const name = String(data.name || "").trim();
-        const price = Number(data.price);
-        if (!name || !Number.isFinite(price)) continue;
-        items.push({
-          id: String(data.id || row.id),
-          propertyId,
-          name,
-          category: (data.category as MenuItem["category"]) || "Mains",
-          price,
-          description: String(data.description || ""),
-          dietary: Array.isArray(data.dietary) ? data.dietary.map(String) : undefined,
-          popular: Boolean(data.popular),
-          available: data.available !== false,
-        });
-      }
-      callback(items);
-    },
-    () => {
-      void fetchPropertyMenu(propertyId).then(callback);
-    },
-  );
-}
-
-export async function savePropertyMenuItem(propertyId: string, item: MenuItem): Promise<void> {
-  const db = getFirebaseDb();
-  if (!db) throw new Error("Database is not configured.");
-  await setDoc(doc(db, "properties", propertyId, "menu", item.id), {
-    ...item,
-    propertyId,
-    updatedAt: new Date().toISOString(),
-  });
-}
-
-export async function deletePropertyMenuItem(propertyId: string, itemId: string): Promise<void> {
-  const db = getFirebaseDb();
-  if (!db) throw new Error("Database is not configured.");
-  await deleteDoc(doc(db, "properties", propertyId, "menu", itemId));
-}

@@ -1,6 +1,4 @@
-import { collection, getDocs } from "firebase/firestore";
 import type { WalkingTour } from "@shared/tours";
-import { getFirebaseDb } from "./firebase";
 
 const KEY = "airpal.tours.v1";
 
@@ -36,27 +34,5 @@ export function cacheTours(rows: WalkingTour[]) {
     localStorage.setItem(KEY, JSON.stringify(rows));
   } catch {
     /* ignore */
-  }
-}
-
-/** Fetch all tour docs (public list), refresh the cache. */
-export async function fetchTours(): Promise<WalkingTour[]> {
-  const db = getFirebaseDb();
-  if (!db) return read();
-  try {
-    const snap = await getDocs(collection(db, "tours"));
-    const out: WalkingTour[] = [];
-    for (const row of snap.docs) {
-      const tour = validTour({ id: row.id, ...(row.data() as Record<string, unknown>) });
-      if (tour) out.push(tour);
-    }
-    try {
-      localStorage.setItem(KEY, JSON.stringify(out));
-    } catch {
-      /* ignore */
-    }
-    return out;
-  } catch {
-    return read();
   }
 }

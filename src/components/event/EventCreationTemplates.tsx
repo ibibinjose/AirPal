@@ -22,7 +22,7 @@ export interface EventTemplateConfig {
   requireApproval?: boolean;
 }
 
-export const EVENT_TEMPLATES: EventTemplateConfig[] = [
+const EVENT_TEMPLATES: EventTemplateConfig[] = [
   {
     id: "concert",
     label: "Concert & Gig",

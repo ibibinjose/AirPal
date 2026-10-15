@@ -30,8 +30,8 @@ export interface RuntimeDiagnostics extends BuildInfo {
  */
 export function getBuildInfo(): BuildInfo {
   const versionName =
-    typeof __APP_VERSION_NAME__ !== "undefined" && __APP_VERSION_NAME__ ? __APP_VERSION_NAME__ : "2.0.0";
-  const versionCode = typeof __APP_VERSION_CODE__ !== "undefined" && __APP_VERSION_CODE__ ? __APP_VERSION_CODE__ : "2";
+    typeof __APP_VERSION_NAME__ !== "undefined" && __APP_VERSION_NAME__ ? __APP_VERSION_NAME__ : "2.0.1";
+  const versionCode = typeof __APP_VERSION_CODE__ !== "undefined" && __APP_VERSION_CODE__ ? __APP_VERSION_CODE__ : "9";
   const buildTimestamp = typeof __BUILD_TIMESTAMP__ !== "undefined" && __BUILD_TIMESTAMP__ ? __BUILD_TIMESTAMP__ : "";
 
   return {

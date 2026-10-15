@@ -280,11 +280,6 @@ body.keyboard-open .keyboard-hide {
     opacity 0.2s ease-out;
 }
 
-/* Tap-only map (touch devices): let page scroll gestures pass through the map. */
-.airpal-taponly .leaflet-container {
-  touch-action: pan-x pan-y;
-}
-
 @keyframes sheet-up {
   from {
     opacity: 0;

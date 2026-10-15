@@ -17,7 +17,7 @@ import { authActionContinueUrl } from "@shared/auth-email";
 import { getFirebaseAuth } from "@/lib/firebase";
 import { LEGAL } from "@/lib/legal";
 
-export function emailActionSettings(): ActionCodeSettings {
+function emailActionSettings(): ActionCodeSettings {
   const origin = typeof window !== "undefined" ? window.location.origin : LEGAL.site;
   return {
     url: authActionContinueUrl(origin),

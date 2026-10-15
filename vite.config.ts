@@ -11,11 +11,11 @@ function getGradleVersion(): { versionName: string; versionCode: string } {
     const nameMatch = content.match(/versionName\s+["']([^"']+)["']/);
     const codeMatch = content.match(/versionCode\s+(\d+)/);
     return {
-      versionName: nameMatch ? nameMatch[1] : "2.0.0",
-      versionCode: codeMatch ? codeMatch[1] : "2",
+      versionName: nameMatch ? nameMatch[1] : "2.0.1",
+      versionCode: codeMatch ? codeMatch[1] : "9",
     };
   } catch {
-    return { versionName: "2.0.0", versionCode: "2" };
+    return { versionName: "2.0.1", versionCode: "9" };
   }
 }
 
@@ -112,7 +112,6 @@ export default defineConfig({
           }
           if (id.includes("firebase")) return "vendor-firebase-core";
           if (id.includes("/react/") || id.includes("/react-dom/") || id.includes("/scheduler/")) return "vendor-react";
-          if (id.includes("leaflet") || id.includes("@vis.gl/react-google-maps")) return "vendor-maps";
           if (
             id.includes("recharts") ||
             id.includes("d3-") ||

@@ -80,11 +80,3 @@ export function loadLastGps(): (Geo & { city?: string }) | null {
     return null;
   }
 }
-
-export function choiceAsOrigin(
-  choice: LocationChoice,
-  fallback: Geo & { city?: string; source: "gps" | "stay" | "precinct" | "city" },
-): Geo & { city?: string; source: "gps" | "stay" | "precinct" | "city" } {
-  if (choice.mode === "city") return { lat: choice.lat, lng: choice.lng, city: choice.city, source: "city" };
-  return fallback;
-}

@@ -1,7 +1,6 @@
 import { MapPin } from "lucide-react";
 import type { HerePin } from "@shared/here";
 import { mapsUrl } from "@/lib/geo";
-import { cn } from "@/lib/cn";
 
 export function CircleHereBoard({
   pins,
@@ -44,13 +43,5 @@ export function CircleHereBoard({
         ))}
       </ul>
     </section>
-  );
-}
-
-export function HereEmptyHint({ className }: { className?: string }) {
-  return (
-    <p className={cn("text-[13px] text-mute", className)}>
-      Nobody’s pinned here yet. Share I’m here so your Circle can find you.
-    </p>
   );
 }

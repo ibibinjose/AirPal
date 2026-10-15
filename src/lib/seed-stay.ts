@@ -4,7 +4,7 @@ import { toPublicPropertyDoc } from "@shared/host-property";
 
 /** Demo guest Wi-Fi — private/hostSecrets only. Never written on the public property doc. */
 export const HARBOUR_DEMO_WIFI_PASSWORD = "HarbourGuest26";
-export const HARBOUR_SEED_OWNER_ID = "seed-harbour-hotel";
+const HARBOUR_SEED_OWNER_ID = "seed-harbour-hotel";
 
 export type HarbourStaySeed = {
   property: PropertyInfo;

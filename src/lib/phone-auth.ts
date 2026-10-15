@@ -110,10 +110,6 @@ export async function confirmPhoneCode(code: string): Promise<string> {
   return cred.user.uid;
 }
 
-export function phoneCodePending(): boolean {
-  return Boolean(confirmation);
-}
-
 /** Add or change the signed-in user's mobile number (does not switch accounts). */
 export async function sendAccountPhoneCode(phone: string): Promise<void> {
   const auth = getFirebaseAuth();

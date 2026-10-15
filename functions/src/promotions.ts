@@ -102,7 +102,7 @@ async function grantPoints(uid: string, delta: number, reason: string, refId: st
 }
 
 /** D1 — venue-owner check: listings by ownerUid, properties by ownerId/members. */
-export async function ownsOfferVenue(uid: string, targetType: string, targetId: string): Promise<boolean> {
+async function ownsOfferVenue(uid: string, targetType: string, targetId: string): Promise<boolean> {
   try {
     if (targetType === "place") {
       const byId = await db.collection("listings").doc(targetId).get();

@@ -35,18 +35,6 @@ export const DEFAULT_FEE_CONFIG: FeeConfig = {
   minimumPlatformFeeCents: 0,
 };
 
-/** 5% platform fee for paid events, concerts, and festival tickets (500 basis points). */
-export const EVENT_FEE_CONFIG: FeeConfig = {
-  platformFeeBps: 500,
-  minimumPlatformFeeCents: 0,
-};
-
-export type FeeQuote = { priceCents: number; feeCents: number; providerCents: number };
-
-export function quoteEventFees(priceCents: number, config: FeeConfig = EVENT_FEE_CONFIG): FeeQuote {
-  return quoteFees(priceCents, config);
-}
-
 export interface Booking {
   id: string;
   /** Mate request id, or campaign id when providerKind is business. */
@@ -277,10 +265,6 @@ export function canReleasePayout(input: {
   );
 }
 
-export function isPayoutStatus(s: string): s is PayoutStatus {
-  return (PAYOUT_STATUSES as readonly string[]).includes(s);
-}
-
 /** Completed, guest paid, share still sitting on the platform — vendor can pull it once payouts are on. */
 export function canRetryPayout(b: Pick<Booking, "status" | "paymentStatus" | "payoutStatus" | "priceCents">): boolean {
   return (
@@ -289,10 +273,6 @@ export function canRetryPayout(b: Pick<Booking, "status" | "paymentStatus" | "pa
     (b.payoutStatus === "held" || b.payoutStatus === undefined) &&
     b.status === "completed"
   );
-}
-
-export function isPaymentStatus(s: string): s is PaymentStatus {
-  return (PAYMENT_STATUSES as readonly string[]).includes(s);
 }
 
 export function bookingValid(input: BookingInput): boolean {

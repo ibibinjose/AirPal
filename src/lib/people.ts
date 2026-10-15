@@ -56,7 +56,7 @@ function persist(people: PersonMet[]): void {
   persistHook?.();
 }
 
-export function newPersonId(): string {
+function newPersonId(): string {
   try {
     return `p-${crypto.randomUUID()}`;
   } catch {
@@ -144,7 +144,7 @@ export function buildVCard(input: VCardInput): string {
   return lines.join("\r\n");
 }
 
-export function downloadVCard(input: VCardInput): void {
+function downloadVCard(input: VCardInput): void {
   const vcardText = buildVCard(input);
   const fileName = `${
     input.name
@@ -193,7 +193,7 @@ export async function openVCardContact(input: VCardInput): Promise<"contact" | "
  * Triggers native iOS / Android contact share sheet if supported,
  * otherwise triggers vCard .vcf file download.
  */
-export async function shareOrDownloadVCard(input: VCardInput): Promise<{ shared: boolean }> {
+async function shareOrDownloadVCard(input: VCardInput): Promise<{ shared: boolean }> {
   const vcardText = buildVCard(input);
   const fileName = `${
     input.name

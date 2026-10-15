@@ -532,12 +532,6 @@ export function catalogDeals(profile: Pick<BioProfile, "deals" | "offer">): BioC
   return [{ id: "offer", kind: "deal", title: profile.offer.badge, detail: profile.offer.detail, badge: "Offer" }];
 }
 
-export function offerFromDeals(deals: BioCatalogItem[]): BioOffer | undefined {
-  const first = deals[0];
-  if (!first) return undefined;
-  return { badge: first.badge || first.title, detail: first.detail };
-}
-
 export const SEED_BIO: BioProfile = {
   id: "bio-cutbar",
   handle: "cutbar",

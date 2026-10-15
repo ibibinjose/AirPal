@@ -13,13 +13,13 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.5.2"),
         .package(name: "CapacitorFirebaseAuthentication", path: "symlinks/CapacitorFirebaseAuthentication", traits: ["Google"]),
-        .package(name: "CapacitorApp", path: "../../../../AirPalMeApp/node_modules/@capacitor/app"),
-        .package(name: "CapacitorGeolocation", path: "../../../../AirPalMeApp/node_modules/@capacitor/geolocation"),
-        .package(name: "CapacitorHaptics", path: "../../../../AirPalMeApp/node_modules/@capacitor/haptics"),
-        .package(name: "CapacitorKeyboard", path: "../../../../AirPalMeApp/node_modules/@capacitor/keyboard"),
-        .package(name: "CapacitorShare", path: "../../../../AirPalMeApp/node_modules/@capacitor/share"),
-        .package(name: "CapacitorSplashScreen", path: "../../../../AirPalMeApp/node_modules/@capacitor/splash-screen"),
-        .package(name: "CapacitorStatusBar", path: "../../../../AirPalMeApp/node_modules/@capacitor/status-bar")
+        .package(name: "CapacitorApp", path: "../../../node_modules/@capacitor/app"),
+        .package(name: "CapacitorGeolocation", path: "../../../node_modules/@capacitor/geolocation"),
+        .package(name: "CapacitorHaptics", path: "../../../node_modules/@capacitor/haptics"),
+        .package(name: "CapacitorKeyboard", path: "../../../node_modules/@capacitor/keyboard"),
+        .package(name: "CapacitorShare", path: "../../../node_modules/@capacitor/share"),
+        .package(name: "CapacitorSplashScreen", path: "../../../node_modules/@capacitor/splash-screen"),
+        .package(name: "CapacitorStatusBar", path: "../../../node_modules/@capacitor/status-bar")
     ],
     targets: [
         .target(

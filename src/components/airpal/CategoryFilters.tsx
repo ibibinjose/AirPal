@@ -1,7 +1,7 @@
 import { triggerHapticSelection } from "@/lib/native";
 import { cn } from "@/lib/cn";
 
-export const CATEGORIES = [
+const CATEGORIES = [
   "All",
   "Events",
   "Dining & Cafes",

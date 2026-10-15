@@ -40,11 +40,11 @@ function readSecret(param: { value: () => string }, envName: string): string {
   return String(process.env[envName] || "").trim();
 }
 
-export function stripeSecretKey(): string {
+function stripeSecretKey(): string {
   return readSecret(stripeSecret, "STRIPE_SECRET_KEY") || String(process.env.STRIPE_API_KEY || "").trim();
 }
 
-export function stripeWebhookSigningSecret(): string {
+function stripeWebhookSigningSecret(): string {
   return readSecret(stripeWebhookSecret, "STRIPE_WEBHOOK_SECRET");
 }
 
@@ -125,7 +125,7 @@ async function chargeIdFromSession(stripe: Stripe, session: Stripe.Checkout.Sess
   return typeof charge === "string" ? charge : charge?.id || "";
 }
 
-export async function markBookingPaid(args: {
+async function markBookingPaid(args: {
   bookingId: string;
   sessionId: string;
   paymentIntentId: string;
@@ -557,10 +557,10 @@ export interface BillingConfig {
   businessPriceLabel: string;
 }
 
-export const DEFAULT_BILLING_CONFIG: BillingConfig = { businessPriceId: "", businessPriceLabel: "" };
+const DEFAULT_BILLING_CONFIG: BillingConfig = { businessPriceId: "", businessPriceLabel: "" };
 
 /** Admin-set Partner price from `platform_settings/marketplace`. Empty until configured. */
-export async function loadBillingConfig(): Promise<BillingConfig> {
+async function loadBillingConfig(): Promise<BillingConfig> {
   try {
     const snap = await db.collection("platform_settings").doc("marketplace").get();
     if (!snap.exists) return DEFAULT_BILLING_CONFIG;
@@ -575,7 +575,7 @@ export async function loadBillingConfig(): Promise<BillingConfig> {
 }
 
 /** C4 — Partner sits behind a live place: same login must own a listing. */
-export async function hasLivePlace(uid: string): Promise<boolean> {
+async function hasLivePlace(uid: string): Promise<boolean> {
   try {
     const snap = await db.collection("listings").where("ownerUid", "==", uid).limit(1).get();
     return !snap.empty;
@@ -585,7 +585,7 @@ export async function hasLivePlace(uid: string): Promise<boolean> {
 }
 
 /** Upsert from a Stripe subscription object. Idempotent — keyed by subscription id. */
-export async function recordSubscriptionEvent(sub: {
+async function recordSubscriptionEvent(sub: {
   id?: string;
   status?: string;
   customer?: string | { id?: string } | null;

@@ -94,10 +94,6 @@ export function isOpaqueMarkerSegment(value: string): boolean {
   return /^[a-zA-Z0-9_-]{6,64}$/.test(value);
 }
 
-export function isOpaquePropertyId(value: string): boolean {
-  return /^p_[a-zA-Z0-9]{8,}$/.test(value) || /^[a-f0-9]{12,}$/i.test(value);
-}
-
 export type StayUrlOptions = {
   roomToken?: string;
   /** Legacy human room number — only for old QR compat emission. */

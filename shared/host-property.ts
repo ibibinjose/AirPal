@@ -17,31 +17,6 @@ export function parseHostPropertyKind(value?: string | null): HostPropertyKind {
   return "hotel";
 }
 
-export function propertyKindLabel(kind?: string): string {
-  switch (kind) {
-    case "motel":
-      return "Motel";
-    case "serviced-apartment":
-      return "Serviced apartment";
-    case "hostel":
-      return "Hostel";
-    case "boutique":
-      return "Boutique stay";
-    case "campus":
-      return "Campus";
-    case "venue":
-      return "Venue";
-    case "hotel":
-      return "Hotel";
-    default:
-      return "Property";
-  }
-}
-
-export function slugifyPropertyId(name: string): string {
-  return slugifyHandle(name);
-}
-
 export interface CreateHostPropertyInput {
   propertyName: string;
   ownerEmail: string;

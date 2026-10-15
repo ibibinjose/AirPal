@@ -241,10 +241,6 @@ export function endAuthUpgrade(): void {
   authUpgradeDepth = Math.max(0, authUpgradeDepth - 1);
 }
 
-export function isAuthUpgradeInProgress(): boolean {
-  return authUpgradeDepth > 0;
-}
-
 export async function awaitPendingAnonymousSession(): Promise<void> {
   if (anonAuthPromise) await anonAuthPromise.catch(() => {});
 }

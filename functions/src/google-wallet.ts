@@ -46,7 +46,7 @@ interface GoogleConfig {
   privateKey: string;
 }
 
-export function googleConfigFromEnv(): GoogleConfig | null {
+function googleConfigFromEnv(): GoogleConfig | null {
   const issuerId = readSecret(issuerIdSecret, "GOOGLE_WALLET_ISSUER_ID").trim();
   const raw = readSecret(saJsonSecret, "GOOGLE_WALLET_SA_JSON").trim();
   // Issuer ids are digits. A key filename or pasted command is not a configured issuer.
@@ -161,7 +161,7 @@ export function cardSavePayload(input: CardObjectInput): Record<string, unknown>
   };
 }
 
-export function mintSaveJwt(cfg: GoogleConfig, payload: Record<string, unknown>): string {
+function mintSaveJwt(cfg: GoogleConfig, payload: Record<string, unknown>): string {
   const claims = {
     iss: cfg.clientEmail,
     aud: "google",

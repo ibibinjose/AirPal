@@ -69,30 +69,7 @@ export function weatherLabelKey(code: number, isDay: boolean) {
   return "wx.fair";
 }
 
-export function weatherLabel(code: number, isDay: boolean) {
-  switch (weatherLabelKey(code, isDay)) {
-    case "wx.clear":
-      return "Clear";
-    case "wx.clearNight":
-      return "Clear night";
-    case "wx.cloudy":
-      return "Cloudy";
-    case "wx.fog":
-      return "Fog";
-    case "wx.drizzle":
-      return "Drizzle";
-    case "wx.rain":
-      return "Rain";
-    case "wx.snow":
-      return "Snow";
-    case "wx.storm":
-      return "Storm";
-    default:
-      return "Fair";
-  }
-}
-
-export function weekdayShort(iso: string, timeZone: string) {
+function weekdayShort(iso: string, timeZone: string) {
   const d = new Date(`${iso}T12:00:00`);
   if (Number.isNaN(d.getTime())) return "";
   try {
@@ -129,7 +106,7 @@ function writeCache(origin: WeatherOrigin, data: LocalWeather) {
   }
 }
 
-export { requestDeviceGeo, watchDeviceGeo } from "./geo-locate";
+export { requestDeviceGeo } from "./geo-locate";
 
 function cacheBucket(origin: WeatherOrigin) {
   return `${CACHE_KEY}:${origin.source}:${origin.lat.toFixed(2)}:${origin.lng.toFixed(2)}`;
@@ -180,7 +157,7 @@ async function fetchForecast(lat: number, lng: number): Promise<OpenMeteo> {
   throw new Error(`weather:${lastStatus || "fetch"}`);
 }
 
-export function defaultWeatherOrigin(): WeatherOrigin {
+function defaultWeatherOrigin(): WeatherOrigin {
   return { ...FALLBACK, source: "precinct", city: PRECINCT_META.city };
 }
 

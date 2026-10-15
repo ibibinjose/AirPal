@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
-import { nextRetryDelayMs, type SyncJob, type SyncState } from "@/lib/sync";
+import { nextRetryDelayMs, type SyncJob } from "@/lib/sync";
 import { maxSyncRetries } from "@/lib/battery";
 import { liveBackendEnabled } from "@/lib/functions";
 import { useOptionalBattery } from "@/hooks/useBattery";
@@ -102,16 +102,6 @@ export function SyncProvider({ children }: { children: ReactNode }) {
   return <SyncContext.Provider value={value}>{children}</SyncContext.Provider>;
 }
 
-export function useSync() {
-  const ctx = useContext(SyncContext);
-  if (!ctx) throw new Error("useSync");
-  return ctx;
-}
-
 export function useOptionalSync() {
   return useContext(SyncContext);
-}
-
-export function patchJobState(jobs: SyncJob[], id: string, state: SyncState): SyncJob[] {
-  return jobs.map((job) => (job.id === id ? { ...job, state, updatedAt: new Date().toISOString() } : job));
 }

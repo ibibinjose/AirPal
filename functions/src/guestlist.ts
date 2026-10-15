@@ -86,7 +86,7 @@ async function guestDisplayFor(uid: string): Promise<{ name: string; handle?: st
 }
 
 /** Public counts mirror: heads per status, never names. Recomputed from rows. */
-export async function refreshGuestCounts(scope: GuestScope, id: string): Promise<void> {
+async function refreshGuestCounts(scope: GuestScope, id: string): Promise<void> {
   const snap = await guestlistCol(scope, id).get();
   const counts = summarizeGuestlist(
     snap.docs.map((row) => {

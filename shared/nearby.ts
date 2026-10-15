@@ -371,20 +371,6 @@ export function guessPrecinctIdFromCityText(text?: string): string | undefined {
   );
 }
 
-export function parsePropertyTradeKind(value: string | undefined): PropertyTradeKind | undefined {
-  if (
-    value === "hotel" ||
-    value === "motel" ||
-    value === "serviced-apartment" ||
-    value === "hostel" ||
-    value === "boutique" ||
-    value === "campus" ||
-    value === "venue"
-  )
-    return value;
-  return undefined;
-}
-
 /** What trade this marker is in — restaurant, stay, shop, etc. */
 export function venueTradeOf(input: MarkerCompetitorInput): PlaceCategory | undefined {
   if (input.venueCategory && isPlaceCategory(input.venueCategory)) return input.venueCategory;
@@ -447,20 +433,6 @@ export function filterCompetitorPlaces<T extends { id: string; category: PlaceCa
   if (!suppressCategories.length) return places;
   const suppress = new Set(suppressCategories);
   return places.filter((place) => isOwnOrHostPick(place, ctx) || !suppress.has(place.category));
-}
-
-export function filterCompetitorEvents<T extends { category?: PlaceCategory; propertyId?: string }>(
-  events: T[],
-  suppressCategories: PlaceCategory[],
-  ctx: { ownPropertyId?: string } = {},
-): T[] {
-  if (!suppressCategories.length) return events;
-  const suppress = new Set(suppressCategories);
-  return events.filter((event) => {
-    if (ctx.ownPropertyId && event.propertyId === ctx.ownPropertyId) return true;
-    if (!event.category) return true;
-    return !suppress.has(event.category);
-  });
 }
 
 export function markerHereLine(context: NearbyAskContext): string {

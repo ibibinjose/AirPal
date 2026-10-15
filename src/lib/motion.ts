@@ -21,14 +21,6 @@ export const landingItem: Variants = {
   },
 };
 
-let landingPlayed = false;
-
-export function takeLandingEnter() {
-  if (landingPlayed) return false;
-  landingPlayed = true;
-  return true;
-}
-
 let shellPlayed = false;
 
 export function takeShellEnter() {

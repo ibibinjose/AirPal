@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { CALLABLES } from "@shared/airpal-security";
 import { herePinLive, type HerePin, type ShareHereRequest } from "@shared/here";
 import { getFirebaseDb, getFirebaseFunctions } from "./firebase";
@@ -68,49 +68,6 @@ export async function fetchHereAt(placeKey: string): Promise<HerePin[]> {
     return snap.docs
       .map((d) => asPin(d.id, d.data() as Record<string, unknown>))
       .filter((p) => herePinLive(p) && p.pinOnMap);
-  } catch {
-    return [];
-  }
-}
-
-export async function fetchHerePinsForHandles(handles: string[]): Promise<HerePin[]> {
-  const db = getFirebaseDb();
-  if (!db || !handles.length) return [];
-  const unique = Array.from(new Set(handles.filter(Boolean))).slice(0, 40);
-  const rows = await Promise.all(
-    unique.map(async (h) => {
-      try {
-        const snap = await getDoc(doc(db, "here_pins", h));
-        if (!snap.exists()) return null;
-        const pin = asPin(snap.id, snap.data() as Record<string, unknown>);
-        return herePinLive(pin) ? pin : null;
-      } catch {
-        return null;
-      }
-    }),
-  );
-  return rows.filter((p): p is HerePin => Boolean(p));
-}
-
-export async function fetchHereSharesForMe(uid: string): Promise<HerePin[]> {
-  const db = getFirebaseDb();
-  if (!db || !uid) return [];
-  try {
-    const snap = await getDocs(query(collection(db, "here_shares"), where("toUid", "==", uid)));
-    return snap.docs
-      .map((d) => {
-        const data = d.data() as Record<string, unknown>;
-        return asPin(String(data.fromHandle || d.id), {
-          ...data,
-          handle: data.fromHandle,
-          uid: data.fromUid,
-          name: data.fromHandle,
-          pinOnMap: false,
-          audience: "person",
-          updatedAt: data.createdAt,
-        });
-      })
-      .filter((p) => herePinLive(p));
   } catch {
     return [];
   }

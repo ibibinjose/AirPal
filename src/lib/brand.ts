@@ -1,4 +1,4 @@
-export const BRAND = {
+const BRAND = {
   name: "AirPal.Me",
   tagline: "Life Made Easy.",
   mechanism: "ME = Made Easy",

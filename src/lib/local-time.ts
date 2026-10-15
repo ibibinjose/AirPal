@@ -29,7 +29,7 @@ export type ZonedParts = {
   weekday: string;
 };
 
-export function zonedParts(date: Date, timeZone = deviceTimeZone()): ZonedParts {
+function zonedParts(date: Date, timeZone = deviceTimeZone()): ZonedParts {
   try {
     const fmt = new Intl.DateTimeFormat(deviceLocale(), {
       timeZone,

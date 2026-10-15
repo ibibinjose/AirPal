@@ -1,13 +1,8 @@
 import { httpsCallable } from "firebase/functions";
 import {
   CALLABLES,
-  type ClaimFreeVenuePresenceRequest,
-  type ClaimFreeVenuePresenceResponse,
   type CompleteRegistrationRequest,
   type CompleteRegistrationResponse,
-  type GetPropertyWifiRequest,
-  type GetPropertyWifiResponse,
-  type SubmitPartnerClaimRequest,
   type CompleteAccountSignupRequest,
   type LoginWithPhonePasswordRequest,
   type LoginWithPhonePasswordResponse,
@@ -46,10 +41,6 @@ export function ensureUserProfileRemote() {
   return callFunction<Record<string, never>, { ok: true; created: boolean }>(CALLABLES.ensureUserProfile, {});
 }
 
-export function getPropertyWifiRemote(data: GetPropertyWifiRequest) {
-  return callFunction<GetPropertyWifiRequest, GetPropertyWifiResponse>(CALLABLES.getPropertyWifi, data);
-}
-
 export function updatePropertyWifiRemote(data: {
   propertyId: string;
   network: string;
@@ -57,43 +48,6 @@ export function updatePropertyWifiRemote(data: {
   speed: string;
 }) {
   return callFunction<typeof data, { ok: true; updatedAt: string }>(CALLABLES.updatePropertyWifi, data);
-}
-
-export function updatePropertyProfileRemote(data: {
-  propertyId: string;
-  name?: string;
-  tagline?: string;
-  address?: string;
-  phone?: string;
-  city?: string;
-  checkIn?: string;
-  checkOut?: string;
-  heroImage?: string;
-  breakfast?: { hours: string; location: string; type: string; price: string };
-  facilities?: Array<{ name: string; hours: string; floor: string; details?: string; icon: string }>;
-  roomTypes?: Array<{
-    id: string;
-    name: string;
-    category: string;
-    capacity: number;
-    sizeSqm?: number;
-    bedConfig: string;
-    totalRooms: number;
-    startingPrice?: number;
-    features: string[];
-    roomNumbers?: string[];
-  }>;
-  roomStatuses?: Record<string, "occupied" | "vacant" | "maintenance" | "cleaning">;
-  confirmHours?: boolean;
-}) {
-  return callFunction<typeof data, { ok: true; updatedAt: string }>(CALLABLES.updatePropertyProfile, data);
-}
-
-export function rotateRoomTokenRemote(data: { propertyId: string; roomNumber: string }) {
-  return callFunction<typeof data, { ok: true; roomNumber: string; roomToken: string; previousToken: string | null }>(
-    CALLABLES.rotateRoomToken,
-    data,
-  );
 }
 
 export function askAirPalRemote(data: { propertyId?: string; markerId?: string; question: string }) {
@@ -300,19 +254,6 @@ export function runAnalyticsAggregationRemote() {
   return callFunction<Record<string, never>, { input: number; output: number }>(CALLABLES.runAnalyticsAggregation, {});
 }
 
-export function submitVenueRatingRemote(data: {
-  mood: string;
-  emoji: string;
-  note?: string;
-  target: "stall" | "event" | "stay";
-  eventId?: string;
-  stallId?: string;
-  stallName?: string;
-  propertyId?: string;
-}) {
-  return callFunction<typeof data, { ok: true }>(CALLABLES.submitVenueRating, data);
-}
-
 export function createBookingCheckoutSessionRemote(data: { bookingId: string }) {
   return callFunction<
     typeof data,
@@ -336,78 +277,6 @@ export function scheduleCatchUpRemote(data: { catchupId: string; action: "open" 
       proposals: { id: string; date: string; time: string; label: string }[];
     }
   >(CALLABLES.scheduleCatchUp, data);
-}
-
-export function createStayCheckoutSessionRemote(data: {
-  propertyId: string;
-  roomTypeId: string;
-  checkIn: string;
-  checkOut: string;
-  guests?: number;
-}) {
-  return callFunction<
-    typeof data,
-    {
-      ok: boolean;
-      mode?: string;
-      bookingId?: string;
-      sessionId?: string;
-      checkoutUrl?: string | null;
-    }
-  >(CALLABLES.createStayCheckoutSession, data);
-}
-
-export function createManagedProductRemote(data: {
-  name: string;
-  description?: string;
-  amountCents: number;
-  currency?: string;
-  taxCode?: string;
-}) {
-  return callFunction<typeof data, { ok: boolean; productId: string; stripeProductId: string; stripePriceId: string }>(
-    CALLABLES.createManagedProduct,
-    data,
-  );
-}
-
-export function createManagedCheckoutSessionRemote(data: {
-  productId: string;
-  customerEmail?: string;
-  successUrl?: string;
-  cancelUrl?: string;
-}) {
-  return callFunction<typeof data, { ok: boolean; paymentId: string; sessionId: string; checkoutUrl?: string | null }>(
-    CALLABLES.createManagedCheckoutSession,
-    data,
-  );
-}
-
-export function placeDiningOrderRemote(data: {
-  propertyId: string;
-  roomNumber?: string;
-  items: Array<{ menuItemId: string; qty: number }>;
-  successUrl?: string;
-  cancelUrl?: string;
-}) {
-  return callFunction<
-    typeof data,
-    {
-      ok: boolean;
-      orderId: string;
-      totalCents: number;
-      currency: string;
-      payAtDesk?: boolean;
-      checkoutUrl?: string | null;
-      sessionId?: string;
-    }
-  >(CALLABLES.placeDiningOrder, data);
-}
-
-export function updateDiningOrderStatusRemote(data: { propertyId: string; orderId: string; status: string }) {
-  return callFunction<typeof data, { ok: boolean; orderId: string; status: string }>(
-    CALLABLES.updateDiningOrderStatus,
-    data,
-  );
 }
 
 export function createConnectAccountLinkRemote(data: { returnPath?: string } = {}) {
@@ -542,13 +411,6 @@ export function releaseHeldPayoutsRemote() {
   >(CALLABLES.releaseHeldPayouts, {});
 }
 
-export function refundPaidBookingRemote(data: { bookingId: string }) {
-  return callFunction<typeof data, { ok: boolean; status: string; bookingId: string }>(
-    CALLABLES.refundPaidBooking,
-    data,
-  );
-}
-
 export function createSubscriptionCheckoutRemote() {
   return callFunction<Record<string, never>, { ok: boolean; sessionId?: string; checkoutUrl?: string | null }>(
     CALLABLES.createSubscriptionCheckout,
@@ -576,95 +438,6 @@ export function completePaidBookingRemote(data: { bookingId: string }) {
   >(CALLABLES.completePaidBooking, data);
 }
 
-export function createStaffTicketRemote(data: {
-  propertyId: string;
-  details: string;
-  roomNumber?: string;
-  category?: string;
-  urgency?: string;
-}) {
-  return callFunction<typeof data, { ok: true; ticketId: string }>(CALLABLES.createStaffTicket, data);
-}
-
-export function resolveStaffTicketRemote(data: { propertyId: string; ticketId: string }) {
-  return callFunction<typeof data, { ok: true }>(CALLABLES.resolveStaffTicket, data);
-}
-
-export function submitPartnerClaimRemote(data: SubmitPartnerClaimRequest) {
-  return callFunction<SubmitPartnerClaimRequest, { claimId: string; status: string }>(
-    CALLABLES.submitPartnerClaim,
-    data,
-  );
-}
-
-export function claimFreeVenuePresenceRemote(data: ClaimFreeVenuePresenceRequest) {
-  return callFunction<ClaimFreeVenuePresenceRequest, ClaimFreeVenuePresenceResponse>(
-    CALLABLES.claimFreeVenuePresence,
-    data,
-  );
-}
-
-export function getPulseByTokenRemote(data: { publicToken: string }) {
-  return callFunction<typeof data, import("@shared/pulse").PulsePublicDto>(CALLABLES.getPulseByToken, data);
-}
-
 export function getBioPulseRemote(data: { propertyId: string }) {
   return callFunction<typeof data, import("@shared/pulse").BioPulseResult>(CALLABLES.getBioPulse, data);
-}
-
-export function submitPulseResponseRemote(data: {
-  publicToken: string;
-  answers: import("@shared/pulse").PulseAnswer[];
-  contactRequested?: boolean;
-  contactName?: string;
-  contactMethod?: string;
-  roomNumber?: string;
-  clientKey?: string;
-}) {
-  return callFunction<
-    typeof data,
-    { responseId: string; issueId: string | null; createIssue: boolean; duplicate?: boolean }
-  >(CALLABLES.submitPulseResponse, data);
-}
-
-export function createPulseRemote(data: {
-  propertyId: string;
-  template?: string;
-  name?: string;
-  title?: string;
-  imageUrl?: string;
-}) {
-  return callFunction<typeof data, { pulseId: string; status: "draft" }>(CALLABLES.createPulse, data);
-}
-
-export function publishPulseRemote(data: {
-  propertyId: string;
-  pulseId: string;
-  placement?: "room" | "lobby" | "other";
-  label?: string;
-}) {
-  return callFunction<typeof data, { deploymentId: string; publicToken: string; path: string }>(
-    CALLABLES.publishPulse,
-    data,
-  );
-}
-
-export function acknowledgePulseIssueRemote(data: { propertyId: string; issueId: string; assigneeUid?: string }) {
-  return callFunction<typeof data, { ok: true }>(CALLABLES.acknowledgePulseIssue, data);
-}
-
-export function resolvePulseIssueRemote(data: { propertyId: string; issueId: string; resolutionNote?: string }) {
-  return callFunction<typeof data, { ok: true }>(CALLABLES.resolvePulseIssue, data);
-}
-
-export function setPulseStatusRemote(data: {
-  propertyId: string;
-  pulseId: string;
-  status: "live" | "paused" | "archived";
-}) {
-  return callFunction<typeof data, { status: "live" | "paused" | "archived" }>(CALLABLES.setPulseStatus, data);
-}
-
-export function recordPulseFollowupRemote(data: { propertyId: string; issueId: string; score: number; note?: string }) {
-  return callFunction<typeof data, { ok: true }>(CALLABLES.recordPulseFollowup, data);
 }

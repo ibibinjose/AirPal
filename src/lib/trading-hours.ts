@@ -188,7 +188,7 @@ export function formatDayHours(day: DaySchedule, compact = false): string {
 }
 
 /** Check if two days have the exact same schedule */
-export function areDaysEqual(a: DaySchedule, b: DaySchedule): boolean {
+function areDaysEqual(a: DaySchedule, b: DaySchedule): boolean {
   if (a.status !== b.status) return false;
   if (a.status === "closed" || a.status === "24hours") return true;
   if (a.isLate && b.isLate) return a.openTime === b.openTime;

@@ -504,33 +504,6 @@ export function groupEventsByDate(events: CalendarEvent[]): EventDateGroup[] {
   return groups;
 }
 
-/**
- * Checks if an event falls on the upcoming weekend (Saturday or Sunday)
- */
-export function isThisWeekend(dateStr: string, refDate = new Date()): boolean {
-  try {
-    const target = new Date(dateStr + "T00:00:00");
-    const dayOfWeek = target.getDay();
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) return false;
-
-    // Determine upcoming Saturday date
-    const today = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate());
-    const todayDay = today.getDay();
-    const daysToSat = (6 - todayDay + 7) % 7;
-    const sat = new Date(today);
-    sat.setDate(today.getDate() + daysToSat);
-    const sun = new Date(sat);
-    sun.setDate(sat.getDate() + 1);
-
-    const satStr = toDateStr(sat);
-    const sunStr = toDateStr(sun);
-
-    return dateStr === satStr || dateStr === sunStr;
-  } catch {
-    return false;
-  }
-}
-
 export const CALENDAR_CATEGORIES: Array<{ id: "all" | CalendarEventCategory; label: string; shortTag: string }> = [
   { id: "all", label: "All Categories", shortTag: "All" },
   { id: "market", label: "Markets", shortTag: "Market" },

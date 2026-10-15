@@ -1,8 +1,8 @@
-import { collection, doc, onSnapshot, serverTimestamp, setDoc, type Timestamp } from "firebase/firestore";
+import { collection, onSnapshot, type Timestamp } from "firebase/firestore";
 import type { StaffTicket, TicketPriority } from "@shared/airpal-data";
 export type { StaffTicket } from "@shared/airpal-data";
-import { ensureAnonymousSession, getFirebaseAuth, getFirebaseDb } from "./firebase";
-import { createStaffTicketRemote, liveBackendEnabled, resolveStaffTicketRemote } from "./functions";
+import { getFirebaseDb } from "./firebase";
+import { liveBackendEnabled } from "./functions";
 
 const LOCAL_PREFIX = "airpal.tickets.";
 
@@ -84,10 +84,6 @@ function writeLocal(propertyId: string, tickets: StaffTicket[]) {
   }
 }
 
-export function cacheLocalTicket(propertyId: string, ticket: StaffTicket) {
-  writeLocal(propertyId, [ticket, ...readLocal(propertyId).filter((row) => row.id !== ticket.id)]);
-}
-
 export type SubmitTicketInput = {
   propertyId: string;
   details: string;
@@ -95,82 +91,6 @@ export type SubmitTicketInput = {
   category?: StaffTicket["category"];
   urgency?: StaffTicket["urgency"];
 };
-
-export async function submitStaffTicket(input: SubmitTicketInput): Promise<StaffTicket> {
-  const details = input.details.trim();
-  if (!details) throw new Error("Describe the request");
-  const propertyId = input.propertyId.trim();
-  if (!propertyId || propertyId === "unknown") throw new Error("This stay isn’t listed yet. Ask the desk.");
-  const roomNumber = (input.roomNumber || "Guest").trim() || "Guest";
-  const category = input.category || categoryFromGuestText(details);
-  const urgency = input.urgency || (/urgent|asap|now|emergency/i.test(details) ? "urgent" : "normal");
-  const ticket: StaffTicket = {
-    id: `tick_${propertyId}_${Date.now()}`,
-    propertyId,
-    roomNumber,
-    guestName: roomNumber === "Guest" ? "Guest" : `Room ${roomNumber}`,
-    category,
-    details,
-    status: "pending",
-    createdAt: new Date().toISOString(),
-    urgency,
-  };
-  ticket.priority = resolveTicketPriority(ticket);
-  cacheLocalTicket(propertyId, ticket);
-
-  const uid = await ensureAnonymousSession();
-  if (liveBackendEnabled()) {
-    try {
-      const remote = await createStaffTicketRemote({
-        propertyId,
-        details,
-        roomNumber,
-        category,
-        urgency,
-      });
-      if (remote.ticketId && remote.ticketId !== ticket.id) {
-        const saved = { ...ticket, id: remote.ticketId };
-        cacheLocalTicket(propertyId, saved);
-        return saved;
-      }
-    } catch {
-      const db = getFirebaseDb();
-      if (db && uid) {
-        await setDoc(doc(db, "properties", propertyId, "tickets", ticket.id), {
-          ...ticket,
-          uid,
-          createdAt: serverTimestamp(),
-          createdAtIso: ticket.createdAt,
-        });
-      }
-    }
-  }
-  return ticket;
-}
-
-export async function resolveStaffTicket(propertyId: string, ticketId: string): Promise<void> {
-  const resolvedAt = new Date().toISOString();
-  const uid = getFirebaseAuth()?.currentUser?.uid;
-  const next = readLocal(propertyId).map((row) =>
-    row.id === ticketId ? { ...row, status: "resolved" as const, resolvedAt, resolvedBy: uid } : row,
-  );
-  writeLocal(propertyId, next);
-
-  if (liveBackendEnabled()) {
-    try {
-      await resolveStaffTicketRemote({ propertyId, ticketId });
-      return;
-    } catch {
-      const db = getFirebaseDb();
-      if (!db) return;
-      await setDoc(
-        doc(db, "properties", propertyId, "tickets", ticketId),
-        { status: "resolved", resolvedAt, resolvedBy: uid || null },
-        { merge: true },
-      );
-    }
-  }
-}
 
 /** Live host inbox. Remote snapshot replaces local cache when Firebase is up. */
 export function subscribePropertyTickets(propertyId: string, onChange: (tickets: StaffTicket[]) => void): () => void {

@@ -6,27 +6,6 @@ import { App } from "@capacitor/app";
 import { registerNativePush } from "./notifications";
 import { toPublicUrl } from "./public-origin";
 
-/**
- * Modal back handler registry for Android hardware back button.
- * Modals register themselves on mount and unregister on unmount.
- */
-let modalCloseHandler: (() => boolean) | null = null;
-
-/**
- * Register a modal close handler for Android back button.
- * Returns true if modal was closed, false otherwise.
- */
-export function registerModalBackHandler(handler: () => boolean): void {
-  modalCloseHandler = handler;
-}
-
-/**
- * Unregister modal close handler when modal unmounts.
- */
-export function unregisterModalBackHandler(): void {
-  modalCloseHandler = null;
-}
-
 /** Re-exported from platform.ts so existing importers keep working. */
 import { getNativePlatform, isNativeApp } from "./platform";
 export { getNativePlatform, isNativeApp };
@@ -208,13 +187,8 @@ export async function initNativeApp(
       }
     });
 
-    // Handle Android hardware back button with modal support
+    // Handle Android hardware back button
     App.addListener("backButton", ({ canGoBack }) => {
-      // First try to close modal if handler exists
-      if (modalCloseHandler && modalCloseHandler()) {
-        return; // Modal was closed, don't navigate
-      }
-
       if (canGoBack) {
         window.history.back();
       } else {

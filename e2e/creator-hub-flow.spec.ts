@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Join & business profile", () => {
-  test("join explains personal account vs business profile", async ({ page }) => {
+test.describe("Start & business profile", () => {
+  test("start explains personal account vs business profile", async ({ page }) => {
     await page.goto("/start?role=business");
     await page.waitForLoadState("domcontentloaded");
     await expect(page.getByText("Local Business Hub", { exact: true }).first()).toBeVisible();

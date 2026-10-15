@@ -269,11 +269,6 @@ export function buildPulsePublicPath(publicToken: string): string {
   return `/pulse/${encodeURIComponent(publicToken.trim())}`;
 }
 
-export function buildPulsePublicUrl(publicToken: string, origin = "https://airpal.me"): string {
-  const base = origin.replace(/\/$/, "");
-  return `${base}${buildPulsePublicPath(publicToken)}`;
-}
-
 /** Negative primary score: rating_5 / emoji ≤ 2, or NPS ≤ 6 (detractor). */
 export function isNegativeRating(type: PulseQuestionType, value: number | string | boolean): boolean {
   const n = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FLAVOR_START_ROUTE, PASS_APP_ID, parseAppFlavor, resolveAppFlavor } from "./app-flavor";
+import { PASS_APP_ID, parseAppFlavor, resolveAppFlavor } from "./app-flavor";
 
 describe("parseAppFlavor", () => {
   it("accepts the two known flavors", () => {
@@ -32,12 +32,5 @@ describe("resolveAppFlavor", () => {
     expect(resolveAppFlavor({ envFlavor: null, platform: "web", appId: null })).toBe("airpal");
     expect(resolveAppFlavor({ envFlavor: null, platform: "android", appId: null })).toBe("airpal");
     expect(resolveAppFlavor({ envFlavor: null, platform: "android", appId: "com.example.other" })).toBe("airpal");
-  });
-});
-
-describe("FLAVOR_START_ROUTE", () => {
-  it("starts Pass on /pass and AirPal on /", () => {
-    expect(FLAVOR_START_ROUTE.pass).toBe("/pass");
-    expect(FLAVOR_START_ROUTE.airpal).toBe("/");
   });
 });

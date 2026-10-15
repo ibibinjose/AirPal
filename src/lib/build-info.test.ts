@@ -5,15 +5,15 @@ describe("build-info", () => {
   it("extracts build info with versionName and versionCode", () => {
     const info = getBuildInfo();
     expect(info).toBeDefined();
-    expect(info.versionName).toBe("2.0.0");
-    expect(info.versionCode).toBe("2");
+    expect(info.versionName).toBe("2.0.1");
+    expect(info.versionCode).toBe("9");
     expect(["ios", "android", "web"]).toContain(info.platform);
   });
 
   it("gathers runtime diagnostics", () => {
     const diag = getRuntimeDiagnostics();
-    expect(diag.versionName).toBe("2.0.0");
-    expect(diag.versionCode).toBe("2");
+    expect(diag.versionName).toBe("2.0.1");
+    expect(diag.versionCode).toBe("9");
     expect(typeof diag.online).toBe("boolean");
     expect(typeof diag.storageKeysCount).toBe("number");
   });
@@ -24,8 +24,8 @@ describe("build-info", () => {
 
     expect(report).toContain("AirPal Client Diagnostic Report");
     expect(report).toContain("Version Name (build.gradle)");
-    expect(report).toContain("2.0.0");
+    expect(report).toContain("2.0.1");
     expect(report).toContain("Version Code");
-    expect(report).toContain("2");
+    expect(report).toContain("9");
   });
 });

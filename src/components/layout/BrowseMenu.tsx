@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
-import { ChevronDown, LayoutDashboard } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { BROWSE_LINKS, BROWSE_SECTIONS, HOST_LINKS, type BrowseLink } from "@/lib/browse-menu";
-import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/cn";
 import { triggerHaptic } from "@/lib/native";
 
@@ -107,53 +106,6 @@ export function BrowseMenu({ path, isHost }: { path: string; isHost: boolean }) 
           ))}
         </div>
       )}
-    </div>
-  );
-}
-
-/** Mobile category chip strip, rendered under the header on browse-context routes. */
-export function BrowseStrip({ path }: { path: string }) {
-  const [, nav] = useLocation();
-  const { isHost } = useAuth();
-  return (
-    <div className="border-b border-line/60 bg-paper/85 backdrop-blur-2xl lg:hidden">
-      <div className="flex gap-2 overflow-x-auto no-scrollbar px-3.5 py-2">
-        {BROWSE_LINKS.map((link) => {
-          const on = link.match(path);
-          const Icon = link.icon;
-          return (
-            <button
-              key={link.href}
-              type="button"
-              aria-current={on ? "page" : undefined}
-              onClick={() => {
-                void triggerHaptic("light");
-                nav(link.href);
-              }}
-              className={cn(
-                "flex min-h-[44px] shrink-0 touch-manipulation items-center gap-1.5 rounded-full px-3.5 text-[13px] font-bold ring-1 transition active:scale-95",
-                on ? "bg-brand text-white ring-brand shadow-xs" : "bg-card text-ink ring-line",
-              )}
-            >
-              <Icon size={14} className={on ? "text-white" : "text-accent"} />
-              {link.label}
-            </button>
-          );
-        })}
-        {isHost && (
-          <button
-            type="button"
-            onClick={() => {
-              void triggerHaptic("light");
-              nav("/host");
-            }}
-            className="flex min-h-[44px] shrink-0 touch-manipulation items-center gap-1.5 rounded-full bg-card px-3.5 text-[13px] font-bold text-ink ring-1 ring-line transition active:scale-95"
-          >
-            <LayoutDashboard size={14} className="text-accent" />
-            Host
-          </button>
-        )}
-      </div>
     </div>
   );
 }

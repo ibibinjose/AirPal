@@ -113,3 +113,32 @@ validation (needs live data).
   TabBar/TopNav motion (already gated via shell), BioShare/MePage navy
   (intentional), calendar category themes (intentional), BioSocials
   (clean), `AirPal Me` lens (intentional).
+
+## 8b. Zero-dead-code sweep (DONE 2026-10-15)
+
+- Deleted ~75 dead symbols (hand-verified, Knip + grep + tsc): 22 dead
+  `*Remote` callables in `src/lib/functions.ts`, 7 in promotions, 2 in
+  notifications (+`callNotify`), `getOrCreateConversation`,
+  `subscribePropertyDiningOrders`, `getV3Profile`/`subscribeV3Profile`,
+  modal back-handler registry, Discover helpers (`DISCOVER_CHIPS`,
+  `featuredPlaces`, `nearbyForMarker`, `nearbyParking`), 14 dead
+  `shared/` helpers + orphaned `EVENT_FEE_CONFIG`/`FeeQuote`,
+  `fetchPropertyMenu`, `cacheLocalTicket`, `highlightKind`, ~35 unused
+  imports/consts (lint now zero).
+- Deleted 3 empty dirs (`ui/skeletons`, `home`, `pulse`); uninstalled 3
+  unused deps (`leaflet`, `@types/leaflet`, `@vis.gl/react-google-maps`)
+  - vite chunk rule + dead leaflet CSS.
+- E2E: stale `/partners` page test now asserts the `/business` redirect;
+  `creator-hub` describe renamed off "Join".
+- Knip FPs kept after caller-chain verification (~40): intra-file-used
+  shared guards/templates, `buildConversationId`, `circleLevel`,
+  `loadGuests`, `pushDeviceMirror`, anon-auth helpers,
+  `completeRegistrationRemote` (aliased live), `getApplication`,
+  `abnProof`, FCM `firebase-messaging-sw.js` (default-registration
+  convention), `esbuild` (functions build), `playwright.pass.config.ts`,
+  one-off ops scripts in `scripts/`.
+- Gates: `npm run verify` exit 0 (format, both typechecks, lint zero,
+  959 root + 157 functions tests, both builds, rules/v3/secrets/seo).
+  Note: `chat-store.test.ts` "merges snapshots" flaked once in a full
+  run (passed in isolation + 3 other full runs) — pre-existing
+  parallel-worker pollution, unrelated to deletions.

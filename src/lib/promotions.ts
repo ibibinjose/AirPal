@@ -1,16 +1,5 @@
 import { httpsCallable } from "firebase/functions";
-import type {
-  CreatePromotionRequest,
-  DrawWinnersRequest,
-  EnterPromotionRequest,
-  EnterPromotionResponse,
-  PromotionStatus,
-  RedeemPointsRequest,
-  ReviewPromotionRequest,
-  SetWeeklyCampaignRequest,
-  SetWinnerStatusRequest,
-  WinnerStatus,
-} from "@shared/promotions";
+import type { EnterPromotionRequest, EnterPromotionResponse, RedeemPointsRequest } from "@shared/promotions";
 import { getFirebaseFunctions } from "./firebase";
 
 async function callPromotion<Req, Res>(name: string, data: Req): Promise<Res> {
@@ -21,38 +10,8 @@ async function callPromotion<Req, Res>(name: string, data: Req): Promise<Res> {
   return result.data;
 }
 
-export function createPromotionRemote(data: CreatePromotionRequest) {
-  return callPromotion<CreatePromotionRequest, { ok: boolean; promotionId: string }>("createPromotion", data);
-}
-
-export function updatePromotionRemote(data: { promotionId: string; patch: Record<string, unknown> }) {
-  return callPromotion<{ promotionId: string; patch: Record<string, unknown> }, { ok: boolean }>(
-    "updatePromotion",
-    data,
-  );
-}
-
-export function submitPromotionRemote(data: { promotionId: string }) {
-  return callPromotion<{ promotionId: string }, { ok: boolean; status: PromotionStatus }>("submitPromotion", data);
-}
-
-export function reviewPromotionRemote(data: ReviewPromotionRequest) {
-  return callPromotion<ReviewPromotionRequest, { ok: boolean; status?: PromotionStatus; featured?: boolean }>(
-    "reviewPromotion",
-    data,
-  );
-}
-
 export function enterPromotionRemote(data: EnterPromotionRequest) {
   return callPromotion<EnterPromotionRequest, EnterPromotionResponse>("enterPromotion", data);
-}
-
-export function closeAndDrawRemote(data: DrawWinnersRequest) {
-  return callPromotion<DrawWinnersRequest, { ok: boolean; winners: number; entries: number }>("closeAndDraw", data);
-}
-
-export function setWinnerStatusRemote(data: SetWinnerStatusRequest) {
-  return callPromotion<SetWinnerStatusRequest, { ok: boolean; status: WinnerStatus }>("setWinnerStatus", data);
 }
 
 export function recordPromotionViewRemote(promotionId: string) {
@@ -61,10 +20,6 @@ export function recordPromotionViewRemote(promotionId: string) {
 
 export function recordPromotionClickRemote(promotionId: string) {
   return callPromotion<{ promotionId: string }, { ok: boolean }>("recordPromotionClick", { promotionId });
-}
-
-export function setWeeklyCampaignRemote(data: SetWeeklyCampaignRequest) {
-  return callPromotion<SetWeeklyCampaignRequest, { ok: boolean; weekId: string }>("setWeeklyCampaign", data);
 }
 
 export function redeemPointsRemote(data: RedeemPointsRequest) {

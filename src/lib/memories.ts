@@ -58,7 +58,7 @@ function persist(memories: Memory[]): void {
   persistHook?.();
 }
 
-export function newMemoryId(): string {
+function newMemoryId(): string {
   try {
     return `m-${crypto.randomUUID()}`;
   } catch {

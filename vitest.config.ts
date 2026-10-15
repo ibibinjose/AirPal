@@ -3,8 +3,8 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   define: {
-    __APP_VERSION_NAME__: JSON.stringify("2.0.0"),
-    __APP_VERSION_CODE__: JSON.stringify("2"),
+    __APP_VERSION_NAME__: JSON.stringify("2.0.1"),
+    __APP_VERSION_CODE__: JSON.stringify("9"),
     __BUILD_TIMESTAMP__: JSON.stringify("2026-09-15T00:00:00.000Z"),
     __FIREBASE_APPLET_CONFIG__: JSON.stringify({}),
   },

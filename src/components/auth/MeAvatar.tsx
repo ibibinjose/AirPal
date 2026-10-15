@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 import { AVAILABILITY_STATUSES, type AvailabilityStatus } from "@shared/bio";
 
 /** Nav buttons are h-9 / lg:h-10 — keep the avatar on that same height. */
-export const NAV_AVATAR = "h-10 w-10 text-sm lg:text-base";
+const NAV_AVATAR = "h-10 w-10 text-sm lg:text-base";
 
 export function AvatarFace({
   className,

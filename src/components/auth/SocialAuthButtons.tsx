@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { BiometricAuthButton } from "./BiometricAuthButton";
 
 // Social Login enabled for Apple & Google
-export const SHOW_SOCIAL_AUTH = true;
+const SHOW_SOCIAL_AUTH = true;
 
 export function SocialAuthButtons({
   busy,

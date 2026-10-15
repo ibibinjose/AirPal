@@ -27,14 +27,6 @@ export type ContentAudit = {
   note?: string;
 };
 
-export function isReviewStatus(value: string): value is ReviewStatus {
-  return (REVIEW_STATUSES as readonly string[]).includes(value);
-}
-
-export function isContentSource(value: string): value is ContentSource {
-  return (CONTENT_SOURCES as readonly string[]).includes(value);
-}
-
 export function stampContentMeta(
   previous: Partial<ContentMeta> | undefined,
   patch: Partial<ContentMeta> & { source?: ContentSource },

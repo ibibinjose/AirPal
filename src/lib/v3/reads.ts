@@ -301,26 +301,3 @@ export const v3Orders = reader("orders", parseV3Order);
 export const v3DealClaims = reader("dealClaims", parseV3DealClaim);
 export const v3Cohorts = reader("cohorts", parseV3Cohort);
 export const v3Conversations = reader("conversations", parseV3Conversation);
-
-export async function getV3Profile(
-  db: Firestore,
-  uid: string,
-  viewerUid: string | null,
-): Promise<V3Doc<V3Profile> | null> {
-  requireV3Adapters();
-  const snap = await getDoc(doc(db, "profiles", uid));
-  if (!snap.exists()) return null;
-  return parseV3Profile(snap.id, viewerUid, snap.data());
-}
-
-export function subscribeV3Profile(
-  db: Firestore,
-  uid: string,
-  viewerUid: string | null,
-  next: (value: V3Doc<V3Profile> | null) => void,
-): () => void {
-  requireV3Adapters();
-  return onSnapshot(doc(db, "profiles", uid), (snap) => {
-    next(snap.exists() ? parseV3Profile(snap.id, viewerUid, snap.data()) : null);
-  });
-}

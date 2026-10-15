@@ -57,7 +57,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEvents } from "@/contexts/EventsContext";
 import { useBio } from "@/contexts/BioContext";
 import { makeQrDataUrl } from "@/lib/qr";
-import { ratingsForEvent } from "@/lib/ratings";
+
 import { CITY_OPTIONS } from "@/lib/cities";
 import { cn } from "@/lib/cn";
 import { HostFreshnessBanner } from "@/components/host/HostFreshnessBanner";
@@ -196,7 +196,6 @@ export function OrganiserEventPage() {
   const [celebrationEventName, setCelebrationEventName] = useState<string>("");
 
   const stalls = viewEvent ? stallsFor(viewEvent.id) : [];
-  const feedback = viewEvent ? ratingsForEvent(viewEvent.id) : [];
 
   useEffect(() => {
     if (!viewEvent) {
@@ -1606,12 +1605,6 @@ export function OrganiserEventPage() {
                 <p className="text-xs capitalize text-mute mt-0.5">{stallFieldLabels(myEvent.flavour).listNoun} live</p>
               </div>
 
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
-                <p className="text-xs font-bold uppercase tracking-wider text-mute">Guest Feedback</p>
-                <p className="font-display text-3xl sm:text-4xl font-bold mt-1 text-ink">{feedback.length}</p>
-                <p className="text-xs text-mute mt-0.5">Ratings received</p>
-              </div>
-
               <div className="col-span-2 sm:col-span-1 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-mute">Entrance QR</p>
@@ -1684,28 +1677,6 @@ export function OrganiserEventPage() {
                 {stallFieldLabels(myEvent.flavour).addTitle}
               </Button>
             </div>
-
-            {feedback.length > 0 && (
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-mute">Recent Guest Ratings</p>
-                <ul className="space-y-2">
-                  {feedback.slice(0, 8).map((r) => (
-                    <li
-                      key={r.id}
-                      className="flex items-center gap-3 rounded-2xl bg-paper px-4 py-3 border border-line/70"
-                    >
-                      <span className="text-2xl">{r.emoji}</span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate font-medium text-xs text-ink">
-                          {r.stallName || "Event Entrance"}
-                        </span>
-                        {r.note && <span className="block truncate text-xs text-mute">{r.note}</span>}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         )}
 

@@ -12,8 +12,8 @@ import {
   transferProviderShare,
 } from "./stripe";
 
-export const RECONCILE_BOOKING_LIMIT = 500;
-export const RECONCILE_PAYMENT_LIMIT = 2000;
+const RECONCILE_BOOKING_LIMIT = 500;
+const RECONCILE_PAYMENT_LIMIT = 2000;
 
 export type ReconcileFindingKind =
   | "stuck_held"

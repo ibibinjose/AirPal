@@ -221,7 +221,7 @@ export class FakeHttpsError extends Error {
 
 export type V3Handler = (request: unknown) => Promise<any>;
 
-export function authedRequest(uid: string | undefined, data: unknown, anonymous = false) {
+function authedRequest(uid: string | undefined, data: unknown, anonymous = false) {
   return {
     auth: uid ? { uid, token: anonymous ? { firebase: { sign_in_provider: "anonymous" } } : {} } : {},
     data,

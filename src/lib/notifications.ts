@@ -1,28 +1,7 @@
-import { httpsCallable } from "firebase/functions";
 import { getMessaging, getToken, isSupported, onMessage } from "firebase/messaging";
 import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
-import type { CreateBroadcastRequest, ReviewBroadcastRequest } from "@shared/notifications";
-import { getFirebaseApp, getFirebaseAuth, getFirebaseDb, getFirebaseFunctions } from "./firebase";
+import { getFirebaseApp, getFirebaseAuth, getFirebaseDb } from "./firebase";
 import { isNativeApp } from "./platform";
-
-async function callNotify<Req, Res>(name: string, data: Req): Promise<Res> {
-  const functions = getFirebaseFunctions();
-  if (!functions) throw new Error("Firebase is not configured.");
-  const callable = httpsCallable<Req, Res>(functions, name);
-  const result = await callable(data);
-  return result.data;
-}
-
-export function createBroadcastRemote(data: CreateBroadcastRequest) {
-  return callNotify<CreateBroadcastRequest, { ok: boolean; broadcastId: string; status?: string; sent?: number }>(
-    "createBroadcast",
-    data,
-  );
-}
-
-export function reviewBroadcastRemote(data: ReviewBroadcastRequest) {
-  return callNotify<ReviewBroadcastRequest, { ok: boolean; status: string; sent?: number }>("reviewBroadcast", data);
-}
 
 const PREF_KEY = "airpal.notify.push";
 

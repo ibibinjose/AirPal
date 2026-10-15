@@ -1,12 +1,6 @@
 import { handleFromPlaceId } from "@shared/bio";
 import type { WalkingTour } from "@shared/tours";
-import {
-  resolveCompetitorPolicy,
-  type Geo,
-  type MarkerDoc,
-  type NearbyPlace,
-  type PlaceCategory,
-} from "@shared/nearby";
+import { type Geo, type MarkerDoc, type NearbyPlace } from "@shared/nearby";
 import { haversineMeters, walkLabel } from "./geo";
 import { CITY_RADIUS_KM, knownCityCenter, PRECINCT_META } from "./cities";
 import { listedPlaces } from "./listings";
@@ -86,16 +80,6 @@ export function placesInCity<T extends { precinctId?: string; geo?: { lat: numbe
   });
 }
 
-export const DISCOVER_CHIPS: Array<{ id: "all" | PlaceCategory | "tonight" | "deals"; label: string }> = [
-  { id: "all", label: "All" },
-  { id: "eat", label: "Eat" },
-  { id: "coffee", label: "Coffee" },
-  { id: "things", label: "See" },
-  { id: "shops", label: "Shop" },
-  { id: "deals", label: "Deals" },
-  { id: "tonight", label: "Tonight" },
-];
-
 /**
  * DB-backed places only: Firestore `listings` (via ListingsContext cache) and
  * `places` docs migrated by seed-database. Empty DB → empty list, honestly.
@@ -145,7 +129,7 @@ export function originFor(marker?: MarkerDoc) {
   return marker?.geo || { lat: -33.85955, lng: 151.20715 };
 }
 
-export function withHandle<T extends NearbyPlace>(place: T): T {
+function withHandle<T extends NearbyPlace>(place: T): T {
   const handle = place.handle || handleFromPlaceId(place.id) || undefined;
   return handle ? { ...place, handle } : place;
 }
@@ -153,41 +137,6 @@ export function withHandle<T extends NearbyPlace>(place: T): T {
 export function withWalk<T extends NearbyPlace>(place: T, from = originFor()) {
   const meters = haversineMeters(from, place.geo);
   return { ...withHandle(place), meters, walk: walkLabel(meters) };
-}
-
-export function nearbyForMarker(marker?: MarkerDoc) {
-  const policy = marker ? resolveCompetitorPolicy(marker) : { suppressCategories: [] as PlaceCategory[] };
-  const from = originFor(marker);
-  return activePlaces()
-    .filter((p) => !policy.suppressCategories.includes(p.category))
-    .map((p) => withWalk(p, from))
-    .sort((a, b) => a.meters - b.meters);
-}
-
-function discoverRank(place: NearbyPlace) {
-  if (place.deal) return 0;
-  if (place.category === "eat" || place.category === "coffee") return 1;
-  if (place.category === "shops" || place.category === "things") return 2;
-  if (place.category === "parking" || place.category === "facilities") return 8;
-  return 3;
-}
-
-/** Nearby for Discover: no car parks first, deals and food lead. `around` uses GPS distance, not The Rocks dump. */
-export function discoverPlaces(from: Geo = originFor(), city?: string, scope: "city" | "around" = "city") {
-  const pool = activePlaces().filter((p) => p.category !== "parking" && p.category !== "facilities");
-  const scoped = scope === "around" ? placesAround(pool, from) : placesInCity(pool, city);
-  return scoped
-    .map((p) => withWalk(p, from))
-    .sort((a, b) => {
-      const rank = discoverRank(a) - discoverRank(b);
-      return rank !== 0 ? rank : a.meters - b.meters;
-    });
-}
-
-export function featuredPlaces(from: Geo = originFor(), city?: string, scope: "city" | "around" = "city") {
-  return discoverPlaces(from, city, scope)
-    .filter((p) => p.deal || p.verifiedPartner || p.category === "eat")
-    .slice(0, 8);
 }
 
 /** D2 — deals chip: only places with a live offer. Never invents a deal. */
@@ -202,11 +151,4 @@ export function placesForLocation<T extends { geo?: { lat: number; lng: number }
   usingGps: boolean,
 ) {
   return usingGps ? placesAround(rows, from) : placesInCity(rows, city);
-}
-
-export function nearbyParking(from = originFor()) {
-  return activePlaces()
-    .filter((p) => p.category === "parking")
-    .map((p) => withWalk(p, from))
-    .sort((a, b) => a.meters - b.meters);
 }

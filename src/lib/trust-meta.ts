@@ -35,7 +35,7 @@ export const TRUST_FAQ: TrustFaq[] = [
   },
 ];
 
-export const TRUST_ORG_JSON_LD: Record<string, unknown> = {
+const TRUST_ORG_JSON_LD: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "AirPal.Me",

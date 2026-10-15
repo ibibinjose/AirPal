@@ -1,5 +1,5 @@
 import { collection, deleteDoc, doc, getDocs, query, setDoc, where, type Firestore } from "firebase/firestore";
-import { publicMateFromApplication, type CompanionApplication, type CompanionStatus } from "@shared/companion";
+import { publicMateFromApplication, type CompanionApplication } from "@shared/companion";
 import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
 
 const APPS = "companion_applications";
@@ -87,15 +87,4 @@ export async function loadAllApplicationsRemote(): Promise<CompanionApplication[
   if (!firestore) return [];
   const snap = await getDocs(collection(firestore, APPS));
   return snap.docs.map((d) => ({ ...(d.data() as CompanionApplication), applicationId: d.id }));
-}
-
-export async function loadPublicMatesRemote(): Promise<import("@shared/companion").PublicMate[]> {
-  const firestore = db();
-  if (!firestore) return [];
-  const snap = await getDocs(collection(firestore, PUBLIC));
-  return snap.docs.map((d) => d.data() as import("@shared/companion").PublicMate);
-}
-
-export function isLiveCompanionStatus(status: CompanionStatus): boolean {
-  return status === "approved";
 }
