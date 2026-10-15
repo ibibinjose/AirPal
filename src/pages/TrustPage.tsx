@@ -83,9 +83,9 @@ export function TrustPage() {
           <ShieldCheck size={14} /> The short answer
         </p>
         <p className="mt-3 text-base leading-relaxed text-white/90 sm:text-lg">
-          AirPal.Me is an all-in-one event, discovery, and arrival platform built in Sydney by SarvamDaily Pty Ltd (ABN
-          83 702 462 977). It is not Arjo&apos;s AirPal patient-transfer mattress and not the airpal.app flight-search
-          tool. One account connects events, arrival cohorts, and personal bio, with human-reviewed trust and safety.
+          AirPal.Me is an all-in-one events and community platform built in Sydney by SarvamDaily Pty Ltd (ABN 83 702
+          462 977). It is not Arjo&apos;s AirPal patient-transfer mattress and not the airpal.app flight-search tool.
+          One account connects events, local business, and personal bio, with human-reviewed trust and safety.
         </p>
       </div>
 

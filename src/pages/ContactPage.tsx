@@ -26,7 +26,7 @@ export function ContactPage() {
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     void triggerHaptic("medium");
-    const subject = `[AirPal.me] ${TOPICS.find((t) => t.id === topic)?.label} — ${name || "Message"}`;
+    const subject = `[AirPal.Me] ${TOPICS.find((t) => t.id === topic)?.label} — ${name || "Message"}`;
     const body = [`Name: ${name}`, `Email: ${email}`, `Topic: ${topic}`, "", message].join("\n");
     const href = `mailto:${LEGAL.contacts}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = href;

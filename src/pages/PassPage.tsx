@@ -541,7 +541,7 @@ export function PassPage() {
               </span>
             </div>
             <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink mt-1">
-              Run your venue, event, or stay on AirPal Pass
+              Run your venue or event on AirPal Pass
             </h2>
             <p className="text-sm text-mute mt-1 max-w-2xl">
               Turnkey operational tools for ticket sellers, event hosts, hotel operators, and hospitality partners with

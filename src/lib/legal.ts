@@ -13,7 +13,7 @@ export const LEGAL = {
   courts: "the courts of New South Wales, Australia",
   email: "hello@airpal.me",
   /** Direct mailbox for App Store / Play support and the contact form. */
-  contacts: "AirPalMe@gmail.com",
+  contacts: "AirPal.Me@gmail.com",
   updated: "20 September 2026",
 } as const;
 

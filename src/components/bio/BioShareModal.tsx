@@ -124,7 +124,7 @@ export function BioShareModal({ open, onClose, handle, name, url }: BioShareModa
           <div className="flex items-center justify-center gap-2">
             <BrandMark compact invert />
             <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/80">
-              AirPal.me · Bio Pass
+              AirPal.Me · Bio Pass
             </span>
           </div>
           <h2 className="font-display mt-2 truncate text-2xl font-bold text-white">@{handle}</h2>

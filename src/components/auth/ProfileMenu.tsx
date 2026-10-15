@@ -393,6 +393,8 @@ export function ProfileMenu() {
                   key={emo}
                   type="button"
                   onClick={() => setEditEmoji(emo)}
+                  aria-pressed={editEmoji === emo}
+                  aria-label={`Use ${emo} as profile emoji`}
                   className={cn(
                     "grid min-h-[44px] min-w-[44px] shrink-0 place-items-center rounded-lg text-sm transition active:scale-95",
                     editEmoji === emo ? "bg-brand/10 ring-1 ring-brand" : "hover:bg-paper",
@@ -511,8 +513,8 @@ export function ProfileMenu() {
           <Row
             icon={Building2}
             label="Host Workspace"
-            hint="Hotel, venue, campus concierge"
-            onClick={() => go("/host")}
+            hint="Hotel, venue, campus hosting"
+            onClick={() => go("/event")}
           />
         ) : (
           <Row

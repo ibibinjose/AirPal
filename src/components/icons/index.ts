@@ -10,24 +10,6 @@
 
 // Core icon components
 export { Icon } from "./Icon";
-export { IconBadge } from "./IconBadge";
-export { IconButton } from "./IconButton";
-
-// Brand-specific semantic icons
-export {
-  VerifiedBadgeIcon,
-  SecurityShieldIcon,
-  MateVerticalIcon,
-  StayVerticalIcon,
-  ExperienceVerticalIcon,
-  FashionVerticalIcon,
-  TravelVerticalIcon,
-  DailyVerticalIcon,
-  BrandSearchIcon,
-  BrandLocationIcon,
-  BrandChatIcon,
-  BrandUsersIcon,
-} from "./brandIcons";
 
 // Utilities & mappings
 export {
@@ -41,8 +23,6 @@ export {
 
 // Types
 export type { IconSize, IconVariant, IconBadgeVariant, IconBadgeSize, AirPalIconProps } from "./types";
-export type { IconButtonProps } from "./IconButton";
-export type { IconBadgeProps } from "./IconBadge";
 
 // Complete re-export of all Lucide icons and types for full compatibility
 export * from "lucide-react";

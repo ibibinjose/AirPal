@@ -22,7 +22,7 @@ export function CookiesPage() {
       <p>
         Cookies are small files a site stores on your device. Similar technologies include localStorage, sessionStorage,
         IndexedDB, and pixels. Browsers treat them differently, but they can identify a device or remember a setting.
-        This policy covers all of them on AirPal.me.
+        This policy covers all of them on AirPal.Me.
       </p>
 
       <h2>2. How we use them</h2>
@@ -148,7 +148,7 @@ export function CookiesPage() {
           Browser settings: block cookies or clear data for airpal.me. That signs you out and removes local drafts.
         </li>
         <li>
-          Safari / Chrome / Firefox / Edge each have a “cookies and site data” panel. AirPal.me will appear as a site
+          Safari / Chrome / Firefox / Edge each have a “cookies and site data” panel. AirPal.Me will appear as a site
           you can remove.
         </li>
         <li>iOS and Android “clear website data” in the in-app browser or Chrome.</li>

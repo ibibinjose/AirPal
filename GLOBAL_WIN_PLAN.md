@@ -90,3 +90,26 @@ marketing, concierge/stay SEO, PBSA help article (rewritten), arrival
 search/FAB entries, fabricated Circle counts and auto-follow, server-side
 check-in emission, payout reconciliation. Open: live deploy + $500 GMV
 validation (needs live data).
+
+## 8. Cleanup + brand pass (DONE)
+
+- Fixed shadowed `/f/new` route (was swallowed by `/f/:slug`).
+- Deleted 19 unrendered components, 12 dead lib modules (+ their tests),
+  3 dead icon files + barrel lines, 4 dead skeletons + barrel + test.
+  Live coverage preserved by moving `regions.test.ts` city-mapping into
+  `cities.test.ts`.
+- Tokens: fixed gold/ink contrast fail, replaced dead `surface-hover`
+  (8×), unified toggle ON-states to brand, RSVP trio to leaf/mango/rose
+  with ink text, 44px touch targets on chips/buttons/share/RSVP.
+- Copy: `AirPal.me` → `AirPal.Me` (8×), contact email dotted, legacy
+  stay/concierge/cohort/Mate/discovery terms purged (AuthGate, ChatBox,
+  Trust, Terms, Pass, ProfileMenu), Title Case buttons, `Loading…`.
+- Chrome/a11y: reduced-motion gates on FAB + toast, single contentinfo
+  landmark, aria-pressed/labels, focus-visible rings, z-50 discipline,
+  standard page gutter. Intentionally kept: category color-coding,
+  dark footer/navy Bio Pass/hero (fixed dark surfaces), `dark:` partners
+  on fixed colors, `AirPal Me` lens name (symmetric with AirPal Pass).
+- Audit claims rejected after verification: HostFreshnessBanner (live),
+  TabBar/TopNav motion (already gated via shell), BioShare/MePage navy
+  (intentional), calendar category themes (intentional), BioSocials
+  (clean), `AirPal Me` lens (intentional).

@@ -141,7 +141,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
               onClick={() => {
                 void shareCurrentLocation(city);
               }}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-brand-ink active:scale-95 transition cursor-pointer border border-line"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink active:scale-95 transition cursor-pointer border border-line"
               aria-label="Share current location and guide link"
             >
               <Share2 size={13} />

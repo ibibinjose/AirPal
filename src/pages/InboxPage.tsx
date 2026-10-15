@@ -383,7 +383,7 @@ export function InboxPage() {
                   href="/me"
                   className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 py-2 text-xs font-bold text-ink ring-1 ring-line hover:bg-card active:scale-95"
                 >
-                  Invite Mates
+                  Invite Friends
                 </Link>
               </div>
             </div>
@@ -394,7 +394,7 @@ export function InboxPage() {
             onClick={() => setSegment("activity")}
             className="flex min-h-[44px] w-full items-center justify-center text-center text-[14px] font-semibold text-accent hover:underline"
           >
-            See activity &amp; notifications →
+            See Activity &amp; Notifications →
           </button>
         </div>
       ) : segment === "activity" ? (
@@ -408,7 +408,7 @@ export function InboxPage() {
                 onClick={() => void markSegmentRead(activityNotes)}
                 className="-my-3 inline-flex min-h-[44px] items-center text-[13px] font-bold text-accent disabled:opacity-40"
               >
-                {markingAll ? "Marking…" : "Mark all read"}
+                {markingAll ? "Marking…" : "Mark All Read"}
               </button>
             )}
           </div>
@@ -455,7 +455,7 @@ export function InboxPage() {
                 onClick={() => void markSegmentRead(updateNotes)}
                 className="-my-3 inline-flex min-h-[44px] items-center text-[13px] font-bold text-accent disabled:opacity-40"
               >
-                {markingAll ? "Marking…" : "Mark all read"}
+                {markingAll ? "Marking…" : "Mark All Read"}
               </button>
             )}
           </div>

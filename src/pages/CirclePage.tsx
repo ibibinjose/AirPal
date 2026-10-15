@@ -560,7 +560,7 @@ export function CirclePage() {
               <div className="mt-5 flex justify-center gap-2">
                 {searchQuery ? (
                   <Button variant="ghost" size="sm" onClick={() => setSearchQuery("")}>
-                    Clear search
+                    Clear Search
                   </Button>
                 ) : filter === "places" ? (
                   <Button variant="primary" size="sm" onClick={() => openGlobalSearch({ category: "places" })}>

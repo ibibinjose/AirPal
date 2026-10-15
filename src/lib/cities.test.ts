@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { cityCenter, currencyForCity, knownCityCenter, PRECINCT_META } from "./cities";
+import {
+  cityCenter,
+  countryForCity,
+  currencyForCity,
+  knownCityCenter,
+  localeForCity,
+  PRECINCT_META,
+  timeZoneForCity,
+} from "./cities";
 import { THE_ROCKS_PRECINCT } from "@shared/the-rocks-data";
 
 describe("cityCenter", () => {
@@ -34,5 +42,47 @@ describe("PRECINCT_META", () => {
   it("matches the full precinct dataset (drift guard for the initial bundle)", () => {
     expect(PRECINCT_META.city).toBe(THE_ROCKS_PRECINCT.city);
     expect(PRECINCT_META.geo).toEqual(THE_ROCKS_PRECINCT.geo);
+  });
+});
+
+describe("city market mapping", () => {
+  it("resolves UAE cities to AED / Asia/Dubai / en-AE", () => {
+    expect(currencyForCity("Dubai")).toBe("AED");
+    expect(currencyForCity("Abu Dhabi")).toBe("AED");
+    expect(timeZoneForCity("Dubai")).toBe("Asia/Dubai");
+    expect(localeForCity("Sharjah")).toBe("en-AE");
+    expect(countryForCity("Dubai")).toBe("United Arab Emirates");
+  });
+
+  it("resolves UK/US/Canada/EU cities to the right currency, zone, and locale", () => {
+    expect(currencyForCity("London")).toBe("GBP");
+    expect(currencyForCity("New York")).toBe("USD");
+    expect(currencyForCity("Los Angeles")).toBe("USD");
+    expect(currencyForCity("Toronto")).toBe("CAD");
+    expect(currencyForCity("Vancouver")).toBe("CAD");
+    for (const city of ["Paris", "Berlin", "Madrid", "Barcelona", "Rome", "Amsterdam", "Dublin"]) {
+      expect(currencyForCity(city)).toBe("EUR");
+    }
+    expect(timeZoneForCity("London")).toBe("Europe/London");
+    expect(timeZoneForCity("New York")).toBe("America/New_York");
+    expect(timeZoneForCity("Los Angeles")).toBe("America/Los_Angeles");
+    expect(timeZoneForCity("Toronto")).toBe("America/Toronto");
+    expect(timeZoneForCity("Vancouver")).toBe("America/Vancouver");
+    expect(timeZoneForCity("Paris")).toBe("Europe/Paris");
+    expect(timeZoneForCity("Perth")).toBe("Australia/Perth");
+    expect(localeForCity("London")).toBe("en-GB");
+    expect(localeForCity("Toronto")).toBe("en-CA");
+    expect(localeForCity("Paris")).toBe("en-FR");
+    expect(localeForCity("Berlin")).toBe("en-DE");
+    expect(countryForCity("Paris")).toBe("France");
+    expect(countryForCity("Toronto")).toBe("Canada");
+  });
+
+  it("keeps India and Australia mappings intact", () => {
+    expect(currencyForCity("Kochi")).toBe("INR");
+    expect(timeZoneForCity("Mumbai")).toBe("Asia/Kolkata");
+    expect(localeForCity("Mumbai")).toBe("en-IN");
+    expect(currencyForCity("Sydney")).toBe("AUD");
+    expect(timeZoneForCity("Sydney")).toBe("Australia/Sydney");
   });
 });

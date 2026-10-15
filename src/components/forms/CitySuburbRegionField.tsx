@@ -310,10 +310,10 @@ export function CitySuburbRegionField({
                   setVerifiedSource("google");
                 }}
                 className={cn(
-                  "rounded-lg px-2 py-0.5 text-[11px] font-medium transition active:scale-95 border",
+                  "min-h-[44px] rounded-lg px-3 text-[11px] font-medium transition active:scale-95 border inline-flex items-center",
                   isSelected
                     ? "bg-brand text-white border-brand shadow-xs"
-                    : "bg-surface hover:bg-surface-hover text-mute hover:text-ink border-line/60",
+                    : "bg-surface hover:bg-surface-high text-mute hover:text-ink border-line/60",
                 )}
               >
                 {p.label}

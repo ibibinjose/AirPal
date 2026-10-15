@@ -142,7 +142,7 @@ export async function enrollBiometrics(user: {
   }
 
   const userId = new TextEncoder().encode(user.uid);
-  const rpName = "AirPal.me";
+  const rpName = "AirPal.Me";
   const hostname = typeof window !== "undefined" && window.location.hostname ? window.location.hostname : "airpal.me";
 
   const publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptions = {

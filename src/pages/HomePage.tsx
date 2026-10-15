@@ -174,11 +174,11 @@ export function HomePage() {
             </div>
           </section>
 
-          {/* Page Footer */}
-          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-xs text-mute">
+          {/* Page sign-off (the global SiteFooter owns the contentinfo landmark) */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-xs text-mute">
             <span>Made for the life between moments.</span>
             <span>airpal.me · Curated preview</span>
-          </footer>
+          </div>
         </div>
       </div>
 

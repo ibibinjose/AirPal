@@ -256,9 +256,9 @@ export function ChatBox({
                   void send();
                 }
               }}
-              placeholder="Message your Mate…"
+              placeholder="Message…"
               maxLength={1000}
-              aria-label="Message your Mate"
+              aria-label="Message"
               className="min-w-0 flex-1 rounded-full border border-line bg-card px-3.5 py-2 text-sm outline-none placeholder:text-mute focus:border-brand"
             />
             <Button

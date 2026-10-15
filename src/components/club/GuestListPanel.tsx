@@ -55,7 +55,8 @@ export function GuestListPanel({ clubId, clubName }: { clubId: string; clubName:
               autoComplete="name"
               autoCapitalize="words"
               placeholder="Name"
-              className="h-11 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand"
+              aria-label="Guest name"
+              className="h-11 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/60"
             />
             <input
               type="email"
@@ -66,7 +67,8 @@ export function GuestListPanel({ clubId, clubName }: { clubId: string; clubName:
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
-              className="h-11 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand"
+              aria-label="Guest email"
+              className="h-11 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/60"
             />
           </div>
           <div className="flex gap-2">

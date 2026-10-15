@@ -274,10 +274,10 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
                 if (toggleGoing(event.id) && !event.isGoing) toast.success("Marked as Going");
               }}
               className={cn(
-                "flex-1 inline-flex h-9 items-center justify-center gap-1.5 rounded-full text-xs font-medium transition active:scale-95",
+                "flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full text-xs font-medium transition active:scale-95",
                 event.isGoing
-                  ? "bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-700 font-semibold"
-                  : "bg-card text-ink hover:bg-emerald-50 ring-1 ring-line/80",
+                  ? "bg-leaf text-ink shadow-sm ring-1 ring-leaf/60 font-semibold"
+                  : "bg-card text-ink hover:bg-leaf/10 ring-1 ring-line/80",
               )}
             >
               <Check size={14} strokeWidth={event.isGoing ? 3 : 2} />
@@ -290,15 +290,15 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
                 if (toggleInterested(event.id) && !event.isInterested) toast.success("Added to Interested");
               }}
               className={cn(
-                "flex-1 inline-flex h-9 items-center justify-center gap-1.5 rounded-full text-xs font-medium transition active:scale-95",
+                "flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full text-xs font-medium transition active:scale-95",
                 event.isInterested
-                  ? "bg-amber-500 text-white shadow-sm ring-1 ring-amber-600 font-semibold"
-                  : "bg-card text-ink hover:bg-amber-50 ring-1 ring-line/80",
+                  ? "bg-mango text-ink shadow-sm ring-1 ring-mango/60 font-semibold"
+                  : "bg-card text-ink hover:bg-mango/10 ring-1 ring-line/80",
               )}
             >
               <Star
                 size={14}
-                className={event.isInterested ? "fill-white" : ""}
+                className={event.isInterested ? "fill-current" : ""}
                 strokeWidth={event.isInterested ? 2.5 : 2}
               />
               <span>Interested</span>
@@ -312,10 +312,10 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
                 if (toggleLiked(event.id) && !event.isLiked) toast.success("Liked event");
               }}
               className={cn(
-                "inline-flex h-9 w-9 items-center justify-center rounded-full transition active:scale-95",
+                "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition active:scale-95",
                 event.isLiked
-                  ? "bg-rose-500 text-white shadow-sm ring-1 ring-rose-600"
-                  : "bg-card text-ink hover:bg-rose-50 ring-1 ring-line/80",
+                  ? "bg-rose text-white shadow-sm ring-1 ring-rose/60"
+                  : "bg-card text-ink hover:bg-rose/10 ring-1 ring-line/80",
               )}
             >
               <Heart size={15} className={event.isLiked ? "fill-white" : ""} strokeWidth={event.isLiked ? 2.5 : 2} />

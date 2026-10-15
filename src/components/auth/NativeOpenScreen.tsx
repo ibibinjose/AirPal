@@ -138,7 +138,7 @@ export function NativeOpenScreen() {
                 nav("/start?tab=signup");
               }}
             >
-              Create a free account
+              Create Free Account
             </Button>
 
             <Button
@@ -151,7 +151,7 @@ export function NativeOpenScreen() {
               }}
             >
               <Phone size={16} />
-              Sign in with mobile number
+              Sign In with Mobile Number
             </Button>
 
             <div className="flex items-center justify-center pt-1">

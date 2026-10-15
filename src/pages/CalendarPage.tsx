@@ -844,7 +844,7 @@ function CalendarPageContent() {
                           onClick={() => setSelectedDate(undefined)}
                           className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-medium text-ink ring-1 ring-line hover:bg-line transition"
                         >
-                          <span>Clear date filter</span>
+                          <span>Clear Date Filter</span>
                         </button>
                       )}
                       {(category !== "all" || searchQuery) && (
@@ -856,7 +856,7 @@ function CalendarPageContent() {
                           }}
                           className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-medium text-ink ring-1 ring-line hover:bg-line transition"
                         >
-                          <span>Reset search & filters</span>
+                          <span>Reset Search & Filters</span>
                         </button>
                       )}
                     </div>

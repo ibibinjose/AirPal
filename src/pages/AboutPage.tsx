@@ -132,7 +132,7 @@ export function AboutPage() {
 
         <div className="p-6 sm:p-8 md:p-10 bg-card">
           <p className="text-base sm:text-lg leading-relaxed text-ink/85 max-w-3xl">
-            <strong className="font-bold text-ink">AirPal.me</strong> is a trusted, people-powered master ecosystem and
+            <strong className="font-bold text-ink">AirPal.Me</strong> is a trusted, people-powered master ecosystem and
             discovery platform. In Sydney and worldwide, we connect friends, family, colleagues, and mates with live
             events, local venues, and real-time community discovery.
           </p>

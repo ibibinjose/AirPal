@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { Plus, X, Ticket, QrCode, Building2, ChevronRight, ArrowRight } from "lucide-react";
 import { triggerHaptic } from "@/lib/native";
 import { useScrollLock } from "@/hooks/useScrollLock";
@@ -108,7 +108,7 @@ export function CreateFab({ showFab = true }: { showFab?: boolean } = {}) {
   };
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       {/* Floating Action Button */}
       {!shouldHide && showFab && (
         <motion.div
@@ -262,6 +262,6 @@ export function CreateFab({ showFab = true }: { showFab?: boolean } = {}) {
           </AnimatePresence>,
           document.body,
         )}
-    </>
+    </MotionConfig>
   );
 }

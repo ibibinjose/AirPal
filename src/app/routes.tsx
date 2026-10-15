@@ -59,7 +59,7 @@ function RouteFallback() {
       aria-live="polite"
     >
       <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-      <p className="text-sm text-mute">Loading</p>
+      <p className="text-sm text-mute">Loading…</p>
     </div>
   );
 }
@@ -174,10 +174,10 @@ export function AppRoutes() {
           <Route path="/e/:id" component={EventPage} />
           <Route path="/ticket/:id" component={TicketPage} />
           <Route path="/calendar" component={CalendarPage} />
-          <Route path="/f/:slug">{(p) => <Redirect to={`/events?q=${encodeURIComponent(p.slug)}`} />}</Route>
           <Route path="/f/new">
             <Redirect to="/event" />
           </Route>
+          <Route path="/f/:slug">{(p) => <Redirect to={`/events?q=${encodeURIComponent(p.slug)}`} />}</Route>
           <Route path="/f">
             <Redirect to="/events" />
           </Route>

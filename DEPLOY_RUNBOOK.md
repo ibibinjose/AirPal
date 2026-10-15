@@ -3,20 +3,13 @@
 Target project: `airpalme-app` (see `.firebaserc`).
 Prepared 2026-10-15. No deploy, commit, or secret access was executed.
 
-## 0. Blocker (must clear first)
+## 0. Blocker (resolved 2026-10-15 16:36, author review still required)
 
-The tree currently contains in-progress work outside this plan that does
-**not compile**:
-
-- `src/pages/ManageEventPage.tsx` (new, untracked): bad `lucide-react`
-  import (`CalendarSync`), missing `downloadSingleIcs` export, `flavour` /
-  `name` property mismatches on `EventRecord | CalendarEvent`.
-- `src/app/routes.tsx` (modified): `/e/:id/manage` rerouted to the new page.
-
-`tsc --noEmit` fails on those files alone. Settle or revert them first,
-then re-run the gate in §2. Everything else in the tree (commit `e13625e`
-plus the 3-file Prettier/plan reflow) was verified green before those
-files landed.
+`src/pages/ManageEventPage.tsx` (new page, `/e/:id/manage` reroute in
+`src/app/routes.tsx`) initially landed with typecheck errors; its author
+has since fixed them and full `tsc --noEmit` passes. Before deploy, that
+page still needs its author's own review + tests — it was not part of
+this plan and was not audited here beyond compilation.
 
 ## 1. Pre-deploy
 

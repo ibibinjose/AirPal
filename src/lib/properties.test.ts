@@ -16,7 +16,6 @@ import {
   updatePropertyWifi,
 } from "./properties";
 import { buildHostProperty } from "@shared/host-property";
-import { askLocal } from "./ask";
 
 vi.mock("./functions", () => ({
   liveBackendEnabled: () => false,
@@ -184,30 +183,6 @@ describe("properties store", () => {
     expect(norm.wifiUpdatedAt).toBe("2026-09-15T08:00:00.000Z");
     expect(norm.hoursVerifiedAt).toBe("2026-09-14T08:00:00.000Z");
     expect(norm.wifi.password).toBe("");
-  });
-
-  it("askLocal uses custom property info when supplied in context", () => {
-    const custom = buildHostProperty({
-      propertyName: "Byron Bay Villa",
-      ownerEmail: "host@byron.com",
-      id: "prop_byron",
-      wifiNetwork: "Byron_Waves",
-      wifiPassword: "saltwaterbreeze",
-      checkIn: "3:00 PM",
-      checkOut: "11:00 AM",
-    });
-
-    const wifiAns = askLocal("what is the wifi", { property: custom });
-    expect(wifiAns.title).toBe("Wi-Fi");
-    expect(wifiAns.body).toContain("Byron_Waves");
-    expect(wifiAns.body).toContain("saltwaterbreeze");
-
-    const checkoutAns = askLocal("when is checkout", { property: custom });
-    expect(checkoutAns.title).toBe("Checkout");
-    expect(checkoutAns.body).toBe("11:00 AM");
-
-    const generalAns = askLocal("hello", { property: custom });
-    expect(generalAns.title).toBe("Byron Bay Villa");
   });
 });
 

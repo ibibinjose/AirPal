@@ -21,13 +21,18 @@ export function ValidField({
       <div className={cn("relative", label && "mt-1")}>
         {children}
         {ok && !error && (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600" aria-hidden>
+          <span
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 dark:text-emerald-400"
+            aria-hidden
+          >
             <Check size={18} strokeWidth={2.6} />
           </span>
         )}
       </div>
       {(error || hint) && (
-        <span className={cn("mt-1 block text-[12px]", error ? "text-red-600" : "text-mute")}>{error || hint}</span>
+        <span className={cn("mt-1 block text-[12px]", error ? "text-red-600 dark:text-red-400" : "text-mute")}>
+          {error || hint}
+        </span>
       )}
     </label>
   );

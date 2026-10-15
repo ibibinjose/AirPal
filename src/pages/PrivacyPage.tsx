@@ -158,7 +158,7 @@ export function PrivacyPage() {
         <li>Comply with law and respond to lawful requests.</li>
       </ul>
       <p>
-        We do not sell your personal information. We do not run advertising networks or marketing pixels on AirPal.me
+        We do not sell your personal information. We do not run advertising networks or marketing pixels on AirPal.Me
         today. If you join AirPal Club or a venue guest list, your name and email stay on this device so a host can open
         their own mail app with the list on BCC. We do not send bulk mail from our servers yet. You can leave AirPal
         Club on /club.

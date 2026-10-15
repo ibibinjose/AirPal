@@ -7,9 +7,6 @@ import {
   BADGE_VARIANT_MAP,
   BADGE_SIZE_MAP,
   Icon,
-  IconBadge,
-  IconButton,
-  VerifiedBadgeIcon,
   Search,
   MapPin,
   Heart,
@@ -56,11 +53,8 @@ describe("AirPal Central Icon Library", () => {
     expect(BADGE_SIZE_MAP.lg.container).toContain("h-12 w-12");
   });
 
-  it("exports core components and re-exports Lucide icons", () => {
+  it("exports the core component and re-exports Lucide icons", () => {
     expect(Icon).toBeDefined();
-    expect(IconBadge).toBeDefined();
-    expect(IconButton).toBeDefined();
-    expect(VerifiedBadgeIcon).toBeDefined();
     expect(Search).toBeDefined();
     expect(MapPin).toBeDefined();
     expect(Heart).toBeDefined();

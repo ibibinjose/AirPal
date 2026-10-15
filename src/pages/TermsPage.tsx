@@ -135,7 +135,7 @@ export function TermsPage() {
 
       <h2>6. Intellectual property</h2>
       <p>
-        AirPal.me, the AirPal name and mark, the layout, software, and original text and images we publish are owned by
+        AirPal.Me, the AirPal name and mark, the layout, software, and original text and images we publish are owned by
         us or our licensors. You may not copy, scrape, or reuse them except for a short quotation with credit, or as
         required by law (including fair dealing in Australia, or the equivalent exception where you operate).
       </p>
@@ -164,7 +164,7 @@ export function TermsPage() {
 
       <h2>7. Disclaimers</h2>
       <p>
-        AirPal is a marketplace and local guide. For paid Mate and experience bookings, guests pay AirPal (merchant of
+        AirPal is a marketplace and local guide. For paid experience and ticket bookings, guests pay AirPal (merchant of
         record) through Stripe; we hold the provider’s share until the booking is marked delivered, then transfer it.
         AirPal is not a bank, licensed travel agent, insurer, or professional advice. Information on the site —
         including walking times, hours, Wi-Fi, house rules, deals, weather, and “open now” — is for general information.

@@ -251,7 +251,7 @@ export function BioCatchUpModal({
 
   const content = (
     <div
-      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center overflow-y-auto bg-black/65 p-0 sm:p-6 backdrop-blur-sm animate-in fade-in duration-200 [padding-bottom:var(--keyboard-height,0px)] transition-[padding]"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center overflow-y-auto bg-black/65 p-0 sm:p-6 backdrop-blur-sm motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200 [padding-bottom:var(--keyboard-height,0px)] transition-[padding]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -318,7 +318,7 @@ export function BioCatchUpModal({
                       setTime(altTime);
                     }}
                     className={cn(
-                      "rounded-lg px-2 py-0.5 text-[10px] font-bold transition cursor-pointer",
+                      "inline-flex min-h-[44px] items-center rounded-lg px-3 text-[10px] font-bold transition cursor-pointer",
                       time === altTime
                         ? "bg-amber-600 text-white"
                         : "bg-amber-500/20 text-amber-900 dark:text-amber-200 hover:bg-amber-500/30",

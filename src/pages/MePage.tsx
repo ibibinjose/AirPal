@@ -209,7 +209,7 @@ export function MePage() {
   const showSection = (tab: CockpitTab) => activeTab === "all" || activeTab === tab;
 
   return (
-    <div className="mx-auto max-w-5xl px-3.5 sm:px-6 lg:px-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] pt-[max(1rem,env(safe-area-inset-top,0px))]">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] pt-[max(1rem,env(safe-area-inset-top,0px))]">
       {/* 🌟 1. APPLE HIG NATIVE HERO PROFILE CARD */}
       <div className="relative overflow-hidden rounded-[36px] bg-card ring-1 ring-line/80 shadow-clay mb-6 transition-all">
         {/* Ambient Top Glow & Pattern */}
