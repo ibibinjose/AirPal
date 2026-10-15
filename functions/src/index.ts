@@ -65,6 +65,7 @@ export { shareMeta } from "./share-meta";
 export { walletPass } from "./wallet";
 export { googleWalletPass } from "./google-wallet";
 export { scheduleCatchUp } from "./catchup-agent";
+export { payoutReconciliationReport, reconcilePayouts } from "./reconcile";
 export { shareHere, stopHere } from "./here";
 export { startWave, waveAt, stopWave } from "./wave";
 export {

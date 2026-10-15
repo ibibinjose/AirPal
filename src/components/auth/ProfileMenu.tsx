@@ -515,7 +515,12 @@ export function ProfileMenu() {
             onClick={() => go("/host")}
           />
         ) : (
-          <Row icon={Building2} label="Stay Host" hint="Hotel, hostel, or room concierge" onClick={() => go("/join")} />
+          <Row
+            icon={Building2}
+            label="Stay Host"
+            hint="Hotel, hostel, or room concierge"
+            onClick={() => go("/business")}
+          />
         )}
 
         {business ? (
@@ -633,8 +638,13 @@ export function ProfileMenu() {
           hint="Same login. Guests find your place"
           onClick={() => go(partnerAccountPath({ signedIn: false, hasPlace: false }))}
         />
-        <Row icon={Building2} label="Become a Host" hint="Hotel, venue, hostel, campus" onClick={() => go("/join")} />
-        <Row icon={CalendarDays} label="Organise an Event" hint="Market, expo, festival" onClick={() => go("/join")} />
+        <Row
+          icon={Building2}
+          label="Become a Host"
+          hint="Hotel, venue, hostel, campus"
+          onClick={() => go("/business")}
+        />
+        <Row icon={CalendarDays} label="Organise an Event" hint="Market, expo, festival" onClick={() => go("/event")} />
         <Row
           icon={Activity}
           label="AirPal Pulse"

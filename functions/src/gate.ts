@@ -9,6 +9,7 @@ import {
 } from "../../shared/airpal-security";
 import { enforceRateLimit, noteAppCheck, writeAudit } from "./abuse";
 import { CALLABLE, db, isPlatformAdmin, requireAccount } from "./admin";
+import { writeAuthoritativeEvent } from "./analytics";
 import { isListManager } from "../../shared/guestlist";
 import { markTicketCheckedIn, scopeHostUids } from "./guestlist";
 
@@ -121,6 +122,20 @@ export const admitTicket = onCall(CALLABLE, async (request) => {
   });
   if (booking.eventId) {
     await markTicketCheckedIn("event", String(booking.eventId), ticketId, String(booking.customerUid || ""));
+    // Server-verified completion for the North Star. Fresh admits only:
+    // re-scans share checkInId=ticketId and would dedupe anyway.
+    await writeAuthoritativeEvent({
+      uid,
+      eventName: "event_check_in",
+      contextId: String(booking.eventId),
+      contextType: "event",
+      source: "internal",
+      properties: {
+        eventId: String(booking.eventId),
+        contextId: String(booking.eventId),
+        checkInId: ticketId,
+      },
+    });
   }
   const admitted: AdmitTicketResponse = { ticketId, admittedAt: result.admittedAt, already: false };
   return admitted;

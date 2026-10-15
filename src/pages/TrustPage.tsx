@@ -117,9 +117,9 @@ export function TrustPage() {
           <span id="trust-is">What AirPal.Me is</span>
         </SectionTitle>
         <p className="mt-3 text-[15px] leading-relaxed text-ink/85">
-          AirPal.Me is the master ecosystem uniting live events & ticketing (AirPal Pass), ambient 60-second discovery,
-          group hangouts, PBSA resident arrival cohorts, and personal digital bio profiles. Guests and attendees get one
-          place for everything in real life; organizers, venues, and accommodation hosts get one console to run it.{" "}
+          AirPal.Me is the master ecosystem uniting live events & ticketing (AirPal Pass), local business perks, group
+          hangouts, and personal digital bio profiles. Guests and attendees get one place for everything in real life;
+          organizers, venues, and hosts get one console to run it.{" "}
           <Link href="/about" className="font-semibold text-accent hover:underline">
             About
           </Link>
@@ -216,11 +216,11 @@ export function TrustPage() {
         <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-ink/80">
           <li>The public website is live: guests can browse events and experiences without an account.</li>
           <li>
-            The PBSA Arrival Engine (
-            <Link href="/join" className="font-semibold text-accent hover:underline">
-              arrival
-            </Link>
-            ) shows the instant community onboarding loop.
+            New in town?{" "}
+            <Link href="/events" className="font-semibold text-accent hover:underline">
+              Browse events
+            </Link>{" "}
+            and go from landing to ticketed in under a minute.
           </li>
           <li>
             Reporting, blocking, encrypted Stripe payments, and human admin review are part of the product from day one.

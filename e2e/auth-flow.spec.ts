@@ -85,7 +85,7 @@ test.describe("Authentication & Security Flow", () => {
 
     // Desktop left column product showcase
     await expect(page.getByText("Events & Access").first()).toBeVisible();
-    await expect(page.getByText("Perks & Arrival Engine").first()).toBeVisible();
+    await expect(page.getByText("Perks & Local Business").first()).toBeVisible();
     await expect(page.getByText("Universal Identity & Digital Bio").first()).toBeVisible();
 
     // Right column auth card simultaneously visible side-by-side

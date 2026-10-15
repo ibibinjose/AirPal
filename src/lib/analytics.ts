@@ -308,6 +308,15 @@ export function demoModeActive(): boolean {
   return !liveBackendEnabled();
 }
 
+/**
+ * Door-admit completion signal for the North Star (Completed Experiences).
+ * Call only after the server confirms the admit (see TicketGatePanel).
+ * Uses track() directly: an admit is a completion, not a first-value event.
+ */
+export function trackDoorAdmitCompleted(ticketId: string): Promise<void> {
+  return track("content_action", { actionType: "experience_completed", contextId: ticketId }, { contextType: "event" });
+}
+
 export function trackContentAction(actionType: ContentActionType, contextId: string, extra?: AnalyticsProperties) {
   void track("content_action", { actionType, contextId, ...extra });
   // first_value keeps the action subtype instead of collapsing to "faq", and

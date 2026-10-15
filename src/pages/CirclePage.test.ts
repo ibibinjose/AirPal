@@ -51,27 +51,6 @@ vi.mock("@/contexts/SocialContext", () => ({
   }),
 }));
 
-vi.mock("@/contexts/CohortContext", () => ({
-  useCohort: () => ({
-    activeCohort: {
-      id: "scape-darling-square",
-      name: "Scape Darling Square",
-      shortName: "Scape",
-      type: "pbsa",
-      city: "Sydney",
-      code: "SCAPE26",
-      badgeEmoji: "🏢",
-      residentCountEstimate: 450,
-    },
-  }),
-}));
-
-vi.mock("@/contexts/EventsContext", () => ({
-  useEvents: () => ({
-    savedEvents: [{ id: "ev-1", title: "Vivid Sydney Launch" }],
-  }),
-}));
-
 vi.mock("@/lib/people", () => ({
   listPeople: () => [
     {
@@ -109,7 +88,7 @@ describe("CirclePage", () => {
     expect(markup).toContain('placeholder="Search by name, @handle, community, or precinct..."');
   });
 
-  it("shows Follow Back for incoming follower Bibin Jose", () => {
+  it("shows Follow Back for a real incoming follower Bibin Jose", () => {
     const markup = renderToStaticMarkup(createElement(CirclePage));
     expect(markup).toContain("Bibin Jose");
     expect(markup).toContain("@bibinjose");
@@ -117,17 +96,18 @@ describe("CirclePage", () => {
     expect(markup).toContain("Follow Back");
   });
 
-  it("displays in-common social proof info (events, circle, places)", () => {
+  it("shows only real relationship info, never fabricated in-common counts", () => {
     const markup = renderToStaticMarkup(createElement(CirclePage));
-    expect(markup).toContain("events in common");
-    expect(markup).toContain("in circle in common");
-    expect(markup).toContain("places in common");
+    expect(markup).toContain("Personal Friend");
+    expect(markup).toContain("Met at The Rocks Market");
+    expect(markup).not.toContain("in common");
   });
 
-  it("displays met-in-person friends and cohort community", () => {
+  it("displays met-in-person friends and no seed cohort community", () => {
     const markup = renderToStaticMarkup(createElement(CirclePage));
     expect(markup).toContain("Maya Lin");
     expect(markup).toContain("Met at The Rocks Market");
-    expect(markup).toContain("Scape Darling Square");
+    expect(markup).not.toContain("Scape Darling Square");
+    expect(markup).not.toContain("Resident Cohort");
   });
 });

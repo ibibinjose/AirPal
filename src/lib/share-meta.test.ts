@@ -5,8 +5,6 @@ describe("routeMetaFor", () => {
   it("titles core V1 surfaces distinctly", () => {
     expect(routeMetaFor("/")?.title).toContain("AirPal.Me");
     expect(routeMetaFor("/circle")?.title).toContain("Circle");
-    // Renamed Stay & Guide (Oct 2026 founder rebrand); route unchanged.
-    expect(routeMetaFor("/concierge")?.title).toContain("Guide");
     expect(routeMetaFor("/deals")?.title).toContain("Deals");
     expect(routeMetaFor("/events")?.title).toContain("Events");
   });
@@ -19,6 +17,10 @@ describe("routeMetaFor", () => {
     expect(routeMetaFor("/explore")?.title).toContain("AirPal.Me");
     expect(routeMetaFor("/guide")?.title).toContain("AirPal.Me");
     expect(routeMetaFor("/plan")?.title).toContain("AirPal.Me");
+    // Retired redirects (GLOBAL_WIN_PLAN.md): concierge/stays cut, cohorts cut.
+    expect(routeMetaFor("/concierge")?.title).toContain("AirPal.Me");
+    expect(routeMetaFor("/stay")?.title).toContain("AirPal.Me");
+    expect(routeMetaFor("/join")?.title).toContain("AirPal.Me");
   });
 
   it("leaves dynamic detail pages to their own tags", () => {

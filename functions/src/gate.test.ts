@@ -19,6 +19,7 @@ const { fakes, FakeHttpsError } = vi.hoisted(() => {
       audits: [] as unknown[],
       rateLimited: [] as string[],
       guestlistMarks: [] as unknown[][],
+      authoritativeEvents: [] as unknown[],
     },
   };
 });
@@ -70,6 +71,12 @@ vi.mock("firebase-functions/v2/https", () => ({
   onCall: vi.fn((_opts: unknown, handler: unknown) => handler),
 }));
 
+vi.mock("./analytics", () => ({
+  writeAuthoritativeEvent: async (input: unknown) => {
+    fakes.authoritativeEvents.push(input);
+  },
+}));
+
 vi.mock("./guestlist", () => ({
   markTicketCheckedIn: (...args: unknown[]) => {
     fakes.guestlistMarks.push(args);
@@ -115,6 +122,7 @@ describe("gate scan", () => {
     fakes.audits.length = 0;
     fakes.rateLimited.length = 0;
     fakes.guestlistMarks.length = 0;
+    fakes.authoritativeEvents.length = 0;
   });
 
   it("verifyTicket requires sign-in", async () => {
@@ -222,6 +230,31 @@ describe("gate scan", () => {
     expect(fakes.writes).toHaveLength(1);
     expect(fakes.audits).toHaveLength(1);
     expect(fakes.guestlistMarks).toHaveLength(1);
+  });
+
+  it("admitTicket emits one server-side event_check_in on fresh admit", async () => {
+    fakes.bookings = { "bk-1": { ...PAID_BOOKING } };
+    await run(admitTicket, "org-1", { ticketId: "bk-1" });
+    expect(fakes.authoritativeEvents).toEqual([
+      {
+        uid: "org-1",
+        eventName: "event_check_in",
+        contextId: "evt-1",
+        contextType: "event",
+        source: "internal",
+        properties: { eventId: "evt-1", contextId: "evt-1", checkInId: "bk-1" },
+      },
+    ]);
+  });
+
+  it("admitTicket emits no check-in on re-scans or event-less tickets", async () => {
+    fakes.bookings = {
+      "bk-1": { ...PAID_BOOKING, admittedAt: "2026-10-03T09:00:00Z" },
+      "bk-2": { ...PAID_BOOKING, eventId: undefined, providerUid: "org-1" },
+    };
+    await run(admitTicket, "org-1", { ticketId: "bk-1" });
+    await run(admitTicket, "org-1", { ticketId: "bk-2" });
+    expect(fakes.authoritativeEvents).toEqual([]);
   });
 
   it("admitTicket refuses cancelled tickets without writing", async () => {

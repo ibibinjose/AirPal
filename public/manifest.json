@@ -3,7 +3,7 @@
   "lang": "en-AU",
   "name": "AirPal.Me",
   "short_name": "AirPal",
-  "description": "Find places and experiences. Catch up with family and friends. Stay concierge, in one app.",
+  "description": "Find events and experiences. Catch up with family and friends. Tickets and deals, in one app.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -40,10 +40,10 @@
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Concierge",
-      "short_name": "Stay",
-      "description": "Access local concierge and guest tools",
-      "url": "/concierge",
+      "name": "What's On",
+      "short_name": "Events",
+      "description": "Browse events, gigs and experiences near you",
+      "url": "/events",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]

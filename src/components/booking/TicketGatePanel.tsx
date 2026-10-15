@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { BadgeCheck, Loader2, ScanLine, ShieldAlert, TicketX } from "lucide-react";
 import { toast } from "sonner";
 import { admitTicketRemote, verifyTicketRemote } from "@/lib/functions";
+import { trackDoorAdmitCompleted } from "@/lib/analytics";
 import { createSubmitGuard } from "@/lib/submit-guard";
 import { Button } from "@/components/ui/Button";
 import { ticketAdmitReasonLabel, type TicketAdmitReason } from "@shared/booking";
@@ -91,6 +92,8 @@ export function TicketGatePanel({ ticketId, deniedMessage }: { ticketId: string;
       const res = await admitTicketRemote({ ticketId });
       setTicket((prev) => (prev ? { ...prev, admittedAt: res.admittedAt } : prev));
       toast.success(res.already ? "Already admitted — no double entry." : "Guest admitted.");
+      // Server-verified completion only; queue dedupes same-ticket same-day re-scans.
+      void trackDoorAdmitCompleted(ticketId);
     } catch (err) {
       if (isSilentDenial(err)) {
         setDenied(true);

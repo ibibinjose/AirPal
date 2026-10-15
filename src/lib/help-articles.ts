@@ -28,7 +28,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
   { id: "tickets", label: "Tickets & payments", blurb: "Pay, balances, cancellations, refunds." },
   { id: "safety", label: "Trust & safety", blurb: "Meet safely, verify, report, block." },
   { id: "account", label: "Account", blurb: "Sign in, profile, bio, settings." },
-  { id: "arrival", label: "Resident arrival", blurb: "PBSA check-in, cohorts, building hub." },
+  { id: "arrival", label: "New in town", blurb: "First-week guide: events, circle, perks." },
 ];
 
 export const HELP_ARTICLES: HelpArticle[] = [
@@ -103,20 +103,20 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: "resident-arrival",
-    title: "Resident & PBSA arrival guide",
+    title: "New in town? Start here",
     category: "arrival",
-    summary: "60-second resident check-in, building cohort assignment, and local perks.",
+    summary: "Your first week on AirPal: find events, save tickets, meet your circle.",
     steps: [
-      "Open /join or scan your building's QR plaque at reception.",
-      "Enter your 6-letter building code to join tonight's resident cohort.",
-      "See tonight's resident events, meet neighbours, and discover local merchant perks.",
-      "Your building circle is instantly unlocked in your networking circle.",
-      "Need room assistance or maintenance? Dispatch support through your building desk.",
+      "Open What's on to see events, gigs and experiences near you.",
+      "Book free in seconds or check out securely for paid tickets.",
+      "Find every booking as a scannable pass under Tickets in your account.",
+      "Check in with your networking circle to see who is around.",
+      "New to the neighbourhood? Claim local merchant perks on Deals.",
     ],
     links: [
-      { label: "Arrival check-in", href: "/join" },
+      { label: "What's on", href: "/events" },
       { label: "Inner circle", href: "/circle" },
-      { label: "Business hub", href: "/business" },
+      { label: "Local deals", href: "/deals" },
     ],
   },
 ];

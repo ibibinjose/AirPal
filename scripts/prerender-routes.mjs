@@ -33,8 +33,6 @@ const NAV_LINKS = [
   ["/deals", "Deals"],
   ["/calendar", "What's on"],
   ["/business", "Business"],
-  ["/join", "Join"],
-  ["/partners", "Partners"],
   ["/trust", "Trust"],
   ["/contact", "Contact"],
 ];

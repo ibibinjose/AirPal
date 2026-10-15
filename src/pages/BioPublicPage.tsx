@@ -11,7 +11,6 @@ import {
   Coffee,
   ContactRound,
   Copy,
-  DoorOpen,
   Dumbbell,
   Edit3,
   Globe,
@@ -1377,15 +1376,7 @@ export function BioPublicPage() {
                       check-in/out, house rules, and 24/7 AI Receptionist.
                     </p>
 
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      <Link
-                        href={`/join/${stayTargetId}`}
-                        onClick={() => void triggerHaptic("light")}
-                        className="flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-xs transition hover:bg-brand-ink active:scale-95"
-                      >
-                        <DoorOpen size={15} />
-                        <span>Open Arrival & Guide</span>
-                      </Link>
+                    <div className="mt-4 grid grid-cols-1 gap-2.5">
                       <Link
                         href="/helpdesk"
                         onClick={() => void triggerHaptic("light")}

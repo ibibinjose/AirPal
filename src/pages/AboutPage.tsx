@@ -4,7 +4,6 @@ import {
   Building2,
   CalendarDays,
   Compass,
-  HeartHandshake,
   Mail,
   MapPin,
   MessageSquare,
@@ -30,12 +29,12 @@ const VERTICALS = [
   },
   {
     icon: Building2,
-    title: "Arrival & Business",
-    subtitle: "PBSA & Commerce",
-    desc: "B2B2C PBSA resident onboarding, cohort loneliness mitigation, executive Belonging Reports, and local merchant perks.",
+    title: "Business & Perks",
+    subtitle: "Venues & Commerce",
+    desc: "List your venue, publish events and member perks, and turn event footfall into repeat local customers.",
     href: "/business",
     cta: "For Business",
-    badge: "Arrival Engine",
+    badge: "Business",
   },
   {
     icon: Sparkles,
@@ -48,36 +47,36 @@ const VERTICALS = [
   },
 ];
 
-const ARRIVAL_ENGINE_POINTS = [
+const COMMUNITY_ENGINE_POINTS = [
   {
-    icon: Users,
-    title: "60-Second Resident Check-In",
-    desc: "Check in with your building code or scan the reception QR plaque. Instant building cohort assignment and room orientation without waiting.",
+    icon: Ticket,
+    title: "60-Second Event Booking",
+    desc: "Find what's on and book free in seconds, or check out securely for paid tickets. Every booking lands in your wallet passbook.",
   },
   {
-    icon: HeartHandshake,
-    title: "Loneliness Mitigation Index",
-    desc: "Mitigate resident isolation from day one. Connect with fellow residents living on your floor and in your building cohort through shared meetups.",
+    icon: Users,
+    title: "Bring Your Circle",
+    desc: "Share one link and see who's going. Coordinate the group without the 40-message debate.",
   },
   {
     icon: Compass,
     title: "Local Precinct Perks",
-    desc: "Curated student and resident perks from nearby cafes, gyms, and dining spots. Discover the precinct like a local from your first week.",
+    desc: "Member perks from nearby cafes, gyms, and dining spots. Discover the precinct like a local from your first week.",
   },
   {
     icon: CalendarDays,
-    title: "Tonight's Resident Events",
-    desc: "Floor dinners, campus tours, and weekend hangouts organized right inside the app. Residents RSVP with one tap.",
+    title: "Tonight and This Weekend",
+    desc: "Gigs, festivals, markets, and community hangouts in one feed. RSVP with one tap.",
   },
   {
     icon: MessageSquare,
-    title: "Incident & Support Dispatch",
-    desc: "Need room assistance or building maintenance? Dispatch support tickets straight to the building desk with real-time tracking.",
+    title: "Host and Guest Support",
+    desc: "Real help for real gatherings: guides, safety tools, and human review when something goes wrong.",
   },
   {
     icon: Building2,
-    title: "Executive Belonging Reports",
-    desc: "For accommodation operators: comprehensive Belonging Reports showing cohort connectivity rates, loneliness mitigation, and retention metrics.",
+    title: "For Venues and Organisers",
+    desc: "List your venue, sell tickets with an honest 5% fee, and scan guests in with your phone. No hardware, no cut corners.",
   },
 ];
 
@@ -135,7 +134,7 @@ export function AboutPage() {
           <p className="text-base sm:text-lg leading-relaxed text-ink/85 max-w-3xl">
             <strong className="font-bold text-ink">AirPal.me</strong> is a trusted, people-powered master ecosystem and
             discovery platform. In Sydney and worldwide, we connect friends, family, colleagues, and mates with live
-            events, resident arrival cohorts, and real-time community discovery.
+            events, local venues, and real-time community discovery.
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold text-mute">
             <span className="rounded-full bg-brand/10 px-3 py-1 text-accent">ME = Made Easy</span>
@@ -201,20 +200,19 @@ export function AboutPage() {
         </div>
       </div>
 
-      {/* Arrival & Belonging Engine */}
+      {/* Community Events Engine */}
       <div className="mt-12">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-accent">Arrival Engine</p>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-accent">Community Engine</p>
         <h2 className="font-display mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
-          The student onboarding companion — and Belonging Reports behind it.
+          Real gatherings, without the platform tax or chaos.
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-mute sm:text-base">
-          AirPal is the B2B2C Arrival Engine for PBSA student accommodation, residential colleges, and campus
-          communities. Residents get 60-second check-in and instant cohort connection. Operators get quantifiable
-          Belonging Reports.
+          AirPal helps communities gather in real life: find what's on, book in seconds, bring your circle, and scan in
+          at the door. Free events are free forever; paid events carry one honest 5% fee.
         </p>
 
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {ARRIVAL_ENGINE_POINTS.map((pt) => {
+          {COMMUNITY_ENGINE_POINTS.map((pt) => {
             const Icon = pt.icon;
             return (
               <div key={pt.title} className="rounded-[28px] bg-card p-5 ring-1 ring-line/80 shadow-clay">
@@ -229,28 +227,28 @@ export function AboutPage() {
         </div>
 
         <div className="mt-4 rounded-[28px] bg-neutral-900 p-6 text-white sm:p-8">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-accent">For PBSA Operators & Hosts</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-accent">For Organisers & Venues</p>
           <h3 className="font-display mt-1 text-xl font-bold tracking-tight sm:text-2xl">
-            Empower belonging from night one.
+            Fill the room, then scan it in.
           </h3>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/70">
-            Track resident cohort connectivity, loneliness mitigation indexes, and retention metrics. Dispatch resident
-            support and connect residents with verified local merchants.
+            List free or ticketed events in minutes, share one link, and check guests in with your phone. Your venue
+            listing and member perks keep them coming back.
           </p>
           <div className="mt-5 flex flex-wrap gap-2.5">
             <Link
-              href="/join"
+              href="/event"
               onClick={() => void triggerHaptic("light")}
               className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"
             >
-              Resident Arrival Check-In <ArrowRight size={16} />
+              Host an Event <ArrowRight size={16} />
             </Link>
             <Link
-              href="/host"
+              href="/business"
               onClick={() => void triggerHaptic("light")}
               className="inline-flex min-h-[44px] items-center rounded-full px-6 text-sm font-bold text-white ring-1 ring-white/30 transition hover:bg-white/10 active:scale-[0.98]"
             >
-              Belonging Reports & Console
+              List Your Venue
             </Link>
           </div>
         </div>

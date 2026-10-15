@@ -2,12 +2,10 @@ import { useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Building2,
-  Calendar,
   CalendarDays,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
-  MapPin,
   Search,
   Sparkles,
   Store,
@@ -19,8 +17,6 @@ import {
 import { Button } from "@/components/ui/Button";
 import { useBio } from "@/contexts/BioContext";
 import { useSocial } from "@/contexts/SocialContext";
-import { useCohort } from "@/contexts/CohortContext";
-import { useEvents } from "@/contexts/EventsContext";
 import { HereCheckIn } from "@/components/circle/HereCheckIn";
 import { BioCatchUpModal } from "@/components/bio/BioCatchUpModal";
 import { openGlobalSearch } from "@/components/search/openSearch";
@@ -31,7 +27,6 @@ import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { BIBIN_JOSE_PROFILE } from "@/lib/bio-handle";
 import { activePlaces } from "@/lib/catalog";
-import { SEED_INSTITUTIONS } from "@shared/cohort";
 
 export type CircleFilter = "all" | "friends" | "communities" | "places";
 
@@ -48,16 +43,11 @@ export interface CircleContact {
   isFollower: boolean;
   isMutual: boolean;
   isMet: boolean;
-  eventsInCommon: number;
-  circleInCommon: number;
-  placesInCommon: number;
 }
 
 export function CirclePage() {
   const { mine, profiles } = useBio();
   const { followedHandles, followerHandles, likedHandles, toggleFollow } = useSocial();
-  const { activeCohort } = useCohort();
-  const { savedEvents } = useEvents();
   const [, nav] = useLocation();
 
   const [filter, setFilter] = useState<CircleFilter>("all");
@@ -68,15 +58,8 @@ export function CirclePage() {
   // Met people from direct in-person connections
   const metList = useMemo(() => listPeople(), []);
 
-  // Compute followers set (ensuring Day-1 seed connection from Bibin Jose if new user)
-  const effectiveFollowerHandles = useMemo(() => {
-    const set = new Set(followerHandles);
-    // Bibin Jose (Founder) follows all new community members Day 1
-    if (!set.has("bibinjose")) {
-      set.add("bibinjose");
-    }
-    return set;
-  }, [followerHandles]);
+  // Followers are real local graph state only — never assert a follow nobody made.
+  const effectiveFollowerHandles = followerHandles;
 
   // Aggregate all circle contacts across Friends, Communities, and Places
   const allContacts = useMemo<CircleContact[]>(() => {
@@ -85,8 +68,6 @@ export function CirclePage() {
 
     const myHandle = (mine?.handle || "").toLowerCase();
     if (myHandle) seenHandles.add(myHandle);
-
-    const userSavedEventCount = savedEvents?.length || 0;
 
     // Helper to add contact
     const addContact = (contact: CircleContact) => {
@@ -115,9 +96,6 @@ export function CirclePage() {
         isFollower: isFr,
         isMutual: isFw && isFr,
         isMet: true,
-        eventsInCommon: p.whereMet ? 1 + (userSavedEventCount > 0 ? 1 : 0) : 1,
-        circleInCommon: 3,
-        placesInCommon: 2,
       });
     }
 
@@ -137,9 +115,6 @@ export function CirclePage() {
         isFollower: isFr,
         isMutual: isFw && isFr,
         isMet: false,
-        eventsInCommon: 2 + (userSavedEventCount > 0 ? 1 : 0),
-        circleInCommon: 8,
-        placesInCommon: 4,
       });
     }
 
@@ -166,87 +141,34 @@ export function CirclePage() {
         isFollower: isFr,
         isMutual: isFw && isFr,
         isMet: false,
-        eventsInCommon: 1,
-        circleInCommon: 2,
-        placesInCommon: 1,
       });
     });
 
-    // 4. COMMUNITIES: Active building / campus cohort
-    const primaryCohort = activeCohort || SEED_INSTITUTIONS[0]; // e.g. Scape Darling Square
-    if (primaryCohort) {
-      const cohortHandle = primaryCohort.id.replace(/-/g, "");
-      const isFw = followedHandles.has(cohortHandle) || Boolean(activeCohort);
-      addContact({
-        id: `cohort-${primaryCohort.id}`,
-        handle: cohortHandle,
-        name: primaryCohort.name,
-        avatar: undefined,
-        city: primaryCohort.city,
-        category: "communities",
-        categoryLabel: `${primaryCohort.shortName} Resident Cohort`,
-        isFollowing: isFw,
-        isFollower: true,
-        isMutual: isFw,
-        isMet: false,
-        eventsInCommon: 3,
-        circleInCommon: primaryCohort.residentCountEstimate
-          ? Math.min(24, Math.floor(primaryCohort.residentCountEstimate / 25))
-          : 14,
-        placesInCommon: 5,
-      });
-    }
-
-    // 5. COMMUNITIES: Flagship Sydney student community
-    const secondaryCohort = SEED_INSTITUTIONS.find((i) => i.id !== primaryCohort?.id);
-    if (secondaryCohort) {
-      const secHandle = secondaryCohort.id.replace(/-/g, "");
-      const isFw = followedHandles.has(secHandle);
-      addContact({
-        id: `cohort-${secondaryCohort.id}`,
-        handle: secHandle,
-        name: secondaryCohort.name,
-        avatar: undefined,
-        city: secondaryCohort.city,
-        category: "communities",
-        categoryLabel: `${secondaryCohort.shortName} Community`,
-        isFollowing: isFw,
-        isFollower: false,
-        isMutual: false,
-        isMet: false,
-        eventsInCommon: 2,
-        circleInCommon: 11,
-        placesInCommon: 3,
-      });
-    }
-
-    // 6. PLACES: Liked or Followed places and featured Sydney precinct hubs
+    // 4. PLACES: Liked or followed places, plus an offline landmark fallback
     const placesCatalog = activePlaces();
     const candidatePlaces = placesCatalog.slice(0, 4);
 
-    // If candidate places is empty (e.g. offline seed), use standard Sydney landmark places
-    const seedPlaces = [
-      {
-        id: "the-glenmore",
-        handle: "theglenmore",
-        name: "The Glenmore Hotel",
-        city: "The Rocks, Sydney",
-        categoryLabel: "Historic Rooftop Pub",
-        eventsInCommon: 2,
-        circleInCommon: 9,
-        placesInCommon: 3,
-      },
-      {
-        id: "cut-bar-grill",
-        handle: "cutbar",
-        name: "Cut Bar & Grill",
-        city: "The Rocks, Sydney",
-        categoryLabel: "Dining & Drinks Partner",
-        eventsInCommon: 1,
-        circleInCommon: 6,
-        placesInCommon: 2,
-      },
-    ];
+    // Offline fallback only: when the live catalog is empty, suggest two real
+    // Sydney landmarks instead of rendering an empty directory.
+    const seedPlaces =
+      candidatePlaces.length === 0
+        ? [
+            {
+              id: "the-glenmore",
+              handle: "theglenmore",
+              name: "The Glenmore Hotel",
+              city: "The Rocks, Sydney",
+              categoryLabel: "Historic Rooftop Pub",
+            },
+            {
+              id: "cut-bar-grill",
+              handle: "cutbar",
+              name: "Cut Bar & Grill",
+              city: "The Rocks, Sydney",
+              categoryLabel: "Dining & Drinks Partner",
+            },
+          ]
+        : [];
 
     for (const sp of seedPlaces) {
       const isFw = followedHandles.has(sp.handle) || likedHandles.has(sp.handle);
@@ -261,9 +183,6 @@ export function CirclePage() {
         isFollower: false,
         isMutual: false,
         isMet: false,
-        eventsInCommon: sp.eventsInCommon,
-        circleInCommon: sp.circleInCommon,
-        placesInCommon: sp.placesInCommon,
       });
     }
 
@@ -288,24 +207,11 @@ export function CirclePage() {
         isFollower: false,
         isMutual: false,
         isMet: false,
-        eventsInCommon: 1,
-        circleInCommon: 4,
-        placesInCommon: 2,
       });
     }
 
     return list;
-  }, [
-    activeCohort,
-    effectiveFollowerHandles,
-    followedHandles,
-    likedHandles,
-    metList,
-    mine?.city,
-    mine?.handle,
-    profiles,
-    savedEvents?.length,
-  ]);
+  }, [effectiveFollowerHandles, followedHandles, likedHandles, metList, mine?.city, mine?.handle, profiles]);
 
   // Counts by category
   const counts = useMemo(() => {
@@ -366,9 +272,7 @@ export function CirclePage() {
             <span>Networking Circle</span>
           </div>
           <h1 className="font-display mt-2 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">My Circle</h1>
-          <p className="mt-1 text-sm text-mute">
-            Your real-world network — friends, cohort communities, and local places in common.
-          </p>
+          <p className="mt-1 text-sm text-mute">Your real-world network — friends, communities, and local places.</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -480,7 +384,7 @@ export function CirclePage() {
 
       {/* Live Presence Check-In (Clean & Compact) */}
       <div className="mt-4">
-        <HereCheckIn placeName={activeCohort?.name || mine?.city || "Sydney Hub"} />
+        <HereCheckIn placeName={mine?.city || "Sydney Hub"} />
       </div>
 
       {/* Section Divider & Directory Header */}
@@ -650,7 +554,7 @@ export function CirclePage() {
                   : filter === "places"
                     ? "Follow local spots, cafes, and bars to stay updated on perks and live events."
                     : filter === "communities"
-                      ? "Join a residential building cohort or campus group to connect with neighbors."
+                      ? "No communities yet — find your people at events."
                       : "Add friends by sharing your bio link or connecting in person."}
               </p>
               <div className="mt-5 flex justify-center gap-2">
@@ -663,8 +567,8 @@ export function CirclePage() {
                     Search Places
                   </Button>
                 ) : filter === "communities" ? (
-                  <Button variant="primary" size="sm" onClick={() => nav("/join")}>
-                    Join Cohort
+                  <Button variant="primary" size="sm" onClick={() => nav("/events")}>
+                    Browse Events
                   </Button>
                 ) : (
                   <Button variant="primary" size="sm" onClick={handleShareCircleInvite}>
@@ -747,30 +651,6 @@ export function CirclePage() {
                         <span className="text-accent/90 font-medium">· Met at {contact.whereMet}</span>
                       )}
                     </div>
-
-                    {/* In Common Meta Row */}
-                    <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] font-medium text-mute">
-                      {contact.eventsInCommon > 0 && (
-                        <span className="inline-flex items-center gap-1 text-ink/80">
-                          <Calendar size={12} className="text-accent shrink-0" />
-                          <span>
-                            {contact.eventsInCommon} {contact.eventsInCommon === 1 ? "event" : "events"} in common
-                          </span>
-                        </span>
-                      )}
-                      {contact.circleInCommon > 0 && (
-                        <span className="inline-flex items-center gap-1 text-ink/80">
-                          <Users size={12} className="text-accent shrink-0" />
-                          <span>{contact.circleInCommon} in circle in common</span>
-                        </span>
-                      )}
-                      {contact.placesInCommon > 0 && (
-                        <span className="inline-flex items-center gap-1 text-ink/80">
-                          <MapPin size={12} className="text-accent shrink-0" />
-                          <span>{contact.placesInCommon} places in common</span>
-                        </span>
-                      )}
-                    </div>
                   </div>
                 </div>
 
@@ -811,11 +691,11 @@ export function CirclePage() {
                     </Link>
                   ) : contact.category === "communities" ? (
                     <Link
-                      href="/join"
+                      href="/events"
                       className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
-                      aria-label={`View community hub ${contact.name}`}
+                      aria-label={`Find events near ${contact.name}`}
                     >
-                      Hub →
+                      Events →
                     </Link>
                   ) : (
                     <button

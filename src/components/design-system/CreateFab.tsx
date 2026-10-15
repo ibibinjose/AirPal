@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, Ticket, QrCode, Sparkles, Building2, ChevronRight, ArrowRight } from "lucide-react";
+import { Plus, X, Ticket, QrCode, Building2, ChevronRight, ArrowRight } from "lucide-react";
 import { triggerHaptic } from "@/lib/native";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { useVirtualKeyboard } from "@/lib/keyboard";
@@ -38,15 +38,7 @@ export const CREATE_OPTIONS: CreateOption[] = [
     colorClass: "bg-amber-500/10 text-amber-600 ring-amber-500/20",
     group: "business",
   },
-  {
-    id: "pulse",
-    title: "Arrival & Cohorts",
-    subtitle: "Join or broadcast community arrivals & cohort passes",
-    href: "/join",
-    icon: Sparkles,
-    colorClass: "bg-rose-500/10 text-rose-600 ring-rose-500/20",
-    group: "business",
-  },
+
   {
     id: "scan",
     title: "Scan Ticket / Pass",

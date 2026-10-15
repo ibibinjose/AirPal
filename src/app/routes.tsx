@@ -27,7 +27,6 @@ const MemoryWallPage = lazy(() => import("@/pages/MemoryWallPage").then((m) => (
 const SettingsPage = lazy(() => import("@/pages/SettingsPage").then((m) => ({ default: m.SettingsPage })));
 const StartPage = lazy(() => import("@/pages/StartPage").then((m) => ({ default: m.StartPage })));
 const AuthActionPage = lazy(() => import("@/pages/AuthActionPage").then((m) => ({ default: m.AuthActionPage })));
-const JoinPage = lazy(() => import("@/pages/JoinPage").then((m) => ({ default: m.JoinPage })));
 const BusinessPage = lazy(() => import("@/pages/BusinessPage").then((m) => ({ default: m.BusinessPage })));
 const ClaimVenuePage = lazy(() => import("@/pages/ClaimVenuePage").then((m) => ({ default: m.ClaimVenuePage })));
 const BioPublicPage = lazy(() => import("@/pages/BioPublicPage").then((m) => ({ default: m.BioPublicPage })));
@@ -132,13 +131,17 @@ export function AppRoutes() {
           <Route path="/stay">
             <Redirect to="/business" />
           </Route>
-          <Route path="/g/:id">{(p) => <Redirect to={`/join/${p.id}`} />}</Route>
-          <Route path="/g">
-            <Redirect to="/join" />
+          <Route path="/g/:id">
+            <Redirect to="/business" />
           </Route>
-          <Route path="/c/:id">{(p) => <Redirect to={`/join/${p.id}`} />}</Route>
+          <Route path="/g">
+            <Redirect to="/business" />
+          </Route>
+          <Route path="/c/:id">
+            <Redirect to="/events" />
+          </Route>
           <Route path="/c">
-            <Redirect to="/join" />
+            <Redirect to="/events" />
           </Route>
           <Route path="/stay/@:handle">{(p) => <Redirect to={`/@${p.handle}`} />}</Route>
           <Route path="/stay/:id">
@@ -272,10 +275,19 @@ export function AppRoutes() {
             <Redirect to="/start?tab=reset" />
           </Route>
           <Route path="/auth/action" component={AuthActionPage} />
-          <Route path="/join/:code" component={JoinPage} />
-          <Route path="/join" component={JoinPage} />
-          <Route path="/arrival/:code" component={JoinPage} />
-          <Route path="/arrival" component={JoinPage} />
+          {/* Cohorts cut per GLOBAL_WIN_PLAN.md: partner entry -> /business, newcomer entry -> /events. */}
+          <Route path="/join/:code">
+            <Redirect to="/business" />
+          </Route>
+          <Route path="/join">
+            <Redirect to="/business" />
+          </Route>
+          <Route path="/arrival/:code">
+            <Redirect to="/events" />
+          </Route>
+          <Route path="/arrival">
+            <Redirect to="/events" />
+          </Route>
           <Route path="/founders">
             <Redirect to="/about" />
           </Route>

@@ -521,17 +521,7 @@ export function SettingsPage() {
           </span>
           <span className="text-sm font-semibold text-accent">Open</span>
         </button>
-        <button
-          type="button"
-          className="flex min-h-[52px] w-full cursor-pointer items-center justify-between rounded-2xl bg-card px-4 py-3 text-left ring-1 ring-line transition hover:bg-paper active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-          onClick={() => nav("/join")}
-        >
-          <span>
-            <span className="block text-[12px] text-mute">PBSA & Arrival Engine</span>
-            <span className="font-medium text-ink">Student arrival cohorts & belonging</span>
-          </span>
-          <span className="text-sm font-semibold text-accent">Open</span>
-        </button>
+
         <button
           type="button"
           className="flex min-h-[52px] w-full cursor-pointer items-center justify-between rounded-2xl bg-card px-4 py-3 text-left ring-1 ring-line transition hover:bg-paper active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"

@@ -160,7 +160,7 @@ export function StartPage() {
         kicker: "Host Workspace",
         title: "Sign in to Host Console",
         signupTitle: "Create your Host Account",
-        desc: "Manage PBSA cohorts, 60-second Arrival Engine, Belonging Reports, and resident support.",
+        desc: "Run ticketed events, scan guests in at the door, and track your guest list.",
         color: "text-amber-600 dark:text-amber-400",
         bg: "bg-amber-500/10",
       };
@@ -507,19 +507,19 @@ export function StartPage() {
               </p>
             </div>
 
-            {/* 2. Business & Arrival Engine */}
+            {/* 2. Business & Member Perks */}
             <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 hover:ring-brand/30 transition shadow-clay">
               <div className="flex items-center gap-2.5 mb-1.5">
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand/10 text-accent">
                   <Store size={18} />
                 </span>
                 <div>
-                  <h3 className="text-xs font-bold text-ink">Perks &amp; Arrival Engine</h3>
-                  <p className="text-[11px] text-mute">Local Businesses &amp; PBSA</p>
+                  <h3 className="text-xs font-bold text-ink">Perks &amp; Local Business</h3>
+                  <p className="text-[11px] text-mute">Venues, Deals &amp; Dining</p>
                 </div>
               </div>
               <p className="text-xs text-mute leading-relaxed">
-                Exclusive verified merchant perks, PBSA student arrival onboarding, and community belonging reports.
+                Exclusive verified merchant perks and member dining deals from venues near you.
               </p>
             </div>
           </div>
@@ -570,7 +570,7 @@ export function StartPage() {
               <ArrowRight size={14} />
             </button>
             <span className="text-line">|</span>
-            <Link href="/join" className="text-xs font-semibold text-mute hover:text-ink">
+            <Link href="/business" className="text-xs font-semibold text-mute hover:text-ink">
               Become a Host, Business or Organiser →
             </Link>
           </div>
@@ -1002,7 +1002,7 @@ export function StartPage() {
           <div className="mt-6 text-center space-y-2">
             <p className="text-xs text-mute">
               Explore partner options:{" "}
-              <Link href="/join" className="text-accent font-semibold hover:underline">
+              <Link href="/business" className="text-accent font-semibold hover:underline">
                 Become a Host, Business or Organiser
               </Link>
             </p>

@@ -9,7 +9,7 @@ import { fieldInput, fieldTextarea } from "@/components/forms/ValidField";
 const TOPICS = [
   { id: "general", label: "General" },
   { id: "ticketing", label: "Tickets & Passes" },
-  { id: "host", label: "PBSA / Residence Host" },
+  { id: "host", label: "Event / Venue Host" },
   { id: "business", label: "Local Business / Merchant" },
   { id: "handle", label: "Handle / Trade Mark" },
   { id: "access", label: "Copy of My Data" },

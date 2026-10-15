@@ -41,7 +41,9 @@ const llms = read("public/llms.txt");
 must(llms.includes("AirPal.Me"), "llms.txt must name the brand");
 must(llms.includes("https://airpal.me/contact"), "llms.txt must give AI a contact path");
 must(llms.includes("https://airpal.me/trust"), "llms.txt must point AI at the company-facts page");
-must(llms.includes("https://airpal.me/concierge"), "llms.txt must point AI at the concierge page");
+must(llms.includes("https://airpal.me/business"), "llms.txt must point AI at the business page");
+must(!llms.includes("https://airpal.me/concierge"), "llms.txt must not point AI at the retired concierge page");
+must(!llms.includes("https://airpal.me/stay"), "llms.txt must not point AI at the retired stays page");
 must(llms.includes("https://airpal.me/events"), "llms.txt must point AI at the What's-on page");
 must(llms.includes("/alternatives/"), "llms.txt must point AI at the comparison pages");
 
@@ -58,9 +60,20 @@ must(head.includes('"@type": "Organization"'), "index.html must include Organiza
 must(head.includes("og-share.jpg"), "index.html must keep the share image");
 must(head.includes('og:image:width" content="1200"'), "index.html must size the share image");
 must(locs.includes("https://airpal.me/events"), "sitemap.xml must list the What's-on page");
-must(locs.includes("https://airpal.me/concierge"), "sitemap.xml must list the concierge page");
 must(locs.includes("https://airpal.me/circle"), "sitemap.xml must list the circle page");
 must(!locs.includes("https://airpal.me/plan"), "sitemap.xml must not list the removed plans page");
+for (const retired of [
+  "/concierge",
+  "/stay",
+  "/join",
+  "/partners",
+  "/assist",
+  "/business/onboard",
+  "/alternatives/touch-stay",
+  "/alternatives/hostfully",
+]) {
+  must(!locs.includes(`https://airpal.me${retired}`), `sitemap.xml must not list the retired ${retired} page`);
+}
 must(read("src/lib/share-meta.ts").includes("applyRouteMeta"), "share-meta must apply per-route titles");
 
 // Per-route canonicals follow client-side navigation.

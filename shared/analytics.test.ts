@@ -83,6 +83,23 @@ describe("validateAnalyticsEvent", () => {
     );
     expect(result.ok).toBe(false);
   });
+
+  it("accepts the server-shaped gate event_check_in as a qualified action", () => {
+    const result = validateAnalyticsEvent(
+      event({
+        eventName: "event_check_in",
+        contextId: "evt-1",
+        contextType: "event",
+        source: "internal",
+        properties: { eventId: "evt-1", contextId: "evt-1", checkInId: "bk-1" },
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(isQualifiedAction(result.event)).toBe(true);
+      expect(analyticsDedupeKey(result.event)).toBe("checkin:bk-1");
+    }
+  });
 });
 
 describe("context helpers", () => {

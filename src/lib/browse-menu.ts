@@ -3,7 +3,6 @@ import {
   BadgePercent,
   CalendarDays,
   Gift,
-  Handshake,
   Headphones,
   Images,
   Info,
@@ -18,7 +17,6 @@ import {
   Store,
   Tag,
   Ticket,
-  UserPlus,
   UserRound,
   Users,
   type LucideIcon,
@@ -98,15 +96,12 @@ export const BUSINESS_LINKS: BrowseLink[] = [
     href: "/business",
     label: "Business hub",
     icon: Store,
-    match: (p) => p.startsWith("/business") && !p.startsWith("/business/promotions"),
+    match: (p) =>
+      (p.startsWith("/business") && !p.startsWith("/business/promotions")) ||
+      p.startsWith("/partners") ||
+      p === "/partner" ||
+      p.startsWith("/join"),
   },
-  {
-    href: "/partners",
-    label: "Partners",
-    icon: Handshake,
-    match: (p) => p.startsWith("/partners") || p === "/partner",
-  },
-  { href: "/join", label: "Become a partner", icon: UserPlus, match: (p) => p.startsWith("/join") },
   {
     href: "/event",
     label: "Host an event",

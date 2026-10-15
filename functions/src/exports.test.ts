@@ -55,6 +55,8 @@ const CALLABLES = [
   "createConnectLoginLink",
   "releaseHeldPayouts",
   "completePaidBooking",
+  "payoutReconciliationReport",
+  "reconcilePayouts",
   "stripeWebhook",
   "verifyTicket",
   "admitTicket",

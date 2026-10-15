@@ -24,7 +24,7 @@ const NAV_PASS = [
   { href: "/event", label: "Host an Event" },
   { href: "/host", label: "Belonging & Host Hub" },
   { href: "/pulse", label: "AirPal Pulse" },
-  { href: "/join", label: "Partner Account" },
+  { href: "/business", label: "Partner Account" },
 ];
 
 const NAV_LEGAL = [

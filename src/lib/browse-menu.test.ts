@@ -66,7 +66,10 @@ describe("browse menu", () => {
     expect(matchedIn(BUSINESS_LINKS, "/business")).toEqual(["Business hub"]);
     expect(matchedIn(BUSINESS_LINKS, "/business/onboard")).toEqual(["Business hub"]);
     expect(matchedIn(BUSINESS_LINKS, "/business/promotions")).toEqual([]);
-    expect(matchedIn(BUSINESS_LINKS, "/partner")).toEqual(["Partners"]);
+    // Retired partner/cohort paths redirect to /business; Business hub stays highlighted.
+    expect(matchedIn(BUSINESS_LINKS, "/partner")).toEqual(["Business hub"]);
+    expect(matchedIn(BUSINESS_LINKS, "/partners")).toEqual(["Business hub"]);
+    expect(matchedIn(BUSINESS_LINKS, "/join")).toEqual(["Business hub"]);
     expect(matchedIn(BUSINESS_LINKS, "/event")).toEqual(["Host an event"]);
     expect(matchedIn(ACCOUNT_LINKS, "/me")).toEqual(["Me dashboard"]);
     expect(matchedIn(ACCOUNT_LINKS, "/me/tickets")).toEqual(["My tickets"]);

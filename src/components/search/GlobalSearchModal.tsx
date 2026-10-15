@@ -586,7 +586,7 @@ export function GlobalSearchModal() {
       });
     }
 
-    // 6. Match Arrival Engine / Campus Cohort keywords
+    // 6. Match newcomer / campus keywords to What's on
     const arrivalKeywords = [
       "arrival",
       "campus",
@@ -603,12 +603,12 @@ export function GlobalSearchModal() {
     ];
     if (arrivalKeywords.some((k) => q.includes(k))) {
       items.push({
-        id: "arrival-engine",
+        id: "new-in-town",
         category: "person",
-        title: "I Just Got Here — Arrival Engine",
-        subtitle: "Connect with verified campus & PBSA building cohorts",
-        badge: "Arrival",
-        href: "/join",
+        title: "New in town? See what's on",
+        subtitle: "Events, gigs and experiences near you",
+        badge: "Events",
+        href: "/events",
         icon: Building2,
         score: 92,
       });
@@ -621,7 +621,7 @@ export function GlobalSearchModal() {
         id: "partner-join",
         category: "partner",
         title: "AirPal for Business",
-        subtitle: "List dining perks, host cohort arrivals, and reach Sydney locals",
+        subtitle: "List dining perks, host events, and reach Sydney locals",
         badge: "Business",
         href: "/business",
         icon: Building2,

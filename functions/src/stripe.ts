@@ -23,7 +23,7 @@ const APP_ORIGIN = "https://airpal.me";
 const STRIPE_API_VERSION = "2026-07-29.dahlia" as Stripe.LatestApiVersion;
 const stripeSecret = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
-const STRIPE_CALLABLE = { ...CALLABLE, secrets: [stripeSecret] };
+export const STRIPE_CALLABLE = { ...CALLABLE, secrets: [stripeSecret] };
 
 /** Sandbox (unpaid) bookings only with explicit opt-in or the local emulator. */
 export function sandboxBookingsAllowed(): boolean {
@@ -159,7 +159,7 @@ export function safeReturnPath(raw: unknown): string {
   return s.slice(0, 240);
 }
 
-async function transferProviderShare(booking: Booking): Promise<{
+export async function transferProviderShare(booking: Booking): Promise<{
   payoutStatus: PayoutStatus;
   transferId: string;
   stripeAccountId: string;
@@ -932,7 +932,7 @@ export const refundPaidBooking = onCall(STRIPE_CALLABLE, async (request) => {
   return { ok: true, status: "refunded", bookingId };
 });
 
-async function reverseTransferForDispute(chargeId: string): Promise<void> {
+export async function reverseTransferForDispute(chargeId: string): Promise<void> {
   const bookings = await db.collection("bookings").where("stripeChargeId", "==", chargeId).limit(1).get();
   if (bookings.empty) return;
   const docSnap = bookings.docs[0]!;

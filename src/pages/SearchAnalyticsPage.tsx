@@ -68,7 +68,7 @@ const SEED_POPULAR_TERMS: PopularItem[] = [
   { id: "botanic-gardens", term: "Botanic Gardens Picnic", count: 19, category: "circle", city: "Sydney" },
   { id: "circle-meetup", term: "Networking Circle Check-in", count: 16, category: "circle", city: "Sydney" },
   { id: "dining-perk", term: "Merchant Dining 20% Off Perk", count: 14, category: "deals", city: "Sydney" },
-  { id: "arrival-cohort", term: "PBSA Resident Arrival Cohort", count: 12, category: "circle", city: "Sydney" },
+  { id: "community-festival", term: "Community Festival Meetup", count: 12, category: "circle", city: "Sydney" },
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {

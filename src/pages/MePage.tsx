@@ -32,7 +32,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
-import { useCohort } from "@/contexts/CohortContext";
 import { useLocalNow } from "@/contexts/LocalNowContext";
 import { useMyBookings } from "@/hooks/useMyBookings";
 import {
@@ -77,7 +76,6 @@ export function MePage() {
   const [, nav] = useLocation();
   const { user, logout, sendVerificationEmail, isHost } = useAuth();
   const { mine, business, biosReady, updateProfile } = useBio();
-  const { activeCohort } = useCohort();
   const { today, weather, city, day } = useLocalNow();
   const { upcomingBookings } = useMyBookings();
 
@@ -316,16 +314,6 @@ export function MePage() {
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Active
                   </span>
-
-                  {activeCohort && (
-                    <Link
-                      href="/join"
-                      className="inline-flex items-center gap-1.5 text-[11px] font-bold text-accent bg-brand/10 ring-1 ring-brand/20 rounded-full px-2.5 py-1 hover:bg-brand/20 transition active:scale-95"
-                    >
-                      <span>{activeCohort.badgeEmoji}</span>
-                      <span>{activeCohort.name} Cohort</span>
-                    </Link>
-                  )}
                 </div>
               </div>
             </div>
@@ -1143,11 +1131,11 @@ export function MePage() {
                   </Link>
                 ) : (
                   <Link
-                    href="/join"
+                    href="/business"
                     className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition text-xs font-bold text-ink active:scale-95"
                   >
                     <Building2 size={15} className="text-emerald-600" />
-                    <span>Cohort Arrival</span>
+                    <span>Business Hub</span>
                   </Link>
                 )}
                 {business ? (

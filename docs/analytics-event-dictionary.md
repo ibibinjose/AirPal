@@ -87,7 +87,9 @@ Always report numerator, denominator, and the per-context distribution — never
 | `pulse_status_changed`            | Host changed a Pulse status (pause / resume / archive)                                                                                 | No                                    |
 | `client_error`                    | Uncaught window error, unhandled rejection, or React boundary. No stack, URL, or free text — `errorClass` + `errorSource` + path only. | No                                    |
 
-Not emitted until the product exists: `event_check_in`, `subscription_state`.
+`event_check_in` is emitted server-side only, by `admitTicket` on a fresh gate
+admit (`checkInId` = ticket id, exactly once per ticket). Not emitted until
+the product exists: `subscription_state`.
 
 ## Property contract (required / optional)
 

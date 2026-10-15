@@ -32,16 +32,6 @@ const ROUTE_META: Array<{ match: RegExp; title: string; description: string }> =
     description: "List free or ticketed events on AirPal.Me — stalls, festivals, guest lists and door check-in.",
   },
   {
-    match: /^\/stay$/,
-    title: "Stays · AirPal.Me",
-    description: "Hotels, motels, hostels and boutique stays — browse live listings and book direct with the property.",
-  },
-  {
-    match: /^\/concierge(\/|$)|^\/stay(\/|$)/,
-    title: "Stay & Guide · AirPal.Me",
-    description: "Your guest companion — Wi-Fi, dining, the desk and what's around your stay.",
-  },
-  {
     match: /^\/$/,
     title: "AirPal.Me · Life Made Easy.",
     description: "Life Made Easy. People, places, things and experiences — made easier.",
@@ -62,7 +52,7 @@ const ROUTE_META: Array<{ match: RegExp; title: string; description: string }> =
     description: "List your place, publish experiences and offers, take bookings on AirPal.Me.",
   },
   {
-    match: /^\/partners(\/|$)|^\/join(\/|$)/,
+    match: /^\/partners(\/|$)/,
     title: "Partner with AirPal.Me",
     description: "Add your place or venue to AirPal.Me and reach guests already nearby.",
   },
@@ -85,16 +75,6 @@ const ROUTE_META: Array<{ match: RegExp; title: string; description: string }> =
     match: /^\/alternatives\/meetup(\/|$)/,
     title: "Meetup alternative for casual catch-ups · AirPal.Me",
     description: "Blend catch-ups with local discovery: meet friends, and see what's on nearby.",
-  },
-  {
-    match: /^\/alternatives\/touch-stay(\/|$)/,
-    title: "Touch Stay alternative · AirPal.Me",
-    description: "Lighter QR guest concierge with no download: Wi-Fi, dining, housekeeping and local discovery.",
-  },
-  {
-    match: /^\/alternatives\/hostfully(\/|$)/,
-    title: "Hostfully alternative · AirPal.Me",
-    description: "Simpler stay concierge plus local events and experiences for boutique hosts and rentals.",
   },
   {
     match: /^\/alternatives\/eventbrite(\/|$)/,

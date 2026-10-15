@@ -235,13 +235,7 @@ export function PassPage() {
               <Flame size={16} />
               Browse What's On
             </Link>
-            <Link
-              href="/join"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-sm font-bold text-white ring-1 ring-white/30 backdrop-blur-md transition hover:bg-white/25 active:scale-95"
-            >
-              <Building2 size={16} />
-              Arrival Check-In
-            </Link>
+
             <Link
               href="/event"
               className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-sm font-bold text-white ring-1 ring-white/30 backdrop-blur-md transition hover:bg-white/25 active:scale-95"
@@ -586,32 +580,32 @@ export function PassPage() {
             </div>
           </div>
 
-          {/* Pillar 2: Arrival Engine & Cohort Host */}
+          {/* Pillar 2: Business Hub & Member Perks */}
           <div className="group flex flex-col justify-between rounded-3xl bg-card p-6 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-emerald-500/30 transition">
             <div>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20">
                 <Building2 size={24} />
               </div>
-              <h3 className="font-display text-lg font-bold text-ink mt-4">Arrival Engine &amp; Cohort Host</h3>
+              <h3 className="font-display text-lg font-bold text-ink mt-4">Business Hub &amp; Member Perks</h3>
               <p className="text-xs sm:text-sm text-mute mt-2 leading-relaxed">
-                B2B2C Arrival Engine for PBSA student accommodation, colleges, and innovation hubs. Pre-verified
-                resident onboarding, tonight's hosted events, and executive Belonging Reports.
+                List your venue and publish member perks. Turn event footfall into repeat local customers with
+                claim-and-redeem offers.
               </p>
             </div>
             <div className="mt-6 flex flex-wrap items-center gap-2.5 pt-4 border-t border-line/50">
               <Link
-                href="/join"
+                href="/business"
                 className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition active:scale-95"
               >
                 <Building2 size={14} />
-                Arrival Portal
+                Business Hub
               </Link>
               <Link
-                href="/host"
+                href="/deals"
                 className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink hover:bg-paper transition"
               >
                 <Users size={14} />
-                Belonging Reports
+                Member Deals
               </Link>
             </div>
           </div>
@@ -637,7 +631,7 @@ export function PassPage() {
                 Open Scanner
               </Link>
               <Link
-                href="/partners"
+                href="/business"
                 className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3.5 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink hover:bg-paper transition"
               >
                 Partner Onboarding

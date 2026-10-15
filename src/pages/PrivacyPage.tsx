@@ -19,10 +19,9 @@ export function PrivacyPage() {
 
       <h2>1. Who we are</h2>
       <p>
-        {LEGAL.brand} ({LEGAL.site}) is the all-in-one platform for live events, ambient discovery, PBSA student arrival
-        cohorts, and public digital bios at airpal.me/@handle. Guests may browse without an account. Individuals and
-        partners use one universal login. After sign-in you choose a personal @handle. You may add a registered-business
-        handle later.
+        {LEGAL.brand} ({LEGAL.site}) is the all-in-one platform for live events, local venues, member perks, and public
+        digital bios at airpal.me/@handle. Guests may browse without an account. Individuals and partners use one
+        universal login. After sign-in you choose a personal @handle. You may add a registered-business handle later.
       </p>
       <p>
         Ticketed events, passes, and real-world bookings are processed by Stripe. Card numbers never touch our servers
