@@ -13,6 +13,7 @@ import {
   UserPlus,
   Users,
   X,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useBio } from "@/contexts/BioContext";
@@ -267,12 +268,14 @@ export function CirclePage() {
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-accent">
-            <Users size={13} />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-human-blush px-3 py-1 text-xs font-bold text-human-clay">
+            <Users size={13} aria-hidden="true" />
             <span>Networking Circle</span>
           </div>
-          <h1 className="font-display mt-2 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">My Circle</h1>
-          <p className="mt-1 text-sm text-mute">Your real-world network — friends, communities, and local places.</p>
+          <h1 className="human-title mt-2 text-3xl sm:text-4xl">My Circle</h1>
+          <p className="human-lede mt-1 text-sm sm:text-base">
+            Your real-world network — friends, communities, and local places.
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -289,16 +292,16 @@ export function CirclePage() {
       </header>
 
       {/* Compact Connector Rank Card */}
-      <div className="mt-6 rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay">
+      <div className="human-card mt-6 p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand/10 text-lg font-bold text-accent">
-              ⚡
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-human-blush text-human-clay">
+              <Zap size={20} aria-hidden="true" />
             </span>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-mute">Connector Rank</span>
-                <span className="rounded-full bg-brand/10 px-2 py-0.2 text-[10px] font-bold text-accent">
+                <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold text-accent tabular-data">
                   Level {quest.level.rank}
                 </span>
               </div>
@@ -307,8 +310,8 @@ export function CirclePage() {
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
-              <span className="text-xs font-bold text-accent">{quest.points} pts</span>
-              <p className="text-[10px] text-mute">
+              <span className="text-sm font-bold text-accent tabular-data">{quest.points} pts</span>
+              <p className="text-xs text-mute tabular-data">
                 {quest.completed}/{quest.total} quests
               </p>
             </div>
@@ -355,7 +358,7 @@ export function CirclePage() {
                       <p className={cn("font-bold truncate", isDone ? "text-ink/70 line-through" : "text-ink")}>
                         {q.title}
                       </p>
-                      <p className="text-[11px] text-mute truncate">{q.hint}</p>
+                      <p className="text-xs text-mute truncate">{q.hint}</p>
                     </div>
                   </div>
 
@@ -548,7 +551,7 @@ export function CirclePage() {
               <h3 className="font-display mt-3 text-base font-bold text-ink">
                 {searchQuery ? "No matches found" : `No ${filter} yet`}
               </h3>
-              <p className="mt-1 text-xs text-mute max-w-sm mx-auto">
+              <p className="mt-1 text-sm text-mute max-w-sm mx-auto">
                 {searchQuery
                   ? `No contacts matched "${searchQuery}". Try a different name or clear the filter.`
                   : filter === "places"
@@ -629,15 +632,15 @@ export function CirclePage() {
 
                       {/* Relationship Pill */}
                       {contact.isMutual ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
                           Mutual connection
                         </span>
                       ) : contact.isFollower && !contact.isFollowing ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-brand/15 px-2 py-0.5 text-[10px] font-bold text-accent ring-1 ring-brand/25">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-brand/15 px-2 py-0.5 text-[11px] font-bold text-accent ring-1 ring-brand/25">
                           Follows you
                         </span>
                       ) : contact.isFollowing ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-paper px-2 py-0.5 text-[10px] font-medium text-mute ring-1 ring-line">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-paper px-2 py-0.5 text-[11px] font-medium text-mute ring-1 ring-line">
                           Following
                         </span>
                       ) : null}
@@ -716,15 +719,15 @@ export function CirclePage() {
       </section>
 
       {/* Fast CTA */}
-      <div className="mt-8 rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="human-card mt-8 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="font-display text-base font-bold text-ink">Grow your circle?</h3>
-          <p className="text-xs text-mute mt-0.5">Invite family or a friend with your Circle link in one tap.</p>
+          <h3 className="human-section-title text-base">Grow your circle?</h3>
+          <p className="text-sm text-mute mt-0.5">Invite family or a friend with your Circle link in one tap.</p>
         </div>
         <Button
           variant="primary"
           onClick={handleShareCircleInvite}
-          className="shrink-0 min-h-[44px] px-5 text-xs font-semibold shadow-xs active:scale-95"
+          className="shrink-0 min-h-[44px] px-5 text-sm font-semibold shadow-xs active:scale-95"
         >
           Invite to Circle
         </Button>

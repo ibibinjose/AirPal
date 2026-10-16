@@ -47,7 +47,7 @@ export function UnsubscribePage() {
   return (
     <div className="mx-auto max-w-md px-4 py-16 text-center">
       <MailX size={28} aria-hidden className="mx-auto text-mute" />
-      <h1 className="font-display mt-3 text-3xl font-bold tracking-tight">Unsubscribe</h1>
+      <h1 className="human-title mt-3 text-3xl text-balance">Unsubscribe</h1>
       {done ? (
         <>
           <p className="mt-2 text-[15px] leading-relaxed text-ink/80">

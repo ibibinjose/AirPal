@@ -296,11 +296,9 @@ export function SearchAnalyticsPage() {
               <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand text-white shadow-xs">
                 <BarChart3 size={18} />
               </span>
-              <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">
-                Search Analytics & Trends
-              </h1>
+              <h1 className="human-title text-2xl sm:text-3xl text-balance">Search Analytics & Trends</h1>
             </div>
-            <p className="mt-1 text-xs sm:text-sm text-mute">
+            <p className="mt-1 text-sm text-mute">
               Real-time Firestore query analytics to track trending terms, user intent, and search relevance.
               {loading && (
                 <span className="ml-2 inline-block text-xs font-semibold text-accent motion-safe:animate-pulse">

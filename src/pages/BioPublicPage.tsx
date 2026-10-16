@@ -409,8 +409,8 @@ export function BioPublicPage() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-brand/10 text-accent shadow-inner">
               <Sparkles size={32} />
             </div>
-            <h1 className="font-display mt-5 text-2xl sm:text-3xl font-bold text-ink">@{handle} is available!</h1>
-            <p className="mt-2.5 text-sm text-mute leading-relaxed">
+            <h1 className="human-title mt-5 text-2xl sm:text-3xl text-balance">@{handle} is available!</h1>
+            <p className="human-lede mt-2.5 text-sm sm:text-base">
               This AirPal handle hasn’t been set up yet. Be the first to claim <strong>@{handle}</strong> and launch
               your public bio page.
             </p>
@@ -459,8 +459,8 @@ export function BioPublicPage() {
             <span className="-mt-9 mx-auto grid h-[72px] w-[72px] place-items-center rounded-[26px] bg-card text-accent shadow-clay ring-1 ring-line">
               <Lock size={28} aria-hidden="true" />
             </span>
-            <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Profile protected</p>
-            <h1 className="font-display mt-2 text-2xl font-bold text-ink">{bio.name}</h1>
+            <p className="human-eyebrow mt-5">Profile protected</p>
+            <h1 className="human-title mt-2 text-2xl text-balance">{bio.name}</h1>
             <p className="mt-1 text-sm font-medium text-mute">@{bio.handle}</p>
             <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-mute">
               {bio.visibility === "private"
@@ -903,18 +903,16 @@ export function BioPublicPage() {
           {/* Profile Name & Primary Identity */}
           <div className="mt-4 text-left">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="font-display text-[26px] sm:text-[34px] font-extrabold tracking-tight text-ink leading-tight">
-                {bio.name}
-              </h1>
+              <h1 className="human-title text-[26px] sm:text-[34px] text-balance">{bio.name}</h1>
               {bio.categoryTag && (
-                <span className="rounded-full bg-brand/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent ring-1 ring-brand/20">
+                <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent ring-1 ring-brand/20">
                   {bio.categoryTag}
                 </span>
               )}
             </div>
 
             {/* Handle, Location & Subtitle Metadata Strip */}
-            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs font-medium text-mute">
+            <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm font-medium text-mute">
               <span className="font-bold text-ink/80">@{bio.handle}</span>
               {bio.pronouns && <span>· {bio.pronouns}</span>}
               {bio.city && (
@@ -948,8 +946,8 @@ export function BioPublicPage() {
                   <Lock size={14} aria-hidden="true" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-xs font-bold text-ink">Profile visibility</span>
-                  <span className="block text-[11px] leading-tight text-mute">
+                  <span className="block text-sm font-bold text-ink">Profile visibility</span>
+                  <span className="block text-xs leading-tight text-mute">
                     {visibilitySaving ? "Saving…" : isPublic ? "Public — anyone with the link" : "Private — only you"}
                   </span>
                 </span>
@@ -1015,8 +1013,8 @@ export function BioPublicPage() {
                 id="bio-about"
                 className="mt-4 scroll-mt-24 rounded-[26px] bg-paper/70 p-4 sm:p-5 ring-1 ring-line/80 shadow-2xs"
               >
-                <p className="text-[10px] font-bold uppercase tracking-wider text-accent mb-1.5">About Story</p>
-                <p className="text-xs sm:text-sm leading-relaxed text-ink/80 whitespace-pre-line">{bio.aboutText}</p>
+                <p className="human-eyebrow mb-1.5">About Story</p>
+                <p className="text-sm sm:text-base leading-relaxed text-ink/80 whitespace-pre-line">{bio.aboutText}</p>
               </div>
             )}
           </div>
@@ -1115,14 +1113,14 @@ export function BioPublicPage() {
             )}
           </div>
 
-          {/* 🪪 Digital ID · AirPal Bio Pass (QR + Apple & Google Wallet) */}
-          <div className="mt-6 rounded-[28px] bg-gradient-to-br from-card via-card to-paper p-5 sm:p-6 ring-1 ring-line/80 shadow-xs relative overflow-hidden">
+          {/* Digital ID · AirPal Bio Pass (QR + Apple & Google Wallet) */}
+          <div className="human-card mt-6 p-5 sm:p-6 relative overflow-hidden">
             <div className="flex items-center justify-between gap-2 mb-4">
-              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-accent">
-                <QrCode size={15} className="text-accent" />
+              <div className="human-eyebrow flex items-center gap-2">
+                <QrCode size={15} aria-hidden="true" />
                 <span>AirPal Bio Pass · Digital ID</span>
               </div>
-              <span className="text-[11px] font-mono font-bold text-mute bg-paper/80 px-2.5 py-0.5 rounded-full ring-1 ring-line/60">
+              <span className="text-xs font-mono font-bold text-mute bg-paper/80 px-2.5 py-0.5 rounded-full ring-1 ring-line/60 tabular-data">
                 @{bio.handle}
               </span>
             </div>
@@ -1139,17 +1137,17 @@ export function BioPublicPage() {
                 {bioQrUrl ? (
                   <img src={bioQrUrl} alt={`QR Code for @${bio.handle}`} className="h-full w-full object-contain" />
                 ) : (
-                  <div className="text-[11px] text-mute animate-pulse">Loading QR…</div>
+                  <div className="text-xs text-mute animate-pulse">Loading QR…</div>
                 )}
                 <span className="absolute inset-0 bg-brand/5 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center">
-                  <span className="text-[10px] font-bold bg-ink/85 text-white rounded-full px-2.5 py-1 shadow-sm">
+                  <span className="text-[11px] font-bold bg-ink/85 text-white rounded-full px-2.5 py-1 shadow-sm">
                     Enlarge QR
                   </span>
                 </span>
               </div>
 
               <div className="flex-1 min-w-0 w-full space-y-2.5">
-                <p className="text-xs text-mute leading-relaxed text-center sm:text-left">
+                <p className="text-sm text-mute leading-relaxed text-center sm:text-left">
                   Scan to view this profile instantly on any phone, or add to Apple Wallet &amp; Google Wallet as a
                   verified digital contact pass.
                 </p>

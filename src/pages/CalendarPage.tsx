@@ -388,15 +388,17 @@ function CalendarPageContent() {
               </Link>
               <Link
                 href="/pass"
-                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1 text-xs font-bold text-white ring-1 ring-white/25 backdrop-blur-md hover:bg-white/25 transition active:scale-95"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1 text-sm font-bold text-white ring-1 ring-white/25 backdrop-blur-md hover:bg-white/25 transition active:scale-95"
               >
-                <Ticket size={13} className="text-amber-400" />
+                <Ticket size={13} className="text-amber-400" aria-hidden="true" />
                 <span>AirPal Pass →</span>
               </Link>
             </div>
           </div>
-          <h1 className="font-display mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl">Event Calendar</h1>
-          <p className="mt-1 text-[14px] font-medium text-white/80">
+          <h1 className="font-display mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl text-balance">
+            Event Calendar
+          </h1>
+          <p className="mt-1 text-sm font-medium text-white/80 tabular-data">
             {filteredEvents.length} upcoming · {savedItineraryCount} saved to your itinerary
           </p>
         </div>

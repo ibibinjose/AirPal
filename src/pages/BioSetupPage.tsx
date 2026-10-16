@@ -321,11 +321,9 @@ export function BioSetupPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-accent">
-        {asBusiness ? "Host" : "AirPal.Me/@"}
-      </p>
-      <h1 className="font-display mt-1 text-3xl font-semibold">{asBusiness ? "List your place" : "Your handle"}</h1>
-      <p className="mt-2 text-sm text-mute">
+      <p className="human-eyebrow">{asBusiness ? "Host" : "AirPal.Me/@"}</p>
+      <h1 className="human-title mt-1 text-3xl text-balance">{asBusiness ? "List your place" : "Your handle"}</h1>
+      <p className="human-lede mt-2 text-sm sm:text-base">
         {asBusiness
           ? "Three short steps. Handle must be unique and match the registered name, mark, or domain."
           : "Pick a unique @. Ticks mean it checks out."}

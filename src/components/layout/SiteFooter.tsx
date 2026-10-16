@@ -58,7 +58,7 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
     <footer
       role="contentinfo"
       className={cn(
-        "mt-16 rounded-t-[28px] bg-neutral-900 text-white",
+        "mt-16 rounded-t-[28px] bg-[#221b15] text-white",
         "border-t border-white/10",
         hasTabBar
           ? "pb-[calc(6rem+env(safe-area-inset-bottom,0px))] lg:pb-8"
@@ -73,8 +73,8 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
             <Link href="/" className="inline-flex items-center transition hover:opacity-85" aria-label="AirPal Home">
               <BrandMark compact={false} invert withTagline />
             </Link>
-            <p className="mt-3 max-w-md text-[15px] leading-relaxed text-white/70 md:max-w-none md:whitespace-nowrap">
-              Life Made Easy. People, places, things and experiences — made easier.
+            <p className="mt-3 max-w-md text-base leading-relaxed text-white/75 md:max-w-none md:whitespace-nowrap">
+              Life Made Easy. Made for every human — people, places, and belonging.
             </p>
           </div>
 
@@ -91,7 +91,7 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
         {/* Links */}
         <nav aria-label="Footer" className="mt-10 grid grid-cols-2 gap-8 border-t border-white/10 pt-8 sm:grid-cols-3">
           <div>
-            <p className="text-[13px] font-semibold text-white/90">AirPal Me</p>
+            <p className="text-sm font-semibold text-white/90">AirPal Me</p>
             <ul className="mt-4 space-y-2.5 text-sm">
               {NAV_ME.filter((item) => !isNative || item.href !== "/getAirPalApp").map((item) => (
                 <li key={item.href}>
@@ -104,7 +104,7 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
           </div>
 
           <div>
-            <p className="text-[13px] font-semibold text-white/90">AirPal Pass</p>
+            <p className="text-sm font-semibold text-white/90">AirPal Pass</p>
             <ul className="mt-4 space-y-2.5 text-sm">
               {NAV_PASS.map((item) => (
                 <li key={item.href}>
@@ -117,7 +117,7 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
           </div>
 
           <div className="col-span-2 sm:col-span-1">
-            <p className="text-[13px] font-semibold text-white/90">Trust & Legal</p>
+            <p className="text-sm font-semibold text-white/90">Trust & Legal</p>
             <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2.5 text-sm sm:flex-col sm:gap-0 sm:space-y-2.5">
               {NAV_LEGAL.map((item) => (
                 <li key={item.href}>
@@ -131,7 +131,7 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
         </nav>
 
         {/* Bottom bar */}
-        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 py-6 text-xs text-white/60 sm:flex-row">
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 py-6 text-sm text-white/70 sm:flex-row">
           <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center sm:justify-start sm:text-left">
             <span>
               © {new Date().getFullYear()} {LEGAL.byline}
@@ -140,15 +140,15 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
             <button
               type="button"
               onClick={openDebugOverlay}
-              className="font-mono text-[11px] text-white/55 transition hover:text-white hover:underline cursor-pointer"
+              className="font-mono text-xs text-white/70 transition hover:text-white hover:underline cursor-pointer"
               title="App diagnostics & debug info (from build.gradle)"
             >
               v{buildInfo.versionName}
             </button>
           </p>
 
-          <p className="order-first text-center text-xs font-semibold tracking-wide text-lime-400 sm:order-none">
-            Built in Australia · live worldwide
+          <p className="order-first text-center text-sm font-semibold tracking-wide text-amber-300 sm:order-none">
+            Built for humanity · live worldwide
           </p>
 
           <button

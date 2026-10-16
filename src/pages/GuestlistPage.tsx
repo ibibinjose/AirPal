@@ -196,7 +196,7 @@ export function GuestlistPage() {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <Users size={28} aria-hidden className="mx-auto text-mute" />
-        <h1 className="font-display mt-3 text-2xl font-bold">Door team only</h1>
+        <h1 className="human-title mt-3 text-2xl text-balance">Door team only</h1>
         <p className="mt-2 text-sm leading-6 text-mute">
           The guestlist is only visible to the event organiser and co-hosts. If this is yours, sign in with the host
           account.
@@ -364,8 +364,8 @@ export function GuestlistPage() {
       >
         <ArrowLeft size={16} aria-hidden /> {header.title}
       </Link>
-      <h1 className="font-display mt-1 text-3xl font-bold tracking-tight">Guestlist</h1>
-      <p className="mt-1 text-sm text-mute">
+      <h1 className="human-title mt-1 text-3xl text-balance">Guestlist</h1>
+      <p className="mt-1 text-sm text-mute tabular-data">
         {counts.listedHeads} on the list · updates live as guests RSVP, buy, and scan in.
       </p>
 
@@ -377,7 +377,7 @@ export function GuestlistPage() {
         ].map((c) => (
           <div key={c.label} className="rounded-2xl bg-card p-3 text-center ring-1 ring-line shadow-clay">
             <p className="font-display text-2xl font-bold tabular-nums">{c.value}</p>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-mute">{c.label}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-mute">{c.label}</p>
           </div>
         ))}
       </div>

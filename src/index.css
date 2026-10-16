@@ -15,13 +15,14 @@
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, ui-sans-serif, system-ui, sans-serif;
   --font-display:
     -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, ui-sans-serif, system-ui, sans-serif;
-  /* AirPal's quiet base palette: surfaces carry hierarchy; blue is reserved
-   * for the one action or selected state that needs attention. */
-  --color-paper: #eef1f6;
-  --color-ink: #121614;
-  --color-mute: #6a726c;
-  --color-line: #e5e7eb;
-  --color-card: #ffffff;
+  /* Humanity palette: warm parchment surfaces carry hierarchy; AirPal Blue
+   * is reserved for the one action or selected state that needs attention.
+   * Warm neutrals keep every page feeling human, calm, and welcoming. */
+  --color-paper: #faf7f1;
+  --color-ink: #1c1a17;
+  --color-mute: #5c635e;
+  --color-line: #e7dfd1;
+  --color-card: #fffdf8;
   --color-brand: #1805db;
   --color-brand-ink: #0e0394;
   --color-gold: #1805db;
@@ -60,13 +61,20 @@
   --shadow-m3-4: 0 6px 16px 4px rgba(18, 22, 20, 0.12), 0 2px 4px 0 rgba(18, 22, 20, 0.14);
   --shadow-m3-5: 0 8px 24px 6px rgba(18, 22, 20, 0.14), 0 4px 8px 0 rgba(18, 22, 20, 0.16);
 
-  --color-surface-lowest: #ffffff;
-  --color-surface-low: #f2f2f7;
-  --color-surface: #e9e9ee;
-  --color-surface-high: #e5e5ea;
-  --color-surface-highest: #d1d1d6;
+  --color-surface-lowest: #fffdf8;
+  --color-surface-low: #f5f0e4;
+  --color-surface: #ece4d3;
+  --color-surface-high: #e0d5bf;
+  --color-surface-highest: #d2c3a8;
   --color-primary-container: rgba(24, 5, 219, 0.08);
   --color-on-primary-container: #0e0394;
+  /* Humanity accents: terracotta warmth, grove belonging-green, honey glow.
+   * Use sparingly beside the single blue action accent. Clay is darkened
+   * so small uppercase eyebrows keep 4.5:1 contrast on parchment. */
+  --color-human-clay: #b23e12;
+  --color-human-grove: #1b4332;
+  --color-human-honey: #b7791f;
+  --color-human-blush: #f7e3d3;
 }
 
 * {
@@ -96,19 +104,23 @@
  * Brand/celebration accents stay fixed — they are vivid on both schemes. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-paper: #000000;
-    --color-card: #1c1c1e;
-    --color-ink: #ffffff;
-    --color-mute: #98989d;
-    --color-line: #38383a;
-    --color-surface-lowest: #0c0c0e;
-    --color-surface-low: #131316;
-    --color-surface: #1c1c1e;
-    --color-surface-high: #2c2c2e;
-    --color-surface-highest: #3a3a3c;
+    --color-paper: #141210;
+    --color-card: #1f1c19;
+    --color-ink: #faf7f1;
+    --color-mute: #b8b0a4;
+    --color-line: #38322a;
+    --color-surface-lowest: #100e0c;
+    --color-surface-low: #171412;
+    --color-surface: #1f1c19;
+    --color-surface-high: #2c2723;
+    --color-surface-highest: #3a332c;
     --color-primary-container: rgba(120, 110, 255, 0.22);
     --color-on-primary-container: #cfc9ff;
     --color-accent: #8b83ff;
+    --color-human-clay: #ff8a5c;
+    --color-human-grove: #7bc9a3;
+    --color-human-honey: #ffcf6b;
+    --color-human-blush: #3a2d24;
     --shadow-clay:
       0 1px 1px rgba(255, 255, 255, 0.08) inset, 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 28px -16px rgba(0, 0, 0, 0.65);
     --shadow-clay-hover:
@@ -970,6 +982,56 @@ body.keyboard-open .keyboard-hide {
 }
 .md3-fab:active {
   transform: translateY(0) scale(0.98);
+}
+
+/* Humanity design language: warm, calm, human-first page rhythm.
+ * Every page shares this recipe: breathing room, balanced headings,
+ * readable 16px+ body text, and one clear next step. */
+.human-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: max(1rem, env(safe-area-inset-left, 0px));
+  padding-bottom: max(6.75rem, calc(env(safe-area-inset-bottom, 0px) + 5.75rem));
+}
+.human-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-human-clay);
+}
+.human-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  text-wrap: balance;
+  color: var(--color-ink);
+}
+.human-lede {
+  margin-top: 0.5rem;
+  max-width: 38rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+  color: var(--color-mute);
+}
+.human-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: 1.75rem;
+  box-shadow: var(--shadow-clay);
+}
+.human-section-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  color: var(--color-ink);
+}
+.tabular-data {
+  font-variant-numeric: tabular-nums;
 }
 
 /* AirPal ticket printing — Save as PDF from any ticket pass. */

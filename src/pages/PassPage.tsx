@@ -219,7 +219,7 @@ export function PassPage() {
             </Link>
           </div>
 
-          <h1 className="font-display mt-4 text-3xl sm:text-5xl font-extrabold tracking-tight text-white max-w-2xl leading-[1.1]">
+          <h1 className="font-display mt-4 text-3xl sm:text-5xl font-extrabold tracking-tight text-white max-w-2xl leading-[1.1] text-balance">
             Your pass to concerts, festivals &amp; dining perks.
           </h1>
           <p className="mt-2 text-base sm:text-lg font-medium text-white/80 max-w-xl">
@@ -302,7 +302,7 @@ export function PassPage() {
                 <p className="font-display text-base font-bold text-ink">
                   {user ? "Your AirPal Passbook is Live" : "One Account · Universal Pass"}
                 </p>
-                <p className="text-xs text-mute mt-0.5">
+                <p className="text-sm text-mute mt-0.5">
                   {user
                     ? `You currently hold ${myUpcomingBookings.length} upcoming event pass${myUpcomingBookings.length === 1 ? "" : "es"}.`
                     : "Sign in with your AirPal account to store scannable tickets and unlock member perks."}
@@ -312,9 +312,9 @@ export function PassPage() {
             <div className="flex items-center gap-2 shrink-0">
               <Link
                 href="/me/tickets"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand px-5 py-2 text-sm font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
               >
-                <QrCode size={14} />
+                <QrCode size={14} aria-hidden="true" />
                 Open Wallet
               </Link>
             </div>
@@ -323,9 +323,7 @@ export function PassPage() {
           {/* Quick Passes Preview */}
           {user && myUpcomingBookings.length > 0 && (
             <div className="mt-4 pt-4 border-t border-line/60">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-accent">
-                Upcoming Scannable Passes
-              </span>
+              <span className="text-xs font-bold uppercase tracking-wider text-accent">Upcoming Scannable Passes</span>
               <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {myUpcomingBookings.slice(0, 2).map((b) => (
                   <div
@@ -333,16 +331,16 @@ export function PassPage() {
                     className="flex items-center justify-between gap-3 rounded-2xl bg-card p-3 ring-1 ring-line/70"
                   >
                     <div className="min-w-0">
-                      <p className="font-display text-xs font-bold text-ink truncate">{b.title}</p>
-                      <p className="text-[11px] text-mute truncate mt-0.5">
+                      <p className="font-display text-sm font-bold text-ink truncate">{b.title}</p>
+                      <p className="text-xs text-mute truncate mt-0.5">
                         {[b.date, b.time].filter(Boolean).join(" · ")} · {b.suburb || "Sydney"}
                       </p>
                     </div>
                     <Link
                       href="/me/tickets"
-                      className="inline-flex min-h-[34px] shrink-0 items-center gap-1 rounded-full bg-paper px-3 text-[11px] font-bold text-accent ring-1 ring-line hover:bg-card transition"
+                      className="inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-paper px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-card transition"
                     >
-                      <Ticket size={12} />
+                      <Ticket size={12} aria-hidden="true" />
                       <span>Pass</span>
                     </Link>
                   </div>
@@ -357,7 +355,7 @@ export function PassPage() {
       <section aria-label="Upcoming Events" className="mt-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-display text-xl font-bold text-ink">
+            <h2 className="human-section-title text-xl text-balance">
               {activeCategory === "cultural"
                 ? "Cultural Festivals"
                 : activeCategory === "music"
@@ -372,28 +370,28 @@ export function PassPage() {
                           ? "Community & Expos"
                           : "Featured Events & Experiences"}
             </h2>
-            <p className="text-xs text-mute mt-0.5">Real events happening in {effectiveCity} · Guaranteed entry</p>
+            <p className="text-sm text-mute mt-0.5">Real events in {effectiveCity} · Guaranteed entry</p>
           </div>
           <Link
             href="/events"
-            className="inline-flex min-h-[44px] items-center text-xs font-bold text-accent hover:underline"
+            className="inline-flex min-h-[44px] items-center text-sm font-bold text-accent hover:underline"
           >
             See Calendar →
           </Link>
         </div>
 
         {filteredEvents.length === 0 ? (
-          <div className="mt-4 rounded-3xl bg-card p-10 text-center ring-1 ring-line shadow-clay">
-            <Ticket size={32} className="mx-auto text-mute" />
-            <p className="font-display text-base font-bold text-ink mt-2">No events match this filter</p>
-            <p className="text-xs text-mute mt-1">Try selecting "All Access" or explore upcoming calendar dates.</p>
+          <div className="human-card mt-4 p-10 text-center">
+            <Ticket size={32} className="mx-auto text-mute" aria-hidden="true" />
+            <p className="human-section-title mt-2 text-base">No events match this filter</p>
+            <p className="text-sm text-mute mt-1">Try “All Access” or explore upcoming calendar dates.</p>
             <button
               type="button"
               onClick={() => {
                 setActiveCategory("all");
                 setSearchQuery("");
               }}
-              className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
+              className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-brand px-4 py-2 text-sm font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
             >
               Reset Filters
             </button>
@@ -403,7 +401,7 @@ export function PassPage() {
             {filteredEvents.slice(0, 9).map((event) => (
               <div
                 key={event.id}
-                className="group flex flex-col justify-between overflow-hidden rounded-3xl bg-card ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover transition hover:ring-brand/30"
+                className="group flex flex-col justify-between overflow-hidden rounded-3xl bg-card ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover transition-[box-shadow,border-color] hover:ring-brand/30"
               >
                 <div>
                   <div className="relative aspect-[16/9] w-full overflow-hidden bg-paper">
@@ -411,28 +409,28 @@ export function PassPage() {
                       src={event.image}
                       srcSet={mediaSrcSet(event.image)}
                       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      className="h-full w-full object-cover transition-opacity duration-200 group-hover:opacity-95"
                       alt={event.title}
                     />
                     <div className="absolute left-3 top-3">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-neutral-950/80 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-md ring-1 ring-white/20">
-                        <CalendarDays size={12} className="text-amber-400" />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-neutral-950/80 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-md ring-1 ring-white/20">
+                        <CalendarDays size={12} className="text-amber-400" aria-hidden="true" />
                         {event.date} {event.time ? `· ${event.time}` : ""}
                       </span>
                     </div>
                     <div className="absolute right-3 top-3">
-                      <span className="inline-flex items-center rounded-full bg-amber-500 px-2.5 py-1 text-[11px] font-extrabold text-neutral-950 shadow-xs">
+                      <span className="inline-flex items-center rounded-full bg-amber-500 px-2.5 py-1 text-xs font-extrabold text-neutral-950 shadow-xs">
                         {event.priceLabel}
                       </span>
                     </div>
                   </div>
 
                   <div className="p-4">
-                    <p className="font-display text-base font-bold text-ink group-hover:text-accent transition-colors line-clamp-1">
+                    <p className="font-display text-base font-bold text-ink group-hover:text-accent transition-colors line-clamp-1 text-balance">
                       {event.title}
                     </p>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-mute line-clamp-1">
-                      <MapPin size={13} className="shrink-0 text-accent" />
+                    <p className="mt-1 flex items-center gap-1.5 text-sm text-mute line-clamp-1">
+                      <MapPin size={13} className="shrink-0 text-accent" aria-hidden="true" />
                       <span>{event.venue}</span>
                     </p>
                   </div>
@@ -441,9 +439,9 @@ export function PassPage() {
                 <div className="p-4 pt-0 flex items-center gap-2">
                   <Link
                     href={`/e/${event.id}`}
-                    className="inline-flex flex-1 min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-brand/90 active:scale-95"
+                    className="inline-flex flex-1 min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-3 py-2 text-sm font-bold text-white shadow-xs transition hover:bg-brand/90 active:scale-95"
                   >
-                    <Ticket size={13} />
+                    <Ticket size={13} aria-hidden="true" />
                     <span>Get Pass</span>
                   </Link>
                 </div>
@@ -457,12 +455,12 @@ export function PassPage() {
       <section aria-label="Passholder Deals" className="mt-10">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-accent">Passholder Perks</span>
-            <h2 className="font-display text-xl font-bold text-ink mt-0.5">Dining Deals &amp; Freebies</h2>
+            <span className="human-eyebrow">Passholder Perks</span>
+            <h2 className="human-section-title mt-0.5 text-xl text-balance">Dining Deals &amp; Freebies</h2>
           </div>
           <Link
             href="/deals"
-            className="inline-flex min-h-[44px] items-center text-xs font-bold text-accent hover:underline"
+            className="inline-flex min-h-[44px] items-center text-sm font-bold text-accent hover:underline"
           >
             All Deals →
           </Link>
@@ -514,18 +512,18 @@ export function PassPage() {
                     />
                   </div>
                   <div className="min-w-0">
-                    <span className="inline-block rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+                    <span className="inline-block rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                       {"discountText" in deal && deal.discountText ? deal.discountText : "Exclusive Perk"}
                     </span>
                     <p className="font-display text-sm font-bold text-ink mt-0.5 truncate group-hover:text-accent transition-colors">
                       {deal.title}
                     </p>
-                    <p className="text-[11px] text-mute truncate mt-0.5">
+                    <p className="text-xs text-mute truncate mt-0.5">
                       {"businessName" in deal ? deal.businessName : "Sydney Local Partner"}
                     </p>
                   </div>
                 </div>
-                <ArrowRight size={16} className="text-mute group-hover:text-ink shrink-0 mr-1" />
+                <ArrowRight size={16} className="text-mute group-hover:text-ink shrink-0 mr-1" aria-hidden="true" />
               </Link>
             ))}
         </div>

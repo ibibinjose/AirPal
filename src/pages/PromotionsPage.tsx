@@ -163,10 +163,10 @@ export function PromotionsPage() {
             Sydney & Local
           </span>
         </div>
-        <h1 className="font-display mt-3 text-2xl sm:text-3xl md:text-4xl font-black text-ink tracking-tight">
+        <h1 className="human-title mt-3 text-2xl sm:text-3xl md:text-4xl text-balance">
           Exclusive Deals & Member Offers
         </h1>
-        <p className="mt-1.5 text-xs sm:text-sm text-mute max-w-xl">
+        <p className="human-lede mt-1.5 text-sm sm:text-base max-w-xl">
           Discounts, dining perks, secret barista codes, and member vouchers verified from local businesses across your
           city.
         </p>

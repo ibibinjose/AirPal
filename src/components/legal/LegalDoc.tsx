@@ -16,12 +16,12 @@ export function LegalDoc({
   return (
     <div>
       <article className="mx-auto max-w-2xl px-4 pb-6 pt-8 md:px-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-accent">{kicker}</p>
-        <h1 className="font-display mt-1 text-3xl font-semibold md:text-4xl">{title}</h1>
-        <p className="mt-2 text-sm text-mute">
+        <p className="human-eyebrow">{kicker}</p>
+        <h1 className="human-title mt-1 text-3xl md:text-4xl text-balance">{title}</h1>
+        <p className="mt-2 text-sm text-mute tabular-data">
           Effective {LEGAL.updated} · {LEGAL.location}
         </p>
-        {lede && <p className="mt-5 text-[15px] leading-relaxed text-ink/85">{lede}</p>}
+        {lede && <p className="human-lede mt-5 text-sm sm:text-base">{lede}</p>}
         <div className="legal-prose mt-8">{children}</div>
         <p className="mt-12 text-sm text-mute">
           Questions?{" "}

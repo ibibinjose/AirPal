@@ -74,13 +74,13 @@ export function TrustPage() {
         />
       ))}
 
-      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent">Trust & company facts</p>
-      <h1 className="font-display mt-1 text-3xl font-bold tracking-tight text-ink sm:text-4xl">Is AirPal.Me legit?</h1>
+      <p className="human-eyebrow">Trust & company facts</p>
+      <h1 className="human-title mt-1 text-3xl sm:text-4xl text-balance">Is AirPal.Me legit?</h1>
 
       {/* Answer capsule */}
-      <div className="mt-6 rounded-[28px] bg-neutral-900 p-6 text-white sm:p-8">
-        <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-accent">
-          <ShieldCheck size={14} /> The short answer
+      <div className="mt-6 rounded-[28px] bg-[#221b15] p-6 text-white sm:p-8">
+        <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-300">
+          <ShieldCheck size={14} aria-hidden="true" /> The short answer
         </p>
         <p className="mt-3 text-base leading-relaxed text-white/90 sm:text-lg">
           AirPal.Me is an all-in-one events and community platform built in Sydney by SarvamDaily Pty Ltd (ABN 83 702

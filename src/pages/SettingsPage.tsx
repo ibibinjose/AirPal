@@ -161,8 +161,8 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 pb-[max(7rem,calc(env(safe-area-inset-bottom,0px)+6rem))]">
-      <p className="pt-4 text-[11px] font-medium uppercase tracking-[0.16em] text-accent">Account</p>
-      <h1 className="font-display mt-1 text-3xl font-semibold">Settings</h1>
+      <p className="human-eyebrow pt-4">Account</p>
+      <h1 className="human-title mt-1 text-3xl text-balance">Settings</h1>
 
       {user ? (
         <div className="mt-5 flex items-center gap-3 rounded-2xl bg-card px-4 py-3 ring-1 ring-line">

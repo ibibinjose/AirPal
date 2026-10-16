@@ -312,7 +312,7 @@ export function StartPage() {
           <div className="mx-auto flex justify-center">
             <MeAvatar faceClassName="h-20 w-20 text-2xl shadow-md ring-2 ring-brand/20" />
           </div>
-          <h1 className="font-display mt-4 text-2xl sm:text-3xl font-extrabold text-ink">
+          <h1 className="human-title mt-4 text-2xl sm:text-3xl text-balance">
             {user.displayName || "Your AirPal Account"}
           </h1>
           {mine?.handle ? (
@@ -478,11 +478,11 @@ export function StartPage() {
               <Sparkles size={13} />
               <span>LIFE MADE EASY</span>
             </div>
-            <h1 className="font-display mt-3 text-4xl xl:text-5xl font-black tracking-tight text-ink leading-[1.12]">
+            <h1 className="human-title mt-3 text-4xl xl:text-5xl text-balance">
               Find your place. <br />
               <span className="font-serif italic font-normal text-accent">Meet your people.</span>
             </h1>
-            <p className="mt-3 text-sm text-mute leading-relaxed max-w-xl">
+            <p className="human-lede mt-3 text-sm sm:text-base max-w-xl">
               AirPal connects live events, merchant perks, and your digital identity into one seamless ecosystem with a
               single universal account.
             </p>
@@ -594,11 +594,11 @@ export function StartPage() {
                 <Sparkles size={13} />
                 <span>LIFE MADE EASY</span>
               </div>
-              <h1 className="font-display mt-2 text-2xl sm:text-3xl font-black tracking-tight text-ink leading-tight">
+              <h1 className="human-title mt-2 text-2xl sm:text-3xl text-balance">
                 Find your place. <br />
                 <span className="font-serif italic font-normal text-accent">Meet your people.</span>
               </h1>
-              <p className="mx-auto mt-1.5 max-w-sm text-xs text-mute leading-relaxed">
+              <p className="mx-auto mt-1.5 max-w-sm text-sm text-mute leading-relaxed">
                 One universal account across Communities, Friends, and Me.
               </p>
 

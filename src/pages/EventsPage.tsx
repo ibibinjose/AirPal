@@ -234,17 +234,15 @@ export function EventsPage() {
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               href="/pass"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-[11px] font-bold uppercase tracking-wider text-accent ring-1 ring-line hover:bg-card transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-xs font-bold uppercase tracking-wider text-accent ring-1 ring-line hover:bg-card transition"
             >
-              <ArrowLeft size={13} /> AirPal Pass
+              <ArrowLeft size={13} aria-hidden="true" /> AirPal Pass
             </Link>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-mute">
-              Events &amp; Tickets
-            </span>
+            <span className="human-eyebrow">Events &amp; Tickets</span>
           </div>
 
           <div className="mt-2 flex items-center gap-2.5 flex-wrap">
-            <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink md:text-4xl">Events in</h1>
+            <h1 className="human-title text-3xl md:text-4xl">Events in</h1>
 
             {/* City Picker Trigger */}
             <div className="relative">
@@ -400,12 +398,12 @@ export function EventsPage() {
 
       {/* Event Results Section */}
       {visible.length === 0 ? (
-        <div className="mt-6 rounded-[28px] bg-card p-10 text-center ring-1 ring-line shadow-clay">
-          <Ticket size={36} className="mx-auto text-mute" />
-          <p className="font-display text-lg font-bold text-ink mt-3">No events match this filter</p>
-          <p className="mx-auto mt-1 max-w-sm text-xs text-mute">
-            No live events found for {effectiveCity} with selected category and dates. Try resetting filters or host
-            your own gig.
+        <div className="human-card mt-6 p-10 text-center">
+          <Ticket size={36} className="mx-auto text-mute" aria-hidden="true" />
+          <p className="human-section-title mt-3 text-lg">No events match these filters</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
+            Nothing live in {effectiveCity} for this combination yet. Try resetting the filters — or host your own
+            gathering.
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
             <button
@@ -415,15 +413,15 @@ export function EventsPage() {
                 setDateRange("all");
                 setQuery("");
               }}
-              className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition"
+              className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 text-sm font-bold text-ink ring-1 ring-line hover:bg-card transition"
             >
               Reset Filters
             </button>
             <Link
               href="/event"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-xs transition hover:bg-brand/90"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 text-sm font-bold text-white shadow-xs transition hover:bg-brand/90"
             >
-              <Plus size={14} /> Host an Event
+              <Plus size={14} aria-hidden="true" /> Host an Event
             </Link>
           </div>
         </div>

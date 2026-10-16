@@ -535,10 +535,8 @@ export function OrganiserEventPage() {
                   </span>
                   <span className="text-xs text-mute font-medium">Tickets &amp; Passes</span>
                 </div>
-                <h1 className="font-display mt-2 text-3xl font-bold tracking-tight text-ink md:text-4xl">
-                  Create a Market, Expo or Event
-                </h1>
-                <p className="mt-2 text-sm leading-relaxed text-mute max-w-xl">
+                <h1 className="human-title mt-2 text-3xl md:text-4xl text-balance">Create a Market, Expo or Event</h1>
+                <p className="human-lede mt-2 text-sm sm:text-base max-w-xl">
                   Pick a format, search Google Place for the venue, and set your schedule. Guests scan the entrance Gate
                   QR into a live directory.
                 </p>
@@ -1492,10 +1490,8 @@ export function OrganiserEventPage() {
                   </span>
                 )}
               </div>
-              <h1 className="font-display mt-1 text-2xl sm:text-3xl font-bold tracking-tight text-ink">
-                {myEvent.name}
-              </h1>
-              {myEvent.shortWhy && <p className="text-xs text-mute mt-0.5">{myEvent.shortWhy}</p>}
+              <h1 className="human-title mt-1 text-2xl sm:text-3xl text-balance">{myEvent.name}</h1>
+              {myEvent.shortWhy && <p className="text-sm text-mute mt-0.5">{myEvent.shortWhy}</p>}
             </div>
 
             <div className="flex items-center gap-2">

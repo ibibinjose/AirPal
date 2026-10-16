@@ -38,14 +38,16 @@ export function HomePage() {
     <div className="mx-auto max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-6 sm:pt-6">
       {/* Editorial Page Greeting */}
       <div className="mb-6">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-accent">
-          YOUR EVERYDAY, A LITTLE BRIGHTER
-        </div>
-        <h1 className="mt-1 font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-ink">
+        <div className="human-eyebrow">Made for people, not profiles</div>
+        <h1 className="human-title mt-2 text-2xl sm:text-3xl">
           {firstName ? `Hey ${firstName}, good to see you ` : "Hey, good to see you "}
-          <span className="text-accent inline-block">✳</span>
+          <span className="text-accent inline-block" aria-hidden="true">
+            ✳
+          </span>
         </h1>
-        <p className="mt-1 text-xs sm:text-sm text-mute">A whole city of possibilities. A day that’s yours.</p>
+        <p className="human-lede text-sm sm:text-base">
+          A whole city of possibilities. Real places, real people, one day at a time.
+        </p>
       </div>
 
       {/* Hero Banner — Editorial Luma Craft */}
@@ -54,7 +56,9 @@ export function HomePage() {
         <div className="absolute inset-0" aria-hidden="true">
           <img
             src="/media/harbour.jpg"
-            alt="Sydney coastline and harbour"
+            alt=""
+            loading="eager"
+            decoding="async"
             className="h-full w-full object-cover object-center opacity-70"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/30" />
@@ -67,13 +71,13 @@ export function HomePage() {
             <span>A LITTLE SPONTANEITY LOOKS GOOD ON YOU</span>
           </div>
 
-          <h2 className="mt-3 font-display text-3xl sm:text-5xl font-extrabold leading-[1.08] tracking-tight text-white">
+          <h2 className="mt-3 font-display text-3xl sm:text-5xl font-extrabold leading-[1.08] tracking-tight text-white text-balance">
             Less scrolling. <br />
             More <span className="font-serif italic font-normal text-amber-300">living.</span>
           </h2>
 
-          <p className="mt-3 max-w-lg text-xs sm:text-sm text-white/85 leading-relaxed">
-            Find your kind of places and people. We’ll keep the little things together.
+          <p className="mt-3 max-w-lg text-sm sm:text-base text-white/85 leading-relaxed">
+            Find your kind of places and people. Everyone is welcome here.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -97,7 +101,7 @@ export function HomePage() {
 
         {/* Location Tag */}
         <div className="absolute bottom-4 right-5 hidden sm:flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 text-[10px] font-bold tracking-widest uppercase text-white/80 backdrop-blur-md">
-          <MapPin size={11} className="text-accent" />
+          <MapPin size={11} className="text-amber-300" aria-hidden="true" />
           <span>{city || "Sydney"} &amp; A Little Beyond</span>
         </div>
       </section>
@@ -111,14 +115,16 @@ export function HomePage() {
       <div className="mt-8">
         <div className="flex flex-col gap-10">
           {/* Section: What Now? */}
-          <section>
+          <section aria-labelledby="what-now-heading">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <Sparkles size={18} className="text-accent" />
-                  <h2 className="font-display text-xl font-bold text-ink">What now?</h2>
+                  <Sparkles size={18} className="text-accent" aria-hidden="true" />
+                  <h2 id="what-now-heading" className="human-section-title text-xl">
+                    What now?
+                  </h2>
                 </div>
-                <p className="mt-0.5 text-xs text-mute">A few ideas for wherever the day takes you.</p>
+                <p className="mt-0.5 text-sm text-mute">A few ideas for wherever the day takes you.</p>
               </div>
             </div>
 
@@ -130,14 +136,17 @@ export function HomePage() {
           </section>
 
           {/* Banner: A little perk goes a long way */}
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-[28px] bg-card p-5 ring-1 ring-line/80 shadow-clay">
+          <div className="human-card flex flex-wrap items-center justify-between gap-4 p-5">
             <div className="flex items-center gap-3.5">
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <div
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-human-blush text-human-clay"
+                aria-hidden="true"
+              >
                 <Sparkles size={22} />
               </div>
               <div>
-                <h3 className="font-display text-sm font-bold text-ink">A little perk goes a long way.</h3>
-                <p className="text-xs text-mute mt-0.5">Discover local dining perks &amp; exclusive guest offers.</p>
+                <h3 className="human-section-title text-sm">A little perk goes a long way.</h3>
+                <p className="text-sm text-mute mt-0.5">Local dining perks and kind guest offers near you.</p>
               </div>
             </div>
 
@@ -151,11 +160,13 @@ export function HomePage() {
           </div>
 
           {/* Section: Good things on the horizon (Upcoming events) */}
-          <section>
+          <section aria-labelledby="horizon-heading">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 className="font-display text-xl font-bold text-ink">Good things on the horizon</h2>
-                <p className="mt-0.5 text-xs text-mute">Make a little space for something memorable.</p>
+                <h2 id="horizon-heading" className="human-section-title text-xl">
+                  Good things on the horizon
+                </h2>
+                <p className="mt-0.5 text-sm text-mute">Make a little space for something memorable.</p>
               </div>
 
               <Link
@@ -175,8 +186,8 @@ export function HomePage() {
           </section>
 
           {/* Page sign-off (the global SiteFooter owns the contentinfo landmark) */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-xs text-mute">
-            <span>Made for the life between moments.</span>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-sm text-mute">
+            <span>Made for every human, every day.</span>
             <span>airpal.me · Curated preview</span>
           </div>
         </div>

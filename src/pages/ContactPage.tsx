@@ -39,8 +39,8 @@ export function ContactPage() {
   return (
     <div>
       <div className="mx-auto max-w-md px-4 pb-6 pt-8 md:px-6">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-accent">Contact</p>
-        <h1 className="font-display mt-1 text-3xl font-semibold">Write to us</h1>
+        <p className="human-eyebrow">Contact</p>
+        <h1 className="human-title mt-1 text-3xl text-balance">Write to us</h1>
         <p className="mt-3 text-[15px] leading-relaxed text-ink/80">
           For access or deletion, choose that topic. To recover an @handle that matches your registered name, trade
           mark, or domain, choose Handle / trade mark or{" "}

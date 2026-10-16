@@ -171,10 +171,8 @@ export function AdminPage() {
                 {city} · {time}
               </span>
             </div>
-            <h1 className="font-display mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-ink">
-              Operations Cockpit
-            </h1>
-            <p className="text-xs text-mute mt-0.5">
+            <h1 className="human-title mt-2 text-2xl sm:text-3xl text-balance">Operations Cockpit</h1>
+            <p className="text-sm text-mute mt-0.5">
               Signed in as <span className="font-mono text-ink">{user?.email || "Platform Admin"}</span>
             </p>
           </div>

@@ -156,15 +156,13 @@ export function BusinessPage() {
   if (!mine) {
     return (
       <div className="mx-auto min-h-[60vh] max-w-2xl px-4 py-12">
-        <div className="rounded-[32px] bg-card p-6 sm:p-10 text-center ring-1 ring-line shadow-clay">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-brand/10 text-accent ring-1 ring-brand/20">
-            <Building2 className="h-8 w-8" />
+        <div className="human-card p-6 sm:p-10 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-human-blush text-human-clay ring-1 ring-line">
+            <Building2 className="h-8 w-8" aria-hidden="true" />
           </div>
-          <span className="inline-block mt-4 text-[11px] font-bold uppercase tracking-[0.16em] text-accent">
-            {NAMES.partnerAccount}
-          </span>
-          <h1 className="font-display mt-2 text-2xl sm:text-3xl font-bold text-ink">Launch Your Business on AirPal</h1>
-          <p className="mt-2 text-sm text-mute max-w-md mx-auto leading-relaxed">
+          <span className="human-eyebrow inline-block mt-4">{NAMES.partnerAccount}</span>
+          <h1 className="human-title mt-2 text-2xl sm:text-3xl text-balance">Launch Your Business on AirPal</h1>
+          <p className="human-lede mt-2 text-sm sm:text-base max-w-md mx-auto">
             One account for your entire hospitality or lifestyle brand. Import directly from Google Places, publish
             local deals, host exclusive experiences, and manage guest reservations.
           </p>
@@ -378,9 +376,11 @@ export function BusinessPage() {
 
           <div className="absolute bottom-4 left-5 right-5 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h1 className="font-display text-2xl sm:text-3xl font-bold text-white drop-shadow-sm">{mine.name}</h1>
-              <p className="text-xs text-white/80 flex items-center gap-1.5 mt-0.5">
-                <MapPin className="h-3.5 w-3.5 text-accent" />
+              <h1 className="font-display text-2xl sm:text-3xl font-bold text-white drop-shadow-sm text-balance">
+                {mine.name}
+              </h1>
+              <p className="text-sm text-white/80 flex items-center gap-1.5 mt-0.5">
+                <MapPin className="h-3.5 w-3.5 text-amber-300" aria-hidden="true" />
                 {address.city || "Sydney"}, Australia · Category:{" "}
                 <span className="capitalize font-semibold">{category}</span>
               </p>

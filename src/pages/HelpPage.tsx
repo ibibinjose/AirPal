@@ -37,8 +37,8 @@ export function HelpPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Knowledge Hub</p>
-      <h1 className="font-display mt-2 text-3xl font-bold tracking-tight">How can we help?</h1>
+      <p className="human-eyebrow">Knowledge Hub</p>
+      <h1 className="human-title mt-2 text-3xl text-balance">How can we help?</h1>
       <p className="mt-1 text-sm leading-6 text-mute">
         Short guides to tickets, safety, and your account. Still stuck?{" "}
         <Link href="/assist" className="font-semibold text-accent hover:underline">

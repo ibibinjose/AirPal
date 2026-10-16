@@ -31,17 +31,18 @@ export function MyTicketsPage() {
           href="/pass"
           className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
         >
-          <ArrowLeft size={13} />
+          <ArrowLeft size={13} aria-hidden="true" />
           <span>AirPal Pass</span>
         </Link>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Wallet &amp; Passbook</span>
+        <span className="human-eyebrow">Wallet &amp; Passbook</span>
       </div>
 
       <PaymentCanceledNotice />
 
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="mt-0.5 font-display text-3xl font-bold text-ink">My event passes &amp; tickets</h1>
+          <h1 className="human-title mt-0.5 text-3xl">My event passes &amp; tickets</h1>
+          <p className="human-lede text-sm sm:text-base">Every ticket you hold, ready to scan — even offline.</p>
         </div>
         <div className="flex items-center gap-2">
           {user && (
@@ -76,10 +77,10 @@ export function MyTicketsPage() {
       )}
 
       {!user && bookings.length === 0 ? (
-        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-clay">
-          <Ticket size={28} className="mx-auto text-mute" />
-          <p className="mt-2 font-display text-lg font-bold text-ink">Sign in to see your passes</p>
-          <p className="mx-auto mt-1 max-w-sm text-[14px] text-mute">
+        <div className="human-card mt-6 p-8 text-center">
+          <Ticket size={28} className="mx-auto text-mute" aria-hidden="true" />
+          <p className="human-section-title mt-2 text-lg">Sign in to see your passes</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
             Tickets and passes live under your AirPal account — one account, tickets everywhere.
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
@@ -99,7 +100,7 @@ export function MyTicketsPage() {
         </div>
       ) : !user && bookings.length > 0 ? (
         <>
-          <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-brand/10 p-3.5 text-xs font-semibold text-accent ring-1 ring-brand/20">
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-brand/10 p-3.5 text-sm font-semibold text-accent ring-1 ring-brand/20">
             <span>Viewing passes saved on this device. Sign in to sync across all your devices.</span>
             <Link href="/start?tab=signin" className="underline shrink-0">
               Sign in →
@@ -114,10 +115,10 @@ export function MyTicketsPage() {
           </div>
         </>
       ) : failed && bookings.length === 0 ? (
-        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-clay">
-          <Ticket size={28} className="mx-auto text-mute" />
-          <p className="mt-2 font-display text-lg font-bold text-ink">Couldn&apos;t load your tickets</p>
-          <p className="mx-auto mt-1 max-w-sm text-[14px] text-mute">
+        <div className="human-card mt-6 p-8 text-center">
+          <Ticket size={28} className="mx-auto text-mute" aria-hidden="true" />
+          <p className="human-section-title mt-2 text-lg">Couldn&apos;t load your tickets</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
             Check your connection and try again — your passes are safe in your AirPal account.
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
@@ -137,10 +138,10 @@ export function MyTicketsPage() {
           </div>
         </div>
       ) : bookings.length === 0 ? (
-        <div className="mt-6 rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-clay">
-          <Ticket size={28} className="mx-auto text-mute" />
-          <p className="mt-2 font-display text-lg font-bold text-ink">No tickets or passes yet</p>
-          <p className="mx-auto mt-1 max-w-sm text-[14px] text-mute">
+        <div className="human-card mt-6 p-8 text-center">
+          <Ticket size={28} className="mx-auto text-mute" aria-hidden="true" />
+          <p className="human-section-title mt-2 text-lg">No tickets or passes yet</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
             Passes and tickets you get on AirPal Pass live here — ready to scan at the door and save to Apple Wallet /
             Google Wallet.
           </p>
@@ -154,65 +155,75 @@ export function MyTicketsPage() {
       ) : (
         <div className="mt-6 space-y-4">
           {/* Filter Segmented Tabs */}
-          <div className="flex items-center gap-2 rounded-2xl bg-paper p-1 ring-1 ring-line">
+          <div
+            className="flex items-center gap-2 rounded-2xl bg-paper p-1 ring-1 ring-line"
+            role="tablist"
+            aria-label="Filter tickets"
+          >
             <button
               type="button"
+              role="tab"
+              aria-selected={tab === "upcoming"}
               onClick={() => {
                 void triggerHapticSelection();
                 setTab("upcoming");
               }}
               className={cn(
-                "inline-flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold transition active:scale-95",
+                "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition active:scale-95",
                 tab === "upcoming" ? "bg-card text-ink shadow-xs ring-1 ring-line" : "text-mute hover:text-ink",
               )}
             >
               <span>Upcoming</span>
-              <span className="rounded-full bg-brand/10 px-1.5 py-0.5 text-[11px] font-bold text-accent">
+              <span className="rounded-full bg-brand/10 px-1.5 py-0.5 text-xs font-bold text-accent tabular-data">
                 {upcomingBookings.length}
               </span>
             </button>
 
             <button
               type="button"
+              role="tab"
+              aria-selected={tab === "past"}
               onClick={() => {
                 void triggerHapticSelection();
                 setTab("past");
               }}
               className={cn(
-                "inline-flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold transition active:scale-95",
+                "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition active:scale-95",
                 tab === "past" ? "bg-card text-ink shadow-xs ring-1 ring-line" : "text-mute hover:text-ink",
               )}
             >
               <span>Past</span>
-              <span className="rounded-full bg-paper px-1.5 py-0.5 text-[11px] font-bold text-mute ring-1 ring-line">
+              <span className="rounded-full bg-paper px-1.5 py-0.5 text-xs font-bold text-mute ring-1 ring-line tabular-data">
                 {pastBookings.length}
               </span>
             </button>
 
             <button
               type="button"
+              role="tab"
+              aria-selected={tab === "all"}
               onClick={() => {
                 void triggerHapticSelection();
                 setTab("all");
               }}
               className={cn(
-                "inline-flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold transition active:scale-95",
+                "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition active:scale-95",
                 tab === "all" ? "bg-card text-ink shadow-xs ring-1 ring-line" : "text-mute hover:text-ink",
               )}
             >
               <span>All</span>
-              <span className="rounded-full bg-paper px-1.5 py-0.5 text-[11px] font-bold text-mute ring-1 ring-line">
+              <span className="rounded-full bg-paper px-1.5 py-0.5 text-xs font-bold text-mute ring-1 ring-line tabular-data">
                 {bookings.length}
               </span>
             </button>
           </div>
 
           {displayList.length === 0 ? (
-            <div className="rounded-3xl bg-card p-6 text-center ring-1 ring-line shadow-clay">
-              <p className="font-display text-base font-bold text-ink">
+            <div className="human-card p-6 text-center">
+              <p className="human-section-title text-base">
                 {tab === "upcoming" ? "No upcoming passes" : "No past passes found"}
               </p>
-              <p className="mt-1 text-xs text-mute">
+              <p className="mt-1 text-sm text-mute">
                 {tab === "upcoming"
                   ? "Grab a pass to a festival, concert, or gig on AirPal Pass."
                   : "Passes you have previously scanned or attended will be kept here."}
@@ -220,7 +231,7 @@ export function MyTicketsPage() {
               {tab === "upcoming" && (
                 <Link
                   href="/pass"
-                  className="no-print mt-3 inline-flex min-h-[40px] items-center rounded-full bg-brand px-4 text-xs font-semibold text-white"
+                  className="no-print mt-3 inline-flex min-h-[44px] items-center rounded-full bg-brand px-4 text-sm font-semibold text-white"
                 >
                   Browse AirPal Pass
                 </Link>

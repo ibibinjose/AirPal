@@ -283,14 +283,14 @@ export function MePage() {
               {/* Name, Handle & Status */}
               <div className="min-w-0 pb-1 flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-accent bg-brand/10 ring-1 ring-brand/20 rounded-full px-2.5 py-0.5">
-                    <Sparkles size={11} />
+                  <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-accent bg-brand/10 ring-1 ring-brand/20 rounded-full px-2.5 py-0.5">
+                    <Sparkles size={11} aria-hidden="true" />
                     <span>Me Cockpit</span>
                   </span>
                   {mine && <BioKindBadge kind={mine.kind} />}
                 </div>
 
-                <h1 className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink leading-tight truncate">
+                <h1 className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink leading-tight truncate text-balance">
                   {user.displayName || mine?.name || "Test User"}
                 </h1>
 
@@ -377,7 +377,7 @@ export function MePage() {
                 <Sun size={17} />
               </span>
               <div className="min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-mute block leading-tight">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-mute block leading-tight">
                   Today
                 </span>
                 <span className="font-display text-base font-black text-ink tabular-nums leading-tight">
@@ -400,7 +400,7 @@ export function MePage() {
                 <Coffee size={17} />
               </span>
               <div className="min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-mute block leading-tight">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-mute block leading-tight">
                   Catch-ups
                 </span>
                 <span className="font-display text-base font-black text-ink tabular-nums leading-tight">
@@ -423,7 +423,7 @@ export function MePage() {
                 <Ticket size={17} />
               </span>
               <div className="min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-mute block leading-tight">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-mute block leading-tight">
                   Tickets
                 </span>
                 <span className="font-display text-base font-black text-ink tabular-nums leading-tight">

@@ -291,7 +291,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
                       toast.success(`Saved "${event.title}" to Interested`);
                   }}
                   className={cn(
-                    "inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full text-xs font-bold transition active:scale-[0.98] cursor-pointer",
+                    "inline-flex h-11 min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-bold transition active:scale-[0.98] cursor-pointer",
                     event.isInterested
                       ? "bg-ink text-paper shadow-xs"
                       : "bg-paper text-mute ring-1 ring-line hover:text-ink",
@@ -352,12 +352,8 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
 
             {/* Event Title & Highlight */}
             <div>
-              <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-ink leading-tight">
-                {event.title}
-              </h1>
-              {event.shortWhy && (
-                <p className="mt-1.5 text-sm sm:text-base font-medium text-mute leading-snug">{event.shortWhy}</p>
-              )}
+              <h1 className="human-title text-3xl sm:text-4xl text-balance">{event.title}</h1>
+              {event.shortWhy && <p className="human-lede mt-1.5 text-sm sm:text-base font-medium">{event.shortWhy}</p>}
             </div>
 
             {/* Apple Calendar Date & Time Block */}
@@ -389,10 +385,10 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
             />
 
             {/* About Event Description Card */}
-            <div className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line/70 shadow-clay backdrop-blur-md space-y-3">
+            <div className="human-card p-5 space-y-3">
               <div className="flex items-center justify-between border-b border-line/50 pb-2.5">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-ink">About This Experience</h3>
-                <span className="text-[11px] text-mute font-medium">Verified by AirPal</span>
+                <span className="text-xs text-mute font-medium">Verified by AirPal</span>
               </div>
               <p className="text-sm sm:text-[15px] leading-relaxed text-ink/90 whitespace-pre-line font-normal">
                 {event.description}
@@ -489,7 +485,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
 
         <div className="mt-6 lg:mt-0 lg:col-span-7 space-y-4">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-accent">{ev.when}</span>
+            <span className="human-eyebrow">{ev.when}</span>
             {ev.ticketPrice && (
               <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-amber-400/30">
                 {ev.ticketPrice}
@@ -497,7 +493,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
             )}
           </div>
 
-          <h1 className="font-display text-3xl sm:text-4xl font-extrabold text-ink">{ev.title}</h1>
+          <h1 className="human-title text-3xl sm:text-4xl text-balance">{ev.title}</h1>
 
           <p className="text-[15px] leading-relaxed text-ink/90 whitespace-pre-line">{ev.insiderTip || ev.detail}</p>
 

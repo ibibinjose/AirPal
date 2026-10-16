@@ -262,7 +262,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
         </div>
       )}
 
-      <h1 className="font-display mt-4 text-3xl font-bold leading-tight">{promo.title}</h1>
+      <h1 className="human-title mt-4 text-3xl text-balance">{promo.title}</h1>
       <p className="mt-1 text-sm text-mute">by {promo.sponsorName}</p>
 
       {promo.winnerNote && (

@@ -146,20 +146,20 @@ export function TicketPage() {
         <div className="flex items-center justify-between gap-3 mb-4">
           <Link
             href="/me/tickets"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer touch-manipulation"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer touch-manipulation"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={14} aria-hidden="true" />
             <span>Passbook Wallet</span>
           </Link>
 
           <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-amber-400/30">
-            <Ticket size={13} />
+            <Ticket size={13} aria-hidden="true" />
             <span>AirPal Pass</span>
           </div>
 
           <Link
             href="/pass"
-            className="inline-flex min-h-[44px] items-center text-xs font-semibold text-accent hover:underline cursor-pointer touch-manipulation"
+            className="inline-flex min-h-[44px] items-center text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation"
           >
             AirPal Pass →
           </Link>
@@ -188,10 +188,10 @@ export function TicketPage() {
                 {brightnessBoost ? <Sun size={18} /> : <SunMedium size={18} />}
               </div>
               <div className="text-left">
-                <p className="text-xs font-bold leading-tight">
+                <p className="text-sm font-bold leading-tight">
                   {brightnessBoost ? "Screen Brightness Boosted" : "Boost Brightness for Door Scanner"}
                 </p>
-                <p className={cn("text-[11px] mt-0.5", brightnessBoost ? "text-neutral-900" : "text-mute")}>
+                <p className={cn("text-xs mt-0.5", brightnessBoost ? "text-neutral-900" : "text-mute")}>
                   {brightnessBoost
                     ? "Display maximized for instant gate scan"
                     : "Tap to maximize contrast at door entrance"}
@@ -262,10 +262,10 @@ export function TicketPage() {
             />
           </div>
         ) : (
-          <div className="rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-clay">
-            <Ticket size={32} className="mx-auto text-mute" />
-            <p className="font-display text-lg font-bold text-ink mt-3">Pass Loaded for Gate Staff</p>
-            <p className="text-xs text-mute mt-1">Ticket ID: {id}</p>
+          <div className="human-card p-8 text-center">
+            <Ticket size={32} className="mx-auto text-mute" aria-hidden="true" />
+            <p className="human-section-title mt-3 text-lg">Pass Loaded for Gate Staff</p>
+            <p className="text-sm text-mute mt-1 tabular-data">Ticket ID: {id}</p>
             <div className="mt-4">
               <TicketGatePanel ticketId={id} deniedMessage="Only this event's organiser can verify tickets." />
             </div>

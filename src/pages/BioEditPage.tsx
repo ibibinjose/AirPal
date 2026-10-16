@@ -724,17 +724,17 @@ export function BioEditPage() {
                 <BioKindBadge kind={activeProfile.kind} />
                 {/* Specific Personal Profile text for E2E and clear distinction */}
                 {!isBusiness && (
-                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-brand/10 text-accent">
+                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-brand/10 text-accent">
                     Personal Profile
                   </span>
                 )}
                 {isBusiness && (
-                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-amber-500/10 text-amber-800 dark:text-amber-300">
+                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-amber-500/10 text-amber-800 dark:text-amber-300">
                     Business Profile
                   </span>
                 )}
               </div>
-              <h1 className="font-display text-lg sm:text-xl font-bold tracking-tight text-ink truncate">
+              <h1 className="human-section-title text-lg sm:text-xl truncate">
                 {isBusiness ? "Edit Place Profile" : "Edit Digital Bio"}
               </h1>
             </div>

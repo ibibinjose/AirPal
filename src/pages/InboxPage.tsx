@@ -247,8 +247,8 @@ export function InboxPage() {
     <div className="mx-auto max-w-lg px-4 pb-[max(6rem,calc(env(safe-area-inset-bottom,0px)+5rem))]">
       <div className="flex items-center justify-between pt-6">
         <div>
-          <h1 className="font-display text-[28px] font-bold tracking-tight">Inbox</h1>
-          <p className="mt-1 text-[15px] text-mute">
+          <h1 className="human-title text-[28px] text-balance">Inbox</h1>
+          <p className="mt-1 text-sm sm:text-base text-mute tabular-data">
             {totalUnread ? `${totalUnread} unread` : "Messages & notifications"}
           </p>
         </div>

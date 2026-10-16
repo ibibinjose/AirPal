@@ -203,20 +203,20 @@ export function ScanPage() {
       <div className="flex items-center justify-between gap-2 py-1 mb-2">
         <Link
           href="/pass"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
         >
-          <ArrowLeft size={13} />
+          <ArrowLeft size={13} aria-hidden="true" />
           <span>AirPal Pass</span>
         </Link>
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
-          <Zap size={12} className="text-emerald-600" />
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+          <Zap size={12} className="text-emerald-600" aria-hidden="true" />
           <span>Offline Cache Validated</span>
         </div>
         <Link
           href="/me/tickets"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
         >
-          <Ticket size={13} className="text-amber-500" />
+          <Ticket size={13} className="text-amber-500" aria-hidden="true" />
           <span>Passes</span>
         </Link>
       </div>
@@ -282,7 +282,7 @@ export function ScanPage() {
             <ImageIcon size={14} className="text-accent" />
             <span>{uploading ? "Scanning Photo…" : "Scan Photo"}</span>
           </button>
-          <span className="text-[11px] font-semibold text-white/80 backdrop-blur-xs bg-black/40 px-2.5 py-1 rounded-full">
+          <span className="text-xs font-semibold text-white/80 backdrop-blur-xs bg-black/40 px-2.5 py-1 rounded-full">
             AirPal Universal QR
           </span>
         </div>
@@ -323,7 +323,7 @@ export function ScanPage() {
         </div>
       ) : (
         <>
-          <p className="mt-5 text-[11px] font-medium uppercase tracking-[0.16em] text-mute">{t("try")}</p>
+          <p className="mt-5 text-xs font-medium uppercase tracking-[0.16em] text-mute">{t("try")}</p>
           <div className="mt-3 grid grid-cols-2 gap-3 pb-6">
             {quickPlaces.map((p) => (
               <button

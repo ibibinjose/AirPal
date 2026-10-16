@@ -123,8 +123,8 @@ export function AboutPage() {
           </div>
 
           <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-6 text-white">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent">The AirPal Mission</p>
-            <h1 className="font-display mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl max-w-3xl leading-tight">
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-300">The AirPal Mission</p>
+            <h1 className="font-display mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl max-w-3xl leading-tight text-balance">
               People, places, things and experiences — made easier.
             </h1>
           </div>

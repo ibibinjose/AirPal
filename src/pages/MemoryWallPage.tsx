@@ -179,8 +179,8 @@ export function MemoryWallPage() {
           <ArrowLeft size={16} />
         </button>
         <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-accent">Trip keepsakes</p>
-          <h1 className="font-display text-2xl font-bold leading-tight">Memory Wall</h1>
+          <p className="human-eyebrow">Trip keepsakes</p>
+          <h1 className="human-section-title text-2xl text-balance">Memory Wall</h1>
         </div>
         <Button size="sm" className="ml-auto gap-1.5 rounded-full" onClick={() => fileRef.current?.click()}>
           <Camera size={15} />
