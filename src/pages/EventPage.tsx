@@ -13,6 +13,7 @@ import { formatRelativeBadge } from "@/lib/calendar-utils";
 import { setShareMeta } from "@/lib/share-meta";
 import { toPublicUrl } from "@/lib/public-origin";
 import { cn } from "@/lib/cn";
+import { isEventEnded } from "@/lib/event-status";
 import { track } from "@/lib/analytics";
 import type { CalendarEvent } from "@shared/event";
 import type { NearbyEvent } from "@shared/nearby";
@@ -261,7 +262,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
       <div className="mx-auto max-w-5xl px-4 pt-5 sm:pt-8">
         <div className="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
           {/* LEFT COLUMN (Desktop 5-col sticky sidebar / Mobile top stack) */}
-          <div className="lg:col-span-5 space-y-4">
+          <div className="lg:col-span-5 space-y-5">
             {/* Luma-style Cover Image with Ambient Specular Glow */}
             <EventCoverGlow
               src={event.heroImage}
@@ -276,13 +277,14 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
               hostHandle={event.hostHandle}
               hostType={event.hostType}
               collaboratorHandles={event.collaboratorHandles}
+              showActions
             />
 
             {/* Social Proof Attendee Avatar Pile */}
             <EventGuestlistAvatars eventId={event.id} />
 
             {/* Secondary Action Buttons (Save, Like, Add to Trip) */}
-            <div className="rounded-[24px] bg-card/90 p-3 ring-1 ring-line/70 shadow-clay backdrop-blur-md">
+            <div className="rounded-3xl bg-card p-3 ring-1 ring-line">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -324,7 +326,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
           </div>
 
           {/* RIGHT COLUMN (Desktop 7-col primary content / Mobile bottom stack) */}
-          <div className="mt-6 lg:mt-0 lg:col-span-7 space-y-4">
+          <div className="mt-6 lg:mt-0 lg:col-span-7 space-y-5">
             {/* Viral Referral / Inviter Badge (if ref is present) */}
             <EventInviterPill />
 
@@ -345,10 +347,25 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
               </span>
               {event.isLocal && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-bold text-accent">
-                  <Sparkles size={11} /> Local Event
+                  <Sparkles size={11} aria-hidden="true" /> Local Event
                 </span>
               )}
             </div>
+
+            {/* Topic tags — tap to explore more like this */}
+            {event.tags && event.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5" aria-label="Event topics">
+                {event.tags.slice(0, 6).map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`/events?q=${encodeURIComponent(tag)}`}
+                    className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-3.5 text-xs font-semibold text-mute ring-1 ring-line hover:text-accent hover:ring-brand/30 transition touch-manipulation"
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+            )}
 
             {/* Event Title & Highlight */}
             <div>
@@ -370,19 +387,35 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
               virtualUrl={event.virtualUrl}
             />
 
-            {/* Luma-style Registration & Ticket Tier Card */}
-            <EventRegistrationCard
-              paidCents={paidCents}
-              capacity={event.capacity}
-              requireApproval={event.requireApproval}
-              isGoing={event.isGoing}
-              buying={buying}
-              tier={tier}
-              spots={spots}
-              onTierChange={setTier}
-              onSpotsChange={setSpots}
-              onSubmit={handleRegisterOrBuy}
-            />
+            {/* Luma-style Registration & Ticket Tier Card — closed once past */}
+            {isEventEnded(event.date, today) ? (
+              <div className="rounded-3xl bg-paper p-5 sm:p-6 ring-1 ring-line text-center">
+                <p className="human-eyebrow">Registration Closed</p>
+                <p className="human-section-title mt-1 text-lg text-balance">This event has ended</p>
+                <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
+                  This event is not currently taking registrations. Contact the host above or explore what else is on.
+                </p>
+                <Link
+                  href="/events"
+                  className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-brand px-5 text-sm font-bold text-white touch-manipulation"
+                >
+                  Browse Events
+                </Link>
+              </div>
+            ) : (
+              <EventRegistrationCard
+                paidCents={paidCents}
+                capacity={event.capacity}
+                requireApproval={event.requireApproval}
+                isGoing={event.isGoing}
+                buying={buying}
+                tier={tier}
+                spots={spots}
+                onTierChange={setTier}
+                onSpotsChange={setSpots}
+                onSubmit={handleRegisterOrBuy}
+              />
+            )}
 
             {/* About Event Description Card */}
             <div className="human-card p-5 space-y-3">
@@ -415,10 +448,8 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
 
             {/* Program Lineup & Speakers */}
             {event.speakers && event.speakers.length > 0 && (
-              <div className="rounded-[28px] bg-card/90 p-5 ring-1 ring-line/70 shadow-clay backdrop-blur-md space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-accent">
-                  Speakers, Artists &amp; Lineup
-                </h3>
+              <div className="rounded-3xl bg-card p-5 ring-1 ring-line space-y-3">
+                <h3 className="human-eyebrow">Speakers, Artists &amp; Lineup</h3>
                 <SpeakerRow speakers={event.speakers} />
               </div>
             )}
@@ -436,30 +467,32 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
         heroImage={event.heroImage}
       />
 
-      {/* Floating Mobile Sticky Registration Button */}
-      <StickyAction
-        primary={
-          <button
-            type="button"
-            onClick={() => void handleRegisterOrBuy()}
-            disabled={buying}
-            className={cn(
-              "flex h-12 w-full cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-full text-[15px] font-bold shadow-md transition active:scale-[0.99] disabled:opacity-60",
-              event.isGoing ? "bg-emerald-600 text-white" : isPaid ? "bg-brand text-white" : "bg-brand text-white",
-            )}
-          >
-            <span>
-              {buying
-                ? "Starting checkout…"
-                : event.isGoing
-                  ? "You're going ✓"
-                  : isPaid
-                    ? `Get ${effectiveSpots > 1 ? `${effectiveSpots} tickets` : "ticket"} · $${(effectivePriceCents / 100).toFixed(2)}`
-                    : "Register Free Pass · I'm going"}
-            </span>
-          </button>
-        }
-      />
+      {/* Floating Mobile Sticky Registration Button — hidden once ended */}
+      {!isEventEnded(event.date, today) && (
+        <StickyAction
+          primary={
+            <button
+              type="button"
+              onClick={() => void handleRegisterOrBuy()}
+              disabled={buying}
+              className={cn(
+                "flex h-12 w-full cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-full text-[15px] font-bold shadow-md transition active:scale-[0.99] disabled:opacity-60",
+                event.isGoing ? "bg-emerald-600 text-white" : isPaid ? "bg-brand text-white" : "bg-brand text-white",
+              )}
+            >
+              <span>
+                {buying
+                  ? "Starting checkout…"
+                  : event.isGoing
+                    ? "You're going ✓"
+                    : isPaid
+                      ? `Get ${effectiveSpots > 1 ? `${effectiveSpots} tickets` : "ticket"} · $${(effectivePriceCents / 100).toFixed(2)}`
+                      : "Register Free Pass · I'm going"}
+              </span>
+            </button>
+          }
+        />
+      )}
     </div>
   );
 }
@@ -483,7 +516,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
           <EventCoverGlow src={ev.heroImage} alt={ev.title} />
         </div>
 
-        <div className="mt-6 lg:mt-0 lg:col-span-7 space-y-4">
+        <div className="mt-6 lg:mt-0 lg:col-span-7 space-y-5">
           <div className="flex items-center gap-2">
             <span className="human-eyebrow">{ev.when}</span>
             {ev.ticketPrice && (
@@ -499,20 +532,36 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
 
           <EventLocationCard venue={ev.venueName || ev.title} city="Sydney" />
 
-          <div className="flex gap-3 pt-2">
-            {ev.ticketUrl && (
-              <Button className="flex-1 min-h-[44px] font-bold" onClick={() => window.open(ev.ticketUrl, "_blank")}>
-                Official Tickets
+          {ev.isEnded ? (
+            <div className="rounded-3xl bg-paper p-5 ring-1 ring-line text-center">
+              <p className="human-eyebrow">Registration Closed</p>
+              <p className="human-section-title mt-1 text-lg text-balance">This event has ended</p>
+              <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
+                This event is not currently taking registrations. Explore what else is on.
+              </p>
+              <Link
+                href="/events"
+                className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-brand px-5 text-sm font-bold text-white touch-manipulation"
+              >
+                Browse Events
+              </Link>
+            </div>
+          ) : (
+            <div className="flex gap-3 pt-2">
+              {ev.ticketUrl && (
+                <Button className="flex-1 min-h-[44px] font-bold" onClick={() => window.open(ev.ticketUrl, "_blank")}>
+                  Official Tickets
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                className="flex-1 min-h-[44px] ring-1 ring-line font-bold"
+                onClick={() => nav("/calendar")}
+              >
+                Calendar Schedule
               </Button>
-            )}
-            <Button
-              variant="ghost"
-              className="flex-1 min-h-[44px] ring-1 ring-line font-bold"
-              onClick={() => nav("/calendar")}
-            >
-              Calendar Schedule
-            </Button>
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

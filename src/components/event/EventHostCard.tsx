@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { AtSign, BadgeCheck, Building2, User } from "lucide-react";
+import { AtSign, BadgeCheck, Building2, MessageCircle, User, UserCheck, UserPlus } from "lucide-react";
 import { fetchPublicBio } from "@/lib/bio-store";
 import { bioPath, type BioProfile } from "@shared/bio";
+import { useSocial } from "@/contexts/SocialContext";
+import { triggerHaptic } from "@/lib/native";
 import { cn } from "@/lib/cn";
 
 export interface EventHostCardProps {
@@ -10,6 +12,8 @@ export interface EventHostCardProps {
   hostHandle?: string;
   hostType?: "business" | "individual";
   collaboratorHandles?: string[];
+  /** Luma-style row: Follow the host plus a Contact the Host link. Off in previews. */
+  showActions?: boolean;
   className?: string;
 }
 
@@ -18,9 +22,11 @@ export function EventHostCard({
   hostHandle,
   hostType = "individual",
   collaboratorHandles = [],
+  showActions = false,
   className,
 }: EventHostCardProps) {
   const [profile, setProfile] = useState<BioProfile | null>(null);
+  const { isFollowing, toggleFollow } = useSocial();
   const cleanHandle = hostHandle ? hostHandle.replace(/^@+/, "").toLowerCase() : "";
 
   useEffect(() => {
@@ -39,16 +45,11 @@ export function EventHostCard({
   const isBusiness = hostType === "business" || profile?.kind === "business";
 
   return (
-    <div
-      className={cn(
-        "rounded-[24px] bg-card/90 p-4 ring-1 ring-line/70 shadow-clay backdrop-blur-md space-y-3",
-        className,
-      )}
-    >
-      <div className="flex items-center justify-between border-b border-line/50 pb-2.5">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Hosted By</span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-accent">
-          {isBusiness ? <Building2 size={11} /> : <User size={11} />}
+    <div className={cn("rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line space-y-4", className)}>
+      <div className="flex items-center justify-between border-b border-line/50 pb-3">
+        <span className="text-xs font-bold uppercase tracking-wider text-mute">Hosted By</span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold text-accent">
+          {isBusiness ? <Building2 size={11} aria-hidden="true" /> : <User size={11} aria-hidden="true" />}
           <span>{isBusiness ? "Business / Venue" : "AirPal Host"}</span>
         </span>
       </div>
@@ -98,7 +99,7 @@ export function EventHostCard({
         {cleanHandle && (
           <Link
             href={bioPath(cleanHandle)}
-            className="inline-flex min-h-[36px] items-center gap-1 rounded-full bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition shrink-0 active:scale-95"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-paper px-4 text-sm font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition shrink-0 active:scale-95 touch-manipulation"
           >
             <span>View Bio</span>
           </Link>
@@ -107,8 +108,8 @@ export function EventHostCard({
 
       {/* Co-Hosts / Collaborators List */}
       {collaboratorHandles.length > 0 && (
-        <div className="border-t border-line/50 pt-2.5">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-mute block mb-1.5">
+        <div className="border-t border-line/50 pt-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-mute block mb-2">
             Co-Hosts &amp; Partners
           </span>
           <div className="flex flex-wrap gap-1.5">
@@ -120,12 +121,46 @@ export function EventHostCard({
                   href={bioPath(clean)}
                   className="inline-flex items-center gap-1 rounded-full bg-paper px-2.5 py-1 text-xs font-medium text-ink ring-1 ring-line hover:ring-brand hover:text-accent transition"
                 >
-                  <AtSign size={11} className="text-accent" />
+                  <AtSign size={11} className="text-accent" aria-hidden="true" />
                   <span>{clean}</span>
                 </Link>
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Follow + Contact the Host (event page only) */}
+      {showActions && cleanHandle && (
+        <div className="flex items-center gap-2 border-t border-line/50 pt-3">
+          <button
+            type="button"
+            onClick={() => {
+              void triggerHaptic("light");
+              toggleFollow(cleanHandle, displayName);
+            }}
+            aria-pressed={isFollowing(cleanHandle)}
+            className={cn(
+              "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-bold transition active:scale-95 cursor-pointer touch-manipulation ring-1",
+              isFollowing(cleanHandle)
+                ? "bg-paper text-ink ring-line hover:bg-card"
+                : "bg-brand text-white ring-brand hover:bg-brand-ink",
+            )}
+          >
+            {isFollowing(cleanHandle) ? (
+              <UserCheck size={15} aria-hidden="true" />
+            ) : (
+              <UserPlus size={15} aria-hidden="true" />
+            )}
+            <span>{isFollowing(cleanHandle) ? "Following" : `Follow ${displayName}`}</span>
+          </button>
+          <Link
+            href={bioPath(cleanHandle)}
+            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full bg-paper px-3 text-sm font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 touch-manipulation"
+          >
+            <MessageCircle size={15} className="text-accent" aria-hidden="true" />
+            <span>Contact the Host</span>
+          </Link>
         </div>
       )}
     </div>

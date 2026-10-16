@@ -90,21 +90,16 @@ export function EventRegistrationCard({
   };
 
   return (
-    <div
-      className={cn(
-        "rounded-[28px] bg-card/95 p-5 ring-1 ring-line/80 shadow-clay backdrop-blur-xl space-y-4",
-        className,
-      )}
-    >
+    <div className={cn("rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line space-y-5", className)}>
       {/* Card Header & Price Pill */}
-      <div className="flex items-center justify-between border-b border-line/60 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-xl bg-brand/10 text-accent ring-1 ring-brand/20">
-            <Ticket size={16} />
+      <div className="flex items-center justify-between border-b border-line/60 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="grid h-10 w-10 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
+            <Ticket size={17} aria-hidden="true" />
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-ink">Registration &amp; Passes</h3>
-            <p className="text-[11px] text-mute">Reserve your entry into the event</p>
+            <h3 className="text-sm font-bold text-ink">Registration &amp; Passes</h3>
+            <p className="text-xs text-mute">Reserve your entry into the event</p>
           </div>
         </div>
 
@@ -117,7 +112,7 @@ export function EventRegistrationCard({
 
       {/* Tier Selector Chips */}
       <div>
-        <label className="text-[11px] font-bold uppercase tracking-wider text-mute mb-2 block">Select Tier</label>
+        <span className="text-xs font-bold uppercase tracking-wider text-mute mb-2 block">Select Tier</span>
         <div className="grid grid-cols-3 gap-2">
           {(
             [
@@ -136,15 +131,16 @@ export function EventRegistrationCard({
                 key={t.id}
                 type="button"
                 onClick={() => handleTierClick(t.id)}
+                aria-pressed={active}
                 className={cn(
-                  "flex flex-col items-center justify-center rounded-2xl p-2.5 text-center transition active:scale-95 cursor-pointer ring-1",
+                  "flex min-h-[52px] flex-col items-center justify-center rounded-2xl p-2 text-center transition active:scale-95 cursor-pointer ring-1",
                   active
                     ? "bg-brand text-white ring-brand shadow-sm"
                     : "bg-paper text-ink ring-line hover:bg-card hover:ring-brand/30",
                 )}
               >
-                <span className="text-xs font-bold">{t.label}</span>
-                <span className={cn("text-[10px] mt-0.5", active ? "text-amber-300 font-semibold" : "text-mute")}>
+                <span className="text-sm font-bold">{t.label}</span>
+                <span className={cn("text-[11px] mt-0.5", active ? "text-amber-300 font-semibold" : "text-mute")}>
                   {t.desc}
                 </span>
               </button>
@@ -156,15 +152,17 @@ export function EventRegistrationCard({
       {/* Quantity Selector for single/multi passes */}
       {tier !== "group" && (
         <div className="flex items-center justify-between pt-1">
-          <span className="text-xs font-semibold text-mute">Number of passes:</span>
-          <div className="flex items-center gap-1.5">
+          <span className="text-sm font-semibold text-mute">Number of passes:</span>
+          <div className="flex items-center gap-2">
             {[1, 2, 4].map((qty) => (
               <button
                 key={qty}
                 type="button"
                 onClick={() => handleSpotClick(qty)}
+                aria-pressed={spots === qty}
+                aria-label={`${qty} ${qty === 1 ? "pass" : "passes"}`}
                 className={cn(
-                  "h-8 w-8 rounded-xl text-xs font-bold transition active:scale-95 ring-1 cursor-pointer",
+                  "h-11 w-11 rounded-xl text-sm font-bold transition active:scale-95 ring-1 cursor-pointer touch-manipulation",
                   spots === qty
                     ? "bg-brand text-white ring-brand shadow-2xs"
                     : "bg-paper text-ink ring-line hover:bg-card",
@@ -191,27 +189,32 @@ export function EventRegistrationCard({
               disabled={Boolean(appliedCoupon)}
               placeholder="Coupon or promo code"
               aria-label="Coupon or promo code"
-              className="h-10 flex-1 rounded-xl bg-paper px-3 text-xs uppercase tracking-wider font-semibold text-ink ring-1 ring-line outline-none focus:ring-2 focus:ring-brand/30 disabled:opacity-75"
+              className="h-11 flex-1 rounded-xl bg-paper px-3 text-xs uppercase tracking-wider font-semibold text-ink ring-1 ring-line outline-none focus:ring-2 focus:ring-brand/30 disabled:opacity-75"
             />
             <button
               type="button"
               onClick={handleApplyCoupon}
-              className="h-10 px-3.5 rounded-xl bg-paper ring-1 ring-line text-xs font-bold text-accent hover:bg-card active:scale-95 cursor-pointer shrink-0"
+              className="h-11 px-4 rounded-xl bg-paper ring-1 ring-line text-sm font-bold text-accent hover:bg-card active:scale-95 cursor-pointer shrink-0 touch-manipulation"
             >
               {appliedCoupon ? "Remove" : "Apply"}
             </button>
           </div>
-          {couponError && <p className="text-[11px] text-red-500 font-medium mt-1">{couponError}</p>}
+          {couponError && (
+            <p role="alert" className="text-xs text-red-500 font-medium mt-1">
+              {couponError}
+            </p>
+          )}
           {appliedCoupon && (
-            <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1 flex items-center gap-1">
-              <Check size={12} strokeWidth={3} /> {appliedCoupon} applied ({discountPercent}% discount)
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1 flex items-center gap-1">
+              <Check size={12} strokeWidth={3} aria-hidden="true" /> {appliedCoupon} applied ({discountPercent}%
+              discount)
             </p>
           )}
         </div>
       )}
 
       {/* Capacity & Price Breakdown */}
-      <div className="rounded-2xl bg-paper p-3 border border-line/60 space-y-1.5 text-xs">
+      <div className="rounded-2xl bg-paper p-4 border border-line/60 space-y-1.5 text-sm tabular-data">
         {capacity && capacity > 0 && (
           <div className="flex items-center justify-between text-mute">
             <span>Capacity:</span>
@@ -257,8 +260,9 @@ export function EventRegistrationCard({
             onSubmit(appliedCoupon || undefined, totalPriceCents);
           }}
           disabled={buying}
+          aria-disabled={buying}
           className={cn(
-            "w-full h-13 rounded-full text-sm sm:text-base font-bold shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60",
+            "w-full h-[52px] rounded-full text-sm sm:text-base font-bold shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer touch-manipulation disabled:opacity-60 disabled:cursor-wait",
             isGoing
               ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/20"
               : "bg-brand text-white hover:brightness-105 shadow-brand/20",
@@ -292,8 +296,8 @@ export function EventRegistrationCard({
         </button>
       </div>
 
-      <div className="flex items-center justify-center gap-1.5 text-[11px] text-mute text-center pt-0.5">
-        <QrCode size={12} className="text-amber-500" />
+      <div className="flex items-center justify-center gap-1.5 text-xs text-mute text-center pt-0.5">
+        <QrCode size={12} className="text-amber-500" aria-hidden="true" />
         <span>1-tap Apple &amp; Google Wallet pass · Gate QR check-in</span>
       </div>
     </div>

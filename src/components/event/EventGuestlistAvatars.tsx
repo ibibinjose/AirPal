@@ -70,7 +70,7 @@ export function EventGuestlistAvatars({ eventId, className }: EventGuestlistAvat
     <Link
       href={`/e/${eventId}/guests`}
       className={cn(
-        "group flex items-center justify-between rounded-[24px] bg-card/90 p-4 ring-1 ring-line/70 shadow-clay backdrop-blur-md transition hover:ring-brand/30 hover:bg-card active:scale-[0.99] cursor-pointer",
+        "group flex items-center justify-between rounded-3xl bg-card p-4 ring-1 ring-line transition hover:ring-brand/30 active:scale-[0.99] cursor-pointer touch-manipulation",
         className,
       )}
     >

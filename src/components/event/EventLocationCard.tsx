@@ -30,25 +30,20 @@ export function EventLocationCard({
   // VIRTUAL MODE
   if (locationType === "virtual") {
     return (
-      <div
-        className={cn(
-          "rounded-[24px] bg-card/90 p-4 ring-1 ring-line/70 shadow-clay backdrop-blur-md space-y-3",
-          className,
-        )}
-      >
-        <div className="flex items-center justify-between border-b border-line/50 pb-2.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
-            <Video size={14} className="text-accent" />
+      <div className={cn("rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line space-y-4", className)}>
+        <div className="flex items-center justify-between border-b border-line/50 pb-3">
+          <div className="flex items-center gap-1.5 text-sm font-bold text-ink">
+            <Video size={14} className="text-accent" aria-hidden="true" />
             <span>Virtual Experience · Online Stream</span>
           </div>
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
-            <Globe size={10} /> Online
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-accent">
+            <Globe size={10} aria-hidden="true" /> Online
           </span>
         </div>
 
         <div>
-          <h3 className="text-sm font-bold text-ink">{venue || "Online Live Stream & Interactive Gathering"}</h3>
-          <p className="mt-0.5 text-xs text-mute leading-relaxed">
+          <h3 className="text-base font-bold text-ink">{venue || "Online Live Stream & Interactive Gathering"}</h3>
+          <p className="mt-0.5 text-sm text-mute leading-relaxed">
             {address || "Accessible globally from your phone or browser"}
           </p>
         </div>
@@ -60,7 +55,7 @@ export function EventLocationCard({
             </span>
             <span>Stream Access Gate</span>
           </div>
-          <p className="text-[11px] text-mute leading-relaxed">
+          <p className="text-xs text-mute leading-relaxed">
             {virtualUrl
               ? "Live stream link is protected and delivered with your AirPal Pass."
               : "Meeting coordinates & streaming room details are issued to registered pass holders."}
@@ -71,11 +66,11 @@ export function EventLocationCard({
                 href={virtualUrl.startsWith("http") ? virtualUrl : `https://${virtualUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex w-full min-h-[38px] items-center justify-center gap-1.5 rounded-full bg-brand px-3 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-98"
+                className="inline-flex w-full min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-3 text-sm font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-98 touch-manipulation"
               >
-                <Video size={13} />
+                <Video size={13} aria-hidden="true" />
                 <span>Open Virtual Stream</span>
-                <ExternalLink size={11} className="opacity-80" />
+                <ExternalLink size={11} className="opacity-80" aria-hidden="true" />
               </a>
             </div>
           )}
@@ -87,35 +82,30 @@ export function EventLocationCard({
   // SECRET / TBA MODE
   if (locationType === "secret") {
     return (
-      <div
-        className={cn(
-          "rounded-[24px] bg-card/90 p-4 ring-1 ring-line/70 shadow-clay backdrop-blur-md space-y-3",
-          className,
-        )}
-      >
-        <div className="flex items-center justify-between border-b border-line/50 pb-2.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
-            <Lock size={14} className="text-amber-500" />
+      <div className={cn("rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line space-y-4", className)}>
+        <div className="flex items-center justify-between border-b border-line/50 pb-3">
+          <div className="flex items-center gap-1.5 text-sm font-bold text-ink">
+            <Lock size={14} className="text-amber-500" aria-hidden="true" />
             <span>Secret Venue · Confidential</span>
           </div>
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300 ring-1 ring-amber-400/30">
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-900 dark:text-amber-300 ring-1 ring-amber-400/30">
             TBA to Guests
           </span>
         </div>
 
         <div>
-          <h3 className="text-sm font-bold text-ink">{venue || "Secret Location"}</h3>
-          <p className="mt-0.5 text-xs text-mute leading-relaxed">
+          <h3 className="text-base font-bold text-ink">{venue || "Secret Location"}</h3>
+          <p className="mt-0.5 text-sm text-mute leading-relaxed">
             {city ? `General vicinity: ${city}` : "Location announced before event"}
           </p>
         </div>
 
-        <div className="rounded-2xl bg-amber-500/10 p-3.5 border border-amber-500/20 space-y-1.5">
-          <div className="flex items-center gap-2 text-xs font-bold text-ink">
-            <Lock size={13} className="text-amber-600 dark:text-amber-400" />
+        <div className="rounded-2xl bg-amber-500/10 p-4 border border-amber-500/20 space-y-1.5">
+          <div className="flex items-center gap-2 text-sm font-bold text-ink">
+            <Lock size={13} className="text-amber-600 dark:text-amber-400" aria-hidden="true" />
             <span>Revealed Upon Confirmation</span>
           </div>
-          <p className="text-[11px] text-mute leading-relaxed">
+          <p className="text-xs text-mute leading-relaxed">
             Exact address and private entry instructions are kept confidential to curb uninvited crashers. Approved
             ticket holders will see coordinates in their AirPal Pass.
           </p>
@@ -143,31 +133,26 @@ export function EventLocationCard({
   };
 
   return (
-    <div
-      className={cn(
-        "rounded-[24px] bg-card/90 p-4 ring-1 ring-line/70 shadow-clay backdrop-blur-md space-y-3",
-        className,
-      )}
-    >
-      <div className="flex items-center justify-between border-b border-line/50 pb-2.5">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
-          <MapPin size={14} className="text-accent" />
+    <div className={cn("rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line space-y-4", className)}>
+      <div className="flex items-center justify-between border-b border-line/50 pb-3">
+        <div className="flex items-center gap-1.5 text-sm font-bold text-ink">
+          <MapPin size={14} className="text-accent" aria-hidden="true" />
           <span>Location &amp; Venue</span>
         </div>
         <a
           href={directionsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-[11px] font-bold text-accent hover:underline"
+          className="inline-flex min-h-[44px] items-center gap-1 text-xs font-bold text-accent hover:underline touch-manipulation"
         >
           <span>Directions</span>
-          <ExternalLink size={11} />
+          <ExternalLink size={11} aria-hidden="true" />
         </a>
       </div>
 
       <div>
-        <h3 className="text-sm font-bold text-ink">{displayTitle}</h3>
-        <p className="mt-0.5 text-xs text-mute leading-relaxed">{displayAddress}</p>
+        <h3 className="text-base font-bold text-ink">{displayTitle}</h3>
+        <p className="mt-0.5 text-sm text-mute leading-relaxed">{displayAddress}</p>
       </div>
 
       {/* Map Embed Container */}
@@ -187,9 +172,13 @@ export function EventLocationCard({
         <button
           type="button"
           onClick={copyAddress}
-          className="flex-1 inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-full bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition active:scale-95 cursor-pointer"
+          className="flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-3 text-sm font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition active:scale-95 cursor-pointer touch-manipulation"
         >
-          {copied ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} className="text-mute" />}
+          {copied ? (
+            <Check size={13} className="text-emerald-600" aria-hidden="true" />
+          ) : (
+            <Copy size={13} className="text-mute" aria-hidden="true" />
+          )}
           <span>{copied ? "Copied" : "Copy Address"}</span>
         </button>
 
@@ -197,9 +186,9 @@ export function EventLocationCard({
           href={directionsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 inline-flex min-h-[38px] items-center justify-center gap-1.5 rounded-full bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition active:scale-95 cursor-pointer"
+          className="flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-3 text-sm font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition active:scale-95 cursor-pointer touch-manipulation"
         >
-          <Navigation size={13} className="text-accent" />
+          <Navigation size={13} className="text-accent" aria-hidden="true" />
           <span>Get Directions</span>
         </a>
       </div>

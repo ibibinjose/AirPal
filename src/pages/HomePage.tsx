@@ -1,19 +1,19 @@
 import { useState, useMemo } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ArrowRight, ArrowUpRight, MapPin, Sparkles, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocalNow } from "@/contexts/LocalNowContext";
 import { CURATED_EXPERIENCES, type ExperienceItem } from "@/lib/curated-experiences";
 import { ExperienceCard } from "@/components/airpal/ExperienceCard";
-import { ExperienceDialog } from "@/components/airpal/ExperienceDialog";
 import { CategoryFilters, type CategoryType } from "@/components/airpal/CategoryFilters";
 
 export function HomePage() {
   const { user } = useAuth();
   const { city } = useLocalNow();
+  const [, nav] = useLocation();
 
   const [category, setCategory] = useState<CategoryType>("All");
-  const [selectedExperience, setSelectedExperience] = useState<ExperienceItem | null>(null);
+  const openExperience = (item: ExperienceItem) => nav(`/experience/${item.id}`);
 
   const firstName = useMemo(() => {
     const n = user?.displayName?.trim().split(/\s+/)[0];
@@ -130,7 +130,7 @@ export function HomePage() {
 
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
               {whatNowItems.map((item) => (
-                <ExperienceCard key={item.id} item={item} onSelect={setSelectedExperience} />
+                <ExperienceCard key={item.id} item={item} onSelect={openExperience} />
               ))}
             </div>
           </section>
@@ -180,7 +180,7 @@ export function HomePage() {
 
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
               {upcomingEventItems.map((item) => (
-                <ExperienceCard key={item.id} item={item} onSelect={setSelectedExperience} />
+                <ExperienceCard key={item.id} item={item} onSelect={openExperience} />
               ))}
             </div>
           </section>
@@ -192,8 +192,6 @@ export function HomePage() {
           </div>
         </div>
       </div>
-
-      <ExperienceDialog item={selectedExperience} onClose={() => setSelectedExperience(null)} />
     </div>
   );
 }

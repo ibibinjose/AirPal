@@ -11,6 +11,9 @@ import { HomePage } from "@/pages/HomePage";
 const CirclePage = lazy(() => import("@/pages/CirclePage").then((m) => ({ default: m.CirclePage })));
 const ScanPage = lazy(() => import("@/pages/ScanPage").then((m) => ({ default: m.ScanPage })));
 const EventPage = lazy(() => import("@/pages/EventPage").then((m) => ({ default: m.EventPage })));
+const ExperienceDetailPage = lazy(() =>
+  import("@/pages/ExperienceDetailPage").then((m) => ({ default: m.ExperienceDetailPage })),
+);
 const TicketPage = lazy(() => import("@/pages/TicketPage").then((m) => ({ default: m.TicketPage })));
 const CalendarPage = lazy(() => import("@/pages/CalendarPage").then((m) => ({ default: m.CalendarPage })));
 const EventsPage = lazy(() => import("@/pages/EventsPage").then((m) => ({ default: m.EventsPage })));
@@ -172,6 +175,7 @@ export function AppRoutes() {
             <Redirect to="/me/tickets" />
           </Route>
           <Route path="/e/:id" component={EventPage} />
+          <Route path="/experience/:id" component={ExperienceDetailPage} />
           <Route path="/ticket/:id" component={TicketPage} />
           <Route path="/calendar" component={CalendarPage} />
           <Route path="/f/new">
