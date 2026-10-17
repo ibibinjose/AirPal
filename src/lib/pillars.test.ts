@@ -4,7 +4,7 @@ import { PILLARS, getActivePillar } from "./pillars";
 describe("pillars model", () => {
   it("defines the 2 core pillars in requested order", () => {
     expect(PILLARS.map((p) => p.id)).toEqual(["communities", "me"]);
-    expect(PILLARS.map((p) => p.label)).toEqual(["Communities", "Me"]);
+    expect(PILLARS.map((p) => p.label)).toEqual(["Explore", "Me"]);
   });
 
   it("maps communities paths correctly", () => {

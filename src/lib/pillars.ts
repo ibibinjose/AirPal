@@ -22,7 +22,7 @@ export interface PillarItem {
 export const PILLARS: PillarItem[] = [
   {
     id: "communities",
-    label: "Communities",
+    label: "Explore",
     href: "/events",
     icon: Users,
     kicker: "Social & Belonging",
