@@ -33,12 +33,24 @@ export const PILLARS: PillarItem[] = [
       p.startsWith("/pass") ||
       p.startsWith("/circle") ||
       p.startsWith("/event") ||
-      p.startsWith("/e/"),
+      p.startsWith("/e/") ||
+      p.startsWith("/join") ||
+      p.startsWith("/arrival") ||
+      p.startsWith("/host") ||
+      p.startsWith("/pulse") ||
+      p.startsWith("/deals") ||
+      p.startsWith("/giveaways") ||
+      p.startsWith("/birthday-freebies") ||
+      p.startsWith("/business") ||
+      p.startsWith("/claim") ||
+      p.startsWith("/calendar"),
     subLinks: [
       { href: "/events", label: "Events" },
       { href: "/pass", label: "AirPal Pass" },
       { href: "/circle", label: "Circle" },
+      { href: "/deals", label: "Deals" },
       { href: "/event", label: "Host" },
+      { href: "/business", label: "Business" },
       { href: "/calendar", label: "Calendar" },
     ],
   },

@@ -3,12 +3,9 @@ import { Link, useRoute } from "wouter";
 import { ArrowLeft, Clock, MapPin, Share2, Sparkles, Ticket } from "lucide-react";
 import { toast } from "sonner";
 import { CURATED_EXPERIENCES } from "@/lib/curated-experiences";
-import { useAuth } from "@/contexts/AuthContext";
 import { toZonedDateStr } from "@/lib/local-time";
-import { triggerHaptic, shareNative } from "@/lib/native";
-import { readCachedBookings, writeCachedBookings, type BookingWithId } from "@/hooks/useMyBookings";
+import { shareNative } from "@/lib/native";
 import { NotFoundPage } from "./NotFoundPage";
-import { cn } from "@/lib/cn";
 
 /**
  * /experience/:id — every curated experience opens as a full shareable page,
@@ -24,48 +21,14 @@ export function ExperienceDetailPage() {
 
 function ExperienceDetailView({ itemId }: { itemId: string }) {
   const item = CURATED_EXPERIENCES.find((e) => e.id === itemId)!;
-  const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(() =>
     item.starts_at ? item.starts_at.split("T")[0] : toZonedDateStr(new Date()),
   );
-  const [booked, setBooked] = useState(false);
-
-  const handleClaimPass = () => {
-    void triggerHaptic("medium");
-    setBooked(true);
-    const passId = `pass-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
-    const passUid =
-      user?.uid || (typeof window !== "undefined" ? localStorage.getItem("airpal.anon.id") : null) || "guest";
-    const newBooking: BookingWithId = {
-      id: passId,
-      requestId: "",
-      customerUid: passUid,
-      providerUid: "airpal-experiences",
-      providerKind: "business",
-      providerName: item.venue,
-      title: item.title,
-      suburb: item.area,
-      date: selectedDate,
-      time: item.open_hour ? `${String(item.open_hour).padStart(2, "0")}:00` : "12:00",
-      priceCents: 0,
-      feeCents: 0,
-      paymentStatus: "paid",
-      status: "confirmed",
-      cancelReason: "",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    const cached = readCachedBookings(passUid);
-    writeCachedBookings(passUid, [newBooking, ...cached]);
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("airpal:bookings-updated"));
-    }
-    toast.success(
-      item.kind === "deal"
-        ? "Perk voucher claimed! Stored in your Passbook."
-        : "Event pass reserved! Check your Passbook.",
-    );
-  };
+  // Curated picks are discovery teasers: tickets and perks live on the real
+  // Events and Deals pillars, so this page hands off instead of minting
+  // wallet bookings for listings with no provider behind them.
+  const liveHref = item.kind === "deal" ? "/deals" : "/events";
+  const liveLabel = item.kind === "deal" ? "Find live perks" : "Find live tickets";
 
   const handleShare = async () => {
     await shareNative({
@@ -196,17 +159,13 @@ function ExperienceDetailView({ itemId }: { itemId: string }) {
       </div>
 
       <div className="mt-5 flex flex-col gap-3">
-        <button
-          type="button"
-          onClick={handleClaimPass}
-          className={cn(
-            "inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-5 text-sm font-semibold shadow-xs transition active:scale-95 cursor-pointer touch-manipulation",
-            booked ? "bg-emerald-600 text-white hover:bg-emerald-700" : "bg-brand text-white hover:bg-brand-ink",
-          )}
+        <Link
+          href={liveHref}
+          className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-full bg-brand px-5 text-sm font-semibold text-white shadow-xs transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
         >
           <Ticket size={16} aria-hidden="true" />
-          <span>{booked ? "Pass In Pocket ✓" : item.kind === "deal" ? "Claim Perk Pass" : "Reserve Free Pass"}</span>
-        </button>
+          <span>{liveLabel}</span>
+        </Link>
 
         <div className="flex items-center justify-between pt-1">
           <button

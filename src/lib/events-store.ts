@@ -1,6 +1,4 @@
 import {
-  SEED_EVENT,
-  SEED_STALLS,
   type EventRecord,
   type SavedEvent,
   type SavedStall,
@@ -33,22 +31,20 @@ function writeJson(key: string, value: unknown) {
   }
 }
 
-/** Device-local organiser events, populated with SEED_EVENT baseline when empty. */
+/** Device-local organiser events. Empty store → empty list, honestly. */
 export function loadEvents(): EventRecord[] {
   const extra = readJson<EventRecord[]>(EVENTS_KEY, []);
   const byId = new Map<string, EventRecord>();
-  if (SEED_EVENT) byId.set(SEED_EVENT.id, SEED_EVENT);
   for (const row of extra) {
     if (row && typeof row.id === "string" && typeof row.name === "string") byId.set(row.id, row);
   }
   return Array.from(byId.values());
 }
 
-/** Event stalls, populated with SEED_STALLS baseline for The Rocks Market when empty. */
+/** Device-local event stalls. Empty store → empty list, honestly. */
 export function loadStalls(): StallRecord[] {
   const extra = readJson<StallRecord[]>(STALLS_KEY, []);
   const byId = new Map<string, StallRecord>();
-  for (const s of SEED_STALLS) byId.set(s.id, s);
   for (const row of extra) {
     if (row && typeof row.id === "string" && typeof row.name === "string") byId.set(row.id, row);
   }

@@ -170,7 +170,7 @@ export function HomePage() {
               </div>
 
               <Link
-                href="/pass"
+                href="/events"
                 className="inline-flex min-h-[44px] items-center gap-1 text-xs sm:text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation"
               >
                 <span>All events</span>

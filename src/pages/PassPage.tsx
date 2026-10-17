@@ -466,66 +466,42 @@ export function PassPage() {
           </Link>
         </div>
 
+        {promotions.length === 0 ? (
+          <div className="rounded-3xl bg-card p-5 text-sm text-mute ring-1 ring-line/80">
+            No live perks right now.{" "}
+            <Link href="/deals" className="font-semibold text-accent hover:underline">
+              Browse all member deals
+            </Link>
+          </div>
+        ) : null}
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {(promotions.length > 0
-            ? promotions
-            : [
-                {
-                  id: "demo-coffee",
-                  title: "Free Morning Coffee with Breakfast",
-                  businessName: "The Rocks Cafe",
-                  discountText: "100% Off",
-                  badge: "Perk",
-                  image: "/media/dining.jpg",
-                },
-                {
-                  id: "demo-2for1",
-                  title: "2-for-1 Signature Cocktails",
-                  businessName: "Harbour View Lounge",
-                  discountText: "2-for-1",
-                  badge: "Evening",
-                  image: "/media/drinks.jpg",
-                },
-                {
-                  id: "demo-dessert",
-                  title: "Complimentary Dessert with Mains",
-                  businessName: "Bennelong Bistro",
-                  discountText: "Free Sweet",
-                  badge: "Dining",
-                  image: "/media/food.jpg",
-                },
-              ]
-          )
-            .slice(0, 3)
-            .map((deal, idx) => (
-              <Link
-                key={deal.id || idx}
-                href={deal.id.startsWith("demo") ? "/deals" : `/deals/${deal.id}`}
-                className="group flex items-center justify-between gap-3 rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-brand/30 transition active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-paper">
-                    <Photo
-                      src={"image" in deal && deal.image ? deal.image : promoArtFor(deal.id)}
-                      className="h-full w-full object-cover"
-                      alt={deal.title}
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <span className="inline-block rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-                      {"discountText" in deal && deal.discountText ? deal.discountText : "Exclusive Perk"}
-                    </span>
-                    <p className="font-display text-sm font-bold text-ink mt-0.5 truncate group-hover:text-accent transition-colors">
-                      {deal.title}
-                    </p>
-                    <p className="text-xs text-mute truncate mt-0.5">
-                      {"businessName" in deal ? deal.businessName : "Sydney Local Partner"}
-                    </p>
-                  </div>
+          {promotions.slice(0, 3).map((deal, idx) => (
+            <Link
+              key={deal.id || idx}
+              href={`/deals/${deal.id}`}
+              className="group flex items-center justify-between gap-3 rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-brand/30 transition active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-paper">
+                  <Photo
+                    src={promoArtFor(deal.category, deal.heroImage)}
+                    className="h-full w-full object-cover"
+                    alt={deal.title}
+                  />
                 </div>
-                <ArrowRight size={16} className="text-mute group-hover:text-ink shrink-0 mr-1" aria-hidden="true" />
-              </Link>
-            ))}
+                <div className="min-w-0">
+                  <span className="inline-block rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                    {deal.prizeValue || "Exclusive Perk"}
+                  </span>
+                  <p className="font-display text-sm font-bold text-ink mt-0.5 truncate group-hover:text-accent transition-colors">
+                    {deal.title}
+                  </p>
+                  <p className="text-xs text-mute truncate mt-0.5">{deal.sponsorName || deal.locationText}</p>
+                </div>
+              </div>
+              <ArrowRight size={16} className="text-mute group-hover:text-ink shrink-0 mr-1" aria-hidden="true" />
+            </Link>
+          ))}
         </div>
       </section>
 

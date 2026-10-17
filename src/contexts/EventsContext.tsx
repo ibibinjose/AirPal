@@ -5,8 +5,6 @@ import { toast } from "sonner";
 import { clearPendingIntent, peekPendingIntent } from "@/lib/pending-intent";
 import { onIdle } from "@/lib/on-idle";
 import {
-  SEED_EVENT,
-  SEED_STALLS,
   eventGatePath,
   parseStallCsv,
   type AttendanceStatus,
@@ -220,10 +218,8 @@ export function EventsProvider({ children }: { children: ReactNode }) {
           const ne = toNearbyEvent(data, row.id);
           if (ne) nearby.push(ne);
         }
-        if (bases.length === 0 && snap.empty) {
-          bases.push(recordToCalendarBase(SEED_EVENT));
-          records.push(SEED_EVENT);
-        }
+        // Empty or unreachable DB → empty listings, honestly. No seed fallback:
+        // guests must never see a fabricated event in production.
         setRemoteBases(bases);
         setRemoteNearby(nearby);
         setRemoteRecords(records);
@@ -231,8 +227,9 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {
         if (alive) {
-          setRemoteBases([recordToCalendarBase(SEED_EVENT)]);
-          setRemoteRecords([SEED_EVENT]);
+          setRemoteBases([]);
+          setRemoteNearby([]);
+          setRemoteRecords([]);
           setRemoteLoaded(true);
         }
       });
@@ -282,9 +279,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
   const stallsFor = useCallback(
     (eventId: string) => {
-      const active = stalls.filter((s) => s.eventId === eventId && s.status === "active");
-      if (active.length === 0 && eventId === SEED_EVENT.id) return SEED_STALLS;
-      return active;
+      return stalls.filter((s) => s.eventId === eventId && s.status === "active");
     },
     [stalls],
   );
@@ -532,10 +527,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       fetchRemoteEvent,
       userStates,
       stallsFor,
-      getEvent: (id) =>
-        events.find((e) => e.id === id) ||
-        remoteRecords.find((e) => e.id === id) ||
-        (id === SEED_EVENT.id ? SEED_EVENT : undefined),
+      getEvent: (id) => events.find((e) => e.id === id) || remoteRecords.find((e) => e.id === id),
       isSaved: (stallId) => savedStalls.some((s) => s.stallId === stallId),
       toggleGoing,
       toggleInterested,
