@@ -80,6 +80,7 @@ import {
   type CatchUpType,
 } from "@/lib/catchup";
 import { toZonedDateStr } from "@/lib/local-time";
+import { buildCalendarShareDescription } from "@/lib/calendar-export";
 import { Photo } from "@/components/ui/Photo";
 import { Button } from "@/components/ui/Button";
 import { useBio } from "@/contexts/BioContext";
@@ -1644,7 +1645,11 @@ export function BioPublicPage() {
                     {catchUpsList.map((item) => {
                       const eventPayload = {
                         title: `${item.type === "meeting" ? "Meeting" : item.type === "nightout" ? "Hangout" : "Catch Up"}: ${item.requesterName}`,
-                        description: `${item.notes || `AirPal with ${item.requesterName}`}\nVenue: ${item.venue || "TBD"}\nhttps://airpal.me/@${bio.handle}`,
+                        description: buildCalendarShareDescription(
+                          item.notes || `AirPal with ${item.requesterName}`,
+                          [{ label: "Venue", value: item.venue }],
+                          `https://airpal.me/@${bio.handle}`,
+                        ),
                         startsAt: `${item.date || toZonedDateStr(new Date())}T${item.time || "14:00"}:00`,
                         venue: item.venue,
                         city: bio.city,
@@ -1872,7 +1877,14 @@ export function BioPublicPage() {
                   const event = getEvent(s.eventId);
                   const stallEventPayload = {
                     title: `${bio.name} at ${event?.name || s.eventId}`,
-                    description: `${s.offer ? `Offer: ${s.offer}\n` : ""}Booth: ${s.booth || "TBD"}\nhttps://airpal.me/@${bio.handle}`,
+                    description: buildCalendarShareDescription(
+                      "",
+                      [
+                        { label: "Offer", value: s.offer },
+                        { label: "Booth", value: s.booth },
+                      ],
+                      `https://airpal.me/@${bio.handle}`,
+                    ),
                     startsAt: event?.startsAt || `${toZonedDateStr(new Date())}T10:00:00`,
                     venue: s.location || event?.venue || "Sydney",
                     city: event?.city || bio.city,

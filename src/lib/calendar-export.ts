@@ -12,6 +12,25 @@ export interface SimpleCalendarPayload {
   meetingPlatform?: "in_person" | "google_meet" | "facetime" | "zoom" | string;
 }
 
+/**
+ * Share-text description for a calendar payload: a head line, one
+ * `Label: value` line per provided value, then a link. Lines with missing
+ * or blank values are omitted so shares never read placeholder text.
+ */
+export function buildCalendarShareDescription(
+  head: string,
+  labeledLines: Array<{ label: string; value?: string | null }>,
+  link: string,
+): string {
+  const lines = head.trim() ? [head] : [];
+  for (const { label, value } of labeledLines) {
+    const v = value?.trim();
+    if (v) lines.push(`${label}: ${v}`);
+  }
+  lines.push(link);
+  return lines.join("\n");
+}
+
 function platformName(platform?: string, link?: string): string {
   if (platform === "facetime" || link?.includes("facetime.apple.com") || link?.startsWith("facetime"))
     return "FaceTime";

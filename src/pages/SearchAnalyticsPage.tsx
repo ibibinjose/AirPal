@@ -57,20 +57,6 @@ interface RawQueryLog {
   isGuest?: boolean;
 }
 
-// Curated baseline data to provide seamless trend charts even before hundreds of real searches accumulate
-const SEED_POPULAR_TERMS: PopularItem[] = [
-  { id: "bondi-beach", term: "Bondi Beach Coastal Walk", count: 48, category: "places", city: "Sydney" },
-  { id: "surry-hills", term: "Surry Hills Dining Perks", count: 42, category: "deals", city: "Sydney" },
-  { id: "live-music", term: "Live Music & Concerts Tonight", count: 35, category: "events", city: "Sydney" },
-  { id: "the-rocks", term: "The Rocks Historic Precinct", count: 29, category: "places", city: "Sydney" },
-  { id: "morning-run", term: "Morning Run & Coffee Hangout", count: 26, category: "circle", city: "Sydney" },
-  { id: "diwali-mela", term: "Diwali Mela Festival Passes", count: 23, category: "events", city: "Sydney" },
-  { id: "botanic-gardens", term: "Botanic Gardens Picnic", count: 19, category: "circle", city: "Sydney" },
-  { id: "circle-meetup", term: "Networking Circle Check-in", count: 16, category: "circle", city: "Sydney" },
-  { id: "dining-perk", term: "Merchant Dining 20% Off Perk", count: 14, category: "deals", city: "Sydney" },
-  { id: "community-festival", term: "Community Festival Meetup", count: 12, category: "circle", city: "Sydney" },
-];
-
 const CATEGORY_COLORS: Record<string, string> = {
   places: "#004eff",
   events: "#e11d48",
@@ -94,7 +80,7 @@ export function SearchAnalyticsPage() {
   const fetchData = useCallback(async () => {
     const db = getFirebaseDb();
     if (!db) {
-      setPopularTerms(SEED_POPULAR_TERMS);
+      setPopularTerms([]);
       setLoading(false);
       setRefreshing(false);
       return;
@@ -121,12 +107,6 @@ export function SearchAnalyticsPage() {
         });
       }
 
-      // Merge with curated baseline if dataset is small
-      if (fetchedPopular.length < 5) {
-        const existingKeys = new Set(fetchedPopular.map((p) => p.term.toLowerCase()));
-        const missing = SEED_POPULAR_TERMS.filter((s) => !existingKeys.has(s.term.toLowerCase()));
-        fetchedPopular = [...fetchedPopular, ...missing];
-      }
       setPopularTerms(fetchedPopular);
 
       // 2. Fetch recent granular query logs
@@ -152,7 +132,7 @@ export function SearchAnalyticsPage() {
         setQueryLogs(logs);
       }
     } catch {
-      setPopularTerms(SEED_POPULAR_TERMS);
+      setPopularTerms([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -263,7 +243,7 @@ export function SearchAnalyticsPage() {
   }, [popularTerms]);
 
   const topTerm = useMemo(() => {
-    return popularTerms[0]?.term || "Bondi Beach";
+    return popularTerms[0]?.term || "—";
   }, [popularTerms]);
 
   const filteredTableItems = useMemo(() => {

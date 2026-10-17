@@ -82,9 +82,8 @@ export function placesInCity<T extends { precinctId?: string; geo?: { lat: numbe
 
 /**
  * DB-backed places only: Firestore `listings` (via ListingsContext cache) and
- * `places` docs migrated by seed-database. Empty DB → empty list, honestly.
- * Curated bundle content is migration source in @shared/the-rocks-data, never
- * rendered directly.
+ * live `places` docs. Empty DB → empty list, honestly. Curated bundle content
+ * lives in @shared/the-rocks-data and is never rendered directly.
  */
 export function activePlaces(): NearbyPlace[] {
   const map = new Map<string, NearbyPlace>();

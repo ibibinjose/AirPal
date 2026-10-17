@@ -2,8 +2,6 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { activePlaces, getPlace, getTour, placeByHandle, placesWithDeals } from "./catalog";
 import { upsertCachedListing, listingDefaults } from "./listings";
 import { cachePlaces, parsePlaceDoc } from "./places-store";
-import { getCachedProperty } from "./properties";
-import { seedDatabase } from "./seed-database";
 import type { NearbyPlace } from "@shared/nearby";
 
 // In-memory localStorage mock for node test environment
@@ -105,19 +103,6 @@ describe("catalog dynamic places", () => {
     const byH = placeByHandle("sunrisecafe");
     expect(byH).toBeDefined();
     expect(byH?.id).toBe("pl-my-cafe");
-  });
-
-  it("seedDatabase populates the database and listings cache when explicitly called", async () => {
-    const res = await seedDatabase();
-    if (!res.ok) console.error("seedDatabase error:", res.error);
-    expect(res.ok).toBe(true);
-    expect(res.placesCount).toBeGreaterThan(0);
-    expect(res.propertiesCount).toBeGreaterThan(0);
-    expect(getCachedProperty("harbour-hotel")?.name).toMatch(/(AirPal|Harbour)/);
-
-    const places = activePlaces();
-    expect(places.length).toBeGreaterThan(0);
-    expect(places.some((p) => p.handle === "cutbar" || p.name.includes("Cut Bar"))).toBe(true);
   });
 });
 

@@ -29,7 +29,6 @@ import { ClaimReviewQueue } from "@/components/claim/ClaimReviewQueue";
 import { SearchQueriesDashboardTab } from "@/components/admin/SearchQueriesDashboardTab";
 import { ADMIN_TABS, AdminOverview, type AdminTab } from "@/components/admin/AdminOverview";
 import { AIRPAL_CLUB_ID } from "@/contexts/ClubContext";
-import { seedDatabase } from "@/lib/seed-database";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -46,7 +45,6 @@ import {
   Layers,
   MapPin,
   QrCode,
-  RefreshCw,
   Search,
   ShieldCheck,
   Sparkles,
@@ -60,7 +58,7 @@ export function AdminPage() {
   const { profiles } = useBio();
   const { time, city } = useLocalNow();
   const [, nav] = useLocation();
-  const [seeding, setSeeding] = useState(false);
+
   const [aggregating, setAggregating] = useState(false);
   const [copiedHandle, setCopiedHandle] = useState<string | null>(null);
   const [handleSearch, setHandleSearch] = useState("");
@@ -125,24 +123,6 @@ export function AdminPage() {
         </Button>
       </div>
     );
-  }
-
-  async function handleSeedDatabase() {
-    setSeeding(true);
-    try {
-      const res = await seedDatabase();
-      if (res.ok) {
-        toast.success(
-          `Seeded real database: ${res.propertiesCount} stays, ${res.placesCount} places, ${res.eventsCount} events, ${res.biosCount} bios`,
-        );
-      } else {
-        toast.error(`Seeding error: ${res.error}`);
-      }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to seed database");
-    } finally {
-      setSeeding(false);
-    }
   }
 
   function copyHandleLink(handle: string) {
@@ -349,29 +329,6 @@ export function AdminPage() {
       {/* SYSTEM TAB */}
       {tab === "system" && (
         <div className="mt-6 space-y-6">
-          {/* Seed & Firestore Migration Engine */}
-          <section className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-accent">Migration Tools</span>
-                <h2 className="font-display text-lg font-bold text-ink mt-0.5">Database Seeding & Catalog Sync</h2>
-                <p className="text-xs text-mute mt-1">
-                  Synchronize bundled Sydney venues, curated stays, events, and test handles into live Cloud Firestore.
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant="outlined"
-                disabled={seeding}
-                onClick={handleSeedDatabase}
-                className="shrink-0 gap-1.5"
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${seeding ? "animate-spin" : ""}`} />
-                {seeding ? "Seeding Firestore…" : "Seed Real Database"}
-              </Button>
-            </div>
-          </section>
-
           {/* WQGA diagnostic telemetry (QR-context health — not the product north star) */}
           <section className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">

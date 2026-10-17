@@ -214,9 +214,6 @@ export function AppRoutes() {
             <Redirect to="/events" />
           </Route>
           <Route path="/f/:slug">{(p) => <Redirect to={`/events?q=${encodeURIComponent(p.slug)}`} />}</Route>
-          <Route path="/f/new">
-            <Redirect to="/event" />
-          </Route>
 
           {/* Static legacy aliases — one table in @/app/airpal-app. */}
           {STATIC_ALIASES.map((alias) => (

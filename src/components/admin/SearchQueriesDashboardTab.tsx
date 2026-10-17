@@ -30,106 +30,6 @@ interface RawSearchLog {
   clientTimestamp?: string;
 }
 
-// Curated baseline data reflecting high-volume Sydney queries over a 30-day window
-const SEED_QUERIES_30D: SearchQueryItem[] = [
-  {
-    id: "bondi-beach",
-    query: "Bondi Beach",
-    normalized: "bondi-beach",
-    count: 184,
-    category: "places",
-    city: "Sydney",
-  },
-  {
-    id: "surry-hills-cafe",
-    query: "Surry Hills Cafe",
-    normalized: "surry-hills-cafe",
-    count: 162,
-    category: "places",
-    city: "Sydney",
-  },
-  {
-    id: "live-music-tonight",
-    query: "Live Music Tonight",
-    normalized: "live-music-tonight",
-    count: 139,
-    category: "events",
-    city: "Sydney",
-  },
-  {
-    id: "harbour-view-hotel",
-    query: "Harbour View Hotel",
-    normalized: "harbour-view-hotel",
-    count: 118,
-    category: "stay",
-    city: "Sydney",
-  },
-  {
-    id: "morning-running-mate",
-    query: "Morning Running Mate",
-    normalized: "morning-running-mate",
-    count: 104,
-    category: "people",
-    city: "Sydney",
-  },
-  {
-    id: "coffee-walk",
-    query: "Coffee & Walk",
-    normalized: "coffee-walk",
-    count: 91,
-    category: "places",
-    city: "Sydney",
-  },
-  {
-    id: "botanic-gardens-picnic",
-    query: "Botanic Gardens Picnic",
-    normalized: "botanic-gardens-picnic",
-    count: 78,
-    category: "places",
-    city: "Sydney",
-  },
-  {
-    id: "contemporary-art-gallery",
-    query: "Contemporary Art Gallery",
-    normalized: "contemporary-art-gallery",
-    count: 65,
-    category: "events",
-    city: "Sydney",
-  },
-  {
-    id: "manly-ferry-sunset",
-    query: "Manly Ferry Sunset",
-    normalized: "manly-ferry-sunset",
-    count: 54,
-    category: "experiences",
-    city: "Sydney",
-  },
-  {
-    id: "dinner-companion",
-    query: "Dinner Companion",
-    normalized: "dinner-companion",
-    count: 47,
-    category: "people",
-    city: "Sydney",
-  },
-  {
-    id: "rooftop-cocktails",
-    query: "Rooftop Cocktails",
-    normalized: "rooftop-cocktails",
-    count: 41,
-    category: "places",
-    city: "Sydney",
-  },
-  {
-    id: "weekend-bushwalk",
-    query: "Weekend Bushwalk",
-    normalized: "weekend-bushwalk",
-    count: 36,
-    category: "experiences",
-    city: "Sydney",
-  },
-];
-
 const CATEGORY_COLORS: Record<string, string> = {
   places: "#004eff",
   events: "#e11d48",
@@ -164,7 +64,7 @@ export function SearchQueriesDashboardTab() {
   const loadSearchData = useCallback(async () => {
     const db = getFirebaseDb();
     if (!db || !isFirebaseConfigured) {
-      setPopularDocs(SEED_QUERIES_30D);
+      setPopularDocs([]);
       setLoading(false);
       setRefreshing(false);
       return;
@@ -224,10 +124,10 @@ export function SearchQueriesDashboardTab() {
         });
         setPopularDocs(list);
       } else {
-        setPopularDocs(SEED_QUERIES_30D);
+        setPopularDocs([]);
       }
     } catch {
-      setPopularDocs(SEED_QUERIES_30D);
+      setPopularDocs([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -326,7 +226,7 @@ export function SearchQueriesDashboardTab() {
     }
 
     // 2. When raw logs are accumulating or sparse, scale popularDocs according to date range ratio
-    let pool = popularDocs.length > 0 ? popularDocs : SEED_QUERIES_30D;
+    let pool = popularDocs;
     if (selectedCategory !== "all") {
       pool = pool.filter((p) => (p.category || "places") === selectedCategory);
     }
@@ -356,7 +256,7 @@ export function SearchQueriesDashboardTab() {
     };
   }, [rawLogs, popularDocs, startDate, endDate, selectedCategory, daysSpan]);
 
-  const topQueryName = top10Data[0]?.query || "Bondi Beach";
+  const topQueryName = top10Data[0]?.query || "—";
   const topQueryCount = top10Data[0]?.searches || 0;
   const avgSearchesPerDay = Math.round(totalSearchCount / Math.max(1, daysSpan));
 

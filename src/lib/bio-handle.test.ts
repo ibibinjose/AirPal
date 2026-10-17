@@ -1,7 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { handleFromPlaceId } from "../../shared/bio";
 import { hrefForPlace, hrefForStall, placeAsBio, stallAsBio } from "./bio-handle";
-import { SEED_STALLS } from "../../shared/event";
+import type { StallRecord } from "../../shared/event";
+
+const SALTED_CARAMEL_STALL: StallRecord = {
+  id: "st-salt",
+  eventId: "evt-rocks-market",
+  name: "Salted Caramel Co",
+  category: "eat",
+  booth: "A12",
+  shortWhy: "Handmade caramels.",
+  offer: "2 for $10",
+  handle: "saltedcaramel",
+  status: "active",
+};
 
 describe("bio handle joins", () => {
   it("opens a place on its @handle", () => {
@@ -11,13 +23,13 @@ describe("bio handle joins", () => {
   });
 
   it("opens a stall on its @handle", () => {
-    const stall = SEED_STALLS.find((s) => s.handle === "saltedcaramel")!;
+    const stall = SALTED_CARAMEL_STALL;
     expect(hrefForStall(stall)).toBe("/@saltedcaramel");
     expect(hrefForStall({ id: "st-x", eventId: "evt-1" })).toBe("/e/evt-1/s/st-x");
   });
 
   it("builds a claimable stall bio", () => {
-    const stall = SEED_STALLS.find((s) => s.handle === "saltedcaramel")!;
+    const stall = SALTED_CARAMEL_STALL;
     const bio = stallAsBio(stall, "saltedcaramel");
     expect(bio.id).toBe("stall-st-salt");
     expect(bio.deals[0]?.title).toBe("2 for $10");

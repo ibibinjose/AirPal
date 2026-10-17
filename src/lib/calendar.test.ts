@@ -19,7 +19,12 @@ import {
   getEventBookingStatus,
   getEventSlotTagTheme,
 } from "./calendar-utils";
-import { generateIcs, generateMultipleIcs, getGoogleCalendarUrl } from "./calendar-export";
+import {
+  buildCalendarShareDescription,
+  generateIcs,
+  generateMultipleIcs,
+  getGoogleCalendarUrl,
+} from "./calendar-export";
 
 const MOCK_EVENTS: CalendarEvent[] = [
   {
@@ -516,5 +521,39 @@ describe("Filter block themes", () => {
       expect(theme.blockClass, `${id} blockClass`).toContain("ring-");
       expect(theme.blockActiveClass, `${id} blockActiveClass`).toContain("text-white");
     }
+  });
+});
+
+describe("buildCalendarShareDescription", () => {
+  it("omits labeled lines with missing values instead of placeholder text", () => {
+    expect(
+      buildCalendarShareDescription("AirPal with Jo", [{ label: "Venue", value: undefined }], "https://airpal.me/@jo"),
+    ).toBe("AirPal with Jo\nhttps://airpal.me/@jo");
+    expect(
+      buildCalendarShareDescription("Offer: 10% off", [{ label: "Booth", value: "  " }], "https://airpal.me/@jo"),
+    ).toBe("Offer: 10% off\nhttps://airpal.me/@jo");
+  });
+
+  it("keeps labeled lines that have values", () => {
+    expect(
+      buildCalendarShareDescription(
+        "AirPal with Jo",
+        [{ label: "Venue", value: "Bondi Pavilion" }],
+        "https://airpal.me/@jo",
+      ),
+    ).toBe("AirPal with Jo\nVenue: Bondi Pavilion\nhttps://airpal.me/@jo");
+  });
+
+  it("drops a blank head line instead of leaving a leading newline", () => {
+    expect(
+      buildCalendarShareDescription(
+        "",
+        [
+          { label: "Offer", value: undefined },
+          { label: "Booth", value: "B12" },
+        ],
+        "https://airpal.me/@jo",
+      ),
+    ).toBe("Booth: B12\nhttps://airpal.me/@jo");
   });
 });
