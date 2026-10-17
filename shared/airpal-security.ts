@@ -9,8 +9,6 @@ export type AccessClaims = {
   properties?: Record<string, PropertyMemberRole>;
 };
 
-export const TICKET_CATEGORIES = ["reception", "housekeeping", "maintenance", "dining", "late_checkout"] as const;
-
 export const FUNCTIONS_REGION = "us-central1";
 
 export const CALLABLES = {
@@ -23,10 +21,6 @@ export const CALLABLES = {
   submitPartnerClaim: "submitPartnerClaim",
   reviewPartnerClaim: "reviewPartnerClaim",
   backfillOwnerClaims: "backfillOwnerClaims",
-  getPropertyWifi: "getPropertyWifi",
-  updatePropertyWifi: "updatePropertyWifi",
-  updatePropertyProfile: "updatePropertyProfile",
-  rotateRoomToken: "rotateRoomToken",
   claimFreeVenuePresence: "claimFreeVenuePresence",
   upsertBusinessListing: "upsertBusinessListing",
   upsertBusinessDeal: "upsertBusinessDeal",
@@ -46,7 +40,6 @@ export const CALLABLES = {
   recordAnalyticsBatch: "recordAnalyticsBatch",
   runAnalyticsAggregation: "runAnalyticsAggregation",
   createBookingCheckoutSession: "createBookingCheckoutSession",
-  createStayCheckoutSession: "createStayCheckoutSession",
   createConnectAccountLink: "createConnectAccountLink",
   refreshConnectAccount: "refreshConnectAccount",
   createConnectLoginLink: "createConnectLoginLink",
@@ -55,17 +48,12 @@ export const CALLABLES = {
   refundPaidBooking: "refundPaidBooking",
   createSubscriptionCheckout: "createSubscriptionCheckout",
   createSubscriptionPortal: "createSubscriptionPortal",
-  createStaffTicket: "createStaffTicket",
-  resolveStaffTicket: "resolveStaffTicket",
   upsertEventCoupon: "upsertEventCoupon",
   validateEventCoupon: "validateEventCoupon",
   listEventCoupons: "listEventCoupons",
   announceEventToGuests: "announceEventToGuests",
   createManagedProduct: "createManagedProduct",
   createManagedCheckoutSession: "createManagedCheckoutSession",
-  placeDiningOrder: "placeDiningOrder",
-  updateDiningOrderStatus: "updateDiningOrderStatus",
-  askAirPal: "askAirPal",
   scheduleCatchUp: "scheduleCatchUp",
   completeAccountSignup: "completeAccountSignup",
   ensureUserProfile: "ensureUserProfile",
@@ -95,10 +83,6 @@ export const CALLABLES = {
   listBioSubscribers: "listBioSubscribers",
   unsubscribeGuestlist: "unsubscribeGuestlist",
 } as const;
-
-export type TeardownDemoBusinessResponse = {
-  deleted: Record<string, number>;
-};
 
 /** Gate scan: read-only ticket check. Organiser, provider, or admin only. */
 export type VerifyTicketRequest = { ticketId: string };
@@ -243,54 +227,6 @@ export type StayContextPayload = {
   badgeLabel: string;
 };
 
-export type CompleteRegistrationRequest = {
-  displayName: string;
-  role: "host_admin" | "guest";
-  propertyName?: string;
-  kind?: "hotel" | "motel" | "serviced-apartment" | "hostel" | "boutique" | "campus" | "venue";
-  city?: string;
-  country?: string;
-  countryCode?: string;
-  state?: string;
-  postalCode?: string;
-  phoneCountryCode?: string;
-  geoLat?: number;
-  geoLng?: number;
-  wifiNetwork?: string;
-  wifiPassword?: string;
-  tagline?: string;
-  address?: string;
-  phone?: string;
-  roomsCount?: number;
-  checkIn?: string;
-  checkOut?: string;
-  breakfastHours?: string;
-  breakfastLocation?: string;
-  breakfastType?: string;
-  breakfastPrice?: string;
-  /** Demo-business build. Honored for platform admins only (server-enforced). */
-  demo?: boolean;
-  /**
-   * Requested property id. Honored only for demo builds (platform admins)
-   * with a valid `demo-` id — otherwise the server mints one. Lets the
-   * /Demo showcase rebuild the same docs idempotently.
-   */
-  propertyId?: string;
-};
-
-export type CompleteRegistrationResponse = {
-  uid: string;
-  role: UserRole;
-  propertyId: string;
-  propertyIds: string[];
-  /** Opaque room token for the default room QR (?r=). */
-  defaultRoomToken?: string;
-  defaultRoomNumber?: string;
-  lobbyMarkerId?: string;
-  handle?: string;
-  city?: string;
-};
-
 export type ClaimDealRequest = {
   dealId: string;
   stayContext: StayContextPayload;
@@ -324,20 +260,6 @@ export type RedeemVoucherResponse = {
   success: true;
   message: string;
   redeemedAt: string;
-};
-
-export type GetPropertyWifiRequest = {
-  propertyId: string;
-  /** Opaque room QR token (`?r=`). Required for guests. */
-  roomToken?: string;
-  /** Lobby / room marker id from `/q/{id}`. */
-  markerId?: string;
-};
-
-export type GetPropertyWifiResponse = {
-  network: string;
-  password: string;
-  speed: string;
 };
 
 export type ProvidePartnerDealRequest = {
@@ -653,22 +575,4 @@ export function canClaimDeal(input: {
     return { ok: false, reason: "This deal has reached its claim limit." };
   }
   return { ok: true };
-}
-
-/** Guests need a scanned room token or a marker that belongs to the property. Hosts always pass. */
-export function canReadPropertyWifi(input: {
-  isHost: boolean;
-  roomTokens?: Record<string, string> | null;
-  lobbyMarkerId?: string | null;
-  roomToken?: string | null;
-  markerId?: string | null;
-  markerBelongsToProperty?: boolean;
-}): boolean {
-  if (input.isHost) return true;
-  const token = input.roomToken?.trim();
-  if (token && input.roomTokens && Object.prototype.hasOwnProperty.call(input.roomTokens, token)) return true;
-  const markerId = input.markerId?.trim();
-  if (!markerId) return false;
-  if (input.lobbyMarkerId && markerId === input.lobbyMarkerId) return true;
-  return Boolean(input.markerBelongsToProperty);
 }

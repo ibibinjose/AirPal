@@ -1,8 +1,6 @@
 import { httpsCallable } from "firebase/functions";
 import {
   CALLABLES,
-  type CompleteRegistrationRequest,
-  type CompleteRegistrationResponse,
   type CompleteAccountSignupRequest,
   type LoginWithPhonePasswordRequest,
   type LoginWithPhonePasswordResponse,
@@ -22,11 +20,6 @@ async function callFunction<Req, Res>(name: string, data: Req): Promise<Res> {
   return result.data;
 }
 
-export function completeRegistrationRemote(data: CompleteRegistrationRequest) {
-  return callFunction<CompleteRegistrationRequest, CompleteRegistrationResponse>(CALLABLES.completeRegistration, data);
-}
-export const completeRegistration = completeRegistrationRemote;
-
 export function completeAccountSignupRemote(data: CompleteAccountSignupRequest) {
   return callFunction<CompleteAccountSignupRequest, { ok: true; phone: string }>(CALLABLES.completeAccountSignup, data);
 }
@@ -40,19 +33,6 @@ export function loginWithPhonePasswordRemote(data: LoginWithPhonePasswordRequest
 
 export function ensureUserProfileRemote() {
   return callFunction<Record<string, never>, { ok: true; created: boolean }>(CALLABLES.ensureUserProfile, {});
-}
-
-export function updatePropertyWifiRemote(data: {
-  propertyId: string;
-  network: string;
-  password: string;
-  speed: string;
-}) {
-  return callFunction<typeof data, { ok: true; updatedAt: string }>(CALLABLES.updatePropertyWifi, data);
-}
-
-export function askAirPalRemote(data: { propertyId?: string; markerId?: string; question: string }) {
-  return callFunction<typeof data, { title: string; body: string }>(CALLABLES.askAirPal, data);
 }
 
 export function upsertBusinessListingRemote(data: {

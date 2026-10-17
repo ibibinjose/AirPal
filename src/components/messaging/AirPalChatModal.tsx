@@ -9,13 +9,11 @@ export function AirPalChatModal({
   open,
   onClose,
   conversation,
-  propertyContext,
   onActionClick,
 }: {
   open: boolean;
   onClose: () => void;
   conversation: UniversalConversation | null;
-  propertyContext?: { wifi?: { network?: string; password?: string } };
   onActionClick?: (action: string, payload?: string) => void;
 }) {
   useScrollLock(open);
@@ -50,7 +48,7 @@ export function AirPalChatModal({
           <X size={18} />
         </button>
 
-        <AirPalChatView conversation={conversation} propertyContext={propertyContext} onActionClick={onActionClick} />
+        <AirPalChatView conversation={conversation} onActionClick={onActionClick} />
       </div>
     </div>,
     document.body,

@@ -1,6 +1,6 @@
 // Barrel: every callable keeps its deployed name. Domain logic lives in sibling modules.
 export { recordAnalyticsBatch, aggregateAnalyticsHourly, runAnalyticsAggregation } from "./analytics";
-export { completeRegistration, ensurePlatformAdmin, setPropertyMember, backfillOwnerClaims } from "./registration";
+export { ensurePlatformAdmin, setPropertyMember, backfillOwnerClaims } from "./registration";
 export { completeAccountSignup, loginWithPhonePassword, ensureUserProfile } from "./account";
 export {
   claimDeal,
@@ -10,8 +10,6 @@ export {
   claimFreeVenuePresence,
   reviewPartnerClaim,
 } from "./deals";
-export { getPropertyWifi, updatePropertyWifi, updatePropertyProfile, rotateRoomToken } from "./property";
-export { askAirPal } from "./ask";
 export { upsertBusinessListing, upsertBusinessDeal } from "./listings";
 export { upsertEvent, upsertEventStall, saveAttendeeStall, submitVenueRating } from "./events";
 export {
@@ -26,10 +24,8 @@ export {
   listBioDirectory,
 } from "./bio";
 export { createManagedProduct, createManagedCheckoutSession } from "./managed-payments";
-export { placeDiningOrder, updateDiningOrderStatus } from "./dining";
 export {
   createBookingCheckoutSession,
-  createStayCheckoutSession,
   createConnectAccountLink,
   refreshConnectAccount,
   createConnectLoginLink,
@@ -40,7 +36,6 @@ export {
   createSubscriptionPortal,
   stripeWebhook,
 } from "./stripe";
-export { createStaffTicket, resolveStaffTicket, onStaffTicketCreated } from "./tickets";
 export { upsertEventCoupon, validateEventCoupon, listEventCoupons } from "./coupons";
 export { onPingCreated, onPingUpdated } from "./pings";
 export {

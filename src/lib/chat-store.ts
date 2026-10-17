@@ -12,11 +12,8 @@ import {
   where,
 } from "firebase/firestore";
 import { getFirebaseDb, isFirebaseConfigured } from "./firebase";
-import { askAirPalRemote } from "./functions";
 import type { ChatParticipant, ConversationType, UniversalChatMessage, UniversalConversation } from "@shared/messaging";
 import { MESSAGE_MAX, messageValid } from "@shared/messaging";
-import { getCachedProperty } from "./properties";
-import { CURRENT_PROPERTY } from "@shared/airpal-data";
 
 const CONV_CACHE_KEY = "airpal.universal_conversations.v1";
 const MSG_CACHE_KEY = "airpal.universal_messages.v1";
@@ -211,13 +208,12 @@ export function buildConversationId(
 }
 
 /** Predefined initial welcome messages */
-function getInitialGreeting(type: ConversationType, title: string, targetId?: string): string {
+function getInitialGreeting(type: ConversationType, title: string, _targetId?: string): string {
   if (type === "ai") {
-    return "Hi there! I'm AirPal AI, your 24/7 concierge & assistant. How can I help make your day easy? Ask me for local dining spots, events tonight, stay questions, or planning a catch-up!";
+    return "Hi there! I'm AirPal AI, your 24/7 assistant. How can I help make your day easy? Ask me for local dining spots, events tonight, or planning a catch-up!";
   }
   if (type === "stay") {
-    const prop = targetId ? getCachedProperty(targetId) || CURRENT_PROPERTY : CURRENT_PROPERTY;
-    return `Welcome to ${prop?.name || title}! Our front desk and 24/7 AirPal AI are here to assist with room requests, Wi-Fi, dining, and late check-outs. What can we do for you?`;
+    return `Welcome to ${title}! Ask AirPal AI about the local area, events, dining, or planning a catch-up.`;
   }
   if (type === "business") {
     return `Hello! Thanks for reaching out to ${title} on AirPal. Ask us about reservations, opening hours, deals, or special requests.`;
@@ -574,40 +570,11 @@ export async function requestAiReply(
   if (!wantsAi) return null;
   await new Promise((resolve) => setTimeout(resolve, 350));
 
-  const propertyId = conv.type === "stay" ? (conv.targetId || "").trim() : "";
-  if (propertyId) {
-    try {
-      const res = await askAirPalRemote({ propertyId, question: userText.trim().slice(0, 1000) });
-      const title = String(res.title || "").trim();
-      const body = String(res.body || "").trim();
-      return appendAiMessage(conv.id, [title, body].filter(Boolean).join("\n\n") || body, [
-        { label: "🛎️ Contact Front Desk", action: "contact_desk" },
-      ]);
-    } catch {
-      return appendAiMessage(
-        conv.id,
-        "I couldn't reach live answers right now. Try again in a bit — or ask the front desk and they'll sort you out.",
-        [{ label: "🛎️ Contact Front Desk", action: "contact_desk" }],
-      );
-    }
-  }
-
-  if (conv.type === "stay") {
-    return appendAiMessage(
-      conv.id,
-      "I'm AirPal AI. This stay chat isn't linked to live hotel answers right now — the front desk can help with anything urgent.",
-      [{ label: "🛎️ Contact Front Desk", action: "contact_desk" }],
-    );
-  }
-  if (conv.type === "ai" || userText.toLowerCase().includes("@airpal")) {
-    return appendAiMessage(
-      conv.id,
-      "I'm AirPal AI. Open your stay chat and I can answer from live hotel knowledge — rooms, Wi-Fi, dining, facilities. Here, I can point you at the good stuff.",
-      [
-        { label: "🗺️ Explore Near Me", action: "guide" },
-        { label: "🤝 Find an AirPal Mate", action: "mate" },
-      ],
-    );
+  if (conv.type === "ai" || conv.type === "stay" || userText.toLowerCase().includes("@airpal")) {
+    return appendAiMessage(conv.id, "I'm AirPal AI. Here, I can point you at the good stuff.", [
+      { label: "🗺️ Explore Near Me", action: "guide" },
+      { label: "🤝 Find an AirPal Mate", action: "mate" },
+    ]);
   }
   return null;
 }

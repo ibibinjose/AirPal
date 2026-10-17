@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import { Bell, BellRing } from "lucide-react";
@@ -6,21 +6,17 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { getFirebaseDb } from "@/lib/firebase";
 import { enableWebPush, listenForegroundPush, markNotificationRead, pushPrefEnabled } from "@/lib/notifications";
-import { openTicketCount, subscribePropertyTickets, type StaffTicket } from "@/lib/tickets-store";
-import { enableHostTicketPush, notifyHostForeground, ticketPushPrefEnabled } from "@/lib/tickets-push";
-import { hostWatchPropertyIds } from "@/lib/host-workspace";
 import { isNativeApp, triggerHaptic } from "@/lib/native";
 import { cn } from "@/lib/cn";
 import type { PromotionNotification } from "@shared/promotions";
 import { relativeAgo } from "@shared/time-ago";
 
 /**
- * The one header bell: inbox notifications for everyone, plus the
- * front-desk (guest requests) section for hosts and admins.
+ * The one header bell: inbox notifications for everyone.
  */
 export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
-  const { user, isHost, isAdmin } = useAuth();
-  const [path, nav] = useLocation();
+  const { user } = useAuth();
+  const [path] = useLocation();
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState<PromotionNotification[]>([]);
   const [enabling, setEnabling] = useState(false);
@@ -48,13 +44,6 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
     setOpen(false);
   }, [path]);
 
-  // Front desk (hosts/admins only)
-  const propertyIds = hostWatchPropertyIds(user?.propertyIds);
-  const [byProperty, setByProperty] = useState<Record<string, StaffTicket[]>>({});
-  const seen = useRef<Set<string>>(new Set());
-  const primed = useRef(false);
-  const canWatch = Boolean(user && (isHost || isAdmin) && propertyIds.length);
-
   useEffect(() => {
     const db = getFirebaseDb();
     if (!db || !user) {
@@ -78,44 +67,9 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
     [],
   );
 
-  useEffect(() => {
-    if (!canWatch) return;
-    if (ticketPushPrefEnabled()) void enableHostTicketPush();
-  }, [canWatch]);
-
-  useEffect(() => {
-    if (!canWatch) return;
-    primed.current = false;
-    seen.current = new Set();
-    const unsubs = propertyIds.map((id) =>
-      subscribePropertyTickets(id, (rows) => {
-        setByProperty((prev) => ({ ...prev, [id]: rows }));
-        const openRows = rows.filter((t) => t.status !== "resolved");
-        if (!primed.current) {
-          openRows.forEach((t) => seen.current.add(t.id));
-          primed.current = true;
-          return;
-        }
-        for (const ticket of openRows) {
-          if (seen.current.has(ticket.id)) continue;
-          seen.current.add(ticket.id);
-          toast.message("New guest request", { description: `Room ${ticket.roomNumber} · ${ticket.details}` });
-          void notifyHostForeground(`Room ${ticket.roomNumber} needs help`, ticket.details);
-        }
-      }),
-    );
-    return () => unsubs.forEach((fn) => fn());
-  }, [canWatch, propertyIds.join("|")]);
-
-  const tickets = useMemo(() => {
-    const rows = Object.values(byProperty).flat();
-    return rows.filter((t) => t.status !== "resolved").sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [byProperty]);
-
   if (!user) return null;
   const unread = notes.filter((n) => !n.read).length;
-  const openTickets = openTicketCount(tickets);
-  const total = unread + openTickets;
+  const total = unread;
 
   async function enable() {
     setEnabling(true);
@@ -169,44 +123,6 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
       </button>
       {open && (
         <div className="absolute right-0 z-50 mt-2 max-h-96 w-[22rem] max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-3xl bg-card/95 shadow-2xl ring-1 ring-line/80 backdrop-blur-2xl">
-          {canWatch && (
-            <>
-              <div className="flex items-center justify-between px-4 py-3">
-                <p className="text-[13px] font-semibold">Front desk {openTickets > 0 && `(${openTickets})`}</p>
-                <button
-                  type="button"
-                  className="text-[13px] font-semibold text-accent"
-                  onClick={() => {
-                    setOpen(false);
-                    nav("/host");
-                  }}
-                >
-                  Host
-                </button>
-              </div>
-              {tickets.length === 0 ? (
-                <p className="px-4 pb-3 text-[13px] text-mute">No open guest requests.</p>
-              ) : (
-                tickets.slice(0, 4).map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => {
-                      setOpen(false);
-                      nav("/host");
-                    }}
-                    className="block w-full border-t border-line/60 px-4 py-2.5 text-left"
-                  >
-                    <p className="text-[12px] text-mute">
-                      Room {t.roomNumber} · {t.category}
-                      {t.urgency === "urgent" ? " · urgent" : ""}
-                    </p>
-                    <p className="truncate text-[14px] font-medium">{t.details}</p>
-                  </button>
-                ))
-              )}
-            </>
-          )}
           <div className="flex items-center justify-between px-4 py-3">
             <p className="text-[13px] font-semibold">Notifications</p>
             <Link href="/me/inbox" onClick={() => setOpen(false)} className="text-[13px] font-semibold text-accent">

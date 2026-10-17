@@ -70,12 +70,11 @@ export function AuthGate({
         badge: kicker || "Host Workspace",
         title: title || "Host Account Required",
         description:
-          lede ||
-          "Sign in or create a host account to manage hotel, hostel, venue, or campus guest companions, live Wi-Fi credentials, and room tickets.",
+          lede || "Sign in or create a host account to manage your venues and events, door entry, and guest feedback.",
         benefits: [
-          "Free guest companion web app for rooms & lobby",
-          "Contactless Wi-Fi connection and digital key QR codes",
-          "Real-time guest service tickets & dispatch",
+          "Event studio, door scanner & guestlist",
+          "AirPal Pulse feedback with live QR codes",
+          "Business bio, deals & promotions",
         ],
         accentColor: "text-amber-600 dark:text-amber-400",
         accentBg: "bg-amber-500/10",

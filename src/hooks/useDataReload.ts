@@ -1,20 +1,17 @@
 import { useCallback } from "react";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { useEvents } from "@/contexts/EventsContext";
-import { useStay } from "@/contexts/StayContext";
 import { fetchPlaces } from "@/lib/places-store";
-import { fetchProperty } from "@/lib/properties";
 
 const RELOAD_DATA_EVENT = "airpal:reload-data";
 
 /**
  * Top-level data reload orchestrator. Refreshes clock, weather,
- * events, place catalog, property info, and triggers page listeners.
+ * events, place catalog, and triggers page listeners.
  */
 export function useDataReload() {
   const { refresh: refreshLocalNow } = useLocalNow();
   const { refresh: refreshEvents } = useEvents();
-  const { session } = useStay();
 
   const reloadAllData = useCallback(async () => {
     const startTime = Date.now();
@@ -29,12 +26,7 @@ export function useDataReload() {
         fetchPlaces(),
       ];
 
-      // 4. Refetch property profile if in an active guest stay
-      if (session?.propertyId) {
-        tasks.push(fetchProperty(session.propertyId));
-      }
-
-      // 5. Fire window event so active pages re-evaluate or refetch
+      // 4. Fire window event so active pages re-evaluate or refetch
       window.dispatchEvent(new CustomEvent(RELOAD_DATA_EVENT, { detail: { timestamp: Date.now() } }));
 
       await Promise.allSettled(tasks);
@@ -47,7 +39,7 @@ export function useDataReload() {
         await new Promise((resolve) => setTimeout(resolve, 600 - elapsed));
       }
     }
-  }, [refreshLocalNow, refreshEvents, session?.propertyId]);
+  }, [refreshLocalNow, refreshEvents]);
 
   return { reloadAllData };
 }

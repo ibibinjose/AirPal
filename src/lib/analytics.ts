@@ -123,18 +123,6 @@ function currentBackendState(contextId?: string): BackendState {
   return "live";
 }
 
-function stayContext(): { contextType: ContextType; contextId: string } | undefined {
-  try {
-    const raw = sessionStorage.getItem("airpal.stay");
-    if (!raw) return undefined;
-    return contextFromStay(
-      JSON.parse(raw) as { kind?: string; propertyId?: string; markerId?: string; campusId?: string },
-    );
-  } catch {
-    return undefined;
-  }
-}
-
 export type TrackOptions = {
   contextId?: string;
   contextType?: ContextType;
@@ -150,17 +138,14 @@ function buildEvent(
 ): AnalyticsEvent | null {
   const path = typeof window === "undefined" ? "" : window.location.pathname;
   const fromPath = contextFromPath(path);
-  const fromStay = stayContext();
   const contextId =
     options?.contextId ||
     (typeof properties.contextId === "string" ? properties.contextId : undefined) ||
-    fromPath?.contextId ||
-    fromStay?.contextId;
+    fromPath?.contextId;
   const contextType =
     options?.contextType ||
     (typeof properties.contextType === "string" ? (properties.contextType as ContextType) : undefined) ||
-    fromPath?.contextType ||
-    fromStay?.contextType;
+    fromPath?.contextType;
   const source = inferSource(path, options?.source);
   const raw = {
     eventId: newAnalyticsEventId(),
@@ -378,7 +363,7 @@ export function noteQrContext(
 }
 
 export function trackMapClick(extra?: { contextId?: string; placeId?: string; propertyId?: string; source?: string }) {
-  const ctx = extra?.contextId || extra?.propertyId || stayContext()?.contextId;
+  const ctx = extra?.contextId || extra?.propertyId;
   if (ctx)
     trackContentAction("map_open", ctx, { contentId: extra?.placeId || null, destination: extra?.source || "maps" });
 }

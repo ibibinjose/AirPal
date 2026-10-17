@@ -127,6 +127,14 @@ export function originFor(marker?: MarkerDoc) {
   return marker?.geo || { lat: -33.85955, lng: 151.20715 };
 }
 
+/** The Rocks fallback browse target when GPS yields nothing nearby. */
+export const ROCKS_BROWSE = {
+  mode: "city" as const,
+  city: "The Rocks, Sydney",
+  lat: -33.85945,
+  lng: 151.20835,
+};
+
 function withHandle<T extends NearbyPlace>(place: T): T {
   const handle = place.handle || handleFromPlaceId(place.id) || undefined;
   return handle ? { ...place, handle } : place;

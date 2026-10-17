@@ -305,7 +305,7 @@ export function StartPage() {
   // ALREADY SIGNED IN VIEW: User & Identity Cockpit
   // ========================================================
   if (user && !phoneSignup) {
-    const isHostUser = Boolean(user.propertyIds?.length || user.role === "host_admin" || user.role === "super_admin");
+    const isHostUser = user.role === "host_admin" || user.role === "super_admin";
     return (
       <div className="mx-auto max-w-xl px-4 py-8 md:py-12 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
         {/* Profile Card */}

@@ -7,17 +7,11 @@ describe("qr payload", () => {
     expect(pathForIntent({ kind: "url", href: "/@cutbar" })).toBe("/@cutbar");
   });
 
-  it("keeps room tokens on stay URLs", () => {
-    expect(parseQrPayload("https://airpal.me/g/harbour-hotel?r=tok-101-demo&room=101")).toEqual({
-      kind: "stay",
-      propertyId: "harbour-hotel",
-      roomToken: "tok-101-demo",
-      room: "101",
-      type: undefined,
+  it("passes retired stay URLs through as plain links", () => {
+    expect(parseQrPayload("https://airpal.me/g/harbour-hotel?room=101")).toEqual({
+      kind: "url",
+      href: "/g/harbour-hotel?room=101",
     });
-    expect(pathForIntent({ kind: "stay", propertyId: "harbour-hotel", roomToken: "tok-101-demo", room: "101" })).toBe(
-      "/g/harbour-hotel?r=tok-101-demo&room=101",
-    );
   });
 
   it("routes a Wave QR to /w/CODE", () => {

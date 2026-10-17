@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { ArrowLeft, Image as ImageIcon, Ticket, Upload, Zap } from "lucide-react";
 import { decodeQrFromImageFile, parseQrPayload, pathForIntent } from "@/lib/qr";
 import { isTicketId } from "@shared/booking";
-import { useStay } from "@/contexts/StayContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { hrefForPlace } from "@/lib/bio-handle";
@@ -15,17 +14,16 @@ import { useLocalNow } from "@/hooks/useLocalNow";
 import { useListings } from "@/contexts/ListingsContext";
 import { noteQrContext } from "@/lib/analytics";
 import { triggerHaptic } from "@/lib/native";
-import { qrContextIdFromPath, qrContextIdFromStay } from "@shared/analytics";
+import { qrContextIdFromPath } from "@shared/analytics";
 import { WaveListenCard } from "@/components/wave/WaveListenCard";
 
 /**
  * Universal Scanner for AirPal — Scans live QR camera feed, user photo library images,
- * room numbers, @handles, stays, tickets, and events across iOS, Android & Web.
+ * @handles, tickets, events, and Pulse codes across iOS, Android & Web.
  */
 
 export function ScanPage() {
   const [, nav] = useLocation();
-  const { session, setSession } = useStay();
   const { t } = useLocale();
   const { version, remoteLoaded } = useListings();
   const { here, city, usingGps } = useLocalNow();
@@ -45,29 +43,11 @@ export function ScanPage() {
 
   const go = useCallback(
     (href: string) => {
-      if (href.startsWith("/g/")) {
-        const u = new URL(href, window.location.origin);
-        setSession({
-          kind: "stay",
-          propertyId: u.pathname.split("/")[2] || undefined,
-          room: u.searchParams.get("room") || undefined,
-          roomToken: u.searchParams.get("r") || undefined,
-        });
-      }
-      if (href.startsWith("/q/")) setSession({ kind: "marker", markerId: href.split("/")[2] });
-      if (href.startsWith("/c/")) setSession({ kind: "campus", campusId: href.split("/")[2]?.split("?")[0] });
-      const contextId =
-        qrContextIdFromPath(href.split("?")[0] || href) ||
-        qrContextIdFromStay({
-          kind: href.startsWith("/g/") ? "stay" : href.startsWith("/c/") ? "campus" : "marker",
-          propertyId: href.startsWith("/g/") ? href.split("/")[2]?.split("?")[0] : undefined,
-          markerId: href.startsWith("/q/") ? href.split("/")[2] : undefined,
-          campusId: href.startsWith("/c/") ? href.split("/")[2]?.split("?")[0] : undefined,
-        });
+      const contextId = qrContextIdFromPath(href.split("?")[0] || href);
       if (contextId) noteQrContext(contextId, { source: "scan" });
       nav(href);
     },
-    [nav, setSession],
+    [nav],
   );
 
   useEffect(() => {
@@ -157,15 +137,6 @@ export function ScanPage() {
     if (!clean) return;
     void triggerHaptic("medium");
 
-    // Pure room numbers resolve inside the current stay only — never a hardcoded demo property.
-    if (/^\d{1,4}$/.test(clean)) {
-      if (session.propertyId) {
-        go(`/g/${session.propertyId}?room=${clean}`);
-      } else {
-        toast.error("Scan your room QR first — then a room number will open it.");
-      }
-      return;
-    }
     // Handle @handles
     if (clean.startsWith("@")) {
       go(`/${clean}`);
@@ -194,7 +165,7 @@ export function ScanPage() {
       go(`/ticket/${encodeURIComponent(clean)}`);
       return;
     }
-    toast.error("Code not recognised. Try entering a ticket ID, room #, or @handle.");
+    toast.error("Code not recognised. Try entering a ticket ID, event link, or @handle.");
   };
 
   return (
@@ -293,14 +264,14 @@ export function ScanPage() {
       {/* Manual Code / PIN Entry */}
       <form onSubmit={handleManualSubmit} className="mt-4 flex gap-2">
         <label htmlFor="scan-manual-code" className="sr-only">
-          Room number, ticket code, or handle
+          Ticket code, event link, or handle
         </label>
         <input
           id="scan-manual-code"
           type="text"
           value={manualCode}
           onChange={(e) => setManualCode(e.target.value)}
-          placeholder="Enter room # (e.g. 101), ticket code, or @handle…"
+          placeholder="Enter ticket code, event link, or @handle…"
           className="h-11 flex-1 rounded-2xl bg-card px-4 text-[16px] md:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand placeholder:text-mute focus-visible:border-brand"
         />
         <button
@@ -319,7 +290,7 @@ export function ScanPage() {
         </div>
       ) : quickPlaces.length === 0 ? (
         <div className="mt-5 pb-6">
-          <EmptyState title="Nothing nearby to try yet" body="Enter a room number, ticket code, or @handle." />
+          <EmptyState title="Nothing nearby to try yet" body="Enter a ticket code, event link, or @handle." />
         </div>
       ) : (
         <>

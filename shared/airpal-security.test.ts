@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   canClaimDeal,
-  canReadPropertyWifi,
   normalizeEmail,
   parsePlatformAdminEmails,
   pinIsWellFormed,
@@ -40,31 +39,6 @@ describe("canClaimDeal", () => {
       false,
     );
     expect(canClaimDeal({ active: true, claimsCount: 2, claimLimit: 10, existingActiveForUser: false }).ok).toBe(true);
-  });
-});
-
-describe("canReadPropertyWifi", () => {
-  const tokens = { "tok-101-demo": "101" };
-
-  it("lets a host through without a scan proof", () => {
-    expect(canReadPropertyWifi({ isHost: true })).toBe(true);
-  });
-
-  it("lets a guest through with a matching room token", () => {
-    expect(canReadPropertyWifi({ isHost: false, roomTokens: tokens, roomToken: "tok-101-demo" })).toBe(true);
-  });
-
-  it("rejects a guest with a guessed property id and no proof", () => {
-    expect(canReadPropertyWifi({ isHost: false, roomTokens: tokens, roomToken: "nope" })).toBe(false);
-    expect(canReadPropertyWifi({ isHost: false, roomTokens: tokens })).toBe(false);
-  });
-
-  it("accepts the lobby marker or a marker that belongs to the property", () => {
-    expect(
-      canReadPropertyWifi({ isHost: false, lobbyMarkerId: "97a4e8add3a8c668", markerId: "97a4e8add3a8c668" }),
-    ).toBe(true);
-    expect(canReadPropertyWifi({ isHost: false, markerId: "room-101", markerBelongsToProperty: true })).toBe(true);
-    expect(canReadPropertyWifi({ isHost: false, markerId: "street-x", markerBelongsToProperty: false })).toBe(false);
   });
 });
 

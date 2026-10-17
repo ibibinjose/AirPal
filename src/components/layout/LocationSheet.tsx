@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Navigation, Building2, Check, Globe2, X, Sparkles, MapPin, Share2, ShieldCheck, Compass } from "lucide-react";
+import { Navigation, Check, Globe2, X, Sparkles, MapPin, Share2, ShieldCheck, Compass } from "lucide-react";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { toast } from "sonner";
@@ -73,7 +73,6 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
   if (typeof document === "undefined") return null;
 
   const isGpsActive = choice.mode === "gps" || (choice.mode === "auto" && source === "gps");
-  const isStayActive = choice.mode === "stay";
   // Sydney precinct shortcuts only make sense for Sydney guests — GPS + city
   // search already cover Dubai, India, and everywhere else.
   const showSydneyPrecincts = !city || city === "Choose a city" || /sydney/i.test(city);
@@ -190,42 +189,6 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 </p>
               </div>
               {isGpsActive && <Check size={14} className="text-emerald-400 mt-0.5 shrink-0" />}
-            </button>
-
-            {/* Stay / Precinct Option */}
-            <button
-              type="button"
-              onClick={() => {
-                chooseLocation({ mode: "stay" });
-                onClose();
-              }}
-              className={cn(
-                "group relative flex items-start gap-3 rounded-2xl p-3.5 text-left border-2 transition active:scale-[0.98] cursor-pointer shadow-xs",
-                isStayActive ? "bg-brand text-white border-ink" : "bg-paper text-ink border-ink hover:bg-card",
-              )}
-            >
-              <div
-                className={cn(
-                  "grid h-9 w-9 shrink-0 place-items-center rounded-xl transition border border-line",
-                  isStayActive
-                    ? "bg-amber-400 text-slate-950 font-bold"
-                    : "bg-amber-500/10 text-amber-900 dark:text-amber-300 group-hover:scale-105",
-                )}
-              >
-                <Building2 size={17} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-xs font-bold block">Stay / Hotel Pin</span>
-                <p
-                  className={cn(
-                    "text-[11px] mt-0.5 leading-snug font-medium",
-                    isStayActive ? "text-white/80" : "text-mute",
-                  )}
-                >
-                  Lock to your hotel or stay location
-                </p>
-              </div>
-              {isStayActive && <Check size={14} className="text-emerald-400 mt-0.5 shrink-0" />}
             </button>
           </div>
 

@@ -49,7 +49,7 @@ import { useScrollLock } from "@/hooks/useScrollLock";
 import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { cityMatches } from "@/lib/remote-events";
-import { ROCKS_BROWSE } from "@/lib/catalog-stay";
+import { ROCKS_BROWSE } from "@/lib/catalog";
 import { triggerHaptic } from "@/lib/native";
 
 const CATEGORIES = CALENDAR_CATEGORIES;

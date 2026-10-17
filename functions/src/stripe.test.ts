@@ -41,7 +41,6 @@ import {
   payoutIdempotencyKey,
   refundIdempotencyKey,
   sandboxBookingsAllowed,
-  stayCheckoutReturnUrls,
   stripeLiveConfigured,
 } from "./stripe";
 
@@ -61,15 +60,6 @@ describe("sandboxBookingsAllowed", () => {
     delete process.env.ALLOW_SANDBOX_BOOKINGS;
     process.env.FUNCTIONS_EMULATOR = "true";
     expect(sandboxBookingsAllowed()).toBe(true);
-  });
-});
-
-describe("stayCheckoutReturnUrls", () => {
-  it("lands on the ticket passbook so booked/canceled survive", () => {
-    expect(stayCheckoutReturnUrls("https://airpal.me", "b1")).toEqual({
-      success: "https://airpal.me/me/tickets?booked=b1",
-      cancel: "https://airpal.me/me/tickets?canceled=true",
-    });
   });
 });
 

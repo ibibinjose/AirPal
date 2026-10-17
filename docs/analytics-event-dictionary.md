@@ -36,7 +36,7 @@ Always report numerator, denominator, and the per-context distribution — never
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
 | `session_started`                 | First page in a browser session; emitted once per session — route changes do not emit additional session events                        | No                                    |
 | `qr_scan`                         | Printed QR or in-app scan landing                                                                                                      | No                                    |
-| `context_view`                    | Stay / marker / campus / event / business / bio context loaded                                                                         | No                                    |
+| `context_view`                    | Event / business / bio context loaded (legacy stay, marker, campus QR paths keep their original tag)                                   | No                                    |
 | `context_load_failed`             | Context failed to load                                                                                                                 | No                                    |
 | `first_value`                     | First useful action in a session/context/day                                                                                           | Yes, max once per session/context/day |
 | `content_action`                  | Map (`actionType=map_open`), Wi-Fi reveal, profile open, booking intent, place open, experience completed (`experience_completed`)     | Yes for allowlisted `actionType`      |
@@ -169,8 +169,8 @@ Enumerated values (enforced by `isQualifiedAction`, not by the validator — unk
 - `trackContentAction()` derives the paired `first_value.valueType` from the action: `wifi_reveal`→`wifi`, `map_open`→`map`, `profile_open`→`profile`, `booking_intent`→`booking`, `place_open`→`place`, anything else→`faq`. The subtype is preserved, never collapsed.
 - `trackContentAction()` forwards only `contentId` to `first_value`. Any other `extra` keys (`destination`, `category`, …) belong to `content_action` and would be silently stripped from `first_value` by the validator — callers must not expect them there.
 - Map links never send the URL: `openMap()` accepts a URL for navigation but records only `destination` (e.g. `"maps"` or the caller-supplied label). `url` is forbidden — `destination` is the safe replacement.
-- `noteQrContext(id, { source })` records that value as `placementType` (the scan surface: `stay`, `marker`, `campus`, `scan`), not as traffic `source`. QR-scan events always carry `source: "qr"`.
-- `trackPageView()` emits `context_view` with `loadStatus: "ok"` for every context route. The five context pages (stay, marker, campus, event, bio) separately emit `context_load_failed` with `errorClass: "not_found"` when the id resolves to nothing — read the pair together, or misses read as hits.
+- `noteQrContext(id, { source })` records that value as `placementType` (the scan surface: `scan`), not as traffic `source`. QR-scan events always carry `source: "qr"`.
+- `trackPageView()` emits `context_view` with `loadStatus: "ok"` for every context route. The context pages (event, bio — plus legacy stay, marker, and campus QR paths) separately emit `context_load_failed` with `errorClass: "not_found"` when the id resolves to nothing — read the pair together, or misses read as hits.
 
 ## Forbidden in properties
 

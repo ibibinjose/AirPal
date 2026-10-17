@@ -1,8 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Geo } from "@shared/nearby";
-import { useStay } from "./StayContext";
 import { PRECINCT_META } from "@/lib/cities";
-import { stayOrigin } from "@/lib/highlights";
 import { DEFAULT_TZ, deviceTimeZone, formatLocalDay, formatLocalTime, toZonedDateStr } from "@/lib/local-time";
 import { loadLocalWeather, type LocalWeather, type WeatherOrigin } from "@/lib/weather";
 import { requestDeviceGeo, watchDeviceGeo } from "@/lib/geo-locate";
@@ -29,7 +27,7 @@ export type LocalNowValue = {
   usingGps: boolean;
   /** Physical / GPS-or-fallback point for weather, time, and Discover. */
   here: Geo;
-  /** Stay pin when the guest is in a stay; otherwise same as here. */
+  /** Physical anchor point for weather and Discover; same as here. */
   anchor: Geo;
   source: WeatherOrigin["source"];
   weather: LocalWeather | null;
@@ -45,11 +43,6 @@ export type LocalNowValue = {
 const LocalNowContext = createContext<LocalNowValue | undefined>(undefined);
 
 export function LocalNowProvider({ children }: { children: ReactNode }) {
-  const { property, marker, session } = useStay();
-  const stayGeo = useMemo(() => stayOrigin(property, marker?.geo), [property, marker?.geo]);
-  const inStay =
-    session.kind === "stay" || session.kind === "campus" || session.kind === "marker" || Boolean(session.room);
-
   const [choice, setChoice] = useState<LocationChoice>(() => loadLocationChoice());
   const [shareLocation, setShareLocationState] = useState(() => loadShareLocation());
   const [now, setNow] = useState(() => new Date());
@@ -58,24 +51,15 @@ export function LocalNowProvider({ children }: { children: ReactNode }) {
   const [failed, setFailed] = useState(false);
 
   const fallback = useMemo<WeatherOrigin>(() => {
-    if (inStay) {
-      return {
-        lat: stayGeo.lat,
-        lng: stayGeo.lng,
-        source: "stay",
-        city: property.city || PRECINCT_META.city,
-      };
-    }
     const last = loadLastGps();
     if (last) {
       return { lat: last.lat, lng: last.lng, source: "gps", city: last.city || "" };
     }
-    return { lat: stayGeo.lat, lng: stayGeo.lng, source: "precinct", city: "" };
-  }, [stayGeo.lat, stayGeo.lng, inStay, property.city]);
+    return { lat: PRECINCT_META.geo.lat, lng: PRECINCT_META.geo.lng, source: "precinct", city: "" };
+  }, []);
 
   const preferred = useMemo<WeatherOrigin>(() => {
     if (choice.mode === "city") return { lat: choice.lat, lng: choice.lng, source: "city", city: choice.city };
-    if (choice.mode === "stay") return fallback;
     if (choice.mode === "gps" && deviceGeo) return { ...deviceGeo, source: "gps" };
     return fallback;
   }, [choice, deviceGeo, fallback]);
@@ -104,7 +88,7 @@ export function LocalNowProvider({ children }: { children: ReactNode }) {
   }, [load, preferred]);
 
   useEffect(() => {
-    if (choice.mode === "city" || choice.mode === "stay") return;
+    if (choice.mode === "city") return;
     let alive = true;
     void requestDeviceGeo({ highAccuracy: choice.mode === "gps" }).then((geo) => {
       if (!alive || !geo) return;
@@ -150,7 +134,7 @@ export function LocalNowProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(() => {
     void load(preferred);
-    if (choice.mode === "city" || choice.mode === "stay") return;
+    if (choice.mode === "city") return;
     void requestDeviceGeo({ highAccuracy: choice.mode === "gps" }).then((geo) => {
       if (!geo) return;
       setDeviceGeo(geo);
@@ -166,9 +150,9 @@ export function LocalNowProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [refresh]);
 
-  const here = choice.mode === "city" ? preferred : deviceGeo && choice.mode !== "stay" ? deviceGeo : preferred;
-  const usingGps = Boolean(deviceGeo) && choice.mode !== "city" && choice.mode !== "stay";
-  const anchor = inStay ? stayGeo : here;
+  const here = choice.mode === "city" || !deviceGeo ? preferred : deviceGeo;
+  const usingGps = Boolean(deviceGeo) && choice.mode !== "city";
+  const anchor = here;
   const timeZone = weather?.timezone || deviceTimeZone() || DEFAULT_TZ;
   const city = usingGps
     ? weather?.source === "gps" && weather.city

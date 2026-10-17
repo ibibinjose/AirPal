@@ -509,21 +509,12 @@ export function ProfileMenu() {
           onClick={() => go("/event")}
         />
 
-        {isHost ? (
-          <Row
-            icon={Building2}
-            label="Host Workspace"
-            hint="Hotel, venue, campus hosting"
-            onClick={() => go("/event")}
-          />
-        ) : (
-          <Row
-            icon={Building2}
-            label="Stay Host"
-            hint="Hotel, hostel, or room concierge"
-            onClick={() => go("/business")}
-          />
-        )}
+        <Row
+          icon={Building2}
+          label={isHost ? "Host Workspace" : "Become a Host"}
+          hint="Venues & event spaces"
+          onClick={() => go(isHost ? "/event" : "/business")}
+        />
 
         {business ? (
           <Row
@@ -553,7 +544,7 @@ export function ProfileMenu() {
         <Row
           icon={Headphones}
           label="Help Desk Operations"
-          hint="Front desk, kitchen & event support"
+          hint="Help centre & event support"
           badge="LIVE"
           badgeColor="bg-brand/15 text-accent"
           onClick={() => go("/helpdesk")}
@@ -640,12 +631,7 @@ export function ProfileMenu() {
           hint="Same login. Guests find your place"
           onClick={() => go(partnerAccountPath({ signedIn: false, hasPlace: false }))}
         />
-        <Row
-          icon={Building2}
-          label="Become a Host"
-          hint="Hotel, venue, hostel, campus"
-          onClick={() => go("/business")}
-        />
+        <Row icon={Building2} label="Become a Host" hint="Venues & event spaces" onClick={() => go("/business")} />
         <Row icon={CalendarDays} label="Organise an Event" hint="Market, expo, festival" onClick={() => go("/event")} />
         <Row
           icon={Activity}

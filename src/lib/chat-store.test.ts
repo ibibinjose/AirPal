@@ -115,19 +115,18 @@ describe("chat store", () => {
     await expect(retryMessage("c1", "missing")).resolves.toBeUndefined();
   });
 
-  it("answers from the live endpoint on stay chats, honestly on failure", async () => {
-    // No backend in tests: the endpoint throws, the assistant says so.
+  it("answers stay chats with generic guidance, no property backend", async () => {
     const reply = await requestAiReply(conv({ type: "stay", targetId: "prop-1" }), "wifi password?");
     expect(reply?.isAi).toBe(true);
-    expect(reply?.text).toContain("couldn't reach live answers");
+    expect(reply?.text).toContain("point you at the good stuff");
     expect(reply?.sync).toBe("local");
   }, 15000);
 
-  it("guides without inventing facts off-property, stays out of mate chats", async () => {
+  it("guides without inventing facts, stays out of mate chats", async () => {
     const ai = await requestAiReply(conv({ type: "ai" }), "best bars?");
-    expect(ai?.text).toContain("stay chat");
+    expect(ai?.text).toContain("point you at the good stuff");
     const stayBare = await requestAiReply(conv({ type: "stay" }), "hello?");
-    expect(stayBare?.text).toContain("front desk");
+    expect(stayBare?.text).toContain("point you at the good stuff");
     const mate = await requestAiReply(conv({ type: "direct" }), "see you at 7");
     expect(mate).toBeNull();
     const tagged = await requestAiReply(conv({ type: "direct" }), "@airpal find coffee");

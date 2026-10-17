@@ -50,7 +50,6 @@ const PromotionsStudioPage = lazy(() =>
   import("@/pages/PromotionsStudioPage").then((m) => ({ default: m.PromotionsStudioPage })),
 );
 const ArrivalPage = lazy(() => import("@/pages/ArrivalPage").then((m) => ({ default: m.ArrivalPage })));
-const HostPage = lazy(() => import("@/pages/HostPage").then((m) => ({ default: m.HostPage })));
 const PulsePage = lazy(() => import("@/pages/PulsePage").then((m) => ({ default: m.PulsePage })));
 const BirthdayFreebiesPage = lazy(() =>
   import("@/pages/BirthdayFreebiesPage").then((m) => ({ default: m.BirthdayFreebiesPage })),
@@ -162,7 +161,6 @@ export function AppRoutes() {
             <ArrivalPage mode="arrival" />
           </Route>
           <Route path="/host/pulse" component={PulsePage} />
-          <Route path="/host" component={HostPage} />
           <Route path="/pulse/:publicToken" component={PulsePage} />
           <Route path="/pulse" component={PulsePage} />
           <Route path="/deals/:id">

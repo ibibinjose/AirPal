@@ -19,11 +19,9 @@ import { cn } from "@/lib/cn";
 
 export function AirPalChatView({
   conversation,
-  propertyContext,
   onActionClick,
 }: {
   conversation: UniversalConversation;
-  propertyContext?: { wifi?: { network?: string; password?: string } };
   onActionClick?: (action: string, payload?: string) => void;
 }) {
   const { user } = useAuth();
@@ -100,12 +98,7 @@ export function AirPalChatView({
 
   function handleAction(action: string, payload?: string) {
     void triggerHaptic("medium");
-    if (action === "copy_wifi") {
-      const wifi = propertyContext?.wifi;
-      const copyText = `Network: ${wifi?.network || "Guest"}\nPassword: ${wifi?.password || "Ask Desk"}`;
-      void navigator.clipboard.writeText(copyText);
-      toast.success("Wi-Fi details copied to clipboard!");
-    } else if (onActionClick) {
+    if (onActionClick) {
       onActionClick(action, payload);
     } else {
       // Send as chat query

@@ -7,9 +7,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import type { UserProfile, UserRole } from "@shared/airpal-data";
-import { buildHostProperty, parseHostPropertyKind, type HostPropertyKind } from "@shared/host-property";
 import {
   attachEmailToAccount,
   linkEmailPasswordToAccount,
@@ -39,14 +38,11 @@ import { clearPendingIntent, savePendingIntent, type PendingIntent } from "@/lib
 import { clearDeviceCache } from "@/lib/device-cache";
 import {
   completeAccountSignupRemote,
-  completeRegistration,
   ensureUserProfileRemote,
   liveBackendEnabled,
   loginWithPhonePasswordRemote,
 } from "@/lib/functions";
 import { signInWithSocial, type SocialProvider } from "@/lib/social-auth";
-import { saveCachedProperty } from "@/lib/properties";
-import { track } from "@/lib/analytics";
 
 import {
   authenticateWithBiometrics,
@@ -60,8 +56,6 @@ import {
 } from "@/lib/biometrics";
 
 type RegisterOpts = {
-  kind?: HostPropertyKind;
-  propertyName?: string;
   city?: string;
   password?: string;
 };
@@ -82,7 +76,7 @@ type AuthValue = {
   biometricsSupported: boolean;
   biometricLabel: string;
   biometricType: BiometricType;
-  register: (email: string, name: string, opts?: RegisterOpts) => Promise<{ propertyId?: string }>;
+  register: (email: string, name: string, opts?: RegisterOpts) => Promise<void>;
   sendPhoneCode: (phone: string) => Promise<void>;
   confirmPhoneCode: (code: string) => Promise<void>;
   completePhoneProfile: (input: { name: string; email: string }) => Promise<void>;
@@ -100,15 +94,6 @@ type AuthValue = {
   confirmAccountPhoneCode: (code: string) => Promise<void>;
   removePhoneNumber: () => Promise<void>;
   refreshUser: () => Promise<void>;
-  createHostProperty: (input: {
-    propertyName: string;
-    kind?: HostPropertyKind;
-    city?: string;
-    /** Demo-business build. Honored for platform admins only (server-enforced). */
-    demo?: boolean;
-    /** Requested property id. Honored for demo builds only (server-enforced). */
-    propertyId?: string;
-  }) => Promise<{ propertyId: string }>;
   logout: () => Promise<void>;
   /** In-app account deletion (App Store 5.1.1(v)). */
   deleteAccount: () => Promise<void>;
@@ -197,32 +182,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const claims = (await fb.getIdTokenResult()).claims as {
           role?: UserRole;
           platform_admin?: boolean;
-          propertyId?: string;
         };
         if (claims.platform_admin) profile.role = "super_admin";
         else if (claims.role) profile.role = claims.role;
-        if (claims.propertyId) {
-          const ids = profile.propertyIds || [];
-          if (!ids.includes(claims.propertyId)) {
-            profile.propertyIds = [claims.propertyId, ...ids];
-          }
-        }
       } catch {
         /* ignore */
-      }
-
-      // If user is a host but propertyIds not set on user doc, query owned properties
-      if (db && (!profile.propertyIds || !profile.propertyIds.length)) {
-        try {
-          const propQuery = query(collection(db, "properties"), where("ownerId", "==", fb.uid));
-          const propSnaps = await getDocs(propQuery);
-          if (!propSnaps.empty) {
-            profile.propertyIds = propSnaps.docs.map((d) => d.id);
-            if (profile.role === "guest") profile.role = "host_admin";
-          }
-        } catch {
-          /* ignore */
-        }
       }
 
       profile.email = fb.email || "";
@@ -261,11 +225,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       authReady: Boolean(user) || (authReady && !hasRealFirebaseUser()),
       role: user?.role || "guest",
-      isHost:
-        user?.role === "host_admin" ||
-        user?.role === "super_admin" ||
-        user?.role === "staff" ||
-        Boolean(user?.propertyIds?.length),
+      isHost: user?.role === "host_admin" || user?.role === "super_admin" || user?.role === "staff",
       isAdmin: user?.role === "super_admin",
       async login(email, password) {
         const auth = getFirebaseAuth();
@@ -415,113 +375,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch {
           /* account exists; they can resend from /me */
         }
-        if (opts?.propertyName) {
-          let propertyId: string | undefined;
-          if (liveBackendEnabled()) {
-            const res = await completeRegistration({
-              displayName: name,
-              role: "host_admin",
-              propertyName: opts.propertyName,
-              kind: opts.kind || "hotel",
-              city: opts.city,
-            });
-            propertyId = res.propertyId;
-            if (auth.currentUser) {
-              try {
-                await auth.currentUser.getIdToken(true);
-              } catch {
-                /* ignore */
-              }
-            }
-          } else {
-            const prop = buildHostProperty({
-              propertyName: opts.propertyName,
-              ownerEmail: cleanEmail,
-              ownerId: auth.currentUser?.uid || "host-local",
-              kind: parseHostPropertyKind(opts.kind),
-              city: opts.city,
-            });
-            saveCachedProperty(prop);
-            propertyId = prop.id;
-          }
-          if (propertyId) {
-            setUser((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    role: "host_admin",
-                    propertyIds: [propertyId!, ...(prev.propertyIds || []).filter((id) => id !== propertyId)],
-                  }
-                : {
-                    uid: auth.currentUser?.uid || "host-local",
-                    email: cleanEmail,
-                    displayName: name,
-                    role: "host_admin",
-                    propertyIds: [propertyId!],
-                    emailVerified: auth.currentUser?.emailVerified ?? false,
-                  },
-            );
-            void track("host_activation", {
-              tenantId: auth.currentUser?.uid || "local",
-              activationStep: "property_created",
-              contextId: propertyId,
-              actorRole: "host_admin",
-            });
-            return { propertyId };
-          }
-        }
-        return {};
-      },
-      async createHostProperty(input) {
-        let propertyId = "";
-        if (liveBackendEnabled()) {
-          const res = await completeRegistration({
-            displayName: user?.displayName || "Host",
-            role: "host_admin",
-            propertyName: input.propertyName,
-            kind: input.kind || "hotel",
-            city: input.city,
-            demo: input.demo,
-            propertyId: input.propertyId,
-          });
-          propertyId = res.propertyId;
-          const auth = getFirebaseAuth();
-          if (auth?.currentUser) {
-            try {
-              await auth.currentUser.getIdToken(true);
-            } catch {
-              /* ignore */
-            }
-          }
-        } else {
-          const prop = buildHostProperty({
-            propertyName: input.propertyName,
-            ownerEmail: user?.email || "",
-            ownerId: user?.uid || "host-local",
-            kind: parseHostPropertyKind(input.kind),
-            city: input.city,
-          });
-          saveCachedProperty(prop);
-          propertyId = prop.id;
-        }
-        if (propertyId) {
-          void track("host_activation", {
-            tenantId: user?.uid || "local",
-            activationStep: "property_created",
-            contextId: propertyId,
-            actorRole: "host_admin",
-          });
-          setUser((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  role: "host_admin",
-                  propertyIds: [propertyId, ...(prev.propertyIds || []).filter((id) => id !== propertyId)],
-                }
-              : null,
-          );
-        }
-        return { propertyId };
       },
       async logout() {
         resetPhoneLogin();

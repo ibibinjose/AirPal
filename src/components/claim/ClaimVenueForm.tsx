@@ -80,7 +80,7 @@ export function ClaimVenueForm({
         next="/claim"
         kicker="Venue Claims"
         title="Claim Your Venue"
-        lede="Sign in with an email account to claim your bar, restaurant, café, or stay — then manage it as the verified owner."
+        lede="Sign in with an email account to claim your bar, restaurant, or café — then manage it as the verified owner."
       />
     );
   }

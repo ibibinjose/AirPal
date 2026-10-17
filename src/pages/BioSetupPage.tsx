@@ -36,7 +36,7 @@ export function BioSetupPage() {
   const [, nav] = useLocation();
   const params = new URLSearchParams(useSearch());
   const asBusiness = params.get("kind") === "business";
-  const { user, authReady, register, createHostProperty } = useAuth();
+  const { user, authReady, register } = useAuth();
   const { mine, business, createProfile } = useBio();
   const { savePlace } = useListings();
   const wanted = params.get("handle") || "";
@@ -118,28 +118,13 @@ export function BioSetupPage() {
     }
     setBusy(true);
     try {
-      let createdPropId: string | undefined;
       const newAccount = !user;
       if (!user) {
         try {
-          const res = await register(email, name || email, {
-            kind: asBusiness ? "venue" : undefined,
-            propertyName: asBusiness ? name : undefined,
+          await register(email, name || email, {
             city: address.city || "Sydney",
             password,
           });
-          createdPropId = res.propertyId;
-        } catch (err) {
-          if (liveBackendEnabled()) throw err;
-        }
-      } else if (asBusiness && (!user.propertyIds || !user.propertyIds.length)) {
-        try {
-          const res = await createHostProperty({
-            propertyName: name,
-            kind: "venue",
-            city: address.city || "Sydney",
-          });
-          createdPropId = res.propertyId;
         } catch (err) {
           if (liveBackendEnabled()) throw err;
         }
@@ -157,7 +142,6 @@ export function BioSetupPage() {
         trademark: asBusiness ? trademark : undefined,
         phone: asBusiness ? phone : undefined,
         geo: asBusiness ? geo : undefined,
-        propertyId: createdPropId || user?.propertyIds?.[0] || undefined,
       });
       if (asBusiness) {
         await savePlace({
