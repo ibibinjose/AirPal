@@ -66,8 +66,13 @@ describe("validateAnalyticsEvent", () => {
   it("rejects sensitive keys", () => {
     const result = validateAnalyticsEvent(
       event({
-        eventName: "ask_submitted",
-        properties: { contextId: "prop_live_1", questionCategory: "wifi", question: "what is the wifi password?" },
+        eventName: "support_request",
+        properties: {
+          contextId: "prop_live_1",
+          requestId: "req-1",
+          category: "wifi",
+          question: "what is the wifi password?",
+        },
       }),
     );
     expect(result.ok).toBe(false);
@@ -224,18 +229,18 @@ describe("eligibility and WQGA diagnostic", () => {
     expect(
       isQualifiedAction(
         event({
-          eventName: "ask_answered",
+          eventName: "first_value",
           contextId: "prop_live_1",
-          properties: { contextId: "prop_live_1", answerStatus: "shown" },
+          properties: { contextId: "prop_live_1", valueType: "booking" },
         }),
       ),
     ).toBe(true);
     expect(
       isQualifiedAction(
         event({
-          eventName: "ask_answered",
+          eventName: "first_value",
           contextId: "prop_live_1",
-          properties: { contextId: "prop_live_1", answerStatus: "missing" },
+          properties: { contextId: "prop_live_1", valueType: "nonsense" },
         }),
       ),
     ).toBe(false);
@@ -286,11 +291,11 @@ describe("eligibility and WQGA diagnostic", () => {
         properties: { contextType: "marker", contextId: "marker_b" },
       }),
       event({
-        eventName: "ask_answered",
+        eventName: "first_value",
         occurredAt: "2026-09-09T09:05:00.000Z",
         contextId: "marker_b",
         anonymousSessionId: "s2",
-        properties: { contextId: "marker_b", answerStatus: "shown" },
+        properties: { contextId: "marker_b", valueType: "booking" },
       }),
       event({
         eventName: "content_action",

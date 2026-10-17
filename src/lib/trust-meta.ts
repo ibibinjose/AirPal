@@ -48,7 +48,7 @@ const TRUST_ORG_JSON_LD: Record<string, unknown> = {
     name: "Sydney, New South Wales, Australia",
   },
   disambiguatingDescription:
-    "AirPal.Me is a Sydney-built guest-companion and local-discovery platform operated by SarvamDaily Pty Ltd. It is not Arjo's AirPal patient-transfer mattress, the airpal.app flight-search tool, or any other AirPal-named app.",
+    "AirPal.Me is a Sydney-built local-discovery and experiences platform operated by SarvamDaily Pty Ltd. It is not Arjo's AirPal patient-transfer mattress, the airpal.app flight-search tool, or any other AirPal-named app.",
   contactPoint: {
     "@type": "ContactPoint",
     url: "https://airpal.me/contact",

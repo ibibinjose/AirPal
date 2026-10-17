@@ -12,7 +12,6 @@ export type AccessClaims = {
 export const FUNCTIONS_REGION = "us-central1";
 
 export const CALLABLES = {
-  completeRegistration: "completeRegistration",
   ensurePlatformAdmin: "ensurePlatformAdmin",
   setPropertyMember: "setPropertyMember",
   claimDeal: "claimDeal",

@@ -19,7 +19,7 @@ function loadRoutes(): PrerenderRoute[] {
   return JSON.parse(readFileSync(resolve(root, "scripts/prerender-routes.json"), "utf8"));
 }
 
-const PRIVATE_PREFIXES = ["/admin", "/me/", "/host", "/g/", "/invite/", "/q/", "/bio/", "/auth", "/api/"];
+const PRIVATE_PREFIXES = ["/admin", "/me/", "/invite/", "/bio/", "/auth", "/api/"];
 
 describe("prerender routes", () => {
   it("lists unique public paths with complete copy", () => {

@@ -333,7 +333,7 @@ export function useSearchAutocomplete(query: string, options: UseSearchAutocompl
       "Bondi Beach",
       "Live Music Tonight",
       "Morning Running Mate",
-      "Harbour View Hotel",
+      "Harbour Walk",
       "Coffee & Walk",
       "Botanic Gardens",
       "Contemporary Art Gallery",

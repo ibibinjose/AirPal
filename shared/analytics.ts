@@ -36,8 +36,6 @@ export const ANALYTICS_EVENT_NAMES = [
   "context_load_failed",
   "first_value",
   "content_action",
-  "ask_submitted",
-  "ask_answered",
   "offer_view",
   "offer_claim",
   "offer_redeem",
@@ -184,8 +182,6 @@ export const EVENT_PROPERTY_ALLOWLIST: Record<
     optional: ["contentId", "timeFromSessionStartMs", "timeFromQrScanMs", "loopTargetMet"],
   },
   content_action: { required: ["actionType", "contextId"], optional: ["contentId", "category", "destination"] },
-  ask_submitted: { required: ["contextId", "questionCategory"], optional: ["answerSource", "latencyMs"] },
-  ask_answered: { required: ["contextId", "answerStatus"], optional: ["questionCategory", "helpful"] },
   offer_view: { required: ["offerId", "partnerId", "contextId"], optional: ["placement"] },
   offer_claim: { required: ["offerId", "partnerId", "claimId", "contextId"], optional: ["expiryBucket"] },
   offer_redeem: { required: ["offerId", "partnerId", "claimId"], optional: ["redemptionChannel"] },
@@ -450,8 +446,6 @@ export function isQualifiedAction(event: AnalyticsEvent): boolean {
       return VALUE_TYPES.includes(String(event.properties.valueType) as ValueType);
     case "content_action":
       return CONTENT_ACTION_TYPES.includes(String(event.properties.actionType) as ContentActionType);
-    case "ask_answered":
-      return event.properties.answerStatus === "shown";
     case "offer_claim":
     case "offer_redeem":
     case "event_save":
@@ -565,16 +559,5 @@ export function wqgaFromEvents(events: AnalyticsEvent[], now = Date.now(), windo
 /** @deprecated Use contextFromPath. Kept so older call sites compile during the cutover. */
 export function qrContextIdFromPath(path: string): string | undefined {
   const hit = contextFromPath(path);
-  return hit ? `${hit.contextType}:${hit.contextId}` : undefined;
-}
-
-/** @deprecated Use contextFromStay. */
-export function qrContextIdFromStay(input: {
-  kind?: string;
-  propertyId?: string;
-  markerId?: string;
-  campusId?: string;
-}): string | undefined {
-  const hit = contextFromStay(input);
   return hit ? `${hit.contextType}:${hit.contextId}` : undefined;
 }

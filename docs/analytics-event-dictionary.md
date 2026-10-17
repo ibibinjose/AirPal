@@ -40,8 +40,6 @@ Always report numerator, denominator, and the per-context distribution — never
 | `context_load_failed`             | Context failed to load                                                                                                                 | No                                    |
 | `first_value`                     | First useful action in a session/context/day                                                                                           | Yes, max once per session/context/day |
 | `content_action`                  | Map (`actionType=map_open`), Wi-Fi reveal, profile open, booking intent, place open, experience completed (`experience_completed`)     | Yes for allowlisted `actionType`      |
-| `ask_submitted`                   | Guest submitted Ask AirPal                                                                                                             | No                                    |
-| `ask_answered`                    | Answer shown                                                                                                                           | Yes if `answerStatus=shown` (WQGA)    |
 | `offer_view`                      | Offer shown                                                                                                                            | No                                    |
 | `offer_claim`                     | Claim succeeded; uses server `claimId`                                                                                                 | Yes                                   |
 | `offer_redeem`                    | Staff redeemed; server `claimId`                                                                                                       | Yes                                   |
@@ -103,8 +101,6 @@ Mirrors `EVENT_PROPERTY_ALLOWLIST` in `shared/analytics.ts`. `validateAnalyticsE
 | `context_load_failed`             | `contextType`, `contextId`, `errorClass`        | `loadMs`                                                                   |
 | `first_value`                     | `valueType`, `contextId`                        | `contentId`, `timeFromSessionStartMs`, `timeFromQrScanMs`, `loopTargetMet` |
 | `content_action`                  | `actionType`, `contextId`                       | `contentId`, `category`, `destination`                                     |
-| `ask_submitted`                   | `contextId`, `questionCategory`                 | `answerSource`, `latencyMs`                                                |
-| `ask_answered`                    | `contextId`, `answerStatus`                     | `questionCategory`, `helpful`                                              |
 | `offer_view`                      | `offerId`, `partnerId`, `contextId`             | `placement`                                                                |
 | `offer_claim`                     | `offerId`, `partnerId`, `claimId`, `contextId`  | `expiryBucket`                                                             |
 | `offer_redeem`                    | `offerId`, `partnerId`, `claimId`               | `redemptionChannel`                                                        |
@@ -156,7 +152,6 @@ Enumerated values (enforced by `isQualifiedAction`, not by the validator — unk
 
 - `valueType`: `wifi` `answer` `map` `profile` `faq` `offer` `save` `support` `booking` `place`
 - `actionType`: `map_open` `wifi_reveal` `profile_open` `booking_intent` `place_open`
-- `answerStatus`: counts toward WQGA only when `shown`
 - `contextType`: `property` `room` `marker` `campus` `event` `business` `bio`
 - `source`: `qr` `direct` `share` `referral` `internal` `unknown`
 - `backendState`: `live` `offline_queued` `local_demo` `failed`

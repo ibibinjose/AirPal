@@ -32,7 +32,7 @@
     "title": "Trust · AirPal.Me",
     "description": "Is AirPal.Me legit? Company facts, who runs it, and what it isn't.",
     "heading": "Is AirPal.Me legit?",
-    "summary": "AirPal.Me is a guest-companion and local-discovery platform built in Sydney by SarvamDaily Pty Ltd (ABN 83 702 462 977). It is not Arjo's AirPal mattress or the airpal.app flight tool — company facts, verification links and an honest early-access status.",
+    "summary": "AirPal.Me is a local-discovery and experiences platform built in Sydney by SarvamDaily Pty Ltd (ABN 83 702 462 977). It is not Arjo's AirPal mattress or the airpal.app flight tool — company facts, verification links and an honest early-access status.",
     "jsonLd": [
       {
         "@context": "https://schema.org",
@@ -46,7 +46,7 @@
           "@type": "Place",
           "name": "Sydney, New South Wales, Australia"
         },
-        "disambiguatingDescription": "AirPal.Me is a Sydney-built guest-companion and local-discovery platform operated by SarvamDaily Pty Ltd. It is not Arjo's AirPal patient-transfer mattress, the airpal.app flight-search tool, or any other AirPal-named app.",
+        "disambiguatingDescription": "AirPal.Me is a Sydney-built local-discovery and experiences platform operated by SarvamDaily Pty Ltd. It is not Arjo's AirPal patient-transfer mattress, the airpal.app flight-search tool, or any other AirPal-named app.",
         "contactPoint": {
           "@type": "ContactPoint",
           "url": "https://airpal.me/contact",
