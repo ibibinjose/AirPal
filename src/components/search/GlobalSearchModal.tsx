@@ -37,6 +37,7 @@ import { useEvents } from "@/contexts/EventsContext";
 import { useListings } from "@/contexts/ListingsContext";
 import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { FilterChips } from "@/components/ui/FilterChips";
 import { cn } from "@/lib/cn";
 import { OPEN_SEARCH_EVENT, SEARCH_READY_EVENT, type OpenGlobalSearchOptions, type SearchCategory } from "./openSearch";
 
@@ -751,34 +752,24 @@ export function GlobalSearchModal() {
         </div>
 
         {/* Category Chips with smooth momentum touch scroll */}
-        <div className="no-scrollbar touch-pan-x flex shrink-0 items-center gap-1.5 overflow-x-auto border-b border-line/60 bg-paper/40 px-3 py-2">
-          {(
-            [
+        <div className="touch-pan-x shrink-0 border-b border-line/60 bg-paper/40 px-3 py-2">
+          <FilterChips
+            ariaLabel="Search categories"
+            className="mx-0 px-0"
+            options={[
               { id: "all", label: "All" },
               { id: "places", label: "Places" },
               { id: "events", label: "Events" },
               { id: "deals", label: "Deals" },
               { id: "circle", label: "Circle" },
               { id: "people", label: "People" },
-            ] as const
-          ).map((c) => (
-            <button
-              key={c.id}
-              onClick={() => {
-                void triggerHapticSelection();
-                setActiveCategory(c.id);
-                setSelectedIndex(0);
-              }}
-              className={cn(
-                "flex h-10 shrink-0 items-center rounded-full px-4 text-xs font-semibold transition whitespace-nowrap active:scale-95 min-h-[40px] cursor-pointer touch-manipulation",
-                activeCategory === c.id
-                  ? "bg-brand text-white shadow-xs"
-                  : "bg-paper text-mute hover:bg-line hover:text-ink ring-1 ring-line",
-              )}
-            >
-              {c.label}
-            </button>
-          ))}
+            ]}
+            value={activeCategory}
+            onChange={(id) => {
+              setActiveCategory(id);
+              setSelectedIndex(0);
+            }}
+          />
         </div>
 
         {/* Results List: Mobile-first flex scroll container */}

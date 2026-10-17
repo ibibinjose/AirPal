@@ -18,7 +18,7 @@ import { relativeAgo } from "@shared/time-ago";
  * The one header bell: inbox notifications for everyone, plus the
  * front-desk (guest requests) section for hosts and admins.
  */
-export function NotificationBell() {
+export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
   const { user, isHost, isAdmin } = useAuth();
   const [path, nav] = useLocation();
   const [open, setOpen] = useState(false);
@@ -142,13 +142,27 @@ export function NotificationBell() {
           void triggerHaptic("light");
           setOpen((v) => !v);
         }}
-        className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-accent hover:bg-card ring-1 ring-line transition-transform active:scale-95 after:absolute after:-inset-1.5 after:content-['']"
+        className={cn(
+          "relative grid h-9 w-9 touch-manipulation place-items-center rounded-full ring-1 transition-transform active:scale-95 after:absolute after:-inset-1.5 after:content-['']",
+          onBrand
+            ? "text-white/85 hover:bg-white/10 hover:text-white ring-white/25"
+            : "text-accent hover:bg-card ring-line",
+        )}
         aria-label={total ? `${total} unread notifications` : "Notifications"}
         title="Notifications"
       >
-        {total > 0 ? <BellRing size={16} className="text-accent" /> : <Bell size={16} className="text-accent" />}
+        {total > 0 ? (
+          <BellRing size={16} className={onBrand ? "text-white" : "text-accent"} />
+        ) : (
+          <Bell size={16} className={onBrand ? "text-white" : "text-accent"} />
+        )}
         {total > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand px-1 text-[10px] font-semibold text-white">
+          <span
+            className={cn(
+              "absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-semibold",
+              onBrand ? "bg-white text-[#2F00FF]" : "bg-brand text-white",
+            )}
+          >
             {total > 9 ? "9+" : total}
           </span>
         )}

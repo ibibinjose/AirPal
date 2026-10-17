@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { AtSign, BadgeCheck, Building2, MessageCircle, User, UserCheck, UserPlus } from "lucide-react";
+import { AtSign, BadgeCheck, Building2, Handshake, MessageCircle, User, UserCheck, UserPlus } from "lucide-react";
 import { fetchPublicBio } from "@/lib/bio-store";
 import { bioPath, type BioProfile } from "@shared/bio";
 import { useSocial } from "@/contexts/SocialContext";
@@ -12,6 +12,7 @@ export interface EventHostCardProps {
   hostHandle?: string;
   hostType?: "business" | "individual";
   collaboratorHandles?: string[];
+  sponsorHandles?: string[];
   /** Luma-style row: Follow the host plus a Contact the Host link. Off in previews. */
   showActions?: boolean;
   className?: string;
@@ -22,6 +23,7 @@ export function EventHostCard({
   hostHandle,
   hostType = "individual",
   collaboratorHandles = [],
+  sponsorHandles = [],
   showActions = false,
   className,
 }: EventHostCardProps) {
@@ -106,11 +108,11 @@ export function EventHostCard({
         )}
       </div>
 
-      {/* Co-Hosts / Collaborators List */}
+      {/* Extra Hosts / Co-Hosts List */}
       {collaboratorHandles.length > 0 && (
         <div className="border-t border-line/50 pt-3">
           <span className="text-xs font-bold uppercase tracking-wider text-mute block mb-2">
-            Co-Hosts &amp; Partners
+            Extra Hosts &amp; Co-hosts
           </span>
           <div className="flex flex-wrap gap-1.5">
             {collaboratorHandles.map((handle) => {
@@ -119,9 +121,34 @@ export function EventHostCard({
                 <Link
                   key={clean}
                   href={bioPath(clean)}
-                  className="inline-flex items-center gap-1 rounded-full bg-paper px-2.5 py-1 text-xs font-medium text-ink ring-1 ring-line hover:ring-brand hover:text-accent transition"
+                  className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-paper px-2.5 py-1 text-xs font-medium text-ink ring-1 ring-line hover:ring-brand hover:text-accent transition touch-manipulation"
                 >
                   <AtSign size={11} className="text-accent" aria-hidden="true" />
+                  <span>{clean}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Sponsors List */}
+      {sponsorHandles.length > 0 && (
+        <div className="border-t border-line/50 pt-3">
+          <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-mute mb-2">
+            <Handshake size={12} className="text-amber-600 dark:text-amber-400" aria-hidden="true" />
+            <span>Sponsors</span>
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {sponsorHandles.map((handle) => {
+              const clean = handle.replace(/^@+/, "");
+              return (
+                <Link
+                  key={clean}
+                  href={bioPath(clean)}
+                  className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-ink ring-1 ring-amber-500/25 hover:ring-amber-500/50 hover:text-accent transition touch-manipulation"
+                >
+                  <AtSign size={11} className="text-amber-600 dark:text-amber-400" aria-hidden="true" />
                   <span>{clean}</span>
                 </Link>
               );

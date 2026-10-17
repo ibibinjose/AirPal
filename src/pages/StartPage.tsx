@@ -21,6 +21,7 @@ import {
 import { authErrorMessage } from "@shared/auth-email";
 import { isEmail } from "@shared/validate";
 import { Button } from "@/components/ui/Button";
+import { TabPills } from "@/components/ui/TabPills";
 import { ValidField, fieldInput } from "@/components/forms/ValidField";
 import { VerifyEmailBanner } from "@/components/auth/VerifyEmailBanner";
 import { AccountContacts } from "@/components/auth/AccountContacts";
@@ -771,7 +772,7 @@ export function StartPage() {
                     className={cn(
                       "flex-1 rounded-full min-h-[44px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer",
                       mode === "signin"
-                        ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
+                        ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(0,78,255,0.35)]"
                         : "text-mute hover:text-ink",
                     )}
                   >
@@ -784,7 +785,7 @@ export function StartPage() {
                     className={cn(
                       "flex-1 rounded-full min-h-[44px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer",
                       mode === "signup"
-                        ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
+                        ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(0,78,255,0.35)]"
                         : "text-mute hover:text-ink",
                     )}
                   >
@@ -860,35 +861,18 @@ export function StartPage() {
                 ) : (
                   <div className="mt-2">
                     {/* Sign-in Phone Sub-Mode Toggle: Password vs SMS Code */}
-                    <div className="mb-3.5 flex justify-center gap-1 rounded-full bg-paper p-1 ring-1 ring-line">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          void triggerHapticSelection();
-                          setPhoneLoginMode("password");
-                        }}
-                        aria-pressed={phoneLoginMode === "password"}
-                        className={cn(
-                          "inline-flex min-h-[40px] flex-1 items-center justify-center rounded-full px-4 text-xs font-semibold cursor-pointer transition active:scale-[0.98]",
-                          phoneLoginMode === "password" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
-                        )}
-                      >
-                        Password
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          void triggerHapticSelection();
-                          setPhoneLoginMode("sms");
-                        }}
-                        aria-pressed={phoneLoginMode === "sms"}
-                        className={cn(
-                          "inline-flex min-h-[40px] flex-1 items-center justify-center rounded-full px-4 text-xs font-semibold cursor-pointer transition active:scale-[0.98]",
-                          phoneLoginMode === "sms" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
-                        )}
-                      >
-                        SMS Code
-                      </button>
+                    <div className="mb-3.5 flex justify-center">
+                      <TabPills
+                        layout="contained"
+                        ariaLabel="Sign-in method"
+                        className="w-full"
+                        items={[
+                          { id: "password" as const, label: "Password" },
+                          { id: "sms" as const, label: "SMS Code" },
+                        ]}
+                        active={phoneLoginMode}
+                        onChange={setPhoneLoginMode}
+                      />
                     </div>
 
                     {phoneLoginMode === "sms" ? (

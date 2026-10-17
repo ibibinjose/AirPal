@@ -34,7 +34,7 @@ export interface SearchBarProps extends Omit<React.InputHTMLAttributes<HTMLInput
 const SIZE_STYLES = {
   // sm: 44px on mobile (Apple/Android minimum), 40px on desktop
   sm: {
-    container: "h-11 sm:h-10 min-h-[44px] sm:min-h-[40px]",
+    container: "h-11 sm:h-10 min-h-[44px] sm:min-h-[44px]",
     input: "text-[16px] sm:text-xs pl-10 pr-10",
     iconLeft: "left-3",
     iconSize: 16,
@@ -405,7 +405,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function S
                   e.preventDefault();
                   handleFullSearch();
                 }}
-                className="flex w-full min-h-[40px] items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-semibold text-accent hover:bg-brand/10 transition cursor-pointer"
+                className="flex w-full min-h-[44px] items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-semibold text-accent hover:bg-brand/10 transition cursor-pointer"
               >
                 <span className="flex items-center gap-2 truncate">
                   <Search size={13} className="text-accent shrink-0" />

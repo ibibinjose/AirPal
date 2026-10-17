@@ -144,7 +144,7 @@ export function ticketPassJson(input: TicketPassInput): Record<string, unknown> 
     organizationName: "AirPal.me",
     description: `${input.title} — AirPal ticket`,
     serialNumber: `ticket-${input.bookingId}`,
-    backgroundColor: "rgb(24,5,219)",
+    backgroundColor: "rgb(0,78,255)",
     foregroundColor: "rgb(255,255,255)",
     labelColor: "rgb(225,225,235)",
     eventTicket: {
@@ -171,7 +171,7 @@ export function cardPassJson(input: CardPassInput): Record<string, unknown> {
     organizationName: "AirPal.me",
     description: input.kind === "business" ? `${input.name} — AirPal business card` : `${input.name} on AirPal`,
     serialNumber: `card-${input.handle}`,
-    backgroundColor: "rgb(24,5,219)",
+    backgroundColor: "rgb(0,78,255)",
     foregroundColor: "rgb(255,255,255)",
     labelColor: "rgb(225,225,235)",
     generic: {

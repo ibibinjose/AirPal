@@ -68,6 +68,12 @@ export interface Booking {
   stripeAccountId?: string;
   /** Ticket quantity for events/experiences. Mate bookings are 1. */
   spots?: number;
+  /** Named price tier chosen at checkout (events with ticketTiers). */
+  tierId?: string;
+  /** Server-validated coupon code applied at checkout. */
+  couponCode?: string;
+  /** Whole-percent discount the server applied. */
+  discountPercent?: number;
   /** Balance payment: points at the original deposit booking. */
   parentBookingId?: string;
   /** D3 stay nights: property + range on the same bookings engine. */

@@ -172,7 +172,7 @@ export function CircleHereSheet({
       <label className="mt-4 flex items-center gap-3 px-1 py-1">
         <input
           type="checkbox"
-          className="h-5 w-5 accent-[#1805db]"
+          className="h-5 w-5 accent-[#004eff]"
           checked={pinOnMap}
           onChange={(e) => setPinOnMap(e.target.checked)}
         />

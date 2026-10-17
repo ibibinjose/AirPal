@@ -59,7 +59,7 @@ export function ClaimShell({
                       className={cn(
                         "grid h-7 w-7 shrink-0 place-items-center rounded-full text-[13px] font-bold",
                         done && "bg-leaf text-white",
-                        current && "bg-white text-ink",
+                        current && "bg-white text-neutral-950",
                         !done && !current && "bg-white/15 text-white/70",
                       )}
                       aria-current={current ? "step" : undefined}

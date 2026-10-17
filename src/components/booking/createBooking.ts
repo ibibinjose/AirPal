@@ -37,6 +37,8 @@ export async function createBookingForEvent(args: {
   priceCents: number;
   customerUid: string;
   spots?: number;
+  tierId?: string;
+  couponCode?: string;
 }): Promise<string> {
   const db = getFirebaseDb();
   if (!db || !isFirebaseConfigured) throw new Error("Connect Firebase first.");
@@ -74,6 +76,8 @@ export async function createBookingForEvent(args: {
     cancelReason: "",
     eventId: args.eventId,
     spots: args.spots || 1,
+    ...(args.tierId ? { tierId: args.tierId } : {}),
+    ...(args.couponCode ? { couponCode: args.couponCode.trim().toUpperCase() } : {}),
     createdAt: now,
     updatedAt: now,
   });

@@ -178,7 +178,7 @@ export function CalendarWeekView({
                 type="button"
                 onClick={jumpToday}
                 aria-label="Jump to today"
-                className="rounded-full bg-paper px-3 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 min-h-[36px] cursor-pointer"
+                className="rounded-full bg-paper px-3 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 min-h-[44px] cursor-pointer"
               >
                 Today
               </button>

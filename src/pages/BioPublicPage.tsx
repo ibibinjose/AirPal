@@ -38,7 +38,9 @@ import {
   Wine,
   X,
 } from "lucide-react";
-import type { BioCatalogItem } from "@shared/bio";
+import type { BioCatalogItem, BioTheme } from "@shared/bio";
+import { resolveBioTheme } from "@shared/bio";
+import type { CSSProperties } from "react";
 import { BUSINESS_CATEGORIES } from "@shared/business";
 import { CURRENT_PROPERTY } from "@shared/airpal-data";
 import { getCachedProperty } from "@/lib/properties";
@@ -111,6 +113,7 @@ import {
   parseAtHandle,
   socialLinks,
   stackLinks,
+  visibleBioLinks,
 } from "@shared/bio";
 import { mapsPlaceIdUrl, mapsPlaceUrl } from "@/lib/maps";
 import { toPublicUrl } from "@/lib/public-origin";
@@ -435,6 +438,18 @@ export function BioPublicPage() {
 
   if (!profile) return <NotFoundPage />;
   const bio = profile;
+  const theme: BioTheme = resolveBioTheme(bio.theme);
+  const themed = theme.id !== "airpal";
+  const isBizBio = bio.kind === "business";
+  const themeVars = {
+    "--bio-bg": theme.pageBg,
+    "--bio-ink": theme.ink,
+    "--bio-muted": theme.muted,
+    "--bio-accent": theme.accent,
+    "--bio-btn": theme.buttonBg,
+    "--bio-btn-text": theme.buttonText,
+    "--bio-radius": `${theme.buttonRadius}px`,
+  } as CSSProperties;
 
   const isOwner = Boolean(
     (user && bio.ownerUid && bio.ownerUid === user.uid) ||
@@ -488,7 +503,7 @@ export function BioPublicPage() {
     ? mapsPlaceIdUrl(bio.mapsPlaceId)
     : bio.geo
       ? mapsPlaceUrl(bio.geo, bio.name)
-      : bio.links.find((l) => l.type === "maps")?.href;
+      : visibleBioLinks(bio.links).find((l) => l.type === "maps")?.href;
 
   async function onClaimDeal(item: BioCatalogItem) {
     recordTap(bio.handle, "deal");
@@ -531,8 +546,11 @@ export function BioPublicPage() {
     });
   }
 
+  // Public view: scheduled, archived, and ordering rules apply to every surface.
+  const publicLinks = useMemo(() => visibleBioLinks(bio.links), [bio.links]);
+
   // Website URL resolution
-  const websiteLink = bio.links.find(
+  const websiteLink = publicLinks.find(
     (l) => l.type === "website" || l.type === "book" || l.type === "order" || l.type === "menu",
   );
   const rawWebsite = (bio as Record<string, unknown>).website;
@@ -548,16 +566,16 @@ export function BioPublicPage() {
     websiteFallback;
 
   // WhatsApp URL resolution
-  const whatsappLink = bio.links.find((l) => l.type === "whatsapp");
+  const whatsappLink = publicLinks.find((l) => l.type === "whatsapp");
   const whatsappUrl =
     whatsappLink?.href || (bio.phone ? `https://wa.me/${bio.phone.replace(/[^0-9]/g, "")}` : undefined);
 
   // Call / tel resolution
-  const callLink = bio.links.find((l) => l.type === "call");
+  const callLink = publicLinks.find((l) => l.type === "call");
   const tel = bio.phone ? `tel:${bio.phone.replace(/\s/g, "")}` : callLink?.href;
 
   const share = toPublicUrl(bioPath(bio.handle));
-  const stacked = stackLinks(bio.links).filter((l) => l.href !== websiteUrl && l.type !== "whatsapp");
+  const stacked = stackLinks(publicLinks).filter((l) => l.href !== websiteUrl && l.type !== "whatsapp");
   const avatar = bio.avatar && bio.avatar !== bio.cover ? bio.avatar : undefined;
 
   const deals = catalogDeals(bio);
@@ -678,7 +696,14 @@ export function BioPublicPage() {
   };
 
   return (
-    <div className="bio-page-shell px-3 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-4 sm:pt-8 lg:px-0">
+    <div
+      className={
+        themed
+          ? "bio-page-shell bio-themed px-3 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-4 sm:pt-8 lg:px-0"
+          : "bio-page-shell px-3 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-4 sm:pt-8 lg:px-0"
+      }
+      style={themed ? themeVars : undefined}
+    >
       {/* A solid content card keeps the profile readable; glass is reserved for navigation. */}
       <main className="bio-page-card overflow-hidden ring-1 ring-line/80" aria-label={`${bio.name}'s AirPal bio`}>
         {/* Cover Hero Header with Cinematic Vignette */}
@@ -1967,9 +1992,9 @@ export function BioPublicPage() {
                         rel="noreferrer"
                         onClick={() => {
                           void triggerHaptic("light");
-                          recordTap(bio.handle, link.type);
+                          recordTap(bio.handle, link.type, link.id);
                         }}
-                        className="group flex min-h-[52px] sm:min-h-[56px] items-center justify-between rounded-full bg-brand px-6 text-sm sm:text-[15px] font-bold text-white shadow-xs transition-all duration-200 hover:bg-brand-ink hover:shadow-md active:scale-[0.99] touch-manipulation cursor-pointer"
+                        className="bio-theme-btn group flex min-h-[52px] sm:min-h-[56px] items-center justify-between rounded-full bg-brand px-6 text-sm sm:text-[15px] font-bold text-white shadow-xs transition-all duration-200 hover:bg-brand-ink hover:shadow-md active:scale-[0.99] touch-manipulation cursor-pointer"
                       >
                         <span className="truncate">{link.label || link.type}</span>
                         <ChevronRight size={18} className="shrink-0 transition-transform group-hover:translate-x-1" />
@@ -1981,13 +2006,13 @@ export function BioPublicPage() {
           )}
 
           {/* Social Links Long Strip Section */}
-          {bio.links && socialLinks(bio.links).some((l) => isSafeBioHref(l.href)) && (
+          {publicLinks && socialLinks(publicLinks).some((l) => isSafeBioHref(l.href)) && (
             <div className="mt-8 pt-5 border-t border-line/60">
               <div className="flex items-center justify-between mb-3 px-0.5">
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Follow &amp; Connect</p>
                 <span className="text-[10px] font-medium text-mute uppercase tracking-wider">Social Channels</span>
               </div>
-              <BioSocials links={bio.links} onTap={(kind) => recordTap(bio.handle, kind)} />
+              <BioSocials links={publicLinks} onTap={(kind, linkId) => recordTap(bio.handle, kind, linkId)} />
             </div>
           )}
 
@@ -2011,174 +2036,183 @@ export function BioPublicPage() {
             </div>
           )}
 
-          {/* AirPal Guestlist sign up: Name, City, Email + interest opt-ins.
+          {/* Guestlist sign up: Name, City, Email + interest opt-ins.
               Persists server-side (callable) so invites can actually be sent;
-              the local club copy stays for on-device perks. */}
-          {(bio.kind === "business" || ["bar", "club", "events", "eat"].includes(bio.category)) && (
-            <form
-              className="mt-8 rounded-[28px] sm:rounded-[32px] bg-paper/60 p-5 sm:p-6 ring-1 ring-line/80 shadow-2xs space-y-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (listSending) return;
-                const cityLabel =
-                  listCity === "other"
-                    ? listCityOther.trim()
-                    : (CITY_OPTIONS.find((c) => c.id === listCity)?.label || "").trim();
-                const problems = validateGuestlistSignup({
-                  name: listName,
-                  city: cityLabel,
-                  email: listEmail,
-                  interests: listInterests,
-                  source: bio.handle,
-                });
-                if (problems.length > 0) {
-                  toast.error(problems[0] || "Check the form and try again.");
-                  return;
+              the local club copy stays for on-device perks. Personal profiles
+              get the same list with subscriber-friendly copy. */}
+          <form
+            className="mt-8 rounded-[28px] sm:rounded-[32px] bg-paper/60 p-5 sm:p-6 ring-1 ring-line/80 shadow-2xs space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (listSending) return;
+              const cityLabel =
+                listCity === "other"
+                  ? listCityOther.trim()
+                  : (CITY_OPTIONS.find((c) => c.id === listCity)?.label || "").trim();
+              const problems = validateGuestlistSignup({
+                name: listName,
+                city: cityLabel,
+                email: listEmail,
+                interests: listInterests,
+                source: bio.handle,
+              });
+              if (problems.length > 0) {
+                toast.error(problems[0] || "Check the form and try again.");
+                return;
+              }
+              void triggerHaptic("medium");
+              setListSending(true);
+              void (async () => {
+                try {
+                  await ensureAnonymousSession();
+                  await joinGuestlistSignupRemote({
+                    name: listName.trim(),
+                    city: cityLabel,
+                    email: listEmail.trim(),
+                    interests: listInterests,
+                    source: bio.handle,
+                  });
+                  addGuest(bio.handle, { email: listEmail, name: listName, source: "bio" });
+                  joinClub({
+                    email: listEmail,
+                    name: listName || bio.name,
+                    city: cityLabel,
+                    invites: true,
+                    offers: true,
+                  });
+                  toast.success(isBizBio ? "You're on the AirPal Guestlist" : "You're subscribed");
+                  setListEmail("");
+                  setListName("");
+                  setListCity("");
+                  setListCityOther("");
+                  setListInterests([]);
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : "Couldn't join. Try again.");
+                } finally {
+                  setListSending(false);
                 }
-                void triggerHaptic("medium");
-                setListSending(true);
-                void (async () => {
-                  try {
-                    await ensureAnonymousSession();
-                    await joinGuestlistSignupRemote({
-                      name: listName.trim(),
-                      city: cityLabel,
-                      email: listEmail.trim(),
-                      interests: listInterests,
-                      source: bio.handle,
-                    });
-                    addGuest(bio.handle, { email: listEmail, name: listName, source: "bio" });
-                    joinClub({
-                      email: listEmail,
-                      name: listName || bio.name,
-                      city: cityLabel,
-                      invites: true,
-                      offers: true,
-                    });
-                    toast.success("You're on the AirPal Guestlist");
-                    setListEmail("");
-                    setListName("");
-                    setListCity("");
-                    setListCityOther("");
-                    setListInterests([]);
-                  } catch (err) {
-                    toast.error(err instanceof Error ? err.message : "Couldn't join. Try again.");
-                  } finally {
-                    setListSending(false);
-                  }
-                })();
-              }}
-            >
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">AirPal Guestlist</p>
-                <h4 className="font-display text-base sm:text-lg font-bold text-ink mt-0.5">
-                  VIP Invites &amp; Secret Spots
-                </h4>
-                <p className="text-xs text-mute mt-0.5">
-                  Get notified for exclusive gatherings, door perks, and secret drops.
-                </p>
-              </div>
-              <label htmlFor="guestlist-name" className="sr-only">
-                Your name
-              </label>
-              <input
-                id="guestlist-name"
-                value={listName}
-                onChange={(e) => setListName(e.target.value)}
-                placeholder="Your Name"
-                autoComplete="name"
-                maxLength={80}
-                className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
-              />
-              <label htmlFor="guestlist-city" className="sr-only">
-                Your city
-              </label>
-              <select
-                id="guestlist-city"
-                value={listCity}
-                onChange={(e) => setListCity(e.target.value)}
-                className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
-              >
-                <option value="">Your City</option>
-                {CITY_OPTIONS.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.label}
-                    {c.region ? `, ${c.region}` : ""}
-                  </option>
-                ))}
-                <option value="other">Somewhere else</option>
-              </select>
-              {listCity === "other" && (
-                <>
-                  <label htmlFor="guestlist-city-other" className="sr-only">
-                    Your city or town
-                  </label>
-                  <input
-                    id="guestlist-city-other"
-                    value={listCityOther}
-                    onChange={(e) => setListCityOther(e.target.value)}
-                    placeholder="Your city or town"
-                    autoComplete="address-level2"
-                    maxLength={60}
-                    className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
-                  />
-                </>
-              )}
-              <label htmlFor="guestlist-email" className="sr-only">
-                Your email
-              </label>
-              <input
-                id="guestlist-email"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                autoCapitalize="none"
-                required
-                value={listEmail}
-                onChange={(e) => setListEmail(e.target.value)}
-                placeholder="Your Email"
-                className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
-              />
-              <fieldset>
-                <legend className="text-[11px] font-semibold text-mute">I&apos;m into — pick any</legend>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {GUESTLIST_INTERESTS.map((interest) => {
-                    const on = listInterests.includes(interest.id);
-                    return (
-                      <button
-                        key={interest.id}
-                        type="button"
-                        aria-pressed={on}
-                        onClick={() => {
-                          void triggerHaptic("light");
-                          setListInterests((prev) =>
-                            prev.includes(interest.id) ? prev.filter((v) => v !== interest.id) : [...prev, interest.id],
-                          );
-                        }}
-                        className={
-                          on
-                            ? "min-h-[44px] shrink-0 cursor-pointer rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-                            : "min-h-[44px] shrink-0 cursor-pointer rounded-full bg-card px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:ring-brand/40 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-                        }
-                      >
-                        {interest.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </fieldset>
-              <button
-                type="submit"
-                disabled={listSending}
-                className="min-h-[48px] h-12 w-full rounded-full bg-brand text-xs sm:text-sm font-bold text-white transition hover:bg-brand-ink active:scale-95 shadow-xs disabled:opacity-60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
-              >
-                {listSending ? "Joining VIP list…" : "Join the Guestlist (Free)"}
-              </button>
-              <p className="text-center text-[11px] leading-relaxed text-mute">
-                {GUESTLIST_CONSENT_V1} Includes AirPal Club perks and priority invites.
+              })();
+            }}
+          >
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
+                {isBizBio ? "AirPal Guestlist" : "Stay in the loop"}
               </p>
-            </form>
-          )}
+              <h4 className="font-display text-base sm:text-lg font-bold text-ink mt-0.5">
+                {isBizBio ? "VIP Invites & Secret Spots" : "Updates & Invites"}
+              </h4>
+              <p className="text-xs text-mute mt-0.5">
+                {isBizBio
+                  ? "Get notified for exclusive gatherings, door perks, and secret drops."
+                  : `Get ${bio.name.split(" ")[0]}'s event invites and drops first.`}
+              </p>
+            </div>
+            <label htmlFor="guestlist-name" className="sr-only">
+              Your name
+            </label>
+            <input
+              id="guestlist-name"
+              value={listName}
+              onChange={(e) => setListName(e.target.value)}
+              placeholder="Your Name"
+              autoComplete="name"
+              maxLength={80}
+              className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
+            />
+            <label htmlFor="guestlist-city" className="sr-only">
+              Your city
+            </label>
+            <select
+              id="guestlist-city"
+              value={listCity}
+              onChange={(e) => setListCity(e.target.value)}
+              className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
+            >
+              <option value="">Your City</option>
+              {CITY_OPTIONS.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.label}
+                  {c.region ? `, ${c.region}` : ""}
+                </option>
+              ))}
+              <option value="other">Somewhere else</option>
+            </select>
+            {listCity === "other" && (
+              <>
+                <label htmlFor="guestlist-city-other" className="sr-only">
+                  Your city or town
+                </label>
+                <input
+                  id="guestlist-city-other"
+                  value={listCityOther}
+                  onChange={(e) => setListCityOther(e.target.value)}
+                  placeholder="Your city or town"
+                  autoComplete="address-level2"
+                  maxLength={60}
+                  className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
+                />
+              </>
+            )}
+            <label htmlFor="guestlist-email" className="sr-only">
+              Your email
+            </label>
+            <input
+              id="guestlist-email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              required
+              value={listEmail}
+              onChange={(e) => setListEmail(e.target.value)}
+              placeholder="Your Email"
+              className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
+            />
+            <fieldset>
+              <legend className="text-[11px] font-semibold text-mute">I&apos;m into — pick any</legend>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {GUESTLIST_INTERESTS.map((interest) => {
+                  const on = listInterests.includes(interest.id);
+                  return (
+                    <button
+                      key={interest.id}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => {
+                        void triggerHaptic("light");
+                        setListInterests((prev) =>
+                          prev.includes(interest.id) ? prev.filter((v) => v !== interest.id) : [...prev, interest.id],
+                        );
+                      }}
+                      className={
+                        on
+                          ? "min-h-[44px] shrink-0 cursor-pointer rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                          : "min-h-[44px] shrink-0 cursor-pointer rounded-full bg-card px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:ring-brand/40 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                      }
+                    >
+                      {interest.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+            <button
+              type="submit"
+              disabled={listSending}
+              className="min-h-[48px] h-12 w-full rounded-full bg-brand text-xs sm:text-sm font-bold text-white transition hover:bg-brand-ink active:scale-95 shadow-xs disabled:opacity-60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
+            >
+              {listSending
+                ? isBizBio
+                  ? "Joining VIP list…"
+                  : "Subscribing…"
+                : isBizBio
+                  ? "Join the Guestlist (Free)"
+                  : "Subscribe (Free)"}
+            </button>
+            <p className="text-center text-[11px] leading-relaxed text-mute">
+              {GUESTLIST_CONSENT_V1} Includes AirPal Club perks and priority invites.
+            </p>
+          </form>
 
           {bio.propertyId ? <BioPulseRate propertyId={bio.propertyId} /> : null}
 

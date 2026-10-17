@@ -1,30 +1,39 @@
 import { useState } from "react";
 import { Check, QrCode, ShieldCheck, Sparkles, Tag, Ticket } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { triggerHaptic } from "@/lib/native";
+import { couponPrice, normalizeCouponCode } from "@shared/event";
+import { liveBackendEnabled, validateEventCouponRemote } from "@/lib/functions";
 
 export interface EventRegistrationCardProps {
+  eventId: string;
   paidCents?: number;
   capacity?: number;
   requireApproval?: boolean;
   isGoing: boolean;
   buying: boolean;
-  tier: "standard" | "vip" | "group";
+  /** Selected tier id, or legacy "standard" | "vip" | "group". */
+  tier: string;
+  /** Named tiers from the event. Absent = legacy standard/vip/group pricing. */
+  tiers?: { id: string; name: string; priceCents: number; capacity?: number }[];
   spots: number;
-  onTierChange: (tier: "standard" | "vip" | "group") => void;
+  onTierChange: (tier: string) => void;
   onSpotsChange: (spots: number) => void;
-  onSubmit: (coupon?: string, finalPriceCents?: number) => void;
+  onSubmit: (coupon?: string, finalPriceCents?: number, tierId?: string) => void;
   onToggleGoing?: () => void;
   className?: string;
 }
 
 export function EventRegistrationCard({
+  eventId,
   paidCents = 0,
   capacity,
   requireApproval,
   isGoing,
   buying,
   tier,
+  tiers,
   spots,
   onTierChange,
   onSpotsChange,
@@ -32,21 +41,38 @@ export function EventRegistrationCard({
   className,
 }: EventRegistrationCardProps) {
   const isPaid = paidCents > 0;
-  const effectiveSpots = tier === "group" ? 4 : spots;
+  const namedTiers = tiers && tiers.length > 0 ? tiers : null;
+  const activeNamedTier = namedTiers?.find((t) => t.id === tier) ?? null;
+  const effectiveSpots = !namedTiers && tier === "group" ? 4 : spots;
 
   const [couponDraft, setCouponDraft] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const [validating, setValidating] = useState(false);
 
-  const unitPriceCents =
-    tier === "vip" ? Math.round(paidCents * 1.5) : tier === "group" ? Math.round(paidCents * 0.9) : paidCents;
+  const unitPriceCents = activeNamedTier
+    ? activeNamedTier.priceCents
+    : tier === "vip"
+      ? Math.round(paidCents * 1.5)
+      : !namedTiers && tier === "group"
+        ? Math.round(paidCents * 0.9)
+        : paidCents;
 
-  const rawTotalPriceCents = isPaid ? (tier === "group" ? Math.round(paidCents * 4 * 0.9) : unitPriceCents * spots) : 0;
-  const discountCents = isPaid && appliedCoupon ? Math.round(rawTotalPriceCents * (discountPercent / 100)) : 0;
-  const totalPriceCents = Math.max(0, rawTotalPriceCents - discountCents);
+  const rawTotalPriceCents = isPaid
+    ? activeNamedTier
+      ? activeNamedTier.priceCents * spots
+      : !namedTiers && tier === "group"
+        ? Math.round(paidCents * 4 * 0.9)
+        : unitPriceCents * spots
+    : 0;
+  // Display estimate only — the server re-validates the code and re-prices
+  // from the event row at checkout, so this can never mint a discount.
+  const totalPriceCents =
+    isPaid && appliedCoupon ? couponPrice(rawTotalPriceCents, discountPercent) : rawTotalPriceCents;
+  const discountCents = rawTotalPriceCents - totalPriceCents;
 
-  const handleApplyCoupon = () => {
+  const handleApplyCoupon = async () => {
     if (appliedCoupon) {
       setAppliedCoupon(null);
       setDiscountPercent(0);
@@ -55,31 +81,31 @@ export function EventRegistrationCard({
       void triggerHaptic("light");
       return;
     }
-    const code = couponDraft.trim().toUpperCase();
-    if (!code) return;
+    const code = normalizeCouponCode(couponDraft);
+    if (!code) {
+      setCouponError("Enter a valid coupon code.");
+      return;
+    }
+    if (!liveBackendEnabled()) {
+      setCouponError("Coupons need a connection — try again online.");
+      return;
+    }
     void triggerHaptic("medium");
-    if (code === "AIRPAL5") {
-      setAppliedCoupon("AIRPAL5");
-      setDiscountPercent(5);
+    setValidating(true);
+    try {
+      const res = await validateEventCouponRemote({ eventId, code });
+      setAppliedCoupon(res.code);
+      setDiscountPercent(res.percentOff);
       setCouponError(null);
-    } else if (code === "VIP10") {
-      setAppliedCoupon("VIP10");
-      setDiscountPercent(10);
-      setCouponError(null);
-    } else if (code === "EARLYBIRD") {
-      setAppliedCoupon("EARLYBIRD");
-      setDiscountPercent(15);
-      setCouponError(null);
-    } else if (code === "COMMUNITY20") {
-      setAppliedCoupon("COMMUNITY20");
-      setDiscountPercent(20);
-      setCouponError(null);
-    } else {
-      setCouponError("Invalid or expired coupon code");
+      toast.success(`${res.code} applied — ${res.percentOff}% off.`);
+    } catch (err) {
+      setCouponError(err instanceof Error ? err.message : "Invalid or expired coupon code.");
+    } finally {
+      setValidating(false);
     }
   };
 
-  const handleTierClick = (newTier: "standard" | "vip" | "group") => {
+  const handleTierClick = (newTier: string) => {
     void triggerHaptic("selection");
     onTierChange(newTier);
   };
@@ -114,16 +140,21 @@ export function EventRegistrationCard({
       <div>
         <span className="text-xs font-bold uppercase tracking-wider text-mute mb-2 block">Select Tier</span>
         <div className="grid grid-cols-3 gap-2">
-          {(
-            [
-              { id: "standard", label: "General", desc: isPaid ? `$${(paidCents / 100).toFixed(0)}` : "Free RSVP" },
-              {
-                id: "vip",
-                label: "VIP Pass",
-                desc: isPaid ? `$${(Math.round(paidCents * 1.5) / 100).toFixed(0)}` : "VIP Entry",
-              },
-              { id: "group", label: "Group (4)", desc: isPaid ? "10% Off" : "4 Passes" },
-            ] as const
+          {(namedTiers
+            ? namedTiers.map((t) => ({
+                id: t.id,
+                label: t.name,
+                desc: isPaid ? `$${(t.priceCents / 100).toFixed(0)}` : "Free RSVP",
+              }))
+            : ([
+                { id: "standard", label: "General", desc: isPaid ? `$${(paidCents / 100).toFixed(0)}` : "Free RSVP" },
+                {
+                  id: "vip",
+                  label: "VIP Pass",
+                  desc: isPaid ? `$${(Math.round(paidCents * 1.5) / 100).toFixed(0)}` : "VIP Entry",
+                },
+                { id: "group", label: "Group (4)", desc: isPaid ? "10% Off" : "4 Passes" },
+              ] as const)
           ).map((t) => {
             const active = tier === t.id;
             return (
@@ -175,7 +206,7 @@ export function EventRegistrationCard({
         </div>
       )}
 
-      {/* Coupon Code Input */}
+      {/* Coupon Code Input — server-validated, never client math */}
       {isPaid && (
         <div className="pt-0.5">
           <div className="flex gap-2">
@@ -186,17 +217,18 @@ export function EventRegistrationCard({
                 setCouponDraft(e.target.value.toUpperCase());
                 setCouponError(null);
               }}
-              disabled={Boolean(appliedCoupon)}
+              disabled={Boolean(appliedCoupon) || validating}
               placeholder="Coupon or promo code"
               aria-label="Coupon or promo code"
               className="h-11 flex-1 rounded-xl bg-paper px-3 text-xs uppercase tracking-wider font-semibold text-ink ring-1 ring-line outline-none focus:ring-2 focus:ring-brand/30 disabled:opacity-75"
             />
             <button
               type="button"
-              onClick={handleApplyCoupon}
-              className="h-11 px-4 rounded-xl bg-paper ring-1 ring-line text-sm font-bold text-accent hover:bg-card active:scale-95 cursor-pointer shrink-0 touch-manipulation"
+              onClick={() => void handleApplyCoupon()}
+              disabled={validating}
+              className="h-11 px-4 rounded-xl bg-paper ring-1 ring-line text-sm font-bold text-accent hover:bg-card active:scale-95 cursor-pointer shrink-0 touch-manipulation disabled:opacity-60"
             >
-              {appliedCoupon ? "Remove" : "Apply"}
+              {appliedCoupon ? "Remove" : validating ? "…" : "Apply"}
             </button>
           </div>
           {couponError && (
@@ -257,10 +289,10 @@ export function EventRegistrationCard({
           type="button"
           onClick={() => {
             void triggerHaptic("medium");
-            onSubmit(appliedCoupon || undefined, totalPriceCents);
+            onSubmit(appliedCoupon || undefined, totalPriceCents, activeNamedTier?.id);
           }}
-          disabled={buying}
-          aria-disabled={buying}
+          disabled={buying || validating}
+          aria-disabled={buying || validating}
           className={cn(
             "w-full h-[52px] rounded-full text-sm sm:text-base font-bold shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer touch-manipulation disabled:opacity-60 disabled:cursor-wait",
             isGoing
@@ -273,7 +305,7 @@ export function EventRegistrationCard({
           ) : isGoing ? (
             <>
               <Check size={18} strokeWidth={3} />
-              <span>You're Going ✓</span>
+              <span>You&apos;re Going ✓</span>
             </>
           ) : requireApproval ? (
             <>

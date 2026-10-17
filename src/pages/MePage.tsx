@@ -53,6 +53,7 @@ import { InvitePanel } from "@/components/invite/InvitePanel";
 import { ChangeHandleForm } from "@/components/bio/ChangeHandleForm";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
+import { TabPills } from "@/components/ui/TabPills";
 import {
   businessCardWalletPassUrl,
   googleWalletCardUrl,
@@ -324,7 +325,7 @@ export function MePage() {
             <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0 mt-3 sm:mt-0">
               <Button
                 variant="primary"
-                className="min-h-[42px] rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink active:scale-95"
+                className="min-h-[44px] rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink active:scale-95"
                 onClick={() => nav(mine ? bioPath(mine.handle) : "/bio/setup")}
               >
                 <UserRound size={14} className="mr-1.5" />
@@ -334,7 +335,7 @@ export function MePage() {
 
               <Button
                 variant="ghost"
-                className="min-h-[42px] rounded-full border border-line bg-card px-3.5 text-xs font-bold text-ink hover:bg-paper active:scale-95 shadow-2xs"
+                className="min-h-[44px] rounded-full border border-line bg-card px-3.5 text-xs font-bold text-ink hover:bg-paper active:scale-95 shadow-2xs"
                 onClick={() => nav("/circle")}
               >
                 <Users size={14} className="text-accent mr-1.5" />
@@ -343,7 +344,7 @@ export function MePage() {
 
               <Button
                 variant="ghost"
-                className="min-h-[42px] rounded-full border border-line bg-card px-3.5 text-xs font-semibold text-ink hover:bg-paper active:scale-95 shadow-2xs"
+                className="min-h-[44px] rounded-full border border-line bg-card px-3.5 text-xs font-semibold text-ink hover:bg-paper active:scale-95 shadow-2xs"
                 onClick={() => nav(mine ? "/bio/edit" : "/bio/setup")}
                 title="Edit Bio"
               >
@@ -353,7 +354,7 @@ export function MePage() {
 
               <Button
                 variant="ghost"
-                className="min-h-[42px] rounded-full border border-line bg-card px-3.5 text-xs font-semibold text-ink hover:bg-paper active:scale-95 shadow-2xs"
+                className="min-h-[44px] rounded-full border border-line bg-card px-3.5 text-xs font-semibold text-ink hover:bg-paper active:scale-95 shadow-2xs"
                 onClick={() => nav("/settings")}
                 title="Settings"
               >
@@ -439,36 +440,24 @@ export function MePage() {
 
       {/* 🧭 2. APPLE-INSPIRED SEGMENTED COCKPIT TAB BAR */}
       <div className="sticky top-2 z-20 mb-6">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar rounded-full bg-card/90 p-1.5 ring-1 ring-line/80 backdrop-blur-2xl shadow-sm">
-          {[
+        <TabPills
+          layout="contained"
+          ariaLabel="Cockpit sections"
+          items={[
             { id: "all" as const, label: "All Cockpit", icon: Sparkles },
-            { id: "today" as const, label: `Today (${todayTotalCount})`, icon: Sun },
+            { id: "today" as const, label: "Today", icon: Sun, badge: String(todayTotalCount) },
             {
               id: "appointments" as const,
-              label: `Catch-ups (${upcomingScheduledAppointments.length + pendingAppointments.length})`,
+              label: "Catch-ups",
               icon: Coffee,
+              badge: String(upcomingScheduledAppointments.length + pendingAppointments.length),
             },
-            { id: "tickets" as const, label: `Tickets (${upcomingTickets.length})`, icon: Ticket },
+            { id: "tickets" as const, label: "Tickets", icon: Ticket, badge: String(upcomingTickets.length) },
             { id: "pass" as const, label: "Bio & QR Pass", icon: QrCode },
-          ].map((tab) => {
-            const isCurrent = activeTab === tab.id;
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => handleTabChange(tab.id)}
-                className={cn(
-                  "flex min-h-[42px] items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs font-bold transition-all cursor-pointer select-none active:scale-95",
-                  isCurrent ? "bg-brand text-white shadow-xs" : "text-mute hover:bg-paper hover:text-ink",
-                )}
-              >
-                <Icon size={14} className={isCurrent ? "text-white" : "text-mute"} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
+          ]}
+          active={activeTab}
+          onChange={handleTabChange}
+        />
       </div>
 
       {/* 🌟 3. MAIN COCKPIT SECTIONS */}
@@ -566,7 +555,7 @@ export function MePage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={() => void triggerHaptic("light")}
-                          className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-emerald-500/15 px-4 text-xs font-bold text-emerald-800 ring-1 ring-emerald-500/30 hover:bg-emerald-500/25 transition active:scale-95"
+                          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-emerald-500/15 px-4 text-xs font-bold text-emerald-800 ring-1 ring-emerald-500/30 hover:bg-emerald-500/25 transition active:scale-95"
                         >
                           <PhoneCall size={13} className="text-emerald-700" />
                           <span>Join Call</span>
@@ -613,7 +602,7 @@ export function MePage() {
                     <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                       <Button
                         size="sm"
-                        className="min-h-[40px] rounded-full bg-amber-600 px-4 text-xs font-bold text-white shadow-2xs hover:bg-amber-700 active:scale-95"
+                        className="min-h-[44px] rounded-full bg-amber-600 px-4 text-xs font-bold text-white shadow-2xs hover:bg-amber-700 active:scale-95"
                         onClick={() => nav(`/ticket/${ticket.id}`)}
                       >
                         <QrCode size={14} className="mr-1.5" />
@@ -638,7 +627,7 @@ export function MePage() {
                       setCatchUpInitialType("catchup");
                       setCatchUpModalOpen(true);
                     }}
-                    className="inline-flex min-h-[42px] items-center gap-2 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition active:scale-95 cursor-pointer"
+                    className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition active:scale-95 cursor-pointer"
                   >
                     <Coffee size={14} />
                     <span>Propose a Catch-Up</span>
@@ -646,7 +635,7 @@ export function MePage() {
                   <button
                     type="button"
                     onClick={() => nav("/pass")}
-                    className="inline-flex min-h-[42px] items-center gap-2 rounded-full bg-amber-500/10 px-4 text-xs font-bold text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/20 hover:bg-amber-500/20 transition active:scale-95 cursor-pointer"
+                    className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-amber-500/10 px-4 text-xs font-bold text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/20 hover:bg-amber-500/20 transition active:scale-95 cursor-pointer"
                   >
                     <Ticket size={14} />
                     <span>Discover Passes</span>
@@ -677,7 +666,7 @@ export function MePage() {
                 <button
                   type="button"
                   onClick={handleCopyBioLink}
-                  className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
                   title="Copy your Meet & Hangout link"
                 >
                   {copiedBioLink ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
@@ -909,7 +898,7 @@ export function MePage() {
 
               <Link
                 href="/me/tickets"
-                className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95"
               >
                 <span>Full Wallet</span>
                 <ChevronRight size={14} />
@@ -950,7 +939,7 @@ export function MePage() {
                     <div className="mt-5 pt-3.5 border-t border-line/70 flex flex-wrap items-center justify-between gap-2">
                       <Button
                         size="sm"
-                        className="min-h-[40px] rounded-full bg-brand px-4 text-xs font-bold text-white shadow-2xs hover:bg-brand-ink active:scale-95"
+                        className="min-h-[44px] rounded-full bg-brand px-4 text-xs font-bold text-white shadow-2xs hover:bg-brand-ink active:scale-95"
                         onClick={() => nav(`/ticket/${ticket.id}`)}
                       >
                         <QrCode size={14} className="mr-1.5" />
@@ -1076,7 +1065,7 @@ export function MePage() {
                   <button
                     type="button"
                     onClick={handleCopyBioLink}
-                    className="inline-flex min-h-[40px] items-center gap-2 rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer shadow-2xs"
+                    className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer shadow-2xs"
                   >
                     {copiedBioLink ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
                     <span>{copiedBioLink ? "Copied" : "Share Bio Link"}</span>
@@ -1084,7 +1073,7 @@ export function MePage() {
 
                   <Link
                     href={bioPath(mine.handle)}
-                    className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 shadow-2xs"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 shadow-2xs"
                   >
                     <span>View Bio</span>
                     <ArrowRight size={13} className="text-mute" />
@@ -1093,14 +1082,14 @@ export function MePage() {
 
                 <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-3 border-t border-line/60">
                   <AppleWalletButton
-                    className="w-full sm:w-auto flex-1 justify-center min-h-[42px]"
+                    className="w-full sm:w-auto flex-1 justify-center min-h-[44px]"
                     onClick={() => {
                       const passUrl = businessCardWalletPassUrl(mine.handle);
                       void openAppleWalletPass(passUrl, "@" + mine.handle + "-AirPal-Pass");
                     }}
                   />
                   <GoogleWalletButton
-                    className="w-full sm:w-auto flex-1 justify-center min-h-[42px]"
+                    className="w-full sm:w-auto flex-1 justify-center min-h-[44px]"
                     onClick={() => {
                       void openGoogleWalletPass(googleWalletCardUrl(mine.handle));
                     }}
@@ -1164,7 +1153,7 @@ export function MePage() {
                   href="/settings"
                   className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition text-xs font-bold text-ink active:scale-95"
                 >
-                  <Settings size={15} className="text-zinc-600" />
+                  <Settings size={15} className="text-mute" />
                   <span>Settings</span>
                 </Link>
                 {isHost ? (

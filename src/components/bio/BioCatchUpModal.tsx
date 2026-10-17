@@ -386,7 +386,7 @@ export function BioCatchUpModal({
                       void triggerHaptic("light");
                       setDate(localDate(Number(days)));
                     }}
-                    className="min-h-[32px] sm:min-h-0 rounded-lg bg-card px-2.5 py-1 text-xs sm:text-[10px] font-semibold text-mute ring-1 ring-line hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
+                    className="min-h-[44px] rounded-lg bg-card px-2.5 py-1 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
                   >
                     {label}
                   </button>

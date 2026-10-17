@@ -146,7 +146,7 @@ describe("googleWalletPass", () => {
     expect(decoded.aud).toBe("google");
     const obj = decoded.payload.eventTicketObjects[0] as Record<string, unknown>;
     expect(obj.ticketNumber).toBe("b1");
-    expect(obj.hexBackgroundColor).toBe("#1805db");
+    expect(obj.hexBackgroundColor).toBe("#004eff");
     expect(obj.barcode).toEqual({
       type: "QR_CODE",
       value: "https://airpal.me/ticket/b1",
@@ -165,7 +165,7 @@ describe("googleWalletPass", () => {
       payload: { genericObjects: Record<string, unknown>[] };
     };
     const obj = decoded.payload.genericObjects[0] as Record<string, unknown>;
-    expect(obj.hexBackgroundColor).toBe("#1805db");
+    expect(obj.hexBackgroundColor).toBe("#004eff");
     expect(obj.cardTitle).toEqual({ defaultValue: { language: "en", value: "Bibin" } });
     expect(obj.subheader).toEqual({ defaultValue: { language: "en", value: "Sydney" } });
     expect(obj.barcode).toEqual({
@@ -198,7 +198,7 @@ describe("wallet payload builders", () => {
     expect(obj.id).toBe("3388000000012345678.b1");
     expect(obj.classId).toBe("3388000000012345678.show");
     expect((payload.eventTicketClasses as { reviewStatus: string }[])[0]?.reviewStatus).toBe("UNDER_REVIEW");
-    expect(obj.hexBackgroundColor).toBe("#1805db");
+    expect(obj.hexBackgroundColor).toBe("#004eff");
     expect(obj.dateTime).toEqual({
       start: { date: "2026-10-02", time: { hours: 19, minutes: 0 }, timeZone: { id: "Australia/Sydney" } },
     });

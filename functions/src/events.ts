@@ -3,11 +3,14 @@ import { FieldValue } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import {
   cleanCapacity,
+  cleanEventHandles,
   cleanStallLocation,
   cleanTicketCents,
+  cleanTicketTiers,
   eventGatePath,
   isEventFlavour,
   isStallCategory,
+  sanitizeAgenda,
 } from "../../shared/event";
 import { checkSessionAttach, isValidFestivalSlug } from "../../shared/festival";
 import { normalizeSpeakerHandle } from "../../shared/event";
@@ -138,8 +141,32 @@ export const upsertEvent = onCall(CALLABLE, async (request) => {
     businessHandle:
       typeof data.businessHandle === "string" && data.businessHandle.trim() ? data.businessHandle.trim() : null,
     collaboratorHandles: Array.isArray(data.collaboratorHandles) ? data.collaboratorHandles : null,
+    sponsorHandles: cleanEventHandles(data.sponsorHandles) || null,
     ticketPriceCents: cleanTicketCents(data.ticketPriceCents) || null,
+    ticketTiers: cleanTicketTiers(data.ticketTiers) || null,
+    seriesId: typeof data.seriesId === "string" && data.seriesId.trim() ? data.seriesId.trim().slice(0, 40) : null,
+    recurrenceIndex:
+      Number.isInteger(Number(data.recurrenceIndex)) && Number(data.recurrenceIndex) >= 1
+        ? Number(data.recurrenceIndex)
+        : null,
+    recurrenceCount:
+      Number.isInteger(Number(data.recurrenceCount)) && Number(data.recurrenceCount) >= 1
+        ? Math.min(12, Number(data.recurrenceCount))
+        : null,
     capacity: cleanCapacity(data.capacity) || null,
+    requireApproval: data.requireApproval === true,
+    locationType:
+      data.locationType === "virtual" || data.locationType === "secret" || data.locationType === "in_person"
+        ? data.locationType
+        : null,
+    virtualUrl: typeof data.virtualUrl === "string" && data.virtualUrl.trim() ? data.virtualUrl.trim() : null,
+    themeColor: typeof data.themeColor === "string" && data.themeColor.trim() ? data.themeColor.trim() : null,
+    agenda: sanitizeAgenda(data.agenda) || null,
+    refundPolicy:
+      typeof data.refundPolicy === "string" && data.refundPolicy.trim() ? data.refundPolicy.trim().slice(0, 500) : null,
+    directions:
+      typeof data.directions === "string" && data.directions.trim() ? data.directions.trim().slice(0, 300) : null,
+    registrationClosed: data.registrationClosed === true,
     ...festivalFields,
     startsAt: String(data.startsAt || new Date().toISOString()),
     endsAt: String(data.endsAt || ""),

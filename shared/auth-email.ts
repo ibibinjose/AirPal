@@ -144,7 +144,7 @@ const BRAND = {
   mute: "#6a726c",
   paper: "#f3f0e8",
   card: "#fffcf7",
-  brand: "#1805db",
+  brand: "#004eff",
   gold: "#b8893a",
   from: "noreply@email.airpal.me",
 } as const;

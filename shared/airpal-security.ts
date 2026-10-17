@@ -39,6 +39,7 @@ export const CALLABLES = {
   updateBusinessProfile: "updateBusinessProfile",
   setBioOffer: "setBioOffer",
   recordBioTap: "recordBioTap",
+  getBioLinkStats: "getBioLinkStats",
   claimBioOffer: "claimBioOffer",
   transferHandle: "transferHandle",
   listBioDirectory: "listBioDirectory",
@@ -56,6 +57,10 @@ export const CALLABLES = {
   createSubscriptionPortal: "createSubscriptionPortal",
   createStaffTicket: "createStaffTicket",
   resolveStaffTicket: "resolveStaffTicket",
+  upsertEventCoupon: "upsertEventCoupon",
+  validateEventCoupon: "validateEventCoupon",
+  listEventCoupons: "listEventCoupons",
+  announceEventToGuests: "announceEventToGuests",
   createManagedProduct: "createManagedProduct",
   createManagedCheckoutSession: "createManagedCheckoutSession",
   placeDiningOrder: "placeDiningOrder",
@@ -88,6 +93,7 @@ export const CALLABLES = {
   listDoorTeam: "listDoorTeam",
   joinGuestlistSignup: "joinGuestlistSignup",
   listGuestlistSignups: "listGuestlistSignups",
+  listBioSubscribers: "listBioSubscribers",
   unsubscribeGuestlist: "unsubscribeGuestlist",
 } as const;
 
@@ -181,6 +187,22 @@ export type GuestlistSignupRow = {
 export type ListGuestlistSignupsResponse = {
   rows: GuestlistSignupRow[];
   hasMore: boolean;
+  total: number;
+};
+
+/** Owner-scoped subscriber list for one bio (source === handle). */
+export type ListBioSubscribersRequest = { handle: string };
+
+export type BioSubscriberRow = {
+  email: string;
+  name: string;
+  city: string;
+  consentAt: string;
+  createdAt: string;
+};
+
+export type ListBioSubscribersResponse = {
+  rows: BioSubscriberRow[];
   total: number;
 };
 
@@ -432,13 +454,26 @@ export type UpsertEventRequest = {
   businessName?: string;
   businessHandle?: string;
   collaboratorHandles?: string[];
+  sponsorHandles?: string[];
   startsAt?: string;
   endsAt?: string;
   status?: string;
   categoryChips?: string[];
   scheduleVerifiedAt?: string;
   ticketPriceCents?: number;
+  ticketTiers?: { id: string; name: string; priceCents: number; capacity?: number }[];
+  seriesId?: string;
+  recurrenceIndex?: number;
+  recurrenceCount?: number;
   capacity?: number;
+  requireApproval?: boolean;
+  locationType?: "in_person" | "virtual" | "secret";
+  virtualUrl?: string;
+  themeColor?: string;
+  agenda?: { time: string; title: string }[];
+  refundPolicy?: string;
+  directions?: string;
+  registrationClosed?: boolean;
   /** Festival program slug (festivals/{slug}) this session belongs to. */
   festivalSlug?: string;
   track?: string;
@@ -502,6 +537,8 @@ export type UpdateBusinessProfileRequest = {
   customStatusEmoji?: string;
   /** Personal @handle visibility. Business storefronts are always public. */
   visibility?: "public" | "private";
+  /** Public page theme preset id. Null resets to the default theme. */
+  theme?: string | null;
   geo?: { lat: number; lng: number };
   zooHunt?: boolean;
   links?: Array<{ id: string; type: string; label: string; href: string }>;
@@ -543,7 +580,16 @@ export type SetBioOfferRequest = {
   detail: string;
   active?: boolean;
 };
-export type RecordBioTapRequest = { handle: string; kind?: string };
+export type RecordBioTapRequest = { handle: string; kind?: string; linkId?: string };
+export type GetBioLinkStatsRequest = { handle?: string; profileId?: string; days?: number };
+export type BioLinkStatRow = { linkId: string; taps: number };
+export type BioLinkStatsDay = { day: string; taps: number };
+export type GetBioLinkStatsResponse = {
+  total: number;
+  days: number;
+  byDay: BioLinkStatsDay[];
+  byLink: BioLinkStatRow[];
+};
 
 export type SubmitVenueRatingRequest = {
   mood: string;

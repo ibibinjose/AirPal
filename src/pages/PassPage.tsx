@@ -21,8 +21,7 @@ import { getFirebaseDb } from "@/lib/firebase";
 import { recordToCalendarBase, cityMatches } from "@/lib/remote-events";
 import { EcosystemSwitcher } from "@/components/brand/EcosystemSwitcher";
 import { useMyBookings } from "@/hooks/useMyBookings";
-import { triggerHapticSelection } from "@/lib/native";
-import { cn } from "@/lib/cn";
+import { FilterChips } from "@/components/ui/FilterChips";
 import { Photo } from "@/components/ui/Photo";
 import { mediaSrcSet } from "@/lib/media-srcset";
 import { type Promotion } from "@shared/promotions";
@@ -262,33 +261,13 @@ export function PassPage() {
       </header>
 
       {/* Category Pills Strip */}
-      <nav
-        aria-label="Experience Categories"
-        className="mt-6 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"
-      >
-        {PASS_CATEGORIES.map((cat) => {
-          const active = activeCategory === cat.id;
-          return (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => {
-                void triggerHapticSelection();
-                setActiveCategory(cat.id);
-              }}
-              className={cn(
-                "inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs sm:text-sm font-bold transition shadow-xs cursor-pointer active:scale-95",
-                active
-                  ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 ring-1 ring-neutral-900 shadow-sm"
-                  : "bg-card text-ink ring-1 ring-line hover:bg-paper",
-              )}
-            >
-              <span>{cat.icon}</span>
-              <span>{cat.label}</span>
-            </button>
-          );
-        })}
-      </nav>
+      <FilterChips
+        ariaLabel="Experience Categories"
+        className="mt-6"
+        options={PASS_CATEGORIES}
+        value={activeCategory}
+        onChange={setActiveCategory}
+      />
 
       {/* Active Pass Wallet Bar (For Signed-In Members) */}
       <section aria-label="Passbook Wallet" className="mt-6">

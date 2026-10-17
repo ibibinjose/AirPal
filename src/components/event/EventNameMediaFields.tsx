@@ -4,7 +4,7 @@ import { ImageField } from "@/components/media/ImageField";
 import { EventCoverPresetSelector } from "@/components/event/EventCoverPresets";
 
 const SWATCHES = [
-  { id: "#6366f1", label: "Indigo", bg: "bg-indigo-500", ring: "ring-indigo-500" },
+  { id: "#004eff", label: "Blue", bg: "bg-blue-600", ring: "ring-blue-600" },
   { id: "#8b5cf6", label: "Violet", bg: "bg-purple-500", ring: "ring-purple-500" },
   { id: "#10b981", label: "Emerald", bg: "bg-emerald-500", ring: "ring-emerald-500" },
   { id: "#f59e0b", label: "Amber", bg: "bg-amber-500", ring: "ring-amber-500" },

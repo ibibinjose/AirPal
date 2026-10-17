@@ -29,6 +29,7 @@ import { EventCreatedCelebrationModal } from "@/components/event/EventCreatedCel
 import { EventManagePanel } from "@/components/event/EventManagePanel";
 import { EventNameMediaFields } from "@/components/event/EventNameMediaFields";
 import { EventVenueFields } from "@/components/event/EventVenueFields";
+import { EventAgendaFields } from "@/components/event/EventAgendaFields";
 import { EventHostFields } from "@/components/event/EventHostFields";
 import { EventDescriptionFields } from "@/components/event/EventDescriptionFields";
 import { EventStudioNotFound } from "@/components/event/EventStudioNotFound";
@@ -39,6 +40,7 @@ import {
   stallCsvTemplate,
   stallFieldLabels,
   stallUnitDisplay,
+  expandWeeklyRecurrence,
   type EventFlavour,
   type EventLocationType,
   type EventRecord,
@@ -64,6 +66,7 @@ import {
   validateTickets,
   type TicketFieldValues,
 } from "@/components/event/EventTicketFields";
+import { EventCouponManager } from "@/components/event/EventCouponManager";
 import { StallHandleField } from "@/components/event/StallHandleField";
 import { landing, landingItem } from "@/lib/motion";
 import { Photo } from "@/components/ui/Photo";
@@ -183,10 +186,14 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
   const [mapsPlaceId, setMapsPlaceId] = useState("");
   const [geo, setGeo] = useState<{ lat: number; lng: number } | undefined>();
   const [coverImage, setCoverImage] = useState("");
-  const [themeColor, setThemeColor] = useState("#6366f1");
+  const [themeColor, setThemeColor] = useState("#004eff");
   const [locationType, setLocationType] = useState<EventLocationType>("in_person");
   const [virtualUrl, setVirtualUrl] = useState("");
   const [requireApproval, setRequireApproval] = useState(false);
+  const [agenda, setAgenda] = useState<{ time: string; title: string }[]>([]);
+  const [refundPolicy, setRefundPolicy] = useState("");
+  const [directions, setDirections] = useState("");
+  const [registrationClosed, setRegistrationClosed] = useState(false);
   const [startsLocal, setStartsLocal] = useState(() => toLocalInput(nextSaturdayNine().toISOString()));
   const [endsLocal, setEndsLocal] = useState(() => toLocalInput(sameDayFifteen(nextSaturdayNine()).toISOString()));
   const [status, setStatus] = useState<"draft" | "live" | "ended">("live");
@@ -199,6 +206,8 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
   // Collaborator handles state
   const [collaboratorHandles, setCollaboratorHandles] = useState<string[]>([]);
   const [collaboratorInput, setCollaboratorInput] = useState("");
+  const [sponsorHandles, setSponsorHandles] = useState<string[]>([]);
+  const [sponsorInput, setSponsorInput] = useState("");
 
   // Festival program state
   const [festivalFields, setFestivalFields] = useState<FestivalFieldValues>({
@@ -210,7 +219,13 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
   });
 
   // Ticket state
-  const [ticketFields, setTicketFields] = useState<TicketFieldValues>({ paid: false, price: "25", capacity: "40" });
+  const [ticketFields, setTicketFields] = useState<TicketFieldValues>({
+    paid: false,
+    price: "25",
+    capacity: "40",
+    tiers: [],
+  });
+  const [repeatCount, setRepeatCount] = useState(1);
 
   // Stall creation & editing form states
   const [stallName, setStallName] = useState("");
@@ -267,14 +282,20 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
     setMapsPlaceId(activeEvent.mapsPlaceId || "");
     setGeo(activeEvent.geo);
     setCoverImage(activeEvent.coverImage || "");
-    setThemeColor(activeEvent.themeColor || "#6366f1");
+    setThemeColor(activeEvent.themeColor || "#004eff");
     setLocationType(activeEvent.locationType || "in_person");
     setVirtualUrl(activeEvent.virtualUrl || "");
     setRequireApproval(Boolean(activeEvent.requireApproval));
+    setAgenda(activeEvent.agenda || []);
+    setRefundPolicy(activeEvent.refundPolicy || "");
+    setDirections(activeEvent.directions || "");
+    setRegistrationClosed(Boolean(activeEvent.registrationClosed));
     setHostType(activeEvent.hostType || (activeEvent.businessHandle ? "business" : "individual"));
     setHostName(activeEvent.hostName || activeEvent.businessName || "");
     setHostHandle(activeEvent.hostHandle || activeEvent.businessHandle || "");
     setCollaboratorHandles(activeEvent.collaboratorHandles || []);
+    setSponsorHandles(activeEvent.sponsorHandles || []);
+    setSponsorInput("");
     setFestivalFields({
       festivalSlug: activeEvent.festivalSlug || "",
       track: activeEvent.track || "",
@@ -289,6 +310,12 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
       paid: (activeEvent.ticketPriceCents || 0) > 0,
       price: String(((activeEvent.ticketPriceCents || 2500) / 100).toFixed(2)),
       capacity: String(activeEvent.capacity || 40),
+      tiers: (activeEvent.ticketTiers || []).map((t) => ({
+        id: t.id,
+        name: t.name,
+        price: String((t.priceCents / 100).toFixed(2)),
+        capacity: t.capacity ? String(t.capacity) : "",
+      })),
     });
     const origin = publicSiteOrigin();
     void makeQrDataUrl(`${origin}${activeEvent.gatePath}`).then(setQr);
@@ -314,6 +341,22 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
     setCollaboratorHandles((prev) => prev.filter((h) => h !== handle));
   }
 
+  function addSponsor(handleRaw: string) {
+    const clean = handleRaw.trim().replace(/^@+/, "").toLowerCase();
+    if (!clean) return;
+    if (sponsorHandles.includes(clean)) {
+      toast.error(`@${clean} is already added as a sponsor`);
+      return;
+    }
+    setSponsorHandles((prev) => [...prev, clean]);
+    setSponsorInput("");
+    toast.success(`Added @${clean} as a sponsor`);
+  }
+
+  function removeSponsor(handle: string) {
+    setSponsorHandles((prev) => prev.filter((h) => h !== handle));
+  }
+
   function applyTemplate(tmpl: EventTemplateConfig) {
     setName(tmpl.suggestedName);
     setShortWhy(tmpl.suggestedWhy);
@@ -333,6 +376,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
       paid: tmpl.paid,
       price: tmpl.price,
       capacity: tmpl.capacity,
+      tiers: [],
     });
     toast.success(`Applied template: ${tmpl.label}`);
   }
@@ -358,42 +402,63 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
     setCreating(true);
     try {
       const cleanHostHandle = hostHandle.trim().replace(/^@+/, "").toLowerCase() || undefined;
-      const created = await upsertEvent({
-        ...(demoMode ? { id: DEMO_EVENT_ID, demo: true as const } : {}),
-        name: trimmed,
-        flavour,
-        city: city.trim() || "Sydney",
-        venue: venue.trim(),
-        room: room.trim() || undefined,
-        address: address.trim() || undefined,
-        description: description.trim() || undefined,
-        shortWhy: shortWhy.trim() || undefined,
-        mapsPlaceId: mapsPlaceId.trim() || undefined,
-        geo,
-        coverImage: coverImage.trim() || undefined,
-        themeColor,
-        locationType,
-        virtualUrl: locationType === "virtual" ? virtualUrl.trim() || undefined : undefined,
-        requireApproval,
-        hostType,
-        hostName: hostName.trim() || undefined,
-        hostHandle: cleanHostHandle,
-        businessName: hostType === "business" ? hostName.trim() || undefined : undefined,
-        businessHandle: hostType === "business" ? cleanHostHandle : undefined,
-        collaboratorHandles: collaboratorHandles.length > 0 ? collaboratorHandles : undefined,
-        startsAt: startsAt || new Date().toISOString(),
-        endsAt: endsAt || undefined,
-        status,
-        ...ticketValuesToCents(ticketFields),
-        festivalSlug: festivalFields.festivalSlug.trim(),
-        track: festivalFields.track.trim() || undefined,
-        registrationUrl: festivalFields.registrationUrl.trim() || undefined,
-        registrationNote: festivalFields.registrationNote.trim() || undefined,
-        speakers: festivalFields.speakers.length > 0 ? festivalFields.speakers : undefined,
-      });
-      setCelebrationEventId(created.id);
-      setCelebrationEventName(created.name);
-      toast.success("Event created and officially live! 🎉");
+      const baseStarts = startsAt || new Date().toISOString();
+      const baseEnds = endsAt || "";
+      const instances = expandWeeklyRecurrence(baseStarts, baseEnds, repeatCount);
+      const seriesId =
+        instances.length > 1 ? `ser-${Date.now().toString(36)}${Math.floor(Math.random() * 1e4)}` : undefined;
+      let first: { id: string; name: string } | null = null;
+      for (let i = 0; i < instances.length; i++) {
+        const inst = instances[i]!;
+        const created = await upsertEvent({
+          ...(demoMode ? { id: DEMO_EVENT_ID, demo: true as const } : {}),
+          name: trimmed,
+          flavour,
+          city: city.trim() || "Sydney",
+          venue: venue.trim(),
+          room: room.trim() || undefined,
+          address: address.trim() || undefined,
+          description: description.trim() || undefined,
+          shortWhy: shortWhy.trim() || undefined,
+          mapsPlaceId: mapsPlaceId.trim() || undefined,
+          geo,
+          coverImage: coverImage.trim() || undefined,
+          themeColor,
+          locationType,
+          virtualUrl: locationType === "virtual" ? virtualUrl.trim() || undefined : undefined,
+          requireApproval,
+          agenda: agenda.length > 0 ? agenda : undefined,
+          refundPolicy: refundPolicy.trim() || undefined,
+          directions: directions.trim() || undefined,
+          registrationClosed,
+          hostType,
+          hostName: hostName.trim() || undefined,
+          hostHandle: cleanHostHandle,
+          businessName: hostType === "business" ? hostName.trim() || undefined : undefined,
+          businessHandle: hostType === "business" ? cleanHostHandle : undefined,
+          collaboratorHandles: collaboratorHandles.length > 0 ? collaboratorHandles : undefined,
+          sponsorHandles: sponsorHandles.length > 0 ? sponsorHandles : undefined,
+          startsAt: inst.startsAt,
+          endsAt: inst.endsAt || undefined,
+          status,
+          ...ticketValuesToCents(ticketFields),
+          festivalSlug: festivalFields.festivalSlug.trim(),
+          track: festivalFields.track.trim() || undefined,
+          registrationUrl: festivalFields.registrationUrl.trim() || undefined,
+          registrationNote: festivalFields.registrationNote.trim() || undefined,
+          speakers: festivalFields.speakers.length > 0 ? festivalFields.speakers : undefined,
+          seriesId,
+          recurrenceIndex: seriesId ? i + 1 : undefined,
+          recurrenceCount: seriesId ? instances.length : undefined,
+        });
+        if (i === 0) first = { id: created.id, name: created.name };
+      }
+      if (!first) throw new Error("Couldn't create event");
+      setCelebrationEventId(first.id);
+      setCelebrationEventName(first.name);
+      toast.success(
+        seriesId ? `${instances.length} weekly events created and live! 🎉` : "Event created and officially live! 🎉",
+      );
       setTab(flavour === "market" || flavour === "expo" ? "stalls" : "today");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn’t create event");
@@ -489,12 +554,17 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
         locationType,
         virtualUrl: locationType === "virtual" ? virtualUrl.trim() || undefined : undefined,
         requireApproval,
+        agenda: agenda.length > 0 ? agenda : undefined,
+        refundPolicy: refundPolicy.trim() || undefined,
+        directions: directions.trim() || undefined,
+        registrationClosed,
         hostType,
         hostName: hostName.trim() || undefined,
         hostHandle: cleanHostHandle,
         businessName: hostType === "business" ? hostName.trim() || undefined : undefined,
         businessHandle: hostType === "business" ? cleanHostHandle : undefined,
         collaboratorHandles: collaboratorHandles.length > 0 ? collaboratorHandles : undefined,
+        sponsorHandles: sponsorHandles.length > 0 ? sponsorHandles : undefined,
         startsAt: startsAt || activeEvent.startsAt,
         endsAt: endsAt || activeEvent.endsAt,
         status,
@@ -550,20 +620,20 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
             <div className="flex items-center gap-2 mb-4 flex-wrap">
               <Link
                 href="/pass"
-                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
               >
                 <ArrowLeft size={13} />
                 <span>AirPal Pass</span>
               </Link>
               <Link
                 href="/events"
-                className="inline-flex min-h-[36px] items-center gap-1 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
               >
                 <span>Browse Events</span>
               </Link>
               <Link
                 href="/scan"
-                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
               >
                 <QrCode size={13} className="text-amber-500" />
                 <span>Door Scanner</span>
@@ -701,6 +771,23 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                     onVirtualUrl={setVirtualUrl}
                     onGeo={setGeo}
                   />
+                  <div>
+                    <label
+                      htmlFor="event-directions"
+                      className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                    >
+                      Finding the group <span className="normal-case font-medium">(optional)</span>
+                    </label>
+                    <textarea
+                      id="event-directions"
+                      value={directions}
+                      onChange={(e) => setDirections(e.target.value)}
+                      maxLength={300}
+                      rows={2}
+                      placeholder="e.g. Take the lift to Level 4 and meet at the bar from 6pm"
+                      className="w-full rounded-2xl border border-line bg-paper p-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                    />
+                  </div>
                 </div>
 
                 {/* Schedule & Timing */}
@@ -740,6 +827,34 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                       />
                     </div>
                   </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
+                      Repeat
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {[1, 2, 4, 8, 12].map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setRepeatCount(n)}
+                          aria-pressed={repeatCount === n}
+                          className={
+                            repeatCount === n
+                              ? "rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-sm"
+                              : "rounded-full bg-paper px-4 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink"
+                          }
+                        >
+                          {n === 1 ? "Once" : `Weekly × ${n}`}
+                        </button>
+                      ))}
+                    </div>
+                    {repeatCount > 1 && (
+                      <p className="mt-1.5 text-[11px] text-mute">
+                        Creates {repeatCount} weekly instances — each manageable on its own.
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Host & Collaborators Section */}
@@ -757,6 +872,11 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                     onCollaboratorInput={setCollaboratorInput}
                     onAddCollaborator={addCollaborator}
                     onRemoveCollaborator={removeCollaborator}
+                    sponsorHandles={sponsorHandles}
+                    sponsorInput={sponsorInput}
+                    onSponsorInput={setSponsorInput}
+                    onAddSponsor={addSponsor}
+                    onRemoveSponsor={removeSponsor}
                   />
                 </div>
 
@@ -774,6 +894,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                     onDescription={setDescription}
                     placeholder="Describe your market, expo, or gathering. What can attendees expect? Highlight special guests, parking tips, food & drink, entry details…"
                   />
+                  <EventAgendaFields rows={agenda} onChange={setAgenda} />
                 </div>
 
                 {/* Publish Status */}
@@ -805,11 +926,43 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                       );
                     })}
                   </div>
+                  <label className="flex items-start gap-3 rounded-2xl bg-paper p-3.5 border border-line/80 cursor-pointer hover:border-brand/40 transition">
+                    <input
+                      type="checkbox"
+                      checked={registrationClosed}
+                      onChange={(e) => setRegistrationClosed(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded text-brand focus:ring-brand accent-brand cursor-pointer"
+                    />
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-ink">Close registration now</span>
+                      <span className="block text-[11px] text-mute leading-relaxed">
+                        Guests see “Registration Closed” with a notify-me form instead of ticket options.
+                      </span>
+                    </div>
+                  </label>
                 </div>
 
                 <EventFestivalFields values={festivalFields} onChange={setFestivalFields} />
 
                 <EventTicketFields values={ticketFields} onChange={setTicketFields} />
+
+                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
+                  <label
+                    htmlFor="event-refund-policy"
+                    className="text-xs font-bold uppercase tracking-wider text-accent block"
+                  >
+                    Refunds & Transfers <span className="text-mute normal-case font-medium">(optional)</span>
+                  </label>
+                  <textarea
+                    id="event-refund-policy"
+                    value={refundPolicy}
+                    onChange={(e) => setRefundPolicy(e.target.value)}
+                    maxLength={500}
+                    rows={2}
+                    placeholder="e.g. No refunds, but tickets are transferable — message us to swap the name over."
+                    className="w-full rounded-2xl border border-line bg-paper p-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                  />
+                </div>
 
                 {/* Guest Screening & Approval Mode (Luma-style) */}
                 <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
@@ -946,14 +1099,14 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
           <div className="flex items-center gap-2">
             <Link
               href="/pass"
-              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
             >
               <ArrowLeft size={13} />
               <span>AirPal Pass</span>
             </Link>
             <Link
               href="/events"
-              className="inline-flex min-h-[36px] items-center gap-1 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+              className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
             >
               <span>Browse Events</span>
             </Link>
@@ -961,20 +1114,20 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
           <div className="flex items-center gap-2">
             <Link
               href={`/e/${activeEvent.id}/manage`}
-              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition"
             >
               <span>Manage Event</span>
             </Link>
             <Link
               href={`/e/${activeEvent.id}/guests`}
-              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-accent ring-1 ring-line hover:bg-paper transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-accent ring-1 ring-line hover:bg-paper transition"
             >
               <Users size={13} />
               <span>Door Guestlist</span>
             </Link>
             <Link
               href="/scan"
-              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 px-3 text-xs font-bold shadow-xs hover:opacity-90 transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 px-3 text-xs font-bold shadow-xs hover:opacity-90 transition"
             >
               <QrCode size={13} />
               <span>Door Scanner</span>
@@ -1010,8 +1163,13 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                   {activeEvent.status}
                 </span>
                 {activeEvent.mapsPlaceId && (
-                  <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-700 ring-1 ring-blue-500/20">
+                  <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-accent ring-1 ring-brand/25">
                     Google Place
+                  </span>
+                )}
+                {activeEvent.seriesId && activeEvent.recurrenceIndex && activeEvent.recurrenceCount && (
+                  <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-accent ring-1 ring-brand/20">
+                    Weekly {activeEvent.recurrenceIndex} of {activeEvent.recurrenceCount}
                   </span>
                 )}
               </div>
@@ -1549,6 +1707,23 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                 onVirtualUrl={setVirtualUrl}
                 onGeo={setGeo}
               />
+              <div>
+                <label
+                  htmlFor="event-directions-edit"
+                  className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                >
+                  Finding the group <span className="normal-case font-medium">(optional)</span>
+                </label>
+                <textarea
+                  id="event-directions-edit"
+                  value={directions}
+                  onChange={(e) => setDirections(e.target.value)}
+                  maxLength={300}
+                  rows={2}
+                  placeholder="e.g. Take the lift to Level 4 and meet at the bar from 6pm"
+                  className="w-full rounded-2xl border border-line bg-paper p-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                />
+              </div>
             </div>
 
             {/* Host & Collaborators Section */}
@@ -1566,6 +1741,11 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                 onCollaboratorInput={setCollaboratorInput}
                 onAddCollaborator={addCollaborator}
                 onRemoveCollaborator={removeCollaborator}
+                sponsorHandles={sponsorHandles}
+                sponsorInput={sponsorInput}
+                onSponsorInput={setSponsorInput}
+                onAddSponsor={addSponsor}
+                onRemoveSponsor={removeSponsor}
               />
             </div>
 
@@ -1581,6 +1761,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                 onDescription={setDescription}
                 placeholder="Detailed event information for attendees: what to see, parking & public transport directions, timetable, food options, special exhibitors…"
               />
+              <EventAgendaFields rows={agenda} onChange={setAgenda} />
             </div>
 
             {/* Dates & Schedule */}
@@ -1629,11 +1810,45 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                   );
                 })}
               </div>
+              <label className="mt-2 flex items-start gap-3 rounded-2xl bg-paper p-3 border border-line/60 cursor-pointer hover:border-brand/40 transition">
+                <input
+                  type="checkbox"
+                  checked={registrationClosed}
+                  onChange={(e) => setRegistrationClosed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded text-brand focus:ring-brand accent-brand cursor-pointer"
+                />
+                <div className="space-y-0.5">
+                  <span className="text-xs font-bold text-ink">Close registration now</span>
+                  <span className="block text-[11px] text-mute leading-relaxed">
+                    Guests see “Registration Closed” with a notify-me form instead of ticket options.
+                  </span>
+                </div>
+              </label>
             </div>
 
             <EventFestivalFields values={festivalFields} onChange={setFestivalFields} />
 
             <EventTicketFields values={ticketFields} onChange={setTicketFields} />
+
+            <div className="pt-2 border-t border-line/60">
+              <label
+                htmlFor="event-refund-policy-edit"
+                className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+              >
+                Refunds & Transfers <span className="normal-case font-medium">(optional)</span>
+              </label>
+              <textarea
+                id="event-refund-policy-edit"
+                value={refundPolicy}
+                onChange={(e) => setRefundPolicy(e.target.value)}
+                maxLength={500}
+                rows={2}
+                placeholder="e.g. No refunds, but tickets are transferable — message us to swap the name over."
+                className="w-full rounded-2xl border border-line bg-paper p-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+              />
+            </div>
+
+            {activeEvent && <EventCouponManager eventId={activeEvent.id} />}
 
             {/* Guest Screening & Approval Mode in Settings */}
             <div className="rounded-[28px] bg-paper p-4 border border-line/80 space-y-2.5">

@@ -153,7 +153,7 @@ export function BioSocials({
   className,
 }: {
   links: BioLink[];
-  onTap: (kind: string) => void;
+  onTap: (kind: string, linkId?: string) => void;
   className?: string;
 }) {
   const rows = socialLinks(links).filter((link) => isSafeBioHref(link.href));
@@ -186,7 +186,7 @@ export function BioSocials({
             rel="noreferrer"
             onClick={() => {
               void triggerHaptic("light");
-              onTap(link.type);
+              onTap(link.type, link.id);
             }}
             aria-label={`${title} (${cfg.action})`}
             className={cn(

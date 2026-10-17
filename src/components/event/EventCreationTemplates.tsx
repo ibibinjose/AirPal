@@ -95,7 +95,7 @@ const EVENT_TEMPLATES: EventTemplateConfig[] = [
     paid: false,
     price: "0",
     capacity: "80",
-    themeColor: "#6366f1",
+    themeColor: "#004eff",
     locationType: "in_person",
     requireApproval: true,
   },

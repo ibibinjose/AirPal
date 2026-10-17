@@ -121,7 +121,7 @@ export function ticketSavePayload(input: TicketObjectInput): Record<string, unkn
           ? { textModulesData: [{ header: "TICKETS", body: String(input.spots), id: "spots" }] }
           : {}),
         barcode: { type: "QR_CODE", value: input.gateUrl, alternateText: input.bookingId },
-        hexBackgroundColor: "#1805db",
+        hexBackgroundColor: "#004eff",
       },
     ],
   };
@@ -155,7 +155,7 @@ export function cardSavePayload(input: CardObjectInput): Record<string, unknown>
         ...(input.bio ? { textModulesData: [{ header: "ABOUT", body: input.bio.slice(0, 200), id: "about" }] } : {}),
         barcode: { type: "QR_CODE", value: url, alternateText: `@${input.handle}` },
         linksModuleData: { uris: [{ uri: url, description: "View profile", id: "profile" }] },
-        hexBackgroundColor: "#1805db",
+        hexBackgroundColor: "#004eff",
       },
     ],
   };

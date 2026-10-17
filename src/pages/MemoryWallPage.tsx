@@ -326,7 +326,7 @@ export function MemoryWallPage() {
                           key={p}
                           type="button"
                           onClick={() => nav(bioPath(handle))}
-                          className="inline-flex min-h-[40px] items-center rounded-full bg-brand/10 px-3.5 text-xs font-semibold text-accent hover:bg-brand/15"
+                          className="inline-flex min-h-[44px] items-center rounded-full bg-brand/10 px-3.5 text-xs font-semibold text-accent hover:bg-brand/15"
                         >
                           @{handle}
                         </button>
@@ -342,11 +342,7 @@ export function MemoryWallPage() {
                   <Button variant="ghost" className={cn("flex-1 rounded-full")} onClick={() => setLightbox(null)}>
                     Close
                   </Button>
-                  <Button
-                    variant="ghost"
-                    className="gap-1.5 rounded-full text-red-600"
-                    onClick={() => onDelete(lightbox.id)}
-                  >
+                  <Button variant="destructive" onClick={() => onDelete(lightbox.id)}>
                     <Trash2 size={14} />
                     Delete
                   </Button>

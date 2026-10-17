@@ -15,6 +15,31 @@ export function getThemePreference(): ThemeMode {
   return "system";
 }
 
+const META_THEMES: Record<"light" | "dark", string> = {
+  light: "#f4f2e9",
+  dark: "#0e0f0c",
+};
+
+function syncMetaThemeColor(mode: ThemeMode): void {
+  if (typeof document === "undefined") return;
+  const head = document.head;
+  head.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.remove());
+  const wants: Array<{ content: string; media?: string }> =
+    mode === "system"
+      ? [
+          { content: META_THEMES.dark, media: "(prefers-color-scheme: dark)" },
+          { content: META_THEMES.light, media: "(prefers-color-scheme: light)" },
+        ]
+      : [{ content: META_THEMES[mode] }];
+  for (const t of wants) {
+    const meta = document.createElement("meta");
+    meta.setAttribute("name", "theme-color");
+    meta.setAttribute("content", t.content);
+    if (t.media) meta.setAttribute("media", t.media);
+    head.appendChild(meta);
+  }
+}
+
 function applyTheme(mode: ThemeMode): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
@@ -30,6 +55,7 @@ function applyTheme(mode: ThemeMode): void {
     root.classList.remove("dark", "light");
     root.removeAttribute("data-theme");
   }
+  syncMetaThemeColor(mode);
 }
 
 export function setThemePreference(mode: ThemeMode): void {

@@ -164,7 +164,7 @@ export function EventShareModal({ open, onClose, eventId, title, venue, date, he
           {showQr && qrUrl && (
             <div className="mt-3 text-center space-y-2 p-3 bg-white rounded-2xl ring-1 ring-line">
               <img src={qrUrl} alt="Event RSVP QR Code" className="mx-auto h-44 w-44 rounded-xl" />
-              <p className="text-[11px] font-medium text-mute">Point your phone camera here to open and RSVP</p>
+              <p className="text-[11px] font-medium text-neutral-600">Point your phone camera here to open and RSVP</p>
             </div>
           )}
         </div>

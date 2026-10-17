@@ -188,7 +188,7 @@ export function buildShareMetaHtml(
 <title>${card.title}</title>
 <link rel="canonical" href="${url}">
 <meta name="description" content="${card.description}">
-<meta name="theme-color" content="#1805db">
+<meta name="theme-color" content="#004eff">
 <meta property="og:type" content="${ogType}">
 <meta property="og:site_name" content="${SHARE_SITE_NAME}">
 <meta property="og:locale" content="en_AU">

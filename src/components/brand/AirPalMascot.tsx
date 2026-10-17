@@ -47,14 +47,14 @@ export function AirPalMascot({ className }: { className?: string }) {
       <path
         d="M48 118 C48 58 80 34 120 34 C160 34 192 58 192 118"
         fill="none"
-        stroke="#1805db"
+        stroke="#004eff"
         strokeWidth="11"
         strokeLinecap="round"
       />
-      <rect x="34" y="102" width="26" height="52" rx="13" fill="#1805db" />
-      <rect x="180" y="102" width="26" height="52" rx="13" fill="#1805db" />
-      <rect x="40" y="110" width="14" height="36" rx="7" fill="#0e0394" />
-      <rect x="186" y="110" width="14" height="36" rx="7" fill="#0e0394" />
+      <rect x="34" y="102" width="26" height="52" rx="13" fill="#004eff" />
+      <rect x="180" y="102" width="26" height="52" rx="13" fill="#004eff" />
+      <rect x="40" y="110" width="14" height="36" rx="7" fill="#002fa8" />
+      <rect x="186" y="110" width="14" height="36" rx="7" fill="#002fa8" />
 
       {/* face */}
       <ellipse cx="120" cy="128" rx="46" ry="42" fill="#fff8ec" />
@@ -67,7 +67,7 @@ export function AirPalMascot({ className }: { className?: string }) {
       <ellipse cx="150" cy="136" rx="8" ry="5.5" fill="#ffc2d1" />
 
       {/* belly roundel */}
-      <circle cx="120" cy="202" r="34" fill="#1805db" />
+      <circle cx="120" cy="202" r="34" fill="#004eff" />
       <text
         x="120"
         y="216"

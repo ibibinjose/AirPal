@@ -112,7 +112,7 @@ export function AdminOverview({ onSelectTab }: { onSelectTab: (t: AdminTab) => v
             value: String(open),
             hint: "needs mate match",
             tab: "marketplace",
-            badgeClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+            badgeClass: "bg-brand/10 text-accent",
           },
           {
             label: "Active Matches",

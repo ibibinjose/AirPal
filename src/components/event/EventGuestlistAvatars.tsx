@@ -9,13 +9,6 @@ export interface EventGuestlistAvatarsProps {
   className?: string;
 }
 
-const DEFAULT_AVATARS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces",
-];
-
 export function EventGuestlistAvatars({ eventId, className }: EventGuestlistAvatarsProps) {
   const [guests, setGuests] = useState<GuestRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,25 +68,22 @@ export function EventGuestlistAvatars({ eventId, className }: EventGuestlistAvat
       )}
     >
       <div className="flex items-center gap-3 min-w-0">
-        {/* Avatar Stack */}
+        {/* Avatar Stack — real guests only; an honest empty tile when none */}
         <div className="flex -space-x-2 shrink-0">
-          {count > 0
-            ? activeGuests.slice(0, 4).map((g, i) => (
-                <div
-                  key={g.id || i}
-                  className="grid h-8 w-8 place-items-center rounded-full bg-paper text-[11px] font-bold text-ink ring-2 ring-card shadow-xs overflow-hidden"
-                >
-                  {g.name.slice(0, 1).toUpperCase()}
-                </div>
-              ))
-            : DEFAULT_AVATARS.slice(0, 3).map((url, i) => (
-                <img
-                  key={i}
-                  src={url}
-                  alt=""
-                  className="h-8 w-8 rounded-full object-cover ring-2 ring-card shadow-xs opacity-60"
-                />
-              ))}
+          {count > 0 ? (
+            activeGuests.slice(0, 4).map((g, i) => (
+              <div
+                key={g.id || i}
+                className="grid h-8 w-8 place-items-center rounded-full bg-paper text-[11px] font-bold text-ink ring-2 ring-card shadow-xs overflow-hidden"
+              >
+                {g.name.slice(0, 1).toUpperCase()}
+              </div>
+            ))
+          ) : (
+            <div className="grid h-8 w-8 place-items-center rounded-full bg-brand/10 text-accent ring-2 ring-card shadow-xs">
+              <Users size={14} aria-hidden="true" />
+            </div>
+          )}
           {count > 4 && (
             <div className="grid h-8 w-8 place-items-center rounded-full bg-brand/15 text-[11px] font-black text-accent ring-2 ring-card">
               +{count - 4}

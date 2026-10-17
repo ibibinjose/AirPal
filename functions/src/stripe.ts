@@ -16,6 +16,7 @@ import {
 } from "../../shared/booking";
 import { isStayDay, nightsBetween, quoteStayNights, stayDateList, stayRangesOverlap } from "../../shared/stay-booking";
 import { CALLABLE, db, isPlatformAdmin, requireAuth } from "./admin";
+import { applyEventCouponInTx } from "./coupons";
 import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "./abuse";
 import type { AccessClaims } from "../../shared/airpal-security";
 
@@ -291,28 +292,65 @@ export const createBookingCheckoutSession = onCall(STRIPE_CALLABLE, async (reque
   if (booking.paymentStatus === "paid") {
     return { ok: true, mode: "already_paid", bookingId };
   }
-  if (booking.priceCents <= 0) {
-    await ref.update({ paymentStatus: "paid", payoutStatus: "transferred", updatedAt: new Date().toISOString() });
-    return { ok: true, mode: "free", bookingId };
-  }
 
   // C1 — the server is the fee authority: restamp from live admin config so a
   // stale or tampered client fee can never reach the ledger or the payout.
   // C2 — the server is the price authority for sourced bookings: re-price
   // from the event/campaign row so a forged client priceCents can never
   // reach Stripe. Fail closed when the source is gone.
+  // C4 — tier + coupon pricing: named tiers resolve server-side and coupons
+  // validate + redeem inside a transaction. The free shortcut below only
+  // runs on the authoritative total, so a client-side "discount to zero"
+  // can never mint a free ticket.
   if (booking.eventId) {
     const eventSnap = await db.collection("events").doc(booking.eventId).get();
-    const repriced = repriceSourcedBooking(
-      eventSnap.exists
-        ? { exists: true, priceCents: (eventSnap.data() as { ticketPriceCents?: unknown }).ticketPriceCents }
-        : null,
-    );
-    if ("error" in repriced) throw new HttpsError("failed-precondition", "This event is no longer on sale.");
-    if (booking.priceCents !== repriced.priceCents) {
-      await ref.update({ priceCents: repriced.priceCents, updatedAt: new Date().toISOString() });
-      booking.priceCents = repriced.priceCents;
+    if (!eventSnap.exists) throw new HttpsError("failed-precondition", "This event is no longer on sale.");
+    const eventData = eventSnap.data() as { ticketPriceCents?: unknown; ticketTiers?: unknown };
+    const tiers = Array.isArray(eventData.ticketTiers)
+      ? eventData.ticketTiers.filter(
+          (t): t is { id: string; priceCents: number } =>
+            !!t &&
+            typeof t === "object" &&
+            typeof (t as { id?: unknown }).id === "string" &&
+            Number.isFinite(Number((t as { priceCents?: unknown }).priceCents)) &&
+            Number((t as { priceCents?: unknown }).priceCents) >= 0,
+        )
+      : [];
+    let authoritative: number;
+    if (booking.tierId) {
+      const tier = tiers.find((t) => t.id === booking.tierId);
+      if (!tier) throw new HttpsError("failed-precondition", "This ticket tier is no longer available.");
+      const spots = Math.max(1, Math.floor(Number(booking.spots) || 1));
+      authoritative = Math.floor(Number(tier.priceCents)) * spots;
+    } else {
+      const repriced = repriceSourcedBooking({ exists: true, priceCents: eventData.ticketPriceCents });
+      if ("error" in repriced) throw new HttpsError("failed-precondition", "This event is no longer on sale.");
+      authoritative = repriced.priceCents;
     }
+    let couponCode: string | null = null;
+    let discountPercent: number | null = null;
+    if (typeof booking.couponCode === "string" && booking.couponCode.trim()) {
+      const applied = await db.runTransaction(async (tx) =>
+        applyEventCouponInTx(tx, booking.eventId as string, booking.couponCode as string, authoritative),
+      );
+      authoritative = applied.totalCents;
+      couponCode = applied.code;
+      discountPercent = applied.percentOff;
+    }
+    const patch: Record<string, unknown> = { updatedAt: new Date().toISOString() };
+    if (booking.priceCents !== authoritative) {
+      patch.priceCents = authoritative;
+      booking.priceCents = authoritative;
+    }
+    if ((booking.couponCode || null) !== couponCode) {
+      patch.couponCode = couponCode;
+      booking.couponCode = couponCode as string;
+    }
+    if ((booking.discountPercent || null) !== discountPercent) {
+      patch.discountPercent = discountPercent;
+      booking.discountPercent = discountPercent as number;
+    }
+    if (Object.keys(patch).length > 1) await ref.update(patch);
   } else if (booking.campaignId) {
     const campaignSnap = await db.collection("campaigns").doc(booking.campaignId).get();
     const repriced = repriceSourcedBooking(
@@ -325,6 +363,11 @@ export const createBookingCheckoutSession = onCall(STRIPE_CALLABLE, async (reque
       await ref.update({ priceCents: repriced.priceCents, updatedAt: new Date().toISOString() });
       booking.priceCents = repriced.priceCents;
     }
+  }
+  // Free shortcut on the authoritative total only — after tier/coupon pricing.
+  if (booking.priceCents <= 0) {
+    await ref.update({ paymentStatus: "paid", payoutStatus: "transferred", updatedAt: new Date().toISOString() });
+    return { ok: true, mode: "free", bookingId };
   }
   const liveFees = quoteFees(booking.priceCents, await loadFeeConfig());
   if (booking.feeCents !== liveFees.feeCents) {

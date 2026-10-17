@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
-import { Flag, ShieldX } from "lucide-react";
+import { Flag, MoreHorizontal, ShieldX } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
@@ -26,6 +26,7 @@ export function SafetyMenu({ targetUid, targetName }: { targetUid: string; targe
   const [error, setError] = useState<string | null>(null);
   const [reported, setReported] = useState(false);
   const menuRef = useRef<HTMLSpanElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -35,7 +36,10 @@ export function SafetyMenu({ targetUid, targetName }: { targetUid: string; targe
       }
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
     };
     document.addEventListener("pointerdown", onDown);
     document.addEventListener("keydown", onKey);
@@ -44,6 +48,20 @@ export function SafetyMenu({ targetUid, targetName }: { targetUid: string; targe
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
+
+  function onMenuKeyDown(e: ReactKeyboardEvent<HTMLSpanElement>) {
+    const items = Array.from(menuRef.current?.querySelectorAll<HTMLButtonElement>("button:not([disabled])") || []);
+    if (items.length === 0) return;
+    const active = document.activeElement as HTMLElement | null;
+    const idx = items.findIndex((el) => el === active);
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      items[idx < 0 ? 0 : (idx + 1) % items.length]?.focus();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      items[idx < 0 ? items.length - 1 : (idx - 1 + items.length) % items.length]?.focus();
+    }
+  }
 
   async function fileReport() {
     setError(null);
@@ -119,6 +137,7 @@ export function SafetyMenu({ targetUid, targetName }: { targetUid: string; targe
   return (
     <span ref={menuRef} className="relative shrink-0">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => {
           setOpen(!open);
@@ -126,27 +145,35 @@ export function SafetyMenu({ targetUid, targetName }: { targetUid: string; targe
           setError(null);
         }}
         aria-label={`Safety options for ${targetName}`}
+        aria-haspopup="menu"
         aria-expanded={open}
         className="inline-flex h-10 w-10 min-h-[44px] min-w-[44px] touch-manipulation items-center justify-center rounded-full text-mute hover:bg-paper cursor-pointer"
       >
-        ···
+        <MoreHorizontal size={18} aria-hidden />
       </button>
       {open && (
-        <span className="absolute right-0 top-10 z-30 w-64 overscroll-contain rounded-2xl border border-line bg-card p-3 shadow-lg">
+        <span
+          role="menu"
+          aria-label={`Safety options for ${targetName}`}
+          onKeyDown={onMenuKeyDown}
+          className="absolute right-0 top-10 z-30 w-64 overscroll-contain rounded-2xl border border-line bg-card p-3 shadow-lg"
+        >
           {mode === "menu" && (
             <span className="block">
               <button
                 type="button"
+                role="menuitem"
                 onClick={() => setMode("report")}
-                className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] font-medium hover:bg-paper"
+                className="flex min-h-[44px] w-full touch-manipulation items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] font-medium hover:bg-paper"
               >
                 <Flag size={14} className="text-accent" /> Report {targetName}
               </button>
               <button
                 type="button"
+                role="menuitem"
                 onClick={() => void blockNow()}
                 disabled={busy}
-                className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] font-medium hover:bg-paper"
+                className="flex min-h-[44px] w-full touch-manipulation items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] font-medium hover:bg-paper disabled:opacity-50"
               >
                 <ShieldX size={14} /> Block immediately
               </button>
@@ -172,7 +199,7 @@ export function SafetyMenu({ targetUid, targetName }: { targetUid: string; targe
                         onClick={() => setTarget(t)}
                         aria-pressed={target === t}
                         className={cn(
-                          "flex-1 rounded-full px-2 py-1 text-xs font-semibold ring-1",
+                          "min-h-[44px] flex-1 rounded-full px-2 py-1 text-xs font-semibold ring-1",
                           target === t ? "bg-brand text-white ring-ink" : "text-mute ring-line",
                         )}
                       >

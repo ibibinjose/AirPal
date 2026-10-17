@@ -43,7 +43,7 @@ export function CategoryFilters({ value, onChange, className }: Props) {
             className={cn(
               "inline-flex min-h-[44px] shrink-0 snap-start items-center justify-center rounded-full px-4.5 py-2 text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer touch-manipulation select-none",
               isSelected
-                ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(24,5,219,0.35)]"
+                ? "bg-brand text-white shadow-[0_4px_12px_-4px_rgba(0,78,255,0.35)]"
                 : "border border-line bg-card text-mute hover:border-brand/40 hover:text-ink hover:bg-paper",
             )}
           >

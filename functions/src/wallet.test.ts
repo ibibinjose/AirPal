@@ -101,7 +101,7 @@ describe("pass content (Luma layout, AirPal Blue)", () => {
       guestName: "Bibin",
     });
     expect(json.organizationName).toBe("AirPal.me");
-    expect(json.backgroundColor).toBe("rgb(24,5,219)");
+    expect(json.backgroundColor).toBe("rgb(0,78,255)");
     const ticket = json.eventTicket as Record<string, { label: string; value: string }[]>;
     expect(ticket.headerFields[0]?.value).toBe("02 OCT 2026 · 7:00 PM");
     expect(ticket.primaryFields[0]).toEqual({ key: "event", label: "", value: "Rooftop Set" });
@@ -115,7 +115,7 @@ describe("pass content (Luma layout, AirPal Blue)", () => {
   it("lays profile cards out on AirPal Blue with the handle front and center", () => {
     const json = cardPassJson({ handle: "bibin", name: "Bibin", bio: "Host" });
     expect(json.organizationName).toBe("AirPal.me");
-    expect(json.backgroundColor).toBe("rgb(24,5,219)");
+    expect(json.backgroundColor).toBe("rgb(0,78,255)");
     const generic = json.generic as Record<string, { label: string; value: string }[]>;
     expect(generic.primaryFields[0]?.value).toBe("Bibin");
     expect(generic.secondaryFields[0]?.value).toBe("@bibin");

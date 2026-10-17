@@ -12,6 +12,8 @@ export interface EventLocationCardProps {
   geo?: { lat: number; lng: number };
   locationType?: EventLocationType;
   virtualUrl?: string;
+  /** How to find the group at the venue. Absent = block hidden. */
+  directions?: string;
   className?: string;
 }
 
@@ -23,6 +25,7 @@ export function EventLocationCard({
   geo,
   locationType = "in_person",
   virtualUrl,
+  directions,
   className,
 }: EventLocationCardProps) {
   const [copied, setCopied] = useState(false);
@@ -153,6 +156,12 @@ export function EventLocationCard({
       <div>
         <h3 className="text-base font-bold text-ink">{displayTitle}</h3>
         <p className="mt-0.5 text-sm text-mute leading-relaxed">{displayAddress}</p>
+        {directions && (
+          <p className="mt-2 rounded-2xl bg-paper px-3.5 py-2.5 text-[13px] leading-relaxed text-ink ring-1 ring-line/70">
+            <span className="font-bold">Finding us: </span>
+            {directions}
+          </p>
+        )}
       </div>
 
       {/* Map Embed Container */}

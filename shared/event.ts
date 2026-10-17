@@ -62,7 +62,7 @@ export type EventRecord = {
   mapsPlaceId?: string;
   geo?: { lat: number; lng: number };
   coverImage?: string;
-  /** Ambient theme hue tint (hex, e.g. #6366f1) for specular halo and accents. */
+  /** Ambient theme hue tint (hex, e.g. #004eff) for specular halo and accents. */
   themeColor?: string;
   hostName?: string;
   hostHandle?: string;
@@ -70,15 +70,33 @@ export type EventRecord = {
   businessName?: string;
   businessHandle?: string;
   collaboratorHandles?: string[];
+  /** Sponsor @handles (no @ prefix, lowercase). Rendered as the Sponsors row. */
+  sponsorHandles?: string[];
   startsAt: string;
   endsAt: string;
   status: "draft" | "live" | "ended";
   /** Ticket price in cents (0/undefined = free). Paid nights sell via Stripe bookings. */
   ticketPriceCents?: number;
+  /** Named price tiers (e.g. General, VIP). Empty/absent = legacy single price. */
+  ticketTiers?: EventTicketTier[];
+  /** Recurring series id shared by all instances. Absent = one-off. */
+  seriesId?: string;
+  /** 1-based instance number within its series. */
+  recurrenceIndex?: number;
+  /** Total instances in the series (stored on every instance for display). */
+  recurrenceCount?: number;
   /** Total tickets available. Undefined = unlimited free entry. */
   capacity?: number;
   /** Whether attendees require host approval before passes/tickets are confirmed. */
   requireApproval?: boolean;
+  /** Timed run-sheet (e.g. 6:00pm doors, 6:30pm game 1). Rendered as the Schedule section. */
+  agenda?: EventAgendaItem[];
+  /** Refund & transfer policy text shown on the event page. Absent = section hidden. */
+  refundPolicy?: string;
+  /** How to find the group at the venue ("Take the lift to Level 4…"). */
+  directions?: string;
+  /** Host-closed registration. Closed card + notify-me replace the ticket flow. */
+  registrationClosed?: boolean;
   gatePath: string;
   /** Festival program this session belongs to (festivals/{slug}). */
   festivalSlug?: string;
@@ -124,6 +142,149 @@ export function cleanStallLocation(value: unknown): string | undefined {
   const trimmed = value.trim().slice(0, 120);
   return trimmed || undefined;
 }
+
+/** Named price tier for an event. Ids are organiser-chosen slugs, unique per event. */
+export type EventTicketTier = {
+  id: string;
+  name: string;
+  /** Unit price in cents. */
+  priceCents: number;
+  /** Tier seats. Undefined = shares the event capacity. */
+  capacity?: number;
+};
+
+/** Per-event coupon, stored at `events/{eventId}/coupons/{CODE}`. Server-validated only. */
+export type EventCoupon = {
+  code: string;
+  /** Whole-percent discount, 1–90. */
+  percentOff: number;
+  active: boolean;
+  /** Lifetime redemption cap. Undefined = uncapped. */
+  maxRedemptions?: number;
+  redemptions: number;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+/** Uppercase A–Z0–9 code, 3–16 chars. Empty string when unusable. */
+export function normalizeCouponCode(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const code = value
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+  return code.length >= 3 && code.length <= 16 ? code : "";
+}
+
+/** Organiser draft validation. Returns error messages, empty when valid. */
+export function validateCouponDraft(input: { code: unknown; percentOff: unknown; maxRedemptions?: unknown }): string[] {
+  const errors: string[] = [];
+  if (!normalizeCouponCode(input.code)) errors.push("Code must be 3–16 letters or numbers.");
+  const pct = typeof input.percentOff === "string" ? Number(input.percentOff) : input.percentOff;
+  if (!Number.isInteger(pct) || (pct as number) < 1 || (pct as number) > 90) {
+    errors.push("Discount must be a whole percent from 1 to 90.");
+  }
+  if (input.maxRedemptions !== undefined && input.maxRedemptions !== null && String(input.maxRedemptions) !== "") {
+    const cap = Number(input.maxRedemptions);
+    if (!Number.isInteger(cap) || cap < 1 || cap > 100000) errors.push("Redemption cap must be 1–100000.");
+  }
+  return errors;
+}
+
+/** Sanitized tiers for storage: max 8, unique ids, positive prices. Empty when none valid. */
+export function cleanTicketTiers(value: unknown): EventTicketTier[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const seen = new Set<string>();
+  const tiers: EventTicketTier[] = [];
+  for (const row of value.slice(0, 8)) {
+    if (!row || typeof row !== "object") continue;
+    const r = row as Record<string, unknown>;
+    const id = String(r.id || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "")
+      .slice(0, 24);
+    const name = String(r.name || "")
+      .trim()
+      .slice(0, 40);
+    const priceCents = cleanTicketCents(r.priceCents);
+    if (!id || !name || priceCents === undefined || seen.has(id)) continue;
+    seen.add(id);
+    const capRaw = Number(r.capacity);
+    tiers.push({
+      id,
+      name,
+      priceCents,
+      ...(Number.isInteger(capRaw) && capRaw >= 1 && capRaw <= 2000 ? { capacity: capRaw } : {}),
+    });
+  }
+  return tiers.length ? tiers : undefined;
+}
+
+/** Cleaned @handle list (no @ prefix, lowercase, max 20). Undefined when empty. */
+export function cleanEventHandles(value: unknown, max = 20): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const row of value) {
+    const clean = String(row || "")
+      .trim()
+      .replace(/^@+/, "")
+      .toLowerCase()
+      .slice(0, 30);
+    if (!clean || seen.has(clean)) continue;
+    seen.add(clean);
+    out.push(clean);
+    if (out.length >= max) break;
+  }
+  return out.length ? out : undefined;
+}
+
+/** Weekly recurrence expansion: N weekly instances from a start/end pair. Max 12. */
+export function expandWeeklyRecurrence(
+  startsAt: string,
+  endsAt: string,
+  count: number,
+): { startsAt: string; endsAt: string }[] {
+  const n = Math.min(12, Math.max(1, Math.floor(count) || 1));
+  const start = new Date(startsAt).getTime();
+  const end = new Date(endsAt).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) {
+    return [{ startsAt, endsAt }];
+  }
+  const out: { startsAt: string; endsAt: string }[] = [];
+  for (let i = 0; i < n; i++) {
+    const shift = i * 7 * 86400000;
+    out.push({ startsAt: new Date(start + shift).toISOString(), endsAt: new Date(end + shift).toISOString() });
+  }
+  return out;
+}
+
+/** Apply a whole-percent discount to a base price. Never trusts client math. */
+export function couponPrice(baseCents: number, percentOff: number): number {
+  if (!Number.isFinite(baseCents) || baseCents < 0) return 0;
+  const pct = Math.min(90, Math.max(0, Math.floor(percentOff)));
+  return Math.max(0, Math.round((baseCents * (100 - pct)) / 100));
+}
+
+export type UpsertEventCouponRequest = {
+  eventId: string;
+  code: string;
+  percentOff: number;
+  active?: boolean;
+  maxRedemptions?: number | null;
+};
+
+export type ValidateEventCouponRequest = {
+  eventId: string;
+  code: string;
+};
+
+export type ValidateEventCouponResponse = {
+  ok: true;
+  code: string;
+  percentOff: number;
+};
 
 /** Non-negative integer cents, or undefined when absent/invalid. Never trusts client math. */
 export function cleanTicketCents(value: unknown): number | undefined {
@@ -200,6 +361,7 @@ export type CalendarEvent = {
   scheduleVerifiedAt?: string;
   speakers?: Speaker[];
   ticketPriceCents?: number;
+  ticketTiers?: { id: string; name: string; priceCents: number; capacity?: number }[];
   capacity?: number;
   organiserUid?: string;
   hostName?: string;
@@ -208,6 +370,8 @@ export type CalendarEvent = {
   businessName?: string;
   businessHandle?: string;
   collaboratorHandles?: string[];
+  /** Sponsor @handles (no @ prefix, lowercase). Rendered as the Sponsors row. */
+  sponsorHandles?: string[];
   address?: string;
   geo?: { lat: number; lng: number };
   registrationUrl?: string;
@@ -217,7 +381,39 @@ export type CalendarEvent = {
   virtualUrl?: string;
   requireApproval?: boolean;
   themeColor?: string;
+  /** Timed run-sheet (e.g. 6:00pm doors, 6:30pm game 1). Rendered as the Schedule section. */
+  agenda?: EventAgendaItem[];
+  /** Refund & transfer policy text shown on the event page. Absent = section hidden. */
+  refundPolicy?: string;
+  /** How to find the group at the venue ("Take the lift to Level 4…"). */
+  directions?: string;
+  /** Host-closed registration. Closed card + notify-me replace the ticket flow. */
+  registrationClosed?: boolean;
 };
+
+export type EventAgendaItem = {
+  time: string;
+  title: string;
+};
+
+/** Cleaned run-sheet rows (max 12). Undefined when none survive. */
+export function sanitizeAgenda(value: unknown): EventAgendaItem[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const rows: EventAgendaItem[] = [];
+  for (const row of value.slice(0, 12)) {
+    if (!row || typeof row !== "object") continue;
+    const r = row as Record<string, unknown>;
+    const time = String(r.time || "")
+      .trim()
+      .slice(0, 24);
+    const title = String(r.title || "")
+      .trim()
+      .slice(0, 120);
+    if (!time && !title) continue;
+    rows.push({ time: time || "—", title: title || "Scheduled item" });
+  }
+  return rows.length ? rows : undefined;
+}
 
 export function isEventFlavour(value: string): value is EventFlavour {
   return (EVENT_FLAVOURS as readonly string[]).includes(value);

@@ -66,7 +66,7 @@ export function NotFoundPage() {
             onClick={() => void triggerHaptic("light")}
             className="flex min-h-[44px] items-center gap-2 rounded-2xl bg-paper/60 p-3 text-ink ring-1 ring-line/50 transition hover:bg-paper active:scale-95"
           >
-            <Compass size={16} className="text-blue-500 shrink-0" />
+            <Compass size={16} className="text-accent shrink-0" />
             <span>Events</span>
           </Link>
           <Link

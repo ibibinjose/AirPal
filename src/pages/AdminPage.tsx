@@ -277,7 +277,7 @@ export function AdminPage() {
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 text-accent">
                     <Bell className="h-5 w-5" />
                   </span>
                   <ArrowUpRight className="h-4 w-4 text-mute transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />

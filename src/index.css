@@ -15,22 +15,26 @@
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, ui-sans-serif, system-ui, sans-serif;
   --font-display:
     -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, ui-sans-serif, system-ui, sans-serif;
-  /* Humanity palette: warm parchment surfaces carry hierarchy; AirPal Blue
-   * is reserved for the one action or selected state that needs attention.
-   * Warm neutrals keep every page feeling human, calm, and welcoming. */
-  --color-paper: #faf7f1;
-  --color-ink: #1c1a17;
-  --color-mute: #5c635e;
-  --color-line: #e7dfd1;
-  --color-card: #fffdf8;
-  --color-brand: #1805db;
-  --color-brand-ink: #0e0394;
-  --color-gold: #1805db;
-  /* Brand-hued text/icons that stay legible on both schemes: AirPal Blue in
-   * light mode, lightened periwinkle in dark mode (like iOS systemBlue).
-   * Use `text-accent` instead of `text-brand`/`text-gold` for text and icons.
-   * Fills (`bg-brand`) keep the fixed brand with white text. */
-  --color-accent: #1805db;
+  /* After Dark identity: dark-first. Bone ink on near-black void, one
+   * signal-lime action colour, hairline borders instead of shadows.
+   * The Day scheme lives in the `[data-theme="light"]` /
+   * `prefers-color-scheme: light` blocks below; manual choice always wins
+   * because those selectors come later in this file. */
+  --color-paper: #0e0f0c;
+  --color-ink: #f4f2e9;
+  --color-mute: #a3a698;
+  --color-line: #2b2f23;
+  --color-card: #161814;
+  --color-brand: #004eff;
+  --color-brand-ink: #003dcb;
+  --color-gold: #ffb224;
+  /* Text on brand fills is always near-black ink (both schemes) — enforced
+   * by the `.bg-brand, .bg-gold` rule further down, so `bg-brand text-white`
+   * call sites stay correct without edits. */
+  --color-on-brand: #ffffff;
+  /* Brand-hued text/icons that stay legible on both schemes: light blue on
+   * night, brand blue on day. Use `text-accent` for text and icons. */
+  --color-accent: #8fadff;
 
   /* AirPal celebration palette — solid, vivid, never gradient-washed. */
   --color-rose: #f43f5e;
@@ -43,15 +47,10 @@
   --color-forest: #1b4332;
   --color-espresso: #4a3728;
   --color-bone: #f5f0e6;
-  --shadow-clay:
-    0 1px 1px rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(18, 22, 20, 0.05), 0 12px 28px -16px rgba(18, 22, 20, 0.18);
-  --shadow-clay-hover:
-    0 1px 1.5px rgba(255, 255, 255, 0.95) inset, 0 2px 4px rgba(18, 22, 20, 0.06),
-    0 18px 36px -16px rgba(18, 22, 20, 0.22);
-  --shadow-clay-active: 0 1px 1px rgba(18, 22, 20, 0.06) inset, 0 1px 2px rgba(18, 22, 20, 0.08);
-  --shadow-clay-float:
-    0 1px 1.5px rgba(255, 255, 255, 0.95) inset, 0 4px 8px rgba(18, 22, 20, 0.06),
-    0 24px 48px -18px rgba(18, 22, 20, 0.24);
+  --shadow-clay: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-clay-hover: 0 4px 14px -6px rgba(0, 0, 0, 0.6);
+  --shadow-clay-active: 0 1px 2px rgba(0, 0, 0, 0.5) inset;
+  --shadow-clay-float: 0 18px 44px -12px rgba(0, 0, 0, 0.6);
 
   /* Material Design 3 (M3) Elevation & Surface Hierarchy */
   --shadow-m3-0: none;
@@ -61,20 +60,20 @@
   --shadow-m3-4: 0 6px 16px 4px rgba(18, 22, 20, 0.12), 0 2px 4px 0 rgba(18, 22, 20, 0.14);
   --shadow-m3-5: 0 8px 24px 6px rgba(18, 22, 20, 0.14), 0 4px 8px 0 rgba(18, 22, 20, 0.16);
 
-  --color-surface-lowest: #fffdf8;
-  --color-surface-low: #f5f0e4;
-  --color-surface: #ece4d3;
-  --color-surface-high: #e0d5bf;
-  --color-surface-highest: #d2c3a8;
-  --color-primary-container: rgba(24, 5, 219, 0.08);
-  --color-on-primary-container: #0e0394;
+  --color-surface-lowest: #0a0b08;
+  --color-surface-low: #12140e;
+  --color-surface: #161814;
+  --color-surface-high: #1e211a;
+  --color-surface-highest: #2a2e22;
+  --color-primary-container: rgba(0, 78, 255, 0.25);
+  --color-on-primary-container: #c9d9ff;
   /* Humanity accents: terracotta warmth, grove belonging-green, honey glow.
    * Use sparingly beside the single blue action accent. Clay is darkened
    * so small uppercase eyebrows keep 4.5:1 contrast on parchment. */
-  --color-human-clay: #b23e12;
-  --color-human-grove: #1b4332;
-  --color-human-honey: #b7791f;
-  --color-human-blush: #f7e3d3;
+  --color-human-clay: #ff8a5c;
+  --color-human-grove: #7bc9a3;
+  --color-human-honey: #ffcf6b;
+  --color-human-blush: #3a2d24;
 }
 
 * {
@@ -98,66 +97,104 @@
   --z-prompt: 90;
 }
 
-/* Automatic dark mode: re-point the semantic @theme variables (iOS dark
- * system palette). Unlayered author CSS wins over Tailwind's `@layer theme`,
- * so every utility referencing these variables follows automatically.
- * Brand/celebration accents stay fixed — they are vivid on both schemes. */
+/* After Dark schemes. Unlayered author CSS wins over Tailwind's `@layer
+ * theme`, so every utility referencing these variables follows
+ * automatically. Manual `[data-theme]` choice always wins because those
+ * selectors come later in this file. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-paper: #141210;
-    --color-card: #1f1c19;
-    --color-ink: #faf7f1;
-    --color-mute: #b8b0a4;
-    --color-line: #38322a;
-    --color-surface-lowest: #100e0c;
-    --color-surface-low: #171412;
-    --color-surface: #1f1c19;
-    --color-surface-high: #2c2723;
-    --color-surface-highest: #3a332c;
-    --color-primary-container: rgba(120, 110, 255, 0.22);
-    --color-on-primary-container: #cfc9ff;
-    --color-accent: #8b83ff;
+    color-scheme: dark;
+    --color-paper: #0e0f0c;
+    --color-card: #161814;
+    --color-ink: #f4f2e9;
+    --color-mute: #a3a698;
+    --color-line: #2b2f23;
+    --color-surface-lowest: #0a0b08;
+    --color-surface-low: #12140e;
+    --color-surface: #161814;
+    --color-surface-high: #1e211a;
+    --color-surface-highest: #2a2e22;
+    --color-primary-container: rgba(0, 78, 255, 0.25);
+    --color-on-primary-container: #c9d9ff;
+    --color-brand: #004eff;
+    --color-brand-ink: #003dcb;
+    --color-on-brand: #ffffff;
+    --color-accent: #8fadff;
     --color-human-clay: #ff8a5c;
     --color-human-grove: #7bc9a3;
     --color-human-honey: #ffcf6b;
     --color-human-blush: #3a2d24;
-    --shadow-clay:
-      0 1px 1px rgba(255, 255, 255, 0.08) inset, 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 28px -16px rgba(0, 0, 0, 0.65);
-    --shadow-clay-hover:
-      0 1px 1.5px rgba(255, 255, 255, 0.12) inset, 0 2px 4px rgba(0, 0, 0, 0.6), 0 18px 36px -16px rgba(0, 0, 0, 0.75);
-    --shadow-clay-active: 0 1px 2px rgba(0, 0, 0, 0.6) inset, 0 1px 2px rgba(0, 0, 0, 0.5);
-    --shadow-clay-float:
-      0 1px 1.5px rgba(255, 255, 255, 0.14) inset, 0 4px 8px rgba(0, 0, 0, 0.6), 0 24px 48px -18px rgba(0, 0, 0, 0.85);
+    --shadow-clay: 0 1px 2px rgba(0, 0, 0, 0.45);
+    --shadow-clay-hover: 0 4px 14px -6px rgba(0, 0, 0, 0.6);
+    --shadow-clay-active: 0 1px 2px rgba(0, 0, 0, 0.5) inset;
+    --shadow-clay-float: 0 18px 44px -12px rgba(0, 0, 0, 0.6);
   }
 
   /* Liquid Glass follows the OS scheme automatically (same values as the
-   * `.dark` manual-override selectors below, which stay for a future toggle). */
+   * `[data-theme="dark"]` manual-override selectors below). */
   :root .apple-liquid-glass-dock {
-    background: rgba(15, 23, 42, 0.82);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(14, 15, 12, 0.82);
+    border: 1px solid rgba(244, 242, 233, 0.14);
     box-shadow:
-      inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.25),
+      inset 0 1px 1.5px 0 rgba(244, 242, 233, 0.14),
       0 18px 42px -12px rgba(0, 0, 0, 0.6),
       0 4px 16px -2px rgba(0, 0, 0, 0.35);
   }
   :root .apple-liquid-glass-nav {
-    background: rgba(15, 23, 42, 0.84);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(14, 15, 12, 0.84);
+    border-bottom: 1px solid rgba(244, 242, 233, 0.1);
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   }
   :root .apple-liquid-glass-card {
-    background: rgba(22, 27, 46, 0.82);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(22, 24, 20, 0.82);
+    border: 1px solid rgba(244, 242, 233, 0.12);
     box-shadow:
-      inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
+      inset 0 1px 1px 0 rgba(244, 242, 233, 0.1),
       0 8px 24px -8px rgba(0, 0, 0, 0.5);
   }
   :root .apple-liquid-glass-light {
-    background: rgba(30, 41, 59, 0.78);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(30, 33, 26, 0.78);
+    border: 1px solid rgba(244, 242, 233, 0.14);
     box-shadow:
-      inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 1px 1px 0 rgba(244, 242, 233, 0.12),
       0 12px 32px -6px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Day scheme for OS followers: bone canvas, brand-blue action colour. */
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --color-paper: #f4f2e9;
+    --color-card: #fbf9f2;
+    --color-ink: #16170f;
+    --color-mute: #5d6152;
+    --color-line: #ddd5bd;
+    --color-surface-lowest: #ffffff;
+    --color-surface-low: #ece7d5;
+    --color-surface: #e4ddc6;
+    --color-surface-high: #d8cfb2;
+    --color-surface-highest: #c6b992;
+    --color-primary-container: rgba(0, 78, 255, 0.1);
+    --color-on-primary-container: #002fa8;
+    --color-brand: #004eff;
+    --color-brand-ink: #003dcb;
+    --color-on-brand: #ffffff;
+    --color-accent: #004eff;
+    --color-human-clay: #b23e12;
+    --color-human-grove: #1b4332;
+    --color-human-honey: #b7791f;
+    --color-human-blush: #f7e3d3;
+    --shadow-clay:
+      0 1px 1px rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(22, 23, 15, 0.05),
+      0 12px 28px -16px rgba(22, 23, 15, 0.18);
+    --shadow-clay-hover:
+      0 1px 1.5px rgba(255, 255, 255, 0.95) inset, 0 2px 4px rgba(22, 23, 15, 0.06),
+      0 18px 36px -16px rgba(22, 23, 15, 0.22);
+    --shadow-clay-active: 0 1px 1px rgba(22, 23, 15, 0.06) inset, 0 1px 2px rgba(22, 23, 15, 0.08);
+    --shadow-clay-float:
+      0 1px 1.5px rgba(255, 255, 255, 0.95) inset, 0 4px 8px rgba(22, 23, 15, 0.06),
+      0 24px 48px -18px rgba(22, 23, 15, 0.24);
   }
 }
 html {
@@ -372,6 +409,38 @@ body.keyboard-open .keyboard-hide {
 
 .bio-hero {
   min-height: clamp(14rem, 38vw, 18rem);
+}
+
+/* Bio themes: an owner-selected preset recolours the public bio page. All
+ * rules are scoped under `.bio-themed`, so the default AirPal look is
+ * untouched. Scoped selectors beat Tailwind utilities on specificity. */
+.bio-themed.bio-page-shell::before {
+  background: var(--bio-bg);
+}
+.bio-themed .bio-page-card {
+  background: var(--bio-bg);
+}
+.bio-themed .bio-page-card .bg-card,
+.bio-themed .bio-page-card .bg-paper {
+  background-color: transparent;
+}
+.bio-themed .bio-page-card .text-ink {
+  color: var(--bio-ink);
+}
+.bio-themed .bio-page-card .text-mute {
+  color: var(--bio-muted);
+}
+.bio-themed .bio-page-card .text-accent {
+  color: var(--bio-accent);
+}
+.bio-themed .bio-theme-btn {
+  background-color: var(--bio-btn);
+  color: var(--bio-btn-text);
+  border-radius: var(--bio-radius, 999px);
+}
+.bio-themed .bio-theme-btn:hover {
+  background-color: var(--bio-btn);
+  filter: brightness(0.93);
 }
 
 @media (min-width: 640px) {
@@ -687,7 +756,7 @@ body.keyboard-open .keyboard-hide {
   box-shadow:
     inset 0 1px 2px 0 rgba(255, 255, 255, 0.95),
     inset 0 -1px 1px 0 rgba(18, 22, 20, 0.03),
-    0 18px 42px -12px rgba(24, 5, 219, 0.18),
+    0 18px 42px -12px rgba(0, 78, 255, 0.18),
     0 4px 16px -2px rgba(18, 22, 20, 0.06);
 }
 
@@ -740,7 +809,7 @@ body.keyboard-open .keyboard-hide {
 /* Dark Mode Liquid Glass Overrides */
 .dark .apple-liquid-glass-dock,
 [data-theme="dark"] .apple-liquid-glass-dock {
-  background: rgba(15, 23, 42, 0.82);
+  background: rgba(14, 15, 12, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow:
     inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.25),
@@ -750,14 +819,14 @@ body.keyboard-open .keyboard-hide {
 
 .dark .apple-liquid-glass-nav,
 [data-theme="dark"] .apple-liquid-glass-nav {
-  background: rgba(15, 23, 42, 0.84);
+  background: rgba(14, 15, 12, 0.84);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
 }
 
 .dark .apple-liquid-glass-card,
 [data-theme="dark"] .apple-liquid-glass-card {
-  background: rgba(22, 27, 46, 0.82);
+  background: rgba(22, 24, 20, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
@@ -766,53 +835,84 @@ body.keyboard-open .keyboard-hide {
 
 .dark .apple-liquid-glass-light,
 [data-theme="dark"] .apple-liquid-glass-light {
-  background: rgba(30, 41, 59, 0.78);
+  background: rgba(30, 33, 26, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow:
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
     0 12px 32px -6px rgba(0, 0, 0, 0.4);
 }
 
-/* Explicit Theme Overrides (Dark / Light manual toggle) */
+/* Explicit Theme Overrides (Night / Day manual toggle). These come after
+ * the OS media blocks so a saved choice always wins. */
 .dark,
 [data-theme="dark"] {
-  --color-paper: #000000;
-  --color-card: #1c1c1e;
-  --color-ink: #ffffff;
-  --color-mute: #98989d;
-  --color-line: #38383a;
-  --color-surface-lowest: #0c0c0e;
-  --color-surface-low: #131316;
-  --color-surface: #1c1c1e;
-  --color-surface-high: #2c2c2e;
-  --color-surface-highest: #3a3a3c;
-  --color-primary-container: rgba(120, 110, 255, 0.22);
-  --color-on-primary-container: #cfc9ff;
-  --color-accent: #8b83ff;
-  --shadow-clay:
-    0 1px 1px rgba(255, 255, 255, 0.08) inset, 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 28px -16px rgba(0, 0, 0, 0.65);
-  --shadow-clay-hover:
-    0 1px 1.5px rgba(255, 255, 255, 0.12) inset, 0 2px 4px rgba(0, 0, 0, 0.6), 0 18px 36px -16px rgba(0, 0, 0, 0.75);
-  --shadow-clay-active: 0 1px 2px rgba(0, 0, 0, 0.6) inset, 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-clay-float:
-    0 1px 1.5px rgba(255, 255, 255, 0.14) inset, 0 4px 8px rgba(0, 0, 0, 0.6), 0 24px 48px -18px rgba(0, 0, 0, 0.85);
+  color-scheme: dark;
+  --color-paper: #0e0f0c;
+  --color-card: #161814;
+  --color-ink: #f4f2e9;
+  --color-mute: #a3a698;
+  --color-line: #2b2f23;
+  --color-surface-lowest: #0a0b08;
+  --color-surface-low: #12140e;
+  --color-surface: #161814;
+  --color-surface-high: #1e211a;
+  --color-surface-highest: #2a2e22;
+  --color-primary-container: rgba(0, 78, 255, 0.25);
+  --color-on-primary-container: #c9d9ff;
+  --color-brand: #004eff;
+  --color-brand-ink: #003dcb;
+  --color-on-brand: #ffffff;
+  --color-accent: #8fadff;
+  --color-human-clay: #ff8a5c;
+  --color-human-grove: #7bc9a3;
+  --color-human-honey: #ffcf6b;
+  --color-human-blush: #3a2d24;
+  --shadow-clay: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-clay-hover: 0 4px 14px -6px rgba(0, 0, 0, 0.6);
+  --shadow-clay-active: 0 1px 2px rgba(0, 0, 0, 0.5) inset;
+  --shadow-clay-float: 0 18px 44px -12px rgba(0, 0, 0, 0.6);
 }
 
 .light,
 [data-theme="light"] {
-  --color-paper: #f2f2f7;
-  --color-card: #ffffff;
-  --color-ink: #1c1c1e;
-  --color-mute: #636366;
-  --color-line: #e5e5ea;
+  color-scheme: light;
+  --color-paper: #f4f2e9;
+  --color-card: #fbf9f2;
+  --color-ink: #16170f;
+  --color-mute: #5d6152;
+  --color-line: #ddd5bd;
   --color-surface-lowest: #ffffff;
-  --color-surface-low: #f2f2f7;
-  --color-surface: #e9e9ee;
-  --color-surface-high: #e5e5ea;
-  --color-surface-highest: #d1d1d6;
-  --color-primary-container: rgba(24, 5, 219, 0.08);
-  --color-on-primary-container: #0e0394;
-  --color-accent: #1805db;
+  --color-surface-low: #ece7d5;
+  --color-surface: #e4ddc6;
+  --color-surface-high: #d8cfb2;
+  --color-surface-highest: #c6b992;
+  --color-primary-container: rgba(0, 78, 255, 0.1);
+  --color-on-primary-container: #002fa8;
+  --color-brand: #004eff;
+  --color-brand-ink: #003dcb;
+  --color-on-brand: #ffffff;
+  --color-accent: #004eff;
+  --color-human-clay: #b23e12;
+  --color-human-grove: #1b4332;
+  --color-human-honey: #b7791f;
+  --color-human-blush: #f7e3d3;
+  --shadow-clay:
+    0 1px 1px rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(22, 23, 15, 0.05), 0 12px 28px -16px rgba(22, 23, 15, 0.18);
+  --shadow-clay-hover:
+    0 1px 1.5px rgba(255, 255, 255, 0.95) inset, 0 2px 4px rgba(22, 23, 15, 0.06),
+    0 18px 36px -16px rgba(22, 23, 15, 0.22);
+  --shadow-clay-active: 0 1px 1px rgba(22, 23, 15, 0.06) inset, 0 1px 2px rgba(22, 23, 15, 0.08);
+  --shadow-clay-float:
+    0 1px 1.5px rgba(255, 255, 255, 0.95) inset, 0 4px 8px rgba(22, 23, 15, 0.06),
+    0 24px 48px -18px rgba(22, 23, 15, 0.24);
+}
+
+/* After Dark contract: text sitting on a brand or gold fill is always
+ * near-black ink. Unlayered, so it beats every `text-white` utility without
+ * touching the 100+ call sites that pair them. */
+.bg-brand,
+.bg-gold {
+  color: var(--color-on-brand);
 }
 
 /* Dedicated Solid Surfaces (High Legibility / Opaque Fallback) */
@@ -872,7 +972,7 @@ body.keyboard-open .keyboard-hide {
 .hover-lift:hover {
   transform: translateY(-2px);
   box-shadow:
-    0 12px 28px -8px rgba(24, 5, 219, 0.14),
+    0 12px 28px -8px rgba(0, 78, 255, 0.14),
     0 4px 12px -2px rgba(18, 22, 20, 0.04);
 }
 .hover-lift:active {
@@ -954,7 +1054,7 @@ body.keyboard-open .keyboard-hide {
 }
 
 .md3-chip-selected {
-  background: rgba(24, 5, 219, 0.12) !important;
+  background: rgba(0, 78, 255, 0.12) !important;
   color: var(--color-brand) !important;
   border-color: var(--color-brand) !important;
   font-weight: 600 !important;

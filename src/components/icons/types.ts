@@ -15,8 +15,8 @@ export type IconSize =
 
 /** Brand-consistent color variants defined in index.css */
 export type IconVariant =
-  | "brand" // #1805db (AirPal Blue)
-  | "brand-ink" // #0e0394 (Deep Navy)
+  | "brand" // #004eff (AirPal Blue)
+  | "brand-ink" // #002fa8 (Deep Navy)
   | "ink" // #121614 (Primary Dark Neutral)
   | "mute" // #6a726c (Muted Grey)
   | "line" // #e4e7ee (Subtle Line/Border)

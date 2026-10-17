@@ -434,7 +434,7 @@ export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; 
                 type="checkbox"
                 checked={adultConsent}
                 onChange={(e) => setAdultConsent(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded text-accent focus:ring-brand accent-[#1805db]"
+                className="mt-0.5 h-4 w-4 rounded text-accent focus:ring-brand accent-[#004eff]"
                 aria-required
               />
               <span className="text-xs leading-relaxed text-ink">
@@ -451,7 +451,7 @@ export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; 
                   type="checkbox"
                   checked={enableBiometrics}
                   onChange={(e) => setEnableBiometrics(e.target.checked)}
-                  className="h-4 w-4 rounded text-accent focus:ring-brand accent-[#1805db]"
+                  className="h-4 w-4 rounded text-accent focus:ring-brand accent-[#004eff]"
                 />
                 <div className="min-w-0 flex-1">
                   <span className="block text-xs font-bold text-ink">

@@ -1,4 +1,4 @@
-import { AtSign, Building2, ExternalLink, Plus, User, Users, X } from "lucide-react";
+import { AtSign, Building2, ExternalLink, Handshake, Plus, User, Users, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { bioPath } from "@shared/bio";
@@ -12,12 +12,17 @@ export function EventHostFields({
   hostHandle,
   collaboratorHandles,
   collaboratorInput,
+  sponsorHandles,
+  sponsorInput,
   onHostType,
   onHostName,
   onHostHandle,
   onCollaboratorInput,
   onAddCollaborator,
   onRemoveCollaborator,
+  onSponsorInput,
+  onAddSponsor,
+  onRemoveSponsor,
 }: {
   title: string;
   hostType: "business" | "individual";
@@ -25,12 +30,17 @@ export function EventHostFields({
   hostHandle: string;
   collaboratorHandles: string[];
   collaboratorInput: string;
+  sponsorHandles: string[];
+  sponsorInput: string;
   onHostType: (v: "business" | "individual") => void;
   onHostName: (v: string) => void;
   onHostHandle: (v: string) => void;
   onCollaboratorInput: (v: string) => void;
   onAddCollaborator: (handle: string) => void;
   onRemoveCollaborator: (handle: string) => void;
+  onSponsorInput: (v: string) => void;
+  onAddSponsor: (handle: string) => void;
+  onRemoveSponsor: (handle: string) => void;
 }) {
   const { mine, business } = useBio();
 
@@ -147,12 +157,12 @@ export function EventHostFields({
       <div className="pt-3 border-t border-line/60 space-y-2.5">
         <div className="flex items-center justify-between">
           <label className="text-xs font-semibold uppercase tracking-wider text-mute block">
-            Co-hosts & Collaborators
+            Extra Hosts & Co-hosts
           </label>
           <span className="text-[11px] text-mute">{collaboratorHandles.length} added</span>
         </div>
         <p className="text-[11px] text-mute">
-          Type any AirPal @handle and press Enter or click Add to link co-hosts, sponsors, or partner venues.
+          Add more hosts running the event with you — each links to their AirPal bio on the public page.
         </p>
 
         <div className="flex gap-2">
@@ -206,6 +216,82 @@ export function EventHostFields({
                   type="button"
                   onClick={() => onRemoveCollaborator(handle)}
                   title="Remove collaborator"
+                  aria-label={`Remove ${handle} as co-host`}
+                  className="ml-0.5 rounded-full p-0.5 text-mute hover:bg-rose-100 hover:text-rose-700 transition"
+                >
+                  <X size={13} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="pt-3 border-t border-line/60 space-y-2.5">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold uppercase tracking-wider text-mute flex items-center gap-1.5">
+            <Handshake size={13} className="text-amber-600 dark:text-amber-400" aria-hidden="true" />
+            <span>Sponsors</span>
+          </label>
+          <span className="text-[11px] text-mute">{sponsorHandles.length} added</span>
+        </div>
+        <p className="text-[11px] text-mute">
+          Backing brands and venues — each sponsor @handle gets its own row on the public page.
+        </p>
+
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-mute">@</span>
+            <input
+              value={sponsorInput}
+              onChange={(e) => onSponsorInput(e.target.value.replace(/^@+/, ""))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  onAddSponsor(sponsorInput);
+                }
+              }}
+              placeholder="sponsor_handle"
+              aria-label="Sponsor @handle"
+              className="h-11 w-full rounded-2xl border border-line bg-paper pl-8 pr-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+            />
+          </div>
+          <Button
+            type="button"
+            variant="tonal"
+            size="sm"
+            onClick={() => onAddSponsor(sponsorInput)}
+            disabled={!sponsorInput.trim()}
+            className="h-11 px-4 gap-1.5 rounded-2xl"
+          >
+            <Plus size={15} />
+            <span>Add</span>
+          </Button>
+        </div>
+
+        {sponsorHandles.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {sponsorHandles.map((handle) => (
+              <div
+                key={handle}
+                className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-ink border border-amber-500/25 shadow-xs group"
+              >
+                <Handshake size={12} className="text-amber-600 dark:text-amber-400" />
+                <span>{handle}</span>
+                <a
+                  href={bioPath(handle)}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Preview profile"
+                  className="text-mute hover:text-accent transition p-0.5"
+                >
+                  <ExternalLink size={11} />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => onRemoveSponsor(handle)}
+                  title="Remove sponsor"
+                  aria-label={`Remove ${handle} as sponsor`}
                   className="ml-0.5 rounded-full p-0.5 text-mute hover:bg-rose-100 hover:text-rose-700 transition"
                 >
                   <X size={13} />

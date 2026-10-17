@@ -1,7 +1,7 @@
 /**
  * AirPal Central Icon Library
  *
- * Provides brand-consistent icon styling defined in index.css (AirPal blue #1805db,
+ * Provides brand-consistent icon styling defined in index.css (AirPal blue #004eff,
  * neutral dark text #121614, muted grey #6a726c, celebration palette, touch-target
  * ergonomics, and liquid glass badge containers).
  *

@@ -22,7 +22,7 @@ import { getFirebaseDb } from "@/lib/firebase";
 import { promoArtFor, seedPromotionDemoRemote } from "@/lib/promotions";
 import { triggerHaptic } from "@/lib/native";
 import { toast } from "sonner";
-import { cn } from "@/lib/cn";
+import { FilterChips } from "@/components/ui/FilterChips";
 import { PROMOTION_CATEGORIES, type Promotion } from "@shared/promotions";
 import { SearchBar } from "@/components/search/SearchBar";
 
@@ -183,59 +183,31 @@ export function PromotionsPage() {
 
       {/* Category Pills & Mechanic Filters */}
       <div className="mt-6 space-y-3">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar" aria-label="Filter by category">
-          {["All", ...PROMOTION_CATEGORIES].map((c) => {
-            const active = category === c;
-            return (
-              <button
-                key={c}
-                type="button"
-                onClick={() => {
-                  void triggerHaptic("light");
-                  setCategory(c);
-                }}
-                aria-pressed={active}
-                className={cn(
-                  "inline-flex min-h-[44px] shrink-0 items-center rounded-full px-4 text-xs font-semibold transition active:scale-95 cursor-pointer ring-1",
-                  active ? "bg-brand text-white ring-brand shadow-xs" : "bg-card text-ink ring-line hover:bg-paper",
-                )}
-              >
-                {c}
-              </button>
-            );
-          })}
-        </div>
+        <FilterChips
+          ariaLabel="Filter by category"
+          options={["All", ...PROMOTION_CATEGORIES].map((c) => ({ id: c, label: c }))}
+          value={category}
+          onChange={setCategory}
+        />
 
         {/* Mechanic Quick Filter Row */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs font-medium">
+        <div className="flex items-center gap-2">
           <span className="text-mute text-[11px] font-bold uppercase tracking-wider shrink-0 flex items-center gap-1">
             <SlidersHorizontal size={12} />
             <span>Type:</span>
           </span>
-          {[
-            { id: "all", label: "All Formats" },
-            { id: "discount", label: "Discounts" },
-            { id: "offer", label: "Member Offers" },
-            { id: "reward", label: "Rewards" },
-          ].map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => {
-                void triggerHaptic("light");
-                setMechanicFilter(m.id);
-              }}
-              aria-pressed={mechanicFilter === m.id}
-              className={cn(
-                "inline-flex min-h-[40px] shrink-0 items-center rounded-xl px-3 text-xs transition cursor-pointer ring-1",
-                mechanicFilter === m.id
-                  ? "bg-ink text-paper ring-ink font-bold"
-                  : "bg-paper text-mute ring-line hover:text-ink",
-              )}
-            >
-              {m.label}
-            </button>
-          ))}
+          <FilterChips
+            ariaLabel="Filter by format"
+            className="mx-0 min-w-0 flex-1 px-0"
+            options={[
+              { id: "all", label: "All Formats" },
+              { id: "discount", label: "Discounts" },
+              { id: "offer", label: "Member Offers" },
+              { id: "reward", label: "Rewards" },
+            ]}
+            value={mechanicFilter}
+            onChange={setMechanicFilter}
+          />
         </div>
       </div>
 

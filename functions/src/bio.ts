@@ -1,12 +1,21 @@
 import { randomBytes } from "node:crypto";
 import { FieldValue } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
-import { HANDLE_RE, handleError, normalizeHandle, sanitizeBioLinks, sanitizeCatalog } from "../../shared/bio";
+import {
+  HANDLE_RE,
+  handleError,
+  normalizeBioTheme,
+  normalizeHandle,
+  sanitizeBioLinks,
+  sanitizeCatalog,
+} from "../../shared/bio";
 import type {
   AccessClaims,
   CheckHandleAvailableRequest,
   ClaimBioOfferRequest,
   CreateBusinessProfileRequest,
+  GetBioLinkStatsRequest,
+  GetBioLinkStatsResponse,
   RecordBioTapRequest,
   SetBioOfferRequest,
   TransferHandleRequest,
@@ -138,6 +147,9 @@ export const updateBusinessProfile = onCall(CALLABLE, async (request) => {
   }
   if (typeof data.openNow === "boolean") patch.openNow = data.openNow;
   if (typeof data.zooHunt === "boolean") patch.zooHunt = data.zooHunt;
+  const theme = normalizeBioTheme(data.theme);
+  if (theme !== undefined) patch.theme = theme;
+  else if (data.theme !== undefined) patch.theme = null;
   // This callable verifies the handle owner above. Store visibility only for
   // personal profiles; business pages remain publicly accessible storefronts.
   if (kind === "person" && (data.visibility === "public" || data.visibility === "private")) {
@@ -188,7 +200,66 @@ export const recordBioTap = onCall(CALLABLE, async (request) => {
   const day = new Date().toISOString().slice(0, 10);
   const ref = db.collection("profiles").doc(profileId).collection("taps").doc(day);
   await ref.set({ day, taps: FieldValue.increment(1), lastKind: String(data.kind || "view") }, { merge: true });
+  const linkId = String(data.linkId || "").slice(0, 32);
+  if (linkId) {
+    const linkRef = db.collection("profiles").doc(profileId).collection("taps").doc(`${day}__${linkId}`);
+    await linkRef.set({ day, linkId, taps: FieldValue.increment(1) }, { merge: true });
+  }
   return { ok: true as const };
+});
+
+export const getBioLinkStats = onCall(CALLABLE, async (request): Promise<GetBioLinkStatsResponse> => {
+  const uid = requireAuth(request.auth?.uid);
+  const data = (request.data || {}) as GetBioLinkStatsRequest;
+  const days = Math.min(90, Math.max(7, Math.floor(Number(data.days) || 30)));
+  let profileId = String(data.profileId || "").trim();
+  if (!profileId) {
+    const handle = normalizeHandle(String(data.handle || ""));
+    if (!HANDLE_RE.test(handle)) throw new HttpsError("invalid-argument", "Handle or profile is required.");
+    const href = await db.collection("handles").doc(handle).get();
+    if (!href.exists) throw new HttpsError("not-found", "No bio.");
+    profileId = String(href.data()?.profileId || "");
+  }
+  if (!profileId) throw new HttpsError("not-found", "No bio.");
+  const profile = await db.collection("profiles").doc(profileId).get();
+  if (!profile.exists) throw new HttpsError("not-found", "No bio.");
+  if (String(profile.data()?.ownerUid || "") !== uid) throw new HttpsError("permission-denied", "Owner only.");
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - (days - 1) * 86400000);
+  const startDay = start.toISOString().slice(0, 10);
+  const snap = await db
+    .collection("profiles")
+    .doc(profileId)
+    .collection("taps")
+    .where("day", ">=", startDay)
+    .limit(4000)
+    .get();
+  const byDay = new Map<string, number>();
+  const byLink = new Map<string, number>();
+  let total = 0;
+  for (const doc of snap.docs) {
+    const row = doc.data() as { day?: unknown; taps?: unknown; linkId?: unknown };
+    const day = String(row.day || "");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || day < startDay) continue;
+    const taps = Math.max(0, Math.floor(Number(row.taps) || 0));
+    if (!taps) continue;
+    const linkId = String(row.linkId || "");
+    if (linkId) {
+      byLink.set(linkId, (byLink.get(linkId) || 0) + taps);
+    } else {
+      total += taps;
+      byDay.set(day, (byDay.get(day) || 0) + taps);
+    }
+  }
+  return {
+    total,
+    days,
+    byDay: [...byDay.entries()].map(([day, taps]) => ({ day, taps })).sort((a, b) => (a.day < b.day ? -1 : 1)),
+    byLink: [...byLink.entries()]
+      .map(([linkId, taps]) => ({ linkId, taps }))
+      .sort((a, b) => b.taps - a.taps)
+      .slice(0, 100),
+  };
 });
 
 export const claimBioOffer = onCall(CALLABLE, async (request) => {

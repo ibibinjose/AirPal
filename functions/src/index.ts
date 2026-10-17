@@ -20,6 +20,7 @@ export {
   updateBusinessProfile,
   setBioOffer,
   recordBioTap,
+  getBioLinkStats,
   claimBioOffer,
   transferHandle,
   listBioDirectory,
@@ -40,6 +41,7 @@ export {
   stripeWebhook,
 } from "./stripe";
 export { createStaffTicket, resolveStaffTicket, onStaffTicketCreated } from "./tickets";
+export { upsertEventCoupon, validateEventCoupon, listEventCoupons } from "./coupons";
 export { onPingCreated, onPingUpdated } from "./pings";
 export {
   createPromotion,
@@ -56,11 +58,16 @@ export {
   promotionEndingSoon,
   seedPromotionDemo,
 } from "./promotions";
-export { createBroadcast, reviewBroadcast } from "./notifications";
+export { announceEventToGuests, createBroadcast, onEventPublishedToFollowers, reviewBroadcast } from "./notifications";
 export { teardownDemoBusiness } from "./demo";
 export { verifyTicket, admitTicket } from "./gate";
 export { checkInGuest, closeGuestlist, listDoorTeam, onGuestBookingWritten, onGuestRsvpWritten } from "./guestlist";
-export { joinGuestlistSignup, listGuestlistSignups, unsubscribeGuestlist } from "./guestlist-signups";
+export {
+  joinGuestlistSignup,
+  listBioSubscribers,
+  listGuestlistSignups,
+  unsubscribeGuestlist,
+} from "./guestlist-signups";
 export { shareMeta } from "./share-meta";
 export { walletPass } from "./wallet";
 export { googleWalletPass } from "./google-wallet";

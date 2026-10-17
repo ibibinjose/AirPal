@@ -6,6 +6,7 @@ import {
   type CompleteAccountSignupRequest,
   type LoginWithPhonePasswordRequest,
   type LoginWithPhonePasswordResponse,
+  type UpsertEventRequest,
 } from "@shared/airpal-security";
 import { getFirebaseFunctions, isFirebaseConfigured } from "./firebase";
 
@@ -89,38 +90,7 @@ export function upsertBusinessDealRemote(data: {
   );
 }
 
-export function upsertEventRemote(data: {
-  eventId?: string;
-  name: string;
-  flavour: string;
-  city?: string;
-  venue?: string;
-  room?: string;
-  address?: string;
-  description?: string;
-  shortWhy?: string;
-  mapsPlaceId?: string;
-  geo?: { lat: number; lng: number };
-  coverImage?: string;
-  hostName?: string;
-  hostHandle?: string;
-  hostType?: "business" | "individual";
-  businessName?: string;
-  businessHandle?: string;
-  collaboratorHandles?: string[];
-  startsAt?: string;
-  endsAt?: string;
-  status?: string;
-  categoryChips?: string[];
-  ticketPriceCents?: number;
-  capacity?: number;
-  festivalSlug?: string;
-  track?: string;
-  registrationUrl?: string;
-  registrationNote?: string;
-  speakers?: { name: string; role?: string }[];
-  demo?: boolean;
-}) {
+export function upsertEventRemote(data: UpsertEventRequest) {
   return callFunction<typeof data, { eventId: string }>(CALLABLES.upsertEvent, data);
 }
 
@@ -221,8 +191,15 @@ export function setBioOfferRemote(data: { handle: string; badge: string; detail:
   return callFunction<typeof data, { ok: true }>(CALLABLES.setBioOffer, data);
 }
 
-export function recordBioTapRemote(data: { handle: string; kind?: string }) {
+export function recordBioTapRemote(data: { handle: string; kind?: string; linkId?: string }) {
   return callFunction<typeof data, { ok: true }>(CALLABLES.recordBioTap, data);
+}
+
+export function getBioLinkStatsRemote(data: import("@shared/airpal-security").GetBioLinkStatsRequest) {
+  return callFunction<typeof data, import("@shared/airpal-security").GetBioLinkStatsResponse>(
+    CALLABLES.getBioLinkStats,
+    data,
+  );
 }
 
 export function claimBioOfferRemote(data: { handle: string; dealId: string }) {
@@ -252,6 +229,46 @@ export function recordAnalyticsBatchRemote(data: { events: unknown[] }) {
 
 export function runAnalyticsAggregationRemote() {
   return callFunction<Record<string, never>, { input: number; output: number }>(CALLABLES.runAnalyticsAggregation, {});
+}
+
+export function upsertEventCouponRemote(data: {
+  eventId: string;
+  code: string;
+  percentOff: number;
+  active?: boolean;
+  maxRedemptions?: number | null;
+}) {
+  return callFunction<typeof data, { ok: boolean; code: string }>(CALLABLES.upsertEventCoupon, data);
+}
+
+export function listEventCouponsRemote(data: { eventId: string }) {
+  return callFunction<
+    typeof data,
+    {
+      ok: boolean;
+      coupons: {
+        code: string;
+        percentOff: number;
+        active: boolean;
+        maxRedemptions: number | null;
+        redemptions: number;
+      }[];
+    }
+  >(CALLABLES.listEventCoupons, data);
+}
+
+export function announceEventToGuestsRemote(data: { eventId: string; title: string; body: string }) {
+  return callFunction<typeof data, { ok: boolean; broadcastId: string; status: string; sent: number }>(
+    CALLABLES.announceEventToGuests,
+    data,
+  );
+}
+
+export function validateEventCouponRemote(data: { eventId: string; code: string }) {
+  return callFunction<typeof data, { ok: boolean; code: string; percentOff: number }>(
+    CALLABLES.validateEventCoupon,
+    data,
+  );
 }
 
 export function createBookingCheckoutSessionRemote(data: { bookingId: string }) {
@@ -386,6 +403,13 @@ export function listGuestlistSignupsRemote(data: {
 
 export function unsubscribeGuestlistRemote(data: { email: string }) {
   return callFunction<typeof data, { ok: boolean }>(CALLABLES.unsubscribeGuestlist, data);
+}
+
+export function listBioSubscribersRemote(data: import("@shared/airpal-security").ListBioSubscribersRequest) {
+  return callFunction<typeof data, import("@shared/airpal-security").ListBioSubscribersResponse>(
+    CALLABLES.listBioSubscribers,
+    data,
+  );
 }
 
 export function listDoorTeamRemote(data: { scope: "event"; id: string }) {

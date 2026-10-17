@@ -42,6 +42,7 @@ import { CalendarEventModal } from "@/components/calendar/CalendarEventModal";
 import { CalendarSidebar } from "@/components/calendar/CalendarSidebar";
 import { CalendarDragProvider, useCalendarDrag } from "@/components/calendar/CalendarDragContext";
 import { CalendarRescheduleModal } from "@/components/calendar/CalendarRescheduleModal";
+import { TabPills } from "@/components/ui/TabPills";
 import { cn } from "@/lib/cn";
 import { track } from "@/lib/analytics";
 import { useScrollLock } from "@/hooks/useScrollLock";
@@ -49,7 +50,7 @@ import { useDelayedLoading } from "@/hooks/useDelayedLoading";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { cityMatches } from "@/lib/remote-events";
 import { ROCKS_BROWSE } from "@/lib/catalog-stay";
-import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
+import { triggerHaptic } from "@/lib/native";
 
 const CATEGORIES = CALENDAR_CATEGORIES;
 
@@ -381,7 +382,7 @@ function CalendarPageContent() {
             <div className="flex items-center gap-2">
               <Link
                 href="/event"
-                className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-brand px-3.5 py-1 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-3.5 py-1 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
               >
                 <Plus size={13} />
                 <span>Host Event</span>
@@ -463,68 +464,18 @@ function CalendarPageContent() {
           </button>
 
           {/* View Switcher Tabs (Month, Week, Day, List) */}
-          <div className="inline-flex min-h-[44px] h-11 items-center rounded-full bg-card p-1 ring-1 ring-line/80 shadow-xs">
-            <button
-              type="button"
-              aria-label="Month View"
-              onClick={() => {
-                if (viewMode !== "month") void triggerHapticSelection();
-                setViewMode("month");
-              }}
-              className={cn(
-                "flex min-h-[36px] items-center gap-1.5 rounded-full px-3 text-xs font-medium transition active:scale-95 cursor-pointer",
-                viewMode === "month" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
-              )}
-            >
-              <LayoutGrid size={14} />
-              <span>Month</span>
-            </button>
-            <button
-              type="button"
-              aria-label="Week View"
-              onClick={() => {
-                if (viewMode !== "week") void triggerHapticSelection();
-                setViewMode("week");
-              }}
-              className={cn(
-                "flex min-h-[36px] items-center gap-1.5 rounded-full px-3 text-xs font-medium transition active:scale-95 cursor-pointer",
-                viewMode === "week" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
-              )}
-            >
-              <CalendarRange size={14} />
-              <span>Week</span>
-            </button>
-            <button
-              type="button"
-              aria-label="Day View"
-              onClick={() => {
-                if (viewMode !== "day") void triggerHapticSelection();
-                setViewMode("day");
-              }}
-              className={cn(
-                "flex min-h-[36px] items-center gap-1.5 rounded-full px-3 text-xs font-medium transition active:scale-95 cursor-pointer",
-                viewMode === "day" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
-              )}
-            >
-              <CalendarDays size={14} />
-              <span>Day</span>
-            </button>
-            <button
-              type="button"
-              aria-label="List View"
-              onClick={() => {
-                if (viewMode !== "list") void triggerHapticSelection();
-                setViewMode("list");
-              }}
-              className={cn(
-                "flex min-h-[36px] items-center gap-1.5 rounded-full px-3 text-xs font-medium transition active:scale-95 cursor-pointer",
-                viewMode === "list" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
-              )}
-            >
-              <List size={14} />
-              <span>List</span>
-            </button>
-          </div>
+          <TabPills
+            layout="contained"
+            ariaLabel="Calendar view"
+            items={[
+              { id: "month", label: "Month", icon: LayoutGrid, ariaLabel: "Month View" },
+              { id: "week", label: "Week", icon: CalendarRange, ariaLabel: "Week View" },
+              { id: "day", label: "Day", icon: CalendarDays, ariaLabel: "Day View" },
+              { id: "list", label: "List", icon: List, ariaLabel: "List View" },
+            ]}
+            active={viewMode}
+            onChange={setViewMode}
+          />
 
           {/* Export My Itinerary CTA */}
           <button

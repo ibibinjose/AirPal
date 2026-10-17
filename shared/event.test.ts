@@ -2,14 +2,21 @@ import { describe, expect, it } from "vitest";
 import {
   EVENT_LOCATION_TYPES,
   cleanCapacity,
+  cleanEventHandles,
   cleanStallLocation,
   cleanTicketCents,
+  cleanTicketTiers,
+  couponPrice,
+  expandWeeklyRecurrence,
   isEventLocationType,
   isExpoEventId,
+  normalizeCouponCode,
   parseStallCsv,
+  sanitizeAgenda,
   stallCsvTemplate,
   stallFieldLabels,
   stallUnitDisplay,
+  validateCouponDraft,
 } from "./event";
 
 describe("event csv", () => {
@@ -89,5 +96,97 @@ Harbour Linen,B04,,shops
     expect(isEventLocationType(undefined)).toBe(false);
     expect(isEventLocationType(null)).toBe(false);
     expect(EVENT_LOCATION_TYPES).toEqual(["in_person", "virtual", "secret"]);
+  });
+});
+
+describe("event coupons", () => {
+  it("normalizes codes to uppercase alphanumerics", () => {
+    expect(normalizeCouponCode("mates10")).toBe("MATES10");
+    expect(normalizeCouponCode("  early-bird!! ")).toBe("EARLYBIRD");
+    expect(normalizeCouponCode("ab")).toBe("");
+    expect(normalizeCouponCode("x".repeat(17))).toBe("");
+    expect(normalizeCouponCode(undefined)).toBe("");
+  });
+
+  it("rejects bad drafts with actionable errors", () => {
+    expect(validateCouponDraft({ code: "ok", percentOff: 10 })).toEqual(["Code must be 3–16 letters or numbers."]);
+    expect(validateCouponDraft({ code: "MATES10", percentOff: 0 })).toEqual([
+      "Discount must be a whole percent from 1 to 90.",
+    ]);
+    expect(validateCouponDraft({ code: "MATES10", percentOff: 91 })).toEqual([
+      "Discount must be a whole percent from 1 to 90.",
+    ]);
+    expect(validateCouponDraft({ code: "MATES10", percentOff: 25, maxRedemptions: 0 })).toEqual([
+      "Redemption cap must be 1–100000.",
+    ]);
+    expect(validateCouponDraft({ code: "MATES10", percentOff: 25 })).toEqual([]);
+  });
+
+  it("prices discounts without trusting client math", () => {
+    expect(couponPrice(2500, 10)).toBe(2250);
+    expect(couponPrice(2500, 0)).toBe(2500);
+    expect(couponPrice(2500, 99)).toBe(250);
+    expect(couponPrice(-5, 10)).toBe(0);
+  });
+});
+
+describe("weekly recurrence", () => {
+  it("expands N weekly instances preserving duration", () => {
+    const out = expandWeeklyRecurrence("2026-11-01T18:00:00.000Z", "2026-11-01T21:00:00.000Z", 3);
+    expect(out).toHaveLength(3);
+    expect(out[0]?.startsAt).toBe("2026-11-01T18:00:00.000Z");
+    expect(out[1]?.startsAt).toBe("2026-11-08T18:00:00.000Z");
+    expect(out[2]?.endsAt).toBe("2026-11-15T21:00:00.000Z");
+  });
+
+  it("clamps counts and fails closed on bad dates", () => {
+    expect(expandWeeklyRecurrence("2026-11-01T18:00:00.000Z", "2026-11-01T21:00:00.000Z", 99)).toHaveLength(12);
+    expect(expandWeeklyRecurrence("nope", "nope", 4)).toHaveLength(1);
+  });
+});
+
+describe("event ticket tiers", () => {
+  it("cleans tier rows for storage", () => {
+    expect(
+      cleanTicketTiers([
+        { id: "vip", name: "VIP", priceCents: 5000, capacity: 20 },
+        { id: "vip", name: "Dupe", priceCents: 1000 },
+        { id: "", name: "No id", priceCents: 1000 },
+        { id: "free", name: "Freebie", priceCents: 0 },
+      ]),
+    ).toEqual([
+      { id: "vip", name: "VIP", priceCents: 5000, capacity: 20 },
+      { id: "free", name: "Freebie", priceCents: 0 },
+    ]);
+    expect(cleanTicketTiers([])).toBeUndefined();
+    expect(cleanTicketTiers("nope")).toBeUndefined();
+  });
+});
+
+describe("event agenda", () => {
+  it("cleans run-sheet rows and caps at twelve", () => {
+    expect(
+      sanitizeAgenda([
+        { time: "6:00pm", title: "Doors open" },
+        { time: "", title: "" },
+        { time: "  ", title: "  " },
+        "nope",
+        null,
+      ]),
+    ).toEqual([{ time: "6:00pm", title: "Doors open" }]);
+    expect(sanitizeAgenda([])).toBeUndefined();
+    expect(sanitizeAgenda("nope")).toBeUndefined();
+    const many = Array.from({ length: 20 }, (_, i) => ({ time: `${i}`, title: `Item ${i}` }));
+    expect(sanitizeAgenda(many)).toHaveLength(12);
+  });
+});
+
+describe("event handle lists", () => {
+  it("cleans sponsor handles and drops dupes and blanks", () => {
+    expect(cleanEventHandles(["@HarbourBar", "harbourbar", "  ", "", null, 42])).toEqual(["harbourbar", "42"]);
+    expect(cleanEventHandles([])).toBeUndefined();
+    expect(cleanEventHandles("nope")).toBeUndefined();
+    const many = Array.from({ length: 30 }, (_, i) => `s${i}`);
+    expect(cleanEventHandles(many)).toHaveLength(20);
   });
 });

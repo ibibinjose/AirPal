@@ -26,7 +26,11 @@ import {
   Shield,
   Smartphone,
   Sparkles,
+  Star,
   Store,
+  Archive,
+  BarChart3,
+  CalendarDays,
   Trash2,
   User,
   UserCheck,
@@ -51,6 +55,9 @@ import {
 } from "@shared/bio";
 import { Button } from "@/components/ui/Button";
 import { BioCatalogEditor } from "@/components/bio/BioCatalogEditor";
+import { BioInsightsPanel } from "@/components/bio/BioInsights";
+import { BioSubscribersPanel } from "@/components/bio/BioSubscribers";
+import { BioThemePicker } from "@/components/bio/BioThemePicker";
 import { useBio } from "@/contexts/BioContext";
 import { ImageField } from "@/components/media/ImageField";
 import { makeQrDataUrl } from "@/lib/qr";
@@ -236,7 +243,7 @@ export function BioEditPage() {
 
   const isBusiness = isBusinessKind(activeProfile?.kind);
 
-  const [tab, setTab] = useState<"profile" | "links" | "shop" | "share">("profile");
+  const [tab, setTab] = useState<"profile" | "links" | "shop" | "share" | "insights">("profile");
   const [saving, setSaving] = useState(false);
 
   // Editable Profile Form States
@@ -434,6 +441,13 @@ export function BioEditPage() {
     }
   }
 
+  async function onSelectTheme(themeId: string | undefined) {
+    if (!activeProfile) return;
+    await updateProfile({ handle: activeProfile.handle, theme: themeId });
+    void triggerHaptic("light");
+    toast.success("Theme updated on your public bio");
+  }
+
   async function onStoredPhoto(kind: "avatar" | "cover", src?: string) {
     if (!activeProfile) return;
     if (kind === "avatar") setAvatar(src || "");
@@ -508,7 +522,7 @@ export function BioEditPage() {
                   : "bg-gradient-to-br from-[#121829] via-[#1c2438] to-[#0f1424]",
               )}
             >
-              <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#1805db_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+              <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#004eff_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
             </div>
           )}
 
@@ -697,7 +711,7 @@ export function BioEditPage() {
       {/* Top Ambient Glow Mesh */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-x-0 top-0 h-96 opacity-40 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(24,5,219,0.2),rgba(255,255,255,0))] dark:opacity-20"
+        className="pointer-events-none fixed inset-x-0 top-0 h-96 opacity-40 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(0,78,255,0.2),rgba(255,255,255,0))] dark:opacity-20"
       />
 
       {/* 1. Liquid Glass Sticky Header Bar */}
@@ -923,6 +937,7 @@ export function BioEditPage() {
                     count: products.length + services.length + deals.length,
                   },
                   { id: "share", label: "Share & Pass", icon: QrCode, count: undefined },
+                  { id: "insights", label: "Insights", icon: BarChart3, count: undefined },
                 ] as const
               ).map((item) => (
                 <button
@@ -1000,6 +1015,15 @@ export function BioEditPage() {
                         value={avatar}
                         onChange={(src) => void onStoredPhoto("avatar", src)}
                       />
+                    </div>
+
+                    {/* Page Theme */}
+                    <div className="pt-2 border-t border-line/60">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-ink">Public Page Theme</label>
+                        <span className="text-[11px] text-mute">Recolours your public bio instantly</span>
+                      </div>
+                      <BioThemePicker value={activeProfile.theme} onSelect={(id) => void onSelectTheme(id)} />
                     </div>
                   </div>
                 </div>
@@ -1649,64 +1673,142 @@ export function BioEditPage() {
                         </div>
                       ) : (
                         <ul className="space-y-2.5">
-                          {links.map((l) => (
-                            <li
-                              key={l.id}
-                              className="flex items-center justify-between gap-3 rounded-2xl bg-paper px-4 py-3 border border-line/70 shadow-xs hover:border-line transition"
-                            >
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="rounded-full bg-card px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-mute border border-line">
-                                    {l.type}
-                                  </span>
-                                  <span className="text-sm font-semibold text-ink">{l.label}</span>
-                                </div>
-                                <a
-                                  href={l.href}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="mt-0.5 block truncate text-xs font-medium text-accent hover:underline"
-                                >
-                                  {l.href}
-                                </a>
-                              </div>
-                              <div className="flex items-center gap-1 shrink-0">
-                                <button
-                                  type="button"
-                                  className="rounded-full p-2 text-mute hover:bg-card hover:text-ink cursor-pointer"
-                                  title="Copy link"
-                                  onClick={() => {
-                                    void navigator.clipboard.writeText(l.href);
-                                    void triggerHaptic("light");
-                                    toast.success("Link copied");
-                                  }}
-                                >
-                                  <Copy size={15} />
-                                </button>
-                                <button
-                                  type="button"
-                                  className="rounded-full p-2 text-mute hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-                                  title="Remove link"
-                                  onClick={() => {
-                                    const next = links.filter((x) => x.id !== l.id);
-                                    setLinks(next);
-                                    void updateProfile({ handle: activeProfile.handle, links: next })
-                                      .then(() => {
+                          {links.map((l) => {
+                            const saveLink = (patch: Partial<typeof l>) => {
+                              const next = links.map((x) => (x.id === l.id ? { ...x, ...patch } : x));
+                              setLinks(next);
+                              void updateProfile({ handle: activeProfile.handle, links: next }).catch((err) =>
+                                toast.error(err instanceof Error ? err.message : "Could not update your account"),
+                              );
+                            };
+                            return (
+                              <li
+                                key={l.id}
+                                className="rounded-2xl bg-paper px-4 py-3 border border-line/70 shadow-xs hover:border-line transition space-y-2.5"
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="rounded-full bg-card px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-mute border border-line">
+                                        {l.type}
+                                      </span>
+                                      <span className="text-sm font-semibold text-ink">{l.label}</span>
+                                      {l.featured && (
+                                        <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                                          <Star size={10} /> Featured
+                                        </span>
+                                      )}
+                                      {l.archived && (
+                                        <span className="rounded-full bg-paper px-2 py-0.5 text-[10px] font-bold text-mute ring-1 ring-line">
+                                          Archived
+                                        </span>
+                                      )}
+                                    </div>
+                                    <a
+                                      href={l.href}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="mt-0.5 block truncate text-xs font-medium text-accent hover:underline"
+                                    >
+                                      {l.href}
+                                    </a>
+                                  </div>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <button
+                                      type="button"
+                                      className="rounded-full p-2 text-mute hover:bg-card hover:text-ink cursor-pointer"
+                                      title="Copy link"
+                                      onClick={() => {
+                                        void navigator.clipboard.writeText(l.href);
                                         void triggerHaptic("light");
-                                        toast.success("Link removed");
-                                      })
-                                      .catch((err) =>
-                                        toast.error(
-                                          err instanceof Error ? err.message : "Could not update your account",
-                                        ),
-                                      );
-                                  }}
-                                >
-                                  <Trash2 size={15} />
-                                </button>
-                              </div>
-                            </li>
-                          ))}
+                                        toast.success("Link copied");
+                                      }}
+                                    >
+                                      <Copy size={15} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={
+                                        l.featured
+                                          ? "rounded-full p-2 text-amber-600 cursor-pointer"
+                                          : "rounded-full p-2 text-mute hover:text-amber-600 cursor-pointer"
+                                      }
+                                      title={l.featured ? "Unpin featured" : "Pin to top"}
+                                      onClick={() => saveLink({ featured: l.featured ? undefined : true })}
+                                    >
+                                      <Star size={15} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="rounded-full p-2 text-mute hover:bg-card hover:text-ink cursor-pointer"
+                                      title={l.archived ? "Restore link" : "Archive link"}
+                                      onClick={() => {
+                                        saveLink({ archived: l.archived ? undefined : true });
+                                        toast.success(l.archived ? "Link restored" : "Link archived");
+                                      }}
+                                    >
+                                      <Archive size={15} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="rounded-full p-2 text-mute hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                                      title="Remove link"
+                                      onClick={() => {
+                                        const next = links.filter((x) => x.id !== l.id);
+                                        setLinks(next);
+                                        void updateProfile({ handle: activeProfile.handle, links: next })
+                                          .then(() => {
+                                            void triggerHaptic("light");
+                                            toast.success("Link removed");
+                                          })
+                                          .catch((err) =>
+                                            toast.error(
+                                              err instanceof Error ? err.message : "Could not update your account",
+                                            ),
+                                          );
+                                      }}
+                                    >
+                                      <Trash2 size={15} />
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 border-t border-line/60 pt-2.5">
+                                  <CalendarDays size={14} className="shrink-0 text-mute" aria-hidden="true" />
+                                  <label className="sr-only" htmlFor={`link-start-${l.id}`}>
+                                    Link start date
+                                  </label>
+                                  <input
+                                    id={`link-start-${l.id}`}
+                                    type="date"
+                                    value={l.startsAt || ""}
+                                    onChange={(e) => saveLink({ startsAt: e.target.value || undefined })}
+                                    className="h-9 min-w-0 flex-1 rounded-xl border border-line bg-card px-2 text-xs outline-none focus:border-brand"
+                                  />
+                                  <span className="text-xs text-mute">→</span>
+                                  <label className="sr-only" htmlFor={`link-end-${l.id}`}>
+                                    Link end date
+                                  </label>
+                                  <input
+                                    id={`link-end-${l.id}`}
+                                    type="date"
+                                    value={l.endsAt || ""}
+                                    min={l.startsAt || undefined}
+                                    onChange={(e) => saveLink({ endsAt: e.target.value || undefined })}
+                                    className="h-9 min-w-0 flex-1 rounded-xl border border-line bg-card px-2 text-xs outline-none focus:border-brand"
+                                  />
+                                  {(l.startsAt || l.endsAt) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => saveLink({ startsAt: undefined, endsAt: undefined })}
+                                      className="shrink-0 text-[11px] font-semibold text-mute hover:text-ink"
+                                    >
+                                      Clear
+                                    </button>
+                                  )}
+                                </div>
+                              </li>
+                            );
+                          })}
                         </ul>
                       )}
                     </div>
@@ -1837,6 +1939,14 @@ export function BioEditPage() {
                   <ChangeHandleForm current={activeProfile.handle} profileId={activeProfile.id} />
                 </div>
               </div>
+            )}
+
+            {/* TAB 5: INSIGHTS */}
+            {tab === "insights" && (
+              <>
+                <BioInsightsPanel handle={activeProfile.handle} profileId={activeProfile.id} links={links} />
+                <BioSubscribersPanel handle={activeProfile.handle} />
+              </>
             )}
           </div>
 

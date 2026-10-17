@@ -86,6 +86,14 @@ export type BioLink = {
   type: BioLinkType;
   label: string;
   href: string;
+  /** Pinned to the top of the public page. */
+  featured?: boolean;
+  /** Hidden everywhere until restored. */
+  archived?: boolean;
+  /** ISO date (YYYY-MM-DD) the link goes live. Empty = immediately. */
+  startsAt?: string;
+  /** ISO date (YYYY-MM-DD) the link expires. Empty = never. */
+  endsAt?: string;
 };
 
 export type BioOffer = {
@@ -292,7 +300,106 @@ export type BioProfile = {
   meetingUrl?: string;
   /** Preferred meeting platform */
   preferredMeetingPlatform?: "in_person" | "google_meet" | "facetime" | "zoom";
+  /** Public page theme preset id. Absent = default AirPal theme. */
+  theme?: string;
 };
+
+export type BioTheme = {
+  id: string;
+  name: string;
+  pageBg: string;
+  ink: string;
+  muted: string;
+  accent: string;
+  buttonBg: string;
+  buttonText: string;
+  buttonRadius: number;
+};
+
+export const BIO_THEMES: BioTheme[] = [
+  {
+    id: "airpal",
+    name: "AirPal",
+    pageBg: "#faf7f2",
+    ink: "#1c1917",
+    muted: "#78716c",
+    accent: "#c2410c",
+    buttonBg: "#1c1917",
+    buttonText: "#ffffff",
+    buttonRadius: 999,
+  },
+  {
+    id: "midnight",
+    name: "Midnight",
+    pageBg: "#0c0a09",
+    ink: "#fafaf9",
+    muted: "#a8a29e",
+    accent: "#fb923c",
+    buttonBg: "#fafaf9",
+    buttonText: "#0c0a09",
+    buttonRadius: 999,
+  },
+  {
+    id: "forest",
+    name: "Forest",
+    pageBg: "#f0fdf4",
+    ink: "#052e16",
+    muted: "#4d7c5f",
+    accent: "#15803d",
+    buttonBg: "#14532d",
+    buttonText: "#ffffff",
+    buttonRadius: 16,
+  },
+  {
+    id: "ocean",
+    name: "Ocean",
+    pageBg: "#eff6ff",
+    ink: "#172554",
+    muted: "#4b6584",
+    accent: "#0369a1",
+    buttonBg: "#0c4a6e",
+    buttonText: "#ffffff",
+    buttonRadius: 16,
+  },
+  {
+    id: "sunset",
+    name: "Sunset",
+    pageBg: "#fff7ed",
+    ink: "#431407",
+    muted: "#9a6a4f",
+    accent: "#ea580c",
+    buttonBg: "#ea580c",
+    buttonText: "#ffffff",
+    buttonRadius: 999,
+  },
+  {
+    id: "mono",
+    name: "Mono",
+    pageBg: "#ffffff",
+    ink: "#09090b",
+    muted: "#71717a",
+    accent: "#09090b",
+    buttonBg: "#09090b",
+    buttonText: "#ffffff",
+    buttonRadius: 0,
+  },
+];
+
+export function normalizeBioTheme(raw: unknown): string | undefined {
+  const id = String(raw || "")
+    .trim()
+    .toLowerCase()
+    .slice(0, 24);
+  if (!id || id === "airpal") return undefined;
+  return BIO_THEMES.some((theme) => theme.id === id) ? id : undefined;
+}
+
+export function resolveBioTheme(raw: unknown): BioTheme {
+  const id = String(raw || "")
+    .trim()
+    .toLowerCase();
+  return BIO_THEMES.find((theme) => theme.id === id) || BIO_THEMES[0];
+}
 
 export function normalizeHandle(raw: string) {
   return raw
@@ -473,6 +580,14 @@ const BIO_LINK_TYPE_SET = new Set<string>(BIO_LINK_TYPES.map((t) => t.id));
 const BIO_LINKS_MAX = 24;
 
 /** Instagram, Facebook, X, websites, WhatsApp, and the rest of the bio link row. */
+/** YYYY-MM-DD or full ISO date, or empty when absent/invalid. */
+export function cleanBioDate(value: unknown): string {
+  if (typeof value !== "string" || !value.trim()) return "";
+  const d = new Date(value.trim());
+  if (!Number.isFinite(d.getTime())) return "";
+  return value.trim().slice(0, 10);
+}
+
 export function sanitizeBioLinks(rows: unknown): BioLink[] {
   if (!Array.isArray(rows)) return [];
   const out: BioLink[] = [];
@@ -490,10 +605,38 @@ export function sanitizeBioLinks(rows: unknown): BioLink[] {
         .trim()
         .slice(0, 40),
       href,
+      ...(r.featured === true ? { featured: true } : {}),
+      ...(r.archived === true ? { archived: true } : {}),
+      ...(cleanBioDate(r.startsAt) ? { startsAt: cleanBioDate(r.startsAt) } : {}),
+      ...(cleanBioDate(r.endsAt) ? { endsAt: cleanBioDate(r.endsAt) } : {}),
     });
     if (out.length >= BIO_LINKS_MAX) break;
   }
   return out;
+}
+
+/** A link is live when not archived and inside its schedule window. */
+export function isBioLinkLive(
+  link: Pick<BioLink, "archived" | "startsAt" | "endsAt">,
+  now: Date = new Date(),
+): boolean {
+  if (link.archived) return false;
+  if (link.startsAt) {
+    const start = new Date(`${link.startsAt}T00:00:00`);
+    if (Number.isFinite(start.getTime()) && now < start) return false;
+  }
+  if (link.endsAt) {
+    const end = new Date(`${link.endsAt}T23:59:59`);
+    if (Number.isFinite(end.getTime()) && now > end) return false;
+  }
+  return true;
+}
+
+/** Public ordering: live only, featured first, stable otherwise. */
+export function visibleBioLinks(links: BioLink[], now: Date = new Date()): BioLink[] {
+  return links
+    .filter((l) => isBioLinkLive(l, now))
+    .sort((a, b) => Number(b.featured === true) - Number(a.featured === true));
 }
 
 export function sanitizeCatalog(kind: BioCatalogKind, rows: unknown): BioCatalogItem[] {

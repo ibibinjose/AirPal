@@ -9,7 +9,7 @@
 export const BROADCAST_STATUSES = ["draft", "submitted", "approved", "rejected", "sent"] as const;
 export type BroadcastStatus = (typeof BROADCAST_STATUSES)[number];
 
-export const BROADCAST_AUDIENCES = ["circle", "promotion_entrants", "everyone"] as const;
+export const BROADCAST_AUDIENCES = ["circle", "promotion_entrants", "everyone", "event_guests"] as const;
 export type BroadcastAudience = (typeof BROADCAST_AUDIENCES)[number];
 
 export const CIRCLE_BROADCAST_CAP = 250;
@@ -98,6 +98,12 @@ export type CreateBroadcastRequest = {
   href?: string;
   audience: BroadcastAudience;
   promotionId?: string;
+};
+
+export type AnnounceEventGuestsRequest = {
+  eventId: string;
+  title: string;
+  body: string;
 };
 
 export type ReviewBroadcastRequest = {

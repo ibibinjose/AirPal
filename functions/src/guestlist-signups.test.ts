@@ -13,6 +13,8 @@ const { fakes, FakeHttpsError } = vi.hoisted(() => {
     fakes: {
       isAdmin: false,
       signups: {} as Record<string, Record<string, unknown>>,
+      handles: {} as Record<string, Record<string, unknown>>,
+      profiles: {} as Record<string, Record<string, unknown>>,
     },
   };
 });
@@ -31,6 +33,17 @@ vi.mock("./admin", () => ({
   isPlatformAdmin: () => fakes.isAdmin,
   db: {
     collection: (name: string) => {
+      if (name === "handles" || name === "profiles") {
+        const store = name === "handles" ? fakes.handles : fakes.profiles;
+        return {
+          doc: (id: string) => ({
+            get: async () => {
+              const data = store[id];
+              return { exists: Boolean(data), id, data: () => data };
+            },
+          }),
+        };
+      }
       if (name !== "guestlist_signups") throw new Error(`unexpected collection ${name}`);
       return {
         doc: (id: string) => ({
@@ -63,7 +76,12 @@ vi.mock("firebase-functions/v2/https", () => ({
   onCall: vi.fn((_opts: unknown, handler: unknown) => handler),
 }));
 
-import { joinGuestlistSignup, listGuestlistSignups, unsubscribeGuestlist } from "./guestlist-signups";
+import {
+  joinGuestlistSignup,
+  listBioSubscribers,
+  listGuestlistSignups,
+  unsubscribeGuestlist,
+} from "./guestlist-signups";
 
 type Handler = (request: unknown) => Promise<Record<string, unknown>>;
 
@@ -143,6 +161,50 @@ describe("guestlist signups", () => {
       rows: Array<{ email: string }>;
     };
     expect(events.rows.map((r) => r.email)).toEqual(["b@example.com"]);
+  });
+
+  it("bio subscribers are owner-scoped to the handle source", async () => {
+    fakes.handles = { sunrise: { profileId: "prof-1" } };
+    fakes.profiles = { "prof-1": { ownerUid: "owner-1" } };
+    fakes.signups = {
+      "a@example.com": {
+        email: "a@example.com",
+        name: "A",
+        city: "Sydney",
+        source: "sunrise",
+        consentAt: "2026-10-01T00:00:00Z",
+        createdAt: "2026-10-02T00:00:00Z",
+      },
+      "b@example.com": {
+        email: "b@example.com",
+        name: "B",
+        city: "Melbourne",
+        source: "other",
+        consentAt: "2026-10-01T00:00:00Z",
+        createdAt: "2026-10-03T00:00:00Z",
+      },
+      "c@example.com": {
+        email: "c@example.com",
+        name: "C",
+        city: "Sydney",
+        source: "sunrise",
+        consentAt: "2026-10-01T00:00:00Z",
+        createdAt: "2026-10-04T00:00:00Z",
+        unsubscribedAt: "2026-10-05T00:00:00Z",
+      },
+    };
+    await expect(run(listBioSubscribers, "guest-9", { handle: "sunrise" })).rejects.toMatchObject({
+      code: "permission-denied",
+    });
+    await expect(run(listBioSubscribers, "owner-1", { handle: "!!!" })).rejects.toMatchObject({
+      code: "invalid-argument",
+    });
+    const res = (await run(listBioSubscribers, "owner-1", { handle: "sunrise" })) as unknown as {
+      rows: Array<{ email: string }>;
+      total: number;
+    };
+    expect(res.total).toBe(1);
+    expect(res.rows.map((r) => r.email)).toEqual(["a@example.com"]);
   });
 
   it("unsubscribe is idempotent and never oracles membership", async () => {

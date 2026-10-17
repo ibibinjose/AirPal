@@ -215,7 +215,7 @@ export function CalendarMonthGrid({
               type="button"
               onClick={jumpToday}
               aria-label="Jump to today's date"
-              className="rounded-full bg-paper px-3 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 min-h-[36px]"
+              className="rounded-full bg-paper px-3 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 min-h-[44px]"
             >
               Today
             </button>
@@ -450,9 +450,9 @@ export function CalendarMonthGrid({
                   className={cn(
                     "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold leading-none transition",
                     isSelected
-                      ? "bg-white text-ink font-bold shadow-xs"
+                      ? "bg-brand font-bold shadow-xs"
                       : cell.isToday
-                        ? "bg-amber-400 text-ink font-bold shadow-xs"
+                        ? "bg-amber-400 text-neutral-950 font-bold shadow-xs"
                         : cell.isCurrentMonth
                           ? "text-ink group-hover:bg-line/70"
                           : "text-mute/60",
@@ -520,8 +520,8 @@ export function CalendarMonthGrid({
                             className={cn(
                               "shrink-0 rounded px-1 py-0.2 text-[8px] font-extrabold uppercase tracking-tight leading-none",
                               isSelected
-                                ? "bg-white text-ink font-bold"
-                                : "bg-white/80 text-ink/90 shadow-2xs ring-1 ring-black/10",
+                                ? "bg-white text-neutral-950 font-bold"
+                                : "bg-white/80 text-neutral-950 shadow-2xs ring-1 ring-black/10",
                             )}
                           >
                             {tagTheme.shortTag}
@@ -567,7 +567,7 @@ export function CalendarMonthGrid({
                           title={`${ev.title} (${tagTheme.label})`}
                           className={cn(
                             "inline-flex items-center rounded-xs px-1 py-0.2 text-[7px] font-bold uppercase tracking-tight shadow-2xs",
-                            isSelected ? "bg-white text-ink" : tagTheme.tagClass,
+                            isSelected ? "bg-white text-neutral-950" : tagTheme.tagClass,
                           )}
                         >
                           {tagTheme.shortTag.slice(0, 3)}

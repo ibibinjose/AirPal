@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0e0f0c" />
+    <title>AirPal Interface V2 — Proposal “After Dark”</title>
+    <style>
+      /* ============ AFTER DARK · proposal tokens ============ */
+      :root {
+        --bg: #0e0f0c;
+        --surface: #161814;
+        --raised: #1e211a;
+        --ink: #f4f2e9;
+        --mute: #a3a698;
+        --faint: #6f7468;
+        --line: rgba(244, 242, 233, 0.13);
+        --signal: #d4f542;
+        --signal-ink: #141a05;
+        --amber: #ffb224;
+        --red: #ff6b61;
+        --radius: 18px;
+        --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+        --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      }
+      html[data-theme="day"] {
+        --bg: #f4f2e9;
+        --surface: #fbf9f2;
+        --raised: #ffffff;
+        --ink: #16170f;
+        --mute: #5d6152;
+        --faint: #8a8e7c;
+        --line: rgba(22, 23, 15, 0.14);
+        --signal: #9dbf1a;
+        --signal-ink: #101400;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100dvh;
+      }
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 0 20px 120px;
+      }
+      /* ---- proposal chrome (not part of the identity) ---- */
+      .propbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--line);
+      }
+      .propbar-in {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 12px 20px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .propbar b {
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .propbar .spacer {
+        flex: 1;
+      }
+      .pbtn {
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 9px 16px;
+        min-height: 44px;
+      }
+      .pbtn[aria-pressed="true"] {
+        background: var(--signal);
+        border-color: transparent;
+        color: var(--signal-ink);
+      }
+      /* ---- identity: type ---- */
+      .display {
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        line-height: 0.98;
+      }
+      .chapter {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin: 0 0 14px;
+      }
+      .chapter .no {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--signal);
+        font-weight: 700;
+      }
+      html[data-theme="day"] .chapter .no {
+        color: #5c7a00;
+      }
+      .chapter .rule {
+        flex: 1;
+        height: 1px;
+        background: var(--line);
+      }
+      .chapter h2 {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      .num {
+        font-variant-numeric: tabular-nums;
+      }
+      section.screen {
+        display: none;
+        padding-top: 28px;
+      }
+      section.screen.on {
+        display: block;
+      }
+      /* ---- identity: buttons ---- */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 52px;
+        padding: 0 26px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font: inherit;
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .btn:active {
+        transform: scale(0.98);
+      }
+      .btn-primary {
+        background: var(--signal);
+        color: var(--signal-ink);
+      }
+      .btn-ink {
+        background: var(--ink);
+        color: var(--bg);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--ink);
+        border-color: var(--line);
+      }
+      .btn-danger {
+        background: transparent;
+        color: var(--red);
+        border-color: color-mix(in srgb, var(--red) 45%, transparent);
+      }
+      .btn-sm {
+        min-height: 44px;
+        padding: 0 18px;
+        font-size: 13px;
+      }
+      /* ---- identity: chips ---- */
+      .chips {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .chips::-webkit-scrollbar {
+        display: none;
+      }
+      .chip {
+        flex-shrink: 0;
+        min-height: 44px;
+        padding: 0 18px;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--mute);
+        border: 1px solid var(--line);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .chip[aria-pressed="true"] {
+        background: var(--signal);
+        border-color: transparent;
+        color: var(--signal-ink);
+      }
+      .chip .c {
+        font-family: var(--mono);
+        font-size: 11px;
+        opacity: 0.75;
+      }
+      /* ---- identity: cards ---- */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+      .rowline {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+      }
+      .rowline:last-child {
+        border-bottom: 0;
+      }
+      .avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 17px;
+        background: var(--raised);
+        border: 1px solid var(--line);
+        color: var(--ink);
+      }
+      .avatar.live {
+        background: var(--signal);
+        color: var(--signal-ink);
+        border-color: transparent;
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 6px 11px;
+        color: var(--mute);
+        text-transform: uppercase;
+      }
+      .tag.hot {
+        background: var(--signal);
+        border-color: transparent;
+        color: var(--signal-ink);
+      }
+      .swatch {
+        height: 64px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (min-width: 760px) {
+        .grid2 {
+          grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+      }
+      .stub {
+        position: relative;
+      }
+      .stub .perf {
+        border-top: 2px dashed var(--line);
+        margin: 0 18px;
+        position: relative;
+      }
+      /* ---- identity: dock ---- */
+      .dock {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: max(14px, env(safe-area-inset-bottom, 0px));
+        z-index: 40;
+        display: flex;
+        gap: 2px;
+        padding: 6px;
+        background: color-mix(in srgb, var(--raised) 92%, transparent);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        box-shadow: 0 18px 44px -12px rgba(0, 0, 0, 0.55);
+        max-width: calc(100vw - 24px);
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .dock::-webkit-scrollbar {
+        display: none;
+      }
+      .dock a {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        min-width: 62px;
+        min-height: 56px;
+        justify-content: center;
+        border-radius: 999px;
+        color: var(--mute);
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+      .dock a.on {
+        background: var(--signal);
+        color: var(--signal-ink);
+      }
+      .dock svg {
+        width: 21px;
+        height: 21px;
+      }
+      .evcover {
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        background: #1a2410;
+        padding: 26px 22px;
+        overflow: hidden;
+        position: relative;
+      }
+      html[data-theme="day"] .evcover {
+        background: #2a3a12;
+      }
+      .evcover .stripes {
+        position: absolute;
+        inset: 0;
+        opacity: 0.5;
+        background: repeating-linear-gradient(-55deg, transparent 0 14px, rgba(212, 245, 66, 0.07) 14px 15px);
+      }
+      .timeline {
+        list-style: none;
+        padding: 0;
+      }
+      .timeline li {
+        display: flex;
+        gap: 14px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .timeline li:last-child {
+        border-bottom: 0;
+      }
+      .timeline time {
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--signal);
+        width: 64px;
+        flex-shrink: 0;
+        padding-top: 2px;
+      }
+      html[data-theme="day"] .timeline time {
+        color: #5c7a00;
+      }
+      .biolink {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 58px;
+        border-radius: 16px;
+        background: var(--ink);
+        color: var(--bg);
+        font-weight: 800;
+        font-size: 15px;
+        text-decoration: none;
+      }
+      .biolink:active {
+        transform: scale(0.99);
+      }
+      .biolink.alt {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--ink);
+      }
+      .stat {
+        padding: 14px 4px;
+      }
+      .stat b {
+        display: block;
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+      .stat span {
+        font-size: 12px;
+        color: var(--mute);
+        font-weight: 700;
+      }
+      input.field,
+      select.field {
+        width: 100%;
+        min-height: 52px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: var(--raised);
+        color: var(--ink);
+        font: inherit;
+        font-size: 16px;
+        padding: 0 16px;
+        outline: none;
+      }
+      input.field:focus {
+        border-color: var(--signal);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="propbar">
+      <div class="propbar-in">
+        <b>V2 Proposal · After Dark</b>
+        <button class="pbtn" data-screen="system" aria-pressed="true">System</button>
+        <button class="pbtn" data-screen="home" aria-pressed="false">Home</button>
+        <button class="pbtn" data-screen="event" aria-pressed="false">Event</button>
+        <button class="pbtn" data-screen="bio" aria-pressed="false">Bio</button>
+        <button class="pbtn" data-screen="me" aria-pressed="false">Me</button>
+        <span class="spacer"></span>
+        <button class="pbtn" id="themeToggle" aria-pressed="false">Day theme</button>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <!-- ================= SYSTEM ================= -->
+      <section class="screen on" id="s-system">
+        <p class="display" style="font-size: clamp(44px, 8vw, 96px); margin: 26px 0 8px">Night<br />belongs to us.</p>
+        <p style="color: var(--mute); font-size: 16px; max-width: 34em; line-height: 1.55">
+          A dark-first identity for the whole app. Bone ink on near-black, one signal-lime action colour, hairline
+          borders instead of shadows, chapter numbers instead of kickers, stubs instead of cards. Toggle Day theme above
+          — every surface below re-themes. Sample listings below illustrate layout only; counts and prices are not real
+          data.
+        </p>
+
+        <div class="chapter" style="margin-top: 34px">
+          <span class="no">01</span>
+          <h2>Palette</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="grid2">
+          <div>
+            <div class="swatch" style="background: #0e0f0c"></div>
+            <p class="num" style="font-size: 12px; margin-top: 6px; color: var(--mute)">Void · #0E0F0C</p>
+          </div>
+          <div>
+            <div class="swatch" style="background: #161814"></div>
+            <p class="num" style="font-size: 12px; margin-top: 6px; color: var(--mute)">Surface · #161814</p>
+          </div>
+          <div>
+            <div class="swatch" style="background: #f4f2e9"></div>
+            <p class="num" style="font-size: 12px; margin-top: 6px; color: var(--mute)">Bone · #F4F2E9</p>
+          </div>
+          <div>
+            <div class="swatch" style="background: #d4f542"></div>
+            <p class="num" style="font-size: 12px; margin-top: 6px; color: var(--mute)">Signal · #D4F542</p>
+          </div>
+        </div>
+
+        <div class="chapter" style="margin-top: 30px">
+          <span class="no">02</span>
+          <h2>Type</h2>
+          <span class="rule"></span>
+        </div>
+        <p class="display" style="font-size: clamp(34px, 6vw, 64px)">Laser Tag Mixer</p>
+        <p style="font-size: 17px; font-weight: 600; margin-top: 6px">
+          Meet founders while doing something actually fun
+        </p>
+        <p class="num" style="color: var(--mute); font-size: 14px; margin-top: 6px">
+          SAT 24 OCT · 6:00–9:00 PM · $30.00 · 14/20 IN
+        </p>
+
+        <div class="chapter" style="margin-top: 30px">
+          <span class="no">03</span>
+          <h2>Buttons</h2>
+          <span class="rule"></span>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap">
+          <button class="btn btn-primary">Get ticket · $30.00</button>
+          <button class="btn btn-ink">Notify me</button>
+          <button class="btn btn-ghost">Share</button>
+          <button class="btn btn-danger">Delete</button>
+        </div>
+
+        <div class="chapter" style="margin-top: 30px">
+          <span class="no">04</span>
+          <h2>Chips</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="chips" role="group" aria-label="Demo categories">
+          <button class="chip" aria-pressed="true">All <span class="c">128</span></button>
+          <button class="chip" aria-pressed="false">Tonight <span class="c">9</span></button>
+          <button class="chip" aria-pressed="false">Music</button>
+          <button class="chip" aria-pressed="false">Free</button>
+        </div>
+
+        <div class="chapter" style="margin-top: 30px">
+          <span class="no">05</span>
+          <h2>Ticket stub</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="card stub" style="max-width: 420px">
+          <div style="padding: 20px 18px 14px">
+            <span class="tag hot">Admit · General</span>
+            <p class="display num" style="font-size: 34px; margin-top: 10px">$30.00</p>
+            <p style="color: var(--mute); font-size: 13px; margin-top: 4px">Laser Tag Mixer · Sat 24 Oct, 6 PM</p>
+          </div>
+          <div class="perf"></div>
+          <div style="padding: 14px 18px 18px; display: flex; justify-content: space-between; align-items: center">
+            <span class="num" style="font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em"
+              >AVA-2049-XR</span
+            >
+            <button class="btn btn-primary btn-sm">Buy</button>
+          </div>
+        </div>
+
+        <div class="chapter" style="margin-top: 30px">
+          <span class="no">06</span>
+          <h2>Rows</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="card" style="max-width: 560px">
+          <div class="rowline">
+            <div class="avatar live">S</div>
+            <div style="flex: 1; min-width: 0">
+              <p style="font-weight: 800">Sip &amp; Scale Sydney</p>
+              <p style="font-size: 13px; color: var(--mute)">@sipandscale</p>
+            </div>
+            <button class="btn btn-ghost btn-sm">Follow</button>
+          </div>
+          <div class="rowline">
+            <div class="avatar">E</div>
+            <div style="flex: 1; min-width: 0">
+              <p style="font-weight: 800">Ethan W.</p>
+              <p style="font-size: 13px; color: var(--mute)">Co-host · @ethanw</p>
+            </div>
+            <span class="tag">Host</span>
+          </div>
+          <div class="rowline">
+            <div class="avatar">H</div>
+            <div style="flex: 1; min-width: 0">
+              <p style="font-weight: 800">Harbour Bar</p>
+              <p style="font-size: 13px; color: var(--mute)">Sponsor · @harbourbar</p>
+            </div>
+            <span class="tag">Sponsor</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= HOME ================= -->
+      <section class="screen" id="s-home">
+        <p class="num" style="font-family: var(--mono); font-size: 12px; color: var(--mute); margin-top: 26px">
+          SAT 24 OCT · SYDNEY · 16°
+        </p>
+        <p class="display" style="font-size: clamp(40px, 7vw, 84px); margin: 6px 0 4px">Tonight,<br />not someday.</p>
+        <div class="chips" style="margin-top: 16px" role="group" aria-label="Home filters">
+          <button class="chip" aria-pressed="true">Tonight</button>
+          <button class="chip" aria-pressed="false">This week</button>
+          <button class="chip" aria-pressed="false">Free</button>
+          <button class="chip" aria-pressed="false">Near me</button>
+        </div>
+
+        <div class="chapter" style="margin-top: 26px">
+          <span class="no">01</span>
+          <h2>Your night</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="evcover">
+          <div class="stripes"></div>
+          <div style="position: relative">
+            <span class="tag hot">6:00 PM · Chatswood</span>
+            <p class="display" style="font-size: clamp(30px, 5vw, 52px); margin-top: 12px; color: #f4f2e9">
+              Laser Tag<br />Mixer
+            </p>
+            <p class="num" style="color: #c9cabb; font-size: 13px; margin-top: 8px">$30.00 · 14/20 IN · 6:00–9:00 PM</p>
+            <div style="display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap">
+              <button class="btn btn-primary btn-sm">Get ticket</button>
+              <button
+                class="btn btn-sm"
+                style="background: transparent; border: 1px solid rgba(244, 242, 233, 0.35); color: #f4f2e9"
+              >
+                Details
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chapter" style="margin-top: 26px">
+          <span class="no">02</span>
+          <h2>More tonight</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="card">
+          <div class="rowline">
+            <div style="flex: 1">
+              <p style="font-weight: 800">Jazz &amp; Blues by the Harbour</p>
+              <p class="num" style="font-size: 13px; color: var(--mute)">8:00 PM · Circular Quay · $45.00</p>
+            </div>
+            <button class="btn btn-ghost btn-sm">View</button>
+          </div>
+          <div class="rowline">
+            <div style="flex: 1">
+              <p style="font-weight: 800">The Rocks Weekend Market</p>
+              <p class="num" style="font-size: 13px; color: var(--mute)">10 AM – 4 PM · Playfair St · Free</p>
+            </div>
+            <button class="btn btn-ghost btn-sm">View</button>
+          </div>
+          <div class="rowline">
+            <div style="flex: 1">
+              <p style="font-weight: 800">Founder Run Club</p>
+              <p class="num" style="font-size: 13px; color: var(--mute)">6:30 AM · Barangaroo · Free</p>
+            </div>
+            <button class="btn btn-ghost btn-sm">View</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= EVENT ================= -->
+      <section class="screen" id="s-event">
+        <p class="num" style="font-family: var(--mono); font-size: 12px; color: var(--mute); margin-top: 26px">
+          FRI 24 OCT · CHATSWOOD · EVENT
+        </p>
+        <p class="display" style="font-size: clamp(40px, 7vw, 84px); margin: 6px 0 4px">Laser Tag<br />Mixer</p>
+        <p style="font-size: 16px; font-weight: 600">Meet founders while doing something actually fun</p>
+        <p class="num" style="color: var(--mute); font-size: 14px; margin-top: 8px">
+          6:00–9:00 PM · STRIKE CHATSWOOD, LEVEL 4 · $30.00
+        </p>
+        <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap">
+          <span class="tag hot">14/20 in</span><span class="tag">Approval required</span
+          ><span class="tag">Transferable</span>
+        </div>
+
+        <div class="chapter" style="margin-top: 26px">
+          <span class="no">01</span>
+          <h2>Run sheet</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="card" style="padding: 6px 18px">
+          <ol class="timeline">
+            <li>
+              <time>6:00pm</time>
+              <div>
+                <p style="font-weight: 800">Meet at the Strike bar</p>
+                <p style="font-size: 13px; color: var(--mute)">Level 4, from 6pm</p>
+              </div>
+            </li>
+            <li>
+              <time>6:30pm</time>
+              <div>
+                <p style="font-weight: 800">Game 1</p>
+                <p style="font-size: 13px; color: var(--mute)">Briefing 6:20, starts on time</p>
+              </div>
+            </li>
+            <li>
+              <time>7:15pm</time>
+              <div>
+                <p style="font-weight: 800">Game 2</p>
+                <p style="font-size: 13px; color: var(--mute)">Mixed teams</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="chapter" style="margin-top: 26px">
+          <span class="no">02</span>
+          <h2>Tickets</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="card stub">
+          <div style="padding: 20px 18px 14px; display: flex; justify-content: space-between; align-items: baseline">
+            <div>
+              <p style="font-weight: 800; font-size: 17px">General admission</p>
+              <p class="num" style="font-size: 13px; color: var(--mute)">2 games + briefing</p>
+            </div>
+            <p class="display num" style="font-size: 30px">$30</p>
+          </div>
+          <div class="perf"></div>
+          <div style="padding: 14px 18px 18px; display: flex; justify-content: space-between; align-items: center">
+            <span class="num" style="font-size: 13px; color: var(--mute)">No refunds · transferable</span>
+            <button class="btn btn-primary btn-sm">Get ticket</button>
+          </div>
+        </div>
+
+        <div class="chapter" style="margin-top: 26px">
+          <span class="no">03</span>
+          <h2>Hosts</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="card">
+          <div class="rowline">
+            <div class="avatar live">S</div>
+            <div style="flex: 1">
+              <p style="font-weight: 800">Sip &amp; Scale Sydney</p>
+              <p style="font-size: 13px; color: var(--mute)">@sipandscale</p>
+            </div>
+            <button class="btn btn-ghost btn-sm">Follow</button>
+          </div>
+          <div class="rowline">
+            <div class="avatar">E</div>
+            <div style="flex: 1">
+              <p style="font-weight: 800">Ethan W.</p>
+              <p style="font-size: 13px; color: var(--mute)">@ethanw · co-host</p>
+            </div>
+          </div>
+          <div class="rowline">
+            <div class="avatar">H</div>
+            <div style="flex: 1">
+              <p style="font-weight: 800">Harbour Bar</p>
+              <p style="font-size: 13px; color: var(--mute)">@harbourbar · sponsor</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= BIO ================= -->
+      <section class="screen" id="s-bio">
+        <div style="text-align: center; padding-top: 30px; max-width: 460px; margin: 0 auto">
+          <div class="avatar live" style="width: 84px; height: 84px; font-size: 32px; margin: 0 auto">S</div>
+          <p class="display" style="font-size: 30px; margin-top: 14px">Sip &amp; Scale Sydney</p>
+          <p style="color: var(--mute); font-size: 14px; margin-top: 4px">@sipandscale · Founder nights, monthly</p>
+          <div style="display: flex; gap: 10px; justify-content: center; margin-top: 14px">
+            <button class="btn btn-primary btn-sm">Follow</button>
+            <button class="btn btn-ghost btn-sm">Share</button>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 22px; text-align: center">
+            <a class="biolink" href="#">Next mixer — Sat 24 Oct</a>
+            <a class="biolink alt" href="#">Join the guestlist</a>
+            <a class="biolink alt" href="#">Past nights</a>
+          </div>
+          <div class="card" style="margin-top: 18px; padding: 16px 18px; text-align: left">
+            <p style="font-size: 13px; font-weight: 800">Get the drop first</p>
+            <p style="font-size: 13px; color: var(--mute); margin: 2px 0 10px">
+              One email per event. Unsubscribe anytime.
+            </p>
+            <input class="field" type="email" placeholder="you@example.com" aria-label="Email for updates" />
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px">Notify me</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ME ================= -->
+      <section class="screen" id="s-me">
+        <p class="num" style="font-family: var(--mono); font-size: 12px; color: var(--mute); margin-top: 26px">
+          AVA · MEMBER SINCE 2024
+        </p>
+        <p class="display" style="font-size: clamp(40px, 7vw, 84px); margin: 6px 0 4px">Your week<br />at a glance.</p>
+        <div class="card" style="margin-top: 18px; display: flex; text-align: center">
+          <div class="stat" style="flex: 1"><b class="num">3</b><span>GOING</span></div>
+          <div class="stat" style="flex: 1; border-left: 1px solid var(--line)">
+            <b class="num">1</b><span>HOSTING</span>
+          </div>
+          <div class="stat" style="flex: 1; border-left: 1px solid var(--line)">
+            <b class="num">12</b><span>CIRCLE</span>
+          </div>
+        </div>
+        <div class="chapter" style="margin-top: 26px">
+          <span class="no">01</span>
+          <h2>Up next</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="card">
+          <div class="rowline">
+            <div style="flex: 1">
+              <p style="font-weight: 800">Laser Tag Mixer</p>
+              <p class="num" style="font-size: 13px; color: var(--mute)">SAT · 6:00 PM · Chatswood</p>
+            </div>
+            <span class="tag hot">In</span>
+          </div>
+          <div class="rowline">
+            <div style="flex: 1">
+              <p style="font-weight: 800">Jazz &amp; Blues by the Harbour</p>
+              <p class="num" style="font-size: 13px; color: var(--mute)">SUN · 8:00 PM · Circular Quay</p>
+            </div>
+            <span class="tag">Maybe</span>
+          </div>
+        </div>
+        <div class="chapter" style="margin-top: 26px">
+          <span class="no">02</span>
+          <h2>Your ticket</h2>
+          <span class="rule"></span>
+        </div>
+        <div class="card stub">
+          <div style="padding: 20px 18px 14px">
+            <span class="tag hot">Checked in</span>
+            <p class="display num" style="font-size: 30px; margin-top: 10px">Laser Tag Mixer</p>
+            <p class="num" style="color: var(--mute); font-size: 13px; margin-top: 4px">SAT 24 OCT · DOORS 6:00 PM</p>
+          </div>
+          <div class="perf"></div>
+          <div style="padding: 14px 18px 18px; display: flex; justify-content: space-between; align-items: center">
+            <span class="num" style="font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em"
+              >AVA-2049-XR</span
+            >
+            <button class="btn btn-ink btn-sm">Wallet</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <nav class="dock" aria-label="Proposal app dock">
+      <a href="#" class="on"
+        ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 11 12 3l9 8" />
+          <path d="M5 10v10h5v-6h4v6h5V10" /></svg
+        >Home</a
+      >
+      <a href="#"
+        ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="5" width="18" height="16" rx="3" />
+          <path d="M8 3v4M16 3v4M3 10h18" /></svg
+        >Events</a
+      >
+      <a href="#"
+        ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 8a2 2 0 0 1 2-2h2v12H6a2 2 0 0 1-2-2V8Z" />
+          <path d="M8 6h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H8" />
+          <circle cx="15" cy="12" r="1.4" fill="currentColor" /></svg
+        >Tickets</a
+      >
+      <a href="#"
+        ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="3.4" />
+          <path d="M5 20c1.4-3.6 4-5 7-5s5.6 1.4 7 5" /></svg
+        >Circle</a
+      >
+      <a href="#"
+        ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="8" />
+          <path d="M12 8v4l2.5 2.5" /></svg
+        >Me</a
+      >
+    </nav>
+
+    <script>
+      (function () {
+        var btns = document.querySelectorAll(".pbtn[data-screen]");
+        function show(id) {
+          document.querySelectorAll("section.screen").forEach(function (s) {
+            s.classList.toggle("on", s.id === "s-" + id);
+          });
+          btns.forEach(function (b) {
+            b.setAttribute("aria-pressed", b.dataset.screen === id ? "true" : "false");
+          });
+          window.scrollTo(0, 0);
+        }
+        btns.forEach(function (b) {
+          b.addEventListener("click", function () {
+            show(b.dataset.screen);
+          });
+        });
+        var t = document.getElementById("themeToggle");
+        t.addEventListener("click", function () {
+          var day = document.documentElement.dataset.theme === "day";
+          if (day) {
+            delete document.documentElement.dataset.theme;
+            t.textContent = "Day theme";
+            t.setAttribute("aria-pressed", "false");
+          } else {
+            document.documentElement.dataset.theme = "day";
+            t.textContent = "Night theme";
+            t.setAttribute("aria-pressed", "true");
+          }
+          document.querySelector('meta[name="theme-color"]').setAttribute("content", day ? "#0e0f0c" : "#f4f2e9");
+        });
+        document.querySelectorAll(".dock a").forEach(function (a) {
+          a.addEventListener("click", function (e) {
+            e.preventDefault();
+            document.querySelectorAll(".dock a").forEach(function (x) {
+              x.classList.remove("on");
+            });
+            a.classList.add("on");
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

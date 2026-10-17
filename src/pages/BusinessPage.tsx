@@ -350,15 +350,15 @@ export function BusinessPage() {
             <Plus className="h-4 w-4 text-accent" />
             <span>Create offer</span>
           </Link>
-          <button
-            type="button"
+          <Button
+            variant="destructive"
+            size="sm"
             onClick={() => setShowDeleteModal(true)}
             title="Remove / Unlink this venue"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/20 transition active:scale-[0.98] cursor-pointer"
           >
             <Trash2 className="h-4 w-4" />
             <span className="hidden sm:inline">Remove Venue</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -957,13 +957,7 @@ export function BusinessPage() {
               <Button variant="ghost" disabled={deleting} onClick={() => setShowDeleteModal(false)}>
                 Cancel
               </Button>
-              <Button
-                variant="outlined"
-                disabled={deleting}
-                loading={deleting}
-                onClick={handleDeleteVenue}
-                className="border-red-500/30 bg-red-500/10 text-red-600 hover:bg-red-500/20 hover:text-red-700"
-              >
+              <Button variant="destructive" disabled={deleting} loading={deleting} onClick={handleDeleteVenue}>
                 <Trash2 className="h-4 w-4" />
                 Confirm Removal
               </Button>

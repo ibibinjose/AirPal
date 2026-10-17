@@ -14,9 +14,11 @@ import {
   isHexHandle,
   isSafeBioHref,
   isSocialLinkType,
+  normalizeBioTheme,
   normalizeHandle,
   parseAtHandle,
   randomHexHandle,
+  resolveBioTheme,
   resolveStatusPicks,
   sanitizeBioHref,
   sanitizeBioLinks,
@@ -160,6 +162,21 @@ describe("profile kind identifier", () => {
     expect(isBusinessKind("business")).toBe(true);
     expect(isBusinessKind("person")).toBe(false);
     expect(isBusinessKind(undefined)).toBe(false);
+  });
+});
+
+describe("bio themes", () => {
+  it("accepts known presets and collapses the default", () => {
+    expect(normalizeBioTheme("midnight")).toBe("midnight");
+    expect(normalizeBioTheme("AirPal")).toBeUndefined();
+    expect(normalizeBioTheme(undefined)).toBeUndefined();
+    expect(normalizeBioTheme("evil-theme")).toBeUndefined();
+  });
+
+  it("resolves unknown values to the default preset", () => {
+    expect(resolveBioTheme("midnight").id).toBe("midnight");
+    expect(resolveBioTheme("nope").id).toBe("airpal");
+    expect(resolveBioTheme(undefined).id).toBe("airpal");
   });
 });
 

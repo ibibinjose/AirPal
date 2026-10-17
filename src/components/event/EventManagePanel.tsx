@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { CalendarArrowDown, Copy, Mail, ScanLine, Trash2, Users } from "lucide-react";
+import { CalendarArrowDown, Copy, Mail, Megaphone, ScanLine, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useEvents } from "@/contexts/EventsContext";
 import { EventShareModal } from "@/components/event/EventShareModal";
+import { EventAnnounceModal } from "@/components/event/EventAnnounceModal";
 import { downloadIcs } from "@/lib/calendar-export";
 import type { EventRecord } from "@shared/event";
 import { Button } from "@/components/ui/Button";
@@ -17,6 +18,7 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
   const [, nav] = useLocation();
   const { upsertEvent } = useEvents();
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [announceOpen, setAnnounceOpen] = useState(false);
   const [confirmingCancel, setConfirmingCancel] = useState(false);
   const [working, setWorking] = useState<"clone" | "cancel" | null>(null);
 
@@ -102,6 +104,14 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
           </button>
           <button
             type="button"
+            onClick={() => setAnnounceOpen(true)}
+            className="inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-1.5 rounded-2xl px-4 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95"
+          >
+            <Megaphone size={16} aria-hidden="true" />
+            <span>Message guests</span>
+          </button>
+          <button
+            type="button"
             onClick={exportIcs}
             className="inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-1.5 rounded-2xl px-4 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95"
           >
@@ -170,6 +180,12 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
         title={event.name}
         venue={event.venue || ""}
         date={event.startsAt}
+      />
+      <EventAnnounceModal
+        open={announceOpen}
+        onClose={() => setAnnounceOpen(false)}
+        eventId={event.id}
+        eventName={event.name}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 /** Trust moat, first slice: report user / report booking / emergency + immediate block. Every report opens an admin case. */
 
-export const REPORT_TARGETS = ["user", "booking"] as const;
+export const REPORT_TARGETS = ["user", "booking", "event"] as const;
 export type ReportTarget = (typeof REPORT_TARGETS)[number];
 
 export const REPORT_REASONS = [

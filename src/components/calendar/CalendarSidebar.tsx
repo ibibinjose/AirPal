@@ -487,7 +487,7 @@ export function CalendarSidebar({
                 <span
                   className={cn(
                     "rounded-full px-1.5 py-0.2 text-[10px] font-semibold",
-                    isSelected ? "bg-white/25 text-white" : "bg-white/70 text-ink ring-1 ring-black/10",
+                    isSelected ? "bg-white/25 text-white" : "bg-white/70 text-neutral-950 ring-1 ring-black/10",
                   )}
                 >
                   {opt.count}

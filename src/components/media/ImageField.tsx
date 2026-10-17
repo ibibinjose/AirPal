@@ -112,7 +112,7 @@ export function ImageField({
               <div className="absolute bottom-3 right-3 flex gap-2">
                 <button
                   type="button"
-                  className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-ink"
+                  className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-neutral-950"
                   onClick={() => inputRef.current?.click()}
                 >
                   <Camera size={13} />

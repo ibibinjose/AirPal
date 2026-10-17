@@ -105,9 +105,7 @@ export function LocalNowBar() {
               {today && (
                 <span className="shrink-0 text-[11px] font-medium text-mute flex items-center gap-1.5">
                   {today.rain > 0 ? (
-                    <span className="inline-flex items-center gap-0.5 font-semibold text-blue-600 dark:text-blue-400">
-                      ☔ {today.rain}%
-                    </span>
+                    <span className="inline-flex items-center gap-0.5 font-semibold text-accent">☔ {today.rain}%</span>
                   ) : (
                     <span className="hidden text-[10px] text-mute/80 md:inline">☔ 0%</span>
                   )}

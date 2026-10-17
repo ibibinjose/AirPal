@@ -32,6 +32,7 @@ export function profileToRemotePatch(profile: BioProfile) {
     customStatusEmoji: profile.customStatusEmoji,
     geo: profile.geo,
     zooHunt: profile.zooHunt,
+    theme: profile.theme ?? null,
     // Keep storefronts public and collapse the legacy friends-only value to
     // private whenever a personal profile is saved through the new toggle.
     visibility:

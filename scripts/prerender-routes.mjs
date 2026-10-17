@@ -58,7 +58,7 @@ function staticMain(route) {
   const items = NAV_LINKS.map(([href, label]) => `<li><a href="${href}">${escapeHtml(label)}</a></li>`).join("");
   return (
     `<div id="root"><main style="font-family:system-ui,-apple-system,'Segoe UI',sans-serif;max-width:42rem;margin:0 auto;padding:2.5rem 1.25rem 4rem;line-height:1.6;color:#121614">` +
-    `<p style="font-size:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1805db;margin:0 0 .5rem">AirPal.Me — Life Made Easy.</p>` +
+    `<p style="font-size:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#004eff;margin:0 0 .5rem">AirPal.Me — Life Made Easy.</p>` +
     `<h1 style="font-size:1.75rem;line-height:1.25;margin:0 0 1rem">${escapeHtml(route.heading)}</h1>` +
     `<p>${escapeHtml(route.summary)}</p>` +
     `<p>Born in The Rocks, Sydney. Operated by SarvamDaily Pty Ltd (ABN 83 702 462 977), New South Wales, Australia.</p>` +

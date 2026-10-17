@@ -131,12 +131,12 @@ const SEED_QUERIES_30D: SearchQueryItem[] = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  places: "#1805db",
+  places: "#004eff",
   events: "#e11d48",
   people: "#059669",
   stay: "#d97706",
   experiences: "#7c3aed",
-  all: "#1805db",
+  all: "#004eff",
 };
 
 export type DateRangePreset = "7d" | "14d" | "30d" | "90d" | "custom";
@@ -616,7 +616,7 @@ export function SearchQueriesDashboardTab() {
                   width={140}
                 />
                 <Tooltip
-                  cursor={{ fill: "rgba(24, 5, 219, 0.05)" }}
+                  cursor={{ fill: "rgba(0, 78, 255, 0.05)" }}
                   formatter={(val: unknown) => [`${String(val ?? 0)} searches`, "Search Volume"]}
                   content={({ active, payload }) => {
                     if (!active || !payload || !payload.length) return null;
@@ -652,7 +652,7 @@ export function SearchQueriesDashboardTab() {
                   {top10Data.map((entry, index) => (
                     <Cell
                       key={`cell-${entry.query}-${index}`}
-                      fill={index === 0 ? "#1805db" : CATEGORY_COLORS[entry.category] || "#1805db"}
+                      fill={index === 0 ? "#004eff" : CATEGORY_COLORS[entry.category] || "#004eff"}
                     />
                   ))}
                 </Bar>
@@ -677,7 +677,7 @@ export function SearchQueriesDashboardTab() {
                   allowDecimals={false}
                 />
                 <Tooltip
-                  cursor={{ fill: "rgba(24, 5, 219, 0.05)" }}
+                  cursor={{ fill: "rgba(0, 78, 255, 0.05)" }}
                   content={({ active, payload }) => {
                     if (!active || !payload || !payload.length) return null;
                     const item = payload[0].payload as {
@@ -712,7 +712,7 @@ export function SearchQueriesDashboardTab() {
                   {top10Data.map((entry, index) => (
                     <Cell
                       key={`v-cell-${entry.query}-${index}`}
-                      fill={index === 0 ? "#1805db" : CATEGORY_COLORS[entry.category] || "#1805db"}
+                      fill={index === 0 ? "#004eff" : CATEGORY_COLORS[entry.category] || "#004eff"}
                     />
                   ))}
                 </Bar>
@@ -772,7 +772,7 @@ export function SearchQueriesDashboardTab() {
                       <span
                         className="inline-block rounded-md px-2 py-0.5 text-[10px] font-bold uppercase text-white"
                         style={{
-                          backgroundColor: CATEGORY_COLORS[item.category] || "#1805db",
+                          backgroundColor: CATEGORY_COLORS[item.category] || "#004eff",
                         }}
                       >
                         {item.category}
@@ -799,7 +799,7 @@ export function SearchQueriesDashboardTab() {
                             openGlobalSearch({ query: item.query });
                           }
                         }}
-                        className="inline-flex min-h-[36px] items-center gap-1 text-[11px] font-bold text-accent hover:underline cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center gap-1 text-[11px] font-bold text-accent hover:underline cursor-pointer"
                       >
                         <span>Search</span>
                         <ArrowUpRight size={12} />

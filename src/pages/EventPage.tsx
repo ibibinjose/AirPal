@@ -34,6 +34,10 @@ import { EventInviterPill } from "@/components/event/EventInviterPill";
 import { EventLocationCard } from "@/components/event/EventLocationCard";
 import { EventRegistrationCard } from "@/components/event/EventRegistrationCard";
 import { EventShareModal } from "@/components/event/EventShareModal";
+import { EventAgendaSection } from "@/components/event/EventAgendaSection";
+import { EventRefundBlock } from "@/components/event/EventRefundBlock";
+import { EventNotifyForm } from "@/components/event/EventNotifyForm";
+import { EventReportButton } from "@/components/event/EventReportButton";
 
 export function EventPage() {
   const [, params] = useRoute("/e/:id");
@@ -121,8 +125,14 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
   const { user, requireUser } = useAuth();
   const { toggleGoing, toggleInterested, toggleLiked, getEvent } = useEvents();
   const [buying, setBuying] = useState(false);
-  const [tier, setTier] = useState<"standard" | "vip" | "group">("standard");
+  const [tier, setTier] = useState<string>("standard");
   const [spots, setSpots] = useState<number>(1);
+  const namedTiers = event.ticketTiers && event.ticketTiers.length > 0 ? event.ticketTiers : null;
+  // Named tiers replace the legacy standard/vip/group set — never mix them.
+  useEffect(() => {
+    if (namedTiers && !namedTiers.some((t) => t.id === tier)) setTier(namedTiers[0]!.id);
+    if (!namedTiers && tier !== "standard" && tier !== "vip" && tier !== "group") setTier("standard");
+  }, [namedTiers, tier]);
 
   const [shareOpen, setShareOpen] = useState(false);
 
@@ -138,7 +148,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
       : unitPriceCents * spots
     : 0;
 
-  async function handleRegisterOrBuy(coupon?: string, finalPriceCents?: number) {
+  async function handleRegisterOrBuy(coupon?: string, finalPriceCents?: number, tierId?: string) {
     if (!isPaid) {
       const applied = toggleGoing(event.id);
       if (applied && !event.isGoing) {
@@ -169,18 +179,28 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
     setBuying(true);
     const priceToCharge = typeof finalPriceCents === "number" ? finalPriceCents : effectivePriceCents;
     const couponTitleSuffix = coupon ? ` · Coupon ${coupon}` : "";
+    const activeTierName = namedTiers?.find((t) => t.id === (tierId || tier))?.name;
+    const tierTitleSuffix = activeTierName
+      ? ` (${activeTierName})`
+      : tier === "vip"
+        ? " (VIP Pass)"
+        : tier === "group"
+          ? " (Group Pass · 4 Tickets)"
+          : "";
     try {
       const bookingId = await createBookingForEvent({
         eventId: event.id,
         providerUid,
         providerName: String(providerName),
-        title: `${event.title}${tier === "vip" ? " (VIP Pass)" : tier === "group" ? " (Group Pass · 4 Tickets)" : ""}${couponTitleSuffix}`,
+        title: `${event.title}${tierTitleSuffix}${couponTitleSuffix}`,
         suburb: event.city,
         date,
         time,
         priceCents: priceToCharge,
         customerUid: user.uid,
         spots: effectiveSpots,
+        tierId: tierId || (namedTiers ? tier : undefined),
+        couponCode: coupon,
       });
       const res = await createBookingCheckoutSessionRemote({ bookingId });
       if (res.checkoutUrl) {
@@ -207,6 +227,8 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
 
   const { today } = useLocalNow();
   const relative = formatRelativeBadge(event.date, today);
+  const ended = isEventEnded(event.date, today);
+  const closed = ended || event.registrationClosed === true;
 
   const handleShare = () => {
     setShareOpen(true);
@@ -239,7 +261,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
         <div className="flex items-center gap-2">
           <Link
             href={`/e/${event.id}/manage`}
-            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-3 py-1 text-xs font-bold transition hover:opacity-90 shadow-xs active:scale-95"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-3 py-1 text-xs font-bold transition hover:opacity-90 shadow-xs active:scale-95"
             title="Manage Event"
           >
             <Settings size={13} />
@@ -271,17 +293,23 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
               aspectRatio="square"
             />
 
-            {/* Host Card with Digital Bio Link and Co-Hosts */}
+            {/* Host Card with Digital Bio Link, Extra Hosts and Sponsors */}
             <EventHostCard
               hostName={event.hostName}
               hostHandle={event.hostHandle}
               hostType={event.hostType}
               collaboratorHandles={event.collaboratorHandles}
+              sponsorHandles={event.sponsorHandles}
               showActions
             />
 
             {/* Social Proof Attendee Avatar Pile */}
             <EventGuestlistAvatars eventId={event.id} />
+
+            {/* Report this event to the trust team */}
+            <div className="flex justify-end">
+              <EventReportButton eventId={event.id} eventTitle={event.title} />
+            </div>
 
             {/* Secondary Action Buttons (Save, Like, Add to Trip) */}
             <div className="rounded-3xl bg-card p-3 ring-1 ring-line">
@@ -385,36 +413,55 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
               geo={event.geo}
               locationType={event.locationType}
               virtualUrl={event.virtualUrl}
+              directions={event.directions}
             />
 
-            {/* Luma-style Registration & Ticket Tier Card — closed once past */}
-            {isEventEnded(event.date, today) ? (
-              <div className="rounded-3xl bg-paper p-5 sm:p-6 ring-1 ring-line text-center">
-                <p className="human-eyebrow">Registration Closed</p>
-                <p className="human-section-title mt-1 text-lg text-balance">This event has ended</p>
-                <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
-                  This event is not currently taking registrations. Contact the host above or explore what else is on.
-                </p>
+            {/* Luma-style Registration & Ticket Tier Card — closed once past or host-closed */}
+            {closed ? (
+              <div className="rounded-3xl bg-paper p-5 sm:p-6 ring-1 ring-line text-center space-y-4">
+                <div>
+                  <p className="human-eyebrow">Registration Closed</p>
+                  <p className="human-section-title mt-1 text-lg text-balance">
+                    {ended ? "This event has ended" : "Registration is closed"}
+                  </p>
+                  <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
+                    {ended
+                      ? "This event is not currently taking registrations. Contact the host above or explore what else is on."
+                      : "The host has closed registrations for this event. Leave your details and we'll notify you if spots open or it runs again."}
+                  </p>
+                </div>
+                <EventNotifyForm eventId={event.id} eventTitle={event.title} />
+                {event.refundPolicy && (
+                  <p className="mx-auto max-w-sm text-xs leading-relaxed text-mute">
+                    <span className="font-bold">Refunds & transfers: </span>
+                    {event.refundPolicy}
+                  </p>
+                )}
                 <Link
                   href="/events"
-                  className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-brand px-5 text-sm font-bold text-white touch-manipulation"
+                  className="inline-flex min-h-[44px] items-center rounded-full bg-brand px-5 text-sm font-bold text-white touch-manipulation"
                 >
                   Browse Events
                 </Link>
               </div>
             ) : (
-              <EventRegistrationCard
-                paidCents={paidCents}
-                capacity={event.capacity}
-                requireApproval={event.requireApproval}
-                isGoing={event.isGoing}
-                buying={buying}
-                tier={tier}
-                spots={spots}
-                onTierChange={setTier}
-                onSpotsChange={setSpots}
-                onSubmit={handleRegisterOrBuy}
-              />
+              <>
+                <EventRegistrationCard
+                  eventId={event.id}
+                  paidCents={paidCents}
+                  capacity={event.capacity}
+                  requireApproval={event.requireApproval}
+                  isGoing={event.isGoing}
+                  buying={buying}
+                  tier={tier}
+                  tiers={namedTiers || undefined}
+                  spots={spots}
+                  onTierChange={setTier}
+                  onSpotsChange={setSpots}
+                  onSubmit={handleRegisterOrBuy}
+                />
+                <EventRefundBlock policy={event.refundPolicy} />
+              </>
             )}
 
             {/* About Event Description Card */}
@@ -446,6 +493,9 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
               )}
             </div>
 
+            {/* Timed run-sheet */}
+            <EventAgendaSection agenda={event.agenda} />
+
             {/* Program Lineup & Speakers */}
             {event.speakers && event.speakers.length > 0 && (
               <div className="rounded-3xl bg-card p-5 ring-1 ring-line space-y-3">
@@ -467,8 +517,8 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
         heroImage={event.heroImage}
       />
 
-      {/* Floating Mobile Sticky Registration Button — hidden once ended */}
-      {!isEventEnded(event.date, today) && (
+      {/* Floating Mobile Sticky Registration Button — hidden once closed */}
+      {!closed && (
         <StickyAction
           primary={
             <button

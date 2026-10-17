@@ -209,7 +209,7 @@ export function BioStatusModal({
                 <button
                   type="button"
                   onClick={() => setCustomText("")}
-                  className="flex min-h-[36px] min-w-[36px] items-center justify-center p-1 rounded-lg text-mute hover:text-ink touch-manipulation cursor-pointer"
+                  className="flex min-h-[44px] min-w-[36px] items-center justify-center p-1 rounded-lg text-mute hover:text-ink touch-manipulation cursor-pointer"
                   aria-label="Clear status text"
                 >
                   <X size={14} />
@@ -228,7 +228,7 @@ export function BioStatusModal({
                   type="button"
                   onClick={() => setEmoji(em)}
                   className={cn(
-                    "h-8 w-8 min-h-[32px] min-w-[32px] rounded-lg text-sm flex items-center justify-center transition shrink-0 touch-manipulation cursor-pointer",
+                    "h-8 w-8 min-h-[44px] min-w-[32px] rounded-lg text-sm flex items-center justify-center transition shrink-0 touch-manipulation cursor-pointer",
                     emoji === em ? "bg-brand/15 ring-1 ring-brand scale-110" : "hover:bg-card",
                   )}
                 >

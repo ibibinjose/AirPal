@@ -41,7 +41,7 @@ type BioValue = {
   updateProfile: (patch: Partial<BioProfile> & { handle: string }) => Promise<void>;
   setOffer: (handle: string, offer: BioOffer | null) => Promise<void>;
   transferHandle: (from: string, to: string) => Promise<string>;
-  recordTap: (handle: string, kind?: string) => void;
+  recordTap: (handle: string, kind?: string, linkId?: string) => void;
   tapsToday: (handle: string) => number;
 };
 
@@ -116,10 +116,10 @@ export function BioProvider({ children }: { children: ReactNode }) {
 
   const tapsToday = useCallback((handle: string) => tapCount(handle), []);
 
-  const recordTap = useCallback((handle: string, kind?: string) => {
+  const recordTap = useCallback((handle: string, kind?: string, linkId?: string) => {
     bumpTap(handle);
     if (liveBackendEnabled()) {
-      void recordBioTapRemote({ handle, kind: kind || "view" }).catch(() => undefined);
+      void recordBioTapRemote({ handle, kind: kind || "view", linkId }).catch(() => undefined);
     }
   }, []);
 

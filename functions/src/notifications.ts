@@ -1,6 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import {
   CIRCLE_BROADCAST_CAP,
   broadcastNeedsReview,
@@ -14,8 +15,10 @@ import {
 import { EVERYONE_BROADCAST_CAP } from "../../shared/notifications";
 import type { AccessClaims } from "../../shared/airpal-security";
 import type { NotificationKind, Promotion } from "../../shared/promotions";
+import { isListManager } from "../../shared/guestlist";
 import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "./abuse";
 import { CALLABLE, db, isPlatformAdmin, requireAccount } from "./admin";
+import { scopeHostUids } from "./guestlist";
 
 /** Best-effort push. The inbox row is the record; push never blocks it. */
 export async function sendPushIfAllowed(uid: string, kind: string, title: string, body: string, promotionId: string) {
@@ -165,6 +168,112 @@ export const createBroadcast = onCall(CALLABLE, async (request) => {
     updatedAt: new Date().toISOString(),
   });
   return { ok: true as const, broadcastId: ref.id, status: "sent" as const, sent };
+});
+
+/**
+ * Organiser → guests: one honest announcement to everyone on the door list
+ * (RSVP going/interested + paid ticket holders). Host-only, rate-limited,
+ * recorded as a broadcast. No mass SMS/email — inbox + push only.
+ */
+export const announceEventToGuests = onCall(CALLABLE, async (request) => {
+  await noteAppCheck(request, "announceEventToGuests");
+  const uid = requireAccount(request);
+  await enforceRateLimit(uid, "broadcast", isAnonymousAuth(request));
+  const data = (request.data || {}) as { eventId?: string; title?: string; body?: string };
+  const eventId = String(data.eventId || "").trim();
+  const title = String(data.title || "")
+    .trim()
+    .slice(0, 80);
+  const body = String(data.body || "")
+    .trim()
+    .slice(0, 280);
+  if (!eventId) throw new HttpsError("invalid-argument", "eventId is required.");
+  if (title.length < 2) throw new HttpsError("invalid-argument", "Give the update a title.");
+  if (body.length < 2) throw new HttpsError("invalid-argument", "Write the update first.");
+  const hosts = await scopeHostUids("event", eventId);
+  if (!hosts) throw new HttpsError("not-found", "Event not found.");
+  const caller = (request.auth?.token || {}) as AccessClaims;
+  if (!isListManager(hosts, uid) && !isPlatformAdmin(caller)) {
+    throw new HttpsError("permission-denied", "Only the event organiser can message guests.");
+  }
+  const guestSnap = await db.collection("events").doc(eventId).collection("guestlist").get();
+  const uids = new Set<string>();
+  for (const doc of guestSnap.docs) {
+    const g = doc.data() as { uid?: unknown; status?: unknown };
+    if ((g.status === "going" || g.status === "interested") && typeof g.uid === "string" && g.uid) {
+      uids.add(g.uid);
+    }
+  }
+  const ticketSnap = await db.collection("bookings").where("eventId", "==", eventId).get();
+  for (const doc of ticketSnap.docs) {
+    const b = doc.data() as { customerUid?: unknown; status?: unknown };
+    if (typeof b.customerUid === "string" && b.customerUid && b.status !== "cancelled" && b.status !== "refunded") {
+      uids.add(b.customerUid);
+    }
+  }
+  if (uids.size === 0) throw new HttpsError("failed-precondition", "Nobody to message yet — no guests on the list.");
+  const href = `/e/${eventId}`;
+  const ref = await db.collection("broadcasts").add({
+    ownerUid: uid,
+    title,
+    body,
+    href,
+    audience: "event_guests",
+    promotionId: eventId,
+    handle: "",
+    status: "draft" as BroadcastStatus,
+    reviewReason: "",
+    sentCount: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    sentAt: "",
+  });
+  const sent = await fanOut({
+    uids: Array.from(uids).slice(0, CIRCLE_BROADCAST_CAP),
+    kind: "announcement",
+    title,
+    body,
+    promotionId: ref.id,
+    href,
+  });
+  await ref.update({
+    status: "sent",
+    sentCount: sent,
+    sentAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+  return { ok: true as const, broadcastId: ref.id, status: "sent" as const, sent };
+});
+
+/**
+ * Calendar-subscribe: when an event goes live, followers of the organiser's
+ * handle get an inbox + push note. Demo and non-live docs never notify.
+ * The organiser themselves is excluded.
+ */
+export const onEventPublishedToFollowers = onDocumentCreated("events/{eventId}", async (event) => {
+  const data = event.data?.data() as Record<string, unknown> | undefined;
+  if (!data || data.demo === true) return;
+  if (String(data.status || "") !== "live") return;
+  const handle = String((data.businessHandle as string) || (data.hostHandle as string) || "")
+    .trim()
+    .toLowerCase()
+    .replace(/^@+/, "");
+  if (!handle) return;
+  const organiserUid = String(data.organiserUid || "");
+  const followers = await circleAudienceUids(handle);
+  const uids = followers.filter((uid) => uid && uid !== organiserUid);
+  if (!uids.length) return;
+  const eventId = String(event.params.eventId || "");
+  const name = String(data.name || "An event").slice(0, 80);
+  const city = String(data.city || "").trim();
+  await fanOut({
+    uids,
+    kind: "announcement",
+    title: `${name} just announced`,
+    body: `${handle ? `@${handle} ` : ""}announced ${name}${city ? ` in ${city}` : ""}.`,
+    promotionId: eventId,
+    href: `/e/${eventId}`,
+  });
 });
 
 export const reviewBroadcast = onCall(CALLABLE, async (request) => {

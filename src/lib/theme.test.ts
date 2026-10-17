@@ -51,11 +51,13 @@ describe("theme dark-mode contract", () => {
     }
   });
 
-  it("keeps brand fills fixed but lightens the accent text token", () => {
+  it("After Dark contract: night scheme sets the action brand with readable on-brand text", () => {
     const darkBlock = css.match(/@media \(prefers-color-scheme: dark\) \{([\s\S]*?)\n\}\n\n?\/\*/);
     const body = darkBlock?.[1] ?? "";
-    expect(body).not.toMatch(/--color-brand:/);
-    expect(body).not.toMatch(/--color-gold:/);
+    expect(body).toMatch(/--color-brand:\s*#[0-9a-f]{6};/);
+    expect(body).toMatch(/--color-on-brand:\s*#[0-9a-f]{6};/);
     expect(body).toMatch(/--color-accent:\s*#[0-9a-f]{6};/);
+    // Text on brand fills is always dark ink, enforced without per-file edits.
+    expect(css).toMatch(/\.bg-brand,\s*\n\.bg-gold \{\s*\n\s*color: var\(--color-on-brand\);/);
   });
 });

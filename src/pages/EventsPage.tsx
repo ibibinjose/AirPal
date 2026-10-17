@@ -7,6 +7,7 @@ import type { CalendarEvent } from "@shared/event";
 import { recordToCalendarBase, cityMatches } from "@/lib/remote-events";
 import { CalendarEventCard } from "@/components/calendar/CalendarEventCard";
 import { CalendarDragProvider } from "@/components/calendar/CalendarDragContext";
+import { FilterChips } from "@/components/ui/FilterChips";
 import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { CITY_OPTIONS } from "@/lib/cities";
 import { toZonedDateStr } from "@/lib/local-time";
@@ -284,7 +285,7 @@ export function EventsPage() {
                             setCityMenuOpen(false);
                           }}
                           className={cn(
-                            "flex w-full min-h-[40px] items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition active:scale-[0.98]",
+                            "flex w-full min-h-[44px] items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition active:scale-[0.98]",
                             selected ? "bg-brand text-white" : "text-ink hover:bg-paper",
                           )}
                         >
@@ -329,71 +330,23 @@ export function EventsPage() {
       </header>
 
       {/* Category Pills Strip */}
-      <nav aria-label="Event Categories" className="no-scrollbar mt-6 flex items-center gap-2 overflow-x-auto pb-1">
-        {CATEGORIES.map((cat) => {
-          const active = category === cat.id;
-          const count = categoryCounts[cat.id];
-          return (
-            <button
-              key={cat.id}
-              type="button"
-              aria-pressed={active}
-              onClick={() => {
-                void triggerHapticSelection();
-                setCategory(cat.id);
-              }}
-              className={cn(
-                "inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-4 text-xs sm:text-[13px] font-bold transition shadow-2xs active:scale-95 cursor-pointer",
-                active
-                  ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 ring-1 ring-neutral-900 shadow-sm"
-                  : "bg-card text-ink ring-1 ring-line hover:bg-paper",
-              )}
-            >
-              <span>{cat.icon}</span>
-              <span>{cat.label}</span>
-              {count > 0 && (
-                <span
-                  className={cn(
-                    "rounded-full px-1.5 py-0.5 text-[10px] font-bold",
-                    active
-                      ? "bg-white/20 text-white dark:bg-black/20 dark:text-black"
-                      : "bg-paper text-mute ring-1 ring-line",
-                  )}
-                >
-                  {count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </nav>
+      <FilterChips
+        ariaLabel="Event Categories"
+        className="mt-6"
+        options={CATEGORIES.map((cat) => ({
+          id: cat.id,
+          label: cat.label,
+          icon: cat.icon,
+          count: categoryCounts[cat.id] > 0 ? categoryCounts[cat.id] : undefined,
+        }))}
+        value={category}
+        onChange={setCategory}
+      />
 
       {/* Secondary Filter & Search Bar */}
       <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Date Ranges */}
-        <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto pb-1">
-          {DATE_RANGES.map((dr) => {
-            const active = dateRange === dr.id;
-            return (
-              <button
-                key={dr.id}
-                type="button"
-                onClick={() => {
-                  void triggerHapticSelection();
-                  setDateRange(dr.id);
-                }}
-                className={cn(
-                  "inline-flex min-h-[36px] shrink-0 items-center rounded-xl px-3 text-xs font-semibold transition active:scale-95 cursor-pointer",
-                  active
-                    ? "bg-brand/15 text-accent ring-1 ring-brand/30"
-                    : "bg-card text-mute ring-1 ring-line hover:text-ink hover:bg-paper",
-                )}
-              >
-                {dr.label}
-              </button>
-            );
-          })}
-        </div>
+        <FilterChips ariaLabel="Date ranges" options={DATE_RANGES} value={dateRange} onChange={setDateRange} />
       </div>
 
       {/* Event Results Section */}

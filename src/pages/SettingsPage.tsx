@@ -192,8 +192,8 @@ export function SettingsPage() {
         <div className="mt-3 grid grid-cols-3 gap-2">
           {[
             { id: "system" as const, label: "System", icon: Monitor },
-            { id: "light" as const, label: "Light", icon: Sun },
-            { id: "dark" as const, label: "Dark", icon: Moon },
+            { id: "light" as const, label: "Day", icon: Sun },
+            { id: "dark" as const, label: "Night", icon: Moon },
           ].map((opt) => {
             const Icon = opt.icon;
             const active = theme === opt.id;

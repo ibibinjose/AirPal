@@ -25,6 +25,7 @@ import { CIRCLE_QUESTS, circleQuestProgress, hasMarkedCircleInvite, markCircleIn
 import { listPeople } from "@/lib/people";
 import { triggerHaptic } from "@/lib/native";
 import { toast } from "sonner";
+import { FilterChips } from "@/components/ui/FilterChips";
 import { cn } from "@/lib/cn";
 import { BIBIN_JOSE_PROFILE } from "@/lib/bio-handle";
 import { activePlaces } from "@/lib/catalog";
@@ -402,115 +403,17 @@ export function CirclePage() {
         </div>
 
         {/* Filter Tabs: Places | Communities | Friends */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={filter === "all"}
-            onClick={() => {
-              void triggerHaptic("selection");
-              setFilter("all");
-            }}
-            className={cn(
-              "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer touch-manipulation",
-              filter === "all"
-                ? "bg-brand text-white shadow-xs"
-                : "bg-paper text-mute hover:bg-card hover:text-ink ring-1 ring-line/80",
-            )}
-          >
-            <Sparkles size={13} />
-            <span>All</span>
-            <span
-              className={cn(
-                "ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-bold",
-                filter === "all" ? "bg-white/20 text-white" : "bg-line/70 text-mute",
-              )}
-            >
-              {counts.all}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={filter === "friends"}
-            onClick={() => {
-              void triggerHaptic("selection");
-              setFilter("friends");
-            }}
-            className={cn(
-              "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer touch-manipulation",
-              filter === "friends"
-                ? "bg-brand text-white shadow-xs"
-                : "bg-paper text-mute hover:bg-card hover:text-ink ring-1 ring-line/80",
-            )}
-          >
-            <Users size={13} />
-            <span>Friends</span>
-            <span
-              className={cn(
-                "ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-bold",
-                filter === "friends" ? "bg-white/20 text-white" : "bg-line/70 text-mute",
-              )}
-            >
-              {counts.friends}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={filter === "communities"}
-            onClick={() => {
-              void triggerHaptic("selection");
-              setFilter("communities");
-            }}
-            className={cn(
-              "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer touch-manipulation",
-              filter === "communities"
-                ? "bg-brand text-white shadow-xs"
-                : "bg-paper text-mute hover:bg-card hover:text-ink ring-1 ring-line/80",
-            )}
-          >
-            <Building2 size={13} />
-            <span>Communities</span>
-            <span
-              className={cn(
-                "ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-bold",
-                filter === "communities" ? "bg-white/20 text-white" : "bg-line/70 text-mute",
-              )}
-            >
-              {counts.communities}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={filter === "places"}
-            onClick={() => {
-              void triggerHaptic("selection");
-              setFilter("places");
-            }}
-            className={cn(
-              "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer touch-manipulation",
-              filter === "places"
-                ? "bg-brand text-white shadow-xs"
-                : "bg-paper text-mute hover:bg-card hover:text-ink ring-1 ring-line/80",
-            )}
-          >
-            <Store size={13} />
-            <span>Places</span>
-            <span
-              className={cn(
-                "ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-bold",
-                filter === "places" ? "bg-white/20 text-white" : "bg-line/70 text-mute",
-              )}
-            >
-              {counts.places}
-            </span>
-          </button>
-        </div>
+        <FilterChips
+          ariaLabel="Contact filters"
+          options={[
+            { id: "all", label: "All", icon: Sparkles, count: counts.all },
+            { id: "friends", label: "Friends", icon: Users, count: counts.friends },
+            { id: "communities", label: "Communities", icon: Building2, count: counts.communities },
+            { id: "places", label: "Places", icon: Store, count: counts.places },
+          ]}
+          value={filter}
+          onChange={setFilter}
+        />
 
         {/* Clean Search Input */}
         <div className="relative mt-3.5">

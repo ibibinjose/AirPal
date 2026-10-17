@@ -3,7 +3,18 @@ import { cn } from "@/lib/cn";
 import { triggerHaptic, type HapticStyle } from "@/lib/native";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "ghost" | "dark" | "gold" | "light" | "onDark" | "tonal" | "elevated" | "outlined" | "glass";
+  variant?:
+    | "primary"
+    | "ghost"
+    | "dark"
+    | "gold"
+    | "light"
+    | "onDark"
+    | "tonal"
+    | "elevated"
+    | "outlined"
+    | "glass"
+    | "destructive";
   size?: "md" | "lg" | "sm";
   loading?: boolean;
   haptic?: HapticStyle | false;
@@ -31,7 +42,7 @@ export function Button({
     <button
       className={cn(
         "inline-flex touch-manipulation select-none items-center justify-center gap-2 rounded-full font-medium transition active:scale-[0.98] disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-        size === "sm" && "min-h-[44px] px-3.5 text-sm lg:h-9 lg:min-h-0",
+        size === "sm" && "min-h-[44px] px-3.5 py-1.5 text-sm",
         size === "md" && "h-11 px-5 text-[15px]",
         size === "lg" && "h-12 px-6 text-base",
         variant === "primary" && "bg-brand text-white shadow-[0_10px_24px_-10px_rgba(18,22,20,0.28)]",
@@ -45,6 +56,8 @@ export function Button({
           "bg-card text-ink shadow-clay ring-1 ring-line hover:shadow-clay-hover active:shadow-clay-active",
         variant === "outlined" && "bg-transparent text-ink border border-line hover:bg-black/[0.04]",
         variant === "glass" && "apple-liquid-glass-light text-ink ring-1 ring-white/60 hover:ring-brand/40 shadow-xs",
+        variant === "destructive" &&
+          "bg-red-500/10 text-red-600 ring-1 ring-red-500/25 hover:bg-red-500/20 font-semibold dark:text-red-400",
         className,
       )}
       disabled={disabled || loading}

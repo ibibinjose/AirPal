@@ -9,11 +9,14 @@ import type {
   AccessClaims,
   JoinGuestlistSignupRequest,
   JoinGuestlistSignupResponse,
+  ListBioSubscribersRequest,
+  ListBioSubscribersResponse,
   ListGuestlistSignupsRequest,
   ListGuestlistSignupsResponse,
   UnsubscribeGuestlistRequest,
   UnsubscribeGuestlistResponse,
 } from "../../shared/airpal-security";
+import { HANDLE_RE, normalizeHandle } from "../../shared/bio";
 import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "./abuse";
 import { CALLABLE, db, isPlatformAdmin, requireAccount, requireAuth } from "./admin";
 
@@ -104,6 +107,45 @@ export const listGuestlistSignups = onCall(CALLABLE, async (request) => {
     hasMore: Math.max(0, start) + limit < rows.length,
     total: rows.length,
   };
+  return done;
+});
+
+export const listBioSubscribers = onCall(CALLABLE, async (request) => {
+  await noteAppCheck(request, "listBioSubscribers");
+  const uid = requireAuth(request.auth?.uid);
+  await enforceRateLimit(uid, "guestlistSignup", false);
+
+  const data = (request.data || {}) as ListBioSubscribersRequest;
+  const handle = normalizeHandle(String(data.handle || ""));
+  if (!HANDLE_RE.test(handle)) throw new HttpsError("invalid-argument", "Handle is required.");
+  const href = await db.collection("handles").doc(handle).get();
+  if (!href.exists) throw new HttpsError("not-found", "No bio.");
+  const profileId = String(href.data()?.profileId || "");
+  const profile = profileId ? await db.collection("profiles").doc(profileId).get() : null;
+  if (!profile?.exists || String(profile.data()?.ownerUid || "") !== uid) {
+    throw new HttpsError("permission-denied", "Owner only.");
+  }
+  // Small per-bio audience: one capped scan, filtered in code — no
+  // composite indexes to provision before the audience exists.
+  const snap = await db.collection(COLLECTION).limit(2000).get();
+  const rows = snap.docs
+    .map((row) => {
+      const d = (row.data() || {}) as Record<string, unknown>;
+      return {
+        email: String(d.email || ""),
+        name: String(d.name || ""),
+        city: String(d.city || ""),
+        source: String(d.source || ""),
+        consentAt: String(d.consentAt || ""),
+        createdAt: String(d.createdAt || ""),
+        unsubscribedAt: typeof d.unsubscribedAt === "string" ? d.unsubscribedAt : null,
+      };
+    })
+    .filter((r) => r.source === handle && !r.unsubscribedAt && r.email)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    .slice(0, 500)
+    .map(({ email, name, city, consentAt, createdAt }) => ({ email, name, city, consentAt, createdAt }));
+  const done: ListBioSubscribersResponse = { rows, total: rows.length };
   return done;
 });
 

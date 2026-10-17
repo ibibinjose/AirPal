@@ -206,6 +206,16 @@ service cloud.firestore {
         );
       }
 
+      // Per-event coupons: guests validate through the callable only, so codes
+      // can't be enumerated. Organiser writes, co-hosts never.
+      match /coupons/{code} {
+        allow get, list: if false;
+        allow write: if signedIn() && (
+          get(/databases/$(database)/documents/events/$(eventId)).data.organiserUid == request.auth.uid
+          || platformAdmin()
+        );
+      }
+
       match /feedback/{ratingId} {
         allow read: if signedIn() && (
           resource.data.uid == request.auth.uid

@@ -1,11 +1,14 @@
 import type { CalendarEvent, CalendarEventCategory, EventRecord, Speaker } from "@shared/event";
 import {
   cleanCapacity,
+  cleanEventHandles,
   cleanTicketCents,
+  cleanTicketTiers,
   eventGatePath,
   isEventFlavour,
   isStallCategory,
   normalizeSpeakerHandle,
+  sanitizeAgenda,
 } from "@shared/event";
 import type { NearbyEvent } from "@shared/nearby";
 import { formatEventTimeRange, toDateStr } from "./calendar-utils";
@@ -121,6 +124,7 @@ export function recordToCalendarBase(e: EventRecord): Omit<CalendarEvent, "isGoi
     address: e.address,
     geo: e.geo,
     ticketPriceCents: e.ticketPriceCents,
+    ticketTiers: e.ticketTiers,
     capacity: e.capacity,
     organiserUid: e.organiserUid,
     hostName: e.hostName,
@@ -129,6 +133,7 @@ export function recordToCalendarBase(e: EventRecord): Omit<CalendarEvent, "isGoi
     businessName: e.businessName,
     businessHandle: e.businessHandle,
     collaboratorHandles: e.collaboratorHandles,
+    sponsorHandles: e.sponsorHandles,
     registrationUrl: e.registrationUrl,
     registrationNote: e.registrationNote,
     shortWhy: e.shortWhy,
@@ -136,6 +141,10 @@ export function recordToCalendarBase(e: EventRecord): Omit<CalendarEvent, "isGoi
     virtualUrl: e.virtualUrl,
     requireApproval: e.requireApproval,
     themeColor: e.themeColor,
+    agenda: e.agenda,
+    refundPolicy: e.refundPolicy,
+    directions: e.directions,
+    registrationClosed: e.registrationClosed,
     category,
     categoryLabel: e.flavour === "market" ? "Market" : e.flavour === "expo" ? "Expo" : "Event",
     gatePath: e.gatePath,
@@ -181,6 +190,7 @@ export function docToCalendarBase(
       gatePath: typeof doc.gatePath === "string" ? doc.gatePath : undefined,
       speakers: cleanSpeakers(doc.speakers),
       ticketPriceCents: cleanTicketCents(doc.ticketPriceCents),
+      ticketTiers: cleanTicketTiers(doc.ticketTiers),
       capacity: cleanCapacity(doc.capacity),
       organiserUid: str(doc.organiserUid) || undefined,
       hostName: typeof doc.hostName === "string" ? doc.hostName : undefined,
@@ -191,6 +201,7 @@ export function docToCalendarBase(
       collaboratorHandles: Array.isArray(doc.collaboratorHandles)
         ? (doc.collaboratorHandles as unknown[]).filter((h): h is string => typeof h === "string")
         : undefined,
+      sponsorHandles: cleanEventHandles(doc.sponsorHandles),
       registrationUrl: typeof doc.registrationUrl === "string" ? doc.registrationUrl : undefined,
       registrationNote: typeof doc.registrationNote === "string" ? doc.registrationNote : undefined,
       locationType:
@@ -200,6 +211,10 @@ export function docToCalendarBase(
       virtualUrl: typeof doc.virtualUrl === "string" ? doc.virtualUrl : undefined,
       requireApproval: typeof doc.requireApproval === "boolean" ? doc.requireApproval : undefined,
       themeColor: typeof doc.themeColor === "string" ? doc.themeColor : undefined,
+      agenda: sanitizeAgenda(doc.agenda),
+      refundPolicy: typeof doc.refundPolicy === "string" ? doc.refundPolicy : undefined,
+      directions: typeof doc.directions === "string" ? doc.directions : undefined,
+      registrationClosed: doc.registrationClosed === true ? true : undefined,
     } as EventRecord;
     if (!rec.name.trim() || !rec.city.trim()) return null;
     return recordToCalendarBase(rec);
@@ -234,6 +249,7 @@ export function docToCalendarBase(
       tags: Array.isArray(doc.tags) ? doc.tags.filter((t): t is string => typeof t === "string") : [],
       speakers: cleanSpeakers(doc.speakers),
       ticketPriceCents: cleanTicketCents(doc.ticketPriceCents),
+      ticketTiers: cleanTicketTiers(doc.ticketTiers),
       capacity: cleanCapacity(doc.capacity),
       organiserUid: str(doc.organiserUid) || undefined,
       locationType:
@@ -243,6 +259,11 @@ export function docToCalendarBase(
       virtualUrl: typeof doc.virtualUrl === "string" ? doc.virtualUrl : undefined,
       requireApproval: typeof doc.requireApproval === "boolean" ? doc.requireApproval : undefined,
       themeColor: typeof doc.themeColor === "string" ? doc.themeColor : undefined,
+      agenda: sanitizeAgenda(doc.agenda),
+      refundPolicy: typeof doc.refundPolicy === "string" ? doc.refundPolicy : undefined,
+      directions: typeof doc.directions === "string" ? doc.directions : undefined,
+      registrationClosed: doc.registrationClosed === true ? true : undefined,
+      sponsorHandles: cleanEventHandles(doc.sponsorHandles),
     };
   }
   return null;
@@ -308,11 +329,13 @@ export function docToEventRecord(doc: Record<string, unknown>, id: string): Even
     collaboratorHandles: Array.isArray(doc.collaboratorHandles)
       ? doc.collaboratorHandles.filter((h): h is string => typeof h === "string")
       : undefined,
+    sponsorHandles: cleanEventHandles(doc.sponsorHandles),
     startsAt,
     endsAt: str(doc.endsAt) || startsAt,
     status: doc.status === "ended" ? "ended" : "live",
     gatePath: str(doc.gatePath) || eventGatePath(id),
     ticketPriceCents: cleanTicketCents(doc.ticketPriceCents),
+    ticketTiers: cleanTicketTiers(doc.ticketTiers),
     capacity: cleanCapacity(doc.capacity),
     festivalSlug: str(doc.festivalSlug) || undefined,
     track: str(doc.track) || undefined,
@@ -325,6 +348,10 @@ export function docToEventRecord(doc: Record<string, unknown>, id: string): Even
     virtualUrl: str(doc.virtualUrl) || undefined,
     requireApproval: typeof doc.requireApproval === "boolean" ? doc.requireApproval : undefined,
     themeColor: str(doc.themeColor) || undefined,
+    agenda: sanitizeAgenda(doc.agenda),
+    refundPolicy: str(doc.refundPolicy) || undefined,
+    directions: str(doc.directions) || undefined,
+    registrationClosed: doc.registrationClosed === true ? true : undefined,
     speakers: cleanSpeakers(doc.speakers),
     organiserUid: str(doc.organiserUid) || undefined,
     categoryChips: Array.isArray(doc.categoryChips)

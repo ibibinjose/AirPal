@@ -72,7 +72,7 @@ const SEED_POPULAR_TERMS: PopularItem[] = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  places: "#1805db",
+  places: "#004eff",
   events: "#e11d48",
   deals: "#d97706",
   circle: "#059669",
@@ -221,7 +221,7 @@ export function SearchAnalyticsPage() {
       name: name === "circle" ? "Circle" : name === "deals" ? "Deals" : name.charAt(0).toUpperCase() + name.slice(1),
       key: name,
       value: Math.max(value, 5),
-      color: CATEGORY_COLORS[name] || "#1805db",
+      color: CATEGORY_COLORS[name] || "#004eff",
     }));
   }, [popularTerms]);
 
@@ -419,7 +419,7 @@ export function SearchAnalyticsPage() {
                   setTimeRange(t.id as "7d" | "30d" | "all");
                 }}
                 className={cn(
-                  "inline-flex min-h-[40px] items-center rounded-lg px-3 text-xs font-medium transition cursor-pointer",
+                  "inline-flex min-h-[44px] items-center rounded-lg px-3 text-xs font-medium transition cursor-pointer",
                   timeRange === t.id ? "bg-card text-ink font-bold shadow-xs" : "text-mute hover:text-ink",
                 )}
               >
@@ -454,8 +454,8 @@ export function SearchAnalyticsPage() {
                   <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1805db" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#1805db" stopOpacity={0.0} />
+                        <stop offset="5%" stopColor="#004eff" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#004eff" stopOpacity={0.0} />
                       </linearGradient>
                       <linearGradient id="colorPlaces" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#059669" stopOpacity={0.3} />
@@ -483,7 +483,7 @@ export function SearchAnalyticsPage() {
                       type="monotone"
                       dataKey="total"
                       name="Total Queries"
-                      stroke="#1805db"
+                      stroke="#004eff"
                       strokeWidth={2.5}
                       fillOpacity={1}
                       fill="url(#colorTotal)"
@@ -551,7 +551,7 @@ export function SearchAnalyticsPage() {
                         fontSize: "12px",
                       }}
                     />
-                    <Bar dataKey="searches" fill="#1805db" radius={[0, 8, 8, 0]} />
+                    <Bar dataKey="searches" fill="#004eff" radius={[0, 8, 8, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -720,7 +720,7 @@ export function SearchAnalyticsPage() {
                         <span
                           className="inline-block rounded-md px-2 py-0.5 text-[10px] font-bold uppercase text-white"
                           style={{
-                            backgroundColor: CATEGORY_COLORS[item.category || "places"] || "#1805db",
+                            backgroundColor: CATEGORY_COLORS[item.category || "places"] || "#004eff",
                           }}
                         >
                           {item.category || "places"}

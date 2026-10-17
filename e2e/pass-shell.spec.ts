@@ -22,7 +22,7 @@ test.describe("Pass shell", () => {
     for (const tab of ["Pass", "Events", "Tickets", "Scan"]) {
       await expect(dock.getByRole("button", { name: tab, exact: true })).toBeVisible();
     }
-    await expect(dock.getByRole("button", { name: "My bio" })).toBeVisible();
+    await expect(dock.getByRole("button", { name: "Bio", exact: true })).toBeVisible();
     await expect(page.getByRole("tablist", { name: /AirPal Ecosystem Selector/i })).toHaveCount(0);
   });
 
