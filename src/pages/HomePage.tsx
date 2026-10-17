@@ -38,7 +38,7 @@ export function HomePage() {
     <div className="mx-auto max-w-7xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-6 sm:pt-6">
       {/* Editorial Page Greeting */}
       <div className="mb-6">
-        <div className="human-eyebrow">Made for people, not profiles</div>
+        <div className="human-eyebrow">Life made easy</div>
         <h1 className="human-title mt-2 text-2xl sm:text-3xl">
           {firstName ? `Hey ${firstName}, good to see you ` : "Hey, good to see you "}
           <span className="text-accent inline-block" aria-hidden="true">
