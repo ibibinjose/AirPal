@@ -32,7 +32,7 @@ test.describe("Global Navigation & Profile Flow", () => {
     await header.getByRole("button", { name: "Communities" }).click();
     await expect(page).toHaveURL(/\/events/);
 
-    await header.getByRole("button", { name: "Me" }).click();
+    await header.getByRole("button", { name: "Me", exact: true }).click();
     await expect(page).toHaveURL(/\/me/);
 
     await header.getByRole("button", { name: "AirPal Home" }).click();
@@ -121,9 +121,10 @@ test.describe("Global Navigation & Profile Flow", () => {
     await createBtn.click();
 
     await expect(page.getByRole("heading", { name: /What do you want to create\?/i })).toBeVisible();
-    await expect(page.getByText("Host an Event")).toBeVisible();
+    const hostEventOption = page.getByRole("button", { name: /host an event/i });
+    await expect(hostEventOption).toBeVisible();
 
-    await page.getByText("Host an Event").click();
+    await hostEventOption.click();
     await expect(page).toHaveURL(/\/event/);
   });
 });

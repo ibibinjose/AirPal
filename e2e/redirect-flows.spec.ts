@@ -16,18 +16,22 @@ test.describe("Retired route redirects", () => {
     }
   });
 
-  test("cut cohort routes redirect to business and events", async ({ page }) => {
-    await page.goto("/join");
-    await page.waitForLoadState("domcontentloaded");
-    await expect(page).toHaveURL(/\/business/);
+  test("arrival routes render the unified arrival page", async ({ page }) => {
+    for (const route of ["/join", "/join/SCAPE26", "/arrival", "/arrival/SCAPE26"]) {
+      await page.goto(route);
+      await page.waitForLoadState("domcontentloaded");
+      await expect(page).toHaveURL(new RegExp(`${route.replace(/[/]/g, "\\/")}$`));
+    }
 
     await page.goto("/join/SCAPE26");
     await page.waitForLoadState("domcontentloaded");
-    await expect(page).toHaveURL(/\/business/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/crew/i);
+    await expect(page.getByText("SCAPE26", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: /events/i }).first()).toBeVisible();
 
     await page.goto("/arrival");
     await page.waitForLoadState("domcontentloaded");
-    await expect(page).toHaveURL(/\/events/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/welcome in/i);
 
     await page.goto("/g/unsw-village");
     await page.waitForLoadState("domcontentloaded");
