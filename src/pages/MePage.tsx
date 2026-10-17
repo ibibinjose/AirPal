@@ -34,15 +34,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
 import { useLocalNow } from "@/contexts/LocalNowContext";
 import { useMyBookings } from "@/hooks/useMyBookings";
-import {
-  listCatchUps,
-  subscribeCatchUpsForOwner,
-  updateCatchUpStatus,
-  type CatchUpItem,
-  type CatchUpType,
-} from "@/lib/catchup";
+import { listCatchUps, subscribeCatchUpsForOwner, updateCatchUpStatus, type CatchUpItem } from "@/lib/catchup";
 import { getDailyOutfitRecommendation } from "@/lib/outfit";
-import { BioCatchUpModal } from "@/components/bio/BioCatchUpModal";
 import { AddToCalendarMenu } from "@/components/calendar/AddToCalendarMenu";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { VerifyEmailBanner } from "@/components/auth/VerifyEmailBanner";
@@ -72,7 +65,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { useEvents } from "@/contexts/EventsContext";
 
-type CockpitTab = "all" | "today" | "appointments" | "tickets" | "pass";
+type MeTab = "all" | "today" | "appointments" | "tickets" | "pass";
 
 export function MePage() {
   const [, nav] = useLocation();
@@ -83,11 +76,9 @@ export function MePage() {
   const { myEvent } = useEvents();
 
   const [catchUpsList, setCatchUpsList] = useState<CatchUpItem[]>(() => listCatchUps());
-  const [catchUpModalOpen, setCatchUpModalOpen] = useState(false);
-  const [catchUpInitialType, setCatchUpInitialType] = useState<CatchUpType>("catchup");
   const [bioQrData, setBioQrData] = useState<string>("");
   const [copiedBioLink, setCopiedBioLink] = useState(false);
-  const [activeTab, setActiveTab] = useState<CockpitTab>("all");
+  const [activeTab, setActiveTab] = useState<MeTab>("all");
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Subscribe to live catch-up proposals & appointments
@@ -198,18 +189,18 @@ export function MePage() {
       <AuthGate
         next="/me"
         kicker="AirPal Me"
-        title="Universal AirPal Identity"
-        lede="Sign in or create an account to access your AirPal Me cockpit, tickets, and appointments."
+        title="Your AirPal Me account"
+        lede="Sign in or create an account to access your AirPal Me home, tickets, and appointments."
       />
     );
   }
 
-  const handleTabChange = (tab: CockpitTab) => {
+  const handleTabChange = (tab: MeTab) => {
     void triggerHapticSelection();
     setActiveTab(tab);
   };
 
-  const showSection = (tab: CockpitTab) => activeTab === "all" || activeTab === tab;
+  const showSection = (tab: MeTab) => activeTab === "all" || activeTab === tab;
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] pt-[max(1rem,env(safe-area-inset-top,0px))]">
@@ -233,7 +224,7 @@ export function MePage() {
               <Ticket size={13} className="text-amber-400" />
               <span>AirPal Pass</span>
               {upcomingTickets.length > 0 && (
-                <span className="rounded-full bg-amber-500 px-1.5 py-0.2 text-[10px] font-black text-black">
+                <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-black text-black">
                   {upcomingTickets.length}
                 </span>
               )}
@@ -293,7 +284,7 @@ export function MePage() {
                   {mine && <BioKindBadge kind={mine.kind} />}
                 </div>
 
-                <h1 className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink leading-tight truncate text-balance">
+                <h1 className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink leading-tight truncate">
                   {user.displayName || mine?.name || "AirPal Member"}
                 </h1>
 
@@ -304,7 +295,7 @@ export function MePage() {
                     className="group inline-flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-ink ring-1 ring-line/80 hover:ring-brand/50 transition cursor-pointer active:scale-95"
                   >
                     <span className="text-accent group-hover:underline">
-                      {mine ? `@${mine.handle}` : "@claim-handle"}
+                      {mine ? `@${mine.handle}` : "Claim your @handle"}
                     </span>
                     {copiedBioLink ? (
                       <Check size={12} className="text-emerald-600" />
@@ -365,7 +356,7 @@ export function MePage() {
           </div>
 
           {/* Quick Metrics Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4 mt-2 border-t border-line/60">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-4 mt-2 border-t border-line/60">
             <button
               type="button"
               onClick={() => handleTabChange("today")}
@@ -438,21 +429,34 @@ export function MePage() {
         </div>
       </div>
 
-      {/* 🧭 2. APPLE-INSPIRED SEGMENTED COCKPIT TAB BAR */}
+      {/* 🧭 2. APPLE-INSPIRED SEGMENTED TAB BAR */}
       <div className="sticky top-2 z-20 mb-6">
         <TabPills
           layout="contained"
-          ariaLabel="Cockpit sections"
+          ariaLabel="Me sections"
           items={[
-            { id: "all" as const, label: "All Cockpit", icon: Sparkles },
-            { id: "today" as const, label: "Today", icon: Sun, badge: String(todayTotalCount) },
+            { id: "all" as const, label: "All", icon: Sparkles },
+            {
+              id: "today" as const,
+              label: "Today",
+              icon: Sun,
+              badge: todayTotalCount > 0 ? String(todayTotalCount) : undefined,
+            },
             {
               id: "appointments" as const,
               label: "Catch-ups",
               icon: Coffee,
-              badge: String(upcomingScheduledAppointments.length + pendingAppointments.length),
+              badge:
+                upcomingScheduledAppointments.length + pendingAppointments.length > 0
+                  ? String(upcomingScheduledAppointments.length + pendingAppointments.length)
+                  : undefined,
             },
-            { id: "tickets" as const, label: "Tickets", icon: Ticket, badge: String(upcomingTickets.length) },
+            {
+              id: "tickets" as const,
+              label: "Tickets",
+              icon: Ticket,
+              badge: upcomingTickets.length > 0 ? String(upcomingTickets.length) : undefined,
+            },
             { id: "pass" as const, label: "Bio & QR Pass", icon: QrCode },
           ]}
           active={activeTab}
@@ -460,7 +464,7 @@ export function MePage() {
         />
       </div>
 
-      {/* 🌟 3. MAIN COCKPIT SECTIONS */}
+      {/* 🌟 3. MAIN ME SECTIONS */}
       <div className="space-y-6">
         {/* SECTION: TODAY'S AGENDA */}
         {showSection("today") && (
@@ -624,13 +628,12 @@ export function MePage() {
                     type="button"
                     onClick={() => {
                       void triggerHaptic("light");
-                      setCatchUpInitialType("catchup");
-                      setCatchUpModalOpen(true);
+                      nav("/circle");
                     }}
                     className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition active:scale-95 cursor-pointer"
                   >
-                    <Coffee size={14} />
-                    <span>Propose a Catch-Up</span>
+                    <Users size={14} />
+                    <span>Meet people</span>
                   </button>
                   <button
                     type="button"
@@ -657,7 +660,7 @@ export function MePage() {
                 <div>
                   <h2 className="font-display text-lg sm:text-xl font-black text-ink">Appointments &amp; Catch-ups</h2>
                   <p className="text-xs text-mute font-medium">
-                    1-on-1 Catch-ups &amp; Syncs ({upcomingScheduledAppointments.length + pendingAppointments.length})
+                    1-on-1 catch-ups ({upcomingScheduledAppointments.length + pendingAppointments.length})
                   </p>
                 </div>
               </div>
@@ -667,58 +670,12 @@ export function MePage() {
                   type="button"
                   onClick={handleCopyBioLink}
                   className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
-                  title="Copy your Meet & Hangout link"
+                  title="Copy your bio link"
                 >
                   {copiedBioLink ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
-                  <span>{copiedBioLink ? "Copied" : "Share Meet Link"}</span>
+                  <span>{copiedBioLink ? "Copied" : "Share My Bio"}</span>
                 </button>
               </div>
-            </div>
-
-            {/* Quick Proposal Options */}
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 mb-5">
-              {(
-                [
-                  {
-                    type: "catchup" as const,
-                    label: "Catch Up",
-                    sub: "1-on-1 coffee",
-                    Icon: Coffee,
-                    tint: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-                  },
-                  {
-                    type: "meeting" as const,
-                    label: "Meeting",
-                    sub: "1-on-1 sync",
-                    Icon: Calendar,
-                    tint: "bg-sky-500/15 text-sky-700 dark:text-sky-400",
-                  },
-                  {
-                    type: "nightout" as const,
-                    label: "Hangout",
-                    sub: "Group catch-up",
-                    Icon: Users,
-                    tint: "bg-violet-500/15 text-violet-700 dark:text-violet-400",
-                  },
-                ] as const
-              ).map((opt) => (
-                <button
-                  key={opt.type}
-                  type="button"
-                  onClick={() => {
-                    void triggerHaptic("light");
-                    setCatchUpInitialType(opt.type);
-                    setCatchUpModalOpen(true);
-                  }}
-                  className="flex min-h-[82px] cursor-pointer flex-col items-center justify-center rounded-2xl bg-paper/60 p-3 text-center ring-1 ring-line/80 shadow-2xs transition hover:ring-brand/40 active:scale-95"
-                >
-                  <span className={cn("mb-1.5 grid h-9 w-9 place-items-center rounded-2xl", opt.tint)}>
-                    <opt.Icon size={16} />
-                  </span>
-                  <span className="text-xs font-bold text-ink">{opt.label}</span>
-                  <span className="text-[10px] text-mute leading-none mt-0.5">{opt.sub}</span>
-                </button>
-              ))}
             </div>
 
             {/* Pending Requests */}
@@ -798,7 +755,7 @@ export function MePage() {
             {/* Upcoming Scheduled Syncs */}
             {upcomingScheduledAppointments.length > 0 ? (
               <div className="space-y-3">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-mute">Upcoming Scheduled Syncs</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-mute">Upcoming</p>
                 {upcomingScheduledAppointments.map((item) => (
                   <div
                     key={item.id}
@@ -842,7 +799,7 @@ export function MePage() {
                           className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full bg-emerald-500/15 px-3.5 text-xs font-bold text-emerald-800 ring-1 ring-emerald-500/30 hover:bg-emerald-500/25 transition active:scale-95"
                         >
                           <PhoneCall size={13} />
-                          <span>Call</span>
+                          <span>Join Call</span>
                         </a>
                       )}
                       <AddToCalendarMenu
@@ -867,13 +824,10 @@ export function MePage() {
                 <p className="text-xs text-mute font-medium">No upcoming appointments or catch-ups.</p>
                 <button
                   type="button"
-                  onClick={() => {
-                    setCatchUpInitialType("catchup");
-                    setCatchUpModalOpen(true);
-                  }}
+                  onClick={() => nav("/circle")}
                   className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-accent underline cursor-pointer hover:text-brand transition"
                 >
-                  Propose a coffee or meeting now →
+                  Find someone to meet →
                 </button>
               </div>
             ) : null}
@@ -943,7 +897,7 @@ export function MePage() {
                         onClick={() => nav(`/ticket/${ticket.id}`)}
                       >
                         <QrCode size={14} className="mr-1.5" />
-                        Scan Pass
+                        Open Pass
                       </Button>
                       <div className="flex flex-wrap items-center gap-1.5">
                         <AppleWalletButton
@@ -1117,7 +1071,7 @@ export function MePage() {
                 <h3 className="font-display text-base font-bold text-ink">Invite mates to AirPal</h3>
               </div>
               <p className="text-xs text-mute mb-4 leading-relaxed">
-                Earn founder referral badges &amp; points when friends claim their bio handle or join your circle.
+                Earn Stars when friends claim their bio handle or join your circle.
               </p>
             </div>
             <InvitePanel handle={mine?.handle} loading={!biosReady} />
@@ -1158,7 +1112,7 @@ export function MePage() {
                 </Link>
                 {isHost ? (
                   <Link
-                    href="/host"
+                    href="/event"
                     className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition text-xs font-bold text-ink active:scale-95"
                   >
                     <Building2 size={15} className="text-emerald-600" />
@@ -1213,22 +1167,6 @@ export function MePage() {
           <VerifyEmailBanner email={user.email} onSend={sendVerificationEmail} />
         )}
       </div>
-
-      {/* Propose Catch-Up Modal */}
-      {mine && (
-        <BioCatchUpModal
-          open={catchUpModalOpen}
-          onClose={() => setCatchUpModalOpen(false)}
-          handle={mine.handle}
-          name={user.displayName || mine.name || "Me"}
-          city={mine.city || city || "Sydney"}
-          avatar={mine.avatar}
-          ownerUid={user.uid}
-          initialType={catchUpInitialType}
-          defaultMeetingUrl={mine.meetingUrl}
-          defaultMeetingPlatform={mine.preferredMeetingPlatform}
-        />
-      )}
     </div>
   );
 }
