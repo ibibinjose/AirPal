@@ -42,7 +42,7 @@ describe("browse menu", () => {
 
   it("matches host shortcuts without overlapping each other", () => {
     const hostMatched = (path: string) => HOST_LINKS.filter((link) => link.match(path)).map((link) => link.label);
-    expect(hostMatched("/host")).toEqual(["Host dashboard"]);
+    expect(hostMatched("/event")).toEqual([]);
     expect(hostMatched("/host/pulse")).toEqual(["Guest ratings"]);
     expect(hostMatched("/business/promotions")).toEqual(["Promotions"]);
     expect(hostMatched("/business")).toEqual([]);

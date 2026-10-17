@@ -6,7 +6,6 @@ import {
   Headphones,
   Images,
   Info,
-  LayoutDashboard,
   LifeBuoy,
   Mail,
   QrCode,
@@ -59,7 +58,6 @@ export const BROWSE_LINKS: BrowseLink[] = [
 
 /** Host shortcuts: everything a host needs, one tap from the browse menu. */
 export const HOST_LINKS: BrowseLink[] = [
-  { href: "/host", label: "Host dashboard", icon: LayoutDashboard, match: (p) => p === "/host" },
   {
     href: "/host/pulse",
     label: "Guest ratings",

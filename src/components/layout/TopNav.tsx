@@ -103,7 +103,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
               nav("/scan");
             }}
             className="hidden xl:inline-flex h-9 shrink-0 items-center rounded-full bg-white/10 px-3.5 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20 transition active:scale-95 lg:h-10 cursor-pointer"
-            title="Scan QR / Room"
+            title="Scan QR"
           >
             Scan
           </button>
