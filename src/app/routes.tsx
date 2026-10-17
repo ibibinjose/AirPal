@@ -10,6 +10,9 @@ import { HomePage } from "@/pages/HomePage";
 
 // V2 Canonical Rebuilt Routes
 const CirclePage = lazy(() => import("@/pages/CirclePage").then((m) => ({ default: m.CirclePage })));
+const PlacesPage = lazy(() => import("@/pages/PlacesPage").then((m) => ({ default: m.PlacesPage })));
+const CommunitiesPage = lazy(() => import("@/pages/CommunitiesPage").then((m) => ({ default: m.CommunitiesPage })));
+const FriendsPage = lazy(() => import("@/pages/FriendsPage").then((m) => ({ default: m.FriendsPage })));
 const ScanPage = lazy(() => import("@/pages/ScanPage").then((m) => ({ default: m.ScanPage })));
 const EventPage = lazy(() => import("@/pages/EventPage").then((m) => ({ default: m.EventPage })));
 const ExperienceDetailPage = lazy(() =>
@@ -110,8 +113,13 @@ export function AppRoutes() {
             <EventStudioPage />
           </Route>
 
+          {/* Discover: places & communities */}
+          <Route path="/places" component={PlacesPage} />
+          <Route path="/communities" component={CommunitiesPage} />
+
           {/* Circle & Me */}
           <Route path="/circle" component={CirclePage} />
+          <Route path="/friends" component={FriendsPage} />
           <Route path="/me" component={MePage} />
           <Route path="/bio" component={MePage} />
           <Route path="/bio/setup" component={BioSetupPage} />

@@ -25,7 +25,10 @@ describe("one AirPal App registry", () => {
     expect(canonicalRouteFor("/pass")?.section).toBe("pass");
     expect(canonicalRouteFor("/events")?.section).toBe("pass");
     expect(canonicalRouteFor("/e/abc")?.section).toBe("pass");
+    expect(canonicalRouteFor("/places")?.section).toBe("discover");
+    expect(canonicalRouteFor("/communities")?.section).toBe("discover");
     expect(canonicalRouteFor("/circle")?.section).toBe("circle");
+    expect(canonicalRouteFor("/friends")?.section).toBe("circle");
     expect(canonicalRouteFor("/me")?.section).toBe("circle");
     expect(canonicalRouteFor("/business")?.section).toBe("business");
     expect(canonicalRouteFor("/join/XYZ")?.section).toBe("business");

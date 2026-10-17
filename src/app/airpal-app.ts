@@ -15,7 +15,7 @@
  * - system: auth, settings, legal/static
  */
 
-export type AppSectionId = "home" | "pass" | "circle" | "business" | "admin" | "system";
+export type AppSectionId = "home" | "pass" | "discover" | "circle" | "business" | "admin" | "system";
 
 export interface AppSection {
   id: AppSectionId;
@@ -27,7 +27,8 @@ export interface AppSection {
 export const APP_SECTIONS: AppSection[] = [
   { id: "home", label: "Home", href: "/", blurb: "Welcome to AirPal — life made easy." },
   { id: "pass", label: "Events & Access", href: "/pass", blurb: "Concerts, festivals, tickets, and door access." },
-  { id: "circle", label: "Circle & Me", href: "/circle", blurb: "People, bios, calendar, and memories." },
+  { id: "discover", label: "Place & Community", href: "/places", blurb: "Venues to discover, organisers to follow." },
+  { id: "circle", label: "Circle & Me", href: "/friends", blurb: "Friends, bios, calendar, and memories." },
   { id: "business", label: "Business & Arrival", href: "/business", blurb: "Venues, perks, arrivals, and belonging." },
   { id: "admin", label: "Admin", href: "/admin", blurb: "Platform console for AirPal stewards." },
   { id: "system", label: "System", href: "/settings", blurb: "Sign-in, settings, trust, and legal." },
@@ -60,8 +61,12 @@ export const CANONICAL_ROUTES: CanonicalRoute[] = [
   { pattern: "/me/tickets", section: "pass", label: "Wallet" },
   { pattern: "/scan", section: "pass", label: "Door scanner" },
   { pattern: "/calendar", section: "pass", label: "Calendar" },
+  // Discover: places & communities
+  { pattern: "/places", section: "discover", label: "Place discovery" },
+  { pattern: "/communities", section: "discover", label: "Community discovery" },
   // Circle & Me
   { pattern: "/circle", section: "circle", label: "Networking Circle" },
+  { pattern: "/friends", section: "circle", label: "Friends" },
   { pattern: "/me", section: "circle", label: "Me dashboard" },
   { pattern: "/bio", section: "circle", label: "Me dashboard (alias)" },
   { pattern: "/@handle", section: "circle", label: "Public bio" },
@@ -130,7 +135,6 @@ export const STATIC_ALIASES: Array<{ from: string; to: string }> = [
   { from: "/discover", to: "/" },
   { from: "/discovery", to: "/" },
   { from: "/guide", to: "/" },
-  { from: "/places", to: "/" },
   { from: "/my-day", to: "/" },
   { from: "/search", to: "/" },
   { from: "/venues", to: "/" },
@@ -149,8 +153,6 @@ export const STATIC_ALIASES: Array<{ from: string; to: string }> = [
   { from: "/q/:a", to: "/" },
   { from: "/q/:city/:handle", to: "/" },
   // Retired legacy shells land on their pillar home.
-  { from: "/communities", to: "/events" },
-  { from: "/friends", to: "/circle" },
   { from: "/c", to: "/events" },
   { from: "/c/:id", to: "/events" },
   { from: "/f", to: "/events" },

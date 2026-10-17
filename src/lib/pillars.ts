@@ -28,9 +28,11 @@ export const PILLARS: PillarItem[] = [
     kicker: "Social & Belonging",
     subLabel: "Live Concerts, Pass & Networking Circle",
     match: (p: string) =>
-      p === "/communities" ||
       p.startsWith("/events") ||
       p.startsWith("/pass") ||
+      p.startsWith("/places") ||
+      p.startsWith("/communities") ||
+      p.startsWith("/friends") ||
       p.startsWith("/circle") ||
       p.startsWith("/event") ||
       p.startsWith("/e/") ||
@@ -47,6 +49,9 @@ export const PILLARS: PillarItem[] = [
     subLinks: [
       { href: "/events", label: "Events" },
       { href: "/pass", label: "AirPal Pass" },
+      { href: "/places", label: "Places" },
+      { href: "/communities", label: "Communities" },
+      { href: "/friends", label: "Friends" },
       { href: "/circle", label: "Circle" },
       { href: "/deals", label: "Deals" },
       { href: "/event", label: "Host" },

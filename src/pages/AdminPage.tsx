@@ -5,6 +5,7 @@ import { useLocalNow } from "@/hooks/useLocalNow";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { TabPills } from "@/components/ui/TabPills";
+import { StatTile } from "@/components/dashboard/StatTile";
 import { Link, useLocation } from "wouter";
 import { activePlaces } from "@/lib/catalog";
 import { useEvents } from "@/contexts/EventsContext";
@@ -74,7 +75,8 @@ export function AdminPage() {
   const { calendarEvents, remoteNearby } = useEvents();
 
   const totalEvents = calendarEvents.length + remoteNearby.length;
-  const totalPlaces = activePlaces().length;
+  // Catalog merge is O(n) — compute once per render tree, not per card.
+  const totalPlaces = useMemo(() => activePlaces().length, []);
   const totalHandles = rows.length || profiles.length;
 
   useEffect(() => {
@@ -226,43 +228,28 @@ export function AdminPage() {
 
           {/* Catalog & Infrastructure Core Metrics */}
           <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
-              <div className="flex items-center justify-between text-mute">
-                <span className="text-xs font-semibold uppercase tracking-wider">Catalog Places</span>
-                <MapPin className="h-4 w-4 text-accent" />
-              </div>
-              <p className="font-display mt-2 text-3xl font-bold text-ink">{totalPlaces}</p>
-              <p className="text-[11px] text-mute mt-0.5">Sydney curated venues</p>
-            </div>
-
-            <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
-              <div className="flex items-center justify-between text-mute">
-                <span className="text-xs font-semibold uppercase tracking-wider">Events & Live</span>
-                <Flame className="h-4 w-4 text-orange-500" />
-              </div>
-              <p className="font-display mt-2 text-3xl font-bold text-ink">{totalEvents}</p>
-              <p className="text-[11px] text-mute mt-0.5">Calendar & nearby items</p>
-            </div>
-
-            <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
-              <div className="flex items-center justify-between text-mute">
-                <span className="text-xs font-semibold uppercase tracking-wider">Public Handles</span>
-                <Globe2 className="h-4 w-4 text-emerald-500" />
-              </div>
-              <p className="font-display mt-2 text-3xl font-bold text-ink">{totalHandles}</p>
-              <p className="text-[11px] text-mute mt-0.5">Active creator link-in-bios</p>
-            </div>
-
-            <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
-              <div className="flex items-center justify-between text-mute">
-                <span className="text-xs font-semibold uppercase tracking-wider">Client Errors</span>
-                <ShieldCheck className={`h-4 w-4 ${clientErrors > 0 ? "text-amber-500" : "text-emerald-500"}`} />
-              </div>
-              <p className="font-display mt-2 text-3xl font-bold text-ink">{clientErrors}</p>
-              <p className="text-[11px] text-mute mt-0.5">
-                {clientErrors === 0 ? "System healthy" : "Requires triage"}
-              </p>
-            </div>
+            <StatTile label="Catalog Places" value={String(totalPlaces)} hint="Live venues" icon={MapPin} />
+            <StatTile
+              label="Events & Live"
+              value={String(totalEvents)}
+              hint="Calendar & nearby items"
+              icon={Flame}
+              tone="amber"
+            />
+            <StatTile
+              label="Public Handles"
+              value={String(totalHandles)}
+              hint="Active creator link-in-bios"
+              icon={Globe2}
+              tone="green"
+            />
+            <StatTile
+              label="Client Errors"
+              value={String(clientErrors)}
+              hint={clientErrors === 0 ? "System healthy" : "Requires triage"}
+              icon={ShieldCheck}
+              tone={clientErrors > 0 ? "red" : "green"}
+            />
           </section>
 
           {/* Operational Quick Portals */}

@@ -36,12 +36,15 @@ describe("TabBar", () => {
     expect(markup).toContain(">Bio<");
   });
 
-  it("renders Home, Circle and Bio tabs in companion mode", () => {
+  it("renders Home, Place, Community, Friends, and Me tabs in companion mode", () => {
     const markup = renderToStaticMarkup(createElement(TabBar, { path: "/" }));
     expect(markup).toContain(">Home<");
-    expect(markup).toContain(">Circle<");
-    expect(markup).toContain(">Bio<");
+    expect(markup).toContain(">Place<");
+    expect(markup).toContain(">Community<");
+    expect(markup).toContain(">Friends<");
+    expect(markup).toContain(">Me<");
     expect(markup).not.toContain(">Now<");
     expect(markup).not.toContain(">Plan<");
+    expect(markup).not.toContain(">Bio<");
   });
 });

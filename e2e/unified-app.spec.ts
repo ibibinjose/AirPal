@@ -48,4 +48,28 @@ test.describe("Unified app pages", () => {
     await page.waitForLoadState("domcontentloaded");
     await expect(page.getByText(/event organiser/i).first()).toBeVisible();
   });
+
+  test("/places renders the venue directory", async ({ page }) => {
+    await page.goto("/places");
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/find your kind of place/i);
+  });
+
+  test("/communities renders organiser communities", async ({ page }) => {
+    await page.goto("/communities");
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/find your people/i);
+  });
+
+  test("/friends renders the friends hub", async ({ page }) => {
+    await page.goto("/friends");
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/never go alone/i);
+  });
+
+  test("/me asks guests to sign in", async ({ page }) => {
+    await page.goto("/me");
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.getByText(/sign in or create an account/i).first()).toBeVisible();
+  });
 });

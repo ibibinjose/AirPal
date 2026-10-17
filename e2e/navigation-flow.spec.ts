@@ -77,15 +77,21 @@ test.describe("Global Navigation & Profile Flow", () => {
     const tabNav = page.locator("nav.lg\\:hidden");
     await expect(tabNav).toBeVisible();
 
-    // Shipped companion dock: Home / Circle / Bio.
-    await tabNav.getByRole("button", { name: "Networking Circle" }).click();
-    await expect(page).toHaveURL(/\/circle/);
+    // Shipped companion dock: Home / Place / Community / Friends / Me.
+    await tabNav.getByRole("button", { name: "Place" }).click();
+    await expect(page).toHaveURL(/\/places/);
+
+    await tabNav.getByRole("button", { name: "Community" }).click();
+    await expect(page).toHaveURL(/\/communities/);
+
+    await tabNav.getByRole("button", { name: "Friends" }).click();
+    await expect(page).toHaveURL(/\/friends/);
+
+    await tabNav.getByRole("button", { name: "Me dashboard" }).click();
+    await expect(page).toHaveURL(/\/me/);
 
     await tabNav.getByRole("button", { name: "Home" }).click();
     await expect(page).toHaveURL(/localhost:3000\/$/);
-
-    await tabNav.getByRole("button", { name: "My bio" }).click();
-    await expect(page).toHaveURL(/\/start|\/bio\/setup|\/@|\/bio/);
   });
 
   test("universal quick search command palette opens and navigates to explore shortcuts", async ({ page }) => {

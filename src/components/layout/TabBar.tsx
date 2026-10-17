@@ -1,4 +1,15 @@
-import { AtSign, CalendarDays, Home, QrCode, ScanLine, Ticket, Users } from "@/components/icons";
+import {
+  AtSign,
+  CalendarDays,
+  HeartHandshake,
+  Home,
+  MapPin,
+  QrCode,
+  ScanLine,
+  Ticket,
+  UserRound,
+  Users,
+} from "@/components/icons";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -7,18 +18,19 @@ import { getFirebaseDb } from "@/lib/firebase";
 import { cn } from "@/lib/cn";
 import { enterEase } from "@/lib/motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { useBio } from "@/contexts/BioContext";
 import { triggerHapticSelection } from "@/lib/native";
 import { isPassApp } from "@/lib/app-flavor";
 import { getEcosystemMode } from "@/components/brand/EcosystemSwitcher";
 import { useVirtualKeyboard } from "@/lib/keyboard";
 import { passTabFromPath, tabFromPath, type GuestTab, type PassTab } from "@/lib/tabs";
 
-/** Shipped companion dock: Home / Circle / Bio. */
+/** Shipped companion dock: Home / Place / Community / Friends / Me. */
 const TABS: { href: string; id: GuestTab; label: string; icon: typeof Home }[] = [
   { href: "/", id: "home", label: "Home", icon: Home },
-  { href: "/circle", id: "circle", label: "Circle", icon: Users },
-  { href: "/bio", id: "bio", label: "Bio", icon: AtSign },
+  { href: "/places", id: "places", label: "Place", icon: MapPin },
+  { href: "/communities", id: "communities", label: "Community", icon: Users },
+  { href: "/friends", id: "friends", label: "Friends", icon: HeartHandshake },
+  { href: "/me", id: "me", label: "Me", icon: UserRound },
 ];
 
 /** Pass shell dock: Pass / Events / Tickets / Scan / Bio. */
@@ -70,13 +82,11 @@ function useInboxUnread(uid: string | undefined): number {
 export function TabBar({ path, enter = false }: { path: string; enter?: boolean }) {
   const [, nav] = useLocation();
   const { user } = useAuth();
-  const { mine } = useBio();
   const passShell = isPassApp();
   const isPass = passShell || getEcosystemMode(path) === "pass";
   const tabs = isPass ? PASS_TABS : TABS;
   const active = isPass ? passTabFromPath(path) : tabFromPath(path);
   const { isKeyboardOpen } = useVirtualKeyboard();
-  const bioHref = !user ? "/start" : mine?.handle ? `/@${mine.handle}` : "/bio/setup";
   const inboxUnread = useInboxUnread(user?.uid);
 
   return (
@@ -95,23 +105,14 @@ export function TabBar({ path, enter = false }: { path: string; enter?: boolean 
         <div className="apple-liquid-glass-dock relative mb-[max(0.75rem,env(safe-area-inset-bottom,0px))] flex items-center justify-between rounded-full p-1.5 text-ink">
           {tabs.map((tab) => {
             const on = active === tab.id;
-            const href =
-              isPass && tab.id === "bio" ? (user ? "/bio" : "/start") : tab.id === "bio" ? bioHref : tab.href;
+            const href = isPass && tab.id === "bio" ? (user ? "/bio" : "/start") : tab.href;
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 type="button"
                 aria-current={on ? "page" : undefined}
-                aria-label={
-                  tab.id === "bio"
-                    ? "My bio"
-                    : tab.id === "circle"
-                      ? "Networking Circle"
-                      : tab.id === "me"
-                        ? "Me dashboard"
-                        : tab.label
-                }
+                aria-label={tab.id === "me" ? "Me dashboard" : tab.label}
                 onClick={() => {
                   void triggerHapticSelection();
                   nav(href);
@@ -130,23 +131,17 @@ export function TabBar({ path, enter = false }: { path: string; enter?: boolean 
                   />
                 )}
                 <span className="relative z-10 flex flex-col items-center justify-center gap-0.5 transition-transform duration-150">
-                  {tab.id === "bio" ? (
-                    <span className="flex h-[21px] w-[21px] items-center justify-center text-[18px] font-bold leading-none">
-                      @
-                    </span>
-                  ) : (
-                    <span className="relative">
-                      <Icon size={20} strokeWidth={on ? 2.35 : 1.8} fill="none" />
-                      {(tab.id === "circle" || tab.id === "me") && inboxUnread > 0 && (
-                        <span
-                          className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white"
-                          aria-label={`${inboxUnread} unread`}
-                        >
-                          {inboxUnread > 9 ? "9+" : inboxUnread}
-                        </span>
-                      )}
-                    </span>
-                  )}
+                  <span className="relative">
+                    <Icon size={20} strokeWidth={on ? 2.35 : 1.8} fill="none" />
+                    {(tab.id === "friends" || tab.id === "me") && inboxUnread > 0 && (
+                      <span
+                        className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white"
+                        aria-label={`${inboxUnread} unread`}
+                      >
+                        {inboxUnread > 9 ? "9+" : inboxUnread}
+                      </span>
+                    )}
+                  </span>
                   <span className="max-w-full truncate px-0.5 text-[10px] font-semibold leading-none tracking-tight">
                     {tab.label}
                   </span>

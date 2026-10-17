@@ -69,6 +69,7 @@ import { partnerAccountPath } from "@/lib/partner-account";
 import { NAMES } from "@shared/names";
 import { toast } from "sonner";
 import { cn } from "@/lib/cn";
+import { useEvents } from "@/contexts/EventsContext";
 
 type CockpitTab = "all" | "today" | "appointments" | "tickets" | "pass";
 
@@ -78,6 +79,7 @@ export function MePage() {
   const { mine, business, biosReady, updateProfile } = useBio();
   const { today, weather, city, day } = useLocalNow();
   const { upcomingBookings } = useMyBookings();
+  const { myEvent } = useEvents();
 
   const [catchUpsList, setCatchUpsList] = useState<CatchUpItem[]>(() => listCatchUps());
   const [catchUpModalOpen, setCatchUpModalOpen] = useState(false);
@@ -291,7 +293,7 @@ export function MePage() {
                 </div>
 
                 <h1 className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink leading-tight truncate text-balance">
-                  {user.displayName || mine?.name || "Test User"}
+                  {user.displayName || mine?.name || "AirPal Member"}
                 </h1>
 
                 <div className="flex items-center gap-2 mt-1.5 flex-wrap">
@@ -301,7 +303,7 @@ export function MePage() {
                     className="group inline-flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-ink ring-1 ring-line/80 hover:ring-brand/50 transition cursor-pointer active:scale-95"
                   >
                     <span className="text-accent group-hover:underline">
-                      {mine ? `@${mine.handle}` : biosReady ? "@claim-handle" : "@testmate"}
+                      {mine ? `@${mine.handle}` : "@claim-handle"}
                     </span>
                     {copiedBioLink ? (
                       <Check size={12} className="text-emerald-600" />
@@ -990,6 +992,50 @@ export function MePage() {
                 </Button>
               </div>
             )}
+          </section>
+        )}
+
+        {/* SECTION: HOSTING — events I run */}
+        {(activeTab === "all" || activeTab === "today") && myEvent && (
+          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay">
+            <div className="flex items-center justify-between gap-3 mb-5">
+              <div className="flex items-center gap-2.5">
+                <span className="grid h-9 w-9 place-items-center rounded-2xl bg-brand/10 text-accent">
+                  <Calendar size={18} />
+                </span>
+                <div>
+                  <h2 className="font-display text-lg sm:text-xl font-black text-ink">Hosting</h2>
+                  <p className="text-xs text-mute font-medium">My event, live from the studio</p>
+                </div>
+              </div>
+              <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 ring-1 ring-emerald-500/20">
+                {myEvent.status}
+              </span>
+            </div>
+            <div className="rounded-3xl bg-paper/60 p-5 ring-1 ring-line/80">
+              <h3 className="font-display font-bold text-base text-ink leading-snug">{myEvent.name}</h3>
+              <p className="text-xs text-mute mt-1">{[myEvent.venue, myEvent.city].filter(Boolean).join(" · ")}</p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                <Link
+                  href="/event"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-brand px-4 text-xs font-bold text-white transition hover:bg-brand-ink active:scale-95"
+                >
+                  Open studio
+                </Link>
+                <Link
+                  href={`/e/${myEvent.id}/manage`}
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-full px-4 text-xs font-bold text-ink ring-1 ring-line transition hover:bg-card active:scale-95"
+                >
+                  Manage
+                </Link>
+                <Link
+                  href={`/e/${myEvent.id}/guests`}
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-full px-4 text-xs font-bold text-ink ring-1 ring-line transition hover:bg-card active:scale-95"
+                >
+                  Guestlist
+                </Link>
+              </div>
+            </div>
           </section>
         )}
 

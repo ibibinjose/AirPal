@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useLocation, Link } from "wouter";
 import { toast } from "sonner";
 import { BUSINESS_CATEGORIES, listingToPlace, type BusinessCategoryId } from "@shared/business";
@@ -44,6 +44,7 @@ import { bioLinksFromGooglePlace, mergeBioLinks } from "@shared/google-place";
 import { NAMES } from "@shared/names";
 import { WaveHostCard } from "@/components/wave/WaveHostCard";
 import { triggerHapticSelection } from "@/lib/native";
+import { StatTile } from "@/components/dashboard/StatTile";
 import {
   Activity,
   AlertTriangle,
@@ -262,7 +263,7 @@ export function BusinessPage() {
     setBusy(true);
     try {
       await saveDeal(mine!.id, { badge: badge.trim(), detail: detail.trim(), claimHint: "Show AirPal" });
-      toast.success("Exclusive deal published to What's On & Explore");
+      toast.success("Exclusive deal published to Deals");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to publish deal");
     } finally {
@@ -285,22 +286,27 @@ export function BusinessPage() {
   }
 
   const handle = mine.handle || bio?.handle;
-  const preview = withWalk(
-    listingToPlace({
-      ...mine,
-      name,
-      category,
-      placeCategory: mine.placeCategory,
-      address: formatAddress(address),
-      hours,
-      shortWhy,
-      description,
-      deal: badge ? { badge, detail } : mine.deal,
-      handle,
-      heroImage: hero || mine.heroImage,
-      geo: geo || mine.geo,
-      phone,
-    }),
+  // Guest preview recomputes only when edited fields change — not on every keystroke render.
+  const preview = useMemo(
+    () =>
+      withWalk(
+        listingToPlace({
+          ...mine,
+          name,
+          category,
+          placeCategory: mine.placeCategory,
+          address: formatAddress(address),
+          hours,
+          shortWhy,
+          description,
+          deal: badge ? { badge, detail } : mine.deal,
+          handle,
+          heroImage: hero || mine.heroImage,
+          geo: geo || mine.geo,
+          phone,
+        }),
+      ),
+    [mine, name, category, address, hours, shortWhy, description, badge, detail, handle, hero, geo, phone],
   );
 
   return (
@@ -430,6 +436,31 @@ export function BusinessPage() {
           </Link>
         </div>
       </header>
+
+      {/* Business health at a glance — real counts, no placeholders */}
+      <section aria-label="Business overview" className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile label="Campaigns" value={String(stats.campaigns)} hint="Active promotions" icon={Tag} />
+        <StatTile
+          label="RSVPs"
+          value={String(stats.rsvps)}
+          hint="Guest reservations"
+          icon={Activity}
+          tone={stats.rsvps > 0 ? "green" : "brand"}
+        />
+        <StatTile
+          label="Venues"
+          value={String(myListings.length)}
+          hint={myListings.length > 1 ? "Switch above" : "Partner account"}
+          icon={Building2}
+        />
+        <StatTile
+          label="Offer"
+          value={mine.deal ? "Live" : "None"}
+          hint={mine.deal ? mine.deal.badge : "Publish one below"}
+          icon={Gift}
+          tone={mine.deal ? "green" : "amber"}
+        />
+      </section>
 
       {/* Main 12-Column Responsive Cockpit */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
