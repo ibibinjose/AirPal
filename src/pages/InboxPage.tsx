@@ -123,7 +123,7 @@ export function InboxPage() {
       <div className="mx-auto max-w-md px-4 py-8">
         <EmptyState
           title="Couldn't load your inbox"
-          body="Check your connection and try again — your messages are safe."
+          body="Check your connection and try again — your notifications are safe."
           action={() => setRetryToken((t) => t + 1)}
           actionLabel="Try again"
         />

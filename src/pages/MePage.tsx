@@ -288,7 +288,7 @@ export function MePage() {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-accent bg-brand/10 ring-1 ring-brand/20 rounded-full px-2.5 py-0.5">
                     <Sparkles size={11} aria-hidden="true" />
-                    <span>Me Cockpit</span>
+                    <span>Me</span>
                   </span>
                   {mine && <BioKindBadge kind={mine.kind} />}
                 </div>

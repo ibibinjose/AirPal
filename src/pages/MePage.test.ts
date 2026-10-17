@@ -108,13 +108,12 @@ vi.mock("@/lib/catchup", async (importOriginal) => {
 });
 
 describe("MePage", () => {
-  it("renders Me cockpit with today's agenda, appointments, tickets and catch-ups", () => {
+  it("renders Me with today's agenda, appointments, tickets and catch-ups", () => {
     const markup = renderToStaticMarkup(createElement(MePage));
 
     // Identity and handle
     expect(markup).toContain("Test User");
     expect(markup).toContain("@testmate");
-    expect(markup).toContain("Me Cockpit");
 
     // Today's Agenda
     expect(markup).toContain("Today&#x27;s Agenda");

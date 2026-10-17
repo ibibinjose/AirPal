@@ -106,7 +106,7 @@ export function AuthGate({
         description: lede || "Public nights and ticketed shows — list yours in minutes.",
         benefits: [
           "Free or paid tickets for a public event",
-          "Show up in Explore and Calendar",
+          "Show up on Home and Calendar",
           "Guests pay by card — you get paid after the night",
         ],
         accentColor: "text-accent",

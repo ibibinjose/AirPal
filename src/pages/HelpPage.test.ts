@@ -15,7 +15,7 @@ describe("HelpPage", () => {
 
     expect(html).toContain("How can we help?");
     expect(html).toContain("Tickets, bookings, and payments");
-    expect(html).toContain("Report or block someone");
+    expect(html).toContain("Report someone");
     expect(html).toContain("Trust &amp; safety");
     expect(html).toContain("Still stuck?");
   });

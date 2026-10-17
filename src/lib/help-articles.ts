@@ -68,20 +68,17 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     id: "report-block",
-    title: "Report or block someone",
+    title: "Report someone",
     category: "safety",
-    summary: "Reports go to human review. Blocking is instant and private.",
+    summary: "Tell us what happened — a human reviews every report.",
     steps: [
-      "Open the conversation, booking, or profile involved.",
-      "Use Report to tell us what happened — a human reviews every case.",
-      "Use Block to stop all contact immediately; they are not notified.",
-      "For anything urgent or unsafe, contact us directly.",
+      "Open Contact us and include the person's @handle if you know it.",
+      "Say where it happened (event, bio, booking) and what happened.",
+      "A human reviews every case and acts on the account if needed.",
+      "For anything urgent or unsafe, choose the Safety & Reports topic.",
       "Never share verification documents, passwords, or card details with anyone.",
     ],
-    links: [
-      { label: "Inbox", href: "/me/inbox" },
-      { label: "Contact us", href: "/contact" },
-    ],
+    links: [{ label: "Contact us", href: "/contact" }],
   },
   {
     id: "account-bio",

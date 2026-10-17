@@ -23,7 +23,7 @@ export class ErrorBoundary extends React.Component<
         <div className="grid min-h-dvh place-items-center bg-paper p-8 text-center">
           <div className="max-w-md w-full">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Error</p>
-            <p className="font-display mt-2 text-2xl font-bold">Something broke</p>
+            <p className="font-display mt-2 text-2xl font-bold">Something went wrong</p>
             <p className="mt-2 text-sm text-mute">
               Reload the page. If it keeps happening, scan a code or write to us.
             </p>

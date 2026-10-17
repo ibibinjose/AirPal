@@ -100,8 +100,8 @@ export function MemoryWallPage() {
       <AuthGate
         next="/me/memories"
         kicker="Memory Wall"
-        title="Your trip memories"
-        lede="Sign in to keep a Memory Wall of the people and places from your trip. Photos stay on this device until you back them up, and sync when you're signed in."
+        title="Your memory wall"
+        lede="Sign in to keep a Memory Wall of the people and places from your days out. Photos stay on this device until you back them up, and sync when you're signed in."
       />
     );
   }
@@ -179,7 +179,7 @@ export function MemoryWallPage() {
           <ArrowLeft size={16} />
         </button>
         <div className="min-w-0">
-          <p className="human-eyebrow">Trip keepsakes</p>
+          <p className="human-eyebrow">People &amp; places</p>
           <h1 className="human-section-title text-2xl text-balance">Memory Wall</h1>
         </div>
         <Button size="sm" className="ml-auto gap-1.5 rounded-full" onClick={() => fileRef.current?.click()}>
@@ -208,7 +208,7 @@ export function MemoryWallPage() {
           </div>
           <p className="font-display mt-3 text-lg font-bold">No memories yet</p>
           <p className="mx-auto mt-1 max-w-xs text-sm text-mute">
-            Snap a photo with the people you meet — it lands here with their names, so the trip stays with you.
+            Snap a photo with the people you meet — it lands here with their names, so the day stays with you.
           </p>
           <Button className="mt-4 gap-1.5 rounded-full" onClick={() => fileRef.current?.click()}>
             <Camera size={15} />

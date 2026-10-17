@@ -181,7 +181,7 @@ export function BusinessPage() {
                 2
               </span>
               <h3 className="font-semibold text-xs text-ink mt-2.5">Publish Offers</h3>
-              <p className="text-[11px] text-mute mt-1">Drive instant foot traffic with neighbourhood perks.</p>
+              <p className="text-[11px] text-mute mt-1">Bring in foot traffic with neighbourhood perks.</p>
             </div>
             <div className="rounded-2xl bg-paper p-4 ring-1 ring-line/60">
               <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-purple-500/10 text-xs font-bold text-purple-600">
@@ -559,7 +559,7 @@ export function BusinessPage() {
               >
                 <div>
                   <h2 className="font-display text-base font-bold text-ink">Venue Details & Media</h2>
-                  <p className="text-xs text-mute">Showcase your property to neighbourhood visitors and locals</p>
+                  <p className="text-xs text-mute">Showcase your venue to neighbourhood visitors and locals</p>
                 </div>
 
                 {/* Hero Image */}
@@ -637,7 +637,7 @@ export function BusinessPage() {
                       <label className="block text-xs font-bold uppercase tracking-wider text-mute">
                         Physical Location & GPS
                       </label>
-                      <p className="text-[11px] text-mute">Used for neighborhood search and walking distances</p>
+                      <p className="text-[11px] text-mute">Used for neighbourhood search and walking distances</p>
                     </div>
                     <Button
                       type="button"

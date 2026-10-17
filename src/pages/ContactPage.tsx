@@ -8,6 +8,7 @@ import { fieldInput, fieldTextarea } from "@/components/forms/ValidField";
 
 const TOPICS = [
   { id: "general", label: "General" },
+  { id: "safety", label: "Safety & Reports" },
   { id: "ticketing", label: "Tickets & Passes" },
   { id: "host", label: "Event / Venue Host" },
   { id: "business", label: "Local Business / Merchant" },

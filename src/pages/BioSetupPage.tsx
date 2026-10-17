@@ -305,7 +305,7 @@ export function BioSetupPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
-      <p className="human-eyebrow">{asBusiness ? "Host" : "AirPal.Me/@"}</p>
+      <p className="human-eyebrow">{asBusiness ? "Business" : "AirPal.Me/@"}</p>
       <h1 className="human-title mt-1 text-3xl text-balance">{asBusiness ? "List your place" : "Your handle"}</h1>
       <p className="human-lede mt-2 text-sm sm:text-base">
         {asBusiness

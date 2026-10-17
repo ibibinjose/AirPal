@@ -146,7 +146,7 @@ export function HomePage() {
               </div>
               <div>
                 <h3 className="human-section-title text-sm">A little perk goes a long way.</h3>
-                <p className="text-sm text-mute mt-0.5">Local dining perks and kind guest offers near you.</p>
+                <p className="text-sm text-mute mt-0.5">Local dining perks and friendly offers near you.</p>
               </div>
             </div>
 
@@ -188,7 +188,7 @@ export function HomePage() {
           {/* Page sign-off (the global SiteFooter owns the contentinfo landmark) */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-sm text-mute">
             <span>Made for every human, every day.</span>
-            <span>airpal.me · Curated preview</span>
+            <span>airpal.me</span>
           </div>
         </div>
       </div>

@@ -331,8 +331,7 @@ export function StartPage() {
           {next && (
             <div className="mt-5 rounded-2xl bg-amber-500/10 p-3.5 text-left ring-1 ring-amber-500/25">
               <div className="flex items-center justify-between text-xs font-bold text-amber-800 dark:text-amber-300">
-                <span>Destination Pending</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider">Ready</span>
+                <span>Pick up where you left off</span>
               </div>
               <p className="truncate text-sm font-semibold text-ink mt-0.5">{next}</p>
               <Button
@@ -343,7 +342,7 @@ export function StartPage() {
                   nav(next);
                 }}
               >
-                Continue to destination →
+                Continue →
               </Button>
             </div>
           )}
