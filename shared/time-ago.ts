@@ -47,17 +47,3 @@ export function relativeAgo(iso: string, nowMs = Date.now()): string {
   }
   return "";
 }
-
-/**
- * Chat-list stamp: time today ("14:32"), Yesterday, weekday, or date.
- * Same-day keeps clock precision; older converges with relativeAgo.
- */
-export function smartChatTime(iso: string, nowMs = Date.now()): string {
-  const ms = parseMs(iso);
-  if (ms === null) return "";
-  if (ms > nowMs) return "";
-  if (startOfLocalDay(nowMs) === startOfLocalDay(ms)) {
-    return new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }
-  return relativeAgo(iso, nowMs);
-}

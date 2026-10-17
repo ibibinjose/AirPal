@@ -109,8 +109,6 @@ const CALLABLES = [
   "v3BlockUser",
   "v3UnblockUser",
   "v3ListAuditEntries",
-  "v3StartConversation",
-  "v3SendMessage",
 ];
 
 describe("functions barrel", () => {

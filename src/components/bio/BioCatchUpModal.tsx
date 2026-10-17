@@ -215,7 +215,7 @@ export function BioCatchUpModal({
         await persistCatchUp(interest);
         await scheduleCatchUpRemote({ catchupId: interest.id, action: "open" });
       } catch {
-        /* The catch-up row still exists locally. Suggest times retries the thread. */
+        /* The catch-up row still exists locally. Suggesting times can be retried. */
       }
 
       toast.success(`Proposed ${currentOption.label} with ${name}`);

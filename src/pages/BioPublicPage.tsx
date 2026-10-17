@@ -14,7 +14,6 @@ import {
   Lock,
   MapPin,
   MessageCircle,
-  MessageSquare,
   Navigation,
   Phone,
   PhoneCall,
@@ -45,8 +44,6 @@ import { BioStatusModal } from "@/components/bio/BioStatusModal";
 import { BioPulseRate } from "@/components/bio/BioPulseRate";
 import { BioKindIcon } from "@/components/bio/BioKindBadge";
 import { AddToCalendarMenu } from "@/components/calendar/AddToCalendarMenu";
-import { AirPalChatModal } from "@/components/messaging/AirPalChatModal";
-import { createConversationRecord } from "@/lib/chat-store";
 import { inviteLinkFor } from "@/lib/app-invites";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
@@ -57,7 +54,6 @@ import {
   openGoogleWalletPass,
 } from "@/lib/wallet";
 import { makeQrDataUrl } from "@/lib/qr";
-import type { UniversalConversation } from "@shared/messaging";
 import {
   listCatchUpsForHandle,
   subscribeCatchUpsForOwner,
@@ -174,8 +170,6 @@ export function BioPublicPage() {
   const [catchUpsList, setCatchUpsList] = useState<CatchUpItem[]>([]);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
-  const [chatModalOpen, setChatModalOpen] = useState(false);
-  const [chatConversation, setChatConversation] = useState<UniversalConversation | null>(null);
   const [visibilitySaving, setVisibilitySaving] = useState(false);
   const [activeVisibility, setActiveVisibility] = useState<"public" | "private" | null>(null);
   const { stalls, getEvent } = useEvents();
@@ -579,37 +573,6 @@ export function BioPublicPage() {
     }
   };
 
-  const handleStartChat = () => {
-    void triggerHaptic("light");
-    const currentUid = user?.uid || "guest_user";
-    let convType: UniversalConversation["type"] = "direct";
-    let targetId = bio.handle;
-
-    if (bio.kind === "business") {
-      convType = "business";
-      targetId = bio.handle;
-    } else {
-      convType = "direct";
-      targetId = bio.ownerUid || bio.handle;
-    }
-
-    const conv = createConversationRecord({
-      type: convType,
-      targetId,
-      title: bio.name,
-      photo: avatar || bio.cover,
-      userUid: currentUid,
-      userName: user?.displayName || "Guest",
-      userPhoto: user?.photoURL || undefined,
-      peerUid: targetId,
-      peerName: bio.name,
-      peerPhoto: avatar || bio.cover,
-    });
-
-    setChatConversation(conv);
-    setChatModalOpen(true);
-  };
-
   return (
     <div
       className={
@@ -995,17 +958,8 @@ export function BioPublicPage() {
             </button>
           </div>
 
-          {/* 1-Tap Quick Action Deck: [Chat], [WhatsApp], [Call] */}
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={handleStartChat}
-              className="group flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-brand/10 px-3 text-xs font-bold text-accent ring-1 ring-brand/30 transition-all duration-200 hover:bg-brand hover:text-white active:scale-95 shadow-2xs cursor-pointer"
-            >
-              <MessageSquare size={16} className="shrink-0 group-hover:scale-110 transition-transform" />
-              <span className="truncate">Chat</span>
-            </button>
-
+          {/* 1-Tap Quick Action Deck: [WhatsApp], [Call] */}
+          <div className="mt-3 grid grid-cols-2 gap-2">
             {whatsappUrl ? (
               <a
                 href={whatsappUrl}
@@ -1215,7 +1169,6 @@ export function BioPublicPage() {
 
               {/* Action Circles */}
               <div className="mt-5 flex gap-3 overflow-x-auto pb-1 no-scrollbar" aria-label="Contact actions">
-                <BizCircle label="Chat" Icon={MessageSquare} onClick={handleStartChat} />
                 {tel && (
                   <BizCircle label="Call" Icon={Phone} href={tel} onClick={() => recordTap(bio.handle, "call")} />
                 )}
@@ -2170,15 +2123,6 @@ export function BioPublicPage() {
             });
           }
         }}
-      />
-      {/* AirPal Universal Chat Modal */}
-      <AirPalChatModal
-        open={chatModalOpen}
-        onClose={() => {
-          setChatModalOpen(false);
-          setChatConversation(null);
-        }}
-        conversation={chatConversation}
       />
     </div>
   );

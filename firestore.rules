@@ -380,16 +380,6 @@ match /dining_orders/{orderId} {
         allow update, delete: if manages(propertyId);
       }
 
-      match /conversations/{conversationId} {
-        allow read: if manages(propertyId);
-        allow create: if signedIn()
-          && propertyExists(propertyId)
-          && request.resource.data.propertyId == propertyId
-          && request.resource.data.question is string
-          && request.resource.data.question.size() < 4000;
-        allow update, delete: if manages(propertyId);
-      }
-
       match /transactions/{transactionId} {
         allow read: if manages(propertyId);
         // Commercial writes require a non-anonymous signed-in user.
@@ -765,73 +755,6 @@ match /dining_orders/{orderId} {
         && reviewedBooking().paymentStatus == 'paid';
       allow get, list: if true;
       allow update, delete: if signedIn() && platformAdmin();
-    }
-
-    // §8 messaging: universal conversations (AirPal Chat) — participants only,
-    // admins read-only for moderation. No personal phone/email exposure by default.
-    match /conversations/{conversationId} {
-      function convParty() {
-        return signedIn() && !isAnonymous()
-          && request.auth.uid in resource.data.participantUids;
-      }
-      function convPartyCreate() {
-        return signedIn() && !isAnonymous()
-          && request.auth.uid in request.resource.data.participantUids;
-      }
-      allow create: if convPartyCreate()
-        && request.resource.data.participantUids is list
-        && request.resource.data.participantUids.size() >= 1
-        && request.resource.data.participantUids.size() <= 20
-        && request.resource.data.keys().hasAny(['updatedAt']);
-      allow read: if convParty() || (signedIn() && platformAdmin());
-      allow update: if convParty();
-      allow delete: if false;
-
-      match /messages/{messageId} {
-        function msgParty() {
-          return signedIn() && !isAnonymous()
-            && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantUids;
-        }
-        allow create: if msgParty()
-          && request.resource.data.senderUid == request.auth.uid
-          && request.resource.data.text is string
-          && request.resource.data.text.size() >= 1
-          && request.resource.data.text.size() <= 1000
-          && request.resource.data.keys().hasAny(['createdAt']);
-        allow get, list: if msgParty() || (signedIn() && platformAdmin());
-        allow update: if msgParty()
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readBy']);
-        allow delete: if false;
-      }
-    }
-
-    // §8 messaging: one chat per matched request, parties only (+ admins for moderation).
-    match /request_chats/{requestId} {
-      function chatParty() {
-        return signedIn() && !isAnonymous() && (
-          get(/databases/$(database)/documents/mate_requests/$(requestId)).data.ownerUid == request.auth.uid ||
-          get(/databases/$(database)/documents/mate_requests/$(requestId)).data.matchedMateUid == request.auth.uid
-        );
-      }
-      allow create: if chatParty()
-        && request.resource.data.requestId == requestId
-        && request.resource.data.keys().hasAny(['updatedAt']);
-      allow read: if chatParty() || (signedIn() && platformAdmin());
-      allow update: if chatParty();
-      allow delete: if false;
-
-      match /messages/{messageId} {
-        allow create: if chatParty()
-          && request.resource.data.senderUid == request.auth.uid
-          && request.resource.data.text is string
-          && request.resource.data.text.size() >= 1
-          && request.resource.data.text.size() <= 1000
-          && request.resource.data.keys().hasAny(['updatedAt']);
-        allow get, list: if chatParty() || (signedIn() && platformAdmin());
-        allow update: if chatParty()
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readBy']);
-        allow delete: if false;
-      }
     }
 
     // Trust moat: safety reports open admin cases; blocks are private to the blocker.

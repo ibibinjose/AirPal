@@ -54,7 +54,7 @@ describe("V3 contract validation", () => {
     );
   });
 
-  it("pins the 13 canonical collections", () => {
+  it("pins the 12 canonical collections", () => {
     expect([...V3_CANONICAL_COLLECTIONS]).toEqual([
       "users",
       "handles",
@@ -66,7 +66,6 @@ describe("V3 contract validation", () => {
       "deals",
       "dealClaims",
       "cohorts",
-      "conversations",
       "audits",
       "rateLimits",
     ]);

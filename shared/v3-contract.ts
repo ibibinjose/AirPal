@@ -16,13 +16,10 @@ export type V3OrderState = (typeof V3_ORDER_STATES)[number];
 export const V3_COHORT_STATES = ["open", "closed"] as const;
 export type V3CohortState = (typeof V3_COHORT_STATES)[number];
 
-export const V3_CONVERSATION_KINDS = ["direct", "event"] as const;
-export type V3ConversationKind = (typeof V3_CONVERSATION_KINDS)[number];
-
 export const V3_PLACE_CLAIM_STATES = ["pending", "approved", "rejected", "withdrawn"] as const;
 export type V3PlaceClaimState = (typeof V3_PLACE_CLAIM_STATES)[number];
 
-/** The 13 canonical V3 collections. Anything else is server-only. */
+/** The 12 canonical V3 collections. Anything else is server-only. */
 export const V3_CANONICAL_COLLECTIONS = [
   "users",
   "handles",
@@ -34,7 +31,6 @@ export const V3_CANONICAL_COLLECTIONS = [
   "deals",
   "dealClaims",
   "cohorts",
-  "conversations",
   "audits",
   "rateLimits",
 ] as const;
@@ -222,23 +218,6 @@ export type V3Cohort = {
   updatedAt: unknown;
 };
 
-export type V3Conversation = {
-  kind: V3ConversationKind;
-  participantUids: string[];
-  eventId?: string;
-  lastMessageAt: unknown;
-  lastMessagePreview: string;
-  createdAt: unknown;
-  updatedAt: unknown;
-};
-
-/** Server-only message shape; the messages subcollection denies client access. */
-export type V3ConversationMessage = {
-  senderUid: string;
-  text: string;
-  sentAt: unknown;
-};
-
 export type V3Audit = {
   action: string;
   actorUid: string;
@@ -385,17 +364,6 @@ export type V3FetchHandleRequest = {
   handle: string;
 };
 
-export type V3StartConversationRequest = {
-  kind: V3ConversationKind;
-  participantUids?: string[];
-  eventId?: string;
-};
-
-export type V3SendMessageRequest = {
-  conversationId: string;
-  text: string;
-};
-
 export type V3ListAuditsRequest = {
   subjectType?: string;
   subjectId?: string;
@@ -446,10 +414,6 @@ export function isV3Visibility(value: unknown): value is V3ProfileVisibility {
 
 export function isV3OrderState(value: unknown): value is V3OrderState {
   return value === "pending" || value === "paid" || value === "refunded" || value === "cancelled" || value === "failed";
-}
-
-export function isV3ConversationKind(value: unknown): value is V3ConversationKind {
-  return value === "direct" || value === "event";
 }
 
 export function isV3PlaceClaimState(value: unknown): value is V3PlaceClaimState {

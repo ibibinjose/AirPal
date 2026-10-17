@@ -18,4 +18,3 @@ export {
 } from "./business";
 export { v3CreateCheckout, v3StripeWebhook, v3RefundOrder, v3ReconcileOrder } from "./commerce";
 export { v3ReportContent, v3BlockUser, v3UnblockUser, v3ListAuditEntries } from "./trust";
-export { v3StartConversation, v3SendMessage } from "./messaging";

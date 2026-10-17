@@ -21,7 +21,7 @@ V3 serves the AirPal pillars:
 Discovery and Planning were removed from the product; their routes redirect
 to Home and their collections and callables are out of contract.
 
-It excludes a second chat engine, a second booking engine, and any separate
+It excludes a chat engine, a second booking engine, and any separate
 identity partition.
 
 ## Canonical Collections
@@ -38,7 +38,6 @@ identity partition.
 | `deals/{dealId}`                    | public when active                       | business callable         | Published business benefit.                                |
 | `dealClaims/{claimId}`              | claimant, issuer, admin                  | deal callable             | Single-use deal claim.                                     |
 | `cohorts/{cohortId}`                | member or host                           | arrival callable          | Arrival engine and cohort membership.                      |
-| `conversations/{id}`                | participant                              | messaging callable        | The existing universal conversation model.                 |
 | `audits/{id}` and `rateLimits/{id}` | admin only                               | Functions only            | Trust, abuse, and payment audit trail.                     |
 
 Subcollections not listed above are server-only unless explicitly added to the
@@ -51,7 +50,7 @@ use Firebase `uid` and small display snapshots only where a read requires it.
 - Public reads expose published discovery content and public profiles only.
 - A signed-in user may read their own account and private membership records.
 - All writes to profiles, places, events, tickets, orders, deals,
-  cohorts, conversations, audits, and access state go through Cloud Functions.
+  cohorts, audits, and access state go through Cloud Functions.
 - Firestore rules never infer payment completion from browser input.
 - Door access, role grants, handle claims, profile visibility, and deal claims
   are validated in Functions and recorded in `audits`.

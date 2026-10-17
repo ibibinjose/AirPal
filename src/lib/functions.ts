@@ -269,7 +269,6 @@ export function scheduleCatchUpRemote(data: { catchupId: string; action: "open" 
     typeof data,
     {
       ok: boolean;
-      conversationId: string;
       status: string;
       proposals: { id: string; date: string; time: string; label: string }[];
     }

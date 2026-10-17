@@ -115,16 +115,6 @@ service cloud.firestore {
       allow list, create, update, delete: if false;
     }
 
-    // Universal conversations. Participants only; messages are server-only.
-    match /conversations/{conversationId} {
-      allow get: if v3SignedIn() && v3Uid() in resource.data.participantUids;
-      allow list, create, update, delete: if false;
-
-      match /{subcollection}/{docId} {
-        allow read, write: if false;
-      }
-    }
-
     // Trust, abuse, and payment audit trail. Functions only.
     match /audits/{auditId} {
       allow read, write: if false;

@@ -23,9 +23,7 @@ import type {
   V3ReportRequest,
   V3RequestPlaceClaimRequest,
   V3ReviewPlaceClaimRequest,
-  V3SendMessageRequest,
   V3SetProfileVisibilityRequest,
-  V3StartConversationRequest,
   V3TicketActionRequest,
   V3UnblockUserRequest,
   V3UpdateProfileRequest,
@@ -159,9 +157,3 @@ export const v3UnblockUser = (request: V3UnblockUserRequest) =>
   callV3<V3UnblockUserRequest, { uid: string; blocked: boolean }>("v3UnblockUser", request);
 export const v3ListAuditEntries = (request: V3ListAuditsRequest) =>
   callV3<V3ListAuditsRequest, { entries: Record<string, unknown>[] }>("v3ListAuditEntries", request);
-
-// Messaging (universal conversations)
-export const v3StartConversation = (request: V3StartConversationRequest) =>
-  callV3<V3StartConversationRequest, { conversationId: string }>("v3StartConversation", request);
-export const v3SendMessage = (request: V3SendMessageRequest) =>
-  callV3<V3SendMessageRequest, { conversationId: string; sent: boolean }>("v3SendMessage", request);

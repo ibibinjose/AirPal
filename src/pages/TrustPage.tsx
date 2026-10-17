@@ -176,8 +176,8 @@ export function TrustPage() {
           <div className="py-4">
             <h3 className="text-[15px] font-bold text-ink">Payments</h3>
             <p className="mt-1 text-sm leading-relaxed text-ink/80">
-              Processed by Stripe. Paid bookings go through the platform — never direct transfers, never card numbers
-              over chat. AirPal never sees or stores card numbers.
+              Processed by Stripe. Paid bookings go through the platform — never direct transfers, never card numbers in
+              messages. AirPal never sees or stores card numbers.
             </p>
           </div>
           <div className="py-4">

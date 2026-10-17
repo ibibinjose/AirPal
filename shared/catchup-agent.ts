@@ -121,30 +121,15 @@ export function proposeCatchUpSlots(input: {
   return ordered;
 }
 
-export function catchUpThreadText(input: {
-  phase: "proposed" | "scheduled";
-  who: string;
-  typeLabel: string;
-  slots: CatchUpSlot[];
-  venue?: string;
-}): string {
-  const place = input.venue?.trim() ? ` at ${input.venue.trim()}` : "";
-  const first = input.slots[0];
-  if (input.phase === "scheduled" && first) {
-    return `Locked in: ${input.typeLabel} with ${input.who}${place}, ${first.label}. See you there.`;
-  }
-  const options = input.slots.map((row) => row.label).join(" · ");
-  return `${input.who} proposed a ${input.typeLabel}${place}. Suggested times: ${options || "pick a time in this thread"}.`;
-}
-
 export function catchUpNotice(input: {
   phase: "proposed" | "scheduled";
   who: string;
   typeLabel: string;
   slot?: CatchUpSlot;
-  conversationId: string;
+  handle?: string;
 }): { kind: "catchup_proposed" | "catchup_scheduled"; title: string; body: string; href: string } {
-  const href = `/me/inbox?chat=${encodeURIComponent(input.conversationId)}`;
+  const target = (input.handle || "").trim().replace(/^@/, "");
+  const href = target ? `/@${target.toLowerCase()}` : "/circle";
   if (input.phase === "scheduled") {
     return {
       kind: "catchup_scheduled",
@@ -156,9 +141,7 @@ export function catchUpNotice(input: {
   return {
     kind: "catchup_proposed",
     title: `${input.who} wants a ${input.typeLabel}`,
-    body: input.slot
-      ? `Suggested ${input.slot.label}. Open the thread to lock it in.`
-      : "Open the thread to pick a time.",
+    body: input.slot ? `Suggested ${input.slot.label}. Open the bio to lock it in.` : "Open the bio to pick a time.",
     href,
   };
 }

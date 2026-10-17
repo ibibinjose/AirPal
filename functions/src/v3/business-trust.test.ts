@@ -58,7 +58,6 @@ import {
 } from "./business";
 import { v3BlockUser, v3ListAuditEntries, v3ReportContent, v3UnblockUser } from "./trust";
 import { v3FetchHandle, v3ListEvents, v3ListPlaces, v3LookupGooglePlace } from "./discovery";
-import { v3SendMessage, v3StartConversation } from "./messaging";
 
 function seedPlace() {
   seedDoc("places/place-1", {
@@ -377,42 +376,5 @@ describe("v3 discovery", () => {
     await expect(runV3(v3LookupGooglePlace, undefined, { placeId: "bad" })).rejects.toMatchObject({
       code: "invalid-argument",
     });
-  });
-});
-
-describe("v3 messaging", () => {
-  beforeEach(() => {
-    resetFakes();
-  });
-
-  it("starts direct chats and refuses blocked pairs", async () => {
-    const res = (await runV3(v3StartConversation, "uid-1", { kind: "direct", participantUids: ["uid-2"] })) as {
-      conversationId: string;
-    };
-    expect(readDoc(`conversations/${res.conversationId}`)).toMatchObject({
-      kind: "direct",
-      participantUids: ["uid-1", "uid-2"],
-    });
-    expect(readDoc("users/uid-2")).toMatchObject({ conversationIds: [res.conversationId] });
-    seedDoc("users/uid-2/blocks/uid-1", { blockedUid: "uid-1" });
-    await expect(
-      runV3(v3StartConversation, "uid-1", { kind: "direct", participantUids: ["uid-2"] }),
-    ).rejects.toMatchObject({
-      code: "permission-denied",
-    });
-  });
-
-  it("sends participant-only messages with previews", async () => {
-    seedDoc("conversations/chat-1", {
-      kind: "direct",
-      participantUids: ["uid-1", "uid-2"],
-      lastMessagePreview: "",
-    });
-    await expect(runV3(v3SendMessage, "uid-9", { conversationId: "chat-1", text: "Hi" })).rejects.toMatchObject({
-      code: "permission-denied",
-    });
-    const res = await runV3(v3SendMessage, "uid-1", { conversationId: "chat-1", text: "See you at 7" });
-    expect(res).toEqual({ conversationId: "chat-1", sent: true });
-    expect(readDoc("conversations/chat-1")).toMatchObject({ lastMessagePreview: "See you at 7" });
   });
 });

@@ -1,7 +1,6 @@
 import { doc, getDoc, onSnapshot, type Firestore } from "firebase/firestore";
 import type {
   V3Cohort,
-  V3Conversation,
   V3Deal,
   V3DealClaim,
   V3Event,
@@ -257,24 +256,6 @@ export function parseV3Cohort(id: string, data: unknown): V3Doc<V3Cohort> | null
   };
 }
 
-export function parseV3Conversation(id: string, data: unknown): V3Doc<V3Conversation> | null {
-  const row = asRecord(data);
-  const kind = row ? asString(row.kind) : null;
-  const participants = row ? asStringArray(row.participantUids) : null;
-  if (!row || !participants) return null;
-  if (kind !== "direct" && kind !== "event") return null;
-  return {
-    id,
-    kind,
-    participantUids: participants,
-    eventId: asString(row.eventId) || undefined,
-    lastMessageAt: row.lastMessageAt,
-    lastMessagePreview: asString(row.lastMessagePreview) || "",
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-  };
-}
-
 function reader<T>(collectionName: string, parse: (id: string, data: unknown) => T | null) {
   return {
     async get(db: Firestore, id: string): Promise<T | null> {
@@ -300,4 +281,3 @@ export const v3Tickets = reader("tickets", parseV3Ticket);
 export const v3Orders = reader("orders", parseV3Order);
 export const v3DealClaims = reader("dealClaims", parseV3DealClaim);
 export const v3Cohorts = reader("cohorts", parseV3Cohort);
-export const v3Conversations = reader("conversations", parseV3Conversation);

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useSearch } from "wouter";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation } from "wouter";
 import { collection, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
-import { Bell, MessageCircle, Sparkles, Building2, Store, User } from "lucide-react";
+import { Bell, Sparkles } from "lucide-react";
 import { SegmentedControl } from "@/components/design-system/companions";
 import { PingsPanel } from "@/components/social/PingsPanel";
 import { AuthGate } from "@/components/auth/AuthGate";
@@ -11,27 +11,9 @@ import { enableWebPush, markAllNotificationsRead, markNotificationRead, pushPref
 import { cn } from "@/lib/cn";
 import { isUpdateNoteKind, type PromotionNotification } from "@shared/promotions";
 import { notificationPresentation } from "@shared/notifications";
-import { relativeAgo, smartChatTime } from "@shared/time-ago";
+import { relativeAgo } from "@shared/time-ago";
 import { toast } from "sonner";
-import { subscribeConversations, createConversationRecord, getLocalConversations } from "@/lib/chat-store";
-import type { UniversalConversation, ConversationType } from "@shared/messaging";
-import { AirPalChatModal } from "@/components/messaging/AirPalChatModal";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { triggerHaptic } from "@/lib/native";
-
-function ConversationTypeIcon({ type }: { type: ConversationType }) {
-  switch (type) {
-    case "ai":
-      return <Sparkles size={16} className="text-amber-500" />;
-    case "stay":
-      return <Building2 size={16} className="text-sky-500" />;
-    case "business":
-      return <Store size={16} className="text-emerald-500" />;
-    case "direct":
-    default:
-      return <User size={16} className="text-accent" />;
-  }
-}
 
 function NotificationRows({
   rows,
@@ -77,47 +59,17 @@ function NotificationRows({
 export function InboxPage() {
   const { user, authReady } = useAuth();
   const [, nav] = useLocation();
-  const search = useSearch();
-  const openedChat = useRef("");
   const [notes, setNotes] = useState<PromotionNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [retryToken, setRetryToken] = useState(0);
-  const [segment, setSegment] = useState<"messages" | "updates" | "pings" | "activity">("messages");
+  const [segment, setSegment] = useState<"updates" | "pings" | "activity">("updates");
   const [markingAll, setMarkingAll] = useState(false);
-
-  // Universal Chat State
-  const [universalChats, setUniversalChats] = useState<UniversalConversation[]>([]);
-  const [activeChat, setActiveChat] = useState<UniversalConversation | null>(null);
-  const [showChatModal, setShowChatModal] = useState(false);
 
   // All hooks stay above the early returns — anything below breaks hook order
   // between the loading render and the loaded render.
   const updateNotes = useMemo(() => notes.filter((n) => isUpdateNoteKind(n.kind)), [notes]);
   const activityNotes = useMemo(() => notes.filter((n) => !isUpdateNoteKind(n.kind)), [notes]);
-
-  // Subscribe to real-time Universal Chat conversations
-  useEffect(() => {
-    if (!user) {
-      setUniversalChats(getLocalConversations());
-      return;
-    }
-    const unsub = subscribeConversations(user.uid, (convs) => {
-      setUniversalChats(convs);
-    });
-    return () => unsub();
-  }, [user]);
-
-  useEffect(() => {
-    const chatId = new URLSearchParams(search).get("chat");
-    if (!chatId || openedChat.current === chatId) return;
-    const conv = universalChats.find((row) => row.id === chatId);
-    if (!conv) return;
-    openedChat.current = chatId;
-    setActiveChat(conv);
-    setShowChatModal(true);
-    setSegment("messages");
-  }, [search, universalChats]);
 
   useEffect(() => {
     const db = getFirebaseDb();
@@ -189,11 +141,9 @@ export function InboxPage() {
     );
   }
 
-  const getUnread = (c: UniversalConversation) => (user ? c.unreadCount?.[user.uid] || 0 : 0);
   const unreadUpdates = updateNotes.filter((n) => !n.read).length;
   const unreadActivity = activityNotes.filter((n) => !n.read).length;
-  const unreadChats = universalChats.reduce((sum, c) => sum + getUnread(c), 0);
-  const totalUnread = unreadUpdates + unreadActivity + unreadChats;
+  const totalUnread = unreadUpdates + unreadActivity;
 
   async function openNote(n: PromotionNotification) {
     if (!n.read) {
@@ -222,47 +172,15 @@ export function InboxPage() {
     else if (state === "denied") toast.error("Allow notifications in your browser settings.");
   }
 
-  const handleOpenChat = (conv: UniversalConversation) => {
-    void triggerHaptic("light");
-    setActiveChat(conv);
-    setShowChatModal(true);
-  };
-
-  const handleStartAiChat = () => {
-    void triggerHaptic("light");
-    if (!user) return;
-    const aiConv = createConversationRecord({
-      type: "ai",
-      targetId: "airpal-ai-concierge",
-      title: "AirPal AI Assistant",
-      userUid: user.uid,
-      userName: user.displayName || "User",
-      userPhoto: user.photoURL || undefined,
-    });
-    setActiveChat(aiConv);
-    setShowChatModal(true);
-  };
-
   return (
     <div className="mx-auto max-w-lg px-4 pb-[max(6rem,calc(env(safe-area-inset-bottom,0px)+5rem))]">
       <div className="flex items-center justify-between pt-6">
         <div>
           <h1 className="human-title text-[28px] text-balance">Inbox</h1>
           <p className="mt-1 text-sm sm:text-base text-mute tabular-data">
-            {totalUnread ? `${totalUnread} unread` : "Messages & notifications"}
+            {totalUnread ? `${totalUnread} unread` : "Updates & notifications"}
           </p>
         </div>
-
-        {/* Quick New Chat Button */}
-        <button
-          type="button"
-          onClick={handleStartAiChat}
-          className="flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand/10 px-3.5 text-xs font-bold text-accent ring-1 ring-brand/20 transition hover:bg-brand hover:text-white active:scale-95 shadow-xs"
-          title="Chat with AirPal AI"
-        >
-          <Sparkles size={14} className="text-amber-500" />
-          <span>Ask AirPal AI</span>
-        </button>
       </div>
 
       <div className="mt-4">
@@ -271,7 +189,6 @@ export function InboxPage() {
           value={segment}
           onChange={setSegment}
           options={[
-            { id: "messages", label: unreadChats ? `Messages (${unreadChats})` : "Messages" },
             { id: "updates", label: unreadUpdates ? `Updates (${unreadUpdates})` : "Updates" },
             { id: "pings", label: "Pings" },
             { id: "activity", label: unreadActivity ? `Activity (${unreadActivity})` : "Activity" },
@@ -281,122 +198,6 @@ export function InboxPage() {
 
       {segment === "pings" ? (
         <PingsPanel />
-      ) : segment === "messages" ? (
-        <div className="mt-4 space-y-4">
-          {/* Universal Active Conversations */}
-          {universalChats.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-2 px-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Direct &amp; AI Chats</span>
-                <span className="text-[11px] font-medium text-mute">{universalChats.length} active</span>
-              </div>
-              <ul className="overflow-hidden rounded-[24px] bg-card ring-1 ring-line/80 shadow-clay">
-                {universalChats.map((conv, i) => {
-                  const unread = getUnread(conv);
-                  const hasUnread = unread > 0;
-                  return (
-                    <li key={conv.id} className={cn(i > 0 && "border-t border-line/70")}>
-                      <button
-                        type="button"
-                        onClick={() => handleOpenChat(conv)}
-                        className="flex min-h-[56px] w-full cursor-pointer items-center gap-3.5 px-4 py-3.5 text-left transition hover:bg-paper/60 active:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
-                      >
-                        {/* Avatar / Icon */}
-                        <div className="relative shrink-0">
-                          {conv.photo ? (
-                            <img
-                              src={conv.photo}
-                              alt={conv.title}
-                              className="h-11 w-11 rounded-full object-cover ring-1 ring-line"
-                            />
-                          ) : (
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-paper ring-1 ring-line">
-                              <ConversationTypeIcon type={conv.type} />
-                            </div>
-                          )}
-                          {conv.type === "ai" && (
-                            <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 text-[8px] font-black text-slate-950 ring-1 ring-white">
-                              AI
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Text details */}
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-1">
-                            <p
-                              className={cn(
-                                "truncate text-[15px]",
-                                hasUnread ? "font-bold text-ink" : "font-semibold text-ink",
-                              )}
-                            >
-                              {conv.title}
-                            </p>
-                            {conv.updatedAt && smartChatTime(conv.updatedAt) ? (
-                              <span className="shrink-0 text-[11px] text-mute font-medium tabular-nums">
-                                {smartChatTime(conv.updatedAt)}
-                              </span>
-                            ) : null}
-                          </div>
-                          <p
-                            className={cn(
-                              "mt-0.5 line-clamp-1 text-[13px]",
-                              hasUnread ? "font-semibold text-accent" : "text-mute",
-                            )}
-                          >
-                            {conv.lastMessage || "Start conversation"}
-                          </p>
-                        </div>
-
-                        {/* Unread badge */}
-                        {hasUnread && (
-                          <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-brand px-1.5 text-[11px] font-black tabular-nums text-white shadow-xs">
-                            {unread}
-                          </span>
-                        )}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-
-          {universalChats.length === 0 ? (
-            <div className="text-center rounded-[24px] bg-card ring-1 ring-line/80 px-4 py-10 shadow-clay">
-              <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-paper text-mute ring-1 ring-line">
-                <MessageCircle size={22} className="text-accent" />
-              </span>
-              <p className="font-display mt-4 text-xl font-bold text-ink">No conversations yet</p>
-              <p className="mx-auto mt-1 max-w-xs text-[14px] leading-relaxed text-mute">
-                Start an AirPal AI chat, message your stay front desk, or invite mates to AirPal.
-              </p>
-              <div className="mt-5 flex justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleStartAiChat}
-                  className="inline-flex min-h-[44px] items-center rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-xs active:scale-95"
-                >
-                  Chat with AirPal AI
-                </button>
-                <Link
-                  href="/me"
-                  className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 py-2 text-xs font-bold text-ink ring-1 ring-line hover:bg-card active:scale-95"
-                >
-                  Invite Friends
-                </Link>
-              </div>
-            </div>
-          ) : null}
-
-          <button
-            type="button"
-            onClick={() => setSegment("activity")}
-            className="flex min-h-[44px] w-full items-center justify-center text-center text-[14px] font-semibold text-accent hover:underline"
-          >
-            See Activity &amp; Notifications →
-          </button>
-        </div>
       ) : segment === "activity" ? (
         <>
           <div className="mt-4 flex items-center justify-between">
@@ -475,16 +276,6 @@ export function InboxPage() {
           )}
         </>
       )}
-
-      {/* Universal AirPal Chat Modal */}
-      <AirPalChatModal
-        open={showChatModal}
-        onClose={() => {
-          setShowChatModal(false);
-          setActiveChat(null);
-        }}
-        conversation={activeChat}
-      />
     </div>
   );
 }

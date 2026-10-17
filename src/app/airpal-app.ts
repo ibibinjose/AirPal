@@ -176,8 +176,7 @@ export const STATIC_ALIASES: Array<{ from: string; to: string }> = [
   { from: "/qr-scanner", to: "/scan" },
   { from: "/notifications", to: "/me/inbox" },
   { from: "/inbox", to: "/me/inbox" },
-  { from: "/chat", to: "/me/inbox" },
-  { from: "/messages", to: "/me/inbox" },
+
   { from: "/account-sync", to: "/settings" },
   { from: "/search/analytics", to: "/admin/search-analytics" },
   { from: "/offers", to: "/deals" },

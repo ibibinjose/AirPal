@@ -57,7 +57,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     steps: [
       "Meet in a public place for the first few times.",
       "Tell someone where you're going and when you expect to be back.",
-      "Keep chat inside AirPal until you've met and trust is earned.",
+      "Keep plans and payments inside AirPal until you've met and trust is earned.",
       "Check verification badges on profiles before you commit.",
       "Trust your instincts — you can always cancel and leave.",
     ],

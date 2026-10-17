@@ -24,10 +24,9 @@ Design notes:
   return sanitised projections (no owner, trust, or money state).
 - `v3ListDeals` is additive to the contract's Discovery row so published deals
   stay discoverable without list rules.
-- Messaging (`v3StartConversation`/`v3SendMessage`) implements the
-  canonical-table "messaging callable" for `conversations`; message bodies are
-  a server-only subcollection. It is the existing universal model, not a
-  second chat engine.
+- Conversational chat is out of scope: there is no messaging callable and no
+  `conversations` collection. Catch-up coordination runs on slot proposals plus
+  inbox notifications that link back to the bio.
 - Commerce without `STRIPE_SECRET_KEY` creates honest `provider: "stub"`
   pending orders (emulator path). The webhook fails closed without a signing
   secret, and paid tickets issue only from a paid order, never browser input.

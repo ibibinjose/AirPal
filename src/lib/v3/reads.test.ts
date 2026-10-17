@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   parseV3Cohort,
-  parseV3Conversation,
   parseV3DealClaim,
   parseV3Order,
   parseV3Profile,
@@ -80,15 +79,12 @@ describe("V3 read parsers fail closed", () => {
     expect(parseV3Order("o", { ...order, state: "browser-says-paid" })).toBeNull();
   });
 
-  it("validates claims, cohorts, and conversations", () => {
+  it("validates claims and cohorts", () => {
     const claim = { dealId: "d", claimantUid: "c", issuerUid: "i", state: "claimed", code: "ABC123" };
     expect(parseV3DealClaim("c", claim)).toMatchObject({ code: "ABC123" });
     expect(parseV3DealClaim("c", { ...claim, state: "used" })).toBeNull();
     const cohort = { hostUid: "h", status: "open", title: "T", memberUids: ["h"] };
     expect(parseV3Cohort("c", cohort)).toMatchObject({ memberCount: 1 });
     expect(parseV3Cohort("c", { ...cohort, memberUids: "nope" })).toBeNull();
-    const chat = { kind: "direct", participantUids: ["a", "b"] };
-    expect(parseV3Conversation("c", chat)).toMatchObject({ kind: "direct" });
-    expect(parseV3Conversation("c", { ...chat, kind: "broadcast" })).toBeNull();
   });
 });

@@ -5,7 +5,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCompanion } from "@/contexts/CompanionContext";
 import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
 import { logAdminAction } from "@/lib/admin-audit";
-import { ChatBox } from "@/components/messaging/ChatBox";
 import { cn } from "@/lib/cn";
 import {
   MATE_REQUEST_STATUSES,
@@ -313,12 +312,7 @@ export function MateRequestsAdmin() {
                     <p className="mt-1 text-mute">Booking: {bookingFor[r.id]} (Stripe Checkout)</p>
                   )}
                   {r.adminNote && <p className="mt-1">Note: {r.adminNote}</p>}
-                  {(r.status === "matched" || r.status === "completed") && (
-                    <div className="mt-2">
-                      <p className="mb-1 text-xs font-semibold text-mute">Conversation transcript (read-only)</p>
-                      <ChatBox requestId={r.id} readOnly />
-                    </div>
-                  )}
+
                   <label className="mt-2 block">
                     <span className="text-xs font-semibold text-mute">Assign an approved Mate</span>
                     <select

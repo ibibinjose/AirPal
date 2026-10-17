@@ -8,7 +8,7 @@ function must(ok, message) {
   if (!ok) problems.push(message);
 }
 
-// --- V3 rules: default deny on the 13 canonical collections ---
+// --- V3 rules: default deny on the 12 canonical collections ---
 const rulesPath = resolve(root, "firestore.rules.v3");
 must(existsSync(rulesPath), "firestore.rules.v3 missing");
 const rules = existsSync(rulesPath) ? readFileSync(rulesPath, "utf8") : "";
@@ -24,7 +24,6 @@ const canonical = [
   "deals",
   "dealClaims",
   "cohorts",
-  "conversations",
   "audits",
   "rateLimits",
 ];
@@ -89,15 +88,15 @@ for (const name of canonical) {
 }
 
 // --- Callable domains: 7 modules behind the v3 barrel ---
-const domains = ["common", "identity", "discovery", "events", "business", "commerce", "trust", "messaging", "index"];
+const domains = ["common", "identity", "discovery", "events", "business", "commerce", "trust", "index"];
 for (const name of domains) {
   must(existsSync(resolve(root, "functions", "src", "v3", `${name}.ts`)), `functions/src/v3/${name}.ts missing`);
 }
 const barrel = readFileSync(resolve(root, "functions", "src", "v3", "index.ts"), "utf8");
 const exported = [...barrel.matchAll(/\bv3[A-Z][A-Za-z]+\b/g)].map((m) => m[0]);
-must(exported.length >= 32, `functions/src/v3/index.ts must export 32+ v3 callables (found ${exported.length})`);
+must(exported.length >= 30, `functions/src/v3/index.ts must export 30+ v3 callables (found ${exported.length})`);
 // Money paths stay in commerce.ts.
-for (const name of ["identity", "discovery", "events", "business", "trust", "messaging"]) {
+for (const name of ["identity", "discovery", "events", "business", "trust"]) {
   const body = readFileSync(resolve(root, "functions", "src", "v3", `${name}.ts`), "utf8");
   must(!body.includes("stripe."), `functions/src/v3/${name}.ts must not call Stripe directly`);
 }

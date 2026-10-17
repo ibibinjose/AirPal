@@ -19,7 +19,7 @@ export interface TrustFaq {
 export const TRUST_FAQ: TrustFaq[] = [
   {
     q: "Is AirPal.Me safe?",
-    a: "AirPal.Me is built with email and phone verification, understandable reputation, reporting and blocking, human admin review of safety cases, and payments held inside the platform — but no marketplace where people meet in real life can guarantee personal safety. Meet in public places, keep chat and payment inside AirPal.Me, and read the safety guidance in our help center.",
+    a: "AirPal.Me is built with email and phone verification, understandable reputation, reporting and blocking, human admin review of safety cases, and payments held inside the platform — but no marketplace where people meet in real life can guarantee personal safety. Meet in public places, keep plans and payment inside AirPal.Me, and read the safety guidance in our help center.",
   },
   {
     q: "Who owns AirPal.Me?",

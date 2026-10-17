@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { catchUpNotice, catchUpThreadText, proposeCatchUpSlots } from "./catchup-agent";
+import { catchUpNotice, proposeCatchUpSlots } from "./catchup-agent";
 
 describe("catch-up scheduler", () => {
   const now = new Date("2026-10-03T00:00:00Z");
@@ -28,36 +28,17 @@ describe("catch-up scheduler", () => {
     expect(slots.length).toBeGreaterThan(0);
   });
 
-  it("writes a proposal and a lock-in for the thread and the inbox", () => {
+  it("writes a proposal and a lock-in notice that links to the bio", () => {
     const slots = proposeCatchUpSlots({ now, requestedDate: "2026-10-04", requestedTime: "12:30" });
-    const proposed = catchUpThreadText({
-      phase: "proposed",
-      who: "Maya",
-      typeLabel: "meeting",
-      slots,
-      venue: "Surry Hills",
-    });
-    expect(proposed).toContain("Maya proposed a meeting at Surry Hills");
-    expect(proposed).toContain(slots[0]!.label);
-
-    const locked = catchUpThreadText({
-      phase: "scheduled",
-      who: "Maya",
-      typeLabel: "meeting",
-      slots: [slots[0]!],
-      venue: "Surry Hills",
-    });
-    expect(locked.startsWith("Locked in:")).toBe(true);
-
     const notice = catchUpNotice({
       phase: "proposed",
       who: "Maya",
       typeLabel: "meeting",
       slot: slots[0],
-      conversationId: "catchup-1",
+      handle: "maya",
     });
     expect(notice.kind).toBe("catchup_proposed");
-    expect(notice.href).toBe("/me/inbox?chat=catchup-1");
+    expect(notice.href).toBe("/@maya");
     expect(notice.body).toContain(slots[0]!.label);
   });
 });

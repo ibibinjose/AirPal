@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { scheduleCatchUpRemote } from "@/lib/functions";
 import type { CatchUpItem } from "@/lib/catchup";
 
-/** Suggested times from the catch-up scheduler, and the jump into the meeting thread. */
+/** Suggested times from the catch-up scheduler. Accepted times lock in; both sides get notified. */
 export function CatchUpSlotActions({ item }: { item: CatchUpItem }) {
-  const [, nav] = useLocation();
   const [busy, setBusy] = useState("");
   const slots = item.proposals || [];
 
@@ -15,9 +13,8 @@ export function CatchUpSlotActions({ item }: { item: CatchUpItem }) {
     if (busy) return;
     setBusy(key);
     try {
-      const res = await scheduleCatchUpRemote({ catchupId: item.id, action, slotId });
-      toast.success(action === "accept" ? "Time locked in" : "Suggested times are in the thread");
-      nav(`/me/inbox?chat=${encodeURIComponent(res.conversationId)}`);
+      await scheduleCatchUpRemote({ catchupId: item.id, action, slotId });
+      toast.success(action === "accept" ? "Time locked in" : "Suggested times sent");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Couldn't schedule that catch-up.";
       toast.error(message.replace(/^functions\/[a-z-]+:\s*/i, ""));
@@ -26,16 +23,8 @@ export function CatchUpSlotActions({ item }: { item: CatchUpItem }) {
     }
   }
 
-  if (item.status === "scheduled" && item.conversationId) {
-    return (
-      <button
-        type="button"
-        onClick={() => nav(`/me/inbox?chat=${encodeURIComponent(item.conversationId || "")}`)}
-        className="inline-flex min-h-[44px] cursor-pointer touch-manipulation items-center rounded-full bg-brand px-3 text-[12px] font-semibold text-white transition-colors hover:bg-brand-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-      >
-        Open thread
-      </button>
-    );
+  if (item.status === "scheduled") {
+    return null;
   }
 
   return (

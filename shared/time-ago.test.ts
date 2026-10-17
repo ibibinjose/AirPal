@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { relativeAgo, smartChatTime } from "./time-ago";
+import { relativeAgo } from "./time-ago";
 
 // Fixed local noon so day boundaries are unambiguous in any timezone.
 const NOW = new Date(2026, 8, 30, 12, 0, 0).getTime();
@@ -22,18 +22,9 @@ describe("inbox timestamps", () => {
     );
   });
 
-  it("keeps clock time for today's chats", () => {
-    const morning = new Date(2026, 8, 30, 9, 41, 0).getTime();
-    expect(smartChatTime(iso(morning), NOW)).toBe(
-      new Date(morning).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    );
-    expect(smartChatTime(iso(NOW - 26 * 60 * 60_000), NOW)).toBe("Yesterday");
-  });
-
   it("hides the stamp on bad input instead of lying", () => {
     expect(relativeAgo("", NOW)).toBe("");
     expect(relativeAgo("not-a-date", NOW)).toBe("");
     expect(relativeAgo(iso(NOW + 60_000), NOW)).toBe("");
-    expect(smartChatTime("", NOW)).toBe("");
   });
 });
