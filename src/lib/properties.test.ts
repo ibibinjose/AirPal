@@ -56,13 +56,12 @@ describe("properties store", () => {
     expect(getCachedProperty("harbour-college")).toBeUndefined();
   });
 
-  it("falls back to known Harbour demo seeds only — not arbitrary fakes", async () => {
+  it("resolves harbour-hotel as unknown — no seed fallback", async () => {
     const p = await fetchProperty("harbour-hotel");
     expect(p.id).toBe("harbour-hotel");
-    expect(p.name).toMatch(/(AirPal|Harbour)/);
+    expect(p.name).toBe("");
     expect(p.wifi.password).toBe("");
-    expect(p.roomTokens?.["tok-101-demo"]).toBe("101");
-    expect(getCachedProperty("harbour-hotel")?.id).toBe("harbour-hotel");
+    expect(getCachedProperty("harbour-hotel")).toBeUndefined();
 
     const unknown = await fetchProperty("made-up-hotel-xyz");
     expect(unknown.name).toBe("");

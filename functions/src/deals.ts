@@ -21,8 +21,7 @@ import {
   type SubmitPartnerClaimRequest,
 } from "../../shared/airpal-security";
 import { clampBusinessPlan } from "../../shared/business-onboarding";
-import { demoFlagAllowed } from "../../shared/content-meta";
-import { DEMO_VENUE_ID, DEMO_VENUE_MARKER_ID, DEMO_VENUE_PLACE_ID } from "../../shared/demo-business";
+
 import { emailMatchesWebsite } from "../../shared/google-place";
 import { CATALOG_DEALS, CATALOG_VENUE_IDS } from "./catalog";
 import { hashPin, verifyPin } from "./pin";
@@ -322,18 +321,15 @@ export const claimFreeVenuePresence = onCall(CALLABLE, async (request) => {
   if (!venueName || !address || !shortWhy) {
     throw new HttpsError("invalid-argument", "Venue name, address, and a short why are required.");
   }
-  const demo = demoFlagAllowed(isPlatformAdmin((request.auth?.token || {}) as AccessClaims), data.demo);
-  if (!demo) {
-    const existing = await db.collection("markers").where("ownerUid", "==", uid).limit(1).get();
-    if (!existing.empty) {
-      const marker = existing.docs[0]!;
-      return {
-        venueId: String(marker.data()?.venueId || ""),
-        markerId: marker.id,
-        placeId: String(marker.data()?.placeId || ""),
-        markerPath: `/q/${marker.id}`,
-      };
-    }
+  const existing = await db.collection("markers").where("ownerUid", "==", uid).limit(1).get();
+  if (!existing.empty) {
+    const marker = existing.docs[0]!;
+    return {
+      venueId: String(marker.data()?.venueId || ""),
+      markerId: marker.id,
+      placeId: String(marker.data()?.placeId || ""),
+      markerPath: `/q/${marker.id}`,
+    };
   }
 
   const ownerEmail = String(request.auth?.token?.email || "").toLowerCase();
@@ -346,9 +342,9 @@ export const claimFreeVenuePresence = onCall(CALLABLE, async (request) => {
   const rawCategory = String(data.category || "eat");
   const category: PlaceCategory = isPlaceCategory(rawCategory) ? rawCategory : "eat";
   const baseSlug = `${slugifyHandle(venueName)}-${randomBytes(2).toString("hex")}`;
-  const placeId = demo ? DEMO_VENUE_PLACE_ID : baseSlug;
-  const venueId = demo ? DEMO_VENUE_ID : `venue-${baseSlug}`;
-  const markerId = demo ? DEMO_VENUE_MARKER_ID : generateMarkerId();
+  const placeId = baseSlug;
+  const venueId = `venue-${baseSlug}`;
+  const markerId = generateMarkerId();
   const lat = Number(data.lat);
   const lng = Number(data.lng);
   const geo =
@@ -373,7 +369,6 @@ export const claimFreeVenuePresence = onCall(CALLABLE, async (request) => {
       mapsPlaceId: String(data.mapsPlaceId || "").trim() || null,
       website: String(data.website || "").trim() || null,
       heroImage: String(data.heroImage || "").trim() || null,
-      ...(demo ? { demo: true as const } : {}),
       createdAt: FieldValue.serverTimestamp(),
     });
   await db
@@ -394,7 +389,6 @@ export const claimFreeVenuePresence = onCall(CALLABLE, async (request) => {
       website: String(data.website || "").trim() || null,
       heroImage: String(data.heroImage || "").trim() || null,
       phone: String(data.phone || "").trim() || null,
-      ...(demo ? { demo: true as const } : {}),
       updatedAt: FieldValue.serverTimestamp(),
     });
   const venuePolicy = resolveCompetitorPolicy({
@@ -418,7 +412,6 @@ export const claimFreeVenuePresence = onCall(CALLABLE, async (request) => {
       venueCategory: venuePolicy.trade || category,
       allowCompetitors: false,
       suppressCategories: venuePolicy.suppressCategories,
-      ...(demo ? { demo: true as const } : {}),
       createdAt: FieldValue.serverTimestamp(),
     });
   return { venueId, markerId, placeId, markerPath: `/q/${markerId}` };

@@ -8,11 +8,10 @@ describe("host workspace", () => {
     expect(roomTokenEntries({ "tok-101-demo": "101" })).toEqual([["tok-101-demo", "101"]]);
   });
 
-  it("lets platform admins operate the live Harbour stay", () => {
-    expect(hostWorkspacePropertyId([], true)).toBe("harbour-hotel");
-    expect(hostWorkspacePropertyId(["mine"], true)).toBe("mine");
-    expect(hostWorkspacePropertyId([], false)).toBe("");
-    expect(hostWatchPropertyIds([], true)).toEqual(["harbour-hotel"]);
-    expect(hostWatchPropertyIds(["mine"], true)).toEqual(["mine", "harbour-hotel"]);
+  it("returns only the user's own properties, never a default stay", () => {
+    expect(hostWorkspacePropertyId([])).toBe("");
+    expect(hostWorkspacePropertyId(["mine"])).toBe("mine");
+    expect(hostWatchPropertyIds([])).toEqual([]);
+    expect(hostWatchPropertyIds(["mine"])).toEqual(["mine"]);
   });
 });

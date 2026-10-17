@@ -123,8 +123,7 @@ export function getMarker(id: string) {
 }
 
 export function originFor(marker?: MarkerDoc) {
-  // Harbour stay fallback as a literal (== CURRENT_PROPERTY.geo, always
-  // defined) so this hot path never pulls the stay/precinct datasets.
+  // Sydney CBD default literal so this hot path never pulls the stay/precinct datasets.
   return marker?.geo || { lat: -33.85955, lng: 151.20715 };
 }
 

@@ -323,10 +323,6 @@ export function createConnectLoginLinkRemote() {
   return callFunction<Record<string, never>, { ok: boolean; url: string }>(CALLABLES.createConnectLoginLink, {});
 }
 
-export function teardownDemoBusinessRemote() {
-  return callFunction<Record<string, never>, { deleted: Record<string, number> }>(CALLABLES.teardownDemoBusiness, {});
-}
-
 export function verifyTicketRemote(data: { ticketId: string }) {
   return callFunction<
     typeof data,

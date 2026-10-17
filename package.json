@@ -25,8 +25,6 @@
     "rules:check": "node scripts/check-rules.mjs",
     "v3:check": "node scripts/check-v3.mjs",
     "emu:v3": "firebase emulators:start --config firebase.v3.json --project demo-v3local",
-    "emu:v3:seed": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 GCLOUD_PROJECT=demo-v3local node scripts/seed-v3-emulator.mjs",
-    "test:e2e:v3": "V3_E2E=true playwright test e2e/v3-journeys.spec.ts",
     "secrets:check": "node scripts/check-secrets.mjs",
     "seo:check": "node scripts/check-seo.mjs",
     "screenshots": "node scripts/screenshots.mjs",

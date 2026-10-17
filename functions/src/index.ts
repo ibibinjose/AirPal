@@ -56,10 +56,8 @@ export {
   setWeeklyCampaign,
   redeemPoints,
   promotionEndingSoon,
-  seedPromotionDemo,
 } from "./promotions";
 export { announceEventToGuests, createBroadcast, onEventPublishedToFollowers, reviewBroadcast } from "./notifications";
-export { teardownDemoBusiness } from "./demo";
 export { verifyTicket, admitTicket } from "./gate";
 export { checkInGuest, closeGuestlist, listDoorTeam, onGuestBookingWritten, onGuestRsvpWritten } from "./guestlist";
 export {

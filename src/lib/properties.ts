@@ -277,15 +277,6 @@ export async function fetchProperty(id: string): Promise<PropertyInfo> {
     }
   }
 
-  // Known Harbour demo seeds only — not arbitrary fakes. Dynamically imported
-  // so the stay seed dataset stays out of the initial bundle (this fn is async).
-  const { harbourStaySeeds } = await import("./seed-stay");
-  const harbourSeed = harbourStaySeeds().find((s) => s.property.id === id);
-  if (harbourSeed) {
-    saveCachedProperty(harbourSeed.property);
-    return harbourSeed.property;
-  }
-
   // Unknown stay: generic placeholder, never a fake venue.
   return unknownProperty(id);
 }

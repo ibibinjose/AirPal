@@ -42,7 +42,6 @@ import type { BioCatalogItem, BioTheme } from "@shared/bio";
 import { resolveBioTheme } from "@shared/bio";
 import type { CSSProperties } from "react";
 import { BUSINESS_CATEGORIES } from "@shared/business";
-import { CURRENT_PROPERTY } from "@shared/airpal-data";
 import { getCachedProperty } from "@/lib/properties";
 import { FollowButton, LikeButton } from "@/components/social/SocialButtons";
 import { openVCardContact, upsertPerson } from "@/lib/people";
@@ -352,7 +351,6 @@ export function BioPublicPage() {
     const target = remote || local;
     if (!target) return undefined;
     if (target.propertyId) return getCachedProperty(target.propertyId);
-    if (target.handle === "harbour-hotel" || target.handle === "harbour-rocks-hotel") return CURRENT_PROPERTY;
     return getCachedProperty(target.handle);
   }, [remote, local]);
 
@@ -365,7 +363,7 @@ export function BioPublicPage() {
       (profile.facilities && profile.facilities.length > 0)),
   );
 
-  // Harbour demo facilities come from CURRENT_PROPERTY via propertyData — never invent them for other stays.
+  // Stay facilities come from the profile or its property — never invent them for other stays.
   const stayFacilities = useMemo(() => {
     if (!profile) return [];
     if (profile.facilities && profile.facilities.length > 0) return profile.facilities;

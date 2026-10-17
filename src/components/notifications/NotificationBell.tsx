@@ -49,7 +49,7 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
   }, [path]);
 
   // Front desk (hosts/admins only)
-  const propertyIds = hostWatchPropertyIds(user?.propertyIds, isAdmin);
+  const propertyIds = hostWatchPropertyIds(user?.propertyIds);
   const [byProperty, setByProperty] = useState<Record<string, StaffTicket[]>>({});
   const seen = useRef<Set<string>>(new Set());
   const primed = useRef(false);

@@ -17,7 +17,7 @@ import {
   type StallRecord,
   type UserEventState,
 } from "@shared/event";
-import { isDemoContent } from "@shared/content-meta";
+
 import { computeRescheduledTimes, formatEventTimeRange } from "@/lib/calendar-utils";
 import { docToCalendarBase, docToEventRecord, recordToCalendarBase, toNearbyEvent } from "@/lib/remote-events";
 import type { NearbyEvent } from "@shared/nearby";
@@ -202,7 +202,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         const records: EventRecord[] = [];
         for (const row of snap.docs) {
           const data = row.data() as Record<string, unknown>;
-          if (isDemoContent(data)) continue;
+          if (data.demo === true) continue; // never surface flagged demo docs to guests
           const rec = docToEventRecord(data, row.id);
           if (rec) {
             records.push(rec);

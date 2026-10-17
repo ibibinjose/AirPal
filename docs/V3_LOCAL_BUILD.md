@@ -11,7 +11,7 @@ the V1 rules, indexes, and callables; every V3 artifact is additive and gated.
 | Shared contracts + validation          | `shared/v3-contract.ts`, `shared/v3-contract.test.ts`, `shared/abuse.ts` (V3 rate limits) |
 | Default-deny rules + canonical indexes | `firestore.rules.v3`, `firestore.indexes.v3.json`, `firebase.v3.json`                     |
 | Callable domains (38 callables)        | `functions/src/v3/*.ts` + 5 test files, wired in `functions/src/index.ts`                 |
-| Emulator seed + gates                  | `scripts/seed-v3-emulator.mjs`, `scripts/check-v3.mjs`                                    |
+| Emulator gates                         | `scripts/check-v3.mjs`                                                                    |
 | Frontend adapters (local-only gate)    | `src/lib/v3/{gate,client,reads}.ts` + tests                                               |
 | Claim UI (evolved brand)               | `src/pages/ClaimVenuePage.tsx` (`/claim`), `src/components/claim/*`, admin Claims tab     |
 | Browser rules journeys                 | `e2e/v3-journeys.spec.ts`                                                                 |
@@ -66,19 +66,12 @@ npm run v3:check
 npm test
 npm run functions:test
 
-# Emulator stack (terminal 1) — V3 rules + indexes, demo project
+# Emulator stack — V3 rules + indexes, demo project
 npm run functions:build
 npm run emu:v3
-
-# Seed (terminal 2, after the emulators are up)
-npm run emu:v3:seed
-
-# Browser rules journeys (terminal 2)
-npm run test:e2e:v3
 ```
 
-The seed refuses to run unless `FIRESTORE_EMULATOR_HOST` is set. All seed
-documents carry `seed: "v3-local"` and obviously fake names.
+No seed step: the emulator starts empty and stays empty.
 
 ## Frontend gate
 

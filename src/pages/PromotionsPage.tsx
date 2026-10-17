@@ -8,7 +8,6 @@ import {
   MapPin,
   Plus,
   SlidersHorizontal,
-  Sparkles,
   Store,
   Tag,
   Ticket,
@@ -19,9 +18,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { getFirebaseDb } from "@/lib/firebase";
-import { promoArtFor, seedPromotionDemoRemote } from "@/lib/promotions";
-import { triggerHaptic } from "@/lib/native";
-import { toast } from "sonner";
+import { promoArtFor } from "@/lib/promotions";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { PROMOTION_CATEGORIES, type Promotion } from "@shared/promotions";
 import { SearchBar } from "@/components/search/SearchBar";
@@ -33,7 +30,6 @@ export function PromotionsPage() {
   const [category, setCategory] = useState<string>("All");
   const [search, setSearch] = useState("");
   const [mechanicFilter, setMechanicFilter] = useState<string>("all");
-  const [seeding, setSeeding] = useState(false);
 
   async function loadPromotions() {
     const db = getFirebaseDb();
@@ -60,20 +56,6 @@ export function PromotionsPage() {
   useEffect(() => {
     void loadPromotions();
   }, []);
-
-  async function handleSeedDemo() {
-    setSeeding(true);
-    void triggerHaptic("light");
-    try {
-      const res = await seedPromotionDemoRemote();
-      toast.success(`Seeded ${res.created} demo deals & giveaways!`);
-      void loadPromotions();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to seed demo deals");
-    } finally {
-      setSeeding(false);
-    }
-  }
 
   const filtered = useMemo(() => {
     return rows.filter((r) => {
@@ -238,23 +220,6 @@ export function PromotionsPage() {
                 <span>Post a Deal</span>
               </Button>
             </Link>
-
-            {isAdmin && (
-              <Button
-                variant="outlined"
-                size="sm"
-                onClick={() => void handleSeedDemo()}
-                disabled={seeding}
-                className="gap-1.5 rounded-full px-4"
-              >
-                {seeding ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <Sparkles size={14} className="text-accent" />
-                )}
-                <span>Seed Sample Deals</span>
-              </Button>
-            )}
           </div>
         </div>
       ) : (

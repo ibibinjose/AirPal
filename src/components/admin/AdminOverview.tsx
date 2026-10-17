@@ -14,8 +14,7 @@ export type AdminTab =
   | "claims"
   | "system"
   | "audit"
-  | "audience"
-  | "demo";
+  | "audience";
 
 export const ADMIN_TABS: { id: AdminTab; label: string }[] = [
   { id: "overview", label: "Overview" },
@@ -29,7 +28,6 @@ export const ADMIN_TABS: { id: AdminTab; label: string }[] = [
   { id: "system", label: "System" },
   { id: "audit", label: "Audit" },
   { id: "audience", label: "Audience" },
-  { id: "demo", label: "Demo" },
 ];
 
 interface Kpi {

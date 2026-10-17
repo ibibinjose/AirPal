@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link, useLocation, useSearch } from "wouter";
+import { useEffect, useState, type FormEvent } from "react";
+import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -47,7 +47,7 @@ import {
   type StallCategoryId,
   type StallRecord,
 } from "@shared/event";
-import { DEMO_BUSINESS, DEMO_EVENT_ID, isDemoModeSearch } from "@shared/demo-business";
+
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { AuthGate } from "@/components/auth/AuthGate";
@@ -123,7 +123,7 @@ function formatWhen(iso?: string) {
 
 export function EventStudioPage({ eventId }: { eventId?: string }) {
   const [, nav] = useLocation();
-  const { user, authReady, isAdmin } = useAuth();
+  const { user, authReady } = useAuth();
   const { mine, business } = useBio();
   const {
     myEvent: ownEvent,
@@ -137,7 +137,6 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
     remoteNearby,
     fetchRemoteEvent,
   } = useEvents();
-  const demoMode = Boolean(isAdmin) && isDemoModeSearch(useSearch());
   // A routed :id (e.g. /e/:id/manage) focuses that event; otherwise the
   // studio follows the organiser's own event, or the create flow when none.
   const [managedEvent, setManagedEvent] = useState<EventRecord | null>(null);
@@ -168,9 +167,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
       alive = false;
     };
   }, [eventId, getEvent, calendarEvents, remoteNearby, fetchRemoteEvent]);
-  // Demo runs always take the create path — never edit the admin's local draft.
-  const activeEvent = demoMode ? null : (managedEvent ?? ownEvent);
-  const demoPrefilled = useRef(false);
+  const activeEvent = managedEvent ?? ownEvent;
   const reduce = useReducedMotion();
   const [tab, setTab] = useState<"today" | "stalls" | "print" | "manage" | "settings">(eventId ? "manage" : "today");
 
@@ -248,17 +245,6 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
 
   useEffect(() => {
     if (!activeEvent) {
-      if (demoMode && !demoPrefilled.current) {
-        demoPrefilled.current = true;
-        setName(DEMO_BUSINESS.eventName);
-        setFlavour("event_space");
-        setCity(DEMO_BUSINESS.city);
-        setVenue(DEMO_BUSINESS.venue);
-        setAddress(DEMO_BUSINESS.address);
-        setDescription(DEMO_BUSINESS.eventShortWhy);
-        setShortWhy(DEMO_BUSINESS.eventShortWhy);
-        setGeo({ ...DEMO_BUSINESS.geo });
-      }
       if (business?.handle) {
         setHostType("business");
         setHostName(business.name);
@@ -319,7 +305,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
     });
     const origin = publicSiteOrigin();
     void makeQrDataUrl(`${origin}${activeEvent.gatePath}`).then(setQr);
-  }, [activeEvent, business, mine, demoMode]);
+  }, [activeEvent, business, mine]);
 
   function addCollaborator(handleRaw: string) {
     const clean = handleRaw.trim().replace(/^@+/, "").toLowerCase();
@@ -411,7 +397,6 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
       for (let i = 0; i < instances.length; i++) {
         const inst = instances[i]!;
         const created = await upsertEvent({
-          ...(demoMode ? { id: DEMO_EVENT_ID, demo: true as const } : {}),
           name: trimmed,
           flavour,
           city: city.trim() || "Sydney",
@@ -598,8 +583,8 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
     );
   }
 
-  // Routed :id that resolves to nothing — honest dead end, never a demo event.
-  if (eventId && !demoMode && !activeEvent) {
+  // Routed :id that resolves to nothing — honest dead end.
+  if (eventId && !activeEvent) {
     if (!managedMissing) {
       return <PageLoading message="Opening event studio…" />;
     }

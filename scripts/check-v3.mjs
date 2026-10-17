@@ -137,9 +137,9 @@ must(routes.includes('path="/claim"'), "src/app/routes.tsx must register /claim"
 const adminTabs = readFileSync(resolve(root, "src", "components", "admin", "AdminOverview.tsx"), "utf8");
 must(adminTabs.includes('"claims"'), "AdminOverview must list the claims review tab");
 
-// --- Wiring: scripts, env example, seed, journeys ---
+// --- Wiring: scripts, env example ---
 const pkg = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
-for (const script of ["emu:v3", "emu:v3:seed", "v3:check"]) {
+for (const script of ["emu:v3", "v3:check"]) {
   must(pkg.scripts?.[script], `package.json must define npm run ${script}`);
 }
 must(String(pkg.scripts?.verify || "").includes("v3:check"), "npm run verify must include v3:check");
@@ -147,8 +147,6 @@ must(
   readFileSync(resolve(root, ".env.example"), "utf8").includes("VITE_V3_ADAPTERS"),
   ".env.example must document VITE_V3_ADAPTERS",
 );
-must(existsSync(resolve(root, "scripts", "seed-v3-emulator.mjs")), "scripts/seed-v3-emulator.mjs missing");
-must(existsSync(resolve(root, "e2e", "v3-journeys.spec.ts")), "e2e/v3-journeys.spec.ts missing");
 
 if (problems.length) {
   console.error("V3 contract check failed:");

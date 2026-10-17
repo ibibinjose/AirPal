@@ -15,7 +15,7 @@ import {
 import { checkSessionAttach, isValidFestivalSlug } from "../../shared/festival";
 import { normalizeSpeakerHandle } from "../../shared/event";
 import type { AccessClaims } from "../../shared/airpal-security";
-import { demoFlagAllowed, stampContentMeta } from "../../shared/content-meta";
+import { stampContentMeta } from "../../shared/content-meta";
 import { ratingDocId, ratingTargetKey } from "../../shared/abuse";
 import { normalizeHandle } from "../../shared/bio";
 import type {
@@ -33,7 +33,6 @@ export const upsertEvent = onCall(CALLABLE, async (request) => {
   const uid = requireAccount(request, "Create an email account to run an event.");
   await enforceRateLimit(uid, "eventWrite", false);
   const data = (request.data || {}) as UpsertEventRequest;
-  const demo = demoFlagAllowed(isPlatformAdmin(request.auth?.token as AccessClaims | undefined), data.demo);
   const name = String(data.name || "").trim();
   const flavour = String(data.flavour || "market");
   if (!name) throw new HttpsError("invalid-argument", "Event name is required.");
@@ -184,7 +183,6 @@ export const upsertEvent = onCall(CALLABLE, async (request) => {
     updatedAt: FieldValue.serverTimestamp(),
     scheduleVerifiedAt: FieldValue.serverTimestamp(),
     expiresAt: data.endsAt || meta.expiresAt || null,
-    ...(demo ? { demo: true as const } : {}),
   };
   await db.collection("events").doc(eventId).set(record, { merge: true });
   await writeAudit({

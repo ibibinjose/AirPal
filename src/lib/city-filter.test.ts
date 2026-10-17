@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { businessCategoryForPlace } from "@shared/business";
-import { KERALA_PLACES } from "@shared/kerala-data";
 import { THE_ROCKS_PLACES } from "@shared/the-rocks-data";
 import { placesAround, placesInCity, toursForPrecinct } from "./catalog";
 
@@ -45,72 +44,49 @@ describe("city-strict catalog", () => {
     expect(placesInCity(rows, "Perth")).toEqual([]);
   });
 
-  it("resolves every Kerala seed under its own city with a real photo", () => {
+  it("resolves a second-city corpus under its own city with a real photo", () => {
+    const melb = [
+      { id: "flinders-market", precinctId: "melbourne-cbd", category: "shops", geo: MELB },
+      {
+        id: "laneway-ramen",
+        precinctId: "melbourne-cbd",
+        category: "eat",
+        geo: { lat: -37.814, lng: 144.9633 },
+        heroImage: "https://upload.wikimedia.org/wikipedia/commons/1/2.jpg",
+      },
+      {
+        id: "yarra-stay",
+        precinctId: "melbourne-cbd",
+        category: "stay",
+        geo: { lat: -37.8136, lng: 144.9631 },
+        heroImage: "https://upload.wikimedia.org/wikipedia/commons/3/4.jpg",
+      },
+      { id: "gallery-late", precinctId: "melbourne-cbd", category: "things", geo: MELB },
+    ];
     expect(
-      placesInCity(KERALA_PLACES, "Kovalam")
+      placesInCity(melb, "Melbourne")
         .map((p) => p.id)
         .sort(),
-    ).toEqual([
-      "bait-leela-kovalam",
-      "kovalam-beach-market",
-      "kovalam-eves",
-      "kovalam-lighthouse",
-      "leela-kovalam",
-      "padmanabha-temple",
-      "technopark-trivandrum",
-      "uday-samudra-kovalam",
-      "varkala-cliff",
-    ]);
-    const kovalamCats = new Set(placesInCity(KERALA_PLACES, "Kovalam").map((p) => p.category));
-    expect([...kovalamCats].sort()).toEqual(["eat", "shops", "stay", "things"]);
-    expect(
-      placesInCity(KERALA_PLACES, "Kochi")
-        .map((p) => p.id)
-        .sort(),
-    ).toEqual([
-      "alleppey-houseboat",
-      "chinese-nets-kochi",
-      "infopark-kochi",
-      "kumarakom-bird-sanctuary",
-      "mattancherry-palace",
-    ]);
-    expect(
-      placesInCity(KERALA_PLACES, "Trivandrum")
-        .map((p) => p.id)
-        .sort(),
-    ).toEqual([
-      "bait-leela-kovalam",
-      "kovalam-beach-market",
-      "kovalam-eves",
-      "kovalam-lighthouse",
-      "leela-kovalam",
-      "padmanabha-temple",
-      "technopark-trivandrum",
-      "uday-samudra-kovalam",
-      "varkala-cliff",
-    ]);
-    expect(
-      placesInCity(KERALA_PLACES, "Munnar")
-        .map((p) => p.id)
-        .sort(),
-    ).toEqual(["eravikulam-np", "munnar-tea-gardens"]);
-    expect(placesInCity(KERALA_PLACES, "Wayanad").map((p) => p.id)).toEqual(["edakkal-caves"]);
-    expect(placesInCity(KERALA_PLACES, "Sydney")).toEqual([]);
-    // Every photo must be a verified Commons file — no guessed URLs. Two
-    // venues have no verified photo yet and render clean ink cards instead.
-    const imageless = new Set(["uday-samudra-kovalam", "kovalam-beach-market"]);
-    for (const p of KERALA_PLACES) {
-      if (imageless.has(p.id)) {
-        expect(p.heroImage, p.id).toBeUndefined();
+    ).toEqual(["flinders-market", "gallery-late", "laneway-ramen", "yarra-stay"]);
+    const cats = new Set(placesInCity(melb, "Melbourne").map((p) => p.category));
+    expect([...cats].sort()).toEqual(["eat", "shops", "stay", "things"]);
+    expect(placesInCity(melb, "Sydney")).toEqual([]);
+    // Every photo must be a verified Commons file — no guessed URLs. Venues
+    // with no verified photo yet render clean ink cards instead.
+    for (const p of melb) {
+      const img = (p as { heroImage?: string }).heroImage;
+      if (img === undefined) {
+        expect(img, p.id).toBeUndefined();
       } else {
-        expect(p.heroImage, p.id).toMatch(/^https:\/\/upload\.wikimedia\.org\//);
+        expect(img, p.id).toMatch(/^https:\/\/upload\.wikimedia\.org\//);
       }
     }
   });
 
-  it("keeps Rocks stock out of Kovalam's Host picks pool", () => {
-    const ids = placesInCity([...THE_ROCKS_PLACES, ...KERALA_PLACES], "Kovalam").map((p) => p.id);
-    expect(ids).toContain("kovalam-lighthouse");
+  it("keeps Rocks stock out of Melbourne's Host picks pool", () => {
+    const melb = [{ id: "melb-lighthouse", precinctId: "melbourne-cbd", geo: MELB }];
+    const ids = placesInCity([...THE_ROCKS_PLACES, ...melb], "Melbourne").map((p) => p.id);
+    expect(ids).toContain("melb-lighthouse");
     expect(ids.some((id) => THE_ROCKS_PLACES.some((r) => r.id === id))).toBe(false);
   });
 
