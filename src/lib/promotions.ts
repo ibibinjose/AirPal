@@ -26,12 +26,8 @@ export function redeemPointsRemote(data: RedeemPointsRequest) {
   return callPromotion<RedeemPointsRequest, { ok: boolean; code: string }>("redeemPoints", data);
 }
 
-export function seedPromotionDemoRemote() {
-  return callPromotion<Record<string, never>, { ok: boolean; created: number }>("seedPromotionDemo", {});
-}
-
 /**
- * Category fallback art from the bundled Kerala photo set.
+ * Category fallback art from the bundled media set.
  * Used when a campaign has no hero image of its own.
  */
 export function promoArtFor(category: string, heroImage?: string): string {
