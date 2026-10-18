@@ -6,6 +6,7 @@ import { useBio } from "@/contexts/BioContext";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { AVAILABILITY_STATUSES, resolveStatusPicks, type AvailabilityStatus } from "@shared/bio";
 import { toast } from "sonner";
+import { dismissKeyboard } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
 
 interface BioStatusModalProps {
@@ -46,12 +47,17 @@ export function BioStatusModal({
   const [emoji, setEmoji] = useState(initial.emoji);
   const [saving, setSaving] = useState(false);
 
+  const handleClose = () => {
+    void dismissKeyboard();
+    onClose();
+  };
+
   useScrollLock(open);
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -86,7 +92,7 @@ export function BioStatusModal({
 
       toast.success("Status updated!");
       onSaved?.(status, customText.trim() || undefined, emoji || undefined);
-      onClose();
+      handleClose();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update status");
     } finally {
@@ -109,7 +115,7 @@ export function BioStatusModal({
       setCustomText("");
       toast.success("Status cleared");
       onSaved?.("available", undefined, undefined);
-      onClose();
+      handleClose();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to clear status");
     } finally {
@@ -119,8 +125,8 @@ export function BioStatusModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center overflow-y-auto bg-black/65 p-0 sm:p-6 backdrop-blur-sm [padding-bottom:var(--keyboard-height,0px)] transition-[padding] duration-200"
-      onClick={onClose}
+      className="visual-viewport-modal z-50 flex items-end sm:items-center justify-center overflow-y-auto bg-black/65 p-0 sm:p-6 backdrop-blur-sm"
+      onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="bio-status-modal-title"
@@ -145,7 +151,7 @@ export function BioStatusModal({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="flex h-11 w-11 touch-manipulation items-center justify-center rounded-full bg-card ring-1 ring-line text-mute hover:text-ink hover:bg-paper transition"
             aria-label="Close dialog"
           >
@@ -279,7 +285,7 @@ export function BioStatusModal({
               type="button"
               variant="ghost"
               size="sm"
-              onClick={onClose}
+              onClick={handleClose}
               className="min-h-[44px] rounded-full text-xs touch-manipulation cursor-pointer"
             >
               Cancel

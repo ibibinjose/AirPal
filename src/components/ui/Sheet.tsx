@@ -1,6 +1,7 @@
 import { useEffect, useId, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { dismissKeyboard } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
 
 export function Sheet({
@@ -19,10 +20,15 @@ export function Sheet({
   const titleId = useId();
   useScrollLock(open);
 
+  const handleClose = () => {
+    void dismissKeyboard();
+    onClose();
+  };
+
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -32,12 +38,12 @@ export function Sheet({
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center [padding-bottom:var(--keyboard-height,0px)] transition-[padding] duration-200">
+    <div className="visual-viewport-modal z-[100] flex items-end justify-center sm:items-center">
       <button
         type="button"
         className="absolute inset-0 bg-black/50 backdrop-blur-xs"
         aria-label="Close"
-        onClick={onClose}
+        onClick={handleClose}
       />
       <div
         role="dialog"

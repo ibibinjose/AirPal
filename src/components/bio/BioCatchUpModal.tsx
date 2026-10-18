@@ -37,6 +37,7 @@ import { toZonedDateStr } from "@/lib/local-time";
 import { triggerHaptic } from "@/lib/native";
 import { toast } from "sonner";
 import { scheduleCatchUpRemote } from "@/lib/functions";
+import { dismissKeyboard } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
 
 interface BioCatchUpModalProps {
@@ -83,6 +84,11 @@ export function BioCatchUpModal({
   const [isRemembered, setIsRemembered] = useState(() => hasCatchUpReminder(handle));
   const [myCatchups, setMyCatchups] = useState<CatchUpItem[]>([]);
 
+  const handleClose = () => {
+    void dismissKeyboard();
+    onClose();
+  };
+
   useScrollLock(open);
 
   useEffect(() => {
@@ -113,7 +119,7 @@ export function BioCatchUpModal({
     setIsRemembered(hasCatchUpReminder(handle));
 
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -219,7 +225,7 @@ export function BioCatchUpModal({
       }
 
       toast.success(`Proposed ${currentOption.label} with ${name}`);
-      onClose();
+      handleClose();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn’t propose the catch-up");
     } finally {
@@ -251,8 +257,8 @@ export function BioCatchUpModal({
 
   const content = (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center overflow-y-auto bg-black/65 p-0 sm:p-6 backdrop-blur-sm motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200 [padding-bottom:var(--keyboard-height,0px)] transition-[padding]"
-      onClick={onClose}
+      className="visual-viewport-modal z-50 flex items-end sm:items-center justify-center overflow-y-auto bg-black/65 p-0 sm:p-6 backdrop-blur-sm motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200"
+      onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="catchup-modal-title"
@@ -265,7 +271,7 @@ export function BioCatchUpModal({
         <div className="relative border-b border-line px-6 pb-4 pt-4 sm:pt-6 bg-card/60">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute right-4 top-4 grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-card text-mute ring-1 ring-line hover:text-ink transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Close dialog"
           >

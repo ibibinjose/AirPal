@@ -450,10 +450,7 @@ export function StartPage() {
   // UNAUTHENTICATED AUTHENTICATION & ONBOARDING GATEWAY
   // ========================================================
   return (
-    <div
-      className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)]"
-      style={keyboardHeight > 0 ? { paddingBottom: keyboardHeight + 32 } : undefined}
-    >
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)]">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         {/* ======================================================== */}
         {/* DESKTOP PRODUCT SHOWCASE (Left Column on lg:) */}

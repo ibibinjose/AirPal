@@ -305,6 +305,25 @@ textarea,
   scroll-margin-bottom: 5.5rem;
 }
 
+/* Eradicate iOS Safari auto-zoom by enforcing 16px minimum font size on mobile form controls */
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]),
+  select,
+  textarea,
+  [contenteditable="true"] {
+    font-size: 16px !important;
+  }
+}
+
+/* Modals & sheets pinned cleanly to the active visual viewport above the virtual keyboard */
+.visual-viewport-modal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--visual-viewport-offset-top, 0px);
+  height: var(--visual-viewport-height, 100dvh);
+}
+
 /*
  * Keyboard-open: pin the app to the visible viewport (not 100dvh).
  * iOS overlays the keyboard; shrinking #root lets the focused field scroll above it.

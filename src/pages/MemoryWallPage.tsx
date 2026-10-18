@@ -13,6 +13,7 @@ import { addMemory, listMemories, removeMemory, type Memory } from "@/lib/memori
 import { listPeople } from "@/lib/people";
 import { readFileAsImage, storeMedia } from "@/lib/image-store";
 import { bioPath } from "@shared/bio";
+import { dismissKeyboard } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
 import { fieldInput } from "@/components/forms/ValidField";
 
@@ -131,6 +132,7 @@ export function MemoryWallPage() {
   }
 
   function closeComposer() {
+    void dismissKeyboard();
     setComposerOpen(false);
     setDraftBlob(null);
     if (draftUrl) URL.revokeObjectURL(draftUrl);
@@ -246,7 +248,7 @@ export function MemoryWallPage() {
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center [padding-bottom:var(--keyboard-height,0px)] transition-[padding] duration-200"
+            className="visual-viewport-modal z-50 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center"
             onClick={closeComposer}
           >
             <div

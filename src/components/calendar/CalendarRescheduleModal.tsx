@@ -8,6 +8,7 @@ import { triggerHaptic } from "@/lib/native";
 import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { dismissKeyboard } from "@/lib/keyboard";
 
 interface CalendarRescheduleModalProps {
   event: CalendarEvent | null;
@@ -19,6 +20,11 @@ export function CalendarRescheduleModal({ event, onClose }: CalendarRescheduleMo
   const [selectedDate, setSelectedDate] = useState<string>(event?.date || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleClose = () => {
+    void dismissKeyboard();
+    onClose();
+  };
+
   useScrollLock(Boolean(event));
 
   useEffect(() => {
@@ -29,7 +35,7 @@ export function CalendarRescheduleModal({ event, onClose }: CalendarRescheduleMo
   useEffect(() => {
     if (!event) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -105,7 +111,7 @@ export function CalendarRescheduleModal({ event, onClose }: CalendarRescheduleMo
           },
         });
       }
-      onClose();
+      handleClose();
     }
   };
 
@@ -113,17 +119,17 @@ export function CalendarRescheduleModal({ event, onClose }: CalendarRescheduleMo
     void triggerHaptic("light");
     await resetEventSchedule(event.id);
     toast.info(`Restored "${event.title}" to original date`);
-    onClose();
+    handleClose();
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center [padding-bottom:var(--keyboard-height,0px)] transition-[padding] duration-200">
+    <div className="visual-viewport-modal z-50 flex items-end justify-center sm:items-center">
       {/* Backdrop */}
       <button
         type="button"
         className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
         aria-label="Close modal"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Sheet Content */}
@@ -143,7 +149,7 @@ export function CalendarRescheduleModal({ event, onClose }: CalendarRescheduleMo
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="Close"
             className="grid h-10 w-10 min-h-[44px] min-w-[44px] shrink-0 place-items-center rounded-full bg-paper text-mute hover:text-ink transition ring-1 ring-line/80 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
           >
@@ -308,7 +314,7 @@ export function CalendarRescheduleModal({ event, onClose }: CalendarRescheduleMo
         <div className="mt-6 flex items-center justify-end gap-2.5 pt-3 border-t border-line/60">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="rounded-full px-4 py-2 text-xs font-medium text-mute hover:text-ink transition"
           >
             Cancel

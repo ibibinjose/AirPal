@@ -11,6 +11,7 @@ import { cn } from "@/lib/cn";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { SearchBar } from "@/components/search/SearchBar";
+import { dismissKeyboard } from "@/lib/keyboard";
 
 type RegionFilter = "all" | "india" | "uae" | "europe" | "northamerica" | "australia" | "international";
 
@@ -26,13 +27,18 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<RegionFilter>("all");
 
+  const handleClose = () => {
+    void dismissKeyboard();
+    onClose();
+  };
+
   useScrollLock(open);
 
   // Close on Escape key
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -79,8 +85,8 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center p-0 sm:p-4 bg-black/65 backdrop-blur-xs animate-in fade-in duration-200 [padding-bottom:var(--keyboard-height,0px)] transition-[padding] duration-200"
-      onClick={onClose}
+      className="visual-viewport-modal z-[100] flex items-end justify-center sm:items-center p-0 sm:p-4 bg-black/65 backdrop-blur-xs animate-in fade-in duration-200"
+      onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="location-picker-title"
@@ -110,7 +116,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="grid h-10 w-10 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-paper text-ink hover:bg-card ring-1 ring-line transition cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Close"
           >
@@ -155,7 +161,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
               type="button"
               onClick={() => {
                 chooseLocation({ mode: "gps" });
-                onClose();
+                handleClose();
               }}
               className={cn(
                 "group relative flex items-start gap-3 rounded-2xl p-3.5 text-left border-2 transition active:scale-[0.98] cursor-pointer shadow-xs",
@@ -211,7 +217,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                       type="button"
                       onClick={() => {
                         chooseLocation({ mode: "city", city: `${p.name}, Sydney`, lat: p.lat, lng: p.lng });
-                        onClose();
+                        handleClose();
                       }}
                       className={cn(
                         "flex items-center gap-2.5 rounded-2xl border-2 p-2.5 text-left transition active:scale-95 cursor-pointer shadow-xs",
@@ -340,7 +346,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                     type="button"
                     onClick={() => {
                       chooseLocation({ mode: "city", city: c.label, lat: c.lat, lng: c.lng });
-                      onClose();
+                      handleClose();
                     }}
                     className={cn(
                       "flex items-center justify-between rounded-xl px-3 py-2 text-left border-2 transition active:scale-95 cursor-pointer shadow-xs",
@@ -381,7 +387,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                     );
                     if (known) {
                       chooseLocation({ mode: "city", city: known.label, lat: known.lat, lng: known.lng });
-                      onClose();
+                      handleClose();
                       return;
                     }
                     void geocodePlaceName(q).then((hit) => {
@@ -390,7 +396,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                         return;
                       }
                       chooseLocation({ mode: "city", city: hit.name, lat: hit.lat, lng: hit.lng });
-                      onClose();
+                      handleClose();
                     });
                   }}
                   className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-xs cursor-pointer active:scale-95 border border-line"
@@ -436,7 +442,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 type="button"
                 className="font-bold text-accent hover:underline inline-flex items-center gap-1 cursor-pointer"
                 onClick={() => {
-                  onClose();
+                  handleClose();
                   nav("/events");
                 }}
               >

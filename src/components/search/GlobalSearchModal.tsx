@@ -33,6 +33,7 @@ import { useListings } from "@/contexts/ListingsContext";
 import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { FilterChips } from "@/components/ui/FilterChips";
+import { dismissKeyboard } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
 import { OPEN_SEARCH_EVENT, SEARCH_READY_EVENT, type OpenGlobalSearchOptions, type SearchCategory } from "./openSearch";
 
@@ -123,6 +124,7 @@ export function GlobalSearchModal() {
         e.preventDefault();
         setOpen((prev) => !prev);
       } else if (e.key === "Escape" && open) {
+        void dismissKeyboard();
         setOpen(false);
       }
     }
@@ -617,18 +619,23 @@ export function GlobalSearchModal() {
     }
   }, [open, query, results.length, activeCategory, trackQuery]);
 
+  const closeSearch = () => {
+    void dismissKeyboard();
+    setOpen(false);
+  };
+
   const selectItem = (item: SearchResultItem) => {
     void triggerHaptic("light");
     logResultClick(query, { id: item.id, title: item.title, category: item.category, href: item.href });
     saveRecent({ title: item.title, href: item.href });
-    setOpen(false);
+    closeSearch();
     nav(item.href);
   };
 
   const goHref = (title: string, href: string) => {
     void triggerHaptic("light");
     saveRecent({ title, href });
-    setOpen(false);
+    closeSearch();
     nav(href);
   };
 
@@ -636,13 +643,13 @@ export function GlobalSearchModal() {
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex flex-col sm:items-start sm:justify-center sm:p-6 sm:pt-16 [padding-bottom:var(--keyboard-height,0px)] transition-[padding] duration-200">
+    <div className="visual-viewport-modal z-50 flex flex-col sm:items-start sm:justify-center sm:p-6 sm:pt-16">
       {/* Desktop Backdrop */}
       <button
         type="button"
         className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity cursor-pointer hidden sm:block"
         aria-label="Close search"
-        onClick={() => setOpen(false)}
+        onClick={closeSearch}
       />
 
       <div
@@ -690,7 +697,7 @@ export function GlobalSearchModal() {
             type="button"
             onClick={() => {
               void triggerHaptic("light");
-              setOpen(false);
+              closeSearch();
             }}
             className="flex min-h-[44px] shrink-0 items-center px-2 py-1 text-sm font-semibold text-accent active:scale-95 sm:hidden cursor-pointer touch-manipulation"
           >

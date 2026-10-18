@@ -167,10 +167,13 @@ export function ensureElementInView(
       window.scrollBy({ top: delta, left: 0, behavior });
       return;
     }
-    const prev = scroller.dataset.kbPad;
-    if (prev === undefined) scroller.dataset.kbPad = scroller.style.paddingBottom || "";
-    const pad = Math.max(currentState.keyboardHeight, 24);
-    scroller.style.paddingBottom = `${pad}px`;
+    const root = document.getElementById?.("root");
+    if (scroller !== root) {
+      const prev = scroller.dataset.kbPad;
+      if (prev === undefined) scroller.dataset.kbPad = scroller.style.paddingBottom || "";
+      const pad = Math.max(currentState.keyboardHeight, 24);
+      scroller.style.paddingBottom = `${pad}px`;
+    }
     scroller.scrollTop += delta;
   });
 }
@@ -255,7 +258,8 @@ export function initKeyboardManager(): () => void {
       const screenH = window.innerHeight;
       const heightDiff = Math.max(0, screenH - vport.height - (vport.offsetTop || 0));
       const activeEl = focusedEditable();
-      const isKbOpen = (heightDiff > 80 && Boolean(activeEl)) || (currentState.isKeyboardOpen && heightDiff > 40);
+      // Keyboard is only open if an editable element is actively focused and viewport is meaningfully shrunk
+      const isKbOpen = Boolean(activeEl) && heightDiff > 60;
       const computedKbHeight = isKbOpen ? Math.round(Math.max(heightDiff, currentState.keyboardHeight || 0)) : 0;
       applyKeyboardStateToDom(isKbOpen, computedKbHeight);
       if (isKbOpen && activeEl) ensureElementInView(activeEl);
@@ -277,8 +281,10 @@ export function initKeyboardManager(): () => void {
 
   const onFocusOut = () => {
     setTimeout(() => {
-      if (!focusedEditable() && !isNative) applyKeyboardStateToDom(false, 0);
-    }, 180);
+      if (!focusedEditable()) {
+        applyKeyboardStateToDom(false, 0);
+      }
+    }, 150);
   };
 
   window.addEventListener("focusin", onFocusIn, { passive: true });
@@ -312,4 +318,25 @@ export function useVirtualKeyboard(): VirtualKeyboardState {
   }, []);
 
   return state;
+}
+
+/**
+ * Programmatically blur active inputs and dismiss the virtual keyboard.
+ * Safe to call on Web, iOS, and Android.
+ */
+export async function dismissKeyboard(): Promise<void> {
+  if (typeof document !== "undefined") {
+    const active = document.activeElement as HTMLElement | null;
+    if (active && typeof active.blur === "function") {
+      active.blur();
+    }
+  }
+  if (Capacitor.isNativePlatform()) {
+    try {
+      await Keyboard.hide();
+    } catch {
+      /* ignore native keyboard hide error */
+    }
+  }
+  applyKeyboardStateToDom(false, 0);
 }

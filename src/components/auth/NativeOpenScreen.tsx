@@ -415,14 +415,14 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
           </div>
 
           <div className="mt-2 flex items-center gap-2 bg-surface rounded-xl p-1.5 ring-1 ring-line/50">
-            <span className="pl-1.5 text-[11px] font-medium text-mute shrink-0">airpal.me/@</span>
+            <span className="pl-1.5 text-xs font-medium text-mute shrink-0">airpal.me/@</span>
             <input
               type="text"
               value={customHandle}
               onChange={(e) => setCustomHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
               placeholder="choose_handle"
               maxLength={15}
-              className="w-full bg-transparent text-[11px] font-bold text-ink focus:outline-none"
+              className="w-full bg-transparent text-[16px] sm:text-xs font-bold text-ink focus:outline-none"
             />
           </div>
         </div>

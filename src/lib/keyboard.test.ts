@@ -62,7 +62,7 @@ if (typeof globalThis.document === "undefined") {
   });
 }
 
-import { initKeyboardManager, ensureElementInView } from "./keyboard";
+import { initKeyboardManager, ensureElementInView, dismissKeyboard } from "./keyboard";
 
 describe("keyboard manager", () => {
   let cleanup: (() => void) | null = null;
@@ -119,5 +119,15 @@ describe("keyboard manager", () => {
 
     const disconnected = { isConnected: false } as unknown as HTMLElement;
     expect(() => ensureElementInView(disconnected)).not.toThrow();
+  });
+
+  it("dismissKeyboard blurs active element and resets keyboard DOM state without error", async () => {
+    const blur = vi.fn();
+    const mockInput = { blur } as unknown as HTMLElement;
+    Object.defineProperty(document, "activeElement", { value: mockInput, configurable: true });
+
+    await expect(dismissKeyboard()).resolves.not.toThrow();
+    expect(blur).toHaveBeenCalled();
+    expect(document.documentElement.classList.contains("keyboard-open")).toBe(false);
   });
 });

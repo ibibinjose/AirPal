@@ -29,6 +29,7 @@ import {
   CATEGORY_THEMES,
 } from "@/lib/calendar-utils";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { dismissKeyboard } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
 
 interface CalendarEventModalProps {
@@ -42,13 +43,18 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
   const { toggleGoing, toggleInterested, toggleLiked, exportItinerary, resetEventSchedule } = useEvents();
   const { setReschedulingEvent } = useCalendarDrag();
 
+  const handleClose = () => {
+    void dismissKeyboard();
+    onClose();
+  };
+
   useScrollLock(Boolean(event));
 
   // Escape closes
   useEffect(() => {
     if (!event) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -89,13 +95,13 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center [padding-bottom:var(--keyboard-height,0px)] transition-[padding] duration-200">
+    <div className="visual-viewport-modal z-50 flex items-end justify-center sm:items-center">
       {/* Backdrop */}
       <button
         type="button"
         className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
         aria-label="Close modal"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Sheet Content */}
@@ -106,7 +112,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
         {/* Close Button */}
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           aria-label="Close"
           className="absolute right-4 top-4 grid h-10 w-10 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-card/80 text-mute hover:text-ink backdrop-blur-md transition z-20 ring-1 ring-line/80 shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
@@ -246,7 +252,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
                   onClick={() => {
                     if (onSelectTag) {
                       onSelectTag(tag);
-                      onClose();
+                      handleClose();
                     }
                   }}
                   className={cn(
@@ -337,7 +343,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
           <button
             type="button"
             onClick={() => {
-              onClose();
+              handleClose();
               setReschedulingEvent(event);
             }}
             className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-4 text-xs font-medium text-ink hover:bg-amber-50 hover:text-amber-900 transition ring-1 ring-line/60"
@@ -361,7 +367,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
             <button
               type="button"
               onClick={() => {
-                onClose();
+                handleClose();
                 nav(event.gatePath!);
               }}
               className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-4 text-xs font-medium text-white hover:bg-brand-ink transition shadow-sm"
