@@ -586,8 +586,16 @@ match /dining_orders/{orderId} {
       );
       allow update: if signedIn()
         && resource.data.uid == request.auth.uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
-      allow create, delete: if false;
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'archived']);
+      allow delete: if signedIn() && (
+        resource.data.uid == request.auth.uid || platformAdmin()
+      );
+      allow create: if false;
+    }
+
+    // Outbox: server-side mail queue for Firebase Trigger Email extension / backend.
+    match /mail/{mailId} {
+      allow read, write: if false;
     }
 
     match /promotion_terms/{termsId} {

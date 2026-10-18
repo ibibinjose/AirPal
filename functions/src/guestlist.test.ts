@@ -129,6 +129,13 @@ vi.mock("firebase-functions/v2/https", () => ({
 
 vi.mock("firebase-functions/v2/firestore", () => ({
   onDocumentWritten: vi.fn((_path: unknown, handler: unknown) => handler),
+  onDocumentCreated: vi.fn((_path: unknown, handler: unknown) => handler),
+  onDocumentUpdated: vi.fn((_path: unknown, handler: unknown) => handler),
+}));
+
+vi.mock("./email", () => ({
+  sendEventRsvpEmail: vi.fn(async () => true),
+  sendTicketReceiptEmail: vi.fn(async () => true),
 }));
 
 import {

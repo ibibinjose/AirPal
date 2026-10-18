@@ -1,5 +1,5 @@
 import { getMessaging, getToken, isSupported, onMessage } from "firebase/messaging";
-import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { getFirebaseApp, getFirebaseAuth, getFirebaseDb } from "./firebase";
 import { isNativeApp } from "./platform";
 
@@ -138,7 +138,46 @@ export async function markNotificationRead(id: string) {
   }
 }
 
+export async function markNotificationUnread(id: string) {
+  const db = getFirebaseDb();
+  if (!db || !id) return;
+  try {
+    await updateDoc(doc(db, "promotion_notifications", id), { read: false });
+  } catch {
+    /* offline or already unread */
+  }
+}
+
 /** Bulk mark-read for inbox segments. Each write is idempotent; failures stay unread. */
 export async function markAllNotificationsRead(ids: string[]) {
   await Promise.all(ids.map((id) => markNotificationRead(id)));
+}
+
+/** Delete a single notification permanently */
+export async function deleteNotification(id: string): Promise<boolean> {
+  const db = getFirebaseDb();
+  if (!db || !id) return false;
+  try {
+    await deleteDoc(doc(db, "promotion_notifications", id));
+    return true;
+  } catch (err) {
+    console.error("Failed to delete notification", err);
+    return false;
+  }
+}
+
+/** Bulk delete multiple notifications */
+export async function deleteAllNotifications(ids: string[]): Promise<void> {
+  await Promise.all(ids.map((id) => deleteNotification(id)));
+}
+
+/** Soft-archive a notification */
+export async function archiveNotification(id: string, archived = true): Promise<void> {
+  const db = getFirebaseDb();
+  if (!db || !id) return;
+  try {
+    await updateDoc(doc(db, "promotion_notifications", id), { archived });
+  } catch {
+    /* offline or already updated */
+  }
 }

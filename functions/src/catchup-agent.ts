@@ -3,6 +3,7 @@ import { catchUpNotice, catchUpTypeLabel, proposeCatchUpSlots, type CatchUpSlot 
 import { CALLABLE, db, requireAccount } from "./admin";
 import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "./abuse";
 import { fanOut } from "./notifications";
+import { sendCatchUpNoticeEmail } from "./email";
 
 interface CatchUpDoc {
   id: string;
@@ -90,6 +91,7 @@ export const scheduleCatchUp = onCall(CALLABLE, async (request) => {
         promotionId: "",
         href: notice.href,
       });
+      void sendCatchUpNoticeEmail(catchupId);
     }
     return { ok: true, proposals, status: row.status || "pending" };
   }
@@ -134,6 +136,7 @@ export const scheduleCatchUp = onCall(CALLABLE, async (request) => {
       promotionId: "",
       href: notice.href,
     });
+    void sendCatchUpNoticeEmail(catchupId);
   }
   return { ok: true, proposals, status: "scheduled", slot: chosen };
 });

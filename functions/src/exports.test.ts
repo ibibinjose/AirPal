@@ -39,6 +39,7 @@ const CALLABLES = [
   "listEventCoupons",
   "announceEventToGuests",
   "onEventPublishedToFollowers",
+  "testSendBrandEmail",
   "onPingCreated",
   "onPingUpdated",
   "createManagedProduct",

@@ -22,6 +22,7 @@ import type {
 } from "../../shared/airpal-security";
 import { enforceRateLimit, noteAppCheck, writeAudit } from "./abuse";
 import { CALLABLE, db, isPlatformAdmin, requireAccount } from "./admin";
+import { sendEventRsvpEmail, sendTicketReceiptEmail } from "./email";
 
 /**
  * Guestlist server for events: triggers keep rows in sync with RSVPs and
@@ -143,6 +144,10 @@ export const onGuestRsvpWritten = onDocumentWritten("users/{uid}/calendar/{event
       },
       { merge: true },
     );
+    const before = event.data?.before?.data() as { status?: string } | undefined;
+    if (before?.status !== "going") {
+      void sendEventRsvpEmail(eventId, uid);
+    }
   } else {
     const existing = await ref.get();
     if (!existing.exists) return;
@@ -196,6 +201,11 @@ export const onGuestBookingWritten = onDocumentWritten("bookings/{bookingId}", a
       },
       { merge: true },
     );
+    const before = event.data?.before?.data() as Omit<Booking, "id"> | undefined;
+    const beforeCheck = before ? ticketAdmitCheck(before) : { valid: false };
+    if (!beforeCheck.valid) {
+      void sendTicketReceiptEmail(bookingId);
+    }
   } else if (check.reason === "cancelled" || check.reason === "refunded" || check.reason === "disputed") {
     const existing = await ref.get();
     if (!existing.exists) return;

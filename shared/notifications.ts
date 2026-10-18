@@ -54,6 +54,14 @@ export function isPriorityKind(kind: string): boolean {
 export function notificationPresentation(kind: string): { label: string; segment: "updates" | "activity" } {
   if (kind === "announcement") return { label: "Update", segment: "updates" };
   switch (kind) {
+    case "ticket_confirmed":
+      return { label: "Ticket", segment: "activity" };
+    case "event_rsvp":
+      return { label: "RSVP", segment: "activity" };
+    case "security_alert":
+      return { label: "Security", segment: "updates" };
+    case "welcome":
+      return { label: "Welcome", segment: "updates" };
     case "catchup_proposed":
       return { label: "Catch-up", segment: "activity" };
     case "catchup_scheduled":
