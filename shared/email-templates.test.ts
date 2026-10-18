@@ -10,6 +10,11 @@ import {
 } from "./email-templates";
 
 describe("shared/email-templates", () => {
+  it("exports valid EMAIL_BRAND configuration", () => {
+    expect(EMAIL_BRAND.from).toBe("AirPal <noreply@email.airpal.me>");
+    expect(EMAIL_BRAND.site).toBe("https://airpal.me");
+  });
+
   it("wraps brand emails with Master Brand header, dark mode CSS, and universal account footer", () => {
     const rendered = wrapBrandEmail({
       title: "Test Title",

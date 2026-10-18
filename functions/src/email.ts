@@ -9,7 +9,7 @@ import {
   broadcastAnnouncementEmail,
 } from "../../shared/email-templates";
 import { isMarketingKind } from "../../shared/notifications";
-import type { Booking } from "../../shared/event";
+import type { Booking } from "../../shared/booking";
 import { CALLABLE, db, isPlatformAdmin, requireAccount } from "./admin";
 import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "./abuse";
 import { sendPushIfAllowed } from "./notifications";
@@ -35,7 +35,9 @@ export interface SendBrandEmailResult {
  * Normalizes email address and validates RFC standard format.
  */
 function normalizeEmail(raw: string): string {
-  return String(raw || "").trim().toLowerCase();
+  return String(raw || "")
+    .trim()
+    .toLowerCase();
 }
 
 function isValidEmail(email: string): boolean {
@@ -62,8 +64,12 @@ export async function sendBrandEmail(opts: SendBrandEmailOptions): Promise<SendB
       const userSnap = await db.collection("users").doc(opts.uid).get();
       if (userSnap.exists) {
         const u = userSnap.data();
-        if (u?.marketingOptOut === true || u?.preferences?.marketingEmail === false) {
-          return { ok: true, status: "opted_out" };
+        if (
+          u?.marketingOptOut === true ||
+          u?.preferences?.marketingEmail === false ||
+          u?.notifications?.marketingEmail === false
+        ) {
+          return { ok: false, status: "opted_out" };
         }
       }
     } catch {
@@ -178,6 +184,7 @@ export async function createInAppNotification(input: {
   href: string;
   promotionId?: string;
 }): Promise<string> {
+  if (!input.uid || !input.title || !input.body) return "";
   const ref = await db.collection("promotion_notifications").add({
     uid: input.uid,
     kind: input.kind,
@@ -211,18 +218,34 @@ export async function sendTicketReceiptEmail(bookingId: string): Promise<boolean
       return false;
     }
 
-    const eventId = String(booking.eventId || "");
+    const raw = (bookingSnap.data() || {}) as Record<string, unknown>;
+    const customerUid = String(raw.customerUid || "");
+
+    let customerName = String(raw.customerName || "");
+    let email = normalizeEmail(String(raw.customerEmail || ""));
+
+    if (customerUid && (!customerName || !email)) {
+      try {
+        const uSnap = await db.collection("users").doc(customerUid).get();
+        if (uSnap.exists) {
+          const uData = uSnap.data();
+          if (!customerName) customerName = String(uData?.displayName || uData?.name || "");
+          if (!email) email = normalizeEmail(String(uData?.email || ""));
+        }
+      } catch {
+        /* proceed */
+      }
+    }
+
+    const eventId = String(raw.eventId || "");
     const eventSnap = await db.collection("events").doc(eventId).get();
     const eventData = eventSnap.exists ? eventSnap.data() : null;
 
-    const eventTitle = String(eventData?.name || eventData?.title || booking.eventTitle || "AirPal Event");
-    const eventDate = String(eventData?.date || booking.date || "Upcoming");
-    const eventTime = String(eventData?.time || eventData?.timeLabel || booking.timeLabel || "Doors open");
-    const venue = String(eventData?.venue || booking.venue || "Event Venue");
+    const eventTitle = String(eventData?.name || eventData?.title || raw.title || "AirPal Event");
+    const eventDate = String(eventData?.date || raw.date || "Upcoming");
+    const eventTime = String(eventData?.time || eventData?.timeLabel || raw.time || "Doors open");
+    const venue = String(eventData?.venue || raw.suburb || "Event Venue");
     const city = String(eventData?.city || "Sydney");
-
-    const email = normalizeEmail(booking.customerEmail || "");
-    const customerUid = String(booking.customerUid || "");
 
     // 1. Dispatch in-app notification
     if (customerUid) {
@@ -238,20 +261,20 @@ export async function sendTicketReceiptEmail(bookingId: string): Promise<boolean
 
     // 2. Dispatch email confirmation if customer email is available
     if (email) {
-      const spots = Math.max(1, Number(booking.spots) || 1);
-      const priceCents = Number(booking.priceCents) || 0;
-      const currency = String(booking.currency || "aud").toUpperCase();
+      const spots = Math.max(1, Number(raw.spots) || 1);
+      const priceCents = Number(raw.priceCents) || 0;
+      const currency = String(raw.currency || "aud").toUpperCase();
       const totalFormatted = priceCents > 0 ? `$${(priceCents / 100).toFixed(2)} ${currency}` : "Free Admission";
 
       const rendered = ticketConfirmationEmail({
-        name: booking.customerName,
+        name: customerName,
         email,
         eventTitle,
         eventDate,
         eventTime,
         venue,
         city,
-        ticketTier: booking.ticketType || "General Admission",
+        ticketTier: String(raw.ticketTier || raw.tierId || "General Admission"),
         spots,
         totalFormatted,
         bookingId,
@@ -359,7 +382,9 @@ export async function sendCatchUpNoticeEmail(catchupId: string): Promise<boolean
 
     const requesterName = String(row?.requesterName || requesterData?.displayName || requesterData?.name || "A friend");
     const requesterHandle = String(requesterData?.handle || "");
-    const typeLabel = String(row?.type || "catchup").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const typeLabel = String(row?.type || "catchup")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
 
     const rendered = catchUpProposalEmail({
       recipientName: targetUserSnap.data()?.displayName,
@@ -441,8 +466,7 @@ export const testSendBrandEmail = onCall(CALLABLE, async (request) => {
   const uid = requireAccount(request, "Sign in as admin to test emails.");
   await enforceRateLimit(uid, "broadcast", isAnonymousAuth(request));
 
-  const callerClaims = request.auth?.token as { platform_admin?: boolean; role?: string } | undefined;
-  if (!isPlatformAdmin(callerClaims)) {
+  if (!isPlatformAdmin(request.auth?.token as Parameters<typeof isPlatformAdmin>[0])) {
     throw new HttpsError("permission-denied", "Only platform admins can trigger test emails.");
   }
 
@@ -491,6 +515,15 @@ export const testSendBrandEmail = onCall(CALLABLE, async (request) => {
       time: "10:00 AM",
       venue: "Paramount Coffee Project, Surry Hills",
       catchupId: "demo_catchup",
+    });
+  } else if (template === "broadcast") {
+    rendered = broadcastAnnouncementEmail({
+      title: "Weekend Pop-up Announced!",
+      body: "We are taking over Crown St this Saturday with authentic street food stalls and live music.",
+      authorName: "Surry Hills Foodies",
+      authorHandle: "surryhillsfood",
+      href: "https://airpal.me/@surryhillsfood",
+      recipientEmail: to,
     });
   } else {
     rendered = welcomeAccountEmail({

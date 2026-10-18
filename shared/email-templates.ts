@@ -269,12 +269,7 @@ export function wrapBrandEmail(opts: WrapBrandEmailOptions): EmailRenderOutput {
     textLines.push("");
   }
 
-  textLines.push(
-    "---",
-    "AirPal · Life Made Easy",
-    "Manage preferences: " + unsubUrl,
-    "Sydney, NSW, Australia",
-  );
+  textLines.push("---", "AirPal · Life Made Easy", "Manage preferences: " + unsubUrl, "Sydney, NSW, Australia");
 
   return {
     subject: opts.title,
@@ -436,7 +431,11 @@ export function broadcastAnnouncementEmail(input: {
   site?: string;
 }): EmailRenderOutput {
   const site = (input.site || EMAIL_BRAND.site).replace(/\/$/, "");
-  const targetUrl = input.href ? (input.href.startsWith("http") ? input.href : `${site}${input.href}`) : `${site}/me/inbox`;
+  const targetUrl = input.href
+    ? input.href.startsWith("http")
+      ? input.href
+      : `${site}${input.href}`
+    : `${site}/me/inbox`;
   const handleStr = input.authorHandle ? `@${input.authorHandle.replace(/^@/, "")}` : input.authorName;
 
   return wrapBrandEmail({
@@ -445,10 +444,7 @@ export function broadcastAnnouncementEmail(input: {
     lensBadge: "CIRCLE",
     kicker: "Circle Update",
     heading: input.title,
-    paragraphs: [
-      `New announcement from ${handleStr}:`,
-      input.body,
-    ],
+    paragraphs: [`New announcement from ${handleStr}:`, input.body],
     ctaLabel: "View in AirPal",
     ctaUrl: targetUrl,
     finePrint: `You are receiving this update because you follow ${handleStr} on AirPal. Manage alerts in Settings.`,
