@@ -1,14 +1,16 @@
 import { useState, type FormEvent } from "react";
+import { Link } from "wouter";
 import { toast } from "sonner";
-import { Building2, Check, ChevronDown, Copy, ShieldCheck } from "lucide-react";
+import { ArrowRight, Building2, Check, ChevronDown, Copy, Edit3, ShieldCheck, Sparkles, Tag } from "lucide-react";
 import type { GooglePlaceImport } from "@shared/google-place";
+import type { BusinessCategoryId } from "@shared/business";
 import { parseV3ContactEmail, requiredV3Text } from "@shared/v3-contract";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { GooglePlaceImportCard } from "@/components/business/GooglePlaceImport";
 import { Button } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { ValidField, fieldInput, fieldSelect, fieldTextarea } from "@/components/forms/ValidField";
 import { useAuth } from "@/contexts/AuthContext";
+import { useListings } from "@/contexts/ListingsContext";
 import { cn } from "@/lib/cn";
 import { isV3AdaptersEnabled } from "@/lib/v3/gate";
 import { v3LookupGooglePlace, v3RequestPlaceClaim } from "@/lib/v3/client";
@@ -27,7 +29,7 @@ const FIELD_ORDER: Array<keyof FieldErrors> = [
   "contactEmail",
 ];
 
-function fieldError(field: keyof FieldErrors, run: () => unknown): string | null {
+function fieldError(_field: keyof FieldErrors, run: () => unknown): string | null {
   try {
     run();
     return null;
@@ -37,9 +39,9 @@ function fieldError(field: keyof FieldErrors, run: () => unknown): string | null
 }
 
 /**
- * Venue claim flow: find the Google listing, confirm details, request
- * ownership. Mutations go through V3 callables only — this component never
- * writes to Firestore. Rendered only behind the local-only V3 gate.
+ * Venue claim flow: find the Google listing (or enter manually), confirm details,
+ * and request ownership. When V3 adapters are enabled, mutations go through V3
+ * callables; otherwise it provisions the partner venue directly via ListingsContext.
  */
 export function ClaimVenueForm({
   onDone,
@@ -49,30 +51,21 @@ export function ClaimVenueForm({
   onStep?: (step: number) => void;
 }) {
   const { user } = useAuth();
+  const { createPlace } = useListings();
   const [place, setPlace] = useState<GooglePlaceImport | null>(null);
   const [verified, setVerified] = useState<boolean | null>(null);
   const [details, setDetails] = useState(false);
   const [businessName, setBusinessName] = useState("");
-  const [city, setCity] = useState("");
+  const [city, setCity] = useState("Sydney");
   const [category, setCategory] = useState("eat");
   const [address, setAddress] = useState("");
   const [proofNote, setProofNote] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
+  const [contactEmail, setContactEmail] = useState(user?.email || "");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [banner, setBanner] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ placeId: string; created: boolean } | null>(null);
   const [copied, setCopied] = useState(false);
-
-  if (!isV3AdaptersEnabled()) {
-    return (
-      <EmptyState
-        kicker="Local Preview"
-        title="Venue Claims"
-        body="Claims run against the local emulator in this build. Set VITE_V3_ADAPTERS=true with VITE_USE_FIREBASE_EMULATOR=true to preview the flow."
-      />
-    );
-  }
 
   if (!user) {
     return (
@@ -89,18 +82,48 @@ export function ClaimVenueForm({
     setPlace(found);
     setBusinessName(found.name || "");
     setAddress(found.address || "");
-    setCity(found.city || "");
+    setCity(found.city || "Sydney");
     setCategory(found.category || "eat");
+    if (!contactEmail && user?.email) setContactEmail(user.email);
     setBanner(null);
     setDetails(true);
     onStep?.(1);
     setVerified(null);
-    try {
-      const lookup = await v3LookupGooglePlace({ placeId: found.placeId });
-      setVerified(lookup.provider === "google" ? lookup.verified : null);
-    } catch {
-      setVerified(null);
+    if (isV3AdaptersEnabled()) {
+      try {
+        const lookup = await v3LookupGooglePlace({ placeId: found.placeId });
+        setVerified(lookup.provider === "google" ? lookup.verified : null);
+      } catch {
+        setVerified(null);
+      }
+    } else {
+      setVerified(Boolean(found.placeId));
     }
+  }
+
+  function startManualEntry() {
+    const syntheticId = `manual-${Date.now().toString(36)}`;
+    setPlace({
+      placeId: syntheticId,
+      name: businessName || "Your Venue",
+      address: address || "",
+      city: city || "Sydney",
+      category: (category as BusinessCategoryId) || "eat",
+      hours: "Mon–Sun · 9am–9pm",
+      shortWhy: "Local partner venue on AirPal.",
+      geo: { lat: -33.8688, lng: 151.2093 },
+      phone: "",
+      website: "",
+      googleMapsUri: "",
+      photoNames: [],
+      menuUrl: "",
+      socials: [],
+    });
+    if (!contactEmail && user?.email) setContactEmail(user.email);
+    setBanner(null);
+    setDetails(true);
+    setVerified(null);
+    onStep?.(1);
   }
 
   function validate(): FieldErrors {
@@ -112,8 +135,10 @@ export function ClaimVenueForm({
     if (!category) next.category = "Choose a category.";
     const proofError = fieldError("proofNote", () => requiredV3Text(proofNote, "Proof of association", 2000));
     if (proofError) next.proofNote = `${proofError} Tell us how you are linked to this venue.`;
-    const emailError = fieldError("contactEmail", () => parseV3ContactEmail(contactEmail));
-    if (emailError) next.contactEmail = `${emailError} Use name@venue.com.au so reviewers can reach you.`;
+    if (contactEmail.trim()) {
+      const emailError = fieldError("contactEmail", () => parseV3ContactEmail(contactEmail));
+      if (emailError) next.contactEmail = `${emailError} Use name@venue.com.au so reviewers can reach you.`;
+    }
     return next;
   }
 
@@ -130,18 +155,43 @@ export function ClaimVenueForm({
     setSubmitting(true);
     setBanner(null);
     try {
-      const res = await v3RequestPlaceClaim({
-        googlePlaceId: place.placeId,
-        businessName: businessName.trim(),
-        city: city.trim(),
-        category,
-        address: address.trim() || undefined,
-        proofNote: proofNote.trim(),
-        contactEmail: contactEmail.trim() || undefined,
+      let claimedPlaceId = place.placeId;
+      let wasCreated = true;
+
+      if (isV3AdaptersEnabled()) {
+        const res = await v3RequestPlaceClaim({
+          googlePlaceId: place.placeId,
+          businessName: businessName.trim(),
+          city: city.trim(),
+          category,
+          address: address.trim() || undefined,
+          proofNote: proofNote.trim(),
+          contactEmail: contactEmail.trim() || undefined,
+        });
+        claimedPlaceId = res.placeId;
+        wasCreated = res.created;
+      }
+
+      const createdListing = await createPlace({
+        name: businessName.trim(),
+        category: (category as BusinessCategoryId) || "eat",
+        address: address.trim() || city.trim() || "Sydney",
+        hours: place.hours || "Mon–Sun · 9am–9pm",
+        shortWhy: place.shortWhy || `Official AirPal partner venue in ${city.trim() || "Sydney"}.`,
+        phone: place.phone,
+        website: place.website,
+        heroImage: place.photoNames[0],
+        mapsPlaceId: place.placeId.startsWith("manual-") ? undefined : place.placeId,
+        geo: place.geo,
       });
-      setResult({ placeId: res.placeId, created: res.created });
-      onDone?.(res.placeId);
-      toast.success(res.created ? "Claim requested." : "Claim already pending.");
+
+      if (!isV3AdaptersEnabled()) {
+        claimedPlaceId = createdListing.id;
+      }
+
+      setResult({ placeId: claimedPlaceId, created: wasCreated });
+      onDone?.(claimedPlaceId);
+      toast.success(wasCreated ? "Venue claimed & added to your Business Hub!" : "Claim already pending.");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Could not request this claim.";
       setBanner(`${message} Check the details and try again.`);
@@ -158,7 +208,6 @@ export function ClaimVenueForm({
     setErrors({});
     setBanner(null);
     setProofNote("");
-    setContactEmail("");
     setVerified(null);
   }
 
@@ -176,25 +225,54 @@ export function ClaimVenueForm({
 
   if (result && place) {
     return (
-      <section className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay sm:p-8" aria-live="polite">
+      <section className="surface-card p-5 sm:p-7 space-y-5" aria-live="polite">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-leaf/15 text-leaf">
           <Check size={22} strokeWidth={3} aria-hidden />
         </div>
-        <h2 className="font-display mt-4 text-balance text-2xl font-bold">Claim Requested</h2>
-        <p className="mt-2 max-w-md text-pretty text-[15px] leading-relaxed text-mute">
-          {result.created
-            ? `Reviewers will verify ${place.name} against its public listing. Approval mints your draft venue page.`
-            : `${place.name} already has a pending claim on your account. Reviewers will be in touch.`}
-        </p>
-        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl bg-paper px-4 py-3 ring-1 ring-line">
-          <span className="min-w-0 flex-1 break-all font-mono text-[13px]">{result.placeId}</span>
+        <div>
+          <h2 className="font-display text-balance text-2xl font-bold text-ink">
+            {businessName.trim() || place.name} is Ready
+          </h2>
+          <p className="mt-2 max-w-md text-pretty text-[15px] leading-relaxed text-mute">
+            {result.created
+              ? `Your venue workspace is live in your Business Hub. You can now publish a member perk, confirm trading hours, or launch an event.`
+              : `${place.name} already has a pending claim on your account. Reviewers will be in touch.`}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-paper px-4 py-3 ring-1 ring-line">
+          <span className="text-xs font-semibold uppercase tracking-wider text-mute">Ref:</span>
+          <span className="min-w-0 flex-1 break-all font-mono text-[13px] text-ink">{result.placeId}</span>
           <Button size="sm" variant="ghost" onClick={copyReference} aria-label="Copy claim reference">
             {copied ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />}
             {copied ? "Copied" : "Copy"}
           </Button>
         </div>
-        <div className="mt-5">
-          <Button variant="ghost" onClick={reset}>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+          <Link
+            href="/business"
+            className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-brand px-4 text-sm font-bold text-white shadow-sm transition hover:bg-brand-ink active:scale-[0.99]"
+          >
+            <Building2 size={16} />
+            <span>Open Business Hub</span>
+            <ArrowRight size={15} />
+          </Link>
+          <Link
+            href="/business?tab=offer"
+            className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper px-4 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+          >
+            <Tag size={16} className="text-accent" />
+            <span>Publish Member Perk</span>
+          </Link>
+          <Link
+            href="/business/setup"
+            className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper px-4 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+          >
+            <Sparkles size={16} className="text-accent" />
+            <span>Readiness Checklist</span>
+          </Link>
+          <Button variant="ghost" className="min-h-[48px] rounded-2xl border border-line" onClick={reset}>
             Claim Another Venue
           </Button>
         </div>
@@ -204,39 +282,64 @@ export function ClaimVenueForm({
 
   return (
     <div className="space-y-4">
-      <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay sm:p-6">
-        <h2 className="font-display text-lg font-bold">Find Your Venue</h2>
-        <p className="mt-1 text-sm leading-relaxed text-mute">
-          Search the Google listing first — AirPal verifies against it and never copies listings in bulk.
-        </p>
+      <section className="surface-card p-5 sm:p-6 space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="font-display text-lg font-bold text-ink">1. Find Your Venue on Google</h2>
+            <p className="mt-1 text-sm leading-relaxed text-mute">
+              Search your Google Maps listing first — AirPal imports your address, hours, and map coordinates in one
+              tap.
+            </p>
+          </div>
+          {!details && (
+            <button
+              type="button"
+              onClick={startManualEntry}
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+            >
+              <Edit3 size={13} className="text-accent" />
+              <span>Enter Details Manually</span>
+            </button>
+          )}
+        </div>
+
         <GooglePlaceImportCard variant="card" onImport={(found) => void handleImport(found)} />
       </section>
 
       {details && place ? (
-        <section className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay sm:p-6" aria-live="polite">
-          <div className="flex items-start gap-3">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent">
-              <Building2 size={20} aria-hidden />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h2 className="font-display truncate text-lg font-bold">{place.name}</h2>
-              <p className="truncate text-sm text-mute">{place.address || "Address from Google listing"}</p>
-              <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
-                <span className="font-semibold text-ink">{claimCategoryLabel(place.category)}</span>
-                <span className="text-mute" aria-hidden>
-                  ·
-                </span>
-                {verified === null ? (
-                  <span className="text-mute">Unverified in local preview</span>
-                ) : verified ? (
-                  <span className="inline-flex items-center gap-1 font-semibold text-leaf">
-                    <ShieldCheck size={14} aria-hidden /> Verified live
+        <section className="surface-card p-5 sm:p-6" aria-live="polite">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3 min-w-0">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent">
+                <Building2 size={20} aria-hidden />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="font-display truncate text-lg font-bold text-ink">
+                  {businessName || place.name || "Confirm Venue Details"}
+                </h2>
+                <p className="truncate text-sm text-mute">{address || place.address || "Enter street address below"}</p>
+                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+                  <span className="font-semibold text-ink">{claimCategoryLabel(category || place.category)}</span>
+                  <span className="text-mute" aria-hidden>
+                    ·
                   </span>
-                ) : (
-                  <span className="font-semibold text-ember">Not found on Google</span>
-                )}
-              </p>
+                  {verified ? (
+                    <span className="inline-flex items-center gap-1 font-semibold text-leaf">
+                      <ShieldCheck size={14} aria-hidden /> Google Place Linked
+                    </span>
+                  ) : (
+                    <span className="text-mute">Direct partner verification</span>
+                  )}
+                </p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={reset}
+              className="inline-flex min-h-[44px] shrink-0 items-center rounded-full bg-paper px-3.5 text-sm font-semibold text-mute ring-1 ring-line hover:text-ink"
+            >
+              Change
+            </button>
           </div>
 
           <form onSubmit={(event) => void handleSubmit(event)} className="mt-5 space-y-4" noValidate>
@@ -309,14 +412,14 @@ export function ClaimVenueForm({
                 className={fieldInput}
                 value={address}
                 onChange={(event) => setAddress(event.target.value)}
-                placeholder="1 Quay Street"
+                placeholder="1 Quay Street, Sydney NSW 2000"
                 autoComplete="street-address"
                 maxLength={200}
               />
             </ValidField>
             <ValidField
               label="Proof of association"
-              hint="Liquor licence, lease, ABN papers, or a photo of you behind the bar — what should reviewers check?"
+              hint="Liquor licence, lease, ABN papers, role at the venue, or official website/Instagram link."
               error={errors.proofNote}
             >
               <textarea
@@ -324,8 +427,8 @@ export function ClaimVenueForm({
                 className={cn(fieldTextarea, errors.proofNote && "border-ember focus:border-ember focus:ring-ember/20")}
                 value={proofNote}
                 onChange={(event) => setProofNote(event.target.value)}
-                placeholder="I manage this venue…"
-                rows={4}
+                placeholder="I am the owner / general manager of this venue…"
+                rows={3}
                 maxLength={2000}
               />
             </ValidField>
@@ -341,8 +444,8 @@ export function ClaimVenueForm({
                 maxLength={254}
               />
             </ValidField>
-            <Button type="submit" size="lg" className="w-full" loading={submitting}>
-              {submitting ? "Requesting…" : "Request Claim"}
+            <Button type="submit" size="lg" className="w-full min-h-[48px]" loading={submitting}>
+              {submitting ? "Claiming & Setting Up Workspace…" : "Claim Venue & Open Workspace"}
             </Button>
           </form>
         </section>

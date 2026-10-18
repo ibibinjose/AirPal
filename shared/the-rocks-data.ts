@@ -1,4 +1,4 @@
-import type { MarkerDoc, NearbyEvent, NearbyPlace, PrecinctDoc } from "./nearby";
+import type { NearbyPlace, PrecinctDoc } from "./nearby";
 
 export const THE_ROCKS_PRECINCT_ID = "the-rocks";
 export const HARBOUR_ROCKS_PROPERTY_ID = "harbour-rocks-hotel-6cbbce";
@@ -12,52 +12,6 @@ export const THE_ROCKS_PRECINCT: PrecinctDoc = {
   status: "active",
   geo: { lat: -33.85945, lng: 151.20835 },
   summary: "Sandstone laneways, Circular Quay ferries, and the harbour edge. Walkable from Harbour Rocks Hotel.",
-};
-
-export const DEFAULT_HARBOUR_ROCKS_MARKER: MarkerDoc = {
-  id: HARBOUR_ROCKS_LOBBY_MARKER_ID,
-  kind: "lobby",
-  status: "active",
-  label: "AirPal Hotel · Lobby",
-  geo: { lat: -33.85945, lng: 151.20835 },
-  propertyId: HARBOUR_ROCKS_PROPERTY_ID,
-  propertyName: "AirPal Hotel · The Rocks",
-  precinctId: THE_ROCKS_PRECINCT_ID,
-  city: "Sydney",
-  citySlug: "sydney",
-  handle: "harbour-rocks-hotel",
-  propertyKind: "hotel",
-  allowCompetitors: false,
-  suppressCategories: ["stay"],
-};
-
-export const DEFAULT_ROOM_101_MARKER: MarkerDoc = {
-  id: "room-101-harbour-rocks",
-  kind: "room",
-  status: "active",
-  label: "Room 101 · AirPal Suite",
-  geo: { lat: -33.85945, lng: 151.20835 },
-  propertyId: HARBOUR_ROCKS_PROPERTY_ID,
-  propertyName: "AirPal Hotel · The Rocks",
-  precinctId: THE_ROCKS_PRECINCT_ID,
-  roomToken: "tok-101-demo",
-  city: "Sydney",
-  citySlug: "sydney",
-  handle: "harbour-rocks-hotel",
-  propertyKind: "hotel",
-  allowCompetitors: false,
-  suppressCategories: ["stay"],
-};
-
-export const DEFAULT_STREET_ARGYLE_MARKER: MarkerDoc = {
-  id: "syd-rocks-argyle",
-  kind: "street",
-  status: "active",
-  label: "Argyle Cut · Sandstone Pass",
-  geo: { lat: -33.8588, lng: 151.2069 },
-  precinctId: THE_ROCKS_PRECINCT_ID,
-  city: "Sydney",
-  citySlug: "sydney",
 };
 
 export const THE_ROCKS_PLACES: NearbyPlace[] = [
@@ -900,114 +854,5 @@ export const THE_ROCKS_PLACES: NearbyPlace[] = [
     precinctId: THE_ROCKS_PRECINCT_ID,
     address: "George St",
     priceLevel: "Free",
-  },
-];
-
-export const THE_ROCKS_EVENTS: NearbyEvent[] = [
-  {
-    id: "rocks-markets-weekend",
-    title: "The Rocks Markets",
-    detail: "Makers, vintage, and food stalls on George and Playfair.",
-    when: "Sat–Sun 10:00–17:00",
-    precinctId: THE_ROCKS_PRECINCT_ID,
-    status: "active",
-    category: "shops",
-    kind: "event",
-    venueName: "Playfair & George St Laneways",
-    isLiveNow: true,
-    heroImage: "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=1200&q=80",
-    photos: [
-      "https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80",
-    ],
-    ticketPrice: "Free Entry",
-    ticketUrl: "https://therocks.com/whats-on/markets",
-    insiderTip: "Over 80 local artisans and food stalls. Try the handmade salted butter caramels.",
-  },
-  {
-    id: "dawes-point-sunset",
-    title: "Sunset at Dawes Point",
-    detail: "Free lawn, harbour breeze, and the Opera House sails glowing golden.",
-    when: "Tonight 17:30–19:00",
-    precinctId: THE_ROCKS_PRECINCT_ID,
-    status: "active",
-    category: "things",
-    kind: "event",
-    venueName: "Dawes Point Reserve",
-    isLiveNow: true,
-    heroImage: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=1200&q=80",
-    photos: ["https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=1200&q=80"],
-    ticketPrice: "Free Public Access",
-    insiderTip:
-      "Bring a takeaway gelato from Circular Quay and sit on the grass right beneath the southern pylon of the Harbour Bridge.",
-  },
-  {
-    id: "opera-forecourt",
-    title: "Opera House Forecourt Live",
-    detail: "Harbour twilight walks and live outdoor music on the monument steps.",
-    when: "Tonight from 18:30",
-    precinctId: THE_ROCKS_PRECINCT_ID,
-    status: "active",
-    category: "events",
-    kind: "event",
-    venueName: "Sydney Opera House Forecourt",
-    isLiveNow: true,
-    heroImage: "https://images.unsplash.com/photo-1624138784614-87fd1b6528f8?auto=format&fit=crop&w=1200&q=80",
-    photos: ["https://images.unsplash.com/photo-1624138784614-87fd1b6528f8?auto=format&fit=crop&w=1200&q=80"],
-    ticketPrice: "Free walk-in",
-    ticketUrl: "https://sydneyoperahouse.com",
-    insiderTip: "Walk the western broadway boardwalk at dusk for the reflection of city lights.",
-  },
-  {
-    id: "glenmore-golden-hour",
-    title: "Glenmore Rooftop Golden Hour",
-    detail: "Exclusive harbour golden hour drinks with Opera House views.",
-    when: "Tonight 17:30–19:00",
-    precinctId: THE_ROCKS_PRECINCT_ID,
-    status: "active",
-    category: "eat",
-    kind: "offer",
-    venueName: "The Glenmore Hotel Rooftop",
-    isLiveNow: true,
-    heroImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
-    deal: {
-      badge: "Golden Hour 15% Off",
-      detail: "Show room key at the rooftop bar for 15% off local craft schooners before 6 PM.",
-      claimHint: "Show Room Key",
-    },
-    ticketPrice: "Walk-in welcome",
-    insiderTip: "Arrive before 17:45 to secure a timber stool right along the glass railing.",
-  },
-  {
-    id: "argyle-acoustic-session",
-    title: "Argyle Sandstone String Duo",
-    detail: "Acoustic cello and classical violin echoing through the heritage cut.",
-    when: "Today 13:00–15:00",
-    precinctId: THE_ROCKS_PRECINCT_ID,
-    status: "active",
-    category: "events",
-    kind: "event",
-    venueName: "Argyle Cut Tunnel",
-    isEnded: true,
-    endTime: "15:00",
-    heroImage: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
-    ticketPrice: "Free",
-    insiderTip: "Session wrapped at 3 PM today. Evening live sets resume tomorrow afternoon.",
-  },
-  {
-    id: "harbour-late-checkout",
-    title: "Late checkout at Harbour Rocks",
-    detail: "Stay until 4pm — claim from the guest companion if you have a room QR.",
-    when: "Ask reception",
-    precinctId: THE_ROCKS_PRECINCT_ID,
-    status: "active",
-    category: "services",
-    kind: "offer",
-    propertyId: HARBOUR_ROCKS_PROPERTY_ID,
-    deal: {
-      badge: "In-House Perk",
-      detail: "Complimentary late checkout priority for direct bookings.",
-      claimHint: "Use Room QR",
-    },
   },
 ];

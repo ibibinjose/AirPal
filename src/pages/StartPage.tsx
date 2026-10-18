@@ -30,7 +30,8 @@ import { SignupFlow } from "@/components/auth/SignupFlow";
 import { SocialAuthButtons, SocialAuthDivider } from "@/components/auth/SocialAuthButtons";
 import { PhoneField } from "@/components/forms/PhoneField";
 import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
-import { useVirtualKeyboard, ensureElementInView } from "@/lib/keyboard";
+import { useVirtualKeyboard } from "@/lib/keyboard";
+import { KEYBOARD_SAFE_INPUT, nudgeIntoView } from "@/components/auth/auth-field";
 import { phonePasswordNeedsSms, phoneReady } from "@shared/phone-auth";
 import { MeAvatar } from "@/components/auth/MeAvatar";
 import { BiometricAuthButton } from "@/components/auth/BiometricAuthButton";
@@ -43,21 +44,6 @@ import { PILLARS } from "@/lib/pillars";
 import { cn } from "@/lib/cn";
 
 export type AuthMode = "signin" | "signup" | "reset";
-
-/**
- * Mobile typography hygiene: 16px font prevents iOS Safari and Android webviews
- * from triggering unexpected viewport auto-zooms upon input focus.
- */
-const KEYBOARD_SAFE_INPUT = "text-[16px] sm:text-sm";
-
-function nudgeIntoView(e: React.FocusEvent<HTMLElement>) {
-  ensureElementInView(e.currentTarget, {
-    block: "center",
-    topClearance: 70,
-    bottomClearance: 24,
-    behavior: "smooth",
-  });
-}
 
 export function StartPage() {
   const search = useSearch();

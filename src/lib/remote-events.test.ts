@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   cityMatches,
+  cleanHttpUrl,
   cleanSpeakers,
   docToCalendarBase,
   docToEventRecord,
@@ -176,6 +177,31 @@ describe("cleanSpeakers", () => {
   it("returns undefined for empty input", () => {
     expect(cleanSpeakers(undefined)).toBe(undefined);
     expect(cleanSpeakers([])).toBe(undefined);
+  });
+});
+
+describe("cleanHttpUrl", () => {
+  it("keeps http(s) links and trims whitespace", () => {
+    expect(cleanHttpUrl("https://tickets.example.com/e/1")).toBe("https://tickets.example.com/e/1");
+    expect(cleanHttpUrl("  http://example.com  ")).toBe("http://example.com");
+    expect(cleanHttpUrl("HTTPS://EXAMPLE.COM")).toBe("HTTPS://EXAMPLE.COM");
+  });
+
+  it("drops dangerous schemes, bare slugs, and non-strings", () => {
+    expect(cleanHttpUrl("javascript:alert(1)")).toBe(undefined);
+    expect(cleanHttpUrl("  JaVaScRiPt:alert(1)")).toBe(undefined);
+    expect(cleanHttpUrl("data:text/html,<script>alert(1)</script>")).toBe(undefined);
+    expect(cleanHttpUrl("vbscript:msgbox(1)")).toBe(undefined);
+    expect(cleanHttpUrl("blob:https://example.com/x")).toBe(undefined);
+    expect(cleanHttpUrl("example.com/tickets")).toBe(undefined);
+    expect(cleanHttpUrl("")).toBe(undefined);
+    expect(cleanHttpUrl(undefined)).toBe(undefined);
+    expect(cleanHttpUrl(42)).toBe(undefined);
+  });
+
+  it("drops hostile urls from event docs", () => {
+    const base = docToEventRecord({ title: "T", registrationUrl: "javascript:alert(1)" }, "e1");
+    expect(base?.registrationUrl).toBe(undefined);
   });
 });
 

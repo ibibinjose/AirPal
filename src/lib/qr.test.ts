@@ -30,6 +30,16 @@ describe("qr payload", () => {
     );
   });
 
+  it("treats routeless surfaces as unknown instead of echoing a broken page", () => {
+    expect(parseQrPayload("https://airpal.me/companion/abc123").kind).toBe("unknown");
+    expect(pathForIntent(parseQrPayload("https://airpal.me/companion/abc123"))).toBe(null);
+    expect(parseQrPayload("https://airpal.me/events")).toEqual({ kind: "url", href: "/events" });
+    expect(parseQrPayload("https://airpal.me/stay/harbour-hotel")).toEqual({
+      kind: "url",
+      href: "/stay/harbour-hotel",
+    });
+  });
+
   it("routes a Pulse QR to /pulse/:token", () => {
     expect(parseQrPayload("https://airpal.me/pulse/pls_abcABC1234567890xyz")).toEqual({
       kind: "pulse",

@@ -18,7 +18,8 @@ import {
   type UserEventState,
 } from "@shared/event";
 
-import { computeRescheduledTimes, formatEventTimeRange } from "@/lib/calendar-utils";
+import { computeRescheduledTimes } from "@/lib/calendar-utils";
+import { overlayUserState } from "@/lib/event-user-state";
 import { docToCalendarBase, docToEventRecord, recordToCalendarBase, toNearbyEvent } from "@/lib/remote-events";
 import type { NearbyEvent } from "@shared/nearby";
 import { downloadMultipleIcs } from "@/lib/calendar-export";
@@ -87,33 +88,6 @@ const EventsContext = createContext<EventsValue | undefined>(undefined);
 
 function uidNow() {
   return getFirebaseAuth()?.currentUser?.uid;
-}
-
-/** Overlay device user-state onto a Firestore calendar base (pure, shared). */
-function overlayUserState(
-  base: Omit<CalendarEvent, "isGoing" | "isInterested" | "isLiked">,
-  userStates: Record<string, UserEventState>,
-  savedEvents: SavedEvent[],
-): CalendarEvent {
-  const state = userStates[base.id];
-  const isSaved = savedEvents.some((se) => se.eventId === base.id);
-  const isRescheduled = Boolean(state?.rescheduledDate && state.rescheduledDate !== base.date);
-  const date = state?.rescheduledDate || base.date;
-  const startsAt = state?.rescheduledStartsAt || base.startsAt;
-  const endsAt = state?.rescheduledEndsAt || base.endsAt;
-  const timeLabel = isRescheduled ? formatEventTimeRange(startsAt, endsAt) || base.timeLabel : base.timeLabel;
-  return {
-    ...base,
-    date,
-    startsAt,
-    endsAt,
-    timeLabel,
-    isRescheduled,
-    originalDate: base.date,
-    isGoing: state?.status === "going",
-    isInterested: state?.status === "interested" || (!state?.status && isSaved),
-    isLiked: Boolean(state?.liked),
-  };
 }
 
 export function EventsProvider({ children }: { children: ReactNode }) {

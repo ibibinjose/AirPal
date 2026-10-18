@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
-import { ArrowLeft, CalendarDays, ChevronDown, MapPin, Plus, Ticket } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  ChevronDown,
+  LayoutGrid,
+  MapPin,
+  Martini,
+  Music,
+  Plus,
+  Sparkles,
+  Ticket,
+  Tent,
+} from "lucide-react";
 import { useEvents } from "@/contexts/EventsContext";
 import { useLocalNow } from "@/contexts/LocalNowContext";
 import type { CalendarEvent } from "@shared/event";
@@ -16,13 +28,13 @@ import { cn } from "@/lib/cn";
 type EventCategory = "all" | "cultural" | "music" | "festivals" | "nightlife" | "community";
 type DateRange = "all" | "today" | "weekend" | "week" | "month";
 
-const CATEGORIES: { id: EventCategory; label: string; icon: string }[] = [
-  { id: "all", label: "All Access", icon: "🎟️" },
-  { id: "cultural", label: "Cultural", icon: "🪔" },
-  { id: "music", label: "Concerts & Gigs", icon: "🎵" },
-  { id: "festivals", label: "Festivals & Melas", icon: "🎪" },
-  { id: "nightlife", label: "Nightlife", icon: "🍸" },
-  { id: "community", label: "Community", icon: "✨" },
+const CATEGORIES: { id: EventCategory; label: string; icon: typeof Ticket }[] = [
+  { id: "all", label: "All Access", icon: Ticket },
+  { id: "cultural", label: "Cultural", icon: Sparkles },
+  { id: "music", label: "Concerts & Gigs", icon: Music },
+  { id: "festivals", label: "Festivals & Melas", icon: Tent },
+  { id: "nightlife", label: "Nightlife", icon: Martini },
+  { id: "community", label: "Community", icon: LayoutGrid },
 ];
 
 const DATE_RANGES: { id: DateRange; label: string }[] = [
@@ -290,7 +302,7 @@ export function EventsPage() {
                           )}
                         >
                           <span className="flex items-center gap-2">
-                            <span>{c.flag || "📍"}</span>
+                            <MapPin size={13} className="shrink-0" aria-hidden />
                             <span>{c.label}</span>
                           </span>
                           <span className={cn("text-[10px]", selected ? "text-white/80" : "text-mute")}>

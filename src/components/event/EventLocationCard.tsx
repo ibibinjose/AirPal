@@ -66,7 +66,7 @@ export function EventLocationCard({
           {virtualUrl && (
             <div className="pt-1">
               <a
-                href={virtualUrl.startsWith("http") ? virtualUrl : `https://${virtualUrl}`}
+                href={/^https?:\/\//i.test(virtualUrl) ? virtualUrl : `https://${virtualUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex w-full min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-3 text-sm font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-98 touch-manipulation"

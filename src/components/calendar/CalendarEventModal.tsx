@@ -85,7 +85,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
 
   const openDirections = () => {
     const query = encodeURIComponent(`${event.venue}, ${event.city}`);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank", "noopener,noreferrer");
   };
 
   return createPortal(
@@ -374,7 +374,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
           {event.ticketUrl && !event.gatePath && (
             <button
               type="button"
-              onClick={() => window.open(event.ticketUrl, "_blank")}
+              onClick={() => window.open(event.ticketUrl, "_blank", "noopener,noreferrer")}
               className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-4 text-xs font-medium text-white hover:bg-brand-ink transition shadow-sm"
             >
               <span>Get Tickets / Official Details</span>

@@ -125,7 +125,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="fixed-element sticky top-0 z-40 bg-paper/95 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
             <LocalNowBar />
             {workspace ? (
-              <header className="overflow-visible border-b border-white/10 bg-[#2F00FF]">
+              <header className="overflow-visible border-b border-white/10 bg-brand">
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-3 sm:px-4 md:h-16 md:px-6">
                   <div className="flex items-center gap-2 min-w-0">
                     <Link href={homePath} className="flex items-center min-w-0">
@@ -139,7 +139,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         void triggerHaptic("medium");
                         openGlobalCreate();
                       }}
-                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-[#2F00FF] bg-white hover:bg-white/90 ring-1 ring-white/30 transition cursor-pointer"
+                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-brand bg-white hover:bg-white/90 ring-1 ring-white/30 transition cursor-pointer"
                       aria-label="Create something new"
                       title="Create (+)"
                     >
@@ -150,7 +150,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       aria-current={path === "/" ? "page" : undefined}
                       className={cn(
                         "hidden md:inline-flex h-9 touch-manipulation items-center rounded-full px-3 text-sm font-medium",
-                        path === "/" ? "bg-white text-[#2F00FF]" : "text-white/75 hover:bg-white/10 hover:text-white",
+                        path === "/" ? "bg-white text-brand" : "text-white/75 hover:bg-white/10 hover:text-white",
                       )}
                     >
                       Home
@@ -165,7 +165,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <TopNav path={path} enter={play} />
                 <motion.div
                   {...chrome}
-                  className="flex h-14 items-center justify-between bg-[#2F00FF] px-3.5 sm:px-4 lg:hidden transition-colors border-b border-white/10"
+                  className="flex h-14 items-center justify-between bg-brand px-3.5 sm:px-4 lg:hidden transition-colors border-b border-white/10"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <Link href={homePath} className="flex items-center min-w-0" aria-label="AirPal Home">
@@ -179,7 +179,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         void triggerHaptic("medium");
                         openGlobalCreate();
                       }}
-                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-[#2F00FF] bg-white hover:bg-white/90 ring-1 ring-white/30 transition-transform active:scale-95 cursor-pointer"
+                      className="relative grid h-9 w-9 touch-manipulation place-items-center rounded-full text-brand bg-white hover:bg-white/90 ring-1 ring-white/30 transition-transform active:scale-95 cursor-pointer"
                       aria-label="Create something new"
                       title="Create (+)"
                     >

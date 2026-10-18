@@ -1,6 +1,7 @@
 import { httpsCallable } from "firebase/functions";
 import type { EnterPromotionRequest, EnterPromotionResponse, RedeemPointsRequest } from "@shared/promotions";
 import { getFirebaseFunctions } from "./firebase";
+import { friendlyFunctionError } from "./functions";
 
 async function callPromotion<Req, Res>(name: string, data: Req): Promise<Res> {
   const functions = getFirebaseFunctions();
@@ -51,16 +52,5 @@ export function promoArtFor(category: string, heroImage?: string): string {
 }
 
 export function friendlyPromotionError(err: unknown): string {
-  const code = (err as { code?: string } | null)?.code || "";
-  const message = err instanceof Error ? err.message : "";
-  if (code === "functions/failed-precondition" || code === "failed-precondition") {
-    return message || "This campaign is not open right now.";
-  }
-  if (code === "functions/permission-denied" || code === "permission-denied") {
-    return "You do not have permission for that action.";
-  }
-  if (code === "functions/unauthenticated" || code === "unauthenticated") {
-    return "Sign in to continue.";
-  }
-  return message || "Something went wrong. Please try again.";
+  return friendlyFunctionError(err, { preconditionMessage: "This campaign is not open right now." });
 }

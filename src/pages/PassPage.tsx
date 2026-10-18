@@ -7,10 +7,15 @@ import {
   CalendarDays,
   Flame,
   Gift,
+  LayoutGrid,
   MapPin,
+  Martini,
+  Music,
   Plus,
   QrCode,
   ShieldCheck,
+  Sparkles,
+  Tent,
   Ticket,
   Users,
 } from "lucide-react";
@@ -29,14 +34,14 @@ import { promoArtFor } from "@/lib/promotions";
 
 type PassCategory = "all" | "cultural" | "music" | "festivals" | "deals" | "nightlife" | "community";
 
-const PASS_CATEGORIES: { id: PassCategory; label: string; icon: string }[] = [
-  { id: "all", label: "All Access", icon: "🎟️" },
-  { id: "cultural", label: "Cultural", icon: "🪔" },
-  { id: "music", label: "Concerts & Gigs", icon: "🎵" },
-  { id: "festivals", label: "Festivals & Melas", icon: "🎪" },
-  { id: "deals", label: "Dining Deals", icon: "🎁" },
-  { id: "nightlife", label: "Nightlife & Clubs", icon: "🍸" },
-  { id: "community", label: "Community & Expos", icon: "✨" },
+const PASS_CATEGORIES: { id: PassCategory; label: string; icon: typeof Ticket }[] = [
+  { id: "all", label: "All Access", icon: Ticket },
+  { id: "cultural", label: "Cultural", icon: Sparkles },
+  { id: "music", label: "Concerts & Gigs", icon: Music },
+  { id: "festivals", label: "Festivals & Melas", icon: Tent },
+  { id: "deals", label: "Dining Deals", icon: Gift },
+  { id: "nightlife", label: "Nightlife & Clubs", icon: Martini },
+  { id: "community", label: "Community & Expos", icon: LayoutGrid },
 ];
 
 export function PassPage() {

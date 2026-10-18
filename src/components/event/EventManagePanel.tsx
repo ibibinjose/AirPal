@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { CalendarArrowDown, Copy, Mail, Megaphone, ScanLine, Trash2, Users } from "lucide-react";
+import { CalendarArrowDown, Copy, ExternalLink, Mail, Megaphone, ScanLine, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useEvents } from "@/contexts/EventsContext";
 import { EventShareModal } from "@/components/event/EventShareModal";
@@ -118,6 +118,13 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
             <CalendarArrowDown size={16} aria-hidden="true" />
             <span>Export .ics</span>
           </button>
+          <Link
+            href={`/e/${event.id}`}
+            className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl px-4 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95"
+          >
+            <ExternalLink size={16} aria-hidden="true" />
+            <span>Public event page</span>
+          </Link>
         </div>
       </div>
 

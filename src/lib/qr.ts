@@ -1,6 +1,23 @@
 import QRCode from "qrcode";
 import jsQR from "jsqr";
 import { parseVanityOrMarkerPath } from "@shared/airpal-urls";
+import { STATIC_ALIASES, canonicalRouteFor, patternMatches } from "@/app/airpal-app";
+import { parseAtHandle } from "@shared/bio";
+
+/**
+ * Does this in-app path land on a real surface? Canonical routes, legacy
+ * aliases (which redirect), and public bio handles all count. Anything
+ * else would render NotFound, so the scanner treats it as unknown.
+ */
+export function isResolvableInApp(href: string): boolean {
+  const raw = (href.split("?")[0] || "").trim();
+  if (!raw.startsWith("/")) return false;
+  const clean = raw.length > 1 ? raw.replace(/\/+$/, "") : raw;
+  if (!clean) return false;
+  if (parseAtHandle(clean)) return true;
+  if (canonicalRouteFor(clean)) return true;
+  return STATIC_ALIASES.some((a) => patternMatches(a.from, clean));
+}
 
 export type QrIntent =
   | { kind: "marker"; markerId: string }
@@ -51,7 +68,10 @@ export function parseQrPayload(raw: string): QrIntent {
       return { kind: "url", href: `/@${at[1].toLowerCase()}` };
     }
 
-    // Experience / Event / Ticket / Stay / Deals paths
+    // Experience / Event / Ticket / Stay / Deals paths. The resolvability
+    // gate below drops anything without a route or alias (e.g. retired
+    // surfaces), so the scanner says "Unknown code scanned" instead of
+    // landing on NotFound.
     if (
       url.pathname.startsWith("/e/") ||
       url.pathname.startsWith("/event/") ||
@@ -61,12 +81,14 @@ export function parseQrPayload(raw: string): QrIntent {
       url.pathname.startsWith("/p/") ||
       url.pathname.startsWith("/companion")
     ) {
-      return { kind: "url", href: url.pathname + url.search };
+      const href = url.pathname + url.search;
+      return isResolvableInApp(href) ? { kind: "url", href } : { kind: "unknown", raw: value };
     }
 
     const origin = typeof window === "undefined" ? "https://airpal.me" : window.location.origin;
     if (url.origin === origin || url.hostname.includes("airpal") || url.hostname.includes("localhost")) {
-      return { kind: "url", href: url.pathname + url.search };
+      const href = url.pathname + url.search;
+      return isResolvableInApp(href) ? { kind: "url", href } : { kind: "unknown", raw: value };
     }
   } catch {
     /* fall through */

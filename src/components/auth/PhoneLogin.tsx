@@ -14,19 +14,8 @@ import { useHandleStatus } from "@/hooks/useHandleStatus";
 import { PHONE_RECAPTCHA_ID, resetPhoneLogin } from "@/lib/phone-auth";
 import { loadBios } from "@/lib/bio-store";
 import { getFirebaseAuth } from "@/lib/firebase";
-import { ensureElementInView } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
-
-const KEYBOARD_SAFE_INPUT = "text-[16px] sm:text-sm";
-
-function nudgeIntoView(e: React.FocusEvent<HTMLElement>) {
-  ensureElementInView(e.currentTarget, {
-    block: "center",
-    topClearance: 70,
-    bottomClearance: 24,
-    behavior: "smooth",
-  });
-}
+import { KEYBOARD_SAFE_INPUT, nudgeIntoView } from "./auth-field";
 
 export function PhoneLogin({
   initialPhone = "",

@@ -226,8 +226,6 @@ export function currencyForCity(name?: string): string {
     country === "Ireland"
   )
     return "EUR";
-  if (country === "United Kingdom") return "GBP";
-  if (country === "United States") return "USD";
   if (country === "Japan") return "JPY";
   if (country === "Singapore") return "SGD";
   if (country === "Indonesia") return "IDR";

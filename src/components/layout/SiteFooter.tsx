@@ -25,12 +25,14 @@ const NAV_PASS = [
   { href: "/host", label: "Belonging & Host Hub" },
   { href: "/pulse", label: "AirPal Pulse" },
   { href: "/business", label: "Partner Account" },
+  { href: "/business/onboard", label: "Business Onboarding" },
+  { href: "/claim", label: "Claim Your Venue" },
 ];
 
 const NAV_LEGAL = [
   { href: "/about", label: "About AirPal" },
   { href: "/trust", label: "Trust & Facts" },
-  { href: "/assist", label: "Support & Help" },
+  { href: "/help", label: "Support & Help" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },
   { href: "/cookies", label: "Cookie Settings" },

@@ -95,7 +95,7 @@ export function AppRoutes() {
           <Route path="/pass" component={PassPage} />
           <Route path="/events" component={EventsPage} />
           <Route path="/events/new">
-            <EventStudioPage />
+            <EventStudioPage forceCreate />
           </Route>
           <Route path="/e/:id/guests" component={GuestlistPage} />
           <Route path="/e/:id/manage">{(p) => <EventStudioPage eventId={p.id} />}</Route>
@@ -161,6 +161,7 @@ export function AppRoutes() {
             <ArrivalPage mode="arrival" />
           </Route>
           <Route path="/host/pulse" component={PulsePage} />
+          <Route path="/host" component={PulsePage} />
           <Route path="/pulse/:publicToken" component={PulsePage} />
           <Route path="/pulse" component={PulsePage} />
           <Route path="/deals/:id">

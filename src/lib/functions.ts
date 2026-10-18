@@ -440,3 +440,29 @@ export function completePaidBookingRemote(data: { bookingId: string }) {
 export function getBioPulseRemote(data: { propertyId: string }) {
   return callFunction<typeof data, import("@shared/pulse").BioPulseResult>(CALLABLES.getBioPulse, data);
 }
+
+/**
+ * One friendly-message map for every callable. Both the `functions/…` and
+ * bare error codes are accepted; per-surface wording stays with the caller
+ * via opts so shared cases can never drift apart again.
+ */
+export function friendlyFunctionError(
+  err: unknown,
+  opts?: { preconditionMessage?: string; invalidArgumentMessage?: string },
+): string {
+  const code = (err as { code?: string } | null)?.code || "";
+  const message = err instanceof Error ? err.message : "";
+  if (code === "functions/failed-precondition" || code === "failed-precondition") {
+    return message || opts?.preconditionMessage || "This action is not available right now.";
+  }
+  if (code === "functions/permission-denied" || code === "permission-denied") {
+    return "You do not have permission for that action.";
+  }
+  if (code === "functions/unauthenticated" || code === "unauthenticated") {
+    return "Sign in to continue.";
+  }
+  if (code === "functions/invalid-argument" || code === "invalid-argument") {
+    return message || opts?.invalidArgumentMessage || "Check the details and try again.";
+  }
+  return message || "Something went wrong. Please try again.";
+}

@@ -1,10 +1,11 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
+  Building2,
   CalendarDays,
   Check,
   Copy,
@@ -15,6 +16,7 @@ import {
   FileText,
   LayoutGrid,
   MapPin,
+  Plus,
   QrCode,
   ShieldCheck,
   Sparkles,
@@ -52,6 +54,7 @@ import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { publicSiteOrigin } from "@/lib/public-origin";
+import { formatWhen, fromLocalInput, nextSaturdayNine, sameDayFifteen, toLocalInput } from "@/lib/event-datetime";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEvents } from "@/contexts/EventsContext";
 import { useBio } from "@/contexts/BioContext";
@@ -77,55 +80,23 @@ const FLAVOUR_META: Record<EventFlavour, { icon: typeof Store; blurb: string }> 
   event_space: { icon: Sparkles, blurb: "A one-off gathering with a gate QR." },
 };
 
-function pad(n: number) {
-  return String(n).padStart(2, "0");
-}
+const CREATE_SECTIONS = [
+  { id: "sec-templates", label: "Templates" },
+  { id: "sec-format", label: "1. Format" },
+  { id: "sec-banner", label: "2. Name & Banner" },
+  { id: "sec-venue", label: "3. Venue" },
+  { id: "sec-schedule", label: "4. Schedule" },
+  { id: "sec-host", label: "5. Host" },
+  { id: "sec-story", label: "6. Story" },
+  { id: "sec-status", label: "7. Status & Tickets" },
+] as const;
 
-function toLocalInput(iso?: string) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function fromLocalInput(value: string) {
-  if (!value) return "";
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? "" : d.toISOString();
-}
-
-function nextSaturdayNine() {
-  const d = new Date();
-  const add = (6 - d.getDay() + 7) % 7 || 7;
-  d.setDate(d.getDate() + add);
-  d.setHours(9, 0, 0, 0);
-  return d;
-}
-
-function sameDayFifteen(start: Date) {
-  const d = new Date(start);
-  d.setHours(15, 0, 0, 0);
-  return d;
-}
-
-function formatWhen(iso?: string) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleString(undefined, {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-export function EventStudioPage({ eventId }: { eventId?: string }) {
+export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; forceCreate?: boolean }) {
   const [, nav] = useLocation();
   const { user, authReady } = useAuth();
   const { mine, business } = useBio();
   const {
+    events,
     myEvent: ownEvent,
     stallsFor,
     upsertEvent,
@@ -137,8 +108,21 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
     remoteNearby,
     fetchRemoteEvent,
   } = useEvents();
+
+  const [creatingNew, setCreatingNew] = useState<boolean>(Boolean(forceCreate));
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(eventId ?? null);
+
+  useEffect(() => {
+    if (forceCreate) {
+      setCreatingNew(true);
+    } else if (eventId) {
+      setCreatingNew(false);
+      setSelectedEventId(eventId);
+    }
+  }, [forceCreate, eventId]);
+
   // A routed :id (e.g. /e/:id/manage) focuses that event; otherwise the
-  // studio follows the organiser's own event, or the create flow when none.
+  // studio follows the organiser's selected/own event, or the create flow when none.
   const [managedEvent, setManagedEvent] = useState<EventRecord | null>(null);
   const [managedMissing, setManagedMissing] = useState(false);
   useEffect(() => {
@@ -167,7 +151,30 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
       alive = false;
     };
   }, [eventId, getEvent, calendarEvents, remoteNearby, fetchRemoteEvent]);
-  const activeEvent = managedEvent ?? ownEvent;
+
+  const myEvents = useMemo(() => {
+    const map = new Map<string, EventRecord>();
+    for (const ev of events) {
+      map.set(ev.id, ev);
+    }
+    if (ownEvent && !map.has(ownEvent.id)) {
+      map.set(ownEvent.id, ownEvent);
+    }
+    if (managedEvent && !map.has(managedEvent.id)) {
+      map.set(managedEvent.id, managedEvent);
+    }
+    return Array.from(map.values());
+  }, [events, ownEvent, managedEvent]);
+
+  const activeEvent = useMemo(() => {
+    if (creatingNew) return null;
+    if (selectedEventId) {
+      const found = myEvents.find((e) => e.id === selectedEventId) ?? getEvent(selectedEventId);
+      if (found) return found;
+    }
+    return managedEvent ?? ownEvent;
+  }, [creatingNew, selectedEventId, myEvents, getEvent, managedEvent, ownEvent]);
+
   const reduce = useReducedMotion();
   const [tab, setTab] = useState<"today" | "stalls" | "print" | "manage" | "settings">(eventId ? "manage" : "today");
 
@@ -242,6 +249,27 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
   const [celebrationEventName, setCelebrationEventName] = useState<string>("");
 
   const stalls = activeEvent ? stallsFor(activeEvent.id) : [];
+
+  function startNewEventDraft() {
+    setName("");
+    setFlavour("market");
+    setVenue(business?.name || "");
+    setAddress("");
+    setCity(business?.city || "Sydney");
+    setRoom("");
+    setDescription("");
+    setShortWhy("");
+    setCoverImage("");
+    setDirections("");
+    setRefundPolicy("");
+    setAgenda([]);
+    setStartsLocal(toLocalInput(nextSaturdayNine().toISOString()));
+    setEndsLocal(toLocalInput(sameDayFifteen(nextSaturdayNine()).toISOString()));
+    setStatus("live");
+    setRepeatCount(1);
+    setMobilePreview(false);
+    setCreatingNew(true);
+  }
 
   useEffect(() => {
     if (!activeEvent) {
@@ -439,6 +467,8 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
         if (i === 0) first = { id: created.id, name: created.name };
       }
       if (!first) throw new Error("Couldn't create event");
+      setCreatingNew(false);
+      setSelectedEventId(first.id);
       setCelebrationEventId(first.id);
       setCelebrationEventName(first.name);
       toast.success(
@@ -584,7 +614,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
   }
 
   // Routed :id that resolves to nothing — honest dead end.
-  if (eventId && !activeEvent) {
+  if (eventId && !activeEvent && !creatingNew) {
     if (!managedMissing) {
       return <PageLoading message="Opening event studio…" />;
     }
@@ -602,28 +632,52 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
           variants={reduce ? undefined : landing}
         >
           <motion.header variants={landingItem}>
-            <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <Link
-                href="/pass"
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
-              >
-                <ArrowLeft size={13} />
-                <span>AirPal Pass</span>
-              </Link>
-              <Link
-                href="/events"
-                className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
-              >
-                <span>Browse Events</span>
-              </Link>
-              <Link
-                href="/scan"
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
-              >
-                <QrCode size={13} className="text-amber-500" />
-                <span>Door Scanner</span>
-              </Link>
+            <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Link
+                  href="/pass"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                >
+                  <ArrowLeft size={13} />
+                  <span>AirPal Pass</span>
+                </Link>
+                <Link
+                  href="/events"
+                  className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                >
+                  <span>Browse Events</span>
+                </Link>
+                <Link
+                  href="/scan"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                >
+                  <QrCode size={13} className="text-amber-500" />
+                  <span>Door Scanner</span>
+                </Link>
+                <Link
+                  href="/business"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                >
+                  <Building2 size={13} className="text-accent" />
+                  <span>Business Hub</span>
+                </Link>
+              </div>
+
+              {myEvents.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCreatingNew(false);
+                    setSelectedEventId(myEvents[0]?.id ?? null);
+                  }}
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand/10 px-4 text-xs font-bold text-accent ring-1 ring-brand/25 hover:bg-brand/15 transition"
+                >
+                  <LayoutGrid size={13} />
+                  <span>Manage Existing Events ({myEvents.length})</span>
+                </button>
+              )}
             </div>
+
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
                 <div className="flex items-center gap-2">
@@ -645,7 +699,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                   type="button"
                   onClick={() => setMobilePreview(false)}
                   className={cn(
-                    "min-h-[40px] flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-bold rounded-xl transition whitespace-nowrap",
+                    "min-h-[44px] flex-1 sm:flex-initial px-4 py-1.5 text-xs font-bold rounded-xl transition whitespace-nowrap",
                     !mobilePreview ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
                   )}
                 >
@@ -655,15 +709,33 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                   type="button"
                   onClick={() => setMobilePreview(true)}
                   className={cn(
-                    "min-h-[40px] flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap",
+                    "min-h-[44px] flex-1 sm:flex-initial px-4 py-1.5 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap",
                     mobilePreview ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
                   )}
                 >
                   <Eye size={13} className="shrink-0" />
-                  <span>Preview</span>
+                  <span>Live Preview</span>
                 </button>
               </div>
             </div>
+
+            {/* Quick Section Jump Bar */}
+            {!mobilePreview && (
+              <nav
+                aria-label="Event creation steps"
+                className="mt-4 flex overflow-x-auto no-scrollbar gap-1.5 rounded-2xl bg-card p-1.5 ring-1 ring-line shadow-xs"
+              >
+                {CREATE_SECTIONS.map((sec) => (
+                  <a
+                    key={sec.id}
+                    href={`#${sec.id}`}
+                    className="inline-flex min-h-[44px] shrink-0 items-center rounded-xl px-3 text-sm font-semibold text-mute hover:bg-paper hover:text-ink transition whitespace-nowrap"
+                  >
+                    {sec.label}
+                  </a>
+                ))}
+              </nav>
+            )}
           </motion.header>
 
           <div className="mt-6 lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
@@ -671,14 +743,20 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
             <div className={cn("lg:col-span-7", mobilePreview ? "hidden lg:block" : "block")}>
               <motion.form variants={landingItem} className="space-y-6" onSubmit={onCreate}>
                 {/* 1-Tap Quick-Start Templates */}
-                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay">
+                <div
+                  id="sec-templates"
+                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay"
+                >
                   <EventCreationTemplates onApplyTemplate={applyTemplate} />
                 </div>
 
                 {/* Flavour Card Selector */}
-                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
+                <div
+                  id="sec-format"
+                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3"
+                >
                   <p className="text-xs font-bold uppercase tracking-wider text-accent">1. What kind of event?</p>
-                  <div className="grid gap-2.5 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
                     {EVENT_FLAVOURS.map((id) => {
                       const meta = FLAVOUR_META[id];
                       const Icon = meta.icon;
@@ -706,7 +784,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                           </span>
                           <span className="mt-3 block text-sm font-bold">{EVENT_FLAVOUR_LABELS[id]}</span>
                           <span
-                            className={cn("mt-1 block text-[11px] leading-snug", on ? "text-white/80" : "text-mute")}
+                            className={cn("mt-1 block text-xs leading-relaxed", on ? "text-white/85" : "text-mute")}
                           >
                             {meta.blurb}
                           </span>
@@ -717,7 +795,10 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                 </div>
 
                 {/* Basic Info & Media */}
-                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4">
+                <div
+                  id="sec-banner"
+                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4"
+                >
                   <p className="text-xs font-bold uppercase tracking-wider text-accent">2. Name & Banner</p>
 
                   <EventNameMediaFields
@@ -736,7 +817,10 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
 
                 {/* Google Place & Location Pinning */}
                 {/* Venue & Location Mode Capsule */}
-                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4">
+                <div
+                  id="sec-venue"
+                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4"
+                >
                   <EventVenueFields
                     title="3. Venue & Location"
                     locationType={locationType}
@@ -776,7 +860,10 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                 </div>
 
                 {/* Schedule & Timing */}
-                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4">
+                <div
+                  id="sec-schedule"
+                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4"
+                >
                   <p className="text-xs font-bold uppercase tracking-wider text-accent">4. Date & Times</p>
 
                   <EventScheduleQuickPicks
@@ -826,8 +913,8 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                           aria-pressed={repeatCount === n}
                           className={
                             repeatCount === n
-                              ? "min-h-[40px] rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-sm whitespace-nowrap"
-                              : "min-h-[40px] rounded-full bg-paper px-4 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink whitespace-nowrap"
+                              ? "min-h-[44px] rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-sm whitespace-nowrap"
+                              : "min-h-[44px] rounded-full bg-paper px-4 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink whitespace-nowrap"
                           }
                         >
                           {n === 1 ? "Once" : `Weekly × ${n}`}
@@ -843,7 +930,10 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                 </div>
 
                 {/* Host & Collaborators Section */}
-                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4">
+                <div
+                  id="sec-host"
+                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4"
+                >
                   <EventHostFields
                     title="5. Host & Collaborators"
                     hostType={hostType}
@@ -866,7 +956,10 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                 </div>
 
                 {/* Rich Description Option with Luma Starter Prompts */}
-                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
+                <div
+                  id="sec-story"
+                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3"
+                >
                   <div className="flex justify-between items-center">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent">
                       6. Event Description & Story
@@ -883,7 +976,10 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                 </div>
 
                 {/* Publish Status */}
-                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
+                <div
+                  id="sec-status"
+                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3"
+                >
                   <p className="text-xs font-bold uppercase tracking-wider text-accent">7. Status</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {(
@@ -1084,41 +1180,86 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/pass"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
             >
               <ArrowLeft size={13} className="shrink-0" />
               <span>AirPal Pass</span>
             </Link>
             <Link
               href="/events"
-              className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+              className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
             >
               <span>Browse Events</span>
             </Link>
+            <Link
+              href="/business"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+            >
+              <Building2 size={13} className="shrink-0 text-accent" />
+              <span>Business Hub</span>
+            </Link>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={`/e/${activeEvent.id}/manage`}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+            <button
+              type="button"
+              onClick={startNewEventDraft}
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand text-white px-3.5 text-xs font-bold shadow-xs hover:bg-brand-ink transition whitespace-nowrap"
             >
-              <span>Manage Event</span>
+              <Plus size={14} className="shrink-0" />
+              <span>Create New Event</span>
+            </button>
+            <Link
+              href={`/e/${activeEvent.id}`}
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+            >
+              <Eye size={13} className="shrink-0 text-accent" />
+              <span>Public Page</span>
             </Link>
             <Link
               href={`/e/${activeEvent.id}/guests`}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-accent ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-accent ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
             >
               <Users size={13} className="shrink-0" />
               <span>Door Guestlist</span>
             </Link>
             <Link
               href="/scan"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 px-3 text-xs font-bold shadow-xs hover:opacity-90 transition whitespace-nowrap"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 px-3.5 text-xs font-bold shadow-xs hover:opacity-90 transition whitespace-nowrap"
             >
               <QrCode size={13} className="shrink-0" />
               <span>Door Scanner</span>
             </Link>
           </div>
         </div>
+
+        {/* Multi-Event Switcher Strip when organiser has > 1 event */}
+        {myEvents.length > 1 && (
+          <div className="mb-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar rounded-2xl bg-card p-2 ring-1 ring-line shadow-xs">
+            <span className="px-2 text-[11px] font-bold uppercase tracking-wider text-mute shrink-0">
+              Your Events ({myEvents.length}):
+            </span>
+            {myEvents.map((ev) => {
+              const isCurrent = ev.id === activeEvent.id;
+              return (
+                <button
+                  key={ev.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedEventId(ev.id);
+                    setCreatingNew(false);
+                  }}
+                  className={cn(
+                    "min-h-[38px] shrink-0 rounded-xl px-3 text-xs font-semibold transition whitespace-nowrap",
+                    isCurrent ? "bg-brand text-white shadow-xs" : "bg-paper text-mute ring-1 ring-line hover:text-ink",
+                  )}
+                >
+                  {ev.name}
+                  {ev.recurrenceIndex ? ` (#${ev.recurrenceIndex})` : ""}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Top Header Card */}
         <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay overflow-hidden relative">
@@ -1162,11 +1303,11 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
               {activeEvent.shortWhy && <p className="text-sm text-mute mt-0.5">{activeEvent.shortWhy}</p>}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold shadow-xs hover:bg-card whitespace-nowrap"
+                className="min-h-[44px] gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold shadow-xs hover:bg-card whitespace-nowrap"
                 onClick={() => nav(activeEvent.gatePath)}
               >
                 <ExternalLink size={13} className="shrink-0 text-accent" />
@@ -1212,7 +1353,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
               type="button"
               onClick={() => setTab(item.id)}
               className={cn(
-                "flex shrink-0 px-3.5 sm:flex-1 sm:px-2 items-center justify-center gap-1.5 min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold capitalize transition active:scale-95 whitespace-nowrap",
+                "flex shrink-0 px-3.5 sm:flex-1 sm:px-2 items-center justify-center gap-1.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-semibold capitalize transition active:scale-95 whitespace-nowrap",
                 tab === item.id ? "bg-brand text-white shadow-sm" : "text-mute hover:text-ink hover:bg-white/50",
               )}
             >
@@ -1257,7 +1398,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                   checkout, and host bio.
                 </p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <Link
                   href={`/e/${activeEvent.id}`}
                   className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-brand text-white px-4 text-xs font-bold shadow-md hover:bg-brand/90 transition active:scale-95"
@@ -1265,29 +1406,48 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                   <ExternalLink size={14} />
                   <span>View Public Page</span>
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => setTab("manage")}
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition"
+                >
+                  <Users size={14} className="text-accent" />
+                  <span>Day-of Ops</span>
+                </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
-                <p className="text-xs font-bold uppercase tracking-wider text-mute">Directory Supply</p>
-                <p className="font-display text-3xl sm:text-4xl font-bold mt-1 text-ink">{stalls.length}</p>
-                <p className="text-xs capitalize text-mute mt-0.5">
-                  {stallFieldLabels(activeEvent.flavour).listNoun} live
-                </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-mute">Directory Supply</p>
+                  <p className="font-display text-3xl sm:text-4xl font-bold mt-1 text-ink">{stalls.length}</p>
+                  <p className="text-xs capitalize text-mute mt-0.5">
+                    {stallFieldLabels(activeEvent.flavour).listNoun} live
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="tonal"
+                  className="mt-3 text-xs min-h-[40px]"
+                  onClick={() => setTab("stalls")}
+                >
+                  Manage {stallFieldLabels(activeEvent.flavour).listNoun}
+                </Button>
               </div>
 
-              <div className="col-span-2 sm:col-span-1 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
+              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-mute">Entrance QR</p>
                   <p className="text-xs text-ink font-semibold mt-1 truncate">{activeEvent.gatePath}</p>
+                  <p className="text-xs text-mute mt-0.5">Scan at gate for live directory</p>
                 </div>
-                <Button size="sm" variant="tonal" className="mt-2 text-xs" onClick={() => setTab("print")}>
+                <Button size="sm" variant="tonal" className="mt-3 text-xs min-h-[40px]" onClick={() => setTab("print")}>
                   Print Entrance QR
                 </Button>
               </div>
 
-              <div className="col-span-2 sm:col-span-1 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
+              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-mute">Guestlist</p>
                   <p className="font-display text-3xl sm:text-4xl font-bold mt-1 text-ink">
@@ -1298,7 +1458,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                 <Button
                   size="sm"
                   variant="tonal"
-                  className="mt-2 text-xs"
+                  className="mt-3 text-xs min-h-[40px]"
                   onClick={() => nav(`/e/${activeEvent.id}/guests`)}
                 >
                   Open guestlist
@@ -1337,16 +1497,23 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
               </span>
             </button>
 
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button className="flex-1 h-11 font-semibold" onClick={() => nav(activeEvent.gatePath)}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <Button className="h-12 font-semibold" onClick={() => nav(activeEvent.gatePath)}>
                 Open Live Guest Directory
               </Button>
               <Button
                 variant="ghost"
-                className="flex-1 h-11 font-semibold border border-line"
+                className="h-12 font-semibold border border-line bg-card hover:bg-paper"
                 onClick={() => setTab("stalls")}
               >
                 {stallFieldLabels(activeEvent.flavour).addTitle}
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-12 font-semibold border border-line bg-card hover:bg-paper"
+                onClick={() => setTab("settings")}
+              >
+                Edit Event &amp; Tickets
               </Button>
             </div>
           </div>
@@ -1785,7 +1952,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                       type="button"
                       onClick={() => setStatus(id)}
                       className={cn(
-                        "rounded-2xl px-3 py-2.5 text-xs font-semibold capitalize ring-1 transition",
+                        "min-h-[44px] rounded-2xl px-3 py-2.5 text-xs font-semibold capitalize ring-1 transition",
                         on ? "bg-brand text-white ring-brand shadow-xs" : "bg-paper text-mute ring-line hover:text-ink",
                       )}
                     >

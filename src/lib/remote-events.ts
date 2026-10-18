@@ -35,6 +35,21 @@ function str(value: unknown): string {
 }
 
 /**
+ * Firestore-stored outbound link (registration, tickets, virtual stream).
+ * Only http(s) survives — javascript:/data:/vbscript: and bare slugs are
+ * dropped so a hostile doc can never become a tappable attack link.
+ */
+export function cleanHttpUrl(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const href = value.trim().slice(0, 500);
+  if (!href) return undefined;
+  const lower = href.toLowerCase();
+  if (/^(javascript|data|vbscript|file|blob):/.test(lower)) return undefined;
+  if (lower.startsWith("http://") || lower.startsWith("https://")) return href;
+  return undefined;
+}
+
+/**
  * Do two city labels refer to the same place? An event with no city is
  * unscoped — visible everywhere until its owner sets one. Never fabricate
  * a city for display; callers show venue/city as stored.
@@ -71,7 +86,7 @@ export function toNearbyEvent(doc: Record<string, unknown>, id: string): NearbyE
     venueName: str(doc.venueName || doc.venue) || undefined,
     heroImage: str(doc.heroImage) || undefined,
     ticketPrice: str(doc.ticketPrice) || undefined,
-    ticketUrl: str(doc.ticketUrl) || undefined,
+    ticketUrl: cleanHttpUrl(doc.ticketUrl),
     insiderTip: str(doc.insiderTip) || undefined,
     scheduleVerifiedAt: str(doc.scheduleVerifiedAt || doc.updatedAt) || undefined,
   };
@@ -202,13 +217,13 @@ export function docToCalendarBase(
         ? (doc.collaboratorHandles as unknown[]).filter((h): h is string => typeof h === "string")
         : undefined,
       sponsorHandles: cleanEventHandles(doc.sponsorHandles),
-      registrationUrl: typeof doc.registrationUrl === "string" ? doc.registrationUrl : undefined,
+      registrationUrl: cleanHttpUrl(doc.registrationUrl),
       registrationNote: typeof doc.registrationNote === "string" ? doc.registrationNote : undefined,
       locationType:
         doc.locationType === "virtual" || doc.locationType === "secret" || doc.locationType === "in_person"
           ? doc.locationType
           : undefined,
-      virtualUrl: typeof doc.virtualUrl === "string" ? doc.virtualUrl : undefined,
+      virtualUrl: cleanHttpUrl(doc.virtualUrl),
       requireApproval: typeof doc.requireApproval === "boolean" ? doc.requireApproval : undefined,
       themeColor: typeof doc.themeColor === "string" ? doc.themeColor : undefined,
       agenda: sanitizeAgenda(doc.agenda),
@@ -242,7 +257,7 @@ export function docToCalendarBase(
             ? doc.coverImage
             : undefined,
       ticketPrice: typeof doc.ticketPrice === "string" ? doc.ticketPrice : undefined,
-      ticketUrl: typeof doc.ticketUrl === "string" ? doc.ticketUrl : undefined,
+      ticketUrl: cleanHttpUrl(doc.ticketUrl),
       gatePath: typeof doc.gatePath === "string" ? doc.gatePath : undefined,
       source: doc.source === "partner" || doc.source === "user" ? doc.source : "local",
       isLocal: true,
@@ -256,7 +271,7 @@ export function docToCalendarBase(
         doc.locationType === "virtual" || doc.locationType === "secret" || doc.locationType === "in_person"
           ? doc.locationType
           : undefined,
-      virtualUrl: typeof doc.virtualUrl === "string" ? doc.virtualUrl : undefined,
+      virtualUrl: cleanHttpUrl(doc.virtualUrl),
       requireApproval: typeof doc.requireApproval === "boolean" ? doc.requireApproval : undefined,
       themeColor: typeof doc.themeColor === "string" ? doc.themeColor : undefined,
       agenda: sanitizeAgenda(doc.agenda),
@@ -339,13 +354,13 @@ export function docToEventRecord(doc: Record<string, unknown>, id: string): Even
     capacity: cleanCapacity(doc.capacity),
     festivalSlug: str(doc.festivalSlug) || undefined,
     track: str(doc.track) || undefined,
-    registrationUrl: str(doc.registrationUrl) || undefined,
+    registrationUrl: cleanHttpUrl(doc.registrationUrl),
     registrationNote: str(doc.registrationNote) || undefined,
     locationType:
       doc.locationType === "virtual" || doc.locationType === "secret" || doc.locationType === "in_person"
         ? doc.locationType
         : undefined,
-    virtualUrl: str(doc.virtualUrl) || undefined,
+    virtualUrl: cleanHttpUrl(doc.virtualUrl),
     requireApproval: typeof doc.requireApproval === "boolean" ? doc.requireApproval : undefined,
     themeColor: str(doc.themeColor) || undefined,
     agenda: sanitizeAgenda(doc.agenda),

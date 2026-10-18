@@ -634,7 +634,7 @@ export function SearchAnalyticsPage() {
               </div>
               <Button
                 size="sm"
-                onClick={() => nav("/search")}
+                onClick={() => openGlobalSearch()}
                 className="h-8 rounded-full px-3.5 text-xs font-bold shrink-0"
               >
                 <span>Go to Search</span>

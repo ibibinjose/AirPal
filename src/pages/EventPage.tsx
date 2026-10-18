@@ -250,7 +250,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
           className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 text-xs font-semibold text-mute hover:text-ink transition cursor-pointer whitespace-nowrap"
         >
           <ArrowLeft size={15} className="shrink-0" />
-          <span>Back</span>
+          <span>All events</span>
         </button>
 
         <div className="hidden min-[380px]:inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-amber-400/30 whitespace-nowrap">
@@ -485,7 +485,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
                   <Button
                     variant="tonal"
                     className="w-full text-xs font-bold min-h-[44px]"
-                    onClick={() => window.open(event.registrationUrl, "_blank")}
+                    onClick={() => window.open(event.registrationUrl, "_blank", "noopener,noreferrer")}
                   >
                     Official External Registration
                   </Button>
@@ -560,7 +560,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
   }, [ev.id, ev.title, ev.insiderTip, ev.detail, ev.heroImage]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
+    <div className="page-wrap pt-5 sm:pt-6">
       <div className="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
         <div className="lg:col-span-5">
           <EventCoverGlow src={ev.heroImage} alt={ev.title} />
@@ -601,7 +601,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
               {ev.ticketUrl && (
                 <Button
                   className="flex-1 min-h-[44px] font-bold whitespace-nowrap"
-                  onClick={() => window.open(ev.ticketUrl, "_blank")}
+                  onClick={() => window.open(ev.ticketUrl, "_blank", "noopener,noreferrer")}
                 >
                   Official Tickets
                 </Button>

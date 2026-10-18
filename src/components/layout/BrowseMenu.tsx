@@ -105,7 +105,7 @@ export function BrowseMenu({ path, isHost }: { path: string; isHost: boolean }) 
         className={cn(
           "flex min-h-[44px] touch-manipulation cursor-pointer items-center gap-1 rounded-full px-3.5 text-sm font-semibold transition-all duration-200",
           active || open
-            ? "bg-white text-[#2F00FF] shadow-[0_4px_12px_-4px_rgba(0,0,0,0.35)]"
+            ? "bg-white text-brand shadow-[0_4px_12px_-4px_rgba(0,0,0,0.35)]"
             : "text-white/75 hover:bg-white/10 hover:text-white",
         )}
       >

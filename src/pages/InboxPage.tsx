@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { collection, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { Bell, Sparkles } from "lucide-react";
-import { SegmentedControl } from "@/components/design-system/companions";
+import { TabPills } from "@/components/ui/TabPills";
 import { PingsPanel } from "@/components/social/PingsPanel";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { useAuth } from "@/contexts/AuthContext";
@@ -184,14 +184,15 @@ export function InboxPage() {
       </div>
 
       <div className="mt-4">
-        <SegmentedControl
-          label="Inbox sections"
-          value={segment}
+        <TabPills
+          ariaLabel="Inbox sections"
+          layout="contained"
+          active={segment}
           onChange={setSegment}
-          options={[
-            { id: "updates", label: unreadUpdates ? `Updates (${unreadUpdates})` : "Updates" },
+          items={[
+            { id: "updates", label: "Updates", badge: unreadUpdates ? String(unreadUpdates) : undefined },
             { id: "pings", label: "Pings" },
-            { id: "activity", label: unreadActivity ? `Activity (${unreadActivity})` : "Activity" },
+            { id: "activity", label: "Activity", badge: unreadActivity ? String(unreadActivity) : undefined },
           ]}
         />
       </div>

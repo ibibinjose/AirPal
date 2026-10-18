@@ -114,7 +114,7 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
           <span
             className={cn(
               "absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-semibold",
-              onBrand ? "bg-white text-[#2F00FF]" : "bg-brand text-white",
+              onBrand ? "bg-white text-brand" : "bg-brand text-white",
             )}
           >
             {total > 9 ? "9+" : total}

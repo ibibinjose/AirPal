@@ -36,11 +36,11 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
         className={cn(
           "flex min-h-[44px] shrink-0 whitespace-nowrap touch-manipulation items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
           isActive
-            ? "bg-white text-[#2F00FF] shadow-[0_4px_12px_-4px_rgba(0,0,0,0.35)]"
+            ? "bg-white text-brand shadow-[0_4px_12px_-4px_rgba(0,0,0,0.35)]"
             : "text-white/75 hover:bg-white/10 hover:text-white",
         )}
       >
-        <Icon size={14} className={isActive ? "text-[#2F00FF]" : "text-white/70"} />
+        <Icon size={14} className={isActive ? "text-brand" : "text-white/70"} />
         <span>{pillar.label}</span>
       </button>
     );
@@ -48,7 +48,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
 
   return (
     <motion.header
-      className="hidden bg-[#2F00FF] border-b border-white/10 lg:block transition-[background-color,border-color] duration-300"
+      className="hidden bg-brand border-b border-white/10 lg:block transition-[background-color,border-color] duration-300"
       initial={enter ? { opacity: 0, y: -12 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: enterEase, delay: 0.12 }}
@@ -90,7 +90,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
               void triggerHaptic("medium");
               openGlobalCreate();
             }}
-            className="flex h-11 w-11 min-h-[44px] min-w-[44px] touch-manipulation place-items-center justify-center shrink-0 rounded-full bg-white text-[#2F00FF] shadow-[0_6px_16px_-8px_rgba(0,0,0,0.45)] hover:bg-white/90 transition-[background-color,box-shadow,transform] active:scale-[0.97] cursor-pointer"
+            className="flex h-11 w-11 min-h-[44px] min-w-[44px] touch-manipulation place-items-center justify-center shrink-0 rounded-full bg-white text-brand shadow-[0_6px_16px_-8px_rgba(0,0,0,0.45)] hover:bg-white/90 transition-[background-color,box-shadow,transform] active:scale-[0.97] cursor-pointer"
             aria-label="Create something new"
             title="Create (+)"
           >

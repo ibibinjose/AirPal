@@ -1,19 +1,16 @@
 import { locationFromNominatim, type HostLocationFields } from "@shared/geo-address";
 import type { Geo } from "@shared/nearby";
+import { requestDeviceGeo } from "./geo-locate";
 
+/**
+ * Device position plus a best-effort reverse-geocode for business forms.
+ * Position comes from the single device-geo path (native Capacitor first,
+ * then web); only the Nominatim lookup lives here. Rejects when no fix —
+ * callers surface the message as the failure toast.
+ */
 export async function locateBusiness(): Promise<{ geo: Geo; fields?: HostLocationFields }> {
-  const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error("Location is off"));
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(resolve, () => reject(new Error("Allow location for this place")), {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0,
-    });
-  });
-  const geo = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+  const geo = await requestDeviceGeo({ highAccuracy: true });
+  if (!geo) throw new Error("Allow location for this place");
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${geo.lat}&lon=${geo.lng}`, {
       headers: { Accept: "application/json" },

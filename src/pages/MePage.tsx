@@ -57,6 +57,13 @@ import { NAMES } from "@shared/names";
 import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { useEvents } from "@/contexts/EventsContext";
+import {
+  pendingAppointments as selectPendingAppointments,
+  todayAppointments as selectTodayAppointments,
+  todayTickets as selectTodayTickets,
+  upcomingScheduledAppointments as selectUpcomingScheduled,
+  upcomingTickets as selectUpcomingTickets,
+} from "@/lib/me-day";
 
 type MeTab = "all" | "today" | "appointments" | "tickets" | "pass";
 
@@ -100,32 +107,21 @@ export function MePage() {
   }, [weather]);
 
   // TODAY'S ITEMS
-  const todayAppointments = useMemo(() => {
-    return catchUpsList.filter((item) => item.date === today && item.status !== "dismissed");
-  }, [catchUpsList, today]);
+  const todayAppointments = useMemo(() => selectTodayAppointments(catchUpsList, today), [catchUpsList, today]);
 
-  const todayTickets = useMemo(() => {
-    if (!upcomingBookings) return [];
-    return upcomingBookings.filter((b) => b.date === today);
-  }, [upcomingBookings, today]);
+  const todayTickets = useMemo(() => selectTodayTickets(upcomingBookings, today), [upcomingBookings, today]);
 
   const todayTotalCount = todayAppointments.length + todayTickets.length;
 
   // UPCOMING ITEMS
-  const pendingAppointments = useMemo(() => {
-    return catchUpsList.filter((item) => item.status === "pending");
-  }, [catchUpsList]);
+  const pendingAppointments = useMemo(() => selectPendingAppointments(catchUpsList), [catchUpsList]);
 
-  const upcomingScheduledAppointments = useMemo(() => {
-    return catchUpsList
-      .filter((item) => item.status !== "dismissed" && item.status !== "pending" && (!item.date || item.date >= today))
-      .sort((a, b) => ((a.date || "") > (b.date || "") ? 1 : -1));
-  }, [catchUpsList, today]);
+  const upcomingScheduledAppointments = useMemo(
+    () => selectUpcomingScheduled(catchUpsList, today),
+    [catchUpsList, today],
+  );
 
-  const upcomingTickets = useMemo(() => {
-    if (!upcomingBookings) return [];
-    return upcomingBookings.filter((b) => !b.date || b.date >= today);
-  }, [upcomingBookings, today]);
+  const upcomingTickets = useMemo(() => selectUpcomingTickets(upcomingBookings, today), [upcomingBookings, today]);
 
   const handleCopyBioLink = async () => {
     if (!mine?.handle) {

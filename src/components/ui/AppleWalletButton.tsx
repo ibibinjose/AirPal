@@ -20,9 +20,7 @@ export function AppleWalletButton({ className, variant = "standard", onClick, ..
       }}
       className={cn(
         "group relative inline-flex touch-manipulation items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-black text-white font-medium shadow-md transition-all duration-200 hover:bg-neutral-900 active:scale-[0.98] ring-1 ring-white/20 select-none cursor-pointer",
-        variant === "standard"
-          ? "min-h-[44px] px-4 py-2.5 text-xs tracking-tight"
-          : "min-h-[40px] px-3 py-1.5 text-[11px]",
+        variant === "standard" ? "min-h-[44px] px-4 py-2.5 text-xs tracking-tight" : "min-h-[44px] px-3 py-1.5 text-xs",
         className,
       )}
       {...props}

@@ -107,49 +107,8 @@ import { NotFoundPage } from "./NotFoundPage";
 import { cn } from "@/lib/cn";
 import { useClub } from "@/contexts/ClubContext";
 import { PingButton } from "@/components/social/PingButton";
+import { BizCircle } from "@/components/bio/BizCircle";
 import { triggerHaptic } from "@/lib/native";
-
-/** Round action circle button with brand icon and subtitle */
-function BizCircle({
-  label,
-  Icon,
-  href,
-  onClick,
-}: {
-  label: string;
-  Icon: typeof Phone;
-  href?: string;
-  onClick?: () => void;
-}) {
-  const handleClick = () => {
-    void triggerHaptic("light");
-    onClick?.();
-  };
-  const circle =
-    "grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-[20px] sm:rounded-[24px] bg-card text-accent ring-1 ring-line/80 shadow-2xs transition-all duration-150 group-hover:ring-brand/40 group-hover:scale-105 active:scale-95";
-  const wrap =
-    "flex min-w-[56px] sm:min-w-[64px] touch-manipulation flex-col items-center gap-1.5 group cursor-pointer";
-  const caption = "text-[11px] sm:text-xs font-semibold text-ink/90 group-hover:text-accent transition-colors";
-
-  if (href) {
-    return (
-      <a href={href} target="_blank" rel="noreferrer" onClick={handleClick} className={wrap} aria-label={label}>
-        <span className={circle}>
-          <Icon size={20} className="sm:w-[22px] sm:h-[22px]" />
-        </span>
-        <span className={caption}>{label}</span>
-      </a>
-    );
-  }
-  return (
-    <button type="button" onClick={handleClick} className={wrap} aria-label={label}>
-      <span className={circle}>
-        <Icon size={20} className="sm:w-[22px] sm:h-[22px]" />
-      </span>
-      <span className={caption}>{label}</span>
-    </button>
-  );
-}
 
 export function BioPublicPage() {
   const [path, nav] = useLocation();
@@ -478,10 +437,13 @@ export function BioPublicPage() {
         ? rawWebsite.trim()
         : `https://${rawWebsite.trim()}`
       : undefined;
-  const websiteUrl =
+  const rawWebsiteUrl =
     websiteLink?.href ||
     (bio.domain ? (bio.domain.startsWith("http") ? bio.domain : `https://${bio.domain}`) : undefined) ||
     websiteFallback;
+  // Raw Firestore/domain strings are never trusted as hrefs — only an
+  // allowlisted scheme reaches the anchor.
+  const websiteUrl = rawWebsiteUrl && isSafeBioHref(rawWebsiteUrl) ? rawWebsiteUrl : undefined;
 
   // WhatsApp URL resolution
   const whatsappLink = publicLinks.find((l) => l.type === "whatsapp");

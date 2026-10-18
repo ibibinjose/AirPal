@@ -1134,6 +1134,72 @@ body.keyboard-open .keyboard-hide {
   font-variant-numeric: tabular-nums;
 }
 
+/* Shared page + flow layout (mobile-first, safe-area aware).
+ * Use these instead of inventing per-page gutters and sticky bars. */
+.page-wrap {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-inline: max(1rem, env(safe-area-inset-left, 0px));
+  padding-bottom: max(6.5rem, calc(env(safe-area-inset-bottom, 0px) + 5.5rem));
+}
+@media (min-width: 640px) {
+  .page-wrap {
+    padding-inline: max(1.5rem, env(safe-area-inset-left, 0px));
+  }
+}
+.page-wrap-narrow {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 48rem;
+  padding-inline: max(1rem, env(safe-area-inset-left, 0px));
+  padding-bottom: max(6.5rem, calc(env(safe-area-inset-bottom, 0px) + 5.5rem));
+}
+.surface-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-clay);
+}
+@media (min-width: 640px) {
+  .surface-card {
+    border-radius: 1.75rem;
+  }
+}
+.sticky-cta {
+  position: sticky;
+  bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+}
+.sticky-cta-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 999px;
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-clay-float);
+  padding: 0.5rem;
+}
+.flow-progress {
+  height: 0.375rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-line) 70%, transparent);
+  overflow: hidden;
+}
+.flow-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-brand);
+  transition: width 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-progress > span {
+    transition: none;
+  }
+}
+
 /* AirPal ticket printing — Save as PDF from any ticket pass. */
 @media print {
   .no-print {

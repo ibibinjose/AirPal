@@ -142,7 +142,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
     e.stopPropagation();
     void track("calendar_event_directions", { eventId: event.id, name: event.title, action: "directions" });
     const query = encodeURIComponent(`${event.venue}, ${event.city}`);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank", "noopener,noreferrer");
   };
 
   const handleCardClick = () => {
@@ -526,7 +526,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                     <button
                       type="button"
                       onClick={() => {
-                        window.open(getGoogleCalendarUrl(event), "_blank");
+                        window.open(getGoogleCalendarUrl(event), "_blank", "noopener,noreferrer");
                         setShowExportMenu(false);
                       }}
                       className="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
@@ -549,7 +549,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                     <button
                       type="button"
                       onClick={() => {
-                        window.open(getOutlookLiveCalendarUrl(event), "_blank");
+                        window.open(getOutlookLiveCalendarUrl(event), "_blank", "noopener,noreferrer");
                         setShowExportMenu(false);
                       }}
                       className="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
@@ -560,7 +560,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                     <button
                       type="button"
                       onClick={() => {
-                        window.open(getOffice365CalendarUrl(event), "_blank");
+                        window.open(getOffice365CalendarUrl(event), "_blank", "noopener,noreferrer");
                         setShowExportMenu(false);
                       }}
                       className="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
@@ -571,7 +571,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                     <button
                       type="button"
                       onClick={() => {
-                        window.open(getYahooCalendarUrl(event), "_blank");
+                        window.open(getYahooCalendarUrl(event), "_blank", "noopener,noreferrer");
                         setShowExportMenu(false);
                       }}
                       className="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"

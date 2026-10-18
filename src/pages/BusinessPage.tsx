@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { useLocation, Link } from "wouter";
+import { useLocation, useSearch, Link } from "wouter";
 import { toast } from "sonner";
 import { BUSINESS_CATEGORIES, listingToPlace, type BusinessCategoryId } from "@shared/business";
 import { Button } from "@/components/ui/Button";
@@ -12,7 +12,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useListings } from "@/contexts/ListingsContext";
 import { useBio } from "@/contexts/BioContext";
 import { withWalk } from "@/lib/catalog";
-import { isV3AdaptersEnabled } from "@/lib/v3/gate";
 import { hrefForPlace } from "@/lib/bio-handle";
 import { partnerAccountPath } from "@/lib/partner-account";
 import { cn } from "@/lib/cn";
@@ -37,8 +36,9 @@ import { HostFreshnessBanner } from "@/components/host/HostFreshnessBanner";
 import { fieldInput, fieldTextarea } from "@/components/forms/ValidField";
 import { BusinessBookingsSection } from "@/components/booking/BusinessBookingsSection";
 import { PayoutSetupCard } from "@/components/connect/PayoutSetupCard";
-import { BusinessNavHub } from "@/components/business/BusinessNavHub";
+import { BusinessNavHub, type BusinessNavTab } from "@/components/business/BusinessNavHub";
 import { BusinessSubscriptionCard } from "@/components/business/BusinessSubscriptionCard";
+import { DeleteVenueDialog } from "@/components/business/DeleteVenueDialog";
 import { GooglePlaceImportCard } from "@/components/business/GooglePlaceImport";
 import { bioLinksFromGooglePlace, mergeBioLinks } from "@shared/google-place";
 import { NAMES } from "@shared/names";
@@ -47,9 +47,9 @@ import { triggerHapticSelection } from "@/lib/native";
 import { StatTile } from "@/components/dashboard/StatTile";
 import {
   Activity,
-  AlertTriangle,
   ArrowRight,
   Building2,
+  Calendar,
   Compass,
   ExternalLink,
   Eye,
@@ -61,9 +61,12 @@ import {
   Plus,
   QrCode,
   Save,
+  Settings2,
+  ShieldCheck,
   Sparkles,
   Tag,
   Trash2,
+  Users,
 } from "lucide-react";
 
 const DEAL_PRESETS = [
@@ -75,10 +78,26 @@ const DEAL_PRESETS = [
 
 export function BusinessPage() {
   const [, nav] = useLocation();
+  const search = useSearch();
   const { user, authReady } = useAuth();
-  const { mine, myListings, setSelectedListingId, savePlace, saveDeal, confirmHours, deleteListing } = useListings();
+  const { mine, myListings, setSelectedListingId, createPlace, savePlace, saveDeal, confirmHours, deleteListing } =
+    useListings();
   const { mine: bio, business, updateProfile } = useBio();
-  const [tab, setTab] = useState<"place" | "offer" | "bookings" | "list">("place");
+  const [tab, setTab] = useState<BusinessNavTab>(() => {
+    const params = new URLSearchParams(search);
+    const t = params.get("tab");
+    if (t === "place" || t === "offer" || t === "bookings" || t === "list") return t;
+    return "place";
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const t = params.get("tab");
+    if (t === "place" || t === "offer" || t === "bookings" || t === "list") {
+      setTab(t);
+    }
+  }, [search]);
+
   const [name, setName] = useState("");
   const [address, setAddress] = useState<AddressParts>(emptyAddress("AU"));
   const [hours, setHours] = useState("");
@@ -156,59 +175,112 @@ export function BusinessPage() {
 
   if (!mine) {
     return (
-      <div className="mx-auto min-h-[60vh] max-w-2xl px-4 py-12">
-        <div className="human-card p-6 sm:p-10 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-human-blush text-human-clay ring-1 ring-line">
-            <Building2 className="h-8 w-8" aria-hidden="true" />
+      <div className="page-wrap-narrow pt-6 sm:pt-10">
+        <div className="surface-card p-5 sm:p-8">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
+              <Building2 className="h-6 w-6" aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-accent">{NAMES.partnerAccount}</p>
+              <h1 className="human-title mt-1 text-2xl sm:text-3xl">Launch your business on AirPal</h1>
+              <p className="mt-2 text-sm leading-relaxed text-mute sm:text-base">
+                One account for your venue. Import from Google Places, publish a member perk, and manage bookings — no
+                separate logins.
+              </p>
+            </div>
           </div>
-          <span className="human-eyebrow inline-block mt-4">{NAMES.partnerAccount}</span>
-          <h1 className="human-title mt-2 text-2xl sm:text-3xl text-balance">Launch Your Business on AirPal</h1>
-          <p className="human-lede mt-2 text-sm sm:text-base max-w-md mx-auto">
-            One account for your entire hospitality or lifestyle brand. Import directly from Google Places, publish
-            local deals, host exclusive experiences, and manage guest reservations.
-          </p>
 
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
-            <div className="rounded-2xl bg-paper p-4 ring-1 ring-line/60">
-              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-brand/10 text-xs font-bold text-accent">
+          <ol className="mt-6 space-y-3">
+            <li className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
                 1
               </span>
-              <h3 className="font-semibold text-xs text-ink mt-2.5">Import Place</h3>
-              <p className="text-[11px] text-mute mt-1">Pull hours, photos, and address in one click.</p>
-            </div>
-            <div className="rounded-2xl bg-paper p-4 ring-1 ring-line/60">
-              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-500/10 text-xs font-bold text-emerald-600">
+              <div className="min-w-0 pt-0.5">
+                <h3 className="text-sm font-semibold text-ink">Import your place</h3>
+                <p className="text-sm text-mute">Hours, photos, and address in one tap.</p>
+              </div>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card text-xs font-bold text-ink ring-1 ring-line">
                 2
               </span>
-              <h3 className="font-semibold text-xs text-ink mt-2.5">Publish Offers</h3>
-              <p className="text-[11px] text-mute mt-1">Bring in foot traffic with neighbourhood perks.</p>
-            </div>
-            <div className="rounded-2xl bg-paper p-4 ring-1 ring-line/60">
-              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-purple-500/10 text-xs font-bold text-purple-600">
+              <div className="min-w-0 pt-0.5">
+                <h3 className="text-sm font-semibold text-ink">Publish a member perk</h3>
+                <p className="text-sm text-mute">Give nearby guests a reason to walk in today.</p>
+              </div>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card text-xs font-bold text-ink ring-1 ring-line">
                 3
               </span>
-              <h3 className="font-semibold text-xs text-ink mt-2.5">Direct Payouts</h3>
-              <p className="text-[11px] text-mute mt-1">Automatic Stripe transfers directly to your bank.</p>
+              <div className="min-w-0 pt-0.5">
+                <h3 className="text-sm font-semibold text-ink">Get paid directly</h3>
+                <p className="text-sm text-mute">Stripe payouts go straight to your bank.</p>
+              </div>
+            </li>
+          </ol>
+
+          {/* 1-Click Inline Google Place Import */}
+          <div className="mt-6 rounded-2xl bg-paper p-4 ring-1 ring-line sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-accent">Fastest start</p>
+                <h2 className="font-display mt-0.5 text-base font-bold text-ink">Import from Google Maps</h2>
+                <p className="mt-1 text-sm text-mute">Search your venue — we fill in address, hours, and photos.</p>
+              </div>
+              <Globe2 className="mt-1 h-5 w-5 shrink-0 text-accent" aria-hidden />
             </div>
+            <GooglePlaceImportCard
+              variant="card"
+              onImport={(found) => {
+                void createPlace({
+                  name: found.name,
+                  category: found.category || "eat",
+                  address: found.address || found.city || "Sydney",
+                  hours: found.hours || "Mon–Sun · 9am–9pm",
+                  shortWhy: found.shortWhy || `Verified partner venue in ${found.city || "Sydney"}.`,
+                  phone: found.phone,
+                  website: found.website,
+                  heroImage: found.photoNames[0],
+                  mapsPlaceId: found.placeId,
+                  geo: found.geo,
+                }).then(() => {
+                  toast.success(`${found.name} imported into your Business Hub!`);
+                });
+              }}
+            />
           </div>
 
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="mt-5 space-y-2.5">
             <Button
               size="lg"
-              className="w-full sm:w-auto gap-2"
+              className="w-full gap-2"
               onClick={() => nav(partnerAccountPath({ signedIn: true, hasPlace: false }))}
             >
-              <Sparkles className="h-4 w-4" />
-              Open a Partner Account
+              <Sparkles className="h-4 w-4" aria-hidden />
+              <span>Continue to guided onboarding</span>
+              <ArrowRight className="h-4 w-4" aria-hidden />
             </Button>
-            <Button
-              variant="outlined"
-              size="lg"
-              className="w-full sm:w-auto"
-              onClick={() => nav("/bio/setup?kind=business")}
-            >
-              Claim Business @handle
-            </Button>
+            <div className="grid grid-cols-1 gap-2.5 min-[420px]:grid-cols-2">
+              <Button variant="ghost" size="lg" className="w-full gap-2 ring-1 ring-line" onClick={() => nav("/claim")}>
+                <ShieldCheck className="h-4 w-4 text-accent" aria-hidden />
+                <span>Claim existing venue</span>
+              </Button>
+              <Button variant="ghost" size="lg" className="w-full gap-2 ring-1 ring-line" onClick={() => nav("/event")}>
+                <Calendar className="h-4 w-4 text-accent" aria-hidden />
+                <span>Host an event</span>
+              </Button>
+            </div>
+            <p className="text-center text-sm text-mute">
+              Prefer a public profile first?{" "}
+              <Link
+                href="/bio/setup?kind=business"
+                className="font-semibold text-accent underline-offset-2 hover:underline"
+              >
+                Claim your business @handle
+              </Link>
+            </p>
           </div>
         </div>
       </div>
@@ -310,9 +382,9 @@ export function BusinessPage() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8 pb-[max(6rem,calc(env(safe-area-inset-bottom,0px)+5rem))]">
+    <div className="page-wrap pt-4 sm:pt-6">
       {/* Top Venue Switcher & Multi-Location Toolbar */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-card px-4 py-3 ring-1 ring-line shadow-clay">
+      <div className="surface-card mb-4 flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="text-xs font-bold uppercase tracking-wider text-mute">Active Venue:</span>
           {myListings.length > 1 ? (
@@ -344,21 +416,30 @@ export function BusinessPage() {
             <span>Add Venue</span>
           </Link>
           <Link
+            href="/claim"
+            className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-xl bg-paper px-3.5 py-2 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs active:scale-[0.98] whitespace-nowrap"
+          >
+            <ShieldCheck className="h-4 w-4 shrink-0 text-accent" />
+            <span>Claim Venue</span>
+          </Link>
+          <Link
             href="/business/promotions/new"
             className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-xl bg-paper px-3.5 py-2 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs active:scale-[0.98] whitespace-nowrap"
           >
-            <Plus className="h-4 w-4 shrink-0 text-accent" />
-            <span>Create offer</span>
+            <Tag className="h-4 w-4 shrink-0 text-accent" />
+            <span>Create Offer</span>
           </Link>
           <Button
             variant="destructive"
             size="sm"
             onClick={() => setShowDeleteModal(true)}
             title="Remove / Unlink this venue"
-            className="shrink-0 whitespace-nowrap"
+            className="min-h-[44px] shrink-0 whitespace-nowrap"
           >
             <Trash2 className="h-4 w-4 shrink-0" />
-            <span className="hidden sm:inline">Remove Venue</span>
+            <span>
+              Remove<span className="hidden sm:inline"> Venue</span>
+            </span>
           </Button>
         </div>
       </div>
@@ -410,32 +491,39 @@ export function BusinessPage() {
 
         {/* Global Business Quick Action Bar */}
         <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar sm:flex-wrap border-t border-line/60 bg-paper/50 px-4 sm:px-5 py-2.5 text-xs">
-          <div className="flex items-center gap-2 sm:flex-wrap sm:gap-3">
+          <div className="flex items-center gap-2 sm:flex-wrap sm:gap-2.5">
             <Link
-              href="/helpdesk"
-              className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 py-1.5 font-semibold text-accent ring-1 ring-line/60 hover:ring-brand/40 transition whitespace-nowrap"
+              href="/business/setup"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 font-semibold text-accent ring-1 ring-line/60 hover:ring-brand/40 transition whitespace-nowrap"
             >
-              <Headphones className="h-3.5 w-3.5 shrink-0" />
-              <span>Universal Help Desk</span>
+              <Settings2 className="h-3.5 w-3.5 shrink-0" />
+              <span>Setup Checklist</span>
             </Link>
             <Link
-              href="/pulse"
-              className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
+              href="/business/helpdesk"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
             >
-              <Activity className="h-3.5 w-3.5 shrink-0 text-indigo-500" />
-              <span>Guest Pulse & Standees</span>
+              <Headphones className="h-3.5 w-3.5 shrink-0 text-accent" />
+              <span>Partner Helpdesk</span>
+            </Link>
+            <Link
+              href="/host/pulse"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
+            >
+              <Activity className="h-3.5 w-3.5 shrink-0 text-accent" />
+              <span>Belonging &amp; Pulse</span>
             </Link>
             <Link
               href="/business/promotions"
-              className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
             >
               <Gift className="h-3.5 w-3.5 shrink-0 text-amber-500" />
-              <span>Promotions & Giveaways</span>
+              <span>Promotions Studio</span>
             </Link>
           </div>
           <Link
             href="/bio/edit"
-            className="inline-flex min-h-[36px] shrink-0 items-center gap-1 rounded-full bg-card px-3 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap"
+            className="inline-flex min-h-[40px] shrink-0 items-center gap-1 rounded-full bg-card px-3.5 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap"
           >
             <span>Edit Link-in-Bio</span>
             <ArrowRight className="h-3 w-3 shrink-0" />
@@ -547,15 +635,13 @@ export function BusinessPage() {
                     }
                   }}
                 />
-                {isV3AdaptersEnabled() ? (
-                  <p className="mt-3 text-sm text-mute">
-                    New here?{" "}
-                    <Link href="/claim" className="font-semibold text-accent underline-offset-2 hover:underline">
-                      Claim your venue
-                    </Link>{" "}
-                    to take ownership through verification.
-                  </p>
-                ) : null}
+                <p className="mt-3 text-xs sm:text-sm text-mute">
+                  Managing an existing public listing?{" "}
+                  <Link href="/claim" className="font-semibold text-accent underline-offset-2 hover:underline">
+                    Claim &amp; verify ownership
+                  </Link>{" "}
+                  for the official Verified Partner badge.
+                </p>
               </section>
 
               {/* Venue Form */}
@@ -892,52 +978,82 @@ export function BusinessPage() {
           <section className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-2">
             <h3 className="font-display text-xs font-bold uppercase tracking-wider text-mute">Operations Hub</h3>
             <Link
-              href="/helpdesk"
-              className="flex items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              href="/business/setup"
+              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
             >
               <span className="flex items-center gap-2">
-                <Headphones className="h-4 w-4 text-accent" />
-                Universal Help Desk
+                <Settings2 className="h-4 w-4 text-accent" />
+                Partner Readiness Checklist
               </span>
               <ArrowRight className="h-3.5 w-3.5 text-mute" />
             </Link>
             <Link
-              href="/pulse"
-              className="flex items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              href="/claim"
+              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
             >
               <span className="flex items-center gap-2">
-                <QrCode className="h-4 w-4 text-indigo-500" />
-                Pulse Standee Kiosk
+                <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                Claim &amp; Verify Venue
               </span>
               <ArrowRight className="h-3.5 w-3.5 text-mute" />
             </Link>
             <Link
               href="/business/promotions"
-              className="flex items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
             >
               <span className="flex items-center gap-2">
-                <Compass className="h-4 w-4 text-purple-500" />
-                Promotions & Offers
+                <Compass className="h-4 w-4 text-accent" />
+                Promotions &amp; Offers Studio
               </span>
               <ArrowRight className="h-3.5 w-3.5 text-mute" />
             </Link>
             <Link
-              href="/event/new"
-              className="flex items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              href="/events/new"
+              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
             >
               <span className="flex items-center gap-2">
                 <Plus className="h-4 w-4 text-amber-500" />
-                Host an Event
+                Host an Event or Market
               </span>
               <ArrowRight className="h-3.5 w-3.5 text-mute" />
             </Link>
             <Link
-              href="/host"
-              className="flex items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              href="/scan"
+              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
             >
               <span className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-emerald-600" />
-                Stay Workspace
+                <QrCode className="h-4 w-4 text-accent" />
+                Door &amp; Pass Scanner
+              </span>
+              <ArrowRight className="h-3.5 w-3.5 text-mute" />
+            </Link>
+            <Link
+              href="/join"
+              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+            >
+              <span className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-emerald-600" />
+                Arrival &amp; Cohort Engine
+              </span>
+              <ArrowRight className="h-3.5 w-3.5 text-mute" />
+            </Link>
+            <Link
+              href="/host/pulse"
+              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+            >
+              <span className="flex items-center gap-2">
+                <Activity className="h-4 w-4 text-accent" />
+                Belonging &amp; Pulse Reports
+              </span>
+              <ArrowRight className="h-3.5 w-3.5 text-mute" />
+            </Link>
+            <Link
+              href="/business/helpdesk"
+              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+            >
+              <span className="flex items-center gap-2">
+                <Headphones className="h-4 w-4 text-accent" />
+                Partner Help Desk
               </span>
               <ArrowRight className="h-3.5 w-3.5 text-mute" />
             </Link>
@@ -947,29 +1063,12 @@ export function BusinessPage() {
 
       {/* Delete / Unlink Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl bg-card p-6 ring-1 ring-line shadow-2xl">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-500/10 text-red-500 ring-1 ring-red-500/20">
-              <AlertTriangle className="h-6 w-6" />
-            </div>
-            <h3 className="font-display mt-4 text-xl font-bold text-ink">Remove &ldquo;{mine.name}&rdquo;?</h3>
-            <p className="mt-2 text-xs text-mute leading-relaxed">
-              This will unbind and remove this venue profile from your active partner account. If you imported or tested
-              Shangri-La Sydney or another location by mistake, removing it lets you start fresh or register your own
-              venue.
-            </p>
-
-            <div className="mt-6 flex items-center justify-end gap-3">
-              <Button variant="ghost" disabled={deleting} onClick={() => setShowDeleteModal(false)}>
-                Cancel
-              </Button>
-              <Button variant="destructive" disabled={deleting} loading={deleting} onClick={handleDeleteVenue}>
-                <Trash2 className="h-4 w-4" />
-                Confirm Removal
-              </Button>
-            </div>
-          </div>
-        </div>
+        <DeleteVenueDialog
+          venueName={mine.name}
+          deleting={deleting}
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={() => void handleDeleteVenue()}
+        />
       )}
     </div>
   );

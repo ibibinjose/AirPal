@@ -83,5 +83,5 @@ features work anonymously; no account is required to evaluate the app.
 | iOS app icon (in Xcode asset catalog, no alpha) | `ios/.../AppIcon-512@2x.png`             | 1024x1024 |
 
 To replace these designed previews with real captures later, run
-`node scripts/capture-store-shots.mjs` on a machine that can serve the app
+`npm run screenshots` on a machine that can serve the app
 (it needs localhost sockets + a Playwright browser).

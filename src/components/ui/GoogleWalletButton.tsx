@@ -21,9 +21,7 @@ export function GoogleWalletButton({ className, variant = "standard", onClick, .
       }}
       className={cn(
         "group relative inline-flex touch-manipulation select-none items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-card font-medium text-ink shadow-md ring-1 ring-line transition-[background-color,transform] duration-200 hover:bg-paper active:scale-[0.98] cursor-pointer",
-        variant === "standard"
-          ? "min-h-[44px] px-4 py-2.5 text-xs tracking-tight"
-          : "min-h-[40px] px-3 py-1.5 text-[11px]",
+        variant === "standard" ? "min-h-[44px] px-4 py-2.5 text-xs tracking-tight" : "min-h-[44px] px-3 py-1.5 text-xs",
         className,
       )}
       {...props}
