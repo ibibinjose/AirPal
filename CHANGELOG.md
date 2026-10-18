@@ -4,6 +4,19 @@ All major structural, architectural, and security changes made during the Rebuil
 
 ---
 
+## Release 2.1.0 — 2026-10-19 (Brand Flow, Liquid Glass & Communications Engine)
+
+- **Master Brand Email Templates Suite (`shared/email-templates.ts`):** Complete dual-lens responsive email design system with dark/light mode support, lens badges (`PASS`, `ME`, `ACCOUNT`, `CIRCLE`), $\ge 48\text{px}$ touch targets, and universal legal footers. Templates for Tickets, RSVPs, Catch-ups, Broadcasts, and Welcome orientation.
+- **Backend Email Delivery Pipeline (`functions/src/email.ts`):** Standardized delivery queue writing to Firestore `mail` collection (Firebase Trigger Email extension) with direct REST fallback (Resend / Postmark API keys) and marketing opt-out enforcement.
+- **Lifecycle Server Triggers (`functions/src/guestlist.ts`, `functions/src/catchup-agent.ts`):** Automated passbook email and in-app notifications on ticket purchase, event RSVP, and catch-up proposals.
+- **Full In-App Notifications CRUD (`src/lib/notifications.ts`, `firestore.rules`):** Complete create, read, update (mark read/unread), and delete (single dismissal and bulk clear-read) capabilities with updated security rules allowing users to manage their own notifications.
+- **Real-Time Notification UI (`src/pages/InboxPage.tsx`, `src/components/notifications/NotificationBell.tsx`):** Category icons, read/unread filters, quick single dismissals, bulk "Clear Read", and live real-time snapshot listeners.
+- **Mobile Welcome Experience (`src/pages/WelcomePage.tsx`):** Apple Liquid Glass aesthetic with ambient caustics, interactive swipe gesture cards, and live product previews.
+- **Touch & Keyboard Ergonomics:** Resolved mobile modal double-padding, prevented iOS Safari auto-zoom with $\ge 16\text{px}$ font sizing, and implemented universal backdrop dismiss.
+- **Test & Build Gates:** 1,012 client tests + 172 functions tests passing green; `npm run verify` and `npm run cap:sync` passing 100%.
+
+---
+
 ## Release 2.0.1 — 2026-10-15 (market-ready build)
 
 - Version: web/package `2.0.1`, Android `versionCode 9` / `versionName 2.0.1`

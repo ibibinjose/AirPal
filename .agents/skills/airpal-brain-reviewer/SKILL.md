@@ -10,7 +10,7 @@ This skill enforces product integrity defined in **`docs/AIRPAL.md`** (the bindi
 ## Core Operating Principle
 
 > **"Don't optimize for users. Optimize for completed experiences."**
-> **Company Loop: Want → Discover → Connect → Plan → Go → Experience → Remember → Repeat**
+> **Company Loop: Want → Discover → Connect → Book → Go/Scan → Remember → Repeat**
 > **North Star Metric:** Completed AirPal Experiences per active user.
 
 ---
@@ -19,17 +19,18 @@ This skill enforces product integrity defined in **`docs/AIRPAL.md`** (the bindi
 
 **AIRPAL** is the master brand ("Life Made Easy") with two distinct UX lenses powered by a unified account and database engine:
 
-1. **AirPal.Me (Personal Life & Identity):**
-   - _Core Job:_ "Plan your day. Organise your life. Share who you are."
-   - _Surfaces:_ Profile/bio (`/@handle`), daily planner (`/now`), outfit advice, personal calendar (`/calendar`), friends' hangout threads (`/plan`).
+1. **AirPal.Me (Personal Life, Identity & Networking):**
+   - _Core Job:_ "Organise your schedule, share your digital bio, and connect with people in real life."
+   - _Surfaces:_ Digital Bio (`/@handle`, `/bio/setup`, `/bio/edit`), Friends Hub (`/friends`), Networking Circle (`/circle` with `<HereCheckIn />`), Personal Calendar (`/calendar`), Dashboard (`/me`), and Notifications Inbox (`/me/inbox`).
 2. **AirPal Pass (Events, Deals & Experiences):**
-   - _Core Job:_ "Discover what's happening. Get access. Save money."
-   - _Surfaces:_ What's on (`/pass`, `/events`), scannable digital passbook (`/me/tickets`), member dining perks (`/deals`), door scanner (`/scan`), organiser tools (`/event`).
+   - _Core Job:_ "Discover live concerts & festivals, access digital passes, and save money."
+   - _Surfaces:_ What's on & passes (`/pass`, `/events`), scannable digital passbook (`/me/tickets`, `/ticket/:id`), member dining perks (`/deals`), door scanner (`/scan`), organiser tools (`/event`), and business hub (`/business`).
 
 **Invariants:**
 
 - **One Universal Identity:** Under no circumstances create separate user accounts, login databases, or siloed user systems between AirPal.Me and AirPal Pass.
-- **Deterministic Intelligence:** Real weather, pure deterministic outfit advice (`src/lib/outfit.ts`), honest open-now hours, and live Firestore events. No hallucinated data or fake providers.
+- **Deterministic Intelligence:** Live Firestore events, honest venue hours, real weather, and deterministic outfit advice. No hallucinated data or fake providers.
+- **Single Booking & Payment Engine:** Stripe Checkout, ticketing, and fee calculations run exclusively through Cloud Functions with strict default-deny in `firestore.rules`.
 
 ---
 
@@ -50,8 +51,8 @@ Before creating any new screen, route, Firestore collection, integration, or fea
 
 1. **Discovery:** Does it help someone discover what to do in their city?
 2. **Connection:** Does it help them connect with friends or trusted groups?
-3. **Planning:** Does it help them turn intent into a concrete, executable plan (time + place)?
-4. **Completion:** Does it help them show up and complete the real-world experience?
+3. **Planning & Action:** Does it help them turn intent into a concrete, executable experience (ticket, pass, RSVP, or catch-up)?
+4. **Completion:** Does it help them show up and complete the real-world experience (verified gate scan, check-in, saved vCard)?
 5. **Trust & Safety:** Does it increase trust, identity verification, or safety?
 6. **Business Value:** Does it create measurable value or facilitate legitimate marketplace transactions?
 

@@ -2,7 +2,18 @@
 
 Read **`AGENTS.md`**, then **`docs/AIRPAL.md`** (the single source of truth) before any edit.
 
-- Stack is Vite + React + TypeScript + Tailwind + Firebase + Capacitor. Do not migrate to Next.js.
-- V1 scope, trust rails, and the rebuild plan live in `docs/AIRPAL.md` Parts B, C, G. Do not rebuild excluded surfaces (Part B3).
-- Smallest change. Reuse `shared/` and existing pages in `src/app/routes.tsx`.
-- Verify: `npm run verify`. Native: `npm run cap:sync`.
+## Ecosystem Architecture
+
+- **Master Brand:** AIRPAL ("Life Made Easy") with single universal Firebase Auth, Firestore, and trust rails.
+- **AirPal.Me:** Personal Life & Identity (`/@handle`, `/bio/setup`, `/bio/edit`, `/friends`, `/circle`, `/calendar`, `/me`).
+- **AirPal Pass:** Events, Deals & Experiences (`/pass`, `/events`, `/me/tickets`, `/deals`, `/scan`, `/event`, `/business`).
+- **Stack:** Vite + React 19 + TypeScript + Tailwind + Firebase Auth/Firestore/Functions + Capacitor (`me.airpal.app`, `me.airpal.pass`). Do not migrate to Next.js.
+- **Communications:** Master Brand responsive email templates (`shared/email-templates.ts`), background delivery queue (`functions/src/email.ts`), and full notifications CRUD (`/me/inbox`, `<NotificationBell />`).
+
+## Non-Negotiables
+
+- V1 scope, trust rails, and the rebuild plan live in `docs/AIRPAL.md` Parts B, C, G. Do not rebuild excluded surfaces.
+- Smallest change that solves. Reuse `shared/` and existing pages in `src/app/routes.tsx`.
+- Never commit `.env` or secrets. Never weaken `firestore.rules`.
+- Always verify: `npm run verify`.
+- Always sync native after web builds: `npm run cap:sync`.
