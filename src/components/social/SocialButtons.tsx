@@ -30,14 +30,14 @@ export function LikeButton({
       title={liked ? "Liked" : "Like"}
       onClick={() => toggleLike(handle, name)}
       className={cn(
-        "inline-flex h-10 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition active:scale-95",
+        "inline-flex min-h-[44px] min-w-0 cursor-pointer items-center justify-center gap-1 sm:gap-1.5 rounded-full px-3 sm:px-4 text-xs font-semibold whitespace-nowrap transition active:scale-95",
         liked
           ? "bg-rose-500 text-white shadow-sm ring-1 ring-rose-600"
           : "bg-rose-50 text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-500/30 dark:hover:bg-rose-500/20",
         className,
       )}
     >
-      <span aria-hidden="true" className={iconOnly ? "text-lg leading-none" : "text-sm leading-none"}>
+      <span aria-hidden="true" className={cn("shrink-0 leading-none", iconOnly ? "text-lg" : "text-sm")}>
         ❤️
       </span>
       {!iconOnly && <span className="truncate">{liked ? "Liked" : "Like"}</span>}
@@ -67,7 +67,7 @@ export function FollowButton({
       title={following ? "Following" : "Follow"}
       onClick={() => toggleFollow(handle, name)}
       className={cn(
-        "inline-flex h-10 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition active:scale-95",
+        "inline-flex min-h-[44px] min-w-0 cursor-pointer items-center justify-center gap-1 sm:gap-1.5 rounded-full px-3 sm:px-4 text-xs font-semibold whitespace-nowrap transition active:scale-95",
         following ? "bg-brand text-white shadow-sm" : "bg-brand text-white shadow-sm hover:brightness-110",
         className,
       )}

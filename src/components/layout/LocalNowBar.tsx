@@ -85,7 +85,7 @@ export function LocalNowBar() {
 
         <span className="h-3.5 w-px shrink-0 bg-line" />
 
-        <p className="shrink-0 font-display text-[12px] font-semibold tabular-nums leading-none sm:text-[14px]">
+        <p className="shrink-0 whitespace-nowrap font-display text-[12px] font-semibold tabular-nums leading-none sm:text-[14px]">
           {time}
           <span className="ml-1.5 font-normal text-mute text-[12px]">{day}</span>
         </p>
@@ -98,12 +98,12 @@ export function LocalNowBar() {
               <span className="shrink-0 text-accent">
                 <SkyIcon code={weather.code} isDay={weather.isDay} />
               </span>
-              <span className="font-display text-[13px] font-semibold leading-none sm:text-[14px]">
+              <span className="shrink-0 font-display text-[13px] font-semibold leading-none sm:text-[14px]">
                 {weather.temp}°
               </span>
               <span className="truncate text-[11px] text-mute sm:text-[12px]">{condition}</span>
               {today && (
-                <span className="shrink-0 text-[11px] font-medium text-mute flex items-center gap-1.5">
+                <span className="hidden min-[400px]:inline-flex sm:inline-flex shrink-0 text-[11px] font-medium text-mute items-center gap-1.5">
                   {today.rain > 0 ? (
                     <span className="inline-flex items-center gap-0.5 font-semibold text-accent">☔ {today.rain}%</span>
                   ) : (
@@ -116,7 +116,7 @@ export function LocalNowBar() {
               )}
             </>
           ) : (
-            <span className="text-[11px] text-mute">{loading ? t("forecast") : t("timeOnly")}</span>
+            <span className="truncate text-[11px] text-mute">{loading ? t("forecast") : t("timeOnly")}</span>
           )}
         </div>
 

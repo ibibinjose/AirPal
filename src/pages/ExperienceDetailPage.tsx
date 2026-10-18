@@ -167,22 +167,22 @@ function ExperienceDetailView({ itemId }: { itemId: string }) {
           <span>{liveLabel}</span>
         </Link>
 
-        <div className="flex items-center justify-between pt-1">
+        <div className="grid grid-cols-2 gap-2.5 pt-1">
           <button
             type="button"
             onClick={handleDownloadIcs}
-            className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-mute hover:text-ink transition cursor-pointer touch-manipulation active:scale-95"
+            className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-card px-3.5 text-xs sm:text-sm font-semibold text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer touch-manipulation active:scale-95 whitespace-nowrap"
           >
-            <Clock size={15} aria-hidden="true" />
+            <Clock size={15} className="shrink-0 text-accent" aria-hidden="true" />
             <span>Add to Calendar (.ics)</span>
           </button>
 
           <button
             type="button"
             onClick={handleShare}
-            className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-mute hover:text-ink transition cursor-pointer touch-manipulation active:scale-95"
+            className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-card px-3.5 text-xs sm:text-sm font-semibold text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer touch-manipulation active:scale-95 whitespace-nowrap"
           >
-            <Share2 size={15} aria-hidden="true" />
+            <Share2 size={15} className="shrink-0 text-accent" aria-hidden="true" />
             <span>Share</span>
           </button>
         </div>

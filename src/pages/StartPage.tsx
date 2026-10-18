@@ -908,7 +908,7 @@ export function StartPage() {
                             <button
                               type="button"
                               onClick={() => setShowPassword((prev) => !prev)}
-                              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-mute hover:text-ink cursor-pointer"
+                              className="absolute right-1.5 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
                               aria-label={showPassword ? "Hide password" : "Show password"}
                             >
                               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -919,7 +919,7 @@ export function StartPage() {
                           <button
                             type="button"
                             onClick={() => switchMode("reset")}
-                            className="text-xs font-semibold text-accent hover:underline cursor-pointer"
+                            className="inline-flex min-h-[36px] items-center text-xs font-semibold text-accent hover:underline cursor-pointer"
                           >
                             Forgot password?
                           </button>

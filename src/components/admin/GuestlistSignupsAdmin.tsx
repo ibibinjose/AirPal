@@ -179,11 +179,17 @@ export function GuestlistSignupsAdmin() {
             </option>
           ))}
         </select>
-        <Button size="sm" onClick={reload} disabled={loading} className="h-11">
+        <Button size="sm" onClick={reload} disabled={loading} className="h-11 shrink-0 whitespace-nowrap">
           Apply
         </Button>
-        <Button size="sm" variant="tonal" onClick={exportAll} disabled={exporting || total === 0} className="h-11">
-          <Download size={15} className="mr-1.5" aria-hidden />
+        <Button
+          size="sm"
+          variant="tonal"
+          onClick={exportAll}
+          disabled={exporting || total === 0}
+          className="h-11 shrink-0 whitespace-nowrap"
+        >
+          <Download size={15} className="mr-1.5 shrink-0" aria-hidden />
           {exporting ? "Exporting…" : "Export CSV"}
         </Button>
       </div>

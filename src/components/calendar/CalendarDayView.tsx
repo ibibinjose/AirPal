@@ -214,9 +214,9 @@ export function CalendarDayView({
               <button
                 type="button"
                 onClick={handleExportDay}
-                className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1.5 text-xs font-medium text-ink ring-1 ring-line/70 hover:bg-line transition active:scale-95 cursor-pointer"
+                className="inline-flex min-h-[40px] items-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-3 py-1.5 text-xs font-medium text-ink ring-1 ring-line/70 hover:bg-line transition active:scale-95 cursor-pointer"
               >
-                <Download size={13} className="text-mute" />
+                <Download size={13} className="shrink-0 text-mute" />
                 <span>Export (.ics)</span>
               </button>
             )}
@@ -225,7 +225,7 @@ export function CalendarDayView({
               <button
                 type="button"
                 onClick={jumpToday}
-                className="rounded-full bg-paper px-3 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
+                className="inline-flex min-h-[40px] items-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
               >
                 Today
               </button>
@@ -233,7 +233,7 @@ export function CalendarDayView({
                 type="button"
                 onClick={prevDay}
                 aria-label="Previous day"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -241,7 +241,7 @@ export function CalendarDayView({
                 type="button"
                 onClick={nextDay}
                 aria-label="Next day"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
               >
                 <ChevronRight size={16} />
               </button>

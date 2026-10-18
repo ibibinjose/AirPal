@@ -29,37 +29,39 @@ export function BusinessNavHub({
     <div className="space-y-4">
       {/* Domain Role Quick Cards */}
       <div className="rounded-3xl ring-1 ring-line bg-card p-4 shadow-xs">
-        <div className="flex items-center justify-between border-b border-line pb-3">
-          <div>
+        <div className="flex items-center justify-between gap-3 border-b border-line pb-3">
+          <div className="min-w-0 flex-1">
             <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Your place</span>
-            <h2 className="font-display mt-0.5 text-lg font-semibold text-ink">{businessName || "Your place"}</h2>
+            <h2 className="font-display mt-0.5 truncate text-lg font-semibold text-ink">
+              {businessName || "Your place"}
+            </h2>
           </div>
           <Link
             href="/business/onboard"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-line/20 bg-paper px-3.5 py-2 text-xs font-semibold text-ink hover:bg-card transition shadow-2xs active:scale-95"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line/20 bg-paper px-3.5 py-2 text-xs font-semibold text-ink hover:bg-card transition shadow-2xs active:scale-95"
           >
-            <PlusCircle size={14} className="text-accent" />
+            <PlusCircle size={14} className="shrink-0 text-accent" />
             <span>Claim Venue</span>
           </Link>
         </div>
 
         {/* Operational Metrics Strip */}
         <div className="mt-3 grid grid-cols-4 gap-2 text-center">
-          <div className="rounded-2xl bg-paper p-2 ring-1 ring-line">
-            <p className="text-xs font-bold text-ink">{listingActive ? "Live" : "Draft"}</p>
-            <p className="text-[10px] text-mute">Listing</p>
+          <div className="min-w-0 rounded-2xl bg-paper p-2 ring-1 ring-line">
+            <p className="truncate text-xs font-bold text-ink">{listingActive ? "Live" : "Draft"}</p>
+            <p className="truncate text-[10px] text-mute">Listing</p>
           </div>
-          <div className="rounded-2xl bg-paper p-2 ring-1 ring-line">
-            <p className="text-xs font-bold text-ink">{dealLive ? "Active" : "Off"}</p>
-            <p className="text-[10px] text-mute">Offer</p>
+          <div className="min-w-0 rounded-2xl bg-paper p-2 ring-1 ring-line">
+            <p className="truncate text-xs font-bold text-ink">{dealLive ? "Active" : "Off"}</p>
+            <p className="truncate text-[10px] text-mute">Offer</p>
           </div>
-          <div className="rounded-2xl bg-paper p-2 ring-1 ring-line">
-            <p className="text-xs font-bold text-ink">{campaignCount}</p>
-            <p className="text-[10px] text-mute">Campaigns</p>
+          <div className="min-w-0 rounded-2xl bg-paper p-2 ring-1 ring-line">
+            <p className="truncate text-xs font-bold text-ink">{campaignCount}</p>
+            <p className="truncate text-[10px] text-mute">Campaigns</p>
           </div>
-          <div className="rounded-2xl bg-paper p-2 ring-1 ring-line">
-            <p className="text-xs font-bold text-ink">{bookingCount}</p>
-            <p className="text-[10px] text-mute">Bookings</p>
+          <div className="min-w-0 rounded-2xl bg-paper p-2 ring-1 ring-line">
+            <p className="truncate text-xs font-bold text-ink">{bookingCount}</p>
+            <p className="truncate text-[10px] text-mute">Bookings</p>
           </div>
         </div>
 

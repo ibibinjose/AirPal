@@ -102,7 +102,7 @@ export function EventCouponManager({ eventId }: { eventId: string }) {
           {coupons.map((row) => (
             <li
               key={row.code}
-              className="flex items-center gap-3 rounded-2xl bg-paper px-3.5 py-2.5 ring-1 ring-line/70"
+              className="flex flex-wrap items-center gap-3 rounded-2xl bg-paper px-3.5 py-2.5 ring-1 ring-line/70 sm:flex-nowrap"
             >
               <span className="font-mono text-sm font-bold tracking-widest text-ink">{row.code}</span>
               <span className="text-xs font-semibold text-emerald-700">{row.percentOff}% off</span>
@@ -114,7 +114,7 @@ export function EventCouponManager({ eventId }: { eventId: string }) {
                 onClick={() => void toggle(row)}
                 aria-pressed={row.active}
                 className={cn(
-                  "ml-auto rounded-full px-3 py-1.5 text-[11px] font-bold transition active:scale-95",
+                  "ml-auto whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-bold transition active:scale-95",
                   row.active
                     ? "bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/30"
                     : "bg-paper text-mute ring-1 ring-line",
@@ -127,8 +127,8 @@ export function EventCouponManager({ eventId }: { eventId: string }) {
         </ul>
       )}
 
-      <div className="grid grid-cols-[1fr_76px_76px_auto] items-end gap-2">
-        <div>
+      <div className="grid grid-cols-2 items-end gap-2 sm:grid-cols-[1fr_76px_76px_auto]">
+        <div className="col-span-2 sm:col-span-1">
           <label className="text-[11px] font-semibold uppercase tracking-wider text-mute mb-1 block">Code</label>
           <input
             value={code}
@@ -163,7 +163,7 @@ export function EventCouponManager({ eventId }: { eventId: string }) {
           variant="tonal"
           disabled={saving}
           onClick={() => void create()}
-          className="h-11 px-3.5 gap-1"
+          className="col-span-2 h-11 justify-center gap-1 px-3.5 sm:col-span-1"
         >
           <Plus size={15} aria-hidden="true" />
           <span>{saving ? "…" : "Add"}</span>

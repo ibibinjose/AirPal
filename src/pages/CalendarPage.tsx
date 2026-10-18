@@ -379,19 +379,19 @@ function CalendarPageContent() {
               <Sparkles size={13} />
               <span>{city} · What’s On</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Link
                 href="/event"
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-3.5 py-1 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-3.5 py-1 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95 whitespace-nowrap"
               >
-                <Plus size={13} />
+                <Plus size={13} className="shrink-0" />
                 <span>Host Event</span>
               </Link>
               <Link
                 href="/pass"
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1 text-sm font-bold text-white ring-1 ring-white/25 backdrop-blur-md hover:bg-white/25 transition active:scale-95"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1 text-xs sm:text-sm font-bold text-white ring-1 ring-white/25 backdrop-blur-md hover:bg-white/25 transition active:scale-95 whitespace-nowrap"
               >
-                <Ticket size={13} className="text-amber-400" aria-hidden="true" />
+                <Ticket size={13} className="shrink-0 text-amber-400" aria-hidden="true" />
                 <span>AirPal Pass →</span>
               </Link>
             </div>
@@ -406,20 +406,20 @@ function CalendarPageContent() {
       </div>
 
       {/* Top Header / tools */}
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="shrink-0 flex items-center gap-3">
+      <div className="mb-6 flex flex-col gap-3.5 md:flex-row md:items-end md:justify-between">
+        <div className="shrink-0 flex items-center justify-between md:justify-start gap-3">
           <h2 className="font-display text-xl font-bold tracking-tight text-ink whitespace-nowrap">Browse events</h2>
           <Link
             href="/event"
-            className="inline-flex min-h-[34px] items-center gap-1 rounded-full bg-card px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-2xs"
+            className="inline-flex min-h-[38px] items-center gap-1 rounded-full bg-card px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-2xs whitespace-nowrap"
           >
-            <Plus size={12} />
+            <Plus size={12} className="shrink-0" />
             <span>Host Event</span>
           </Link>
         </div>
 
         {/* View Switcher & Action Tools */}
-        <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+        <div className="flex w-full md:w-auto flex-wrap items-center gap-2 self-start md:self-auto">
           {/* Toggle Sidebar (Desktop) */}
           <button
             type="button"
@@ -429,13 +429,13 @@ function CalendarPageContent() {
             }}
             title={isSidebarOpen ? "Collapse search sidebar" : "Expand search sidebar"}
             className={cn(
-              "hidden lg:inline-flex min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition shadow-xs active:scale-95 cursor-pointer",
+              "hidden lg:inline-flex min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition shadow-xs active:scale-95 cursor-pointer whitespace-nowrap",
               isSidebarOpen
                 ? "bg-card text-ink ring-1 ring-line/80 hover:bg-paper"
                 : "bg-paper text-ink ring-1 ring-line hover:bg-line",
             )}
           >
-            <SlidersHorizontal size={13} className="text-accent" />
+            <SlidersHorizontal size={13} className="shrink-0 text-accent" />
             <span>{isSidebarOpen ? "Hide Filters" : "Show Filters"}</span>
             {hasActiveFilters && (
               <span className="rounded-full bg-brand px-1.5 py-0.2 text-[10px] font-bold text-white">
@@ -444,29 +444,11 @@ function CalendarPageContent() {
             )}
           </button>
 
-          {/* Mobile Filters Trigger */}
-          <button
-            type="button"
-            onClick={() => {
-              void triggerHaptic("medium");
-              setIsMobileDrawerOpen(true);
-            }}
-            title="Open search and filters"
-            className="inline-flex lg:hidden min-h-[44px] h-11 items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-medium text-ink ring-1 ring-line/80 hover:bg-paper transition shadow-xs active:scale-95 cursor-pointer"
-          >
-            <SlidersHorizontal size={13} className="text-accent" />
-            <span>Filters</span>
-            {hasActiveFilters && (
-              <span className="rounded-full bg-brand px-1.5 py-0.2 text-[10px] font-bold text-white">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-
-          {/* View Switcher Tabs (Month, Week, Day, List) */}
+          {/* View Switcher Tabs (Month, Week, Day, List) — full width first row on mobile */}
           <TabPills
             layout="contained"
             ariaLabel="Calendar view"
+            className="w-full sm:w-auto order-first sm:order-none"
             items={[
               { id: "month", label: "Month", icon: LayoutGrid, ariaLabel: "Month View" },
               { id: "week", label: "Week", icon: CalendarRange, ariaLabel: "Week View" },
@@ -477,6 +459,25 @@ function CalendarPageContent() {
             onChange={setViewMode}
           />
 
+          {/* Mobile Filters Trigger */}
+          <button
+            type="button"
+            onClick={() => {
+              void triggerHaptic("medium");
+              setIsMobileDrawerOpen(true);
+            }}
+            title="Open search and filters"
+            className="inline-flex lg:hidden flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-medium text-ink ring-1 ring-line/80 hover:bg-paper transition shadow-xs active:scale-95 cursor-pointer whitespace-nowrap"
+          >
+            <SlidersHorizontal size={13} className="shrink-0 text-accent" />
+            <span>Filters</span>
+            {hasActiveFilters && (
+              <span className="rounded-full bg-brand px-1.5 py-0.2 text-[10px] font-bold text-white">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+
           {/* Export My Itinerary CTA */}
           <button
             type="button"
@@ -486,13 +487,13 @@ function CalendarPageContent() {
             }}
             title="Export your saved RSVP events to Apple, Outlook, or Google Calendar"
             className={cn(
-              "inline-flex min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition shadow-xs active:scale-95 cursor-pointer",
+              "inline-flex flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition shadow-xs active:scale-95 cursor-pointer whitespace-nowrap",
               savedItineraryCount > 0
                 ? "bg-brand text-white hover:bg-brand-ink shadow-sm"
                 : "bg-card text-ink ring-1 ring-line/80 hover:bg-paper",
             )}
           >
-            <Download size={13} />
+            <Download size={13} className="shrink-0" />
             <span>Itinerary</span>
             {savedItineraryCount > 0 && (
               <span className="rounded-full bg-white/25 px-1.5 py-0.2 text-[10px] font-bold">
@@ -506,9 +507,9 @@ function CalendarPageContent() {
             type="button"
             onClick={() => nav("/event")}
             title="Create an event and invite your Circle"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-semibold text-white hover:bg-brand-ink transition active:scale-95 cursor-pointer shadow-xs"
+            className="inline-flex flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-semibold text-white hover:bg-brand-ink transition active:scale-95 cursor-pointer shadow-xs whitespace-nowrap"
           >
-            <PlusCircle size={14} />
+            <PlusCircle size={14} className="shrink-0" />
             <span>Create</span>
           </button>
         </div>

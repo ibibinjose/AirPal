@@ -155,7 +155,7 @@ export function SpeakerPicker({ speakers, onChange }: Props) {
           </button>
         )}
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input
             value={guestName}
             onChange={(e) => setGuestName(e.target.value)}
@@ -169,37 +169,39 @@ export function SpeakerPicker({ speakers, onChange }: Props) {
             }}
             placeholder="External guest name"
             maxLength={80}
-            className={`${input} flex-1`}
+            className={`${input} min-w-0 flex-1`}
           />
-          <input
-            value={guestRole}
-            onChange={(e) => setGuestRole(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && guestName.trim()) {
-                e.preventDefault();
+          <div className="flex flex-1 gap-2">
+            <input
+              value={guestRole}
+              onChange={(e) => setGuestRole(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && guestName.trim()) {
+                  e.preventDefault();
+                  addMember({ name: guestName.trim().slice(0, 80), role: guestRole.trim().slice(0, 120) || undefined });
+                  setGuestName("");
+                  setGuestRole("");
+                }
+              }}
+              placeholder="Role (optional)"
+              maxLength={120}
+              className={`${input} min-w-0 flex-1`}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (!guestName.trim()) return;
                 addMember({ name: guestName.trim().slice(0, 80), role: guestRole.trim().slice(0, 120) || undefined });
                 setGuestName("");
                 setGuestRole("");
-              }
-            }}
-            placeholder="Role (optional)"
-            maxLength={120}
-            className={`${input} flex-1`}
-          />
-          <button
-            type="button"
-            onClick={() => {
-              if (!guestName.trim()) return;
-              addMember({ name: guestName.trim().slice(0, 80), role: guestRole.trim().slice(0, 120) || undefined });
-              setGuestName("");
-              setGuestRole("");
-            }}
-            disabled={!guestName.trim()}
-            aria-label="Add guest"
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20 disabled:opacity-40"
-          >
-            <Plus size={18} />
-          </button>
+              }}
+              disabled={!guestName.trim()}
+              aria-label="Add guest"
+              className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20 disabled:opacity-40"
+            >
+              <Plus size={18} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

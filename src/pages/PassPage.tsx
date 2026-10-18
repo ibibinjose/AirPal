@@ -226,34 +226,34 @@ export function PassPage() {
           </p>
 
           {/* Pass Action Highlights */}
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          <div className="mt-6 grid grid-cols-1 min-[400px]:grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3">
             <Link
               href="/events"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-2.5 text-sm font-bold text-neutral-950 shadow-md transition hover:brightness-110 active:scale-95"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-neutral-950 shadow-md transition hover:brightness-110 active:scale-95"
             >
-              <Flame size={16} />
+              <Flame size={16} className="shrink-0" />
               Browse What's On
             </Link>
 
             <Link
               href="/event"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-sm font-bold text-white ring-1 ring-white/30 backdrop-blur-md transition hover:bg-white/25 active:scale-95"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white/15 px-4 py-2.5 text-xs sm:text-sm font-bold text-white ring-1 ring-white/30 backdrop-blur-md transition hover:bg-white/25 active:scale-95"
             >
-              <Plus size={16} />
+              <Plus size={16} className="shrink-0" />
               Host &amp; Sell Tickets
             </Link>
             <Link
               href="/deals"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-sm font-bold text-white ring-1 ring-white/30 backdrop-blur-md transition hover:bg-white/25 active:scale-95"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white/15 px-4 py-2.5 text-xs sm:text-sm font-bold text-white ring-1 ring-white/30 backdrop-blur-md transition hover:bg-white/25 active:scale-95"
             >
-              <Gift size={16} />
+              <Gift size={16} className="shrink-0" />
               Member Deals
             </Link>
             <Link
               href="/scan"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white/10 px-4 py-2.5 text-sm font-semibold text-white/90 ring-1 ring-white/20 transition hover:bg-white/20 active:scale-95"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white/10 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white/90 ring-1 ring-white/20 transition hover:bg-white/20 active:scale-95"
             >
-              <QrCode size={15} />
+              <QrCode size={15} className="shrink-0" />
               Door Scanner
             </Link>
           </div>
@@ -288,12 +288,12 @@ export function PassPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
               <Link
                 href="/me/tickets"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand px-5 py-2 text-sm font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
+                className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand px-5 py-2 text-sm font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
               >
-                <QrCode size={14} aria-hidden="true" />
+                <QrCode size={14} className="shrink-0" aria-hidden="true" />
                 Open Wallet
               </Link>
             </div>

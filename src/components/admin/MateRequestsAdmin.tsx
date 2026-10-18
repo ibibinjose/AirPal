@@ -177,7 +177,7 @@ export function MateRequestsAdmin() {
         Approved Mates can accept from /mate. This queue is the backup — match by hand when needed.
       </p>
       <form
-        className="mt-3 grid gap-2 rounded-2xl bg-paper p-3 ring-1 ring-line sm:grid-cols-[1fr_1fr_auto]"
+        className="mt-3 grid gap-2 rounded-2xl bg-paper p-3 ring-1 ring-line sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]"
         onSubmit={(e) => {
           e.preventDefault();
           const db = getFirebaseDb();

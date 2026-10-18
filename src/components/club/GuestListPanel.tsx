@@ -48,7 +48,7 @@ export function GuestListPanel({ clubId, clubName }: { clubId: string; clubName:
 
       {!airpal && (
         <form className="space-y-2" onSubmit={onAdd}>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -56,7 +56,7 @@ export function GuestListPanel({ clubId, clubName }: { clubId: string; clubName:
               autoCapitalize="words"
               placeholder="Name"
               aria-label="Guest name"
-              className="h-11 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/60"
+              className="h-11 min-w-0 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/60"
             />
             <input
               type="email"
@@ -68,7 +68,7 @@ export function GuestListPanel({ clubId, clubName }: { clubId: string; clubName:
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
               aria-label="Guest email"
-              className="h-11 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/60"
+              className="h-11 min-w-0 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/60"
             />
           </div>
           <div className="flex gap-2">

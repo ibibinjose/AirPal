@@ -39,7 +39,7 @@ export function NetworkStatusToast() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.25 }}
-            className="fixed top-3 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+            className="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-max max-w-[calc(100vw-2rem)] pointer-events-none"
           >
             <div
               className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 shadow-xl text-xs font-medium backdrop-blur-md ring-1 ${
@@ -50,15 +50,15 @@ export function NetworkStatusToast() {
             >
               {!isOnline ? (
                 <>
-                  <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400 animate-ping" />
                   <WifiOff size={14} className="text-amber-400 shrink-0" />
-                  <span>Offline Mode · Cached stays & places accessible</span>
+                  <span className="truncate">Offline Mode · Cached stays &amp; places accessible</span>
                 </>
               ) : (
                 <>
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
                   <Wifi size={14} className="text-emerald-400 shrink-0" />
-                  <span>Back Online · Live updates active</span>
+                  <span className="truncate">Back Online · Live updates active</span>
                 </>
               )}
             </div>

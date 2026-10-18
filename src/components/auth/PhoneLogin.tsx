@@ -203,14 +203,11 @@ export function PhoneLogin({
                 {isDone ? <Check size={12} strokeWidth={2.5} /> : <StepIcon size={12} />}
               </div>
               <span
-                className={cn(
-                  "text-xs font-medium hidden sm:inline",
-                  isCurrent ? "text-ink font-semibold" : "text-mute",
-                )}
+                className={cn("text-[11px] sm:text-xs font-medium", isCurrent ? "text-ink font-semibold" : "text-mute")}
               >
                 {s.label}
               </span>
-              {idx < 2 && <div className="h-0.5 w-6 bg-line sm:w-10" />}
+              {idx < 2 && <div className="h-0.5 w-4 bg-line sm:w-10" />}
             </div>
           );
         })}

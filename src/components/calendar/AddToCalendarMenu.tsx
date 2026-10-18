@@ -173,13 +173,13 @@ export function AddToCalendarMenu({
   ];
 
   return (
-    <div className={cn("relative inline-block text-left", className)}>
+    <div className={cn("relative inline-block max-w-full text-left", className)}>
       <button
         ref={buttonRef}
         type="button"
         onClick={handleToggle}
         className={cn(
-          "inline-flex items-center justify-center gap-1.5 font-semibold transition active:scale-95 cursor-pointer touch-manipulation",
+          "inline-flex max-w-full items-center justify-center gap-1.5 font-semibold transition active:scale-95 cursor-pointer touch-manipulation",
           size === "sm" && "min-h-[44px] px-3 text-xs rounded-xl lg:h-8 lg:min-h-0",
           size === "md" && "min-h-[44px] px-4 text-xs rounded-full lg:h-10 lg:min-h-0",
           size === "lg" && "h-12 px-5 text-sm rounded-full",
@@ -193,8 +193,11 @@ export function AddToCalendarMenu({
         aria-expanded={open}
       >
         <CalendarIcon size={size === "sm" ? 13 : 15} className="text-accent shrink-0" />
-        <span>{label}</span>
-        <ChevronDown size={13} className={cn("text-mute transition-transform duration-200", open && "rotate-180")} />
+        <span className="truncate">{label}</span>
+        <ChevronDown
+          size={13}
+          className={cn("shrink-0 text-mute transition-transform duration-200", open && "rotate-180")}
+        />
       </button>
 
       {open &&

@@ -182,9 +182,13 @@ export function MemoryWallPage() {
           <p className="human-eyebrow">People &amp; places</p>
           <h1 className="human-section-title text-2xl text-balance">Memory Wall</h1>
         </div>
-        <Button size="sm" className="ml-auto gap-1.5 rounded-full" onClick={() => fileRef.current?.click()}>
-          <Camera size={15} />
-          Add photo
+        <Button
+          size="sm"
+          className="ml-auto shrink-0 gap-1.5 rounded-full whitespace-nowrap"
+          onClick={() => fileRef.current?.click()}
+        >
+          <Camera size={15} className="shrink-0" />
+          <span>Add photo</span>
         </Button>
         <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={onPick} />
       </div>

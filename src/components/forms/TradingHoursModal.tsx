@@ -175,9 +175,9 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                     : "border-line bg-card shadow-xs",
               )}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="flex flex-col gap-2.5">
                 {/* Day Header & Status Segmented Buttons */}
-                <div className="flex items-center justify-between sm:justify-start gap-2.5 min-w-[140px]">
+                <div className="flex items-center justify-between gap-2.5">
                   <div className="flex items-center gap-1.5">
                     <span
                       className={cn(
@@ -196,7 +196,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                       type="button"
                       onClick={() => handleStatusChange(dayKey, "open")}
                       className={cn(
-                        "min-h-[44px] rounded-lg px-3 text-xs font-semibold transition active:scale-95",
+                        "min-h-[40px] whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition active:scale-95",
                         daySched.status === "open" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
                       )}
                     >
@@ -206,8 +206,8 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                       type="button"
                       onClick={() => handleStatusChange(dayKey, "closed")}
                       className={cn(
-                        "min-h-[44px] rounded-lg px-3 text-xs font-semibold transition active:scale-95",
-                        daySched.status === "closed" ? "bg-rose text-white shadow-xs" : "text-mute hover:text-ink",
+                        "min-h-[40px] whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition active:scale-95",
+                        daySched.status === "closed" ? "bg-rose-500 text-white shadow-xs" : "text-mute hover:text-ink",
                       )}
                     >
                       Closed
@@ -216,7 +216,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                       type="button"
                       onClick={() => handleStatusChange(dayKey, "24hours")}
                       className={cn(
-                        "min-h-[44px] rounded-lg px-3 text-xs font-semibold transition active:scale-95",
+                        "min-h-[40px] whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition active:scale-95",
                         daySched.status === "24hours" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
                       )}
                     >
@@ -227,7 +227,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
 
                 {/* Time Controls (when Open) */}
                 {daySched.status === "open" && (
-                  <div className="flex flex-wrap items-center gap-1.5 sm:justify-end flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                     <div className="flex items-center gap-1">
                       <input
                         type="time"
@@ -244,7 +244,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                           className="min-h-[44px] rounded-xl border border-line bg-paper px-2 text-[16px] sm:text-xs font-semibold text-ink focus:border-brand focus:outline-none"
                         />
                       ) : (
-                        <span className="inline-flex h-8 items-center rounded-xl bg-brand/10 px-2.5 text-xs font-bold text-accent">
+                        <span className="inline-flex min-h-[44px] items-center rounded-xl bg-brand/10 px-3 text-xs font-bold text-accent">
                           Late
                         </span>
                       )}
@@ -254,7 +254,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                       type="button"
                       onClick={() => handleLateToggle(dayKey)}
                       className={cn(
-                        "min-h-[44px] rounded-xl px-3 text-xs font-semibold transition active:scale-95 border",
+                        "min-h-[44px] whitespace-nowrap rounded-xl px-3 text-xs font-semibold transition active:scale-95 border",
                         daySched.isLate
                           ? "bg-brand text-white border-brand shadow-xs"
                           : "bg-surface hover:bg-surface-high text-mute border-line/60",
@@ -264,23 +264,27 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                     </button>
 
                     {/* Copy to other days actions */}
-                    <div className="flex items-center gap-1 ml-auto sm:ml-1">
+                    <div className="flex items-center gap-1 ml-auto">
                       <button
                         type="button"
                         onClick={() => copyDayToWeekdays(dayKey)}
                         title={`Copy ${meta.name} hours to Mon–Fri`}
-                        className="min-h-[44px] rounded-xl bg-surface hover:bg-surface-high px-3 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition"
+                        className="min-h-[44px] whitespace-nowrap rounded-xl bg-surface hover:bg-surface-high px-2.5 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition"
                       >
-                        <Copy size={11} />
-                        <span className="hidden sm:inline">Weekdays</span>
+                        <Copy size={11} className="shrink-0" />
+                        <span>Mon–Fri</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => copyDayToAll(dayKey)}
                         title={`Copy ${meta.name} hours to all 7 days`}
-                        className="min-h-[44px] rounded-xl bg-surface hover:bg-surface-high px-3 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition"
+                        className="min-h-[44px] whitespace-nowrap rounded-xl bg-surface hover:bg-surface-high px-2.5 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition"
                       >
-                        {isCopied ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                        {isCopied ? (
+                          <Check size={11} className="shrink-0 text-emerald-500" />
+                        ) : (
+                          <Copy size={11} className="shrink-0" />
+                        )}
                         <span>All</span>
                       </button>
                     </div>
@@ -288,30 +292,38 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                 )}
 
                 {daySched.status === "closed" && (
-                  <div className="flex items-center justify-between sm:justify-end flex-1">
+                  <div className="flex items-center justify-between flex-1">
                     <span className="text-xs font-medium text-rose-500/80">Closed all day</span>
                     <button
                       type="button"
                       onClick={() => copyDayToAll(dayKey)}
                       title="Set all 7 days to Closed"
-                      className="h-8 rounded-xl bg-surface hover:bg-surface-high px-2 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition ml-2"
+                      className="min-h-[40px] whitespace-nowrap rounded-xl bg-surface hover:bg-surface-high px-3 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition ml-2"
                     >
-                      {isCopied ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                      {isCopied ? (
+                        <Check size={11} className="shrink-0 text-emerald-500" />
+                      ) : (
+                        <Copy size={11} className="shrink-0" />
+                      )}
                       <span>All</span>
                     </button>
                   </div>
                 )}
 
                 {daySched.status === "24hours" && (
-                  <div className="flex items-center justify-between sm:justify-end flex-1">
+                  <div className="flex items-center justify-between flex-1">
                     <span className="text-xs font-semibold text-accent">Open 24 Hours</span>
                     <button
                       type="button"
                       onClick={() => copyDayToAll(dayKey)}
                       title="Set all 7 days to 24 Hours"
-                      className="min-h-[44px] rounded-xl bg-surface hover:bg-surface-high px-3 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition ml-2"
+                      className="min-h-[40px] whitespace-nowrap rounded-xl bg-surface hover:bg-surface-high px-3 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition ml-2"
                     >
-                      {isCopied ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                      {isCopied ? (
+                        <Check size={11} className="shrink-0 text-emerald-500" />
+                      ) : (
+                        <Copy size={11} className="shrink-0" />
+                      )}
                       <span>All</span>
                     </button>
                   </div>

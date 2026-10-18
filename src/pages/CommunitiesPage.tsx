@@ -100,21 +100,21 @@ export function CommunitiesPage() {
                       onClick={() => toggleFollow(c.handle, c.name)}
                       aria-pressed={following}
                       className={cn(
-                        "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold transition active:scale-95",
+                        "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 text-sm font-semibold transition active:scale-95",
                         following
                           ? "bg-paper text-ink ring-1 ring-line hover:bg-card"
                           : "bg-brand text-white hover:bg-brand-ink",
                       )}
                     >
-                      {following ? <Check size={15} /> : <Plus size={15} />}
+                      {following ? <Check size={15} className="shrink-0" /> : <Plus size={15} className="shrink-0" />}
                       <span>{following ? "Joined" : "Join"}</span>
                     </button>
                   ) : null}
                   <Link
                     href="/events"
-                    className="inline-flex min-h-[44px] items-center justify-center gap-1 rounded-full px-4 text-sm font-semibold text-accent ring-1 ring-line transition hover:bg-card active:scale-95"
+                    className="inline-flex min-h-[44px] items-center justify-center gap-1 whitespace-nowrap rounded-full px-4 text-sm font-semibold text-accent ring-1 ring-line transition hover:bg-card active:scale-95"
                   >
-                    <CalendarDays size={15} />
+                    <CalendarDays size={15} className="shrink-0" />
                     <span>Events</span>
                   </Link>
                 </div>

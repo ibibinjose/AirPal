@@ -354,9 +354,9 @@ export function SearchAnalyticsPage() {
 
         {/* Time Filter Controls & Category Switcher */}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-card p-3 ring-1 ring-line/80 shadow-clay">
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-            <span className="text-xs font-bold text-mute uppercase tracking-wider mr-1 flex items-center gap-1">
-              <SlidersHorizontal size={13} />
+          <div className="flex w-full sm:w-auto items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+            <span className="shrink-0 text-xs font-bold text-mute uppercase tracking-wider mr-1 flex items-center gap-1">
+              <SlidersHorizontal size={13} className="shrink-0" />
               <span>Vertical:</span>
             </span>
             {[
@@ -374,7 +374,7 @@ export function SearchAnalyticsPage() {
                   setFilterCategory(cat.id);
                 }}
                 className={cn(
-                  "inline-flex min-h-[44px] items-center rounded-full px-4 text-xs font-semibold transition active:scale-95 cursor-pointer touch-manipulation",
+                  "inline-flex min-h-[44px] shrink-0 items-center rounded-full px-4 text-xs font-semibold transition active:scale-95 cursor-pointer touch-manipulation whitespace-nowrap",
                   filterCategory === cat.id
                     ? "bg-brand text-white shadow-xs"
                     : "bg-paper text-mute hover:text-ink ring-1 ring-line",
@@ -385,7 +385,7 @@ export function SearchAnalyticsPage() {
             ))}
           </div>
 
-          <div className="flex items-center gap-1 bg-paper p-1 rounded-xl ring-1 ring-line">
+          <div className="flex w-full sm:w-auto items-center gap-1 bg-paper p-1 rounded-xl ring-1 ring-line">
             {[
               { id: "7d", label: "Last 7 Days" },
               { id: "30d", label: "Last 30 Days" },
@@ -399,7 +399,7 @@ export function SearchAnalyticsPage() {
                   setTimeRange(t.id as "7d" | "30d" | "all");
                 }}
                 className={cn(
-                  "inline-flex min-h-[44px] items-center rounded-lg px-3 text-xs font-medium transition cursor-pointer",
+                  "inline-flex flex-1 sm:flex-initial justify-center min-h-[44px] items-center rounded-lg px-3 text-xs font-medium transition cursor-pointer whitespace-nowrap",
                   timeRange === t.id ? "bg-card text-ink font-bold shadow-xs" : "text-mute hover:text-ink",
                 )}
               >

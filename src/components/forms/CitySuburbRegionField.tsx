@@ -194,9 +194,13 @@ export function CitySuburbRegionField({
           type="button"
           onClick={() => void handleUseGps()}
           disabled={locating}
-          className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 hover:bg-brand/15 px-2.5 py-1 text-xs font-semibold text-accent transition active:scale-95 border border-brand/20 shadow-xs disabled:opacity-60"
+          className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-brand/10 hover:bg-brand/15 px-3 py-1 text-xs font-semibold text-accent transition active:scale-95 border border-brand/20 shadow-xs disabled:opacity-60"
         >
-          {locating ? <Loader2 size={12} className="animate-spin" /> : <Navigation size={12} />}
+          {locating ? (
+            <Loader2 size={12} className="shrink-0 animate-spin" />
+          ) : (
+            <Navigation size={12} className="shrink-0" />
+          )}
           <span>{locating ? "Locating…" : "Current Location"}</span>
         </button>
       </div>

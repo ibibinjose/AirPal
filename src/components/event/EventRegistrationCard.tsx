@@ -139,7 +139,18 @@ export function EventRegistrationCard({
       {/* Tier Selector Chips */}
       <div>
         <span className="text-xs font-bold uppercase tracking-wider text-mute mb-2 block">Select Tier</span>
-        <div className="grid grid-cols-3 gap-2">
+        <div
+          className={cn(
+            "grid gap-2",
+            namedTiers && namedTiers.length === 1
+              ? "grid-cols-1"
+              : namedTiers && namedTiers.length === 2
+                ? "grid-cols-2"
+                : namedTiers && namedTiers.length === 4
+                  ? "grid-cols-2 sm:grid-cols-4"
+                  : "grid-cols-3",
+          )}
+        >
           {(namedTiers
             ? namedTiers.map((t) => ({
                 id: t.id,
@@ -164,13 +175,13 @@ export function EventRegistrationCard({
                 onClick={() => handleTierClick(t.id)}
                 aria-pressed={active}
                 className={cn(
-                  "flex min-h-[52px] flex-col items-center justify-center rounded-2xl p-2 text-center transition active:scale-95 cursor-pointer ring-1",
+                  "flex min-h-[52px] min-w-0 flex-col items-center justify-center rounded-2xl p-2 text-center transition active:scale-95 cursor-pointer ring-1",
                   active
                     ? "bg-brand text-white ring-brand shadow-sm"
                     : "bg-paper text-ink ring-line hover:bg-card hover:ring-brand/30",
                 )}
               >
-                <span className="text-sm font-bold">{t.label}</span>
+                <span className="w-full truncate text-center text-xs sm:text-sm font-bold">{t.label}</span>
                 <span className={cn("text-[11px] mt-0.5", active ? "text-amber-300 font-semibold" : "text-mute")}>
                   {t.desc}
                 </span>

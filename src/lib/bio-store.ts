@@ -31,9 +31,17 @@ function readJson<T>(key: string, fallback: T): T {
   }
 }
 
+function normalizeCategoryTag(raw: unknown): string | undefined {
+  if (!raw) return undefined;
+  const s = String(raw).trim();
+  if (!s) return undefined;
+  return s.toLowerCase() === "airpal mate" ? "AirPal Star" : s;
+}
+
 function withCatalog(row: BioProfile): BioProfile {
   return {
     ...row,
+    categoryTag: normalizeCategoryTag(row.categoryTag) ?? row.categoryTag,
     products: sanitizeCatalog("product", row.products),
     services: sanitizeCatalog("service", row.services),
     deals: sanitizeCatalog("deal", row.deals),
@@ -143,7 +151,7 @@ export function profileFromDoc(id: string, data: Record<string, unknown>): BioPr
     aboutText: data.aboutText ? String(data.aboutText) : undefined,
     pronouns: data.pronouns ? String(data.pronouns) : undefined,
     languages: data.languages ? String(data.languages) : undefined,
-    categoryTag: data.categoryTag ? String(data.categoryTag) : undefined,
+    categoryTag: normalizeCategoryTag(data.categoryTag),
     primaryCta: data.primaryCta ? String(data.primaryCta) : undefined,
     availabilityStatus:
       typeof data.availabilityStatus === "string" && data.availabilityStatus in AVAILABILITY_STATUSES

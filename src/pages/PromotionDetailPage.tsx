@@ -407,7 +407,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
                   void triggerHaptic("light");
                   toast.success("Voucher code copied to clipboard");
                 }}
-                className="grid h-10 w-10 place-items-center rounded-xl bg-card ring-1 ring-line text-mute hover:text-ink active:scale-95 transition cursor-pointer"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-card ring-1 ring-line text-mute hover:text-ink active:scale-95 transition cursor-pointer"
                 title="Copy code"
                 aria-label="Copy code"
               >

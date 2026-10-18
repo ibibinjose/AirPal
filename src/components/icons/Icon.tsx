@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/cn";
-import type { AirPalIconProps } from "./types";
-import { resolveIconSize, resolveIconVariantClass } from "./utils";
+import type { AirPalIconProps, IconBadgeSize, IconBadgeVariant } from "./types";
+import { BADGE_SIZE_MAP, BADGE_VARIANT_MAP, resolveIconSize, resolveIconVariantClass } from "./utils";
 
 export const Icon = React.forwardRef<SVGSVGElement, AirPalIconProps>(function Icon(
   { icon: LucideComponent, size = "md", variant = "current", strokeWidth = 2, className, title, ...rest },
@@ -26,3 +26,31 @@ export const Icon = React.forwardRef<SVGSVGElement, AirPalIconProps>(function Ic
 });
 
 Icon.displayName = "AirPalIcon";
+
+export interface IconBadgeProps extends Omit<AirPalIconProps, "size" | "variant"> {
+  badgeVariant?: IconBadgeVariant;
+  badgeSize?: IconBadgeSize;
+  iconSize?: AirPalIconProps["size"];
+  iconVariant?: AirPalIconProps["variant"];
+  containerClassName?: string;
+}
+
+export function IconBadge({
+  icon,
+  badgeVariant = "brand",
+  badgeSize = "md",
+  iconSize,
+  iconVariant = "current",
+  containerClassName,
+  className,
+  ...rest
+}: IconBadgeProps) {
+  const sizeSpec = BADGE_SIZE_MAP[badgeSize] || BADGE_SIZE_MAP.md;
+  const variantClasses = BADGE_VARIANT_MAP[badgeVariant] || BADGE_VARIANT_MAP.brand;
+
+  return (
+    <span className={cn("grid shrink-0 place-items-center", sizeSpec.container, variantClasses, containerClassName)}>
+      <Icon icon={icon} size={iconSize ?? sizeSpec.defaultIcon} variant={iconVariant} className={className} {...rest} />
+    </span>
+  );
+}

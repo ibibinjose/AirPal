@@ -17,7 +17,11 @@ function ChipIcon({ icon }: { icon: LucideIcon | ReactNode }) {
   // Renderable nodes (emoji strings, elements) go straight in; anything
   // else is a Lucide component (forwardRef objects included).
   if (isValidElement(icon) || typeof icon === "string" || typeof icon === "number") {
-    return <span aria-hidden>{icon}</span>;
+    return (
+      <span className="shrink-0" aria-hidden>
+        {icon}
+      </span>
+    );
   }
   const Icon = icon as LucideIcon;
   return <Icon size={14} className="shrink-0" aria-hidden />;
@@ -25,7 +29,7 @@ function ChipIcon({ icon }: { icon: LucideIcon | ReactNode }) {
 
 function chipClass(on: boolean): string {
   return cn(
-    "flex min-h-[44px] shrink-0 touch-manipulation cursor-pointer items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+    "flex min-h-[44px] shrink-0 touch-manipulation cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-semibold transition active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
     on ? "bg-brand text-white shadow-xs" : "bg-card text-mute ring-1 ring-line hover:bg-paper hover:text-ink",
   );
 }
@@ -88,7 +92,10 @@ export function FilterChips<T extends string>(props: FilterChipsProps<T>) {
       role={multi ? "group" : "radiogroup"}
       aria-label={ariaLabel}
       onKeyDown={onRowKeyDown}
-      className={cn("no-scrollbar -mx-4 flex items-center gap-1.5 overflow-x-auto px-4 pb-1", className)}
+      className={cn(
+        "no-scrollbar -mx-4 flex items-center gap-1.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0",
+        className,
+      )}
     >
       {options.map((option) => {
         const on = selected.includes(option.id);

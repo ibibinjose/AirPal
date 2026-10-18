@@ -8,7 +8,6 @@ import {
   Camera,
   Check,
   Copy,
-  Download,
   Edit3,
   ExternalLink,
   Eye,
@@ -22,7 +21,6 @@ import {
   PhoneCall,
   Plus,
   QrCode,
-  Share2,
   Shield,
   Smartphone,
   Sparkles,
@@ -58,6 +56,7 @@ import { BioCatalogEditor } from "@/components/bio/BioCatalogEditor";
 import { BioInsightsPanel } from "@/components/bio/BioInsights";
 import { BioSubscribersPanel } from "@/components/bio/BioSubscribers";
 import { BioThemePicker } from "@/components/bio/BioThemePicker";
+import { DigitalBioPassCard } from "@/components/bio/DigitalBioPassCard";
 import { useBio } from "@/contexts/BioContext";
 import { ImageField } from "@/components/media/ImageField";
 import { makeQrDataUrl } from "@/lib/qr";
@@ -78,6 +77,7 @@ import { triggerHaptic } from "@/lib/native";
 
 // Personal Profile Category / Vibe Presets
 const PERSONAL_CATEGORY_PRESETS = [
+  { id: "AirPal Star", label: "★ AirPal Star" },
   { id: "Explorer & Local", label: "Explorer & Local 🧭" },
   { id: "Travel Companion", label: "Travel Companion ✈️" },
   { id: "Creator & Artist", label: "Creator & Artist 🎨" },
@@ -283,7 +283,6 @@ export function BioEditPage() {
 
   // Mobile Live Preview Modal Sheet State
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
 
   // Synchronize form states when active target profile changes
   useEffect(() => {
@@ -291,8 +290,11 @@ export function BioEditPage() {
     setName(activeProfile.name);
     setShortWhy(activeProfile.shortWhy || "");
     setAboutText(activeProfile.aboutText || "");
+    const rawTag = activeProfile.categoryTag?.trim();
     setCategoryTag(
-      activeProfile.categoryTag || (isBusinessKind(activeProfile.kind) ? "Local Business" : "Explorer & Local"),
+      rawTag?.toLowerCase() === "airpal mate"
+        ? "AirPal Star"
+        : rawTag || (isBusinessKind(activeProfile.kind) ? "Local Business" : "AirPal Star"),
     );
     setPronouns(activeProfile.pronouns || "");
     setLanguages(activeProfile.languages || "");
@@ -392,8 +394,6 @@ export function BioEditPage() {
       </div>
     );
   }
-
-  const share = toPublicUrl(bioPath(activeProfile.handle));
 
   async function handleSaveAll(e?: FormEvent) {
     if (e) e.preventDefault();
@@ -570,16 +570,26 @@ export function BioEditPage() {
               <h3 className="font-display text-lg font-bold tracking-tight text-ink truncate max-w-[190px]">
                 {name || "Your Name"}
               </h3>
-              {categoryTag && (
-                <span
-                  className={cn(
-                    "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
-                    isBusiness ? "bg-amber-500/15 text-amber-800 dark:text-amber-300" : "bg-brand/10 text-accent",
-                  )}
-                >
-                  {categoryTag}
-                </span>
-              )}
+              {categoryTag &&
+                (categoryTag.trim().toLowerCase() === "airpal mate" ||
+                categoryTag.trim().toLowerCase() === "airpal star" ? (
+                  <span
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/30"
+                    title="AirPal Star"
+                    aria-label="AirPal Star"
+                  >
+                    <Star size={11} className="fill-amber-400 text-amber-500" aria-hidden="true" />
+                  </span>
+                ) : (
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                      isBusiness ? "bg-amber-500/15 text-amber-800 dark:text-amber-300" : "bg-brand/10 text-accent",
+                    )}
+                  >
+                    {categoryTag}
+                  </span>
+                ))}
             </div>
 
             <p className="text-[11px] font-medium text-mute mt-0.5">
@@ -716,9 +726,9 @@ export function BioEditPage() {
 
       {/* 1. Liquid Glass Sticky Header Bar */}
       <header className="sticky top-0 z-30 apple-liquid-glass-nav transition-all">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:px-6 lg:px-8">
           {/* Left: Back Arrow + Profile Identity */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <button
               type="button"
               onClick={() => {
@@ -734,28 +744,30 @@ export function BioEditPage() {
 
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-mono text-xs font-bold text-accent">@{activeProfile.handle}</span>
+                <span className="font-mono text-xs font-bold text-accent truncate max-w-[120px] sm:max-w-none">
+                  @{activeProfile.handle}
+                </span>
                 <BioKindBadge kind={activeProfile.kind} />
                 {/* Specific Personal Profile text for E2E and clear distinction */}
                 {!isBusiness && (
-                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-brand/10 text-accent">
+                  <span className="hidden sm:inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-brand/10 text-accent">
                     Personal Profile
                   </span>
                 )}
                 {isBusiness && (
-                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-amber-500/10 text-amber-800 dark:text-amber-300">
+                  <span className="hidden sm:inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold bg-amber-500/10 text-amber-800 dark:text-amber-300">
                     Business Profile
                   </span>
                 )}
               </div>
-              <h1 className="human-section-title text-lg sm:text-xl truncate">
+              <h1 className="human-section-title text-base sm:text-xl truncate">
                 {isBusiness ? "Edit Place Profile" : "Edit Digital Bio"}
               </h1>
             </div>
           </div>
 
           {/* Right: Actions & Save Primary Button */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* View Public Profile Link */}
             <Button
               variant="ghost"
@@ -774,21 +786,21 @@ export function BioEditPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="lg:hidden gap-1.5 rounded-full border border-line bg-card px-3 text-xs font-semibold text-ink shadow-xs hover:bg-paper cursor-pointer"
+              className="lg:hidden gap-1 rounded-full border border-line bg-card px-2.5 sm:px-3 text-xs font-semibold text-ink shadow-xs hover:bg-paper cursor-pointer"
               onClick={() => {
                 void triggerHaptic("medium");
                 setMobilePreviewOpen(true);
               }}
             >
               <Eye size={14} className="text-accent" />
-              <span>Preview</span>
+              <span className="hidden min-[380px]:inline">Preview</span>
             </Button>
 
             {/* Save Button */}
             <Button
               size="sm"
               className={cn(
-                "h-10 px-4 rounded-full font-semibold gap-1.5 shadow-md transition cursor-pointer active:scale-95",
+                "h-10 px-3 sm:px-4 rounded-full font-semibold gap-1.5 shadow-md transition cursor-pointer active:scale-95",
                 isBusiness
                   ? "bg-amber-600 hover:bg-amber-700 text-white"
                   : isDirty
@@ -803,7 +815,7 @@ export function BioEditPage() {
               ) : (
                 <Check size={15} />
               )}
-              <span>{saving ? "Saving…" : isDirty ? "Save Changes" : "Saved"}</span>
+              <span>{saving ? "Saving…" : isDirty ? "Save" : "Saved"}</span>
             </Button>
           </div>
         </div>
@@ -827,7 +839,7 @@ export function BioEditPage() {
                 {isBusiness ? <Store size={22} /> : <UserRound size={22} />}
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-bold uppercase tracking-wider text-ink">
                     {isBusiness ? "AirPal Pass Place Profile" : "AirPal Me Personal Bio"}
                   </span>
@@ -849,9 +861,9 @@ export function BioEditPage() {
             </div>
 
             {/* Profile Switcher or Creation CTAs */}
-            <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-line/60">
+            <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-line/60 max-w-full">
               {mine && business && (
-                <div className="inline-flex rounded-full bg-paper p-1 ring-1 ring-line">
+                <div className="inline-flex max-w-full rounded-full bg-paper p-1 ring-1 ring-line">
                   <button
                     type="button"
                     onClick={() => {
@@ -859,12 +871,12 @@ export function BioEditPage() {
                       nav("/bio/edit?kind=person");
                     }}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
+                      "inline-flex min-w-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
                       !isBusiness ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
                     )}
                   >
-                    <UserRound size={13} />
-                    <span>@{mine.handle}</span>
+                    <UserRound size={13} className="shrink-0" />
+                    <span className="truncate max-w-[130px] sm:max-w-[200px]">@{mine.handle}</span>
                   </button>
                   <button
                     type="button"
@@ -873,12 +885,12 @@ export function BioEditPage() {
                       nav("/bio/edit?kind=business");
                     }}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
+                      "inline-flex min-w-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
                       isBusiness ? "bg-amber-600 text-white shadow-xs" : "text-mute hover:text-ink",
                     )}
                   >
-                    <Store size={13} />
-                    <span>@{business.handle}</span>
+                    <Store size={13} className="shrink-0" />
+                    <span className="truncate max-w-[130px] sm:max-w-[200px]">@{business.handle}</span>
                   </button>
                 </div>
               )}
@@ -922,7 +934,7 @@ export function BioEditPage() {
           <div className="lg:col-span-7">
             {/* Apple HIG Segmented Navigation Tabs */}
             <div
-              className="flex rounded-2xl bg-paper p-1.5 ring-1 ring-line shadow-xs"
+              className="flex gap-1 overflow-x-auto no-scrollbar rounded-2xl bg-paper p-1.5 ring-1 ring-line shadow-xs"
               role="tablist"
               aria-label="Profile sections"
             >
@@ -950,7 +962,7 @@ export function BioEditPage() {
                     setTab(item.id);
                   }}
                   className={cn(
-                    "flex flex-1 items-center justify-center gap-1.5 h-11 rounded-xl text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer",
+                    "flex shrink-0 sm:flex-1 items-center justify-center gap-1.5 h-11 px-3.5 whitespace-nowrap rounded-xl text-xs sm:text-sm font-semibold transition active:scale-95 cursor-pointer",
                     tab === item.id
                       ? isBusiness
                         ? "bg-amber-600 text-white shadow-xs"
@@ -958,8 +970,8 @@ export function BioEditPage() {
                       : "text-mute hover:text-ink hover:bg-white/50",
                   )}
                 >
-                  <item.icon size={15} />
-                  <span className="truncate">{item.label}</span>
+                  <item.icon size={15} className="shrink-0" />
+                  <span>{item.label}</span>
                   {typeof item.count === "number" && item.count > 0 && (
                     <span
                       className={cn(
@@ -1259,21 +1271,21 @@ export function BioEditPage() {
                     <label className="text-xs font-semibold uppercase tracking-wider text-mute">
                       Custom Status Message & Emoji
                     </label>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="flex items-center gap-2">
                       <input
                         value={customStatusEmoji}
                         onChange={(e) => setCustomStatusEmoji(e.target.value)}
                         placeholder="☕"
                         maxLength={4}
                         aria-label="Status Emoji"
-                        className="h-11 rounded-2xl border border-line bg-paper text-center text-lg outline-none focus:border-ink"
+                        className="h-11 w-14 shrink-0 rounded-2xl border border-line bg-paper text-center text-lg outline-none focus:border-ink"
                       />
                       <input
                         value={customStatus}
                         onChange={(e) => setCustomStatus(e.target.value)}
                         placeholder={isBusiness ? "e.g. Fresh pastries today" : "e.g. Coffee at Rocks Cafe"}
                         aria-label="Status message text"
-                        className={`col-span-3 ${fieldInput}`}
+                        className={`flex-1 min-w-0 ${fieldInput}`}
                       />
                     </div>
                     <p className="text-[11px] text-mute">
@@ -1322,7 +1334,7 @@ export function BioEditPage() {
                     <label className="text-xs font-semibold uppercase tracking-wider text-mute">
                       Preferred Meeting Platform
                     </label>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       {[
                         { id: "in_person" as const, label: "In Person", hint: "Local venues", Icon: MapPin },
                         { id: "google_meet" as const, label: "Google Meet", hint: "meet.google.com", Icon: Video },
@@ -1339,7 +1351,7 @@ export function BioEditPage() {
                               setPreferredMeetingPlatform(opt.id);
                             }}
                             className={cn(
-                              "flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-2xl border p-2 text-center transition active:scale-95 cursor-pointer",
+                              "flex min-h-[52px] flex-row sm:flex-col items-center justify-between sm:justify-center gap-2 sm:gap-1 rounded-2xl border px-3.5 py-2.5 sm:p-2 text-left sm:text-center transition active:scale-95 cursor-pointer",
                               isSelected
                                 ? isBusiness
                                   ? "bg-amber-500/10 border-amber-600 text-amber-900 dark:text-amber-300 font-bold shadow-xs"
@@ -1347,8 +1359,8 @@ export function BioEditPage() {
                                 : "bg-paper border-line text-ink hover:bg-card",
                             )}
                           >
-                            <span className="flex items-center gap-1.5 text-xs font-bold">
-                              <Icon size={13} />
+                            <span className="flex items-center gap-1.5 text-xs font-bold whitespace-nowrap">
+                              <Icon size={13} className="shrink-0" />
                               <span>{opt.label}</span>
                             </span>
                             <span className="text-[10px] font-medium opacity-70">{opt.hint}</span>
@@ -1612,34 +1624,36 @@ export function BioEditPage() {
                         {social && <span className="text-[11px] text-mute font-mono">{social.example}</span>}
                       </div>
 
-                      <div className="flex items-center overflow-hidden rounded-2xl bg-paper ring-1 ring-line transition focus-within:ring-2 focus-within:ring-ink">
-                        {social ? (
-                          <span className="flex h-12 shrink-0 select-none items-center border-r border-line bg-black/[0.04] px-3.5 font-mono text-xs font-medium text-mute">
-                            {social.cleanPrefix}
-                          </span>
-                        ) : type === "call" ? (
-                          <span className="flex h-12 shrink-0 select-none items-center border-r border-line bg-black/[0.04] px-3.5 font-mono text-xs font-medium text-mute">
-                            tel:
-                          </span>
-                        ) : null}
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center overflow-hidden rounded-2xl bg-paper ring-1 ring-line transition focus-within:ring-2 focus-within:ring-ink">
+                        <div className="flex flex-1 items-center min-w-0">
+                          {social ? (
+                            <span className="flex h-12 shrink-0 select-none items-center border-r border-line bg-black/[0.04] px-3 font-mono text-xs font-medium text-mute">
+                              {social.cleanPrefix}
+                            </span>
+                          ) : type === "call" ? (
+                            <span className="flex h-12 shrink-0 select-none items-center border-r border-line bg-black/[0.04] px-3 font-mono text-xs font-medium text-mute">
+                              tel:
+                            </span>
+                          ) : null}
 
-                        <input
-                          value={href}
-                          onChange={(e) => setHref(e.target.value)}
-                          placeholder={
-                            social
-                              ? social.placeholder
-                              : type === "call"
-                                ? "+61 400 123 456"
-                                : "https://yourwebsite.com"
-                          }
-                          className="h-12 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-mute/60"
-                        />
+                          <input
+                            value={href}
+                            onChange={(e) => setHref(e.target.value)}
+                            placeholder={
+                              social
+                                ? social.placeholder
+                                : type === "call"
+                                  ? "+61 400 123 456"
+                                  : "https://yourwebsite.com"
+                            }
+                            className="h-12 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-mute/60"
+                          />
+                        </div>
 
                         <Button
                           type="submit"
                           size="sm"
-                          className="m-1.5 min-h-[44px] shrink-0 px-4 font-semibold rounded-xl cursor-pointer"
+                          className="m-1.5 min-h-[44px] justify-center shrink-0 px-4 font-semibold rounded-xl cursor-pointer"
                         >
                           Add Link
                         </Button>
@@ -1686,13 +1700,13 @@ export function BioEditPage() {
                                 key={l.id}
                                 className="rounded-2xl bg-paper px-4 py-3 border border-line/70 shadow-xs hover:border-line transition space-y-2.5"
                               >
-                                <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center justify-between gap-2">
                                   <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-1.5">
                                       <span className="rounded-full bg-card px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-mute border border-line">
                                         {l.type}
                                       </span>
-                                      <span className="text-sm font-semibold text-ink">{l.label}</span>
+                                      <span className="text-sm font-semibold text-ink truncate">{l.label}</span>
                                       {l.featured && (
                                         <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-700">
                                           <Star size={10} /> Featured
@@ -1713,10 +1727,10 @@ export function BioEditPage() {
                                       {l.href}
                                     </a>
                                   </div>
-                                  <div className="flex items-center gap-1 shrink-0">
+                                  <div className="flex items-center gap-0.5 shrink-0">
                                     <button
                                       type="button"
-                                      className="rounded-full p-2 text-mute hover:bg-card hover:text-ink cursor-pointer"
+                                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-card hover:text-ink cursor-pointer"
                                       title="Copy link"
                                       onClick={() => {
                                         void navigator.clipboard.writeText(l.href);
@@ -1730,8 +1744,8 @@ export function BioEditPage() {
                                       type="button"
                                       className={
                                         l.featured
-                                          ? "rounded-full p-2 text-amber-600 cursor-pointer"
-                                          : "rounded-full p-2 text-mute hover:text-amber-600 cursor-pointer"
+                                          ? "inline-flex h-10 w-10 items-center justify-center rounded-full text-amber-600 cursor-pointer"
+                                          : "inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:text-amber-600 cursor-pointer"
                                       }
                                       title={l.featured ? "Unpin featured" : "Pin to top"}
                                       onClick={() => saveLink({ featured: l.featured ? undefined : true })}
@@ -1740,7 +1754,7 @@ export function BioEditPage() {
                                     </button>
                                     <button
                                       type="button"
-                                      className="rounded-full p-2 text-mute hover:bg-card hover:text-ink cursor-pointer"
+                                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-card hover:text-ink cursor-pointer"
                                       title={l.archived ? "Restore link" : "Archive link"}
                                       onClick={() => {
                                         saveLink({ archived: l.archived ? undefined : true });
@@ -1751,7 +1765,7 @@ export function BioEditPage() {
                                     </button>
                                     <button
                                       type="button"
-                                      className="rounded-full p-2 text-mute hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
                                       title="Remove link"
                                       onClick={() => {
                                         const next = links.filter((x) => x.id !== l.id);
@@ -1772,7 +1786,7 @@ export function BioEditPage() {
                                     </button>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2 border-t border-line/60 pt-2.5">
+                                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 border-t border-line/60 pt-2.5">
                                   <CalendarDays size={14} className="shrink-0 text-mute" aria-hidden="true" />
                                   <label className="sr-only" htmlFor={`link-start-${l.id}`}>
                                     Link start date
@@ -1782,7 +1796,7 @@ export function BioEditPage() {
                                     type="date"
                                     value={l.startsAt || ""}
                                     onChange={(e) => saveLink({ startsAt: e.target.value || undefined })}
-                                    className="h-9 min-w-0 flex-1 rounded-xl border border-line bg-card px-2 text-xs outline-none focus:border-brand"
+                                    className="h-9 min-w-[125px] flex-1 rounded-xl border border-line bg-card px-2 text-xs outline-none focus:border-brand"
                                   />
                                   <span className="text-xs text-mute">→</span>
                                   <label className="sr-only" htmlFor={`link-end-${l.id}`}>
@@ -1794,7 +1808,7 @@ export function BioEditPage() {
                                     value={l.endsAt || ""}
                                     min={l.startsAt || undefined}
                                     onChange={(e) => saveLink({ endsAt: e.target.value || undefined })}
-                                    className="h-9 min-w-0 flex-1 rounded-xl border border-line bg-card px-2 text-xs outline-none focus:border-brand"
+                                    className="h-9 min-w-[125px] flex-1 rounded-xl border border-line bg-card px-2 text-xs outline-none focus:border-brand"
                                   />
                                   {(l.startsAt || l.endsAt) && (
                                     <button
@@ -1837,102 +1851,33 @@ export function BioEditPage() {
             {/* TAB 4: SHARE, PASSBOOK & QR */}
             {tab === "share" && (
               <div className="mt-6 space-y-6">
-                {/* Apple Passbook Style QR Card */}
-                <div className="rounded-3xl border border-line bg-card p-6 sm:p-8 text-center shadow-clay space-y-5">
-                  <div className="flex items-center justify-between border-b border-line/60 pb-3">
-                    <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
-                      <QrCode size={14} />
-                      <span>{isBusiness ? "Place QR & Digital Pass" : "AirPal Digital Bio Pass"}</span>
-                    </p>
-                    <span className="text-xs font-mono text-mute">{tapsToday(activeProfile.handle)} taps today</span>
-                  </div>
-
-                  {qr && (
-                    <div className="relative inline-block rounded-3xl bg-white p-5 ring-1 ring-line shadow-clay transition hover:scale-[1.01]">
-                      <img
-                        src={qr}
-                        alt={`QR code for @${activeProfile.handle}`}
-                        className="mx-auto h-52 w-52 sm:h-60 sm:w-60"
-                      />
-                    </div>
-                  )}
-
-                  <div>
-                    <p className="font-display text-2xl font-bold tracking-tight text-ink">
-                      airpal.me/@{activeProfile.handle}
-                    </p>
-                    <p className="text-xs text-mute mt-1">
-                      Scan or tap to open directly in browser or verified Apple/Google Wallet.
-                    </p>
-                  </div>
-
+                <DigitalBioPassCard
+                  handle={activeProfile.handle}
+                  name={name || activeProfile.name || `@${activeProfile.handle}`}
+                  kind={activeProfile.kind}
+                  avatar={avatar || activeProfile.avatar}
+                  city={city || activeProfile.city}
+                  headline={shortWhy || activeProfile.shortWhy}
+                  phone={phone || activeProfile.phone}
+                  qrDataUrl={qr || undefined}
+                  title={isBusiness ? "Place QR & Digital Bio Pass" : "My Digital Bio Pass"}
+                  subtitle="Universal Contact Pass · Apple & Google Wallet"
+                  tapsTodayCount={tapsToday(activeProfile.handle)}
+                  showViewBioLink
+                >
                   {/* Australian Air Zoo Collectible Sticker Toggle */}
-                  <label className="mx-auto flex max-w-sm items-center justify-center gap-2.5 rounded-2xl bg-paper p-3 text-xs font-medium border border-line cursor-pointer hover:border-brand/30 transition">
+                  <label className="flex min-h-[44px] items-center justify-between gap-3 rounded-2xl bg-paper p-3.5 text-xs font-medium ring-1 ring-line cursor-pointer hover:ring-brand/30 transition">
+                    <span className="text-ink font-semibold">
+                      Air Zoo Hunt — display collectible Aussie sticker on pass
+                    </span>
                     <input
                       type="checkbox"
                       checked={zooHunt}
                       onChange={(e) => setZooHunt(e.target.checked)}
-                      className="h-4 w-4 rounded border-line text-accent focus:ring-brand"
+                      className="h-5 w-5 rounded border-line accent-[#004eff]"
                     />
-                    <span>Air Zoo Hunt — display collectible Aussie sticker on pass</span>
                   </label>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 max-w-md mx-auto">
-                    <Button
-                      className={cn(
-                        "h-12 font-semibold gap-2 shadow-sm rounded-2xl cursor-pointer",
-                        isBusiness && "bg-amber-600 hover:bg-amber-700 text-white",
-                      )}
-                      onClick={() => {
-                        void triggerHaptic("medium");
-                        if (navigator.share) {
-                          navigator
-                            .share({
-                              title: `${activeProfile.name} (@${activeProfile.handle})`,
-                              text: activeProfile.shortWhy || "Connect on AirPal",
-                              url: share,
-                            })
-                            .catch(() => {});
-                        } else {
-                          void navigator.clipboard.writeText(share);
-                          setCopiedLink(true);
-                          setTimeout(() => setCopiedLink(false), 2000);
-                          toast.success("Profile URL copied to clipboard");
-                        }
-                      }}
-                    >
-                      {copiedLink ? <Check size={16} /> : <Share2 size={16} />}
-                      <span>{copiedLink ? "Copied!" : "Share Profile"}</span>
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      className="h-12 font-semibold border border-line bg-paper hover:bg-card gap-2 rounded-2xl cursor-pointer"
-                      onClick={() => {
-                        void navigator.clipboard.writeText(share);
-                        void triggerHaptic("light");
-                        toast.success("Profile URL copied to clipboard");
-                      }}
-                    >
-                      <Copy size={16} />
-                      <span>Copy URL</span>
-                    </Button>
-                  </div>
-
-                  {qr && (
-                    <div className="pt-2">
-                      <a
-                        href={qr}
-                        download={`airpal-${activeProfile.handle}-qr.png`}
-                        onClick={() => void triggerHaptic("light")}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-full px-5 text-xs font-semibold text-accent hover:bg-brand/5 transition"
-                      >
-                        <Download size={14} />
-                        <span>Download High-Res QR Code Image</span>
-                      </a>
-                    </div>
-                  )}
-                </div>
+                </DigitalBioPassCard>
 
                 {/* Handle Configuration */}
                 <div className="rounded-3xl border border-line bg-card p-6 sm:p-7 shadow-clay">

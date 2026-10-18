@@ -41,10 +41,10 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex touch-manipulation select-none items-center justify-center gap-2 rounded-full font-medium transition active:scale-[0.98] disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+        "inline-flex touch-manipulation select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium transition active:scale-[0.98] disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand [&_svg]:shrink-0",
         size === "sm" && "min-h-[44px] px-3.5 py-1.5 text-sm",
-        size === "md" && "h-11 px-5 text-[15px]",
-        size === "lg" && "h-12 px-6 text-base",
+        size === "md" && "min-h-[44px] h-11 px-5 text-[15px]",
+        size === "lg" && "min-h-[48px] h-12 px-6 text-base",
         variant === "primary" && "bg-brand text-white shadow-[0_10px_24px_-10px_rgba(18,22,20,0.28)]",
         variant === "ghost" && "bg-card text-ink ring-1 ring-line hover:bg-paper",
         variant === "dark" && "bg-brand text-white",

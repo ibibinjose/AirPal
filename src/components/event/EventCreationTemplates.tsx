@@ -136,7 +136,7 @@ export function EventCreationTemplates({ onApplyTemplate, className }: EventCrea
         <span className="text-[11px] text-mute">1-tap pre-fill</span>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
         {EVENT_TEMPLATES.map((tmpl) => {
           const Icon = tmpl.icon;
           return (

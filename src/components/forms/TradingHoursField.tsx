@@ -47,9 +47,9 @@ export function TradingHoursField({
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 hover:bg-brand/15 px-2.5 py-1 text-xs font-semibold text-accent transition active:scale-95 border border-brand/20 shadow-xs"
+          className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-brand/10 hover:bg-brand/15 px-3 py-1 text-xs font-semibold text-accent transition active:scale-95 border border-brand/20 shadow-xs"
         >
-          <Calendar size={12} />
+          <Calendar size={12} className="shrink-0" />
           <span>7-Day Schedule Helper</span>
         </button>
       </div>

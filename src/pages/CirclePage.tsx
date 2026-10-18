@@ -1,12 +1,21 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Building2,
   CalendarDays,
+  Check,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Contact,
+  Copy,
+  Download,
+  Handshake,
+  MapPin,
+  QrCode,
   Search,
+  Share2,
+  ShieldCheck,
   Sparkles,
   Store,
   UserCheck,
@@ -16,13 +25,31 @@ import {
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Sheet } from "@/components/ui/Sheet";
+import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
+import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
+import { fieldInput } from "@/components/forms/ValidField";
 import { useBio } from "@/contexts/BioContext";
+import { useEvents } from "@/contexts/EventsContext";
 import { useSocial } from "@/contexts/SocialContext";
 import { HereCheckIn } from "@/components/circle/HereCheckIn";
 import { BioCatchUpModal } from "@/components/bio/BioCatchUpModal";
 import { openGlobalSearch } from "@/components/search/openSearch";
-import { CIRCLE_QUESTS, circleQuestProgress, hasMarkedCircleInvite, markCircleInviteSent } from "@/lib/circle";
-import { listPeople } from "@/lib/people";
+import {
+  CIRCLE_QUESTS,
+  circleQuestProgress,
+  hasMarkedCircleInvite,
+  markCircleInviteSent,
+  sameCity,
+} from "@/lib/circle";
+import { listPeople, openVCardContact, upsertPerson, type PersonMet } from "@/lib/people";
+import { makeQrDataUrl } from "@/lib/qr";
+import {
+  businessCardWalletPassUrl,
+  googleWalletCardUrl,
+  openAppleWalletPass,
+  openGoogleWalletPass,
+} from "@/lib/wallet";
 import { triggerHaptic } from "@/lib/native";
 import { toast } from "sonner";
 import { FilterChips } from "@/components/ui/FilterChips";
@@ -31,6 +58,7 @@ import { BIBIN_JOSE_PROFILE } from "@/lib/bio-handle";
 import { activePlaces } from "@/lib/catalog";
 
 export type CircleFilter = "all" | "friends" | "communities" | "places";
+export type CircleRelationshipFilter = "all" | "mutual" | "incoming" | "met" | "nearby";
 
 export interface CircleContact {
   id: string;
@@ -41,24 +69,89 @@ export interface CircleContact {
   category: "friends" | "communities" | "places";
   categoryLabel: string;
   whereMet?: string;
+  metAt?: string;
   isFollowing: boolean;
   isFollower: boolean;
   isMutual: boolean;
   isMet: boolean;
 }
 
+export function sortCircleContacts(contacts: CircleContact[], myCity?: string): CircleContact[] {
+  const rank = (c: CircleContact): number => {
+    if (c.isMutual) return 0;
+    if (c.isFollower && !c.isFollowing) return 1;
+    if (c.isMet) return 2;
+    if (c.isFollowing) return 3;
+    if (myCity && sameCity(c.city, myCity)) return 4;
+    return 5;
+  };
+  return [...contacts].sort((a, b) => {
+    const rDiff = rank(a) - rank(b);
+    if (rDiff !== 0) return rDiff;
+    return a.name.localeCompare(b.name);
+  });
+}
+
 export function CirclePage() {
   const { mine, profiles } = useBio();
+  const { calendarEvents } = useEvents();
   const { followedHandles, followerHandles, likedHandles, toggleFollow } = useSocial();
   const [, nav] = useLocation();
 
   const [filter, setFilter] = useState<CircleFilter>("all");
+  const [relationshipFilter, setRelationshipFilter] = useState<CircleRelationshipFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showQuests, setShowQuests] = useState(false);
+  const [invitedSent, setInvitedSent] = useState(() => hasMarkedCircleInvite());
   const [catchUpContact, setCatchUpContact] = useState<{ handle: string; name: string } | null>(null);
 
-  // Met people from direct in-person connections
-  const metList = useMemo(() => listPeople(), []);
+  // Met people from direct in-person connections (reactive when user logs a new person met)
+  const [metList, setMetList] = useState<PersonMet[]>(() => listPeople());
+  const [logMetOpen, setLogMetOpen] = useState(false);
+  const [metName, setMetName] = useState("");
+  const [metHandle, setMetHandle] = useState("");
+  const [metWhere, setMetWhere] = useState("");
+  const [metAlsoFollow, setMetAlsoFollow] = useState(true);
+
+  // In-person QR Circle Pass sheet
+  const [qrOpen, setQrOpen] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  const circleInviteUrl = useMemo(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://airpal.me";
+    return mine?.handle ? `${origin}/@${mine.handle}` : `${origin}/start`;
+  }, [mine?.handle]);
+
+  useEffect(() => {
+    if (!qrOpen) return;
+    let active = true;
+    void makeQrDataUrl(circleInviteUrl, 260)
+      .then((url) => {
+        if (active) setQrDataUrl(url);
+      })
+      .catch(() => {
+        if (active) setQrDataUrl(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [qrOpen, circleInviteUrl]);
+
+  // Organisers running upcoming events, keyed by handle — the Communities bucket source.
+  const organisers = useMemo(() => {
+    const now = new Date().toISOString();
+    const byHandle = new Map<string, { name: string; events: number }>();
+    for (const e of calendarEvents) {
+      if (e.startsAt < now) continue;
+      const handle = (e.businessHandle || e.hostHandle || "").trim().replace(/^@+/, "").toLowerCase();
+      if (!handle) continue;
+      const name = (e.businessName || e.hostName || "").trim() || `@${handle}`;
+      const existing = byHandle.get(handle);
+      if (existing) existing.events += 1;
+      else byHandle.set(handle, { name, events: 1 });
+    }
+    return byHandle;
+  }, [calendarEvents]);
 
   // Followers are real local graph state only — never assert a follow nobody made.
   const effectiveFollowerHandles = followerHandles;
@@ -81,19 +174,20 @@ export function CirclePage() {
 
     // 1. FRIENDS: Met people
     for (const p of metList) {
-      const h = (p.handle || "").toLowerCase();
-      if (!h || h === myHandle) continue;
-      const isFw = followedHandles.has(h);
-      const isFr = effectiveFollowerHandles.has(h);
+      const rawHandle = (p.handle || p.id || "").toLowerCase();
+      if (!rawHandle || rawHandle === myHandle) continue;
+      const isFw = followedHandles.has(rawHandle);
+      const isFr = effectiveFollowerHandles.has(rawHandle);
       addContact({
         id: `person-${p.id}`,
-        handle: h,
+        handle: rawHandle,
         name: p.name,
         avatar: p.photo,
-        city: mine?.city || "Sydney",
+        city: mine?.city || undefined,
         category: "friends",
         categoryLabel: "Personal Friend",
         whereMet: p.whereMet,
+        metAt: p.metAt,
         isFollowing: isFw,
         isFollower: isFr,
         isMutual: isFw && isFr,
@@ -120,14 +214,16 @@ export function CirclePage() {
       });
     }
 
-    // 3. FRIENDS: Any other personal followed or follower handles
+    // 3. FRIENDS: Any other personal followed or follower handles.
+    // Followed organisers go to Communities; followed business bios go to Places.
     const personalCandidates = new Set<string>();
     followedHandles.forEach((h) => personalCandidates.add(h));
     effectiveFollowerHandles.forEach((h) => personalCandidates.add(h));
     personalCandidates.forEach((h) => {
       if (seenHandles.has(h)) return;
+      if (organisers.has(h)) return; // handled under Communities
       const bio = profiles.find((p) => p.handle.toLowerCase() === h);
-      if (bio && bio.kind === "business") return; // will be handled under Places
+      if (bio && bio.kind === "business") return; // handled under Places
 
       const isFw = followedHandles.has(h);
       const isFr = effectiveFollowerHandles.has(h);
@@ -136,7 +232,7 @@ export function CirclePage() {
         handle: h,
         name: bio?.name || `@${h}`,
         avatar: bio?.avatar,
-        city: bio?.city || "Sydney",
+        city: bio?.city || mine?.city || undefined,
         category: "friends",
         categoryLabel: "Circle Connection",
         isFollowing: isFw,
@@ -145,6 +241,46 @@ export function CirclePage() {
         isMet: false,
       });
     });
+
+    // 3b. COMMUNITIES: Followed organisers running upcoming events.
+    organisers.forEach((org, h) => {
+      if (seenHandles.has(h)) return;
+      if (!followedHandles.has(h)) return;
+      addContact({
+        id: `community-${h}`,
+        handle: h,
+        name: org.name,
+        avatar: undefined,
+        city: mine?.city || undefined,
+        category: "communities",
+        categoryLabel: org.events > 1 ? `Event Organiser · ${org.events} upcoming` : "Event Organiser",
+        isFollowing: true,
+        isFollower: false,
+        isMutual: false,
+        isMet: false,
+      });
+    });
+
+    // 3c. PLACES: Followed business bios live here, not in Friends.
+    for (const bio of profiles) {
+      const h = (bio.handle || "").toLowerCase();
+      if (!h || seenHandles.has(h)) continue;
+      if (bio.kind !== "business") continue;
+      if (!followedHandles.has(h) && !likedHandles.has(h)) continue;
+      addContact({
+        id: `place-bio-${h}`,
+        handle: h,
+        name: bio.name,
+        avatar: bio.avatar,
+        city: bio.city || mine?.city || undefined,
+        category: "places",
+        categoryLabel: "Local Business",
+        isFollowing: followedHandles.has(h),
+        isFollower: false,
+        isMutual: false,
+        isMet: false,
+      });
+    }
 
     // 4. PLACES: Liked or followed places, plus an offline landmark fallback
     const placesCatalog = activePlaces();
@@ -212,8 +348,17 @@ export function CirclePage() {
       });
     }
 
-    return list;
-  }, [effectiveFollowerHandles, followedHandles, likedHandles, metList, mine?.city, mine?.handle, profiles]);
+    return sortCircleContacts(list, mine?.city);
+  }, [
+    effectiveFollowerHandles,
+    followedHandles,
+    likedHandles,
+    metList,
+    mine?.city,
+    mine?.handle,
+    organisers,
+    profiles,
+  ]);
 
   // Counts by category
   const counts = useMemo(() => {
@@ -225,10 +370,25 @@ export function CirclePage() {
     };
   }, [allContacts]);
 
+  // Counts by relationship state (scoped to the active category filter)
+  const relationshipCounts = useMemo(() => {
+    const scoped = filter === "all" ? allContacts : allContacts.filter((c) => c.category === filter);
+    return {
+      mutual: scoped.filter((c) => c.isMutual).length,
+      incoming: scoped.filter((c) => c.isFollower && !c.isFollowing).length,
+      met: scoped.filter((c) => c.isMet).length,
+      nearby: mine?.city ? scoped.filter((c) => sameCity(c.city, mine.city)).length : 0,
+    };
+  }, [allContacts, filter, mine?.city]);
+
   // Filtered and searched list
   const filteredContacts = useMemo(() => {
     return allContacts.filter((c) => {
       if (filter !== "all" && c.category !== filter) return false;
+      if (relationshipFilter === "mutual" && !c.isMutual) return false;
+      if (relationshipFilter === "incoming" && !(c.isFollower && !c.isFollowing)) return false;
+      if (relationshipFilter === "met" && !c.isMet) return false;
+      if (relationshipFilter === "nearby" && !sameCity(c.city, mine?.city)) return false;
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase().trim();
       return (
@@ -239,23 +399,47 @@ export function CirclePage() {
         (c.whereMet && c.whereMet.toLowerCase().includes(q))
       );
     });
-  }, [allContacts, filter, searchQuery]);
+  }, [allContacts, filter, mine?.city, relationshipFilter, searchQuery]);
 
   // Connector Rank Quest Progress
   const quest = useMemo(() => {
     return circleQuestProgress({
       hasHandle: Boolean(mine?.handle),
       sharingCity: Boolean(mine?.city),
-      invited: hasMarkedCircleInvite(),
+      invited: invitedSent,
       memberCount: allContacts.length,
     });
-  }, [mine?.handle, mine?.city, allContacts.length]);
+  }, [mine?.handle, mine?.city, invitedSent, allContacts.length]);
 
   const handleShareCircleInvite = () => {
     void triggerHaptic("medium");
-    const url = mine?.handle ? `${window.location.origin}/@${mine.handle}` : `${window.location.origin}/start`;
-    void navigator.clipboard.writeText(url);
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      void navigator.clipboard.writeText(circleInviteUrl);
+    }
     markCircleInviteSent();
+    setInvitedSent(true);
+    toast.success("Circle invite link copied to clipboard!");
+  };
+
+  const handleNativeShareInvite = async () => {
+    void triggerHaptic("medium");
+    markCircleInviteSent();
+    setInvitedSent(true);
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: mine?.name ? `Join ${mine.name}’s Circle on AirPal` : "Join my Circle on AirPal",
+          text: "Connect with me on AirPal so we can catch up and share live events.",
+          url: circleInviteUrl,
+        });
+        return;
+      } catch (err) {
+        if ((err as Error)?.name === "AbortError") return;
+      }
+    }
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      void navigator.clipboard.writeText(circleInviteUrl);
+    }
     toast.success("Circle invite link copied to clipboard!");
   };
 
@@ -263,6 +447,48 @@ export function CirclePage() {
     void triggerHaptic("light");
     toggleFollow(handle, name);
   };
+
+  const handleSaveMetPerson = () => {
+    const cleanName = metName.trim();
+    if (cleanName.length < 2) {
+      toast.message("Enter the name of the person you met.");
+      return;
+    }
+    const cleanHandle = metHandle.trim().replace(/^@+/, "").toLowerCase();
+    const saved = upsertPerson({
+      name: cleanName,
+      handle: cleanHandle || undefined,
+      whereMet: metWhere.trim() || undefined,
+    });
+    setMetList(listPeople());
+    if (cleanHandle && metAlsoFollow && !followedHandles.has(cleanHandle)) {
+      toggleFollow(cleanHandle, saved.name);
+    }
+    void triggerHaptic("success");
+    toast.success(`Added ${saved.name} to your Circle`);
+    setMetName("");
+    setMetHandle("");
+    setMetWhere("");
+    setLogMetOpen(false);
+  };
+
+  const handleSaveVCard = (contact: CircleContact) => {
+    void triggerHaptic("light");
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://airpal.me";
+    void openVCardContact({
+      name: contact.name,
+      url: `${origin}/@${contact.handle}`,
+      note: contact.whereMet ? `Met at ${contact.whereMet} via AirPal Circle` : "Connected on AirPal Circle",
+    });
+  };
+
+  const quickMetSpots = useMemo(() => {
+    const fromCatalog = activePlaces()
+      .slice(0, 3)
+      .map((p) => p.name);
+    if (fromCatalog.length > 0) return fromCatalog;
+    return ["The Rocks Market", "The Glenmore Hotel", mine?.city || "Sydney"];
+  }, [mine?.city]);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] sm:px-6 sm:pb-32">
@@ -279,14 +505,38 @@ export function CirclePage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto">
+          <Button
+            variant="outlined"
+            onClick={() => {
+              void triggerHaptic("light");
+              setLogMetOpen(true);
+            }}
+            className="min-h-[44px] justify-center gap-1.5 px-3.5 text-xs font-semibold active:scale-95"
+            aria-label="Log someone you met in person"
+          >
+            <Handshake size={15} aria-hidden="true" />
+            <span>Log Met IRL</span>
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              void triggerHaptic("light");
+              setQrOpen(true);
+            }}
+            className="min-h-[44px] justify-center gap-1.5 px-3.5 text-xs font-semibold active:scale-95"
+            aria-label="Show Circle QR code"
+          >
+            <QrCode size={15} aria-hidden="true" />
+            <span>QR Pass</span>
+          </Button>
           <Button
             variant="primary"
             onClick={handleShareCircleInvite}
-            className="min-h-[44px] gap-1.5 px-4 text-xs font-semibold shadow-xs active:scale-95"
+            className="col-span-2 sm:col-span-1 min-h-[44px] justify-center gap-1.5 px-4 text-xs font-semibold shadow-xs active:scale-95"
             aria-label="Invite to Circle"
           >
-            <UserPlus size={15} />
+            <UserPlus size={15} aria-hidden="true" />
             <span>Invite to Circle</span>
           </Button>
         </div>
@@ -302,7 +552,7 @@ export function CirclePage() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-mute">Connector Rank</span>
-                <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold text-accent tabular-data">
+                <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold text-accent tabular-nums">
                   Level {quest.level.rank}
                 </span>
               </div>
@@ -311,8 +561,8 @@ export function CirclePage() {
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
-              <span className="text-sm font-bold text-accent tabular-data">{quest.points} pts</span>
-              <p className="text-xs text-mute tabular-data">
+              <span className="text-sm font-bold text-accent tabular-nums">{quest.points} pts</span>
+              <p className="text-xs text-mute tabular-nums">
                 {quest.completed}/{quest.total} quests
               </p>
             </div>
@@ -322,7 +572,7 @@ export function CirclePage() {
                 void triggerHaptic("light");
                 setShowQuests((prev) => !prev);
               }}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-paper ring-1 ring-line text-mute hover:text-ink cursor-pointer"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-paper ring-1 ring-line text-mute hover:text-ink cursor-pointer"
               aria-label={showQuests ? "Hide quests" : "Show quests"}
             >
               {showQuests ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -332,7 +582,7 @@ export function CirclePage() {
 
         <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-line/80">
           <div
-            className="h-full bg-brand transition-all duration-500 rounded-full"
+            className="h-full bg-brand transition-[width] duration-500 rounded-full"
             style={{ width: `${Math.round((quest.completed / quest.total) * 100)}%` }}
           />
         </div>
@@ -349,7 +599,7 @@ export function CirclePage() {
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span
                       className={cn(
-                        "grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold",
+                        "grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold tabular-nums",
                         isDone ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-brand/10 text-accent",
                       )}
                     >
@@ -367,7 +617,7 @@ export function CirclePage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="shrink-0 text-xs h-7 px-2.5 py-0"
+                      className="shrink-0 text-xs min-h-[44px] px-3.5"
                       onClick={() => {
                         void triggerHaptic("light");
                         if (q.id === "handle") nav("/bio/setup");
@@ -388,7 +638,7 @@ export function CirclePage() {
 
       {/* Live Presence Check-In (Clean & Compact) */}
       <div className="mt-4">
-        <HereCheckIn placeName={mine?.city || "Sydney Hub"} />
+        <HereCheckIn placeName={mine?.city || "Nearby"} />
       </div>
 
       {/* Section Divider & Directory Header */}
@@ -396,24 +646,121 @@ export function CirclePage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
             <h2 className="font-display text-xl font-bold text-ink">Circle Directory</h2>
-            <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-bold text-accent">
+            <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-bold text-accent tabular-nums">
               {allContacts.length}
             </span>
           </div>
+          {relationshipCounts.incoming > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("selection");
+                setRelationshipFilter((prev) => (prev === "incoming" ? "all" : "incoming"));
+              }}
+              className={cn(
+                "inline-flex min-h-[36px] items-center gap-1.5 self-start sm:self-auto rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer",
+                relationshipFilter === "incoming"
+                  ? "bg-brand text-white"
+                  : "bg-brand/10 text-accent ring-1 ring-brand/25 hover:bg-brand/15",
+              )}
+            >
+              <UserCheck size={13} aria-hidden="true" />
+              <span className="tabular-nums">
+                {relationshipCounts.incoming} {relationshipCounts.incoming === 1 ? "follows you" : "follow you"}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Filter Tabs: Places | Communities | Friends */}
         <FilterChips
           ariaLabel="Contact filters"
           options={[
-            { id: "all", label: "All", icon: Sparkles, count: counts.all },
-            { id: "friends", label: "Friends", icon: Users, count: counts.friends },
-            { id: "communities", label: "Communities", icon: Building2, count: counts.communities },
-            { id: "places", label: "Places", icon: Store, count: counts.places },
+            { id: "all", label: "All", icon: Sparkles, count: counts.all > 0 ? counts.all : undefined },
+            { id: "friends", label: "Friends", icon: Users, count: counts.friends > 0 ? counts.friends : undefined },
+            {
+              id: "communities",
+              label: "Communities",
+              icon: Building2,
+              count: counts.communities > 0 ? counts.communities : undefined,
+            },
+            { id: "places", label: "Places", icon: Store, count: counts.places > 0 ? counts.places : undefined },
           ]}
           value={filter}
-          onChange={setFilter}
+          onChange={(next) => {
+            setFilter(next);
+            setRelationshipFilter("all");
+          }}
         />
+
+        {/* Relationship Sub-Filter Pills */}
+        {(relationshipCounts.mutual > 0 ||
+          relationshipCounts.incoming > 0 ||
+          relationshipCounts.met > 0 ||
+          relationshipCounts.nearby > 0) && (
+          <div className="mt-2.5 flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by relationship">
+            {(
+              [
+                { id: "all" as const, label: "All relationships", count: undefined, show: true },
+                {
+                  id: "mutual" as const,
+                  label: "Mutuals",
+                  count: relationshipCounts.mutual,
+                  show: relationshipCounts.mutual > 0,
+                },
+                {
+                  id: "incoming" as const,
+                  label: "Follows you",
+                  count: relationshipCounts.incoming,
+                  show: relationshipCounts.incoming > 0,
+                },
+                {
+                  id: "met" as const,
+                  label: "Met IRL",
+                  count: relationshipCounts.met,
+                  show: relationshipCounts.met > 0,
+                },
+                {
+                  id: "nearby" as const,
+                  label: mine?.city ? `In ${mine.city}` : "Same city",
+                  count: relationshipCounts.nearby,
+                  show: relationshipCounts.nearby > 0,
+                },
+              ] as const
+            )
+              .filter((pill) => pill.show)
+              .map((pill) => {
+                const active = relationshipFilter === pill.id;
+                return (
+                  <button
+                    key={pill.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => {
+                      void triggerHaptic("selection");
+                      setRelationshipFilter((prev) => (prev === pill.id && pill.id !== "all" ? "all" : pill.id));
+                    }}
+                    className={cn(
+                      "inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition cursor-pointer",
+                      active ? "bg-ink text-card shadow-2xs" : "bg-paper text-mute ring-1 ring-line hover:text-ink",
+                    )}
+                  >
+                    <span>{pill.label}</span>
+                    {pill.count !== undefined && (
+                      <span
+                        className={cn(
+                          "rounded-full px-1.5 py-0.2 text-[11px] font-bold tabular-nums",
+                          active ? "bg-card/20 text-card" : "bg-card text-ink",
+                        )}
+                      >
+                        {pill.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+          </div>
+        )}
 
         {/* Clean Search Input */}
         <div className="relative mt-3.5">
@@ -423,14 +770,14 @@ export function CirclePage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, @handle, community, or precinct..."
-            className="w-full min-h-[44px] rounded-2xl bg-card pl-10 pr-9 text-xs text-ink placeholder:text-mute ring-1 ring-line focus:outline-hidden focus:ring-2 focus:ring-brand/40"
+            className="w-full min-h-[44px] rounded-2xl bg-card pl-10 pr-9 text-base sm:text-sm text-ink placeholder:text-mute ring-1 ring-line focus:outline-hidden focus:ring-2 focus:ring-brand/40"
             aria-label="Search contacts"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-mute hover:text-ink p-1"
+              className="absolute right-1 top-1/2 grid min-h-[44px] min-w-[44px] -translate-y-1/2 place-items-center text-mute hover:text-ink cursor-pointer"
               aria-label="Clear search"
             >
               <X size={14} />
@@ -452,21 +799,34 @@ export function CirclePage() {
                 )}
               </div>
               <h3 className="font-display mt-3 text-base font-bold text-ink">
-                {searchQuery ? "No matches found" : `No ${filter} yet`}
+                {searchQuery || relationshipFilter !== "all"
+                  ? "No matches found"
+                  : filter === "all"
+                    ? "No contacts yet"
+                    : `No ${filter} yet`}
               </h3>
               <p className="mt-1 text-sm text-mute max-w-sm mx-auto">
                 {searchQuery
-                  ? `No contacts matched "${searchQuery}". Try a different name or clear the filter.`
-                  : filter === "places"
-                    ? "Follow local spots, cafes, and bars to stay updated on perks and live events."
-                    : filter === "communities"
-                      ? "No communities yet — find your people at events."
-                      : "Add friends by sharing your bio link or connecting in person."}
+                  ? `No contacts matched “${searchQuery}”. Try a different name or clear the filter.`
+                  : relationshipFilter !== "all"
+                    ? "No contacts in this relationship view yet. Try switching back to all relationships."
+                    : filter === "places"
+                      ? "Follow local spots, cafes, and bars to stay updated on perks and live events."
+                      : filter === "communities"
+                        ? "No communities yet — find your people at events."
+                        : "Add friends by sharing your bio link or logging people you meet in person."}
               </p>
-              <div className="mt-5 flex justify-center gap-2">
-                {searchQuery ? (
-                  <Button variant="ghost" size="sm" onClick={() => setSearchQuery("")}>
-                    Clear Search
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                {searchQuery || relationshipFilter !== "all" ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setRelationshipFilter("all");
+                    }}
+                  >
+                    Reset Filters
                   </Button>
                 ) : filter === "places" ? (
                   <Button variant="primary" size="sm" onClick={() => openGlobalSearch({ category: "places" })}>
@@ -477,9 +837,14 @@ export function CirclePage() {
                     Browse Events
                   </Button>
                 ) : (
-                  <Button variant="primary" size="sm" onClick={handleShareCircleInvite}>
-                    Invite Friends
-                  </Button>
+                  <>
+                    <Button variant="outlined" size="sm" onClick={() => setLogMetOpen(true)}>
+                      Log Met IRL
+                    </Button>
+                    <Button variant="primary" size="sm" onClick={handleShareCircleInvite}>
+                      Invite Friends
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
@@ -487,7 +852,7 @@ export function CirclePage() {
             filteredContacts.map((contact) => (
               <div
                 key={contact.id}
-                className="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay transition-all duration-200 hover:shadow-clay-hover hover:border-line"
+                className="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay transition-[box-shadow,border-color] duration-200 hover:shadow-clay-hover hover:border-line"
               >
                 {/* Left: Avatar & Contact Metadata */}
                 <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
@@ -497,6 +862,9 @@ export function CirclePage() {
                       <img
                         src={contact.avatar}
                         alt={contact.name}
+                        width={48}
+                        height={48}
+                        loading="lazy"
                         className="h-12 w-12 rounded-full object-cover ring-1 ring-line/80 shadow-2xs"
                       />
                     ) : (
@@ -514,10 +882,11 @@ export function CirclePage() {
                     {/* Mutual Connection Badge Dot */}
                     {contact.isMutual && (
                       <span
-                        className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white ring-2 ring-card"
+                        className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-card"
                         title="Mutual connection"
+                        aria-hidden="true"
                       >
-                        ✓
+                        <Check size={10} strokeWidth={3.5} />
                       </span>
                     )}
                   </div>
@@ -561,14 +930,26 @@ export function CirclePage() {
                 </div>
 
                 {/* Right: Actions */}
-                <div className="flex items-center gap-2 shrink-0 self-end sm:self-center pt-2 sm:pt-0">
+                <div className="flex w-full sm:w-auto items-center justify-end gap-2 shrink-0 border-t border-line/50 pt-3 sm:border-0 sm:pt-0">
+                  {contact.isMet && (
+                    <button
+                      type="button"
+                      onClick={() => handleSaveVCard(contact)}
+                      className="inline-flex min-h-[44px] min-w-[44px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-paper px-2.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-card hover:text-ink active:scale-95"
+                      aria-label={`Save contact card for ${contact.name}`}
+                      title="Save to phone contacts"
+                    >
+                      <Contact size={14} aria-hidden="true" />
+                    </button>
+                  )}
+
                   {/* Prominent Follow Back / Following button */}
                   {contact.isFollower && !contact.isFollowing ? (
                     <Button
                       variant="primary"
                       size="sm"
                       onClick={() => handleToggleFollow(contact.handle, contact.name)}
-                      className="min-h-[44px] gap-1 px-3.5 text-xs font-bold shadow-xs active:scale-95"
+                      className="min-h-[44px] flex-1 sm:flex-initial justify-center gap-1 px-3.5 text-xs font-bold shadow-xs active:scale-95"
                       aria-label={`Follow back ${contact.name}`}
                     >
                       <UserCheck size={14} />
@@ -579,7 +960,7 @@ export function CirclePage() {
                       variant={contact.isFollowing ? "outlined" : "light"}
                       size="sm"
                       onClick={() => handleToggleFollow(contact.handle, contact.name)}
-                      className="min-h-[44px] px-3.5 text-xs font-semibold active:scale-95"
+                      className="min-h-[44px] flex-1 sm:flex-initial justify-center px-3.5 text-xs font-semibold active:scale-95"
                       aria-label={contact.isFollowing ? `Unfollow ${contact.name}` : `Follow ${contact.name}`}
                     >
                       {contact.isFollowing ? "Following" : "Follow"}
@@ -590,7 +971,7 @@ export function CirclePage() {
                   {contact.category === "places" ? (
                     <Link
                       href={`/@${contact.handle}`}
-                      className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
+                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
                       aria-label={`View place ${contact.name}`}
                     >
                       View
@@ -598,7 +979,7 @@ export function CirclePage() {
                   ) : contact.category === "communities" ? (
                     <Link
                       href="/events"
-                      className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
+                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
                       aria-label={`Find events near ${contact.name}`}
                     >
                       Events →
@@ -607,10 +988,10 @@ export function CirclePage() {
                     <button
                       type="button"
                       onClick={() => setCatchUpContact({ handle: contact.handle, name: contact.name })}
-                      className="inline-flex min-h-[44px] cursor-pointer items-center gap-1 rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
+                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
                       aria-label={`Propose a catch-up with ${contact.name}`}
                     >
-                      <CalendarDays size={13} />
+                      <CalendarDays size={13} className="shrink-0" />
                       <span>Catch up</span>
                     </button>
                   )}
@@ -627,14 +1008,213 @@ export function CirclePage() {
           <h3 className="human-section-title text-base">Grow your circle?</h3>
           <p className="text-sm text-mute mt-0.5">Invite family or a friend with your Circle link in one tap.</p>
         </div>
+        <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto shrink-0">
+          <Button
+            variant="outlined"
+            onClick={() => setQrOpen(true)}
+            className="min-h-[44px] justify-center gap-1.5 px-4 text-sm font-semibold active:scale-95"
+          >
+            <QrCode size={15} aria-hidden="true" />
+            <span>Show QR</span>
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleShareCircleInvite}
+            className="min-h-[44px] justify-center px-5 text-sm font-semibold shadow-xs active:scale-95"
+          >
+            Invite to Circle
+          </Button>
+        </div>
+      </div>
+
+      {/* Log Person Met IRL Sheet */}
+      <Sheet open={logMetOpen} onClose={() => setLogMetOpen(false)} title="Log Someone You Met">
+        <p className="text-sm leading-6 text-mute">
+          Remember who you met and where you crossed paths. They’ll appear in your Circle with a one-tap catch-up.
+        </p>
+        <div className="mt-4 space-y-3.5">
+          <label className="block">
+            <span className="text-xs font-semibold text-mute">Their Name *</span>
+            <input
+              value={metName}
+              onChange={(e) => setMetName(e.target.value.slice(0, 60))}
+              placeholder="e.g. Maya Lin"
+              className={`${fieldInput} mt-1`}
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold text-mute">AirPal @handle (optional)</span>
+            <input
+              value={metHandle}
+              onChange={(e) => setMetHandle(e.target.value.replace(/^@+/, "").slice(0, 30))}
+              placeholder="maya"
+              className={`${fieldInput} mt-1`}
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold text-mute">Where did you meet?</span>
+            <div className="relative mt-1">
+              <MapPin size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
+              <input
+                value={metWhere}
+                onChange={(e) => setMetWhere(e.target.value.slice(0, 80))}
+                placeholder="The Rocks Market"
+                className={`${fieldInput} pl-10`}
+              />
+            </div>
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {quickMetSpots.map((spot) => (
+              <button
+                key={spot}
+                type="button"
+                onClick={() => setMetWhere(spot)}
+                className={cn(
+                  "min-h-[36px] rounded-full px-3 py-1 text-xs font-medium ring-1 ring-line transition cursor-pointer",
+                  metWhere === spot ? "bg-brand/10 text-accent ring-brand/30" : "bg-paper text-mute hover:text-ink",
+                )}
+              >
+                {spot}
+              </button>
+            ))}
+          </div>
+
+          {metHandle.trim().length > 0 && (
+            <label className="flex min-h-[44px] cursor-pointer items-center gap-3 pt-1">
+              <input
+                type="checkbox"
+                className="h-5 w-5 accent-[#004eff]"
+                checked={metAlsoFollow}
+                onChange={(e) => setMetAlsoFollow(e.target.checked)}
+              />
+              <span className="text-sm text-ink">
+                Also follow <span className="font-semibold">@{metHandle.trim().replace(/^@+/, "")}</span> on AirPal
+              </span>
+            </label>
+          )}
+        </div>
+        <Button className="mt-5 w-full min-h-[44px]" onClick={handleSaveMetPerson}>
+          Save to Circle
+        </Button>
+        <button
+          type="button"
+          onClick={() => setLogMetOpen(false)}
+          className="mt-2 min-h-[44px] w-full text-center text-sm font-medium text-mute hover:text-ink cursor-pointer"
+        >
+          Cancel
+        </button>
+      </Sheet>
+
+      {/* In-Person My Digital Bio Pass Sheet */}
+      <Sheet open={qrOpen} onClose={() => setQrOpen(false)} title="My Digital Bio Pass">
+        <p className="text-sm leading-6 text-mute">
+          Have a friend scan this in person to open your AirPal bio, save your contact card, or add to Apple &amp;
+          Google Wallet.
+        </p>
+        <div className="mt-4 overflow-hidden rounded-3xl bg-paper ring-1 ring-line">
+          <div className="flex items-center justify-between bg-gradient-to-r from-[#0c1024] via-[#141b38] to-[#0a0d1e] px-4 py-3 text-white">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white/85">
+              <ShieldCheck size={13} className="text-emerald-400" aria-hidden="true" />
+              <span>AirPal.Me · Digital Bio Pass</span>
+            </span>
+            {mine?.handle && <span className="font-mono text-xs font-semibold text-amber-300">@{mine.handle}</span>}
+          </div>
+          <div className="flex flex-col items-center p-5">
+            {qrDataUrl ? (
+              <img
+                src={qrDataUrl}
+                alt="Your Circle QR code"
+                width={220}
+                height={220}
+                className="h-[220px] w-[220px] rounded-2xl bg-white p-2.5 shadow-2xs ring-1 ring-line/60"
+              />
+            ) : (
+              <div className="grid h-[220px] w-[220px] place-items-center rounded-2xl bg-card text-xs text-mute ring-1 ring-line">
+                Generating QR…
+              </div>
+            )}
+            <p className="mt-3 font-display text-base font-bold text-ink">{mine?.name || "AirPal Member"}</p>
+            <p className="text-xs text-mute">
+              {mine?.handle ? `@${mine.handle}` : "Claim your @handle to personalise"}
+              {mine?.city ? ` · ${mine.city}` : ""}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <Button
+            variant="outlined"
+            onClick={handleShareCircleInvite}
+            className="min-h-[44px] gap-1.5 px-2.5 text-xs font-semibold"
+          >
+            <Copy size={14} aria-hidden="true" />
+            <span>Copy</span>
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              void triggerHaptic("light");
+              void openVCardContact({
+                name: mine?.name || (mine?.handle ? `@${mine.handle}` : "AirPal Member"),
+                url: circleInviteUrl,
+                note: mine?.city ? `AirPal Digital Bio Pass · ${mine.city}` : "AirPal Digital Bio Pass",
+              });
+            }}
+            className="min-h-[44px] gap-1.5 px-2.5 text-xs font-semibold"
+          >
+            <Contact size={14} className="text-emerald-600" aria-hidden="true" />
+            <span>vCard</span>
+          </Button>
+          {qrDataUrl ? (
+            <a
+              href={qrDataUrl}
+              download={`airpal-${mine?.handle || "circle"}-qr.png`}
+              onClick={() => void triggerHaptic("light")}
+              className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-2.5 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+            >
+              <Download size={14} aria-hidden="true" />
+              <span>QR PNG</span>
+            </a>
+          ) : (
+            <Button
+              variant="primary"
+              onClick={() => void handleNativeShareInvite()}
+              className="min-h-[44px] gap-1.5 px-2.5 text-xs font-semibold"
+            >
+              <Share2 size={14} aria-hidden="true" />
+              <span>Share</span>
+            </Button>
+          )}
+        </div>
+
+        {mine?.handle && (
+          <div className="mt-3 space-y-2">
+            <AppleWalletButton
+              className="w-full justify-center min-h-[44px]"
+              onClick={() => {
+                const passUrl = businessCardWalletPassUrl(mine.handle);
+                void openAppleWalletPass(passUrl, "@" + mine.handle + "-AirPal-Pass");
+              }}
+            />
+            <GoogleWalletButton
+              className="w-full justify-center min-h-[44px]"
+              onClick={() => {
+                void openGoogleWalletPass(googleWalletCardUrl(mine.handle));
+              }}
+            />
+          </div>
+        )}
+
         <Button
           variant="primary"
-          onClick={handleShareCircleInvite}
-          className="shrink-0 min-h-[44px] px-5 text-sm font-semibold shadow-xs active:scale-95"
+          onClick={() => void handleNativeShareInvite()}
+          className="mt-3 w-full min-h-[44px] gap-1.5 text-xs font-semibold"
         >
-          Invite to Circle
+          <Share2 size={14} aria-hidden="true" />
+          <span>Share Digital Bio Pass</span>
         </Button>
-      </div>
+      </Sheet>
+
       {catchUpContact && (
         <BioCatchUpModal
           open

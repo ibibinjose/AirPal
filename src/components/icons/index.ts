@@ -9,7 +9,7 @@
  */
 
 // Core icon components
-export { Icon } from "./Icon";
+export { Icon, IconBadge, type IconBadgeProps } from "./Icon";
 
 // Utilities & mappings
 export {

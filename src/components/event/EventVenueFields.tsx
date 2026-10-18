@@ -90,13 +90,13 @@ export function EventVenueFields({
                 type="button"
                 onClick={() => onLocationType(mode.id as EventLocationType)}
                 className={cn(
-                  "flex items-center justify-center gap-1.5 rounded-2xl py-3 px-2 text-xs font-bold transition active:scale-95 ring-1 cursor-pointer",
+                  "flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl px-2 py-2.5 text-xs font-bold transition active:scale-95 ring-1 cursor-pointer",
                   on
                     ? "bg-brand text-white ring-brand shadow-sm"
                     : "bg-paper text-mute ring-line hover:text-ink hover:bg-card",
                 )}
               >
-                <Icon size={14} />
+                <Icon size={14} className="shrink-0" />
                 <span>{mode.label}</span>
               </button>
             );
@@ -166,18 +166,18 @@ export function EventVenueFields({
           )}
 
           {geo && (
-            <div className="flex items-center justify-between rounded-2xl bg-paper px-3 py-2 text-xs text-mute border border-line/70">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-paper px-3 py-2 text-xs text-mute border border-line/70">
               <span className="flex items-center gap-1.5 text-ink font-medium">
-                <Check size={14} className="text-emerald-600" />
+                <Check size={14} className="shrink-0 text-emerald-600" />
                 GPS Pinned: {geo.lat.toFixed(4)}, {geo.lng.toFixed(4)}
               </span>
               <a
                 href={mapsPlaceUrl(geo, venue || mapName)}
                 target="_blank"
                 rel="noreferrer"
-                className="text-accent font-semibold hover:underline inline-flex items-center gap-1"
+                className="text-accent font-semibold hover:underline inline-flex items-center gap-1 whitespace-nowrap"
               >
-                View map <ExternalLink size={12} />
+                View map <ExternalLink size={12} className="shrink-0" />
               </a>
             </div>
           )}

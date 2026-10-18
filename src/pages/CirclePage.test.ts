@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CirclePage } from "./CirclePage";
+import { CirclePage, sortCircleContacts, type CircleContact } from "./CirclePage";
 
 vi.mock("wouter", () => ({
   useLocation: () => ["/circle", vi.fn()],
@@ -38,6 +38,12 @@ vi.mock("@/contexts/BioContext", () => ({
   }),
 }));
 
+vi.mock("@/contexts/EventsContext", () => ({
+  useEvents: () => ({
+    calendarEvents: [],
+  }),
+}));
+
 vi.mock("@/contexts/SocialContext", () => ({
   useSocial: () => ({
     followedHandles: new Set<string>(),
@@ -61,6 +67,8 @@ vi.mock("@/lib/people", () => ({
       metAt: "2026-10-10",
     },
   ],
+  upsertPerson: vi.fn(),
+  openVCardContact: vi.fn(),
 }));
 
 vi.mock("@/components/circle/HereCheckIn", () => ({
@@ -68,10 +76,12 @@ vi.mock("@/components/circle/HereCheckIn", () => ({
 }));
 
 describe("CirclePage", () => {
-  it("renders the networking circle header and invite button", () => {
+  it("renders the networking circle header, QR pass, Log Met IRL, and invite button", () => {
     const markup = renderToStaticMarkup(createElement(CirclePage));
     expect(markup).toContain("My Circle");
     expect(markup).toContain("Networking Circle");
+    expect(markup).toContain("Log Met IRL");
+    expect(markup).toContain("QR Pass");
     expect(markup).toContain("Invite to Circle");
   });
 
@@ -81,6 +91,14 @@ describe("CirclePage", () => {
     expect(markup).toContain(">Friends<");
     expect(markup).toContain(">Communities<");
     expect(markup).toContain(">Places<");
+  });
+
+  it("renders relationship sub-filter pills for Follows you, Met IRL, and city", () => {
+    const markup = renderToStaticMarkup(createElement(CirclePage));
+    expect(markup).toContain("All relationships");
+    expect(markup).toContain("Follows you");
+    expect(markup).toContain("Met IRL");
+    expect(markup).toContain("In Sydney");
   });
 
   it("renders contact-list view with search input", () => {
@@ -103,11 +121,64 @@ describe("CirclePage", () => {
     expect(markup).not.toContain("in common");
   });
 
-  it("displays met-in-person friends and no seed cohort community", () => {
+  it("displays met-in-person friends with vCard save action and no seed cohort community", () => {
     const markup = renderToStaticMarkup(createElement(CirclePage));
     expect(markup).toContain("Maya Lin");
     expect(markup).toContain("Met at The Rocks Market");
+    expect(markup).toContain('aria-label="Save contact card for Maya Lin"');
     expect(markup).not.toContain("Scape Darling Square");
     expect(markup).not.toContain("Resident Cohort");
+  });
+
+  it("prioritizes mutuals, incoming followers, and met friends in sortCircleContacts", () => {
+    const base: Omit<CircleContact, "id" | "handle" | "name" | "isFollowing" | "isFollower" | "isMutual" | "isMet"> = {
+      category: "friends",
+      categoryLabel: "Friend",
+      city: "Sydney",
+    };
+    const contacts: CircleContact[] = [
+      {
+        ...base,
+        id: "4",
+        handle: "zoe",
+        name: "Zoe",
+        isFollowing: true,
+        isFollower: false,
+        isMutual: false,
+        isMet: false,
+      },
+      {
+        ...base,
+        id: "2",
+        handle: "bibin",
+        name: "Bibin",
+        isFollowing: false,
+        isFollower: true,
+        isMutual: false,
+        isMet: false,
+      },
+      {
+        ...base,
+        id: "3",
+        handle: "maya",
+        name: "Maya",
+        isFollowing: false,
+        isFollower: false,
+        isMutual: false,
+        isMet: true,
+      },
+      {
+        ...base,
+        id: "1",
+        handle: "alex",
+        name: "Alex",
+        isFollowing: true,
+        isFollower: true,
+        isMutual: true,
+        isMet: false,
+      },
+    ];
+    const sorted = sortCircleContacts(contacts, "Sydney");
+    expect(sorted.map((c) => c.handle)).toEqual(["alex", "bibin", "maya", "zoe"]);
   });
 });

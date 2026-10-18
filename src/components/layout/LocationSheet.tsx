@@ -257,12 +257,12 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
             </div>
 
             {/* Region Tabs */}
-            <div className="flex items-center gap-1.5 mb-3">
+            <div className="no-scrollbar -mx-5 mb-3 flex items-center gap-1.5 overflow-x-auto px-5 pb-1 sm:mx-0 sm:px-0">
               <button
                 type="button"
                 onClick={() => setFilter("all")}
                 className={cn(
-                  "rounded-full px-3.5 py-1 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "all" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
@@ -272,7 +272,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 type="button"
                 onClick={() => setFilter("india")}
                 className={cn(
-                  "rounded-full px-3.5 py-1 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "india" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
@@ -282,7 +282,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 type="button"
                 onClick={() => setFilter("uae")}
                 className={cn(
-                  "rounded-full px-3.5 py-1 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "uae" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
@@ -292,7 +292,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 type="button"
                 onClick={() => setFilter("europe")}
                 className={cn(
-                  "rounded-full px-3.5 py-1 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "europe" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
@@ -302,7 +302,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 type="button"
                 onClick={() => setFilter("northamerica")}
                 className={cn(
-                  "rounded-full px-3.5 py-1 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "northamerica" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
@@ -312,7 +312,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 type="button"
                 onClick={() => setFilter("australia")}
                 className={cn(
-                  "rounded-full px-3.5 py-1 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "australia" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
@@ -322,7 +322,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 type="button"
                 onClick={() => setFilter("international")}
                 className={cn(
-                  "rounded-full px-3.5 py-1 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "international" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >

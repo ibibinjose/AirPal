@@ -143,23 +143,23 @@ export function TicketPage() {
     >
       <div className="mx-auto max-w-lg px-4 pt-4 md:pt-6">
         {/* Navigation Bar */}
-        <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center justify-between gap-2 mb-4">
           <Link
             href="/me/tickets"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer touch-manipulation"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 text-xs sm:text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer touch-manipulation whitespace-nowrap"
           >
-            <ArrowLeft size={14} aria-hidden="true" />
+            <ArrowLeft size={14} className="shrink-0" aria-hidden="true" />
             <span>Passbook Wallet</span>
           </Link>
 
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-amber-400/30">
-            <Ticket size={13} aria-hidden="true" />
+          <div className="hidden min-[400px]:inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-amber-400/30 whitespace-nowrap">
+            <Ticket size={13} className="shrink-0" aria-hidden="true" />
             <span>AirPal Pass</span>
           </div>
 
           <Link
             href="/pass"
-            className="inline-flex min-h-[44px] items-center text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation"
+            className="inline-flex min-h-[44px] shrink-0 items-center text-xs sm:text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation whitespace-nowrap"
           >
             AirPal Pass →
           </Link>
@@ -178,16 +178,16 @@ export function TicketPage() {
                 : "bg-card text-ink ring-line hover:bg-paper",
             )}
           >
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
               <div
                 className={cn(
-                  "grid h-9 w-9 place-items-center rounded-xl",
+                  "grid h-9 w-9 shrink-0 place-items-center rounded-xl",
                   brightnessBoost ? "bg-black/15 text-neutral-950" : "bg-amber-500/15 text-amber-600",
                 )}
               >
                 {brightnessBoost ? <Sun size={18} /> : <SunMedium size={18} />}
               </div>
-              <div className="text-left">
+              <div className="text-left min-w-0">
                 <p className="text-sm font-bold leading-tight">
                   {brightnessBoost ? "Screen Brightness Boosted" : "Boost Brightness for Door Scanner"}
                 </p>
@@ -200,7 +200,7 @@ export function TicketPage() {
             </div>
             <span
               className={cn(
-                "rounded-full px-2.5 py-1 text-[11px] font-extrabold",
+                "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-extrabold whitespace-nowrap",
                 brightnessBoost ? "bg-neutral-950 text-white" : "bg-paper text-accent ring-1 ring-line",
               )}
             >
@@ -211,7 +211,7 @@ export function TicketPage() {
 
         {/* Staff / Holder View Switcher (If Entitled) */}
         {booking && isStaff && (
-          <div className="mb-4 flex items-center gap-2 rounded-2xl bg-paper p-1.5 ring-1 ring-line">
+          <div className="mb-4 flex items-center gap-1.5 rounded-2xl bg-paper p-1.5 ring-1 ring-line">
             <button
               type="button"
               onClick={() => {
@@ -219,7 +219,7 @@ export function TicketPage() {
                 setMode("pass");
               }}
               className={cn(
-                "flex-1 min-h-[44px] rounded-xl text-xs font-bold transition active:scale-95 cursor-pointer touch-manipulation",
+                "flex-1 min-h-[44px] px-2.5 rounded-xl text-xs font-bold transition active:scale-95 cursor-pointer touch-manipulation whitespace-nowrap",
                 mode === "pass" ? "bg-card text-ink shadow-xs ring-1 ring-line" : "text-mute hover:text-ink",
               )}
             >
@@ -232,7 +232,7 @@ export function TicketPage() {
                 setMode("gate");
               }}
               className={cn(
-                "flex-1 min-h-[44px] rounded-xl text-xs font-bold transition active:scale-95 cursor-pointer touch-manipulation",
+                "flex-1 min-h-[44px] px-2.5 rounded-xl text-xs font-bold transition active:scale-95 cursor-pointer touch-manipulation whitespace-nowrap",
                 mode === "gate" ? "bg-card text-ink shadow-xs ring-1 ring-line" : "text-mute hover:text-ink",
               )}
             >

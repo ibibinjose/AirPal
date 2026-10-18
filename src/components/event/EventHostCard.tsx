@@ -168,24 +168,24 @@ export function EventHostCard({
             }}
             aria-pressed={isFollowing(cleanHandle)}
             className={cn(
-              "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-bold transition active:scale-95 cursor-pointer touch-manipulation ring-1",
+              "inline-flex min-h-[44px] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-sm font-bold transition active:scale-95 cursor-pointer touch-manipulation ring-1",
               isFollowing(cleanHandle)
                 ? "bg-paper text-ink ring-line hover:bg-card"
                 : "bg-brand text-white ring-brand hover:bg-brand-ink",
             )}
           >
             {isFollowing(cleanHandle) ? (
-              <UserCheck size={15} aria-hidden="true" />
+              <UserCheck size={15} className="shrink-0" aria-hidden="true" />
             ) : (
-              <UserPlus size={15} aria-hidden="true" />
+              <UserPlus size={15} className="shrink-0" aria-hidden="true" />
             )}
-            <span>{isFollowing(cleanHandle) ? "Following" : `Follow ${displayName}`}</span>
+            <span className="truncate">{isFollowing(cleanHandle) ? "Following" : `Follow ${displayName}`}</span>
           </button>
           <Link
             href={bioPath(cleanHandle)}
-            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full bg-paper px-3 text-sm font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 touch-manipulation"
+            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-3 text-sm font-bold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 touch-manipulation"
           >
-            <MessageCircle size={15} className="text-accent" aria-hidden="true" />
+            <MessageCircle size={15} className="shrink-0 text-accent" aria-hidden="true" />
             <span>Contact the Host</span>
           </Link>
         </div>

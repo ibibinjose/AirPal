@@ -19,8 +19,10 @@ export function AppleWalletButton({ className, variant = "standard", onClick, ..
         onClick?.(e);
       }}
       className={cn(
-        "group relative inline-flex items-center justify-center gap-2 rounded-xl bg-black text-white font-medium shadow-md transition-all duration-200 hover:bg-neutral-900 active:scale-[0.98] ring-1 ring-white/20 select-none cursor-pointer",
-        variant === "standard" ? "px-4 py-2.5 text-xs tracking-tight" : "px-3 py-1.5 text-[11px]",
+        "group relative inline-flex touch-manipulation items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-black text-white font-medium shadow-md transition-all duration-200 hover:bg-neutral-900 active:scale-[0.98] ring-1 ring-white/20 select-none cursor-pointer",
+        variant === "standard"
+          ? "min-h-[44px] px-4 py-2.5 text-xs tracking-tight"
+          : "min-h-[40px] px-3 py-1.5 text-[11px]",
         className,
       )}
       {...props}
@@ -39,7 +41,7 @@ export function AppleWalletButton({ className, variant = "standard", onClick, ..
         <path d="M5 20H21" stroke="#FF9500" strokeWidth="2.5" strokeLinecap="round" />
         <circle cx="25" cy="20" r="2" fill="#FF2D55" />
       </svg>
-      <span className="font-semibold text-white/95 group-hover:text-white">
+      <span className="whitespace-nowrap font-semibold text-white/95 group-hover:text-white">
         Add to <span className="font-bold">Apple Wallet</span>
       </span>
     </button>

@@ -274,13 +274,13 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
                 if (toggleGoing(event.id) && !event.isGoing) toast.success("Marked as Going");
               }}
               className={cn(
-                "flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full text-xs font-medium transition active:scale-95",
+                "flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition active:scale-95",
                 event.isGoing
-                  ? "bg-leaf text-ink shadow-sm ring-1 ring-leaf/60 font-semibold"
-                  : "bg-card text-ink hover:bg-leaf/10 ring-1 ring-line/80",
+                  ? "bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-700 font-semibold"
+                  : "bg-card text-ink hover:bg-emerald-500/10 ring-1 ring-line/80",
               )}
             >
-              <Check size={14} strokeWidth={event.isGoing ? 3 : 2} />
+              <Check size={14} className="shrink-0" strokeWidth={event.isGoing ? 3 : 2} />
               <span>Going</span>
             </button>
 
@@ -290,15 +290,15 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
                 if (toggleInterested(event.id) && !event.isInterested) toast.success("Added to Interested");
               }}
               className={cn(
-                "flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full text-xs font-medium transition active:scale-95",
+                "flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition active:scale-95",
                 event.isInterested
-                  ? "bg-mango text-ink shadow-sm ring-1 ring-mango/60 font-semibold"
-                  : "bg-card text-ink hover:bg-mango/10 ring-1 ring-line/80",
+                  ? "bg-amber-500 text-white shadow-sm ring-1 ring-amber-600 font-semibold"
+                  : "bg-card text-ink hover:bg-amber-500/10 ring-1 ring-line/80",
               )}
             >
               <Star
                 size={14}
-                className={event.isInterested ? "fill-current" : ""}
+                className={cn("shrink-0", event.isInterested ? "fill-current" : "")}
                 strokeWidth={event.isInterested ? 2.5 : 2}
               />
               <span>Interested</span>
@@ -312,10 +312,10 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
                 if (toggleLiked(event.id) && !event.isLiked) toast.success("Liked event");
               }}
               className={cn(
-                "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition active:scale-95",
+                "inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full transition active:scale-95",
                 event.isLiked
-                  ? "bg-rose text-white shadow-sm ring-1 ring-rose/60"
-                  : "bg-card text-ink hover:bg-rose/10 ring-1 ring-line/80",
+                  ? "bg-rose-500 text-white shadow-sm ring-1 ring-rose-600"
+                  : "bg-card text-ink hover:bg-rose-500/10 ring-1 ring-line/80",
               )}
             >
               <Heart size={15} className={event.isLiked ? "fill-white" : ""} strokeWidth={event.isLiked ? 2.5 : 2} />
@@ -340,9 +340,9 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
               onClose();
               setReschedulingEvent(event);
             }}
-            className="col-span-2 inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-paper px-4 text-xs font-medium text-ink hover:bg-amber-50 hover:text-amber-900 transition ring-1 ring-line/60"
+            className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-4 text-xs font-medium text-ink hover:bg-amber-50 hover:text-amber-900 transition ring-1 ring-line/60"
           >
-            <Clock size={14} className="text-amber-600" />
+            <Clock size={14} className="shrink-0 text-amber-600" />
             <span>Reschedule Date / Slot</span>
           </button>
 
@@ -350,9 +350,9 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
             <button
               type="button"
               onClick={() => exportItinerary("all-saved")}
-              className="col-span-2 inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-paper px-4 text-xs font-semibold text-accent hover:bg-brand/10 transition ring-1 ring-brand/30 shadow-xs"
+              className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-4 text-xs font-semibold text-accent hover:bg-brand/10 transition ring-1 ring-brand/30 shadow-xs"
             >
-              <Sparkles size={14} />
+              <Sparkles size={14} className="shrink-0" />
               <span>Export Full Saved Itinerary (.ics)</span>
             </button>
           )}
@@ -364,10 +364,10 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
                 onClose();
                 nav(event.gatePath!);
               }}
-              className="col-span-2 inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-brand px-4 text-xs font-medium text-white hover:bg-brand-ink transition shadow-sm"
+              className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-4 text-xs font-medium text-white hover:bg-brand-ink transition shadow-sm"
             >
               <span>Explore Market Directory & Stalls</span>
-              <ExternalLink size={13} />
+              <ExternalLink size={13} className="shrink-0" />
             </button>
           )}
 
@@ -375,10 +375,10 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
             <button
               type="button"
               onClick={() => window.open(event.ticketUrl, "_blank")}
-              className="col-span-2 inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-brand px-4 text-xs font-medium text-white hover:bg-brand-ink transition shadow-sm"
+              className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-4 text-xs font-medium text-white hover:bg-brand-ink transition shadow-sm"
             >
               <span>Get Tickets / Official Details</span>
-              <ExternalLink size={13} />
+              <ExternalLink size={13} className="shrink-0" />
             </button>
           )}
         </div>
@@ -386,9 +386,9 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
         <button
           type="button"
           onClick={handleShare}
-          className="mt-3 flex w-full items-center justify-center gap-1.5 py-1 text-xs text-mute hover:text-ink transition"
+          className="mt-3 flex min-h-[44px] w-full items-center justify-center gap-1.5 py-1 text-xs text-mute hover:text-ink transition"
         >
-          <Share2 size={13} />
+          <Share2 size={13} className="shrink-0" />
           <span>Share event with friends</span>
         </button>
       </div>

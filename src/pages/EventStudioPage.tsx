@@ -640,12 +640,12 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
               </div>
 
               {/* Mobile View Toggle */}
-              <div className="flex lg:hidden items-center rounded-2xl bg-paper p-1 ring-1 ring-line shadow-xs">
+              <div className="flex w-full sm:w-auto lg:hidden items-center rounded-2xl bg-paper p-1 ring-1 ring-line shadow-xs">
                 <button
                   type="button"
                   onClick={() => setMobilePreview(false)}
                   className={cn(
-                    "px-3 py-1.5 text-xs font-bold rounded-xl transition",
+                    "min-h-[40px] flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-bold rounded-xl transition whitespace-nowrap",
                     !mobilePreview ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
                   )}
                 >
@@ -655,11 +655,11 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                   type="button"
                   onClick={() => setMobilePreview(true)}
                   className={cn(
-                    "px-3 py-1.5 text-xs font-bold rounded-xl transition flex items-center gap-1",
+                    "min-h-[40px] flex-1 sm:flex-initial px-3.5 py-1.5 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 whitespace-nowrap",
                     mobilePreview ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
                   )}
                 >
-                  <Eye size={12} />
+                  <Eye size={13} className="shrink-0" />
                   <span>Preview</span>
                 </button>
               </div>
@@ -826,8 +826,8 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                           aria-pressed={repeatCount === n}
                           className={
                             repeatCount === n
-                              ? "rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-sm"
-                              : "rounded-full bg-paper px-4 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink"
+                              ? "min-h-[40px] rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-sm whitespace-nowrap"
+                              : "min-h-[40px] rounded-full bg-paper px-4 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink whitespace-nowrap"
                           }
                         >
                           {n === 1 ? "Once" : `Weekly × ${n}`}
@@ -885,7 +885,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                 {/* Publish Status */}
                 <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-accent">7. Status</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {(
                       [
                         ["live", "Go live now · Public Gate QR active"],
@@ -900,7 +900,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                           aria-pressed={on}
                           onClick={() => setStatus(id)}
                           className={cn(
-                            "rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold ring-1 transition text-left",
+                            "min-h-[44px] rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold ring-1 transition text-left",
                             on
                               ? "bg-brand text-white ring-brand shadow-sm"
                               : "bg-paper text-mute ring-line hover:text-ink",
@@ -1080,41 +1080,41 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
 
       <div className="relative mx-auto max-w-4xl px-4 pb-24 pt-4">
         {/* Breadcrumb Navigation Bar */}
-        <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/pass"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
             >
-              <ArrowLeft size={13} />
+              <ArrowLeft size={13} className="shrink-0" />
               <span>AirPal Pass</span>
             </Link>
             <Link
               href="/events"
-              className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+              className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
             >
               <span>Browse Events</span>
             </Link>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href={`/e/${activeEvent.id}/manage`}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
             >
               <span>Manage Event</span>
             </Link>
             <Link
               href={`/e/${activeEvent.id}/guests`}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-accent ring-1 ring-line hover:bg-paper transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-xs font-semibold text-accent ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
             >
-              <Users size={13} />
+              <Users size={13} className="shrink-0" />
               <span>Door Guestlist</span>
             </Link>
             <Link
               href="/scan"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 px-3 text-xs font-bold shadow-xs hover:opacity-90 transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 px-3 text-xs font-bold shadow-xs hover:opacity-90 transition whitespace-nowrap"
             >
-              <QrCode size={13} />
+              <QrCode size={13} className="shrink-0" />
               <span>Door Scanner</span>
             </Link>
           </div>
@@ -1166,10 +1166,10 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold shadow-xs hover:bg-card"
+                className="gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold shadow-xs hover:bg-card whitespace-nowrap"
                 onClick={() => nav(activeEvent.gatePath)}
               >
-                <ExternalLink size={13} className="text-accent" />
+                <ExternalLink size={13} className="shrink-0 text-accent" />
                 <span>Guest Directory</span>
               </Button>
             </div>
@@ -1191,8 +1191,8 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
           </div>
         </div>
 
-        {/* Tab Navigation Pill Bar — sticky so long manage views keep their sections */}
-        <div className="sticky top-2 z-20 mt-5 flex rounded-2xl bg-paper p-1.5 ring-1 ring-line shadow-xs">
+        {/* Tab Navigation Pill Bar — sticky & horizontally scrollable on mobile so 5 tabs never crush */}
+        <div className="sticky top-2 z-20 mt-5 flex overflow-x-auto no-scrollbar rounded-2xl bg-paper p-1.5 ring-1 ring-line shadow-xs gap-1">
           {(
             [
               { id: "today", label: "Overview", icon: LayoutGrid, count: undefined },
@@ -1212,11 +1212,11 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
               type="button"
               onClick={() => setTab(item.id)}
               className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 h-10 rounded-xl text-xs sm:text-sm font-semibold capitalize transition active:scale-95",
+                "flex shrink-0 px-3.5 sm:flex-1 sm:px-2 items-center justify-center gap-1.5 min-h-[40px] rounded-xl text-xs sm:text-sm font-semibold capitalize transition active:scale-95 whitespace-nowrap",
                 tab === item.id ? "bg-brand text-white shadow-sm" : "text-mute hover:text-ink hover:bg-white/50",
               )}
             >
-              <item.icon size={15} />
+              <item.icon size={15} className="shrink-0" />
               <span>{item.label}</span>
               {typeof item.count === "number" && item.count > 0 && (
                 <span
@@ -1396,7 +1396,7 @@ export function EventStudioPage({ eventId }: { eventId?: string }) {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
                           {labels.unit}

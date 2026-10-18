@@ -10,7 +10,6 @@ import {
   Headphones,
   Images,
   Info,
-  Languages,
   LogIn,
   LogOut,
   PencilLine,
@@ -28,7 +27,6 @@ import { useBio } from "@/contexts/BioContext";
 import { createSubmitGuard } from "@/lib/submit-guard";
 import { useEvents } from "@/contexts/EventsContext";
 import { AvatarFace } from "@/components/auth/MeAvatar";
-import { LanguageSwitch } from "@/components/layout/LanguageSwitch";
 import { AVAILABILITY_STATUSES, bioKindLabel, resolveStatusPicks, type AvailabilityStatus } from "@shared/bio";
 import { toast } from "sonner";
 import { NAMES } from "@shared/names";
@@ -438,18 +436,6 @@ export function ProfileMenu() {
             </div>
           </div>
         )}
-
-        {/* Language Switch */}
-        <div
-          id="profile-menu-language-selector"
-          className="mt-2.5 flex items-center justify-between rounded-xl border border-line/80 bg-card/60 px-2.5 py-1.5"
-        >
-          <div className="flex items-center gap-1.5 text-xs font-medium text-mute">
-            <Languages size={14} className="text-accent shrink-0" />
-            <span>Language</span>
-          </div>
-          <LanguageSwitch size="sm" />
-        </div>
       </div>
 
       {/* AirPal Me */}
@@ -578,18 +564,6 @@ export function ProfileMenu() {
         <p className="mt-0.5 text-xs text-mute leading-relaxed">
           Sign in to see what&#39;s on, get event passes, connect with friends, and discover experiences.
         </p>
-
-        {/* Language selector under welcome header */}
-        <div
-          id="profile-menu-guest-language-selector"
-          className="mt-3 flex items-center justify-between rounded-xl border border-line/80 bg-card/60 px-2.5 py-1.5"
-        >
-          <div className="flex items-center gap-1.5 text-xs font-medium text-mute">
-            <Languages size={14} className="text-accent shrink-0" />
-            <span>Language</span>
-          </div>
-          <LanguageSwitch size="sm" />
-        </div>
       </div>
 
       <div className="mt-2 space-y-1">

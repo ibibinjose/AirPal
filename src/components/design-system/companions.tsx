@@ -36,7 +36,7 @@ export function SegmentedControl<T extends string>({
             onChange(o.id);
           }}
           className={cn(
-            "min-h-[44px] flex-1 cursor-pointer touch-manipulation rounded-full px-4 text-[14px] font-semibold whitespace-nowrap transition active:scale-[0.98]",
+            "min-h-[44px] shrink-0 flex-1 cursor-pointer touch-manipulation rounded-full px-3.5 sm:px-4 text-[13px] sm:text-[14px] font-semibold whitespace-nowrap transition active:scale-[0.98]",
             value === o.id
               ? "bg-brand text-white shadow-[0_6px_14px_-8px_rgba(18,22,20,0.3)]"
               : "text-mute hover:text-ink",

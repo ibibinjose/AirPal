@@ -245,15 +245,15 @@ export function CreateFab({ showFab = true }: { showFab?: boolean } = {}) {
                   </div>
 
                   {/* Footer Hub Link */}
-                  <div className="mt-4 pt-3 border-t border-line/60 flex items-center justify-between">
+                  <div className="mt-4 pt-3 border-t border-line/60 flex items-center justify-between gap-2">
                     <span className="text-xs text-mute">Looking for partner tools?</span>
                     <button
                       type="button"
                       onClick={() => handleSelect("/business")}
-                      className="-my-3 inline-flex min-h-[44px] items-center gap-1 text-xs font-bold text-accent hover:underline cursor-pointer"
+                      className="-my-3 inline-flex min-h-[44px] shrink-0 whitespace-nowrap items-center gap-1 text-xs font-bold text-accent hover:underline cursor-pointer"
                     >
                       <span>Open Business Hub</span>
-                      <ArrowRight size={13} />
+                      <ArrowRight size={13} className="shrink-0" />
                     </button>
                   </div>
                 </motion.div>

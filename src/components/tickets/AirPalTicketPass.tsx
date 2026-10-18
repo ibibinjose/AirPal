@@ -159,15 +159,25 @@ export function AirPalTicketPass({ booking, guestName, hostName, showActions = t
           <div className="flex gap-2">
             <Link
               href={`/ticket/${booking.id}`}
-              className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-2xl bg-paper px-3 text-xs font-semibold text-accent ring-1 ring-line hover:bg-card transition"
+              className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-3 text-xs font-semibold text-accent ring-1 ring-line hover:bg-card transition"
             >
-              <Ticket size={13} /> Full Pass
+              <Ticket size={13} className="shrink-0" /> Full Pass
             </Link>
-            <Button size="sm" variant="ghost" className="flex-1 gap-1.5 ring-1 ring-line" onClick={print}>
-              <Download size={14} /> PDF
+            <Button
+              size="sm"
+              variant="ghost"
+              className="flex-1 gap-1.5 whitespace-nowrap ring-1 ring-line"
+              onClick={print}
+            >
+              <Download size={14} className="shrink-0" /> PDF
             </Button>
-            <Button size="sm" variant="ghost" className="flex-1 gap-1.5 ring-1 ring-line" onClick={() => void share()}>
-              <Share2 size={14} /> Share
+            <Button
+              size="sm"
+              variant="ghost"
+              className="flex-1 gap-1.5 whitespace-nowrap ring-1 ring-line"
+              onClick={() => void share()}
+            >
+              <Share2 size={14} className="shrink-0" /> Share
             </Button>
           </div>
         </div>

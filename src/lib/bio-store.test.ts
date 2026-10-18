@@ -83,4 +83,11 @@ describe("profileFromDoc", () => {
     expect(profileFromDoc("p2", { handle: "leo", starTier: "City Emperor" }).starTier).toBeUndefined();
     expect(profileFromDoc("p3", { handle: "zoe" }).starTier).toBeUndefined();
   });
+
+  it("normalizes legacy AirPal Mate categoryTag to AirPal Star", () => {
+    expect(profileFromDoc("p1", { handle: "bibinjose", categoryTag: "AirPal Mate" }).categoryTag).toBe("AirPal Star");
+    expect(profileFromDoc("p2", { handle: "maya", categoryTag: "Creator & Artist" }).categoryTag).toBe(
+      "Creator & Artist",
+    );
+  });
 });

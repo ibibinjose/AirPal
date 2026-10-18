@@ -316,8 +316,8 @@ export function SearchQueriesDashboardTab() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Date Preset Buttons */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              <span className="text-xs font-bold text-mute uppercase tracking-wider mr-1 flex items-center gap-1">
-                <Calendar size={13} />
+              <span className="shrink-0 whitespace-nowrap text-xs font-bold text-mute uppercase tracking-wider mr-1 flex items-center gap-1">
+                <Calendar size={13} className="shrink-0" />
                 <span>Date Range:</span>
               </span>
               {[
@@ -335,7 +335,7 @@ export function SearchQueriesDashboardTab() {
                     setDatePreset(p.id as DateRangePreset);
                   }}
                   className={cn(
-                    "rounded-full px-3 py-1.5 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
+                    "shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                     datePreset === p.id
                       ? "bg-brand text-white shadow-xs"
                       : "bg-paper text-mute hover:text-ink ring-1 ring-line",
@@ -348,12 +348,14 @@ export function SearchQueriesDashboardTab() {
 
             {/* Chart Orientation Switcher */}
             <div className="flex items-center gap-1 bg-paper p-1 rounded-xl ring-1 ring-line text-xs font-medium text-mute">
-              <span className="px-2 text-[11px] font-bold uppercase tracking-wider">Layout:</span>
+              <span className="shrink-0 whitespace-nowrap px-2 text-[11px] font-bold uppercase tracking-wider">
+                Layout:
+              </span>
               <button
                 type="button"
                 onClick={() => setChartOrientation("horizontal")}
                 className={cn(
-                  "rounded-lg px-2.5 py-1 text-xs transition cursor-pointer",
+                  "shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs transition cursor-pointer",
                   chartOrientation === "horizontal" ? "bg-card text-ink font-bold shadow-2xs" : "hover:text-ink",
                 )}
               >
@@ -363,7 +365,7 @@ export function SearchQueriesDashboardTab() {
                 type="button"
                 onClick={() => setChartOrientation("vertical")}
                 className={cn(
-                  "rounded-lg px-2.5 py-1 text-xs transition cursor-pointer",
+                  "shrink-0 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs transition cursor-pointer",
                   chartOrientation === "vertical" ? "bg-card text-ink font-bold shadow-2xs" : "hover:text-ink",
                 )}
               >
@@ -407,8 +409,8 @@ export function SearchQueriesDashboardTab() {
 
           {/* Category Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 border-t border-line/60 pt-3">
-            <span className="text-xs font-bold text-mute uppercase tracking-wider mr-1 flex items-center gap-1">
-              <Filter size={12} />
+            <span className="shrink-0 whitespace-nowrap text-xs font-bold text-mute uppercase tracking-wider mr-1 flex items-center gap-1">
+              <Filter size={12} className="shrink-0" />
               <span>Vertical:</span>
             </span>
             {[
@@ -427,7 +429,7 @@ export function SearchQueriesDashboardTab() {
                   setSelectedCategory(cat.id);
                 }}
                 className={cn(
-                  "rounded-full px-2.5 py-1 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
+                  "shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                   selectedCategory === cat.id
                     ? "bg-brand text-white shadow-2xs"
                     : "bg-paper text-mute hover:text-ink ring-1 ring-line/80",

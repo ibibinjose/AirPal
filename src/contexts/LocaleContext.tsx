@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, type ReactNode } from "react";
 import { translate, type Lang } from "@/lib/i18n";
 
 const KEY = "airpal.lang";
@@ -11,37 +11,27 @@ type LocaleValue = {
 
 const LocaleContext = createContext<LocaleValue | undefined>(undefined);
 
-function readLang(): Lang {
-  try {
-    const stored = localStorage.getItem(KEY);
-    if (stored === "zh" || stored === "en") return stored;
-  } catch {
-    /* ignore */
-  }
-  return "en";
-}
-
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en");
+  const lang: Lang = "en";
 
   useEffect(() => {
-    setLangState(readLang());
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.lang = lang === "zh" ? "zh-Hans" : "en";
-  }, [lang]);
-
-  const setLang = useCallback((next: Lang) => {
-    setLangState(next);
+    document.documentElement.lang = "en";
     try {
-      localStorage.setItem(KEY, next);
+      localStorage.setItem(KEY, "en");
     } catch {
       /* ignore */
     }
   }, []);
 
-  const t = useCallback((key: string) => translate(lang, key), [lang]);
+  const setLang = useCallback(() => {
+    try {
+      localStorage.setItem(KEY, "en");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const t = useCallback((key: string) => translate("en", key), []);
 
   return <LocaleContext.Provider value={{ lang, setLang, t }}>{children}</LocaleContext.Provider>;
 }

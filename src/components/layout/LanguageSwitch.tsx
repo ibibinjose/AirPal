@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 
 export function LanguageSwitch({ className, size = "md" }: { className?: string; size?: "sm" | "md" }) {
   const { lang, setLang } = useLocale();
+  if (LANGS.length <= 1) return null;
   const isSm = size === "sm";
 
   return (
@@ -28,7 +29,7 @@ export function LanguageSwitch({ className, size = "md" }: { className?: string;
             setLang(item.id);
           }}
           className={cn(
-            "rounded-full font-semibold transition touch-manipulation cursor-pointer",
+            "shrink-0 whitespace-nowrap rounded-full font-semibold transition touch-manipulation cursor-pointer",
             isSm ? "h-6 sm:h-7 px-2 text-[10px]" : "h-7 sm:h-8 px-2.5 text-[11px]",
             lang === item.id ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
           )}

@@ -361,49 +361,55 @@ export function BioCatchUpModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-mute">Date</label>
-              <div className="relative">
-                <Calendar size={14} className="absolute left-3.5 top-3.5 text-mute" />
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
-                />
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-mute">
+                  Date
+                </label>
+                <div className="relative">
+                  <Calendar size={14} className="absolute left-3.5 top-3.5 text-mute" />
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
+                  />
+                </div>
               </div>
-              <div className="mt-1.5 flex gap-1.5">
-                {[
-                  ["Today", 0],
-                  ["Tomorrow", 1],
-                  ["Weekend", 3],
-                ].map(([label, days]) => (
-                  <button
-                    key={String(label)}
-                    type="button"
-                    onClick={() => {
-                      void triggerHaptic("light");
-                      setDate(localDate(Number(days)));
-                    }}
-                    className="min-h-[44px] rounded-lg bg-card px-2.5 py-1 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
-                  >
-                    {label}
-                  </button>
-                ))}
+              <div>
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-mute">
+                  Time
+                </label>
+                <div className="relative">
+                  <Clock size={14} className="absolute left-3.5 top-3.5 text-mute" />
+                  <input
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
+                  />
+                </div>
               </div>
             </div>
-            <div>
-              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-mute">Time</label>
-              <div className="relative">
-                <Clock size={14} className="absolute left-3.5 top-3.5 text-mute" />
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-3 text-[16px] sm:text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
-                />
-              </div>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                ["Today", 0],
+                ["Tomorrow", 1],
+                ["Weekend", 3],
+              ].map(([label, days]) => (
+                <button
+                  key={String(label)}
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("light");
+                    setDate(localDate(Number(days)));
+                  }}
+                  className="min-h-[40px] flex-1 sm:flex-initial whitespace-nowrap rounded-xl bg-card px-3 py-1.5 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -426,13 +432,13 @@ export function BioCatchUpModal({
                   setMeetingPlatform("in_person");
                 }}
                 className={cn(
-                  "min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
+                  "min-h-[44px] flex items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1.5 py-2 text-[11px] sm:text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                   meetingPlatform === "in_person"
                     ? "bg-paper text-ink shadow-xs ring-1 ring-line/80 font-bold"
                     : "text-mute hover:text-ink",
                 )}
               >
-                <MapPin size={13} />
+                <MapPin size={13} className="shrink-0" />
                 <span>In Person</span>
               </button>
               <button
@@ -443,13 +449,13 @@ export function BioCatchUpModal({
                   if (!meetingLink && defaultMeetingUrl) setMeetingLink(defaultMeetingUrl);
                 }}
                 className={cn(
-                  "min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
+                  "min-h-[44px] flex items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1.5 py-2 text-[11px] sm:text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                   meetingPlatform === "google_meet"
                     ? "bg-brand/10 text-accent ring-1 ring-brand/30 shadow-xs font-bold"
                     : "text-mute hover:text-ink",
                 )}
               >
-                <Video size={13} />
+                <Video size={13} className="shrink-0" />
                 <span>Google Meet</span>
               </button>
               <button
@@ -460,13 +466,13 @@ export function BioCatchUpModal({
                   if (!meetingLink && defaultMeetingUrl) setMeetingLink(defaultMeetingUrl);
                 }}
                 className={cn(
-                  "min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
+                  "min-h-[44px] flex items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1.5 py-2 text-[11px] sm:text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                   meetingPlatform === "facetime"
                     ? "bg-emerald-500/15 text-emerald-800 ring-1 ring-emerald-500/30 shadow-xs font-bold"
                     : "text-mute hover:text-ink",
                 )}
               >
-                <PhoneCall size={13} />
+                <PhoneCall size={13} className="shrink-0" />
                 <span>FaceTime</span>
               </button>
             </div>
@@ -574,18 +580,18 @@ export function BioCatchUpModal({
               </>
             )}
           </Button>
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <button
               type="button"
               onClick={handleToggleReminder}
               className={cn(
-                "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
+                "inline-flex min-h-[44px] whitespace-nowrap items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
                 isRemembered
                   ? "bg-amber-500/15 text-amber-800 ring-amber-500/40 font-bold"
                   : "bg-card text-ink ring-line hover:bg-paper",
               )}
             >
-              <Bell size={13} className={isRemembered ? "fill-amber-500 text-amber-600" : ""} />
+              <Bell size={13} className={cn("shrink-0", isRemembered ? "fill-amber-500 text-amber-600" : "")} />
               {isRemembered ? "Reminder on ✓" : "Remind me"}
             </button>
             <AddToCalendarMenu

@@ -156,7 +156,7 @@ export function MyTicketsPage() {
         <div className="mt-6 space-y-4">
           {/* Filter Segmented Tabs */}
           <div
-            className="flex items-center gap-2 rounded-2xl bg-paper p-1 ring-1 ring-line"
+            className="flex items-center gap-1.5 sm:gap-2 rounded-2xl bg-paper p-1 ring-1 ring-line"
             role="tablist"
             aria-label="Filter tickets"
           >
@@ -169,12 +169,12 @@ export function MyTicketsPage() {
                 setTab("upcoming");
               }}
               className={cn(
-                "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition active:scale-95",
+                "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-2.5 sm:px-3 text-xs sm:text-sm font-semibold transition active:scale-95 whitespace-nowrap",
                 tab === "upcoming" ? "bg-card text-ink shadow-xs ring-1 ring-line" : "text-mute hover:text-ink",
               )}
             >
               <span>Upcoming</span>
-              <span className="rounded-full bg-brand/10 px-1.5 py-0.5 text-xs font-bold text-accent tabular-data">
+              <span className="rounded-full bg-brand/10 px-1.5 py-0.5 text-[11px] font-bold text-accent tabular-data">
                 {upcomingBookings.length}
               </span>
             </button>
@@ -188,12 +188,12 @@ export function MyTicketsPage() {
                 setTab("past");
               }}
               className={cn(
-                "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition active:scale-95",
+                "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-2.5 sm:px-3 text-xs sm:text-sm font-semibold transition active:scale-95 whitespace-nowrap",
                 tab === "past" ? "bg-card text-ink shadow-xs ring-1 ring-line" : "text-mute hover:text-ink",
               )}
             >
               <span>Past</span>
-              <span className="rounded-full bg-paper px-1.5 py-0.5 text-xs font-bold text-mute ring-1 ring-line tabular-data">
+              <span className="rounded-full bg-paper px-1.5 py-0.5 text-[11px] font-bold text-mute ring-1 ring-line tabular-data">
                 {pastBookings.length}
               </span>
             </button>
@@ -207,12 +207,12 @@ export function MyTicketsPage() {
                 setTab("all");
               }}
               className={cn(
-                "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition active:scale-95",
+                "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl px-2.5 sm:px-3 text-xs sm:text-sm font-semibold transition active:scale-95 whitespace-nowrap",
                 tab === "all" ? "bg-card text-ink shadow-xs ring-1 ring-line" : "text-mute hover:text-ink",
               )}
             >
               <span>All</span>
-              <span className="rounded-full bg-paper px-1.5 py-0.5 text-xs font-bold text-mute ring-1 ring-line tabular-data">
+              <span className="rounded-full bg-paper px-1.5 py-0.5 text-[11px] font-bold text-mute ring-1 ring-line tabular-data">
                 {bookings.length}
               </span>
             </button>

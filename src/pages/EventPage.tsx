@@ -237,7 +237,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
   return (
     <div className="min-h-screen pb-44 lg:pb-24">
       {/* Top Glass Navigation Bar */}
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-line/60 bg-card/80 px-4 py-3 backdrop-blur-xl transition">
+      <div className="sticky top-0 z-30 flex items-center justify-between gap-2 border-b border-line/60 bg-card/80 px-4 py-2.5 backdrop-blur-xl transition">
         <button
           type="button"
           onClick={() => {
@@ -247,24 +247,24 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
               nav("/pass");
             }
           }}
-          className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-mute hover:text-ink transition cursor-pointer"
+          className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 text-xs font-semibold text-mute hover:text-ink transition cursor-pointer whitespace-nowrap"
         >
-          <ArrowLeft size={15} />
+          <ArrowLeft size={15} className="shrink-0" />
           <span>Back</span>
         </button>
 
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3.5 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-amber-400/30">
-          <Ticket size={13} />
+        <div className="hidden min-[380px]:inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-amber-400/30 whitespace-nowrap">
+          <Ticket size={13} className="shrink-0" />
           <span>AirPal Pass</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Link
             href={`/e/${event.id}/manage`}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-3 py-1 text-xs font-bold transition hover:opacity-90 shadow-xs active:scale-95"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-3.5 py-1 text-xs font-bold transition hover:opacity-90 shadow-xs active:scale-95 whitespace-nowrap"
             title="Manage Event"
           >
-            <Settings size={13} />
+            <Settings size={13} className="shrink-0" />
             <span>Manage</span>
           </Link>
 
@@ -272,7 +272,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
             type="button"
             onClick={handleShare}
             aria-label="Share event"
-            className="grid h-9 w-9 place-items-center rounded-full bg-card ring-1 ring-line text-mute hover:text-ink transition cursor-pointer active:scale-95 shadow-xs"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-card ring-1 ring-line text-mute hover:text-ink transition cursor-pointer active:scale-95 shadow-xs"
             title="Share"
           >
             <Share2 size={15} />
@@ -597,15 +597,18 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
               </Link>
             </div>
           ) : (
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-col min-[380px]:flex-row gap-2.5 pt-2">
               {ev.ticketUrl && (
-                <Button className="flex-1 min-h-[44px] font-bold" onClick={() => window.open(ev.ticketUrl, "_blank")}>
+                <Button
+                  className="flex-1 min-h-[44px] font-bold whitespace-nowrap"
+                  onClick={() => window.open(ev.ticketUrl, "_blank")}
+                >
                   Official Tickets
                 </Button>
               )}
               <Button
                 variant="ghost"
-                className="flex-1 min-h-[44px] ring-1 ring-line font-bold"
+                className="flex-1 min-h-[44px] ring-1 ring-line font-bold whitespace-nowrap"
                 onClick={() => nav("/calendar")}
               >
                 Calendar Schedule

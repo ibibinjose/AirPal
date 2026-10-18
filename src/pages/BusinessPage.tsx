@@ -335,19 +335,19 @@ export function BusinessPage() {
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex w-full sm:w-auto flex-wrap items-center gap-2">
           <Link
             href="/business/onboard"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-paper px-3.5 py-2 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs active:scale-[0.98]"
+            className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-xl bg-paper px-3.5 py-2 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs active:scale-[0.98] whitespace-nowrap"
           >
-            <Plus className="h-4 w-4 text-accent" />
+            <Plus className="h-4 w-4 shrink-0 text-accent" />
             <span>Add Venue</span>
           </Link>
           <Link
             href="/business/promotions/new"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-paper px-3.5 py-2 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs active:scale-[0.98]"
+            className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-xl bg-paper px-3.5 py-2 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs active:scale-[0.98] whitespace-nowrap"
           >
-            <Plus className="h-4 w-4 text-accent" />
+            <Plus className="h-4 w-4 shrink-0 text-accent" />
             <span>Create offer</span>
           </Link>
           <Button
@@ -355,8 +355,9 @@ export function BusinessPage() {
             size="sm"
             onClick={() => setShowDeleteModal(true)}
             title="Remove / Unlink this venue"
+            className="shrink-0 whitespace-nowrap"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4 shrink-0" />
             <span className="hidden sm:inline">Remove Venue</span>
           </Button>
         </div>
@@ -364,75 +365,80 @@ export function BusinessPage() {
 
       {/* Top Header Card with Cover & Fast Action Hub */}
       <header className="overflow-hidden rounded-[32px] bg-card ring-1 ring-line shadow-clay">
-        <div className="relative h-44 sm:h-56 w-full overflow-hidden bg-zinc-900">
+        <div className="relative min-h-[12rem] sm:h-56 w-full overflow-hidden bg-zinc-900">
           <Photo
             src={hero || mine.heroImage || "/media/harbour.jpg"}
-            className="h-full w-full object-cover opacity-85"
+            className="absolute inset-0 h-full w-full object-cover opacity-85"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/20" />
 
-          <div className="absolute left-5 top-5 flex items-center gap-2">
-            <span className="rounded-full bg-black/40 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-md ring-1 ring-white/20">
-              {NAMES.yourPlace} · Partner Hub
-            </span>
-            <span className="rounded-full bg-emerald-500/80 px-2.5 py-0.5 text-[11px] font-bold uppercase text-white backdrop-blur-md">
-              {mine.status === "active" ? "Live on Map" : "Draft"}
-            </span>
-          </div>
-
-          <div className="absolute bottom-4 left-5 right-5 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h1 className="font-display text-2xl sm:text-3xl font-bold text-white drop-shadow-sm text-balance">
-                {mine.name}
-              </h1>
-              <p className="text-sm text-white/80 flex items-center gap-1.5 mt-0.5">
-                <MapPin className="h-3.5 w-3.5 text-amber-300" aria-hidden="true" />
-                {address.city || "Sydney"}, Australia · Category:{" "}
-                <span className="capitalize font-semibold">{category}</span>
-              </p>
+          <div className="relative z-10 flex h-full min-h-[12rem] sm:min-h-[14rem] flex-col justify-between p-4 sm:p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-black/40 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-md ring-1 ring-white/20 whitespace-nowrap">
+                {NAMES.yourPlace} · Partner Hub
+              </span>
+              <span className="rounded-full bg-emerald-500/80 px-2.5 py-0.5 text-[11px] font-bold uppercase text-white backdrop-blur-md whitespace-nowrap">
+                {mine.status === "active" ? "Live on Map" : "Draft"}
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <BioHandleButton handle={handle} className="shadow-md" />
-              <button
-                type="button"
-                onClick={() => nav(hrefForPlace(listingToPlace(mine)))}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-white/90 px-4 py-2 text-xs font-bold text-ink backdrop-blur-md hover:bg-white transition shadow-sm active:scale-95 cursor-pointer"
-              >
-                <Eye className="h-3.5 w-3.5 text-accent" />
-                Guest View
-              </button>
+
+            <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
+              <div className="min-w-0">
+                <h1 className="font-display text-2xl sm:text-3xl font-bold text-white drop-shadow-sm text-balance">
+                  {mine.name}
+                </h1>
+                <p className="text-sm text-white/80 flex flex-wrap items-center gap-1.5 mt-0.5">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-amber-300" aria-hidden="true" />
+                  <span>{address.city || "Sydney"}, Australia · Category:</span>
+                  <span className="capitalize font-semibold">{category}</span>
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <BioHandleButton handle={handle} className="shadow-md" />
+                <button
+                  type="button"
+                  onClick={() => nav(hrefForPlace(listingToPlace(mine)))}
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-white/90 px-4 py-2 text-xs font-bold text-ink backdrop-blur-md hover:bg-white transition shadow-sm active:scale-95 cursor-pointer whitespace-nowrap"
+                >
+                  <Eye className="h-3.5 w-3.5 shrink-0 text-accent" />
+                  <span>Guest View</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Global Business Quick Action Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line/60 bg-paper/50 px-5 py-3 text-xs">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+        <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar sm:flex-wrap border-t border-line/60 bg-paper/50 px-4 sm:px-5 py-2.5 text-xs">
+          <div className="flex items-center gap-2 sm:flex-wrap sm:gap-3">
             <Link
               href="/helpdesk"
-              className="inline-flex items-center gap-1.5 font-semibold text-accent hover:underline"
+              className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 py-1.5 font-semibold text-accent ring-1 ring-line/60 hover:ring-brand/40 transition whitespace-nowrap"
             >
-              <Headphones className="h-3.5 w-3.5" />
+              <Headphones className="h-3.5 w-3.5 shrink-0" />
               <span>Universal Help Desk</span>
             </Link>
             <Link
               href="/pulse"
-              className="inline-flex items-center gap-1.5 font-semibold text-ink/80 hover:text-accent hover:underline"
+              className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
             >
-              <Activity className="h-3.5 w-3.5 text-indigo-500" />
+              <Activity className="h-3.5 w-3.5 shrink-0 text-indigo-500" />
               <span>Guest Pulse & Standees</span>
             </Link>
             <Link
               href="/business/promotions"
-              className="inline-flex items-center gap-1.5 font-semibold text-ink/80 hover:text-accent hover:underline"
+              className="inline-flex min-h-[36px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
             >
-              <Gift className="h-3.5 w-3.5 text-amber-500" />
+              <Gift className="h-3.5 w-3.5 shrink-0 text-amber-500" />
               <span>Promotions & Giveaways</span>
             </Link>
           </div>
-          <Link href="/bio/edit" className="inline-flex items-center gap-1 font-semibold text-mute hover:text-ink">
+          <Link
+            href="/bio/edit"
+            className="inline-flex min-h-[36px] shrink-0 items-center gap-1 rounded-full bg-card px-3 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap"
+          >
             <span>Edit Link-in-Bio</span>
-            <ArrowRight className="h-3 w-3" />
+            <ArrowRight className="h-3 w-3 shrink-0" />
           </Link>
         </div>
       </header>
@@ -632,7 +638,7 @@ export function BusinessPage() {
 
                 {/* Location & GPS */}
                 <div className="border-t border-line/60 pt-4 space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2.5">
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-mute">
                         Physical Location & GPS
@@ -666,9 +672,9 @@ export function BusinessPage() {
                           .catch((err) => toast.error(err instanceof Error ? err.message : "Location pin failed"))
                           .finally(() => setLocating(false));
                       }}
-                      className="gap-1.5"
+                      className="gap-1.5 shrink-0 whitespace-nowrap"
                     >
-                      <MapPin className="h-3.5 w-3.5 text-accent" />
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-accent" />
                       {locating ? "Locating…" : geo ? `GPS Pinned (${formatGps(geo.lat, geo.lng)})` : "Use My Location"}
                     </Button>
                   </div>

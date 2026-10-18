@@ -507,10 +507,10 @@ export function BioSetupPage() {
           <PhoneField value={phone} onChange={setPhone} required />
 
           <div className="flex gap-2 pt-2">
-            <Button variant="ghost" className="flex-1" onClick={() => setStep(1)}>
+            <Button variant="ghost" className="px-5 shrink-0" onClick={() => setStep(1)}>
               Back
             </Button>
-            <Button className="flex-1" onClick={nextBusiness} loading={locating} disabled={locating}>
+            <Button className="flex-1 justify-center" onClick={nextBusiness} loading={locating} disabled={locating}>
               Next · Hours & details
             </Button>
           </div>
@@ -527,7 +527,7 @@ export function BioSetupPage() {
                 onClick={() => setCategory(c.id)}
                 aria-pressed={category === c.id}
                 className={cn(
-                  "inline-flex min-h-[44px] items-center rounded-full px-4 text-sm transition active:scale-95",
+                  "inline-flex min-h-[44px] items-center whitespace-nowrap rounded-full px-4 text-sm transition active:scale-95",
                   category === c.id ? "bg-brand text-white shadow-xs" : "bg-card ring-1 ring-line",
                 )}
               >
@@ -569,10 +569,10 @@ export function BioSetupPage() {
             </>
           )}
           <div className="flex gap-2">
-            <Button variant="ghost" className="flex-1" onClick={() => setStep(2)}>
+            <Button variant="ghost" className="flex-1 justify-center" onClick={() => setStep(2)}>
               Back
             </Button>
-            <Button className="flex-1" disabled={busy} loading={busy} onClick={() => void finish()}>
+            <Button className="flex-1 justify-center" disabled={busy} loading={busy} onClick={() => void finish()}>
               Publish
             </Button>
           </div>
@@ -582,7 +582,7 @@ export function BioSetupPage() {
       {!asBusiness && (
         <button
           type="button"
-          className="mt-5 w-full text-center text-sm text-accent"
+          className="mt-5 min-h-[44px] w-full text-center text-sm font-medium text-accent hover:underline"
           onClick={() => nav("/bio/setup?kind=business")}
         >
           Register the business — Google listings live there

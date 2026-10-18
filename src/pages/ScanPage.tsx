@@ -171,23 +171,24 @@ export function ScanPage() {
   return (
     <div className="mx-auto flex h-full max-w-lg flex-col px-4 pb-[max(5rem,calc(env(safe-area-inset-bottom,0px)+5rem))] pt-2">
       {/* Pass & Offline Cache Status Header */}
-      <div className="flex items-center justify-between gap-2 py-1 mb-2">
+      <div className="flex items-center justify-between gap-1.5 sm:gap-2 py-1 mb-2">
         <Link
           href="/pass"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+          className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 sm:px-3.5 text-xs sm:text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
         >
-          <ArrowLeft size={13} aria-hidden="true" />
+          <ArrowLeft size={13} className="shrink-0" aria-hidden="true" />
           <span>AirPal Pass</span>
         </Link>
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
-          <Zap size={12} className="text-emerald-600" aria-hidden="true" />
-          <span>Offline Cache Validated</span>
+        <div className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20 whitespace-nowrap">
+          <Zap size={12} className="shrink-0 text-emerald-600" aria-hidden="true" />
+          <span className="hidden min-[390px]:inline">Offline </span>
+          <span>Cache Validated</span>
         </div>
         <Link
           href="/me/tickets"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3 text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+          className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 text-xs sm:text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
         >
-          <Ticket size={13} className="text-amber-500" aria-hidden="true" />
+          <Ticket size={13} className="shrink-0 text-amber-500" aria-hidden="true" />
           <span>Passes</span>
         </Link>
       </div>
@@ -211,23 +212,23 @@ export function ScanPage() {
                 <p className="max-w-xs text-xs leading-relaxed text-white/60">
                   Allow camera access in browser settings, or upload a saved QR photo / enter code below.
                 </p>
-                <div className="mt-1 flex gap-2">
+                <div className="mt-1 flex flex-wrap justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => {
                       setDenied(false);
                       setCameraAttempt((n) => n + 1);
                     }}
-                    className="min-h-[44px] rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 transition hover:bg-white/25 active:scale-95"
+                    className="min-h-[44px] rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 transition hover:bg-white/25 active:scale-95 whitespace-nowrap"
                   >
                     Try Camera
                   </button>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:brightness-110 active:scale-95"
+                    className="flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:brightness-110 active:scale-95 whitespace-nowrap"
                   >
-                    <Upload size={13} />
+                    <Upload size={13} className="shrink-0" />
                     <span>Upload QR Image</span>
                   </button>
                 </div>

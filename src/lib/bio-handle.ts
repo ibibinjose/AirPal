@@ -100,7 +100,7 @@ export const BIBIN_JOSE_PROFILE: BioProfile = {
     "17+ years in full-stack architecture, infrastructure, and product engineering. Building AirPal to make everyday city life, concerts, hangouts, and authentic experiences effortless.",
   city: "Sydney",
   category: "services",
-  categoryTag: "Founder & CTO",
+  categoryTag: "AirPal Star",
   pronouns: "he/him",
   languages: "English",
   avatar: "/media/harbour.jpg",

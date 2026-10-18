@@ -34,7 +34,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
         }}
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "flex min-h-[44px] touch-manipulation items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
+          "flex min-h-[44px] shrink-0 whitespace-nowrap touch-manipulation items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
           isActive
             ? "bg-white text-[#2F00FF] shadow-[0_4px_12px_-4px_rgba(0,0,0,0.35)]"
             : "text-white/75 hover:bg-white/10 hover:text-white",
@@ -102,7 +102,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
               void triggerHaptic("light");
               nav("/scan");
             }}
-            className="hidden xl:inline-flex h-9 shrink-0 items-center rounded-full bg-white/10 px-3.5 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20 transition active:scale-95 lg:h-10 cursor-pointer"
+            className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/10 px-3.5 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20 transition active:scale-95 lg:h-10 cursor-pointer"
             title="Scan QR"
           >
             Scan
@@ -113,7 +113,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 void triggerHaptic("light");
                 nav("/event");
               }}
-              className="hidden xl:inline-flex h-9 shrink-0 items-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20 transition lg:h-10 cursor-pointer"
+              className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20 transition lg:h-10 cursor-pointer"
             >
               Host
             </button>
@@ -124,7 +124,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 nav(partnerAccountPath({ signedIn: Boolean(user), hasPlace: Boolean(business) }));
               }}
               aria-label={NAMES.partnerAccount}
-              className="hidden xl:inline-flex h-9 shrink-0 items-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20 transition active:scale-95 lg:h-10 cursor-pointer"
+              className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20 transition active:scale-95 lg:h-10 cursor-pointer"
             >
               {NAMES.partnerAccount}
             </button>

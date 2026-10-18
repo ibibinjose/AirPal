@@ -80,20 +80,20 @@ export function HomePage() {
             Find your kind of places and people. Everyone is welcome here.
           </p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          <div className="mt-6 flex flex-col items-stretch gap-2.5 min-[380px]:flex-row min-[380px]:items-center sm:flex-wrap sm:gap-3">
             <Link
               href="/events"
-              className="inline-flex min-h-[48px] items-center gap-2 rounded-full bg-brand px-6 text-xs sm:text-sm font-semibold text-white shadow-sm transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
+              className="inline-flex min-h-[48px] flex-1 sm:flex-initial items-center justify-center gap-2 whitespace-nowrap rounded-full bg-brand px-5 sm:px-6 text-xs sm:text-sm font-semibold text-white shadow-sm transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
             >
               <span>What's on</span>
-              <ArrowUpRight size={16} />
+              <ArrowUpRight size={16} className="shrink-0" />
             </Link>
 
             <Link
               href="/circle"
-              className="inline-flex min-h-[48px] items-center gap-1.5 rounded-full bg-white/15 px-5 text-xs sm:text-sm font-semibold text-white ring-1 ring-white/30 backdrop-blur-md hover:bg-white/25 transition active:scale-95 cursor-pointer touch-manipulation"
+              className="inline-flex min-h-[48px] flex-1 sm:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-white/15 px-5 text-xs sm:text-sm font-semibold text-white ring-1 ring-white/30 backdrop-blur-md hover:bg-white/25 transition active:scale-95 cursor-pointer touch-manipulation"
             >
-              <Users size={16} />
+              <Users size={16} className="shrink-0" />
               <span>Find your circle</span>
             </Link>
           </div>
@@ -152,10 +152,10 @@ export function HomePage() {
 
             <Link
               href="/deals"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-5 text-xs sm:text-sm font-semibold text-ink ring-1 ring-line shadow-xs hover:bg-card hover:shadow-clay-hover transition active:scale-95 cursor-pointer touch-manipulation"
+              className="inline-flex min-h-[44px] w-full sm:w-auto items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-5 text-xs sm:text-sm font-semibold text-ink ring-1 ring-line shadow-xs hover:bg-card hover:shadow-clay-hover transition active:scale-95 cursor-pointer touch-manipulation"
             >
               <span>Explore perks</span>
-              <ArrowRight size={14} />
+              <ArrowRight size={14} className="shrink-0" />
             </Link>
           </div>
 

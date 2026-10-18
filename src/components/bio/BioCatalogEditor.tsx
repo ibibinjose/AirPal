@@ -71,7 +71,7 @@ export function BioCatalogEditor({
               type="button"
               onClick={() => setKind(k.id)}
               className={cn(
-                "inline-flex h-10 items-center gap-2 rounded-full px-4 text-xs font-semibold transition active:scale-95",
+                "inline-flex min-h-[44px] whitespace-nowrap items-center gap-2 rounded-full px-4 text-xs font-semibold transition active:scale-95",
                 kind === k.id
                   ? "bg-brand text-white shadow-sm ring-1 ring-brand"
                   : "bg-card text-ink ring-1 ring-line hover:bg-paper",

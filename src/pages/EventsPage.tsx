@@ -311,19 +311,19 @@ export function EventsPage() {
         </div>
 
         {/* Primary Header Action: Host Event */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Link
             href="/calendar"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-4 py-2 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-xs"
+            className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-card px-4 py-2 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-xs"
           >
-            <CalendarDays size={14} className="text-accent" />
+            <CalendarDays size={14} className="shrink-0 text-accent" />
             <span>Calendar</span>
           </Link>
           <Link
             href="/event"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
+            className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
           >
-            <Plus size={15} />
+            <Plus size={15} className="shrink-0" />
             <span>Host Event</span>
           </Link>
         </div>

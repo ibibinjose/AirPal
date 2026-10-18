@@ -127,13 +127,13 @@ export function PingsPanel() {
                         ? "Pinged you back — wants to hang out."
                         : "Wants to know if you're around."}
                     </p>
-                    <div className="mt-2 flex gap-2">
+                    <div className="mt-2.5 flex flex-wrap gap-2">
                       {p.status === "sent" && (
                         <button
                           type="button"
                           disabled={busyId === p.id}
                           onClick={() => void transition(p, "pinged_back")}
-                          className="h-9 rounded-full bg-brand px-4 text-[13px] font-semibold text-white transition hover:bg-brand-ink active:scale-95 disabled:opacity-50"
+                          className="min-h-[44px] whitespace-nowrap rounded-full bg-brand px-4 text-[13px] font-semibold text-white transition hover:bg-brand-ink active:scale-95 disabled:opacity-50"
                         >
                           Ping back
                         </button>
@@ -142,7 +142,7 @@ export function PingsPanel() {
                         type="button"
                         disabled={busyId === p.id}
                         onClick={() => proposeCatchUp(p)}
-                        className="h-9 rounded-full bg-brand/10 px-4 text-[13px] font-semibold text-accent transition hover:bg-brand/15 active:scale-95 disabled:opacity-50"
+                        className="min-h-[44px] whitespace-nowrap rounded-full bg-brand/10 px-4 text-[13px] font-semibold text-accent transition hover:bg-brand/15 active:scale-95 disabled:opacity-50"
                       >
                         Catch up
                       </button>
@@ -150,7 +150,7 @@ export function PingsPanel() {
                         type="button"
                         disabled={busyId === p.id}
                         onClick={() => void transition(p, "dismissed")}
-                        className="h-9 rounded-full px-3 text-[13px] font-semibold text-mute transition hover:text-ink disabled:opacity-50"
+                        className="min-h-[44px] whitespace-nowrap rounded-full px-3 text-[13px] font-semibold text-mute transition hover:text-ink disabled:opacity-50"
                       >
                         Dismiss
                       </button>
@@ -186,7 +186,7 @@ export function PingsPanel() {
                         type="button"
                         disabled={busyId === p.id}
                         onClick={() => proposeCatchUp(p)}
-                        className="h-9 shrink-0 rounded-full bg-brand px-4 text-[13px] font-semibold text-white transition hover:bg-brand-ink active:scale-95 disabled:opacity-50"
+                        className="min-h-[44px] shrink-0 whitespace-nowrap rounded-full bg-brand px-4 text-[13px] font-semibold text-white transition hover:bg-brand-ink active:scale-95 disabled:opacity-50"
                       >
                         Hang out
                       </button>
@@ -195,7 +195,7 @@ export function PingsPanel() {
                         type="button"
                         disabled={busyId === p.id}
                         onClick={() => void transition(p, "cancelled")}
-                        className="h-9 shrink-0 rounded-full px-3 text-[13px] font-semibold text-mute transition hover:text-ink disabled:opacity-50"
+                        className="min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3 text-[13px] font-semibold text-mute transition hover:text-ink disabled:opacity-50"
                       >
                         Cancel
                       </button>

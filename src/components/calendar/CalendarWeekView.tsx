@@ -152,7 +152,7 @@ export function CalendarWeekView({
                 aria-checked={tagMode === "category"}
                 onClick={() => setTagMode("category")}
                 className={cn(
-                  "rounded-full px-2.5 py-1 text-[11px] font-semibold transition active:scale-95 cursor-pointer",
+                  "whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold transition active:scale-95 cursor-pointer",
                   tagMode === "category" ? "bg-brand text-white shadow-2xs" : "text-mute hover:text-ink",
                 )}
               >
@@ -164,7 +164,7 @@ export function CalendarWeekView({
                 aria-checked={tagMode === "booking"}
                 onClick={() => setTagMode("booking")}
                 className={cn(
-                  "rounded-full px-2.5 py-1 text-[11px] font-semibold transition active:scale-95 cursor-pointer",
+                  "whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold transition active:scale-95 cursor-pointer",
                   tagMode === "booking" ? "bg-brand text-white shadow-2xs" : "text-mute hover:text-ink",
                 )}
               >
@@ -178,7 +178,7 @@ export function CalendarWeekView({
                 type="button"
                 onClick={jumpToday}
                 aria-label="Jump to today"
-                className="rounded-full bg-paper px-3 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 min-h-[44px] cursor-pointer"
+                className="inline-flex min-h-[40px] items-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
               >
                 Today
               </button>
@@ -186,7 +186,7 @@ export function CalendarWeekView({
                 type="button"
                 onClick={prevWeek}
                 aria-label="Previous week"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -194,7 +194,7 @@ export function CalendarWeekView({
                 type="button"
                 onClick={nextWeek}
                 aria-label="Next week"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 cursor-pointer"
               >
                 <ChevronRight size={16} />
               </button>

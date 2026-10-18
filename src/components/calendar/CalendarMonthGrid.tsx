@@ -185,7 +185,7 @@ export function CalendarMonthGrid({
                 void triggerHaptic("light");
               }}
               className={cn(
-                "rounded-full px-2.5 py-1 text-[11px] font-semibold transition active:scale-95",
+                "whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold transition active:scale-95",
                 tagMode === "category" ? "bg-brand text-white shadow-2xs" : "text-mute hover:text-ink",
               )}
               title="Color-code tags by event type (Market, Live Music, Food, Culture, Workshop, etc.)"
@@ -201,7 +201,7 @@ export function CalendarMonthGrid({
                 void triggerHaptic("light");
               }}
               className={cn(
-                "rounded-full px-2.5 py-1 text-[11px] font-semibold transition active:scale-95",
+                "whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold transition active:scale-95",
                 tagMode === "booking" ? "bg-brand text-white shadow-2xs" : "text-mute hover:text-ink",
               )}
               title="Color-code tags by booking / task status (Confirmed, Tentative, Rescheduled, Available)"
@@ -215,7 +215,7 @@ export function CalendarMonthGrid({
               type="button"
               onClick={jumpToday}
               aria-label="Jump to today's date"
-              className="rounded-full bg-paper px-3 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95 min-h-[44px]"
+              className="inline-flex min-h-[40px] items-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
             >
               Today
             </button>
@@ -223,7 +223,7 @@ export function CalendarMonthGrid({
               type="button"
               onClick={prevMonth}
               aria-label="Previous month"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
             >
               <ChevronLeft size={16} />
             </button>
@@ -231,7 +231,7 @@ export function CalendarMonthGrid({
               type="button"
               onClick={nextMonth}
               aria-label="Next month"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
             >
               <ChevronRight size={16} />
             </button>

@@ -99,18 +99,18 @@ export function EventCreatedCelebrationModal({
             <Link
               href={`/e/${eventId}/guests`}
               onClick={onClose}
-              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95"
             >
-              <Users size={14} className="text-accent" />
+              <Users size={14} className="shrink-0 text-accent" />
               <span>Door Guestlist</span>
             </Link>
 
             <Link
               href="/scan"
               onClick={onClose}
-              className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95"
             >
-              <QrCode size={14} className="text-amber-500" />
+              <QrCode size={14} className="shrink-0 text-amber-500" />
               <span>Door Scanner</span>
             </Link>
           </div>

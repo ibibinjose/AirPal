@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Copy, Check, Download, Share2, X, QrCode } from "lucide-react";
+import { Check, Contact, Copy, Download, QrCode, Share2, ShieldCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { makeQrDataUrl } from "@/lib/qr";
+import { openVCardContact } from "@/lib/people";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { Button } from "@/components/ui/Button";
@@ -77,6 +78,15 @@ export function BioShareModal({ open, onClose, handle, name, url }: BioShareModa
     toast.success("QR Code downloaded for print & counters");
   }
 
+  function handleSaveVCard() {
+    void triggerHaptic("medium");
+    void openVCardContact({
+      name: name || `@${handle}`,
+      url,
+      note: `AirPal Digital Bio Pass (@${handle})`,
+    });
+  }
+
   async function handleNativeShare() {
     void triggerHaptic("light");
     if (navigator.share) {
@@ -98,7 +108,7 @@ export function BioShareModal({ open, onClose, handle, name, url }: BioShareModa
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Share Profile"
+      aria-label="My Digital Bio Pass"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
@@ -124,11 +134,14 @@ export function BioShareModal({ open, onClose, handle, name, url }: BioShareModa
           <div className="flex items-center justify-center gap-2">
             <BrandMark compact invert />
             <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/80">
-              AirPal.Me · Bio Pass
+              AirPal.Me · Digital Bio Pass
             </span>
           </div>
           <h2 className="font-display mt-2 truncate text-2xl font-bold text-white">@{handle}</h2>
-          <p className="mt-0.5 truncate text-xs text-white/60">{name}</p>
+          <p className="mt-0.5 flex items-center justify-center gap-1.5 truncate text-xs text-white/70">
+            <ShieldCheck size={13} className="text-emerald-400 shrink-0" aria-hidden="true" />
+            <span className="truncate">{name}</span>
+          </p>
         </div>
 
         <div className="mx-auto mt-5 flex h-56 w-56 max-h-[62vw] max-w-[62vw] items-center justify-center rounded-2xl bg-white p-3 shadow-inner ring-1 ring-black/5 sm:h-60 sm:w-60 sm:max-h-none sm:max-w-none">
@@ -150,25 +163,34 @@ export function BioShareModal({ open, onClose, handle, name, url }: BioShareModa
           <span className="truncate">{url.replace(/^https?:\/\//, "")}</span>
         </p>
 
-        <div className="mt-5 grid grid-cols-2 gap-2">
+        <div className="mt-5 grid grid-cols-3 gap-2">
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleCopy}
-            className="min-h-[44px] gap-1.5 rounded-full font-semibold"
+            onClick={() => void handleCopy()}
+            className="min-h-[44px] gap-1.5 rounded-full font-semibold px-2.5 text-xs"
           >
-            {copied ? <Check size={15} className="text-emerald-500" /> : <Copy size={15} />}
-            {copied ? "Copied" : "Copy Link"}
+            {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+            <span>{copied ? "Copied" : "Copy"}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSaveVCard}
+            className="min-h-[44px] gap-1.5 rounded-full font-semibold px-2.5 text-xs"
+          >
+            <Contact size={14} className="text-emerald-600" />
+            <span>vCard</span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleDownload}
-            className="min-h-[44px] gap-1.5 rounded-full font-semibold"
+            className="min-h-[44px] gap-1.5 rounded-full font-semibold px-2.5 text-xs"
             disabled={!qrData}
           >
-            <Download size={15} />
-            Download
+            <Download size={14} />
+            <span>QR PNG</span>
           </Button>
         </div>
 
@@ -191,11 +213,11 @@ export function BioShareModal({ open, onClose, handle, name, url }: BioShareModa
         {typeof navigator !== "undefined" && "share" in navigator && (
           <Button
             size="sm"
-            onClick={handleNativeShare}
+            onClick={() => void handleNativeShare()}
             className="mt-2.5 w-full min-h-[44px] gap-1.5 rounded-full bg-brand text-white font-bold"
           >
             <Share2 size={15} />
-            Share via…
+            <span>Share Pass…</span>
           </Button>
         )}
 
@@ -205,7 +227,7 @@ export function BioShareModal({ open, onClose, handle, name, url }: BioShareModa
             void triggerHaptic("light");
             onClose();
           }}
-          className="mt-4 min-h-[44px] inline-flex items-center justify-center text-xs font-semibold text-mute hover:text-ink cursor-pointer touch-manipulation"
+          className="mt-3 min-h-[44px] w-full inline-flex items-center justify-center text-xs font-semibold text-mute hover:text-ink cursor-pointer touch-manipulation"
         >
           Done
         </button>

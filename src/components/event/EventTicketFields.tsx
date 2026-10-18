@@ -155,7 +155,10 @@ export function EventTicketFields({ values, onChange }: Props) {
             <p className="text-[11px] text-mute">One price for everyone — or add named tiers like General and VIP.</p>
           ) : (
             values.tiers.map((tier, i) => (
-              <div key={i} className="grid grid-cols-[1fr_84px_70px_auto] items-center gap-2">
+              <div
+                key={i}
+                className="grid grid-cols-[1fr_1fr_auto] items-center gap-2 sm:grid-cols-[1fr_84px_70px_auto]"
+              >
                 <input
                   value={tier.name}
                   onChange={(e) => {
@@ -165,7 +168,7 @@ export function EventTicketFields({ values, onChange }: Props) {
                   }}
                   placeholder="VIP"
                   aria-label={`Tier ${i + 1} name`}
-                  className="h-11 rounded-xl border border-line bg-paper px-3 text-sm outline-none transition focus:border-brand"
+                  className="col-span-3 h-11 rounded-xl border border-line bg-paper px-3 text-sm outline-none transition focus:border-brand sm:col-span-1"
                 />
                 <input
                   value={tier.price}
@@ -177,7 +180,7 @@ export function EventTicketFields({ values, onChange }: Props) {
                   placeholder="$"
                   inputMode="decimal"
                   aria-label={`Tier ${i + 1} price in dollars`}
-                  className="h-11 rounded-xl border border-line bg-paper px-3 text-sm outline-none transition focus:border-brand"
+                  className="h-11 min-w-0 rounded-xl border border-line bg-paper px-3 text-sm outline-none transition focus:border-brand"
                 />
                 <input
                   value={tier.capacity}
@@ -189,13 +192,13 @@ export function EventTicketFields({ values, onChange }: Props) {
                   placeholder="Seats"
                   inputMode="numeric"
                   aria-label={`Tier ${i + 1} seats`}
-                  className="h-11 rounded-xl border border-line bg-paper px-3 text-sm outline-none transition focus:border-brand"
+                  className="h-11 min-w-0 rounded-xl border border-line bg-paper px-3 text-sm outline-none transition focus:border-brand"
                 />
                 <button
                   type="button"
                   onClick={() => set({ tiers: values.tiers.filter((_, j) => j !== i) })}
                   aria-label={`Remove tier ${i + 1}`}
-                  className="grid h-9 w-9 place-items-center rounded-full text-mute transition hover:bg-rose-100 hover:text-rose-700"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-mute transition hover:bg-rose-100 hover:text-rose-700"
                 >
                   ×
                 </button>

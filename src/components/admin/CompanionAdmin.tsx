@@ -85,7 +85,7 @@ export function CompanionAdmin() {
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-accent">AirPal Companion</p>
       <h2 className="font-display mt-1 text-lg font-semibold">Applications</h2>
 
-      <div className="mt-3 grid grid-cols-4 gap-2">
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {(
           [
             ["submitted", "Submitted"],
@@ -106,7 +106,7 @@ export function CompanionAdmin() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as CompanionStatus | "all")}
           aria-label="Filter by status"
-          className="h-10 rounded-2xl bg-paper px-3 text-xs border border-line outline-none text-ink focus:border-brand"
+          className="min-h-[44px] rounded-2xl bg-paper px-3 text-xs border border-line outline-none text-ink focus:border-brand"
         >
           <option value="all">All statuses</option>
           {COMPANION_STATUSES.map((s) => (
@@ -119,7 +119,7 @@ export function CompanionAdmin() {
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
           aria-label="Filter by role"
-          className="h-10 rounded-2xl bg-paper px-3 text-xs border border-line outline-none text-ink focus:border-brand"
+          className="min-h-[44px] rounded-2xl bg-paper px-3 text-xs border border-line outline-none text-ink focus:border-brand"
         >
           <option value="all">All roles</option>
           {COMPANION_ROLES.map((r) => (
@@ -134,7 +134,7 @@ export function CompanionAdmin() {
           onChange={(e) => setLocationFilter(e.target.value)}
           placeholder="Filter by location…"
           aria-label="Filter by location"
-          className="h-10 rounded-2xl bg-paper px-3 text-xs border border-line outline-none text-ink focus:border-brand"
+          className="min-h-[44px] rounded-2xl bg-paper px-3 text-xs border border-line outline-none text-ink focus:border-brand"
         />
       </div>
 
