@@ -1,6 +1,7 @@
 /** Routes the native app may open before an account exists. */
 const PUBLIC_PREFIXES = [
   "/start",
+  "/welcome",
   "/privacy",
   "/terms",
   "/cookies",

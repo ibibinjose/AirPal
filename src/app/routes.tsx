@@ -68,6 +68,7 @@ const UnsubscribePage = lazy(() => import("@/pages/UnsubscribePage").then((m) =>
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage").then((m) => ({ default: m.PrivacyPage })));
 const TermsPage = lazy(() => import("@/pages/TermsPage").then((m) => ({ default: m.TermsPage })));
 const CookiesPage = lazy(() => import("@/pages/CookiesPage").then((m) => ({ default: m.CookiesPage })));
+const WelcomePage = lazy(() => import("@/pages/WelcomePage").then((m) => ({ default: m.WelcomePage })));
 
 function RouteFallback() {
   return (
@@ -189,6 +190,7 @@ export function AppRoutes() {
           <Route path="/admin" component={AdminPage} />
 
           {/* System */}
+          <Route path="/welcome" component={WelcomePage} />
           <Route path="/start" component={StartPage} />
           <Route path="/auth/action" component={AuthActionPage} />
           <Route path="/settings" component={SettingsPage} />

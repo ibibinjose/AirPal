@@ -16,6 +16,7 @@ vi.mock("wouter", () => ({
 
 vi.mock("@/lib/native", () => ({
   triggerHaptic: vi.fn(),
+  triggerHapticSelection: vi.fn(),
   isNativeApp: () => true,
 }));
 
@@ -29,5 +30,41 @@ describe("NativeOpenScreen", () => {
     expect(html).toContain("Continue with Apple");
     expect(html).toContain("Sign In with Mobile Number");
     expect(html).toContain("Create Free Account");
+  });
+
+  it("renders liquid glass effect materials and specular highlights", () => {
+    const html = renderToStaticMarkup(createElement(NativeOpenScreen));
+    expect(html).toContain("apple-liquid-glass-dock");
+    expect(html).toContain("apple-liquid-glass-hero");
+    expect(html).toContain("apple-liquid-glass-light");
+    expect(html).toContain("glass-sheen");
+  });
+
+  it("renders the ecosystem lens switcher with Pass and Me options", () => {
+    const html = renderToStaticMarkup(createElement(NativeOpenScreen));
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain('aria-label="Ecosystem View"');
+    expect(html).toContain("Pass");
+    expect(html).toContain("Me");
+  });
+
+  it("renders Pass-specific feature cards when defaultFlavor='pass'", () => {
+    const html = renderToStaticMarkup(createElement(NativeOpenScreen, { defaultFlavor: "pass" }));
+    expect(html).toContain("Live Concerts &amp; Festivals");
+    expect(html).toContain("AIRPAL PASS · ALL ACCESS");
+    expect(html).toContain("Apple &amp; Google Wallet Ready");
+  });
+
+  it("renders Me-specific feature cards when defaultFlavor='me'", () => {
+    const html = renderToStaticMarkup(createElement(NativeOpenScreen, { defaultFlavor: "me" }));
+    expect(html).toContain("Daily Flow &amp; Outfits");
+    expect(html).toContain("23°C Sunny");
+    expect(html).toContain("Light Linen Shirt &amp; Loafers");
+  });
+
+  it("renders universal ecosystem reassurance and guest exploration", () => {
+    const html = renderToStaticMarkup(createElement(NativeOpenScreen));
+    expect(html).toContain("One account for both AirPal Me &amp; AirPal Pass");
+    expect(html).toContain("Explore as Guest");
   });
 });
