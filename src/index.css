@@ -566,6 +566,86 @@ body.keyboard-open .keyboard-hide {
   animation: shimmer 1.8s infinite linear;
 }
 
+/* Ambient Liquid Orb Floating Physics & Caustics */
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(14px, -18px) scale(1.05);
+  }
+  66% {
+    transform: translate(-12px, 12px) scale(0.96);
+  }
+}
+
+@keyframes float-reverse {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-16px, 16px) scale(0.95);
+  }
+  66% {
+    transform: translate(14px, -12px) scale(1.05);
+  }
+}
+
+@keyframes caustic-shimmer {
+  0% {
+    opacity: 0.25;
+    transform: translateX(-120%) rotate(25deg);
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.25;
+    transform: translateX(220%) rotate(25deg);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 14s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 16s ease-in-out infinite;
+}
+
+.caustic-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.caustic-sheen::before {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.12) 36%,
+    rgba(255, 255, 255, 0.38) 46%,
+    transparent 60%
+  );
+  pointer-events: none;
+  animation: caustic-shimmer 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow,
+  .animate-float-reverse,
+  .caustic-sheen::before {
+    animation: none !important;
+  }
+}
+
 /* Smooth scroll containers with iOS momentum scrolling */
 .scroll-container {
   overflow-y: auto;

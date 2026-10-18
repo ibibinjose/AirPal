@@ -38,6 +38,9 @@ describe("NativeOpenScreen", () => {
     expect(html).toContain("apple-liquid-glass-hero");
     expect(html).toContain("apple-liquid-glass-light");
     expect(html).toContain("glass-sheen");
+    expect(html).toContain("caustic-sheen");
+    expect(html).toContain("animate-float-slow");
+    expect(html).toContain("animate-float-reverse");
   });
 
   it("renders the ecosystem lens switcher with Pass and Me options", () => {
@@ -58,12 +61,14 @@ describe("NativeOpenScreen", () => {
   it("renders Me-specific feature cards when defaultFlavor='me'", () => {
     const html = renderToStaticMarkup(createElement(NativeOpenScreen, { defaultFlavor: "me" }));
     expect(html).toContain("Daily Flow &amp; Outfits");
-    expect(html).toContain("23°C Sunny");
-    expect(html).toContain("Light Linen Shirt &amp; Loafers");
+    expect(html).toContain("23°C");
+    expect(html).toContain("Linen Shirt &amp; Loafers");
   });
 
-  it("renders universal ecosystem reassurance and guest exploration", () => {
+  it("renders carousel navigation arrows and universal ecosystem reassurance", () => {
     const html = renderToStaticMarkup(createElement(NativeOpenScreen));
+    expect(html).toContain('aria-label="Previous slide"');
+    expect(html).toContain('aria-label="Next slide"');
     expect(html).toContain("One account for both AirPal Me &amp; AirPal Pass");
     expect(html).toContain("Explore as Guest");
   });
