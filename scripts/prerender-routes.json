@@ -127,5 +127,19 @@
     "description": "List events and let groups coordinate around them: ticketing, check-in, payouts.",
     "heading": "An Eventbrite alternative with group coordination",
     "summary": "Eventbrite is an event discovery and ticketing platform. AirPal.Me lists free or ticketed events, and groups coordinate around them on the same platform."
+  },
+  {
+    "path": "/places",
+    "title": "Curated Places & Venues · AirPal.Me",
+    "description": "Explore curated venues, hospitality spots, and local destinations near you.",
+    "heading": "Curated Places & Venues",
+    "summary": "Explore curated local venues, hospitality destinations, and neighborhood favorites on AirPal.Me — Life Made Easy."
+  },
+  {
+    "path": "/communities",
+    "title": "Organizer Communities · AirPal.Me",
+    "description": "Discover organizer communities, follow cultural groups, and join local circles.",
+    "heading": "Organizer Communities",
+    "summary": "Discover and follow cultural communities, event organizers, and local groups on AirPal.Me — Life Made Easy."
   }
 ]

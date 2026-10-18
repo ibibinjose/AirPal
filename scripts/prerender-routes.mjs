@@ -31,6 +31,8 @@ const NAV_LINKS = [
   ["/circle", "Circle"],
   ["/events", "Events"],
   ["/deals", "Deals"],
+  ["/places", "Places"],
+  ["/communities", "Communities"],
   ["/calendar", "What's on"],
   ["/business", "Business"],
   ["/trust", "Trust"],

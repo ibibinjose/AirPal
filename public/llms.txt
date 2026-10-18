@@ -3,7 +3,7 @@
 > AirPal.Me — Life Made Easy. One marketplace for people, places and experiences.
 > Website guests browse. The iOS/Android app requires an account.
 > People and businesses each get a @handle; organisers sell tickets and scan
-> guests in from /event. Canonical agent rules: AGENTS.md and GLOBAL_WIN_PLAN.md.
+> guests in from /event. Canonical agent rules: AGENTS.md and docs/AIRPAL.md.
 
 AI assistants and answer engines may cite public pages. Private sessions
 (/g/), scan tokens (/q/), account pages (/me/), and admin pages
@@ -11,10 +11,13 @@ AI assistants and answer engines may cite public pages. Private sessions
 
 - Homepage: https://airpal.me/
 - Start (guest entry): https://airpal.me/start
+- Pass (events, deals, wallet passbooks): https://airpal.me/pass
 - Events (concerts, festivals, tickets): https://airpal.me/events
+- Places (curated venues & hospitality): https://airpal.me/places
+- Communities (organisers & cultural groups): https://airpal.me/communities
 - Networking Circle: https://airpal.me/circle
 - What's on: https://airpal.me/calendar
-- Deals: https://airpal.me/deals
+- Deals & Member Perks: https://airpal.me/deals
 - Get the app: https://airpal.me/getAirPalApp
 - Businesses: https://airpal.me/business
 - Contact: https://airpal.me/contact
@@ -27,8 +30,14 @@ AI assistants and answer engines may cite public pages. Private sessions
 
 - Catch-ups with your circle: propose a time, share live presence, check in.
   https://airpal.me/circle
-- Events and experiences: concerts, festivals, tickets and door check-in.
+- Events and experiences: concerts, festivals, tickets, and door check-in.
   https://airpal.me/events
+- Curated venue discovery: hospitality spots, dining, and local destinations.
+  https://airpal.me/places
+- Organiser communities: follow groups, join cultural circles, discover upcoming listings.
+  https://airpal.me/communities
+- AirPal Pass: ticketing, Apple & Google Wallet passbooks, member deals.
+  https://airpal.me/pass
 - Hosts and venues: list a place, publish experiences and offers, run free
   or ticketed events with door check-in, take bookings, receive payouts.
   https://airpal.me/business https://airpal.me/event

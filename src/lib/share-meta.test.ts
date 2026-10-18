@@ -7,6 +7,10 @@ describe("routeMetaFor", () => {
     expect(routeMetaFor("/circle")?.title).toContain("Circle");
     expect(routeMetaFor("/deals")?.title).toContain("Deals");
     expect(routeMetaFor("/events")?.title).toContain("Events");
+    expect(routeMetaFor("/places")?.title).toContain("Places");
+    expect(routeMetaFor("/communities")?.title).toContain("Communities");
+    expect(routeMetaFor("/friends")?.title).toContain("Friends");
+    expect(routeMetaFor("/scan")?.title).toContain("Scanner");
   });
 
   it("falls back to the brand default on unknown and removed paths", () => {

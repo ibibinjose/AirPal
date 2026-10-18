@@ -32,6 +32,21 @@ const ROUTE_META: Array<{ match: RegExp; title: string; description: string }> =
     description: "List free or ticketed events on AirPal.Me — stalls, festivals, guest lists and door check-in.",
   },
   {
+    match: /^\/places(\/|$)/,
+    title: "Curated Places & Venues · AirPal.Me",
+    description: "Explore curated venues, hospitality spots, and local destinations near you.",
+  },
+  {
+    match: /^\/communities(\/|$)/,
+    title: "Organizer Communities · AirPal.Me",
+    description: "Discover organizer communities, follow cultural groups, and join local circles.",
+  },
+  {
+    match: /^\/friends(\/|$)/,
+    title: "Friends & Network · AirPal.Me",
+    description: "Connect with friends, mutuals, and co-attendees on AirPal.",
+  },
+  {
     match: /^\/$/,
     title: "AirPal.Me · Life Made Easy.",
     description: "Life Made Easy. People, places, things and experiences — made easier.",
@@ -39,7 +54,7 @@ const ROUTE_META: Array<{ match: RegExp; title: string; description: string }> =
   {
     match: /^\/helpdesk(\/|$)/,
     title: "Help Desk Operations · AirPal.Me",
-    description: "Live Help Desk Console for Stays, In-Room Dining, Event Hosts and Local Venues on AirPal.Me.",
+    description: "Live Help Desk Console for event hosts, venues, and merchants on AirPal.Me.",
   },
   {
     match: /^\/help(\/|$)/,
@@ -62,9 +77,19 @@ const ROUTE_META: Array<{ match: RegExp; title: string; description: string }> =
     description: "Local deals and offers from businesses on AirPal.Me — claim them in the app.",
   },
   {
+    match: /^\/giveaways(\/|$)/,
+    title: "Giveaways & Perks · AirPal.Me",
+    description: "Exclusive member giveaways and rewards from local partners on AirPal.",
+  },
+  {
+    match: /^\/birthday-freebies(\/|$)/,
+    title: "Birthday Freebies & Treats · AirPal.Me",
+    description: "Curated local birthday treats, dining perks, and free gifts on AirPal.",
+  },
+  {
     match: /^\/scan(\/|$)/,
-    title: "Scan · AirPal.Me",
-    description: "Scan an AirPal code to open Wi-Fi, menus, events and offers.",
+    title: "Ticket Scanner & Check-in · AirPal.Me",
+    description: "Fast door check-in scanner for event organizers and staff to validate tickets and passes.",
   },
   {
     match: /^\/trust(\/|$)/,
