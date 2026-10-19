@@ -575,8 +575,8 @@ export function BioPublicPage() {
     <div
       className={
         themed
-          ? "bio-page-shell bio-themed px-3 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-4 sm:pt-8 lg:px-0"
-          : "bio-page-shell px-3 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-3 sm:px-4 sm:pt-8 lg:px-0"
+          ? "bio-page-shell bio-themed px-3 pb-[calc(env(safe-area-inset-bottom,0px)+2.5rem)] pt-3 sm:px-4 sm:pt-8 sm:pb-12 lg:px-0"
+          : "bio-page-shell px-3 pb-[calc(env(safe-area-inset-bottom,0px)+2.5rem)] pt-3 sm:px-4 sm:pt-8 sm:pb-12 lg:px-0"
       }
       style={themed ? themeVars : undefined}
     >
@@ -2042,40 +2042,136 @@ export function BioPublicPage() {
               </p>
             </div>
           )}
-
-          {/* Brand Footer & Viral @handle CTA */}
-          <footer className="mt-12 flex flex-col items-center justify-center gap-2.5 border-t border-line/60 pt-8 text-center">
-            <Link href="/" className="inline-flex items-center gap-2 transition hover:opacity-80 active:scale-95">
-              <BrandMark compact />
-              <span className="font-display text-lg font-extrabold tracking-tight">
-                AirPal<span className="text-accent">.me</span>
-              </span>
-            </Link>
-            <p className="text-xs text-mute leading-relaxed max-w-md">
-              AirPal.Me · See what&#39;s on, catch up &amp; share who you are ·{" "}
-              <Link href="/bio/setup" className="font-bold text-ink underline hover:text-accent">
-                Claim your free @handle
-              </Link>
-            </p>
-            <p className="text-xs text-mute/80">
-              Discover events, tickets &amp; perks on{" "}
-              <Link href="/pass" className="font-bold text-ink underline hover:text-accent">
-                AirPal Pass →
-              </Link>
-            </p>
-            <button
-              type="button"
-              className="mt-1 text-xs text-mute/70 hover:text-ink font-mono px-3 py-1 rounded-full bg-paper/60 ring-1 ring-line/50 transition cursor-pointer"
-              onClick={() => {
-                void triggerHaptic("light");
-                setShareModalOpen(true);
-              }}
-            >
-              airpal.me/@{bio.handle}
-            </button>
-          </footer>
         </div>
       </main>
+
+      {/* Master Brand Profile Footer */}
+      <footer className="mt-8 sm:mt-10 mb-4 flex flex-col items-center justify-center gap-6 px-4 text-center">
+        {/* Brand Identity Lockup */}
+        <div className="flex flex-col items-center gap-2">
+          <Link
+            href="/"
+            className="group inline-flex items-center gap-2.5 rounded-full bg-card/85 dark:bg-card/60 px-4 py-2 ring-1 ring-line/70 shadow-2xs backdrop-blur-md transition hover:bg-card hover:ring-brand/40 active:scale-95"
+            aria-label="AirPal Home"
+          >
+            <BrandMark compact mode="me" className="h-7 w-7" />
+            <div className="flex items-center gap-1.5 text-left">
+              <span className="font-display text-sm font-bold tracking-tight text-ink">
+                AirPal<span className="text-brand">.Me</span>
+              </span>
+              <span className="text-mute/60">·</span>
+              <span className="text-[11px] font-semibold text-mute group-hover:text-ink transition">
+                Life Made Easy
+              </span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Dynamic Context CTAs: Owner Actions vs Visitor Promotion */}
+        {isOwner ? (
+          <div className="flex flex-wrap items-center justify-center gap-2 max-w-md">
+            <Link
+              href="/bio/edit"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-card/90 dark:bg-card/70 px-4 py-2 text-xs font-semibold text-ink ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition hover:bg-card hover:ring-brand/50 active:scale-95 cursor-pointer touch-manipulation"
+            >
+              <Edit3 size={14} className="text-brand shrink-0" />
+              <span>Edit Bio Pass</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("medium");
+                setShareModalOpen(true);
+              }}
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-card/90 dark:bg-card/70 px-4 py-2 text-xs font-semibold text-ink ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition hover:bg-card hover:ring-brand/50 active:scale-95 cursor-pointer touch-manipulation"
+            >
+              <QrCode size={14} className="text-accent shrink-0" />
+              <span>Share Pass QR</span>
+            </button>
+            <Link
+              href="/pass"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-card/90 dark:bg-card/70 px-4 py-2 text-xs font-semibold text-ink ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition hover:bg-card hover:ring-brand/50 active:scale-95 cursor-pointer touch-manipulation"
+            >
+              <Ticket size={14} className="text-amber-500 shrink-0" />
+              <span>Events &amp; Deals</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 max-w-md w-full">
+            <p className="text-xs text-mute leading-relaxed max-w-sm">
+              See what&apos;s on, catch up with mates &amp; share who you are with your personal digital pass.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
+              <Link
+                href="/bio/setup"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-brand px-5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
+              >
+                <Sparkles size={14} className="shrink-0" />
+                <span>Claim your free @handle</span>
+              </Link>
+              <Link
+                href="/pass"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-card/90 dark:bg-card/70 px-4 py-2.5 text-xs font-semibold text-ink ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition hover:bg-card hover:ring-brand/50 active:scale-95 cursor-pointer touch-manipulation"
+              >
+                <span>AirPal Pass</span>
+                <ChevronRight size={14} className="shrink-0 text-mute" />
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Interactive Share / URL Pill */}
+        <button
+          type="button"
+          onClick={handleQuickCopy}
+          className="group inline-flex min-h-[40px] items-center gap-2 rounded-full bg-paper/80 dark:bg-card/70 px-4 py-1.5 text-xs font-mono text-mute ring-1 ring-line/70 transition hover:text-ink hover:ring-brand/40 active:scale-95 cursor-pointer touch-manipulation select-none"
+          title="Copy profile link"
+          aria-label="Copy profile link"
+        >
+          {copiedLink ? (
+            <Check size={13} className="shrink-0 text-emerald-600 animate-in zoom-in" />
+          ) : (
+            <Copy size={13} className="shrink-0 text-mute group-hover:text-ink transition" />
+          )}
+          <span className="font-semibold text-ink/90">airpal.me/@{bio.handle}</span>
+          <span className="text-[11px] font-sans text-mute/80 group-hover:text-accent transition">
+            {copiedLink ? "Copied" : "Copy"}
+          </span>
+        </button>
+
+        {/* Navigation & Trust Links */}
+        <nav
+          aria-label="Profile footer navigation"
+          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-mute"
+        >
+          <Link href="/about" className="transition hover:text-ink hover:underline">
+            About
+          </Link>
+          <span className="text-line select-none">·</span>
+          <Link href="/circle" className="transition hover:text-ink hover:underline">
+            Circle
+          </Link>
+          <span className="text-line select-none">·</span>
+          <Link href="/pass" className="transition hover:text-ink hover:underline">
+            Events
+          </Link>
+          <span className="text-line select-none">·</span>
+          <Link href="/trust" className="transition hover:text-ink hover:underline">
+            Trust &amp; Safety
+          </Link>
+          <span className="text-line select-none">·</span>
+          <Link href="/privacy" className="transition hover:text-ink hover:underline">
+            Privacy
+          </Link>
+          <span className="text-line select-none">·</span>
+          <Link href="/terms" className="transition hover:text-ink hover:underline">
+            Terms
+          </Link>
+        </nav>
+
+        {/* Philosophy & Copyright */}
+        <p className="text-[11px] text-mute/70">&copy; {new Date().getFullYear()} AirPal &middot; Life Made Easy</p>
+      </footer>
 
       {/* Floating QR — instant access to the branded share screen.
           Left side so it never collides with the global Create FAB (right)
@@ -2089,7 +2185,7 @@ export function BioPublicPage() {
           }}
           aria-label={`Open QR code for @${bio.handle}`}
           title={isOwner ? "My QR code" : `${bio.name.split(" ")[0]}'s Pass QR`}
-          className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+92px)] left-4 z-40 flex cursor-pointer touch-manipulation flex-col items-center gap-1 rounded-[22px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 lg:bottom-6 lg:left-6"
+          className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+1.25rem)] left-4 z-40 flex cursor-pointer touch-manipulation flex-col items-center gap-1 rounded-[22px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:bottom-6 sm:left-6"
         >
           <span className="relative grid h-16 w-16 place-items-center rounded-[22px] bg-white p-1.5 shadow-lg ring-2 ring-brand/70 transition-transform duration-150 active:scale-95">
             {bioQrUrl ? (
