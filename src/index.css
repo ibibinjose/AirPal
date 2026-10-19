@@ -15,16 +15,16 @@
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, ui-sans-serif, system-ui, sans-serif;
   --font-display:
     -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, ui-sans-serif, system-ui, sans-serif;
-  /* After Dark identity: dark-first. Bone ink on near-black void, one
-   * signal-lime action colour, hairline borders instead of shadows.
+  /* After Dark identity: true black & white (Lights Out / OLED neutral like x.com).
+   * Pure black void, crisp white ink, neutral slate mute, hairline borders.
    * The Day scheme lives in the `[data-theme="light"]` /
    * `prefers-color-scheme: light` blocks below; manual choice always wins
    * because those selectors come later in this file. */
-  --color-paper: #0e0f0c;
-  --color-ink: #f4f2e9;
-  --color-mute: #a3a698;
-  --color-line: #2b2f23;
-  --color-card: #161814;
+  --color-paper: #000000;
+  --color-ink: #ffffff;
+  --color-mute: #8b98a5;
+  --color-line: #2f3336;
+  --color-card: #000000;
   --color-brand: #004eff;
   --color-brand-ink: #003dcb;
   --color-gold: #ffb224;
@@ -60,11 +60,11 @@
   --shadow-m3-4: 0 6px 16px 4px rgba(18, 22, 20, 0.12), 0 2px 4px 0 rgba(18, 22, 20, 0.14);
   --shadow-m3-5: 0 8px 24px 6px rgba(18, 22, 20, 0.14), 0 4px 8px 0 rgba(18, 22, 20, 0.16);
 
-  --color-surface-lowest: #0a0b08;
-  --color-surface-low: #12140e;
-  --color-surface: #161814;
-  --color-surface-high: #1e211a;
-  --color-surface-highest: #2a2e22;
+  --color-surface-lowest: #000000;
+  --color-surface-low: #0b0e11;
+  --color-surface: #16181c;
+  --color-surface-high: #202327;
+  --color-surface-highest: #2f3336;
   --color-primary-container: rgba(0, 78, 255, 0.25);
   --color-on-primary-container: #c9d9ff;
   /* Humanity accents: terracotta warmth, grove belonging-green, honey glow.
@@ -104,16 +104,16 @@
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --color-paper: #0e0f0c;
-    --color-card: #161814;
-    --color-ink: #f4f2e9;
-    --color-mute: #a3a698;
-    --color-line: #2b2f23;
-    --color-surface-lowest: #0a0b08;
-    --color-surface-low: #12140e;
-    --color-surface: #161814;
-    --color-surface-high: #1e211a;
-    --color-surface-highest: #2a2e22;
+    --color-paper: #000000;
+    --color-card: #000000;
+    --color-ink: #ffffff;
+    --color-mute: #8b98a5;
+    --color-line: #2f3336;
+    --color-surface-lowest: #000000;
+    --color-surface-low: #0b0e11;
+    --color-surface: #16181c;
+    --color-surface-high: #202327;
+    --color-surface-highest: #2f3336;
     --color-primary-container: rgba(0, 78, 255, 0.25);
     --color-on-primary-container: #c9d9ff;
     --color-brand: #004eff;
@@ -133,40 +133,40 @@
   /* Liquid Glass follows the OS scheme automatically (same values as the
    * `[data-theme="dark"]` manual-override selectors below). */
   :root .apple-liquid-glass-dock {
-    background: rgba(14, 15, 12, 0.82);
-    border: 1px solid rgba(244, 242, 233, 0.14);
+    background: rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow:
-      inset 0 1px 1.5px 0 rgba(244, 242, 233, 0.14),
-      0 18px 42px -12px rgba(0, 0, 0, 0.6),
-      0 4px 16px -2px rgba(0, 0, 0, 0.35);
+      inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.15),
+      0 18px 42px -12px rgba(0, 0, 0, 0.7),
+      0 4px 16px -2px rgba(0, 0, 0, 0.5);
   }
   :root .apple-liquid-glass-nav {
-    background: rgba(14, 15, 12, 0.84);
-    border-bottom: 1px solid rgba(244, 242, 233, 0.1);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
   }
   :root .apple-liquid-glass-card {
-    background: rgba(22, 24, 20, 0.82);
-    border: 1px solid rgba(244, 242, 233, 0.12);
+    background: rgba(22, 24, 28, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow:
-      inset 0 1px 1px 0 rgba(244, 242, 233, 0.1),
-      0 8px 24px -8px rgba(0, 0, 0, 0.5);
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.1),
+      0 8px 24px -8px rgba(0, 0, 0, 0.6);
   }
   :root .apple-liquid-glass-light {
-    background: rgba(30, 33, 26, 0.78);
-    border: 1px solid rgba(244, 242, 233, 0.14);
+    background: rgba(28, 30, 34, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow:
-      inset 0 1px 1px 0 rgba(244, 242, 233, 0.12),
-      0 12px 32px -6px rgba(0, 0, 0, 0.4);
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
+      0 12px 32px -6px rgba(0, 0, 0, 0.5);
   }
   :root .apple-liquid-glass-hero {
-    background: rgba(20, 23, 18, 0.82);
-    border: 1px solid rgba(244, 242, 233, 0.16);
+    background: rgba(12, 14, 16, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     box-shadow:
-      inset 0 1.5px 2px 0 rgba(244, 242, 233, 0.2),
-      inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
-      0 24px 54px -12px rgba(0, 0, 0, 0.65),
-      0 4px 18px -2px rgba(0, 0, 0, 0.4);
+      inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.22),
+      inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5),
+      0 24px 54px -12px rgba(0, 0, 0, 0.8),
+      0 4px 18px -2px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -512,6 +512,30 @@ body.keyboard-open .keyboard-hide {
   .bio-page-card {
     background: var(--color-card);
   }
+}
+
+/* OLED true black & neutral hairline border (like x.com in dark mode) */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .bio-page-card {
+    background: #000000;
+    border: 1px solid #2f3336;
+    box-shadow: none;
+  }
+  :root:not(.light) .bio-page-shell:not(.bio-themed)::before {
+    background: #000000;
+  }
+}
+
+.dark .bio-page-card,
+[data-theme="dark"] .bio-page-card {
+  background: #000000;
+  border: 1px solid #2f3336;
+  box-shadow: none;
+}
+
+.dark .bio-page-shell:not(.bio-themed)::before,
+[data-theme="dark"] .bio-page-shell:not(.bio-themed)::before {
+  background: #000000;
 }
 
 /* Skip rendering for off-screen sections/cards (mobile scroll perf). No visual
@@ -960,48 +984,48 @@ body.keyboard-open .keyboard-hide {
 /* Dark Mode Liquid Glass Overrides */
 .dark .apple-liquid-glass-dock,
 [data-theme="dark"] .apple-liquid-glass-dock {
-  background: rgba(14, 15, 12, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow:
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.25),
-    0 18px 42px -12px rgba(0, 0, 0, 0.6),
-    0 4px 16px -2px rgba(0, 0, 0, 0.35);
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.15),
+    0 18px 42px -12px rgba(0, 0, 0, 0.7),
+    0 4px 16px -2px rgba(0, 0, 0, 0.5);
 }
 
 .dark .apple-liquid-glass-nav,
 [data-theme="dark"] .apple-liquid-glass-nav {
-  background: rgba(14, 15, 12, 0.84);
+  background: rgba(0, 0, 0, 0.85);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
 .dark .apple-liquid-glass-card,
 [data-theme="dark"] .apple-liquid-glass-card {
-  background: rgba(22, 24, 20, 0.82);
+  background: rgba(22, 24, 28, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
-    0 8px 24px -8px rgba(0, 0, 0, 0.5);
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 24px -8px rgba(0, 0, 0, 0.6);
 }
 
 .dark .apple-liquid-glass-light,
 [data-theme="dark"] .apple-liquid-glass-light {
-  background: rgba(30, 33, 26, 0.78);
+  background: rgba(28, 30, 34, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow:
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
-    0 12px 32px -6px rgba(0, 0, 0, 0.4);
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
+    0 12px 32px -6px rgba(0, 0, 0, 0.5);
 }
 
 .dark .apple-liquid-glass-hero,
 [data-theme="dark"] .apple-liquid-glass-hero {
-  background: rgba(20, 23, 18, 0.82);
+  background: rgba(12, 14, 16, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow:
     inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.22),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
-    0 24px 54px -12px rgba(0, 0, 0, 0.65),
-    0 4px 18px -2px rgba(0, 0, 0, 0.4);
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5),
+    0 24px 54px -12px rgba(0, 0, 0, 0.8),
+    0 4px 18px -2px rgba(0, 0, 0, 0.5);
 }
 
 /* Explicit Theme Overrides (Night / Day manual toggle). These come after
@@ -1009,16 +1033,16 @@ body.keyboard-open .keyboard-hide {
 .dark,
 [data-theme="dark"] {
   color-scheme: dark;
-  --color-paper: #0e0f0c;
-  --color-card: #161814;
-  --color-ink: #f4f2e9;
-  --color-mute: #a3a698;
-  --color-line: #2b2f23;
-  --color-surface-lowest: #0a0b08;
-  --color-surface-low: #12140e;
-  --color-surface: #161814;
-  --color-surface-high: #1e211a;
-  --color-surface-highest: #2a2e22;
+  --color-paper: #000000;
+  --color-card: #000000;
+  --color-ink: #ffffff;
+  --color-mute: #8b98a5;
+  --color-line: #2f3336;
+  --color-surface-lowest: #000000;
+  --color-surface-low: #0b0e11;
+  --color-surface: #16181c;
+  --color-surface-high: #202327;
+  --color-surface-highest: #2f3336;
   --color-primary-container: rgba(0, 78, 255, 0.25);
   --color-on-primary-container: #c9d9ff;
   --color-brand: #004eff;

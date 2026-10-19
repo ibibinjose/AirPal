@@ -14,7 +14,7 @@ export function getThemePreference(): ThemeMode {
 
 const META_THEMES: Record<"light" | "dark", string> = {
   light: "#f4f2e9",
-  dark: "#0e0f0c",
+  dark: "#000000",
 };
 
 function syncMetaThemeColor(mode: ThemeMode): void {
