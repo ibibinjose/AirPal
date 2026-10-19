@@ -25,6 +25,7 @@ export {
 } from "./bio";
 export { createManagedProduct, createManagedCheckoutSession } from "./managed-payments";
 export {
+  createEventBooking,
   createBookingCheckoutSession,
   createConnectAccountLink,
   refreshConnectAccount,

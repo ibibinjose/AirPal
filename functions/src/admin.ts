@@ -9,10 +9,10 @@ import { isAnonymousAuth } from "./abuse";
 
 setGlobalOptions({ region: "us-central1", maxInstances: 20 });
 
-/** Consume App Check tokens. Set ENFORCE_APPCHECK=true after a reCAPTCHA key is live. */
+/** App Check is mandatory outside the local emulator. */
 export const CALLABLE = {
   consumeAppCheckToken: true,
-  enforceAppCheck: process.env.ENFORCE_APPCHECK === "true",
+  enforceAppCheck: process.env.FUNCTIONS_EMULATOR !== "true",
 } as const;
 
 if (!getApps().length) {

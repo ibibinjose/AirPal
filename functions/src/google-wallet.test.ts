@@ -17,6 +17,7 @@ function docRef(path: string) {
 
 vi.mock("./admin", () => ({
   db: { collection: (name: string) => ({ doc: (id: string) => docRef(`${name}/${id}`) }) },
+  auth: { verifyIdToken: async (token: string) => (token === "token-u1" ? { uid: "u1" } : Promise.reject()) },
 }));
 
 vi.mock("firebase-functions/v2/https", () => ({
@@ -34,7 +35,7 @@ vi.mock("firebase-functions/params", () => ({
 import { cardSavePayload, googleWalletPass, sanitizeObjectId, ticketSavePayload } from "./google-wallet";
 
 type Handler = (
-  req: { method: string; path: string },
+  req: { method: string; path: string; headers?: Record<string, string> },
   res: {
     set?: (k: string, v: string) => void;
     status: (c: number) => { send: (b: unknown) => void; json: (b: unknown) => void };
@@ -64,7 +65,7 @@ function run(method: string, path: string) {
       },
     }),
   };
-  return handler({ method, path }, res).then(() => out);
+  return handler({ method, path, headers: { authorization: "Bearer token-u1" } }, res).then(() => out);
 }
 
 afterEach(() => {

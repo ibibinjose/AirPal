@@ -38,6 +38,7 @@ export const CALLABLES = {
   listBioDirectory: "listBioDirectory",
   recordAnalyticsBatch: "recordAnalyticsBatch",
   runAnalyticsAggregation: "runAnalyticsAggregation",
+  createEventBooking: "createEventBooking",
   createBookingCheckoutSession: "createBookingCheckoutSession",
   createConnectAccountLink: "createConnectAccountLink",
   refreshConnectAccount: "refreshConnectAccount",

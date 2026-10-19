@@ -20,6 +20,12 @@ service cloud.firestore {
       );
     }
 
+    function ownsHandle(handle) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/handles/$(handle))
+        && get(/databases/$(database)/documents/handles/$(handle)).data.ownerUid == request.auth.uid;
+    }
+
     function propertyDoc(propertyId) {
       return get(/databases/$(database)/documents/properties/$(propertyId)).data;
     }
@@ -479,17 +485,9 @@ match /dining_orders/{orderId} {
     // only admins read and triage. No sign-in so discovery converts.
     match /partner_leads/{leadId} {
       allow get, list: if signedIn() && platformAdmin();
-      allow create: if request.resource.data.segment in ['stay', 'experience', 'event', 'fashion', 'other']
-        && request.resource.data.source in ['google', 'ai', 'word', 'other']
-        && request.resource.data.company is string
-        && request.resource.data.company.size() > 0 && request.resource.data.company.size() < 121
-        && request.resource.data.name is string
-        && request.resource.data.name.size() > 0 && request.resource.data.name.size() < 81
-        && request.resource.data.email is string
-        && request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$')
-        && request.resource.data.message is string
-        && request.resource.data.message.size() >= 10 && request.resource.data.message.size() < 2001
-        && request.resource.data.status == 'new';
+      // Public lead capture is server-mediated so App Check and rate limits
+      // cannot be bypassed with direct Firestore writes.
+      allow create: if false;
       allow update: if signedIn() && platformAdmin();
       allow delete: if false;
     }
@@ -668,17 +666,10 @@ match /dining_orders/{orderId} {
     // §9 shared booking engine. $0 is paid; otherwise unpaid until Stripe confirms.
     // Money fields (price, fees, payment/payout, Stripe ids) are Functions-only.
     match /bookings/{bookingId} {
-      allow create: if signedIn()
-        && !isAnonymous()
-        && request.resource.data.customerUid == request.auth.uid
-        && request.resource.data.status == 'pending'
-        && request.resource.data.paymentStatus in ['deferred', 'unpaid', 'paid']
-        && request.resource.data.priceCents is number
-        && request.resource.data.priceCents >= 0
-        && (request.resource.data.priceCents == 0 || request.resource.data.paymentStatus != 'paid')
-        && (!request.resource.data.keys().hasAny(['feeCents'])
-          || (request.resource.data.feeCents is number && request.resource.data.feeCents >= 0))
-        && request.resource.data.keys().hasAny(['updatedAt']);
+      // Booking creation, pricing, and every paid state transition are server-only.
+      // The createEventBooking callable derives all fields from the live event;
+      // Stripe/webhook code is the sole authority that can mark payment paid.
+      allow create: if false;
       allow read: if signedIn() && (
         resource.data.customerUid == request.auth.uid ||
         resource.data.providerUid == request.auth.uid ||
@@ -948,8 +939,8 @@ match /dining_orders/{orderId} {
     // City-only presence for Circle. Exact GPS never stored here.
     match /presence/{handle} {
       allow read: if signedIn();
-      allow create, update: if signedIn() && request.resource.data.uid == request.auth.uid;
-      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+      allow create, update: if ownsHandle(handle) && request.resource.data.uid == request.auth.uid;
+      allow delete: if ownsHandle(handle) && resource.data.uid == request.auth.uid;
     }
 
     // Event-space “I’m here” pins. Rounded venue coords only; writes via callables.
@@ -993,13 +984,13 @@ match /dining_orders/{orderId} {
     match /graph/{handle} {
       match /followers/{fromHandle} {
         allow read: if signedIn();
-        allow create, update: if signedIn() && request.resource.data.uid == request.auth.uid;
-        allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+        allow create, update: if ownsHandle(fromHandle) && request.resource.data.uid == request.auth.uid;
+        allow delete: if ownsHandle(fromHandle) && resource.data.uid == request.auth.uid;
       }
       match /likedBy/{fromHandle} {
         allow read: if signedIn();
-        allow create, update: if signedIn() && request.resource.data.uid == request.auth.uid;
-        allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+        allow create, update: if ownsHandle(fromHandle) && request.resource.data.uid == request.auth.uid;
+        allow delete: if ownsHandle(fromHandle) && resource.data.uid == request.auth.uid;
       }
     }
 
@@ -1130,9 +1121,7 @@ match /dining_orders/{orderId} {
 
     // Log search queries for relevance tracking, analytics, and query intent
     match /search_queries/{queryId} {
-      allow create: if request.resource.data.query is string
-        && request.resource.data.query.size() >= 2
-        && request.resource.data.query.size() <= 120;
+      allow create: if false;
       allow read: if platformAdmin();
       allow update, delete: if platformAdmin();
     }
@@ -1140,10 +1129,7 @@ match /dining_orders/{orderId} {
     // Aggregated popular search terms (publicly readable for relevance improvements & suggestions)
     match /popular_searches/{termId} {
       allow read: if true;
-      allow create, update: if signedIn()
-        && request.resource.data.term is string
-        && request.resource.data.term.size() >= 2
-        && request.resource.data.term.size() <= 120;
+      allow create, update: if false;
       allow delete: if platformAdmin();
     }
 

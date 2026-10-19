@@ -2,7 +2,7 @@ import { PKPass } from "passkit-generator";
 import { defineSecret } from "firebase-functions/params";
 import { onRequest } from "firebase-functions/v2/https";
 import { ticketGateUrl } from "../../shared/booking";
-import { db } from "./admin";
+import { auth, db } from "./admin";
 import { cardFieldsFromProfile } from "./pass-profile";
 
 /**
@@ -252,6 +252,25 @@ async function ticketPassBuffer(bookingId: string, cfg: SignerConfig): Promise<B
   return buildPassBuffer(cfg, passJson, `ticket-${bookingId}`, gateUrl);
 }
 
+async function ticketOwnerUid(req: {
+  headers?: Record<string, string | string[] | undefined>;
+}): Promise<string | null> {
+  const value = req.headers?.authorization || req.headers?.Authorization;
+  const header = Array.isArray(value) ? value[0] : value;
+  const token = /^Bearer\s+(.+)$/i.exec(String(header || ""))?.[1];
+  if (!token) return null;
+  try {
+    return (await auth.verifyIdToken(token)).uid;
+  } catch {
+    return null;
+  }
+}
+
+async function ownsTicket(bookingId: string, uid: string): Promise<boolean> {
+  const booking = await getDocData("bookings", bookingId);
+  return Boolean(booking && String(booking.customerUid || "") === uid);
+}
+
 async function cardPassBuffer(handle: string, cfg: SignerConfig): Promise<Buffer | null> {
   const normalized = handle.trim().replace(/^@+/, "").toLowerCase();
   if (!normalized) return null;
@@ -296,6 +315,13 @@ export const walletPass = onRequest(
     }
     const [, kind, rawKey] = match as unknown as [string, "ticket" | "card", string];
     const key = decodeURIComponent(rawKey);
+    if (kind === "ticket") {
+      const uid = await ticketOwnerUid(req);
+      if (!uid || !(await ownsTicket(key, uid))) {
+        res.status(404).json({ error: "pass_not_found" });
+        return;
+      }
+    }
     const cfg = signerConfig();
     try {
       const buffer =

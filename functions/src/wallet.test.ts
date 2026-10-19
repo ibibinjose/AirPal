@@ -15,6 +15,7 @@ function docRef(path: string) {
 
 vi.mock("./admin", () => ({
   db: { collection: (name: string) => ({ doc: (id: string) => docRef(`${name}/${id}`) }) },
+  auth: { verifyIdToken: async (token: string) => (token === "token-u1" ? { uid: "u1" } : Promise.reject()) },
 }));
 
 vi.mock("firebase-functions/v2/https", () => ({
@@ -33,7 +34,7 @@ import { cardFieldsFromProfile } from "./pass-profile";
 import { cardPassJson, formatPassDate, formatPassTime, ticketPassJson, walletPass } from "./wallet";
 
 type Handler = (
-  req: { method: string; path: string },
+  req: { method: string; path: string; headers?: Record<string, string> },
   res: {
     set: (k: string, v: string) => void;
     status: (c: number) => { send: (b: unknown) => void; json: (b: unknown) => void };
@@ -63,7 +64,7 @@ function run(method: string, path: string) {
       },
     }),
   };
-  return handler({ method, path }, res).then(() => out);
+  return handler({ method, path, headers: { authorization: "Bearer token-u1" } }, res).then(() => out);
 }
 
 const ENV_KEYS = [
@@ -155,7 +156,7 @@ describe("walletPass", () => {
   });
 
   it("answers 501 while the signer is not configured", async () => {
-    fakes.docs["bookings/b1"] = { title: "Show", date: "2026-10-02", time: "19:00" };
+    fakes.docs["bookings/b1"] = { title: "Show", date: "2026-10-02", time: "19:00", customerUid: "u1" };
     const out = await run("GET", "/api/wallet/ticket/b1.pkpass");
     expect(out.status).toBe(501);
     expect(out.body).toEqual({ error: "wallet_not_configured" });
@@ -175,7 +176,7 @@ describe("walletPass", () => {
     process.env.WALLET_TEAM_ID = "TEAMID1234";
     process.env.WALLET_SIGNER_CERT = "-----BEGIN CERTIFICATE-----\nfake\n-----END CERTIFICATE-----";
     process.env.WALLET_SIGNER_KEY = "-----BEGIN PRIVATE KEY-----\nexample-invalid-key\n-----END PRIVATE KEY-----";
-    fakes.docs["bookings/b1"] = { title: "Show", date: "2026-10-02", time: "19:00" };
+    fakes.docs["bookings/b1"] = { title: "Show", date: "2026-10-02", time: "19:00", customerUid: "u1" };
     const err = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const out = await run("GET", "/api/wallet/ticket/b1.pkpass");
     expect(out.status).toBe(500);

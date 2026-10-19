@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { defineSecret } from "firebase-functions/params";
 import { onRequest } from "firebase-functions/v2/https";
 import { ticketGateUrl } from "../../shared/booking";
-import { db } from "./admin";
+import { auth, db } from "./admin";
 import { cardFieldsFromProfile } from "./pass-profile";
 
 /**
@@ -182,6 +182,20 @@ async function guestNameFor(customerUid: string): Promise<string> {
   }
 }
 
+async function ticketOwnerUid(req: {
+  headers?: Record<string, string | string[] | undefined>;
+}): Promise<string | null> {
+  const value = req.headers?.authorization || req.headers?.Authorization;
+  const header = Array.isArray(value) ? value[0] : value;
+  const token = /^Bearer\s+(.+)$/i.exec(String(header || ""))?.[1];
+  if (!token) return null;
+  try {
+    return (await auth.verifyIdToken(token)).uid;
+  } catch {
+    return null;
+  }
+}
+
 export const googleWalletPass = onRequest(
   { invoker: "public", secrets: [saJsonSecret, issuerIdSecret] },
   async (req, res) => {
@@ -214,8 +228,9 @@ export const googleWalletPass = onRequest(
       let payload: Record<string, unknown> | null = null;
       if (kind === "ticket") {
         const booking = await getDocData("bookings", key);
-        if (!booking) {
-          res.status(404).json({ error: "booking_not_found" });
+        const uid = await ticketOwnerUid(req);
+        if (!booking || !uid || String(booking.customerUid || "") !== uid) {
+          res.status(404).json({ error: "pass_not_found" });
           return;
         }
         let eventName = "";

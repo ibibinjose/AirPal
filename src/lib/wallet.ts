@@ -1,6 +1,13 @@
 import { toast } from "sonner";
 import { publicSiteOrigin } from "./public-origin";
 import { getNativePlatform } from "./native";
+import { getFirebaseAuth } from "./firebase";
+
+async function walletAuthHeaders(): Promise<HeadersInit> {
+  const user = getFirebaseAuth()?.currentUser;
+  if (!user) return {};
+  return { Authorization: `Bearer ${await user.getIdToken()}` };
+}
 
 /**
  * Checks if the current environment is an Apple device (iOS, iPadOS, macOS)
@@ -69,7 +76,7 @@ export async function openGoogleWalletPass(url: string): Promise<boolean> {
   if (typeof window === "undefined") return false;
   try {
     const targetUrl = normalizeWalletUrl(url);
-    const res = await fetch(targetUrl);
+    const res = await fetch(targetUrl, { headers: await walletAuthHeaders() });
     if (!res.ok) {
       toast.error(
         res.status === 501
@@ -106,7 +113,8 @@ export async function openAppleWalletPass(url: string, title?: string): Promise<
   if (typeof window === "undefined") return false;
   try {
     const targetUrl = normalizeWalletUrl(url);
-    const head = await fetch(targetUrl, { method: "HEAD" });
+    const headers = await walletAuthHeaders();
+    const head = await fetch(targetUrl, { method: "HEAD", headers });
     if (!head.ok) {
       toast.error(
         head.status === 501
@@ -117,21 +125,25 @@ export async function openAppleWalletPass(url: string, title?: string): Promise<
       );
       return false;
     }
+    const pass = await fetch(targetUrl, { headers });
+    if (!pass.ok) throw new Error("Pass download failed");
+    const blobUrl = URL.createObjectURL(await pass.blob());
     if (getNativePlatform() === "ios") {
       // In iOS WKWebView / Capacitor, opening with target '_system' delegates
       // the .pkpass mime type to iOS Safari, which automatically displays
       // the native PKAddPassesViewController "Add to Apple Wallet" sheet.
-      window.open(targetUrl, "_system");
+      window.open(blobUrl, "_system");
       return true;
     }
     const a = document.createElement("a");
-    a.href = targetUrl;
+    a.href = blobUrl;
     a.rel = "noopener noreferrer";
     a.target = "_blank";
     if (title) a.download = title.toLowerCase().replace(/[^a-z0-9]/g, "-") + ".pkpass";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
     return true;
   } catch (err) {
     console.error("Failed to open Apple Wallet pass:", err);

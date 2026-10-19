@@ -15,7 +15,7 @@ import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "./abuse";
 
 const CALLABLE = {
   consumeAppCheckToken: true,
-  enforceAppCheck: process.env.ENFORCE_APPCHECK === "true",
+  enforceAppCheck: process.env.FUNCTIONS_EMULATOR !== "true",
 } as const;
 
 function db() {

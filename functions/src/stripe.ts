@@ -268,6 +268,76 @@ export function assertChargeableAmount(totalAmount: number): void {
   }
 }
 
+/**
+ * Creates the initial booking from an authoritative event row. Clients never
+ * choose the provider, price, payment state, or event copy persisted here.
+ */
+export const createEventBooking = onCall(STRIPE_CALLABLE, async (request) => {
+  await noteAppCheck(request, "createEventBooking");
+  const uid = requireAuth(request.auth?.uid);
+  if (isAnonymousAuth(request)) throw new HttpsError("failed-precondition", "Create an email account to book.");
+  await enforceRateLimit(uid, "pay", false);
+  const data = (request.data || {}) as { eventId?: unknown; spots?: unknown; tierId?: unknown; couponCode?: unknown };
+  const eventId = String(data.eventId || "").trim();
+  if (!eventId) throw new HttpsError("invalid-argument", "eventId is required.");
+  const eventSnap = await db.collection("events").doc(eventId).get();
+  if (!eventSnap.exists) throw new HttpsError("not-found", "Event not found.");
+  const event = eventSnap.data() as Record<string, unknown>;
+  if (event.status !== "live") throw new HttpsError("failed-precondition", "This event is not on sale.");
+  if (event.registrationClosed === true) throw new HttpsError("failed-precondition", "Registration is closed.");
+  const spots = Math.min(20, Math.max(1, Math.floor(Number(data.spots) || 1)));
+  const tierId = typeof data.tierId === "string" ? data.tierId.trim() : "";
+  const tiers = Array.isArray(event.ticketTiers) ? event.ticketTiers : [];
+  let priceCents = Number(event.ticketPriceCents || 0);
+  if (tierId) {
+    const tier = tiers.find(
+      (row): row is { id: string; priceCents: number } =>
+        !!row &&
+        typeof row === "object" &&
+        typeof (row as { id?: unknown }).id === "string" &&
+        (row as { id: string }).id === tierId &&
+        Number.isInteger(Number((row as { priceCents?: unknown }).priceCents)) &&
+        Number((row as { priceCents?: unknown }).priceCents) >= 0,
+    );
+    if (!tier) throw new HttpsError("failed-precondition", "This ticket tier is unavailable.");
+    priceCents = tier.priceCents * spots;
+  }
+  if (!Number.isInteger(priceCents) || priceCents < 0) {
+    throw new HttpsError("failed-precondition", "This event has no valid ticket price.");
+  }
+  const now = new Date().toISOString();
+  const startsAt = String(event.startsAt || "");
+  const dateMatch = /^(\d{4}-\d{2}-\d{2})/.exec(startsAt);
+  const timeMatch = /T(\d{2}:\d{2})/.exec(startsAt);
+  const ref = db.collection("bookings").doc();
+  await ref.set({
+    requestId: eventId,
+    eventId,
+    customerUid: uid,
+    providerUid: String(event.organiserUid || ""),
+    providerKind: "business",
+    providerName: String(event.hostName || event.businessName || event.name || "AirPal"),
+    title: String(event.name || "AirPal event"),
+    suburb: String(event.venue || event.city || ""),
+    date: dateMatch?.[1] || startsAt,
+    time: timeMatch?.[1] || "",
+    priceCents,
+    feeCents: 0,
+    paymentStatus: "unpaid",
+    payoutStatus: "unpaid",
+    status: "pending",
+    cancelReason: "",
+    spots,
+    ...(tierId ? { tierId } : {}),
+    ...(typeof data.couponCode === "string" && data.couponCode.trim()
+      ? { couponCode: data.couponCode.trim().toUpperCase().slice(0, 64) }
+      : {}),
+    createdAt: now,
+    updatedAt: now,
+  });
+  return { bookingId: ref.id };
+});
+
 export const createBookingCheckoutSession = onCall(STRIPE_CALLABLE, async (request) => {
   await noteAppCheck(request, "createBookingCheckoutSession");
   const uid = requireAuth(request.auth?.uid);

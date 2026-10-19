@@ -264,6 +264,15 @@ export function createBookingCheckoutSessionRemote(data: { bookingId: string }) 
   >(CALLABLES.createBookingCheckoutSession, data);
 }
 
+export function createEventBookingRemote(data: {
+  eventId: string;
+  spots?: number;
+  tierId?: string;
+  couponCode?: string;
+}) {
+  return callFunction<typeof data, { bookingId: string }>(CALLABLES.createEventBooking, data);
+}
+
 export function scheduleCatchUpRemote(data: { catchupId: string; action: "open" | "accept"; slotId?: string }) {
   return callFunction<
     typeof data,
