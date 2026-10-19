@@ -88,4 +88,16 @@ describe("checkTimeConflict", () => {
     );
     expect(result.hasConflict).toBe(false);
   });
+
+  it("handles custom duration intervals accurately", () => {
+    // 15-minute sync from 14:00 to 14:15 doesn't conflict with meeting at 14:30
+    const result = checkTimeConflict(
+      "2026-09-25",
+      "14:00",
+      [{ date: "2026-09-25", time: "14:30", title: "Later call", type: "meeting", durationMinutes: 30 }],
+      [],
+      15,
+    );
+    expect(result.hasConflict).toBe(false);
+  });
 });

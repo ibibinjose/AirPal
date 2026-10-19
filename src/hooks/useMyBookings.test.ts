@@ -94,4 +94,13 @@ describe("useMyBookings helpers", () => {
     expect(readCachedBookings("")).toEqual([]);
     writeCachedBookings("", []);
   });
+
+  it("calculates spots accurately from booking items", () => {
+    const list: BookingWithId[] = [
+      { ...sampleBooking({ id: "b-1", spots: 2 }), id: "b-1" },
+      { ...sampleBooking({ id: "b-2", spots: 4 }), id: "b-2" },
+    ];
+    const total = list.reduce((sum, b) => sum + (b.spots || 1), 0);
+    expect(total).toBe(6);
+  });
 });

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useAuth } from "@/contexts/AuthContext";
 import { getFirebaseDb, isFirebaseConfigured } from "@/lib/firebase";
 import { useLocalNow } from "@/hooks/useLocalNow";
@@ -109,40 +109,41 @@ export function useMyBookings() {
     setLoading(bookings === undefined);
     setFailed(false);
 
-    // Try primary query with orderBy createdAt desc. Fallback to unindexed where query if needed.
-    const runQuery = async () => {
-      try {
-        const bookingsCol = collection(db, "bookings");
-        let snap;
-        try {
-          const qPrimary = query(bookingsCol, where("customerUid", "==", uid), orderBy("createdAt", "desc"));
-          snap = await getDocs(qPrimary);
-        } catch {
-          // Fallback if composite index on (customerUid, createdAt) is pending
-          const qFallback = query(bookingsCol, where("customerUid", "==", uid));
-          snap = await getDocs(qFallback);
-        }
-
-        if (cancelled) return;
-
-        const docs: BookingWithId[] = snap.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<Booking, "id">),
-        }));
-
-        // Sort client-side by date / createdAt desc if needed
-        docs.sort((a, b) => {
-          const aTime = a.createdAt || a.date || "";
-          const bTime = b.createdAt || b.date || "";
-          return bTime.localeCompare(aTime);
-        });
-
-        writeCachedBookings(uid, docs);
-        setBookings(docs);
-        setIsOfflineCached(false);
-        setLoading(false);
-      } catch (_err) {
-        if (cancelled) return;
+    let unsubscribe: (() => void) | undefined;
+    try {
+      const q = query(collection(db, "bookings"), where("customerUid", "==", uid));
+      unsubscribe = onSnapshot(
+        q,
+        (snap) => {
+          if (cancelled) return;
+          const docs: BookingWithId[] = snap.docs.map((d) => ({
+            id: d.id,
+            ...(d.data() as Omit<Booking, "id">),
+          }));
+          docs.sort((a, b) => {
+            const aTime = a.createdAt || a.date || "";
+            const bTime = b.createdAt || b.date || "";
+            return bTime.localeCompare(aTime);
+          });
+          writeCachedBookings(uid, docs);
+          setBookings(docs);
+          setIsOfflineCached(false);
+          setLoading(false);
+        },
+        (_err) => {
+          if (cancelled) return;
+          const cached = readCachedBookings(uid);
+          if (cached.length > 0) {
+            setBookings(cached);
+            setIsOfflineCached(true);
+          } else {
+            setFailed(true);
+          }
+          setLoading(false);
+        },
+      );
+    } catch {
+      if (!cancelled) {
         const cached = readCachedBookings(uid);
         if (cached.length > 0) {
           setBookings(cached);
@@ -152,12 +153,11 @@ export function useMyBookings() {
         }
         setLoading(false);
       }
-    };
-
-    void runQuery();
+    }
 
     return () => {
       cancelled = true;
+      if (unsubscribe) unsubscribe();
     };
   }, [user?.uid, attempt]);
 
@@ -171,10 +171,27 @@ export function useMyBookings() {
     return bookings.filter((b) => !isUpcomingBooking(b, today));
   }, [bookings, today]);
 
+  const totalSpots = useMemo(() => {
+    if (!bookings) return 0;
+    return bookings.reduce((sum, b) => sum + (b.spots || 1), 0);
+  }, [bookings]);
+
+  const upcomingSpots = useMemo(() => {
+    return upcomingBookings.reduce((sum, b) => sum + (b.spots || 1), 0);
+  }, [upcomingBookings]);
+
+  const admittedCount = useMemo(() => {
+    if (!bookings) return 0;
+    return bookings.filter((b) => Boolean(b.admittedAt)).length;
+  }, [bookings]);
+
   return {
     bookings: bookings ?? [],
     upcomingBookings,
     pastBookings,
+    totalSpots,
+    upcomingSpots,
+    admittedCount,
     loading: loading && bookings === undefined,
     failed,
     isOfflineCached,

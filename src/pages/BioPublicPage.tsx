@@ -1453,7 +1453,7 @@ export function BioPublicPage() {
           {/* Catch Up & Hangout Deck for Visitors */}
           {!isOwner &&
             !(bio.kind === "business" && ((bio.products || []).length > 0 || (bio.services || []).length > 0)) && (
-              <div className="mt-7 rounded-[28px] sm:rounded-[32px] bg-gradient-to-br from-paper/90 via-card to-paper/60 p-5 sm:p-6 ring-1 ring-line/80 shadow-xs">
+              <div className="mt-7 rounded-[28px] sm:rounded-[32px] bg-gradient-to-br from-paper/95 via-card/90 to-paper/70 p-5 sm:p-6 ring-1 ring-white/60 dark:ring-white/10 shadow-clay backdrop-blur-xl">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
                     <Sparkles size={12} className="text-accent" />
@@ -1494,7 +1494,8 @@ export function BioPublicPage() {
                 </div>
                 <h3 className="font-display mt-2.5 text-lg sm:text-xl font-bold text-ink">Catch up with {bio.name}</h3>
                 <p className="mt-1 text-xs sm:text-sm leading-relaxed text-mute">
-                  Propose a 1-on-1 coffee, schedule a sync meeting, or create a group hangout.
+                  Propose a 1-on-1 coffee, schedule a sync meeting, or create a group hangout with instant calendar
+                  sync.
                 </p>
 
                 <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
@@ -1503,23 +1504,23 @@ export function BioPublicPage() {
                       {
                         type: "catchup" as const,
                         label: "Catch Up",
-                        sub: "1-on-1 coffee",
+                        sub: "1-on-1 coffee · 45m",
                         Icon: Coffee,
-                        tint: "bg-amber-500/15 text-amber-700",
+                        tint: "bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/20",
                       },
                       {
                         type: "meeting" as const,
                         label: "Meeting",
-                        sub: "1-on-1 sync",
+                        sub: "1-on-1 sync · 30m",
                         Icon: Calendar,
-                        tint: "bg-sky-500/15 text-sky-700",
+                        tint: "bg-sky-500/15 text-sky-700 dark:text-sky-400 ring-1 ring-sky-500/20",
                       },
                       {
                         type: "nightout" as const,
                         label: "Hangout",
-                        sub: "Group catch-up",
+                        sub: "Group catch-up · 2h",
                         Icon: Users,
-                        tint: "bg-violet-500/15 text-violet-700",
+                        tint: "bg-violet-500/15 text-violet-700 dark:text-violet-400 ring-1 ring-violet-500/20",
                       },
                     ] as const
                   ).map((opt) => (
@@ -1531,7 +1532,7 @@ export function BioPublicPage() {
                         setCatchUpInitialType(opt.type);
                         setCatchUpModalOpen(true);
                       }}
-                      className="group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[64px] sm:min-h-[96px] rounded-[22px] bg-card p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:ring-brand/40 hover:shadow-xs active:scale-[0.98] cursor-pointer touch-manipulation"
+                      className="group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[68px] sm:min-h-[104px] rounded-[24px] bg-card/90 p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:ring-brand/40 hover:shadow-md active:scale-[0.98] cursor-pointer touch-manipulation"
                     >
                       <span
                         className={cn(

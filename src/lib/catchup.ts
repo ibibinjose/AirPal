@@ -17,6 +17,8 @@ export interface CatchUpItem {
   type: CatchUpType;
   date?: string;
   time?: string;
+  durationMinutes?: number;
+  activity?: string;
   venue?: string;
   meetingLink?: string;
   meetingPlatform?: "in_person" | "google_meet" | "facetime" | "zoom";
@@ -215,6 +217,8 @@ export function recordCatchUpInterest(input: {
   type?: CatchUpType;
   date?: string;
   time?: string;
+  durationMinutes?: number;
+  activity?: string;
   venue?: string;
   meetingLink?: string;
   meetingPlatform?: "in_person" | "google_meet" | "facetime" | "zoom";
@@ -233,6 +237,8 @@ export function recordCatchUpInterest(input: {
     type: input.type || "catchup",
     date: input.date,
     time: input.time,
+    durationMinutes: input.durationMinutes || 45,
+    activity: input.activity,
     venue: input.venue,
     meetingLink: input.meetingLink,
     meetingPlatform: input.meetingPlatform,
@@ -336,23 +342,28 @@ export interface TimeConflict {
   conflictingType?: string;
 }
 
-/** Check if a date & time slot conflicts with existing catch-ups or scheduled meetups (+/- 60 mins) */
+/** Check if a date & time slot conflicts with existing catch-ups or scheduled meetups (+/- 60 mins or duration) */
 export function checkTimeConflict(
   date: string,
   time: string,
-  existingPlans: Array<{ date: string; time?: string; title: string; type?: string }> = [],
+  existingPlans: Array<{ date: string; time?: string; title: string; type?: string; durationMinutes?: number }> = [],
   existingCatchups: CatchUpItem[] = [],
+  durationMinutes = 60,
 ): TimeConflict {
   if (!date || !time) return { hasConflict: false };
 
   const [th, tm] = time.split(":").map(Number);
   const targetMinutes = (th || 0) * 60 + (tm || 0);
+  const targetEnd = targetMinutes + Math.max(15, durationMinutes);
 
   for (const p of existingPlans) {
     if (p.date === date && p.time) {
       const [ph, pm] = p.time.split(":").map(Number);
       const planMinutes = (ph || 0) * 60 + (pm || 0);
-      if (Math.abs(targetMinutes - planMinutes) < 60) {
+      const planDuration = p.durationMinutes || 60;
+      const planEnd = planMinutes + planDuration;
+      // Overlap if targetMinutes < planEnd and planMinutes < targetEnd
+      if (targetMinutes < planEnd && planMinutes < targetEnd) {
         return {
           hasConflict: true,
           conflictingTitle: p.title,
@@ -368,7 +379,9 @@ export function checkTimeConflict(
       if (c.date !== date) continue;
       const [ch, cm] = c.time.split(":").map(Number);
       const catchupMinutes = (ch || 0) * 60 + (cm || 0);
-      if (Math.abs(targetMinutes - catchupMinutes) < 60) {
+      const catchupDuration = c.durationMinutes || 60;
+      const catchupEnd = catchupMinutes + catchupDuration;
+      if (targetMinutes < catchupEnd && catchupMinutes < targetEnd) {
         return {
           hasConflict: true,
           conflictingTitle: `Meetup with ${c.requesterName}`,
@@ -380,6 +393,36 @@ export function checkTimeConflict(
   }
 
   return { hasConflict: false };
+}
+
+/** Formats a clean human-readable title and vibe for catch-ups */
+export function formatCatchUpSummary(item: CatchUpItem): string {
+  const typeLabel =
+    item.type === "meeting"
+      ? "Meeting"
+      : item.type === "nightout"
+        ? item.activity
+          ? `Hangout (${item.activity})`
+          : "Hangout"
+        : "Catch Up";
+  const durationLabel = item.durationMinutes ? ` · ${item.durationMinutes}m` : "";
+  return `${typeLabel} with ${item.requesterName}${durationLabel}`;
+}
+
+/** Formats start and estimated end time range (e.g. "14:00 – 14:45") */
+export function formatCatchUpTimeRange(time?: string, durationMinutes = 45): string {
+  if (!time) return "";
+  const [h, m] = time.split(":").map(Number);
+  if (isNaN(h!) || isNaN(m!)) return time;
+  const startMins = h! * 60 + m!;
+  const endMins = startMins + durationMinutes;
+  const endH = Math.floor(endMins / 60) % 24;
+  const endM = endMins % 60;
+  const formatTime = (hour: number, min: number) => {
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${pad(hour)}:${pad(min)}`;
+  };
+  return `${time} – ${formatTime(endH, endM)} (${durationMinutes}m)`;
 }
 
 /** Test helper — clear the in-memory mirror between cases. */
