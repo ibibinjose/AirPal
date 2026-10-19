@@ -1,7 +1,31 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
-import { Calendar, Check, Download, ExternalLink, MapPin, Monitor, Moon, Sun } from "lucide-react";
+import {
+  ArrowLeft,
+  Bell,
+  Calendar,
+  Check,
+  ChevronRight,
+  Download,
+  ExternalLink,
+  Gift,
+  KeyRound,
+  LogOut,
+  MapPin,
+  Monitor,
+  Moon,
+  Palette,
+  Scale,
+  ShieldCheck,
+  Sparkles,
+  Sun,
+  Ticket,
+  Trash2,
+  UserCheck,
+  UserRound,
+  Briefcase,
+} from "lucide-react";
 import { authErrorMessage } from "@shared/auth-email";
 import { BIRTHDAY_REGIONS, isBirthdayRegionCode, type BirthdayRegionCode } from "@shared/birthday-freebies";
 import { Button } from "@/components/ui/Button";
@@ -22,16 +46,20 @@ import { getThemePreference, setThemePreference, type ThemeMode } from "@/lib/th
 import { CITY_OPTIONS } from "@/lib/cities";
 import { cn } from "@/lib/cn";
 import { safeGetItem, safeSetItem } from "@/lib/safe-storage";
+import { getBuildInfo } from "@/lib/build-info";
+import { bioPath } from "@shared/bio";
 
 export function SettingsPage() {
   const [, nav] = useLocation();
   const { user, logout, deleteAccount, sendVerificationEmail, requestPasswordReset, refreshUser } = useAuth();
   const { mine, business } = useBio();
   const { city, usingGps, chooseLocation, shareLocation, setShareLocation } = useLocalNow();
+  const buildInfo = getBuildInfo();
 
   const [resetBusy, setResetBusy] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [showDeleteZone, setShowDeleteZone] = useState(false);
   const [alertsEnabled, setAlertsEnabled] = useState(true);
   const [alertsRegion, setAlertsRegion] = useState<BirthdayRegionCode>("au");
   const [alertsBusy, setAlertsBusy] = useState(false);
@@ -100,7 +128,9 @@ export function SettingsPage() {
     void triggerHaptic("light");
     setTheme(mode);
     setThemePreference(mode);
-    toast.success(`Theme set to ${mode}`);
+    toast.success(
+      `Theme set to ${mode === "dark" ? "Night (OLED Black)" : mode === "light" ? "Day (Parchment)" : "System"}`,
+    );
   };
 
   const handleDealsToggle = () => {
@@ -132,45 +162,165 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-md px-4 pb-[max(7rem,calc(env(safe-area-inset-bottom,0px)+6rem))]">
-      <p className="human-eyebrow pt-4">Account</p>
-      <h1 className="human-title mt-1 text-3xl text-balance">Settings</h1>
+    <div className="mx-auto max-w-xl px-4 sm:px-6 pb-[max(7.5rem,calc(env(safe-area-inset-bottom,0px)+6.5rem))] pt-4">
+      {/* Top Bar Navigation */}
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <button
+          type="button"
+          onClick={() => {
+            void triggerHaptic("light");
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              nav("/me");
+            }
+          }}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-line text-ink transition hover:bg-paper active:scale-95 cursor-pointer"
+          aria-label="Go back"
+        >
+          <ArrowLeft size={18} />
+        </button>
 
+        <div className="text-center min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-mute">AirPal Account</p>
+          <h1 className="font-display text-lg sm:text-xl font-bold text-ink truncate">Settings & Preferences</h1>
+        </div>
+
+        <div className="h-10 w-10 shrink-0" aria-hidden="true" />
+      </div>
+
+      {/* Account Overview Header */}
       {user ? (
-        <div className="mt-5 flex items-center gap-3 rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
-          <MeAvatar faceClassName="h-14 w-14 text-lg" />
-          <div className="min-w-0">
-            <p className="truncate font-medium">{mine?.name || user.displayName || "Account"}</p>
-            <p className="truncate text-sm text-mute">{user.email || user.phone || "Signed in"}</p>
+        <div className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
+          <div className="flex items-center gap-4">
+            <MeAvatar faceClassName="h-16 w-16 text-xl ring-2 ring-brand/40 shadow-sm" />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="font-display text-lg sm:text-xl font-bold text-ink truncate">
+                  {mine?.name || user.displayName || "AirPal Member"}
+                </h2>
+                {user.emailVerified && (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20"
+                    title="Verified Account"
+                  >
+                    <UserCheck size={11} /> Verified
+                  </span>
+                )}
+              </div>
+              <p className="truncate text-xs sm:text-sm text-mute mt-0.5">{user.email || user.phone || "Signed In"}</p>
+              {mine?.handle && (
+                <div className="mt-2 flex items-center gap-2">
+                  <Link
+                    href={bioPath(mine.handle)}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline"
+                  >
+                    <span>airpal.me/@{mine.handle}</span>
+                    <ExternalLink size={12} />
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* Quick Action Navigation Pills */}
+          <div className="mt-5 grid grid-cols-3 gap-2 border-t border-line/70 pt-4">
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("light");
+                nav("/bio/edit");
+              }}
+              className="flex min-h-[44px] flex-col items-center justify-center rounded-2xl bg-paper px-2 py-2 text-center text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+            >
+              <UserRound size={15} className="text-accent mb-1" />
+              <span>Edit Bio</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("light");
+                nav("/me/tickets");
+              }}
+              className="flex min-h-[44px] flex-col items-center justify-center rounded-2xl bg-paper px-2 py-2 text-center text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+            >
+              <Ticket size={15} className="text-accent mb-1" />
+              <span>Tickets</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("light");
+                nav("/pass");
+              }}
+              className="flex min-h-[44px] flex-col items-center justify-center rounded-2xl bg-paper px-2 py-2 text-center text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+            >
+              <Sparkles size={15} className="text-accent mb-1" />
+              <span>Passbook</span>
+            </button>
+          </div>
+
+          {user.email && user.emailVerified === false && (
+            <div className="mt-4">
+              <VerifyEmailBanner email={user.email} onSend={sendVerificationEmail} />
+            </div>
+          )}
         </div>
       ) : (
-        <p className="mt-3 text-sm text-mute">Sign in to manage your email, security, and profile settings.</p>
+        <div className="rounded-3xl bg-card p-6 text-center ring-1 ring-line shadow-clay">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+            <UserRound size={26} />
+          </div>
+          <h2 className="font-display mt-3 text-lg font-bold text-ink">Sign in to AirPal</h2>
+          <p className="mt-1 text-xs sm:text-sm text-mute max-w-sm mx-auto leading-relaxed">
+            Connect your universal account to sync personal tickets, Apple &amp; Google Wallet passes, and manage your
+            digital bio.
+          </p>
+          <div className="mt-5 flex items-center justify-center gap-3">
+            <Button onClick={() => nav("/start")} className="min-w-[120px] rounded-full">
+              Join AirPal
+            </Button>
+            <Button variant="ghost" onClick={() => nav("/start?tab=signin")} className="min-w-[120px] rounded-full">
+              Sign In
+            </Button>
+          </div>
+        </div>
       )}
 
-      {user && <AccountContacts />}
+      {/* Profile Details Edit Group (When signed in) */}
       {user && (
-        <div className="mt-4 rounded-2xl bg-card p-4 ring-1 ring-line">
-          <ChangeDisplayNameForm currentName={mine?.name || user.displayName} />
+        <div className="mt-6 space-y-4">
+          <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+            <p className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Display Name</p>
+            <ChangeDisplayNameForm currentName={mine?.name || user.displayName} />
+          </div>
+
+          {mine && (
+            <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+              <p className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Public @handle</p>
+              <ChangeHandleForm current={mine.handle} profileId={mine.id} />
+            </div>
+          )}
+
+          <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+            <p className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Linked Email & Mobile</p>
+            <AccountContacts />
+          </div>
         </div>
       )}
-      {user && mine && (
-        <div className="mt-4 rounded-2xl bg-card p-4 ring-1 ring-line">
-          <ChangeHandleForm current={mine.handle} profileId={mine.id} />
-        </div>
-      )}
-      {user?.email && user.emailVerified === false && (
-        <VerifyEmailBanner email={user.email} onSend={sendVerificationEmail} />
-      )}
-      {/* App Appearance / Theme */}
+
+      {/* Appearance & Themes */}
       <section className="mt-8">
-        <h2 className="font-display text-xl font-bold">Appearance</h2>
-        <p className="mt-1 text-xs text-mute">Choose how AirPal looks on this device.</p>
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <div className="flex items-center gap-2 mb-1">
+          <Palette size={16} className="text-accent" />
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Appearance</h2>
+        </div>
+        <p className="text-xs text-mute mb-3">Choose how AirPal displays on this screen.</p>
+        <div className="grid grid-cols-3 gap-2.5">
           {[
-            { id: "system" as const, label: "System", icon: Monitor },
-            { id: "light" as const, label: "Day", icon: Sun },
-            { id: "dark" as const, label: "Night", icon: Moon },
+            { id: "system" as const, label: "System", sub: "Auto OS match", icon: Monitor },
+            { id: "light" as const, label: "Day", sub: "Warm parchment", icon: Sun },
+            { id: "dark" as const, label: "Night", sub: "True OLED black", icon: Moon },
           ].map((opt) => {
             const Icon = opt.icon;
             const active = theme === opt.id;
@@ -180,53 +330,66 @@ export function SettingsPage() {
                 type="button"
                 onClick={() => handleThemeChange(opt.id)}
                 className={cn(
-                  "flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-2xl p-2.5 text-xs font-semibold ring-1 transition active:scale-95 cursor-pointer",
-                  active ? "bg-brand text-white ring-brand shadow-xs" : "bg-card text-ink ring-line hover:bg-paper",
+                  "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl p-3 text-center transition-all duration-200 active:scale-95 cursor-pointer ring-1",
+                  active
+                    ? "bg-brand text-white ring-brand shadow-clay"
+                    : "bg-card text-ink ring-line hover:bg-paper hover:ring-line/90 shadow-2xs",
                 )}
               >
-                <Icon size={16} />
-                <span>{opt.label}</span>
+                <Icon size={18} />
+                <span className="text-xs font-bold">{opt.label}</span>
+                <span className={cn("text-[10px] leading-tight", active ? "text-white/85" : "text-mute")}>
+                  {opt.sub}
+                </span>
               </button>
             );
           })}
         </div>
       </section>
 
-      {/* Notification Preferences */}
+      {/* Notifications & Alerts */}
       <section className="mt-8">
-        <h2 className="font-display text-xl font-bold">Notifications</h2>
-        <p className="mt-1 text-xs text-mute">Manage alerts for hangouts, perks, and event updates.</p>
-        <div className="mt-3 space-y-2">
-          <div className="flex min-h-[52px] items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
+        <div className="flex items-center gap-2 mb-1">
+          <Bell size={16} className="text-accent" />
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Notifications & Alerts</h2>
+        </div>
+        <p className="text-xs text-mute mb-3">Control push notifications, event drops, and local perks.</p>
+
+        <div className="divide-y divide-line/70 rounded-3xl bg-card ring-1 ring-line shadow-xs overflow-hidden">
+          {/* Push Notifications Row */}
+          <div className="flex min-h-[56px] items-center justify-between p-4 sm:p-5">
             <div className="min-w-0 pr-3">
-              <span className="block text-sm font-medium text-ink">Push Notifications</span>
-              <span className="block text-xs text-mute">
+              <span className="block text-sm font-semibold text-ink">Push Notifications</span>
+              <span className="block text-xs text-mute mt-0.5">
                 {pushStatus === "granted"
-                  ? "Active on this browser"
+                  ? "Active and receiving updates"
                   : pushStatus === "denied"
                     ? "Blocked in browser permissions"
-                    : "Not enabled yet"}
+                    : "Not enabled yet on this device"}
               </span>
             </div>
             {pushStatus !== "granted" ? (
               <button
                 type="button"
                 onClick={requestPush}
-                className="inline-flex min-h-[44px] items-center rounded-full bg-brand px-3.5 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95 cursor-pointer"
+                className="inline-flex min-h-[44px] items-center rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95 cursor-pointer"
               >
                 Enable
               </button>
             ) : (
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                 <Check size={16} />
               </span>
             )}
           </div>
 
-          <div className="flex min-h-[52px] items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
+          {/* Event Drops & Dining Perks Row */}
+          <div className="flex min-h-[56px] items-center justify-between p-4 sm:p-5">
             <div className="min-w-0 pr-3">
-              <span className="block text-sm font-medium text-ink">Event Drops & Dining Deals</span>
-              <span className="block text-xs text-mute">Notice when partner venues post limited perks</span>
+              <span className="block text-sm font-semibold text-ink">Event Drops & Dining Deals</span>
+              <span className="block text-xs text-mute mt-0.5">
+                Alerts when nearby partner venues post limited perks
+              </span>
             </div>
             <button
               type="button"
@@ -247,66 +410,129 @@ export function SettingsPage() {
               />
             </button>
           </div>
+
+          {/* Birthday Freebies Alert Section (When signed in) */}
+          {user && (
+            <div className="p-4 sm:p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <span className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+                    <Gift size={15} className="text-amber-500" />
+                    <span>Birthday Month Perks</span>
+                  </span>
+                  <span className="block text-xs text-mute mt-0.5">
+                    Receive a notification when your annual freebies are ready to claim
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={alertsEnabled}
+                  aria-label="Birthday month alerts"
+                  disabled={alertsBusy}
+                  onClick={() => void saveAlertPrefs({ enabled: !alertsEnabled })}
+                  className={cn(
+                    "relative h-7 w-12 shrink-0 rounded-full transition cursor-pointer disabled:opacity-50",
+                    alertsEnabled ? "bg-brand" : "bg-line",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all",
+                      alertsEnabled ? "left-[22px]" : "left-0.5",
+                    )}
+                  />
+                </button>
+              </div>
+
+              <div className="mt-3.5 border-t border-line/60 pt-3">
+                <label htmlFor="freebies-region" className="block text-xs font-semibold text-mute mb-1">
+                  Freebies Country / Region
+                </label>
+                <select
+                  id="freebies-region"
+                  className="w-full min-h-[44px] rounded-2xl border border-line bg-paper px-3 py-2 text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50 cursor-pointer"
+                  value={alertsRegion}
+                  disabled={alertsBusy}
+                  onChange={(e) => {
+                    const region = e.target.value as BirthdayRegionCode;
+                    void saveAlertPrefs({ region });
+                  }}
+                >
+                  {BIRTHDAY_REGIONS.map((r) => (
+                    <option key={r.code} value={r.code}>
+                      {r.flagEmoji ? `${r.flagEmoji} ` : ""}
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2 flex items-center justify-between text-xs text-mute">
+                  <span>
+                    {user.birthdayMonth ? `Birthday set: ${user.birthdayMonth}` : "Add birthday in signup to unlock"}
+                  </span>
+                  <Link
+                    href={`/birthday-freebies/${alertsRegion}`}
+                    className="font-semibold text-accent hover:underline"
+                  >
+                    Browse Freebies &rarr;
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Location & Precinct Preferences */}
       <section className="mt-8">
-        <h2 className="font-display text-xl font-bold">Location & Precinct</h2>
-        <p className="mt-1 text-xs text-mute">Control your local city discovery anchor.</p>
-        <div className="mt-3 space-y-2">
-          <div className="rounded-2xl bg-card p-4 ring-1 ring-line">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MapPin size={16} className="text-accent" />
-                <span className="text-sm font-semibold text-ink">
-                  {usingGps ? "Using Device GPS" : `City: ${city || "Sydney"}`}
-                </span>
-              </div>
+        <div className="flex items-center gap-2 mb-1">
+          <MapPin size={16} className="text-accent" />
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Location & Precinct</h2>
+        </div>
+        <p className="text-xs text-mute mb-3">Configure your anchor city for local recommendations.</p>
+
+        <div className="divide-y divide-line/70 rounded-3xl bg-card ring-1 ring-line shadow-xs overflow-hidden">
+          <div className="p-4 sm:p-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold text-ink">Default Discovery City</span>
               <span className="rounded-full bg-paper px-2.5 py-0.5 text-[11px] font-bold text-mute ring-1 ring-line">
                 {usingGps ? "Live GPS" : "Fixed City"}
               </span>
             </div>
-            <div className="mt-3">
-              <label
-                htmlFor="city-select"
-                className="block text-[11px] font-bold text-mute uppercase tracking-wider mb-1"
-              >
-                Default City
-              </label>
-              <select
-                id="city-select"
-                value={usingGps ? "gps" : city.toLowerCase()}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  void triggerHaptic("light");
-                  if (val === "gps") {
-                    chooseLocation({ mode: "gps" });
-                    toast.success("Switched to live GPS");
-                  } else {
-                    const found = CITY_OPTIONS.find((c) => c.label.toLowerCase() === val.toLowerCase());
-                    if (found) {
-                      chooseLocation({ mode: "city", city: found.label, lat: found.lat, lng: found.lng });
-                      toast.success(`Location set to ${found.label}`);
-                    }
+            <select
+              id="city-select"
+              value={usingGps ? "gps" : city.toLowerCase()}
+              onChange={(e) => {
+                const val = e.target.value;
+                void triggerHaptic("light");
+                if (val === "gps") {
+                  chooseLocation({ mode: "gps" });
+                  toast.success("Switched to live GPS");
+                } else {
+                  const found = CITY_OPTIONS.find((c) => c.label.toLowerCase() === val.toLowerCase());
+                  if (found) {
+                    chooseLocation({ mode: "city", city: found.label, lat: found.lat, lng: found.lng });
+                    toast.success(`Location set to ${found.label}`);
                   }
-                }}
-                className="w-full min-h-[44px] rounded-xl bg-paper px-3 py-2 text-sm font-medium text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
-              >
-                <option value="gps">📍 Current device location (GPS)</option>
-                {CITY_OPTIONS.map((c) => (
-                  <option key={c.id} value={c.label.toLowerCase()}>
-                    {c.label} ({c.region})
-                  </option>
-                ))}
-              </select>
-            </div>
+                }
+              }}
+              className="w-full min-h-[44px] rounded-2xl bg-paper px-3 py-2 text-sm font-medium text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer"
+            >
+              <option value="gps">📍 Current device location (GPS)</option>
+              {CITY_OPTIONS.map((c) => (
+                <option key={c.id} value={c.label.toLowerCase()}>
+                  {c.label} ({c.region})
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="flex min-h-[52px] items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
+          <div className="flex min-h-[56px] items-center justify-between p-4 sm:p-5">
             <div className="min-w-0 pr-3">
-              <span className="block text-sm font-medium text-ink">Share Location with Circle</span>
-              <span className="block text-xs text-mute">Allow friends in active hangouts to view your check-in</span>
+              <span className="block text-sm font-semibold text-ink">Share Live Location with Circle</span>
+              <span className="block text-xs text-mute mt-0.5">
+                Allows accepted mutuals in active hangouts to view your approximate check-in
+              </span>
             </div>
             <button
               type="button"
@@ -333,15 +559,21 @@ export function SettingsPage() {
         </div>
       </section>
 
-      {/* Privacy Controls */}
+      {/* Privacy & Trust Controls */}
       <section className="mt-8">
-        <h2 className="font-display text-xl font-bold">Privacy & Visibility</h2>
-        <p className="mt-1 text-xs text-mute">Control your discoverability across AirPal and public web searches.</p>
-        <div className="mt-3 space-y-2">
-          <div className="flex min-h-[52px] items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
+        <div className="flex items-center gap-2 mb-1">
+          <ShieldCheck size={16} className="text-accent" />
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Privacy & Visibility</h2>
+        </div>
+        <p className="text-xs text-mute mb-3">Control your discoverability across search and Circle.</p>
+
+        <div className="divide-y divide-line/70 rounded-3xl bg-card ring-1 ring-line shadow-xs overflow-hidden">
+          <div className="flex min-h-[56px] items-center justify-between p-4 sm:p-5">
             <div className="min-w-0 pr-3">
-              <span className="block text-sm font-medium text-ink">Public Search & Directory Indexing</span>
-              <span className="block text-xs text-mute">Allow your @handle bio to be discovered in search</span>
+              <span className="block text-sm font-semibold text-ink">Search & Directory Indexing</span>
+              <span className="block text-xs text-mute mt-0.5">
+                Allow your @handle digital bio to appear in Google and AirPal searches
+              </span>
             </div>
             <button
               type="button"
@@ -363,11 +595,11 @@ export function SettingsPage() {
             </button>
           </div>
 
-          <div className="flex min-h-[52px] items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
+          <div className="flex min-h-[56px] items-center justify-between p-4 sm:p-5">
             <div className="min-w-0 pr-3">
-              <span className="block text-sm font-medium text-ink">Circle Presence & Check-in Badge</span>
-              <span className="block text-xs text-mute">
-                Display live check-in badge on your bio during active events
+              <span className="block text-sm font-semibold text-ink">Circle Presence & Live Check-in</span>
+              <span className="block text-xs text-mute mt-0.5">
+                Broadcast your active presence to mutual friends attending the same events
               </span>
             </div>
             <button
@@ -389,293 +621,286 @@ export function SettingsPage() {
               />
             </button>
           </div>
-        </div>
-      </section>
 
-      {/* External Calendar & Account Sync */}
-      <section className="mt-8">
-        <h2 className="font-display text-xl font-bold">Connected Calendars & Sync</h2>
-        <p className="mt-1 text-xs text-mute">
-          Synchronize your joined Huddles, hangouts, and passes with external schedules.
-        </p>
-        <div className="mt-3">
-          <Link
-            href="/calendar"
-            className="flex min-h-[56px] items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line hover:bg-paper active:scale-[0.99] transition cursor-pointer"
-          >
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <Calendar size={18} />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-ink">External Calendar & Contacts Sync</p>
-                <p className="text-xs text-mute">Google Calendar, Apple Calendar (.ics), Outlook & Address Book</p>
+          {user && (
+            <div className="p-4 sm:p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="block text-sm font-semibold text-ink">Download My Data (GDPR)</span>
+                  <span className="block text-xs text-mute mt-0.5">
+                    Export your complete profile, preferences, and account metadata in JSON format
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("selection");
+                    const exportData = {
+                      version: 1,
+                      exportedAt: new Date().toISOString(),
+                      user: {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName,
+                        handle: mine?.handle ?? null,
+                        phone: user.phone ?? null,
+                        role: user.role,
+                        birthdayMonth: user.birthdayMonth,
+                        birthdayAlertsEnabled: user.birthdayAlertsEnabled,
+                        birthdayAlertsRegion: user.birthdayAlertsRegion,
+                      },
+                      bio: mine ?? null,
+                      business: business ?? null,
+                      preferences: {
+                        city,
+                        usingGps,
+                        theme,
+                        notifDeals,
+                        searchIndexing,
+                        circlePresence,
+                      },
+                    };
+                    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `airpal-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    toast.success("Account data export downloaded.");
+                  }}
+                  className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-paper px-3.5 text-xs font-bold text-accent ring-1 ring-line hover:bg-card active:scale-95 transition cursor-pointer"
+                >
+                  <Download size={14} />
+                  <span>Export</span>
+                </button>
               </div>
             </div>
-            <ExternalLink size={16} className="text-mute shrink-0" />
-          </Link>
+          )}
         </div>
       </section>
 
+      {/* Connected Calendars & Schedules */}
+      <section className="mt-8">
+        <div className="flex items-center gap-2 mb-1">
+          <Calendar size={16} className="text-accent" />
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Connected Schedules & Sync</h2>
+        </div>
+        <p className="text-xs text-mute mb-3">Sync your tickets and catch-ups to your phone calendar.</p>
+        <Link
+          href="/calendar"
+          className="flex min-h-[60px] items-center justify-between rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line shadow-xs hover:bg-paper active:scale-[0.99] transition cursor-pointer"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+              <Calendar size={20} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-ink">External Calendar &amp; ICS Feed</p>
+              <p className="text-xs text-mute mt-0.5">Sync with Apple Calendar, Google Calendar &amp; Outlook</p>
+            </div>
+          </div>
+          <ChevronRight size={18} className="text-mute shrink-0" />
+        </Link>
+      </section>
+
+      {/* Workspaces & Studios */}
+      <section className="mt-8">
+        <div className="flex items-center gap-2 mb-1">
+          <Briefcase size={16} className="text-accent" />
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Workspaces & Studios</h2>
+        </div>
+        <p className="text-xs text-mute mb-3">Jump into your creator, merchant, and organizer dashboards.</p>
+
+        <div className="divide-y divide-line/70 rounded-3xl bg-card ring-1 ring-line shadow-xs overflow-hidden">
+          <button
+            type="button"
+            className="flex min-h-[56px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
+            onClick={() => nav("/me")}
+          >
+            <div>
+              <span className="block text-xs font-semibold text-mute">Personal Life &amp; Identity</span>
+              <span className="font-bold text-sm text-ink">{mine ? `@${mine.handle}` : "Digital Bio Dashboard"}</span>
+            </div>
+            <ChevronRight size={18} className="text-mute shrink-0" />
+          </button>
+
+          <button
+            type="button"
+            className="flex min-h-[56px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
+            onClick={() => nav(partnerAccountPath({ signedIn: Boolean(user), hasPlace: Boolean(business) }))}
+          >
+            <div>
+              <span className="block text-xs font-semibold text-mute">{NAMES.partnerAccount}</span>
+              <span className="font-bold text-sm text-ink">
+                {business ? `@${business.handle}` : "Local venue, dining perks & counter QR"}
+              </span>
+            </div>
+            <ChevronRight size={18} className="text-mute shrink-0" />
+          </button>
+
+          <button
+            type="button"
+            className="flex min-h-[56px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
+            onClick={() => nav("/event")}
+          >
+            <div>
+              <span className="block text-xs font-semibold text-mute">Event Organiser Studio</span>
+              <span className="font-bold text-sm text-ink">Concert, festival & door scanner hub</span>
+            </div>
+            <ChevronRight size={18} className="text-mute shrink-0" />
+          </button>
+        </div>
+      </section>
+
+      {/* Security & Authentication */}
       {user && (
         <section className="mt-8">
-          <h2 className="font-display text-xl font-bold">Birthday Freebies</h2>
-          <div className="mt-3 rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
-            <div className="flex items-center justify-between gap-3">
-              <span className="min-w-0">
-                <span className="block text-sm font-medium text-ink">Birthday month alerts</span>
-                <span className="block text-[12px] text-mute">
-                  Get a nudge when your freebies are live — Life Made Easy.
-                </span>
-              </span>
+          <div className="flex items-center gap-2 mb-1">
+            <KeyRound size={16} className="text-accent" />
+            <h2 className="font-display text-base sm:text-lg font-bold text-ink">Security & Biometrics</h2>
+          </div>
+          <p className="text-xs text-mute mb-3">Manage Face ID, Touch ID, and password credentials.</p>
+
+          <div className="space-y-3">
+            <BiometricEnrollCard />
+
+            {user.email && (
               <button
                 type="button"
-                role="switch"
-                aria-checked={alertsEnabled}
-                aria-label="Birthday month alerts"
-                disabled={alertsBusy}
-                onClick={() => void saveAlertPrefs({ enabled: !alertsEnabled })}
-                className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-50 ${
-                  alertsEnabled ? "bg-brand" : "bg-line"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${
-                    alertsEnabled ? "left-[22px]" : "left-0.5"
-                  }`}
-                />
-              </button>
-            </div>
-            <label className="mt-3 block border-t border-line/60 pt-3">
-              <span className="text-[12px] text-mute">Freebies region</span>
-              <select
-                className="mt-1.5 w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-sm disabled:opacity-50"
-                value={alertsRegion}
-                disabled={alertsBusy}
-                onChange={(e) => {
-                  const region = e.target.value as BirthdayRegionCode;
-                  void saveAlertPrefs({ region });
+                className="flex min-h-[52px] w-full cursor-pointer items-center justify-between rounded-3xl bg-card p-4 sm:p-5 text-left ring-1 ring-line hover:bg-paper active:scale-[0.99] transition disabled:opacity-50"
+                disabled={resetBusy}
+                onClick={() => {
+                  if (!user.email) {
+                    toast.message("Add an email to reset a password.");
+                    return;
+                  }
+                  setResetBusy(true);
+                  void requestPasswordReset(user.email)
+                    .then(() => toast.success("Password reset link sent to your email"))
+                    .catch((err) => toast.error(authErrorMessage(err, "Could not send reset email")))
+                    .finally(() => setResetBusy(false));
                 }}
               >
-                {BIRTHDAY_REGIONS.map((r) => (
-                  <option key={r.code} value={r.code}>
-                    {r.flagEmoji ? `${r.flagEmoji} ` : ""}
-                    {r.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {user.birthdayMonth ? (
-              <p className="mt-2 text-[11px] text-mute">
-                Your birthday month is set ({user.birthdayMonth}).{" "}
-                <Link href={`/birthday-freebies/${alertsRegion}`} className="text-brand">
-                  Browse freebies
-                </Link>
-              </p>
-            ) : (
-              <p className="mt-2 text-[11px] text-mute">
-                Add your birthday at signup to unlock month alerts.{" "}
-                <Link href={`/birthday-freebies/${alertsRegion}`} className="text-brand">
-                  Browse freebies
-                </Link>
-              </p>
+                <div>
+                  <span className="block text-sm font-semibold text-ink">Password Reset</span>
+                  <span className="block text-xs text-mute mt-0.5">Send a secure reset link to {user.email}</span>
+                </div>
+                <span className="text-xs font-bold text-accent">{resetBusy ? "Sending…" : "Send Link"}</span>
+              </button>
             )}
           </div>
         </section>
       )}
 
-      {/* Workspaces Section */}
-      <h2 className="font-display mt-8 text-xl font-bold">Workspace</h2>
-      <div className="mt-3 space-y-2">
-        <button
-          type="button"
-          className="flex min-h-[52px] w-full cursor-pointer items-center justify-between rounded-2xl bg-card px-4 py-3 text-left ring-1 ring-line transition hover:bg-paper active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-          onClick={() => nav("/me")}
-        >
-          <span>
-            <span className="block text-[12px] text-mute">Digital Bio</span>
-            <span className="font-medium text-ink">{mine ? `@${mine.handle}` : "Your digital bio profile"}</span>
-          </span>
-          <span className="text-sm font-semibold text-accent">Open</span>
-        </button>
-
-        <button
-          type="button"
-          className="flex min-h-[52px] w-full cursor-pointer items-center justify-between rounded-2xl bg-card px-4 py-3 text-left ring-1 ring-line transition hover:bg-paper active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-          onClick={() => nav(partnerAccountPath({ signedIn: Boolean(user), hasPlace: Boolean(business) }))}
-        >
-          <span>
-            <span className="block text-[12px] text-mute">{NAMES.partnerAccount}</span>
-            <span className="font-medium text-ink">
-              {business ? `@${business.handle}` : "Local venue, dining perks & counter QR"}
-            </span>
-          </span>
-          <span className="text-sm font-semibold text-accent">Open</span>
-        </button>
-        <button
-          type="button"
-          className="flex min-h-[52px] w-full cursor-pointer items-center justify-between rounded-2xl bg-card px-4 py-3 text-left ring-1 ring-line transition hover:bg-paper active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-          onClick={() => nav("/event")}
-        >
-          <span>
-            <span className="block text-[12px] text-mute">Event Organiser</span>
-            <span className="font-medium text-ink">Concert, festival & door scanner</span>
-          </span>
-          <span className="text-sm font-semibold text-accent">Open</span>
-        </button>
-      </div>
-
-      {user && (
-        <>
-          <h2 className="font-display mt-8 text-xl font-bold">Security & Biometrics</h2>
-          <BiometricEnrollCard />
-          {user.email && (
-            <button
-              type="button"
-              className="mt-3 flex min-h-[48px] w-full cursor-pointer items-center rounded-2xl bg-card px-4 py-3 text-left text-sm font-medium ring-1 ring-line transition hover:bg-paper active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50"
-              disabled={resetBusy}
-              onClick={() => {
-                if (!user.email) {
-                  toast.message("Add an email to reset a password. Mobile login uses a text code.");
-                  return;
-                }
-                setResetBusy(true);
-                void requestPasswordReset(user.email)
-                  .then(() => toast.success("Reset link sent to your email"))
-                  .catch((err) => toast.error(authErrorMessage(err, "Could not send reset email")))
-                  .finally(() => setResetBusy(false));
-              }}
+      {/* Legal & Trust Links */}
+      <section className="mt-8">
+        <div className="flex items-center gap-2 mb-1">
+          <Scale size={16} className="text-accent" />
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Legal & Privacy Rails</h2>
+        </div>
+        <p className="text-xs text-mute mb-3">Our commitment to zero tracker bloat, privacy, and user rights.</p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { href: "/privacy", label: "Privacy Policy" },
+            { href: "/terms", label: "Terms of Service" },
+            { href: "/cookies", label: "Cookie Policy" },
+            { href: "/trust", label: "Trust & Safety" },
+            { href: "/help", label: "Help Center" },
+            { href: "/contact", label: "Contact Us" },
+          ].map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
             >
-              {resetBusy ? "Sending…" : "Email a password reset"}
-            </button>
-          )}
-        </>
-      )}
+              {l.label}
+            </Link>
+          ))}
+        </div>
+      </section>
 
-      <h2 className="font-display mt-8 text-xl font-bold">Legal</h2>
-      <div className="mt-3 flex flex-wrap gap-2 text-sm text-mute">
-        {[
-          { href: "/privacy", label: "Privacy" },
-          { href: "/terms", label: "Terms" },
-          { href: "/cookies", label: "Cookies" },
-          { href: "/contact", label: "Contact" },
-          { href: "/help", label: "Help" },
-        ].map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 py-2 text-xs font-semibold text-accent ring-1 ring-line hover:bg-card active:scale-95 transition"
-          >
-            {l.label}
-          </Link>
-        ))}
-      </div>
-
+      {/* Account Termination & Sign Out */}
       {user && (
-        <section className="mt-8">
-          <h2 className="font-display text-xl font-bold">Privacy & Data Portability</h2>
-          <p className="mt-1 text-xs text-mute">
-            Download a portable JSON copy of your profile, preferences, and account metadata (GDPR / DPDP Article 20).
-          </p>
+        <section className="mt-10 pt-6 border-t border-line/70">
           <button
             type="button"
-            className="mt-3 flex min-h-[48px] w-full cursor-pointer items-center justify-between rounded-2xl bg-card px-4 py-3 text-left ring-1 ring-line transition hover:bg-paper active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-            onClick={() => {
-              void triggerHaptic("selection");
-              const exportData = {
-                version: 1,
-                exportedAt: new Date().toISOString(),
-                user: {
-                  uid: user.uid,
-                  email: user.email,
-                  displayName: user.displayName,
-                  handle: mine?.handle ?? null,
-                  phone: user.phone ?? null,
-                  role: user.role,
-                  birthdayMonth: user.birthdayMonth,
-                  birthdayAlertsEnabled: user.birthdayAlertsEnabled,
-                  birthdayAlertsRegion: user.birthdayAlertsRegion,
-                },
-                bio: mine ?? null,
-                business: business ?? null,
-                preferences: {
-                  city,
-                  usingGps,
-                  theme,
-                  notifDeals,
-                  searchIndexing,
-                  circlePresence,
-                },
-              };
-              const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `airpal-data-export-${new Date().toISOString().slice(0, 10)}.json`;
-              a.click();
-              URL.revokeObjectURL(url);
-              toast.success("Account data export downloaded.");
-            }}
+            className="flex min-h-[50px] w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-card px-4 text-sm font-bold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition shadow-xs"
+            onClick={() => void logout().then(() => nav("/"))}
           >
-            <span className="flex items-center gap-2">
-              <Download className="h-4 w-4 text-accent" />
-              <span className="text-sm font-medium text-ink">Export My Data (JSON)</span>
-            </span>
-            <span className="text-xs font-semibold text-accent">Download</span>
+            <LogOut size={16} />
+            <span>Sign Out of AirPal</span>
           </button>
+
+          {/* Danger Zone */}
+          <div className="mt-8 rounded-3xl border border-rose-500/30 bg-rose-500/5 p-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
+                <Trash2 size={16} />
+                <span className="font-bold text-sm">Danger Zone</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDeleteZone(!showDeleteZone)}
+                className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
+              >
+                {showDeleteZone ? "Hide Options" : "Delete Account"}
+              </button>
+            </div>
+
+            {showDeleteZone && (
+              <div className="mt-4 pt-4 border-t border-rose-500/20">
+                <p className="text-xs text-mute leading-relaxed">
+                  Permanently deletes your universal profile, bio data, and active logins. We retain an audit marker for
+                  30 days to finish clearing open ticket passes and reservations.
+                </p>
+                <div className="mt-3">
+                  <label
+                    htmlFor="delete-confirm-input"
+                    className="block text-[11px] font-bold uppercase tracking-wider text-mute mb-1"
+                  >
+                    Type DELETE to confirm
+                  </label>
+                  <input
+                    id="delete-confirm-input"
+                    value={deleteConfirm}
+                    onChange={(e) => setDeleteConfirm(e.target.value)}
+                    placeholder="Type DELETE"
+                    autoComplete="off"
+                    className="w-full rounded-2xl border border-line bg-card px-4 py-3 text-sm text-ink outline-none focus:ring-2 focus:ring-rose-500"
+                  />
+                  <button
+                    type="button"
+                    disabled={deleteBusy || deleteConfirm !== "DELETE"}
+                    className="mt-3 inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-rose-600 px-4 text-sm font-bold text-white transition hover:bg-rose-700 disabled:opacity-40 active:scale-95 cursor-pointer shadow-sm"
+                    onClick={() => {
+                      void triggerHaptic("error");
+                      setDeleteBusy(true);
+                      void deleteAccount()
+                        .then(() => {
+                          toast.success("Account deleted");
+                          nav("/");
+                        })
+                        .catch((err) => toast.error(authErrorMessage(err, "Could not delete account")))
+                        .finally(() => setDeleteBusy(false));
+                    }}
+                  >
+                    {deleteBusy ? "Deleting account…" : "Permanently Delete My Account"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </section>
       )}
 
-      {user ? (
-        <>
-          <button
-            type="button"
-            className="mt-8 flex min-h-[48px] w-full cursor-pointer items-center justify-center rounded-full border border-line bg-card px-4 py-2.5 text-sm font-semibold text-ink hover:bg-paper active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand shadow-xs"
-            onClick={() => void logout().then(() => nav("/"))}
-          >
-            Sign out
-          </button>
-          <h2 className="font-display mt-10 text-xl text-rose-700">Delete account</h2>
-          <p className="mt-2 text-sm text-mute">
-            This signs you out and removes your login. Type DELETE to confirm. We keep a deletion record for 30 days so
-            we can finish clearing bookings and reports.
-          </p>
-          <input
-            value={deleteConfirm}
-            onChange={(e) => setDeleteConfirm(e.target.value)}
-            placeholder="Type DELETE"
-            autoComplete="off"
-            className="mt-3 w-full rounded-2xl border border-line bg-card px-4 py-3 text-[16px] sm:text-sm outline-none focus-visible:ring-2 focus-visible:ring-brand"
-          />
-          <button
-            type="button"
-            disabled={deleteBusy || deleteConfirm !== "DELETE"}
-            className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-rose-500/10 px-4 text-sm font-semibold text-rose-700 ring-1 ring-rose-500/20 transition hover:bg-rose-500/15 disabled:opacity-40 active:scale-95 cursor-pointer"
-            onClick={() => {
-              void triggerHaptic("error");
-              setDeleteBusy(true);
-              void deleteAccount()
-                .then(() => {
-                  toast.success("Account deleted");
-                  nav("/");
-                })
-                .catch((err) => toast.error(authErrorMessage(err, "Could not delete account")))
-                .finally(() => setDeleteBusy(false));
-            }}
-          >
-            {deleteBusy ? "Deleting…" : "Delete my account"}
-          </button>
-        </>
-      ) : (
-        <div className="mt-8 space-y-2">
-          <Button className="w-full" onClick={() => nav("/start")}>
-            Join
-          </Button>
-          <Button variant="ghost" className="w-full" onClick={() => nav("/start?tab=signin")}>
-            Sign in
-          </Button>
-        </div>
-      )}
+      {/* App Build Version Footer */}
+      <div className="mt-12 text-center text-xs text-mute">
+        <p className="font-semibold text-ink">AirPal · Life Made Easy</p>
+        <p className="mt-0.5 font-mono text-[11px]">
+          v{buildInfo.versionName} ({buildInfo.versionCode}) · {buildInfo.environment}
+        </p>
+      </div>
     </div>
   );
 }
