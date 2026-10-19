@@ -1795,9 +1795,9 @@ export function BioEditPage() {
           role="dialog"
           aria-modal="true"
           aria-label="Live Profile Preview"
-          className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs lg:hidden animate-in fade-in duration-200"
+          className="visual-viewport-modal z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs lg:hidden animate-in fade-in duration-200"
         >
-          <div className="relative max-h-[92vh] overflow-y-auto rounded-t-[36px] bg-paper p-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
+          <div className="relative max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] overflow-y-auto rounded-t-[36px] bg-paper p-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
             {/* Sheet Handle */}
             <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-line/80" />
 

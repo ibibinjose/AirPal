@@ -28,12 +28,18 @@ function notifyListeners() {
 }
 
 function visibleFrame(): { top: number; bottom: number; height: number } {
-  const vv = typeof window !== "undefined" ? window.visualViewport : null;
-  if (vv) {
-    return { top: vv.offsetTop, bottom: vv.offsetTop + vv.height, height: vv.height };
+  if (typeof window === "undefined") {
+    return { top: 0, bottom: 800, height: 800 };
   }
-  const h = Math.max(120, window.innerHeight - currentState.keyboardHeight);
-  return { top: 0, bottom: h, height: h };
+  const vv = window.visualViewport;
+  const top = vv ? Math.round(vv.offsetTop) : 0;
+  const rawBottom = vv ? Math.round(vv.offsetTop + vv.height) : window.innerHeight;
+  const kbH = currentState.keyboardHeight || 0;
+  // If keyboard is open in native app or browser where visualViewport doesn't shrink,
+  // clamp bottom to window.innerHeight - kbH
+  const bottom = kbH > 0 ? Math.min(rawBottom, window.innerHeight - kbH) : rawBottom;
+  const height = Math.max(120, bottom - top);
+  return { top, bottom, height };
 }
 
 function syncViewportVars() {
@@ -108,7 +114,7 @@ function nearestScrollParent(el: HTMLElement): HTMLElement | "window" {
   while (node && node !== document.body && node !== document.documentElement) {
     const style = typeof window.getComputedStyle === "function" ? window.getComputedStyle(node) : null;
     const oy = style?.overflowY || "";
-    if ((oy === "auto" || oy === "scroll" || oy === "overlay") && node.scrollHeight > node.clientHeight + 4) {
+    if (oy === "auto" || oy === "scroll" || oy === "overlay") {
       return node;
     }
     node = node.parentElement;
@@ -137,11 +143,25 @@ export function ensureElementInView(
 ): void {
   if (!target || typeof window === "undefined") return;
 
-  const { topClearance = 72, bottomClearance = 16, behavior = "smooth" } = options;
+  const { topClearance = 80, bottomClearance = 32, behavior = "smooth", block = "center" } = options;
 
   safeRequestAnimationFrame(() => {
     if (!target.isConnected) return;
 
+    // 1. Native scrollIntoView gives the smoothest browser-optimized alignment across all scroll parents
+    try {
+      if (typeof target.scrollIntoView === "function") {
+        target.scrollIntoView({
+          behavior,
+          block,
+          inline: "nearest",
+        });
+      }
+    } catch {
+      /* ignore */
+    }
+
+    // 2. Identify scroll container and calculate clearance against visibleFrame
     const scroller = nearestScrollParent(target);
     const vFrame = visibleFrame();
     const frame =
@@ -161,20 +181,25 @@ export function ensureElementInView(
     let delta = 0;
     if (rect.bottom > safeBottom) delta = rect.bottom - safeBottom;
     else if (rect.top < safeTop) delta = rect.top - safeTop;
-    if (Math.abs(delta) < 3) return;
 
     if (scroller === "window") {
-      window.scrollBy({ top: delta, left: 0, behavior });
+      if (Math.abs(delta) >= 3) {
+        window.scrollBy({ top: delta, left: 0, behavior });
+      }
       return;
     }
+
     const root = document.getElementById?.("root");
     if (scroller !== root) {
       const prev = scroller.dataset.kbPad;
       if (prev === undefined) scroller.dataset.kbPad = scroller.style.paddingBottom || "";
-      const pad = Math.max(currentState.keyboardHeight, 24);
+      const pad = Math.max(currentState.keyboardHeight, 48);
       scroller.style.paddingBottom = `${pad}px`;
     }
-    scroller.scrollTop += delta;
+
+    if (Math.abs(delta) >= 3) {
+      scroller.scrollTop += delta;
+    }
   });
 }
 
@@ -183,7 +208,7 @@ function scheduleLift(target: HTMLElement | null) {
   const run = () => ensureElementInView(target);
   run();
   if (liftTimer) clearTimeout(liftTimer);
-  const delays = [50, 160, 280, 450];
+  const delays = [30, 100, 250, 450, 650];
   delays.forEach((ms, i) => {
     setTimeout(run, ms);
     if (i === delays.length - 1) liftTimer = setTimeout(run, ms);
@@ -191,13 +216,13 @@ function scheduleLift(target: HTMLElement | null) {
 }
 
 function isEditableElement(el: HTMLElement): boolean {
-  const tagName = el.tagName.toLowerCase();
+  const tagName = el.tagName?.toLowerCase();
   if (tagName === "textarea" || tagName === "select") return true;
   if (tagName === "input") {
     const type = (el as HTMLInputElement).type?.toLowerCase() || "text";
     return !["checkbox", "radio", "range", "hidden", "button", "submit", "reset", "file"].includes(type);
   }
-  return el.isContentEditable;
+  return Boolean(el.isContentEditable);
 }
 
 function focusedEditable(): HTMLElement | null {
@@ -230,7 +255,7 @@ export function initKeyboardManager(): () => void {
     const nativeSubs: Array<{ remove: () => void }> = [];
 
     const onNativeShow = (info: KeyboardInfo) => {
-      const h = Math.max(info.keyboardHeight || 0, 240);
+      const h = Math.max(info.keyboardHeight || 0, 260);
       applyKeyboardStateToDom(true, h);
       scheduleLift(focusedEditable());
     };
@@ -249,9 +274,8 @@ export function initKeyboardManager(): () => void {
       .catch(() => undefined);
 
     unsubs.push(() => nativeSubs.forEach((sub) => sub.remove()));
-  }
-
-  if (window.visualViewport) {
+  } else if (window.visualViewport) {
+    // Web fallback for mobile browsers (Safari, Chrome)
     const onViewportChange = () => {
       const vport = window.visualViewport;
       if (!vport) return;
@@ -281,10 +305,10 @@ export function initKeyboardManager(): () => void {
 
   const onFocusOut = () => {
     setTimeout(() => {
-      if (!focusedEditable()) {
+      if (!focusedEditable() && !isNative) {
         applyKeyboardStateToDom(false, 0);
       }
-    }, 150);
+    }, 200);
   };
 
   window.addEventListener("focusin", onFocusIn, { passive: true });

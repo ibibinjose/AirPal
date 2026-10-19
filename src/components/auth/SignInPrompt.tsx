@@ -46,7 +46,7 @@ export function SignInPrompt() {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[90] flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center"
+      className="visual-viewport-modal z-[90] flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center"
       onClick={dismissSignInPrompt}
       role="dialog"
       aria-modal="true"

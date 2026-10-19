@@ -321,7 +321,17 @@ textarea,
   left: 0;
   right: 0;
   top: var(--visual-viewport-offset-top, 0px);
-  height: var(--visual-viewport-height, 100dvh);
+  bottom: var(--keyboard-height, 0px);
+  height: auto;
+  min-height: 0;
+  max-height: calc(100% - var(--visual-viewport-offset-top, 0px));
+}
+
+html.keyboard-open .visual-viewport-modal,
+body.keyboard-open .visual-viewport-modal {
+  bottom: var(--keyboard-height, 0px) !important;
+  height: var(--visual-viewport-height, calc(100dvh - var(--keyboard-height, 0px))) !important;
+  max-height: var(--visual-viewport-height, calc(100dvh - var(--keyboard-height, 0px))) !important;
 }
 
 /*
@@ -335,8 +345,9 @@ html.keyboard-open body {
   overflow: hidden;
   overscroll-behavior: none;
   scroll-padding-top: 5rem;
-  scroll-padding-bottom: 1.25rem;
+  scroll-padding-bottom: max(2rem, calc(var(--keyboard-height, 0px) + 1.5rem));
 }
+
 html.keyboard-open #root {
   height: var(--visual-viewport-height, 100svh) !important;
   max-height: var(--visual-viewport-height, 100svh) !important;
@@ -344,6 +355,25 @@ html.keyboard-open #root {
   overflow-x: hidden;
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: max(1.5rem, calc(var(--keyboard-height, 0px) + 1rem));
+}
+
+/* Extra scroll-margin on active inputs when keyboard is open so fields are never obscured */
+html.keyboard-open input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]),
+html.keyboard-open select,
+html.keyboard-open textarea,
+html.keyboard-open [contenteditable="true"],
+body.keyboard-open input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]),
+body.keyboard-open select,
+body.keyboard-open textarea,
+body.keyboard-open [contenteditable="true"] {
+  scroll-margin-bottom: max(6rem, calc(var(--keyboard-height, 0px) + 2rem));
+}
+
+/* Ensure all scrollable sheets and modal cards shrink gracefully and scroll above the keyboard */
+html.keyboard-open [role="dialog"],
+body.keyboard-open [role="dialog"] {
+  max-height: calc(var(--visual-viewport-height, 100dvh) - 1.5rem) !important;
 }
 
 /* Instantly dismiss or hide bottom navigation when keyboard is open to avoid blocking inputs or form submit buttons */

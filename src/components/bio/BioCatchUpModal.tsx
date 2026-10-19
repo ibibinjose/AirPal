@@ -348,7 +348,7 @@ export function BioCatchUpModal({
       aria-labelledby="catchup-modal-title"
     >
       <div
-        className="relative w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden rounded-t-[32px] sm:rounded-[32px] bg-paper shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:pb-0"
+        className="relative w-full max-w-lg max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] flex flex-col overflow-hidden rounded-t-[32px] sm:rounded-[32px] bg-paper shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:pb-0"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mt-2 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />

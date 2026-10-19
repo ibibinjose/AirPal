@@ -258,7 +258,11 @@ export function MemoryWallPage() {
               aria-modal="true"
               aria-label="New memory"
             >
-              <img src={draftUrl} alt="New memory" className="aspect-square w-full rounded-2xl object-cover" />
+              <img
+                src={draftUrl}
+                alt="New memory"
+                className="aspect-video sm:aspect-square max-h-40 sm:max-h-56 w-full rounded-2xl object-cover shrink-0"
+              />
               <input
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}

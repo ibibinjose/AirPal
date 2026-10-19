@@ -143,7 +143,7 @@ export function CreateFab({ showFab = true }: { showFab?: boolean } = {}) {
         createPortal(
           <AnimatePresence>
             {open && (
-              <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+              <div className="visual-viewport-modal z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
                 {/* Backdrop */}
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -167,7 +167,7 @@ export function CreateFab({ showFab = true }: { showFab?: boolean } = {}) {
                   role="dialog"
                   aria-modal="true"
                   aria-label="Create on AirPal"
-                  className="relative w-full max-w-lg rounded-t-[32px] sm:rounded-3xl bg-card p-5 sm:p-6 pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] shadow-2xl ring-1 ring-line/80 max-h-[88vh] overflow-y-auto"
+                  className="relative w-full max-w-lg rounded-t-[32px] sm:rounded-3xl bg-card p-5 sm:p-6 pb-[max(1.5rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] shadow-2xl ring-1 ring-line/80 max-h-[min(88dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] overflow-y-auto"
                 >
                   {/* Drag Handle on Mobile */}
                   <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line/80 sm:hidden" />

@@ -87,7 +87,7 @@ export function PersonalScheduleModal({
       role="dialog"
       aria-modal="true"
       aria-label="Add Personal Schedule Entry"
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
+      className="visual-viewport-modal z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           void triggerHaptic("light");
@@ -95,7 +95,7 @@ export function PersonalScheduleModal({
         }
       }}
     >
-      <div className="w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] bg-card p-6 ring-1 ring-line/80 shadow-clay max-h-[92dvh] overflow-y-auto">
+      <div className="w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] bg-card p-6 ring-1 ring-line/80 shadow-clay max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] overflow-y-auto">
         <div className="flex items-center justify-between pb-4 border-b border-line">
           <div className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-brand/10 text-accent">

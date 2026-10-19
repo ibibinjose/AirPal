@@ -682,7 +682,7 @@ export function ProfileMenu() {
           {/* Mobile / iOS / Android Bottom Sheet Drawer (< lg) using portal */}
           {typeof document !== "undefined" &&
             createPortal(
-              <div className="fixed inset-0 z-50 lg:hidden flex flex-col justify-end">
+              <div className="visual-viewport-modal z-50 lg:hidden flex flex-col justify-end">
                 <div
                   onClick={() => {
                     void triggerHaptic("light");
@@ -697,7 +697,7 @@ export function ProfileMenu() {
                   aria-modal="true"
                   aria-label={user ? "Account & Navigation menu" : "Menu & Sign in"}
                   onKeyDown={onMenuKeyDown}
-                  className="relative z-50 flex max-h-[88dvh] w-full flex-col rounded-t-[32px] bg-card/98 ring-1 ring-line shadow-2xl backdrop-blur-2xl animate-in slide-in-from-bottom duration-250 ease-out"
+                  className="relative z-50 flex max-h-[min(88dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] w-full flex-col rounded-t-[32px] bg-card/98 ring-1 ring-line shadow-2xl backdrop-blur-2xl animate-in slide-in-from-bottom duration-250 ease-out"
                 >
                   {/* Drag Pill Handle */}
                   <div className="flex justify-center pt-3 pb-1">
