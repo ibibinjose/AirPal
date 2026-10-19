@@ -155,70 +155,77 @@ export function BioShareModal({
         </div>
 
         {/* ============================================================== */}
-        {/* CLEAN LUXURY BRAND BLUE PASS CARD */}
+        {/* LONGER APPLE WALLET CARD / TICKET IN BRAND BLUE */}
         {/* ============================================================== */}
-        <div className="relative mt-1 overflow-hidden rounded-[24px] bg-gradient-to-br from-[#0055ff] via-[#0047eb] to-[#002f9e] p-5 text-white shadow-[0_16px_36px_-10px_rgba(0,78,255,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] ring-1 ring-white/20 select-none">
+        <div className="relative mt-1 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0055ff] via-[#0047eb] to-[#002f9e] p-6 text-white shadow-[0_20px_45px_-10px_rgba(0,78,255,0.45),inset_0_1px_1.5px_rgba(255,255,255,0.45)] ring-1 ring-white/20 select-none">
           {/* Subtle Specular Highlights */}
-          <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
 
           {/* Card Top Brand Row - Balanced & Symmetrical */}
           <div className="relative z-10 flex items-center justify-between">
             <span
-              className="grid h-7 w-7 place-items-center rounded-full bg-white/15 text-white/90 backdrop-blur-md ring-1 ring-white/20"
+              className="grid h-8 w-8 place-items-center rounded-full bg-white/15 text-white/90 backdrop-blur-md ring-1 ring-white/20"
               title="Contactless NFC Ready"
               aria-label="NFC Contactless"
             >
-              <Wifi size={13} className="rotate-90 text-white" />
+              <Wifi size={14} className="rotate-90 text-white" />
             </span>
 
             <div className="flex items-center gap-1.5">
               <BrandMark compact invert className="h-5 w-auto" />
               <div className="flex items-baseline gap-1">
-                <span className="font-display text-[13px] font-black uppercase tracking-wider text-white">
+                <span className="font-display text-sm font-black uppercase tracking-wider text-white">
                   airpal<span className="opacity-90">.me</span>
                 </span>
-                <span className="text-[9px] font-bold tracking-widest uppercase text-white/70">PASS</span>
+                <span className="text-[10px] font-bold tracking-widest uppercase text-white/70">PASS</span>
               </div>
             </div>
 
-            <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-white/95 backdrop-blur-md ring-1 ring-white/20">
-              {kind === "business" ? "PRO" : "MEMBER"}
+            <span className="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold tracking-wider text-white/95 backdrop-blur-md ring-1 ring-white/20">
+              {kind === "business" ? "PRO PASS" : "VIP PASS"}
             </span>
           </div>
 
-          {/* Member Identity - Perfectly Centered & Symmetrical */}
-          <div className="relative z-10 mt-3.5 border-t border-white/15 pt-3 text-center">
-            <div className="mx-auto relative h-12 w-12 overflow-hidden rounded-full ring-2 ring-white/90 shadow-sm bg-white/10">
+          {/* Member Identity - Symmetrical Upper Ticket Body */}
+          <div className="relative z-10 mt-5 text-center">
+            <div className="mx-auto relative h-14 w-14 overflow-hidden rounded-full ring-2 ring-white/90 shadow-md bg-white/10">
               {avatar ? (
                 <img src={avatar} alt={name} className="h-full w-full rounded-full object-cover" />
               ) : (
-                <div className="grid h-full w-full place-items-center rounded-full bg-white/15 font-display text-sm font-black text-white">
+                <div className="grid h-full w-full place-items-center rounded-full bg-white/15 font-display text-lg font-black text-white">
                   {name[0]?.toUpperCase() || cleanHandle[0]?.toUpperCase() || "A"}
                 </div>
               )}
             </div>
 
-            <h3 className="mt-2 truncate font-display text-base font-bold tracking-tight text-white leading-tight">
+            <h3 className="mt-2.5 truncate font-display text-lg font-bold tracking-tight text-white leading-tight">
               {name || `@${cleanHandle}`}
             </h3>
             <p className="mt-0.5 truncate font-mono text-xs font-semibold text-white/85">@{cleanHandle}</p>
           </div>
 
-          {/* Clean Ceramic White QR Plate */}
-          <div className="relative z-10 mt-3.5 rounded-2xl bg-white p-3.5 shadow-sm">
-            <div className="relative mx-auto flex aspect-square max-h-[190px] w-full max-w-[190px] items-center justify-center">
+          {/* Authentic Apple Wallet Ticket Notches & Perforated Tear Line */}
+          <div className="relative my-5 flex items-center">
+            <div className="absolute -left-9 h-6 w-6 rounded-full bg-paper" />
+            <div className="w-full border-b border-dashed border-white/25" />
+            <div className="absolute -right-9 h-6 w-6 rounded-full bg-paper" />
+          </div>
+
+          {/* Lower Ticket Scanner Section - Elongated & Centered */}
+          <div className="relative z-10 flex flex-col items-center">
+            <div className="rounded-2xl bg-white p-4 shadow-sm w-full max-w-[210px] aspect-square flex items-center justify-center">
               {qrData ? (
                 <img
                   src={qrData}
                   alt={`QR Code for @${cleanHandle}`}
-                  width={190}
-                  height={190}
+                  width={210}
+                  height={210}
                   className="h-full w-full object-contain"
                 />
               ) : (
                 <div className="flex flex-col items-center gap-2 text-xs text-neutral-400 animate-pulse">
-                  <QrCode size={32} className="text-neutral-300" />
+                  <QrCode size={36} className="text-neutral-300" />
                   <span>Loading QR…</span>
                 </div>
               )}
@@ -228,16 +235,16 @@ export function BioShareModal({
             <button
               type="button"
               onClick={() => void handleCopy()}
-              className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 text-center font-mono text-[11px] font-semibold text-neutral-700 transition active:scale-[0.98] cursor-pointer"
+              className="mt-3.5 flex w-full max-w-[210px] items-center justify-center gap-1.5 rounded-xl bg-white/15 hover:bg-white/25 px-3 py-2 text-center font-mono text-xs font-semibold text-white transition active:scale-[0.98] cursor-pointer ring-1 ring-white/20 backdrop-blur-md"
               title="Tap to copy link"
             >
               <span className="truncate">airpal.me/@{cleanHandle}</span>
               {copied ? (
-                <span className="ml-1 inline-flex items-center gap-0.5 font-sans text-[10px] font-bold text-emerald-600">
-                  <Check size={11} /> Copied
+                <span className="ml-1 inline-flex items-center gap-0.5 font-sans text-[10px] font-bold text-emerald-300">
+                  <Check size={12} /> Copied
                 </span>
               ) : (
-                <Copy size={11} className="text-neutral-400 shrink-0 ml-0.5" />
+                <Copy size={12} className="text-white/70 shrink-0 ml-0.5" />
               )}
             </button>
           </div>
