@@ -102,24 +102,10 @@ export function EventLiveAttendeePreview({
           bgClass: palette.bg,
         });
       }
-    } else {
-      // Deterministic initials from eventId for verified social proof aesthetic
-      const eventSeed = stringHash(eventId || "event");
-      const sampleCount = Math.min(3, Math.max(isGoing ? 1 : 2, effectiveCount > 0 ? 3 : 2));
-      for (let i = 0; i < sampleCount; i++) {
-        if (avatars.length >= 4) break;
-        const paletteIndex = (eventSeed + i * 2) % AVATAR_PALETTES.length;
-        const p = AVATAR_PALETTES[paletteIndex];
-        avatars.push({
-          id: `seed-${i}`,
-          label: p.label,
-          bgClass: p.bg,
-        });
-      }
     }
 
     return avatars;
-  }, [isGoing, liveGuests, eventId, effectiveCount]);
+  }, [isGoing, liveGuests]);
 
   const handleActionClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -140,25 +126,31 @@ export function EventLiveAttendeePreview({
         )}
       >
         <div className="flex items-center gap-2 min-w-0">
-          {/* Overlapping Avatar Stack */}
-          <div className="flex -space-x-1.5 shrink-0 items-center">
-            {displayAvatars.slice(0, 3).map((a) => (
-              <span
-                key={a.id}
-                className={cn(
-                  "grid h-6 w-6 place-items-center rounded-full text-[10px] font-bold ring-2 ring-card shadow-2xs",
-                  a.bgClass,
-                )}
-              >
-                {a.isYou ? "✓" : a.label}
-              </span>
-            ))}
-            {effectiveCount > 3 && (
-              <span className="grid h-6 min-w-[24px] px-1 place-items-center rounded-full bg-brand/15 text-[9px] font-black text-accent ring-2 ring-card">
-                +{effectiveCount - 3}
-              </span>
-            )}
-          </div>
+          {displayAvatars.length > 0 ? (
+            <div className="flex -space-x-1.5 shrink-0 items-center">
+              {displayAvatars.slice(0, 3).map((a) => (
+                <span
+                  key={a.id}
+                  className={cn(
+                    "grid h-6 w-6 place-items-center rounded-full text-[10px] font-bold ring-2 ring-card shadow-2xs",
+                    a.bgClass,
+                  )}
+                >
+                  {a.isYou ? "✓" : a.label}
+                </span>
+              ))}
+              {effectiveCount > 3 && (
+                <span className="grid h-6 min-w-[24px] px-1 place-items-center rounded-full bg-brand/15 text-[9px] font-black text-accent ring-2 ring-card">
+                  +{effectiveCount - 3}
+                </span>
+              )}
+            </div>
+          ) : (
+            <div className="grid h-6 w-6 place-items-center rounded-full bg-brand/10 text-accent ring-1 ring-brand/20 shrink-0">
+              <Users size={12} />
+            </div>
+          )}
+
 
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="relative flex h-2 w-2 shrink-0">
@@ -216,24 +208,30 @@ export function EventLiveAttendeePreview({
 
         <div className="flex items-center justify-between gap-3 pt-1 border-t border-line/60">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex -space-x-2 shrink-0">
-              {displayAvatars.map((a) => (
-                <div
-                  key={a.id}
-                  className={cn(
-                    "grid h-8 w-8 place-items-center rounded-full text-xs font-bold ring-2 ring-card shadow-xs",
-                    a.bgClass,
-                  )}
-                >
-                  {a.label}
-                </div>
-              ))}
-              {effectiveCount > displayAvatars.length && (
-                <div className="grid h-8 min-w-[32px] px-1.5 place-items-center rounded-full bg-brand/15 text-[11px] font-black text-accent ring-2 ring-card">
-                  +{effectiveCount - displayAvatars.length}
-                </div>
-              )}
-            </div>
+            {displayAvatars.length > 0 ? (
+              <div className="flex -space-x-2 shrink-0">
+                {displayAvatars.map((a) => (
+                  <div
+                    key={a.id}
+                    className={cn(
+                      "grid h-8 w-8 place-items-center rounded-full text-xs font-bold ring-2 ring-card shadow-xs",
+                      a.bgClass,
+                    )}
+                  >
+                    {a.label}
+                  </div>
+                ))}
+                {effectiveCount > displayAvatars.length && (
+                  <div className="grid h-8 min-w-[32px] px-1.5 place-items-center rounded-full bg-brand/15 text-[11px] font-black text-accent ring-2 ring-card">
+                    +{effectiveCount - displayAvatars.length}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="grid h-8 w-8 place-items-center rounded-full bg-brand/10 text-accent ring-1 ring-brand/20 shrink-0">
+                <Users size={16} />
+              </div>
+            )}
 
             <div className="min-w-0">
               <p className="text-xs font-bold text-ink truncate">
@@ -288,24 +286,30 @@ export function EventLiveAttendeePreview({
     >
       <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         {/* Attendee Avatar Cluster */}
-        <div className="flex -space-x-2 shrink-0 items-center">
-          {displayAvatars.map((a) => (
-            <span
-              key={a.id}
-              className={cn(
-                "grid h-7 w-7 place-items-center rounded-full text-[11px] font-bold ring-2 ring-card shadow-2xs",
-                a.bgClass,
-              )}
-            >
-              {a.isYou ? "✓" : a.label}
-            </span>
-          ))}
-          {effectiveCount > displayAvatars.length && (
-            <span className="grid h-7 min-w-[28px] px-1 place-items-center rounded-full bg-brand/15 text-[10px] font-black text-accent ring-2 ring-card">
-              +{effectiveCount - displayAvatars.length}
-            </span>
-          )}
-        </div>
+        {displayAvatars.length > 0 ? (
+          <div className="flex -space-x-2 shrink-0 items-center">
+            {displayAvatars.map((a) => (
+              <span
+                key={a.id}
+                className={cn(
+                  "grid h-7 w-7 place-items-center rounded-full text-[11px] font-bold ring-2 ring-card shadow-2xs",
+                  a.bgClass,
+                )}
+              >
+                {a.isYou ? "✓" : a.label}
+              </span>
+            ))}
+            {effectiveCount > displayAvatars.length && (
+              <span className="grid h-7 min-w-[28px] px-1 place-items-center rounded-full bg-brand/15 text-[10px] font-black text-accent ring-2 ring-card">
+                +{effectiveCount - displayAvatars.length}
+              </span>
+            )}
+          </div>
+        ) : (
+          <div className="grid h-7 w-7 place-items-center rounded-full bg-brand/10 text-accent ring-1 ring-brand/20 shrink-0">
+            <Users size={14} />
+          </div>
+        )}
 
         {/* Live Status & Social Proof Copy */}
         <div className="min-w-0">
