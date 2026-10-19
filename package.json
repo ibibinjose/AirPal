@@ -41,7 +41,12 @@
     "cap:ios": "npx cap open ios",
     "cap:android": "npx cap open android",
     "cap:run:ios": "npx cap run ios",
-    "cap:run:android": "npx cap run android"
+    "cap:run:android": "npx cap run android",
+    "build:android": "cd android && ./gradlew bundleAirpalRelease bundlePassRelease",
+    "build:ios:airpal": "xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' -xcconfig ios/App/AirPal.xcconfig archive -archivePath build/ios/AirPal.xcarchive -allowProvisioningUpdates && xcodebuild -exportArchive -archivePath build/ios/AirPal.xcarchive -exportPath build/ios/export-airpal -exportOptionsPlist ios/App/ExportOptions.plist -allowProvisioningUpdates",
+    "build:ios:pass": "xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' -xcconfig ios/App/Pass.xcconfig archive -archivePath build/ios/AirPalPass.xcarchive -allowProvisioningUpdates && xcodebuild -exportArchive -archivePath build/ios/AirPalPass.xcarchive -exportPath build/ios/export-pass -exportOptionsPlist ios/App/ExportOptions.plist -allowProvisioningUpdates",
+    "build:ios": "npm run build:ios:airpal && npm run build:ios:pass",
+    "build:bundles": "npm run build:android && npm run build:ios"
   },
   "dependencies": {
     "@capacitor-firebase/authentication": "^8.5.2",

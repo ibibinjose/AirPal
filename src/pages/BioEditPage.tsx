@@ -590,7 +590,7 @@ export function BioEditPage() {
       <header className="sticky top-0 z-30 apple-liquid-glass-nav transition-all">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:px-6 lg:px-8">
           {/* Left: Back Arrow + Profile Identity */}
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
             <button
               type="button"
               onClick={() => {
@@ -622,7 +622,7 @@ export function BioEditPage() {
                   </span>
                 )}
               </div>
-              <h1 className="human-section-title text-base sm:text-xl truncate">
+              <h1 className="human-section-title text-base sm:text-xl truncate" style={{ textWrap: "nowrap" }}>
                 {isBusiness ? "Edit Place Profile" : "Edit Digital Bio"}
               </h1>
             </div>
@@ -631,32 +631,36 @@ export function BioEditPage() {
           {/* Right: Actions & Save Primary Button */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* View Public Profile Link */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden sm:inline-flex gap-1.5 rounded-full border border-line bg-card/80 px-3.5 text-xs font-semibold text-ink shadow-xs hover:bg-paper cursor-pointer"
-              onClick={() => {
-                void triggerHaptic("light");
-                nav(bioPath(activeProfile.handle));
-              }}
-            >
-              <ExternalLink size={13} className="text-accent" />
-              <span>View Public</span>
-            </Button>
+            <div className="hidden sm:block">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 rounded-full border border-line bg-card/80 px-3.5 text-xs font-semibold text-ink shadow-xs hover:bg-paper cursor-pointer"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav(bioPath(activeProfile.handle));
+                }}
+              >
+                <ExternalLink size={13} className="text-accent" />
+                <span>View Public</span>
+              </Button>
+            </div>
 
             {/* Mobile Live Preview Trigger Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden gap-1 rounded-full border border-line bg-card px-2.5 sm:px-3 text-xs font-semibold text-ink shadow-xs hover:bg-paper cursor-pointer"
-              onClick={() => {
-                void triggerHaptic("medium");
-                setMobilePreviewOpen(true);
-              }}
-            >
-              <Eye size={14} className="text-accent" />
-              <span className="hidden min-[380px]:inline">Preview</span>
-            </Button>
+            <div className="lg:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1 rounded-full border border-line bg-card px-2.5 sm:px-3 text-xs font-semibold text-ink shadow-xs hover:bg-paper cursor-pointer"
+                onClick={() => {
+                  void triggerHaptic("medium");
+                  setMobilePreviewOpen(true);
+                }}
+              >
+                <Eye size={14} className="text-accent" />
+                <span className="hidden min-[380px]:inline">Preview</span>
+              </Button>
+            </div>
 
             {/* Save Button */}
             <Button
