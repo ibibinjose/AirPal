@@ -2,12 +2,15 @@ import { describe, expect, it } from "vitest";
 import {
   resolveIconSize,
   resolveIconVariantClass,
+  resolveIconStrokeWidth,
   SIZE_MAP,
+  WEIGHT_MAP,
   VARIANT_CLASS_MAP,
   BADGE_VARIANT_MAP,
   BADGE_SIZE_MAP,
   Icon,
   IconBadge,
+  IconButton,
   Search,
   MapPin,
   Heart,
@@ -54,9 +57,23 @@ describe("AirPal Central Icon Library", () => {
     expect(BADGE_SIZE_MAP.lg.container).toContain("h-12 w-12");
   });
 
-  it("exports the core component, IconBadge, and re-exports Lucide icons", () => {
+  it("resolves SF Symbols stroke weights according to Apple HIG scale", () => {
+    expect(WEIGHT_MAP.light).toBe(1.65);
+    expect(WEIGHT_MAP.regular).toBe(1.85);
+    expect(WEIGHT_MAP.medium).toBe(2.05);
+    expect(WEIGHT_MAP.semibold).toBe(2.3);
+    expect(WEIGHT_MAP.bold).toBe(2.6);
+
+    expect(resolveIconStrokeWidth("regular")).toBe(1.85);
+    expect(resolveIconStrokeWidth("bold")).toBe(2.6);
+    expect(resolveIconStrokeWidth(undefined, 2.5)).toBe(2.5); // explicit strokeWidth override wins
+    expect(resolveIconStrokeWidth()).toBe(1.85); // default fallback
+  });
+
+  it("exports the core component, IconBadge, IconButton, and re-exports Lucide icons", () => {
     expect(Icon).toBeDefined();
     expect(IconBadge).toBeDefined();
+    expect(IconButton).toBeDefined();
     expect(Search).toBeDefined();
     expect(MapPin).toBeDefined();
     expect(Heart).toBeDefined();

@@ -1,20 +1,27 @@
 import React from "react";
 import { cn } from "@/lib/cn";
 import type { AirPalIconProps, IconBadgeSize, IconBadgeVariant } from "./types";
-import { BADGE_SIZE_MAP, BADGE_VARIANT_MAP, resolveIconSize, resolveIconVariantClass } from "./utils";
+import {
+  BADGE_SIZE_MAP,
+  BADGE_VARIANT_MAP,
+  resolveIconSize,
+  resolveIconStrokeWidth,
+  resolveIconVariantClass,
+} from "./utils";
 
 export const Icon = React.forwardRef<SVGSVGElement, AirPalIconProps>(function Icon(
-  { icon: LucideComponent, size = "md", variant = "current", strokeWidth = 2, className, title, ...rest },
+  { icon: LucideComponent, size = "md", variant = "current", strokeWidth, weight, className, title, ...rest },
   ref,
 ) {
   const numericSize = resolveIconSize(size);
   const variantClass = resolveIconVariantClass(variant);
+  const numericStrokeWidth = resolveIconStrokeWidth(weight, strokeWidth);
 
   return (
     <LucideComponent
       ref={ref}
       size={numericSize}
-      strokeWidth={strokeWidth}
+      strokeWidth={numericStrokeWidth}
       className={cn("shrink-0 transition-colors", variantClass, className)}
       aria-hidden={title ? undefined : true}
       role={title ? "img" : undefined}

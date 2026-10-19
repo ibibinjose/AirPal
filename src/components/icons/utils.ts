@@ -1,4 +1,4 @@
-import type { IconSize, IconVariant, IconBadgeVariant, IconBadgeSize } from "./types";
+import type { IconSize, IconVariant, IconBadgeVariant, IconBadgeSize, IconWeight } from "./types";
 
 export const SIZE_MAP: Record<Exclude<IconSize, number>, number> = {
   "2xs": 12,
@@ -16,6 +16,21 @@ export function resolveIconSize(size?: IconSize): number {
   if (typeof size === "number") return size;
   if (!size) return 18; // Default medium (18px)
   return SIZE_MAP[size] ?? 18;
+}
+
+/** Apple SF Symbols optical stroke weights */
+export const WEIGHT_MAP: Record<IconWeight, number> = {
+  light: 1.65,
+  regular: 1.85,
+  medium: 2.05,
+  semibold: 2.3,
+  bold: 2.6,
+};
+
+export function resolveIconStrokeWidth(weight?: IconWeight, strokeWidth?: number): number {
+  if (typeof strokeWidth === "number") return strokeWidth;
+  if (weight) return WEIGHT_MAP[weight] ?? 1.85;
+  return 1.85; // Apple SF Symbols regular standard
 }
 
 export const VARIANT_CLASS_MAP: Record<IconVariant, string> = {
@@ -55,10 +70,11 @@ export const BADGE_VARIANT_MAP: Record<IconBadgeVariant, string> = {
   danger: "bg-rose/10 text-rose ring-1 ring-rose/20",
 };
 
+/** Apple HIG concentric squircle curvature: R_inner = R_outer - padding */
 export const BADGE_SIZE_MAP: Record<IconBadgeSize, { container: string; defaultIcon: IconSize }> = {
-  xs: { container: "h-6 w-6 rounded-lg", defaultIcon: "2xs" },
-  sm: { container: "h-8 w-8 rounded-xl", defaultIcon: "xs" },
-  md: { container: "h-10 w-10 rounded-2xl", defaultIcon: "sm" },
-  lg: { container: "h-12 w-12 rounded-2xl", defaultIcon: "base" },
-  xl: { container: "h-14 w-14 rounded-3xl", defaultIcon: "lg" },
+  xs: { container: "h-6 w-6 rounded-[8px]", defaultIcon: "2xs" },
+  sm: { container: "h-8 w-8 rounded-[11px]", defaultIcon: "xs" },
+  md: { container: "h-10 w-10 rounded-[14px]", defaultIcon: "sm" },
+  lg: { container: "h-12 w-12 rounded-[18px]", defaultIcon: "base" },
+  xl: { container: "h-14 w-14 rounded-[22px]", defaultIcon: "lg" },
 };

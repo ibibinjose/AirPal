@@ -53,11 +53,42 @@ export type IconBadgeSize =
   | "lg" // 48x48
   | "xl"; // 56x56
 
+/** Apple Human Interface Guidelines SF Symbols stroke weight scale */
+export type IconWeight =
+  | "light" // 1.65 - subtle secondary/caption symbols
+  | "regular" // 1.85 - standard body/content icons
+  | "medium" // 2.05 - primary interactive/action icons
+  | "semibold" // 2.30 - active tab & emphasized state
+  | "bold"; // 2.60 - badge & prominent callout
+
 export interface AirPalIconProps extends Omit<React.SVGProps<SVGSVGElement>, "ref"> {
   icon: LucideIcon;
   size?: IconSize;
   variant?: IconVariant;
   strokeWidth?: number;
+  weight?: IconWeight;
   className?: string;
   title?: string;
+}
+
+/** Apple HIG interactive touch button variants (≥44pt touch area) */
+export type IconButtonVariant =
+  | "ghost" // transparent at rest, subtle hover tint
+  | "soft" // bg-card text-ink ring-1 ring-line
+  | "filled" // bg-brand text-white shadow-xs
+  | "glass" // liquid glass material with specular highlight
+  | "outline"; // transparent with crisp hairline ring
+
+export type IconButtonShape = "circle" | "squircle";
+
+export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: LucideIcon;
+  "aria-label": string;
+  variant?: IconButtonVariant;
+  shape?: IconButtonShape;
+  size?: IconSize;
+  iconVariant?: IconVariant;
+  weight?: IconWeight;
+  haptic?: "selection" | "light" | "medium" | "none";
+  active?: boolean;
 }

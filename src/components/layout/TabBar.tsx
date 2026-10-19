@@ -9,6 +9,7 @@ import {
   Ticket,
   UserRound,
   Users,
+  resolveIconStrokeWidth,
 } from "@/components/icons";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
@@ -132,7 +133,7 @@ export function TabBar({ path, enter = false }: { path: string; enter?: boolean 
                 )}
                 <span className="relative z-10 flex flex-col items-center justify-center gap-0.5 transition-transform duration-150">
                   <span className="relative">
-                    <Icon size={20} strokeWidth={on ? 2.35 : 1.8} fill="none" />
+                    <Icon size={20} strokeWidth={resolveIconStrokeWidth(on ? "semibold" : "regular")} fill="none" />
                     {(tab.id === "friends" || tab.id === "me") && inboxUnread > 0 && (
                       <span
                         className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white"

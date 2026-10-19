@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Plus, Search } from "@/components/icons";
+import { IconButton, Plus, Search } from "@/components/icons";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { ProfileMenu } from "@/components/auth/ProfileMenu";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
@@ -71,31 +71,27 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
           <BrowseMenu path={path} isHost={isHost} />
         </nav>
         <div className="flex items-center justify-end gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              void triggerHaptic("medium");
-              openGlobalSearch();
-            }}
-            className="flex h-11 w-11 touch-manipulation place-items-center justify-center rounded-full text-white/85 hover:bg-white/10 hover:text-white ring-1 ring-white/25 transition-transform active:scale-95 cursor-pointer"
-            aria-label="Search"
-            title="Search AirPal (⌘K)"
-          >
-            <Search size={16} />
-          </button>
+          <IconButton
+            icon={Search}
+            size="md"
+            weight="medium"
+            variant="ghost"
+            haptic="medium"
+            className="text-white/85 hover:bg-white/10 hover:text-white ring-1 ring-white/25"
+            aria-label="Search AirPal (⌘K)"
+            onClick={() => openGlobalSearch()}
+          />
 
-          <button
-            type="button"
-            onClick={() => {
-              void triggerHaptic("medium");
-              openGlobalCreate();
-            }}
-            className="flex h-11 w-11 min-h-[44px] min-w-[44px] touch-manipulation place-items-center justify-center shrink-0 rounded-full bg-white text-brand shadow-[0_6px_16px_-8px_rgba(0,0,0,0.45)] hover:bg-white/90 transition-[background-color,box-shadow,transform] active:scale-[0.97] cursor-pointer"
-            aria-label="Create something new"
-            title="Create (+)"
-          >
-            <Plus size={18} strokeWidth={2.5} />
-          </button>
+          <IconButton
+            icon={Plus}
+            size="md"
+            weight="semibold"
+            variant="filled"
+            haptic="medium"
+            className="bg-white text-brand hover:bg-white/90 shadow-[0_6px_16px_-8px_rgba(0,0,0,0.45)] ring-0"
+            aria-label="Create something new (+)"
+            onClick={() => openGlobalCreate()}
+          />
 
           <button
             onClick={() => {
