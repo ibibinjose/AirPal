@@ -655,14 +655,14 @@ export function ProfileMenu() {
           setOpen((v) => !v);
         }}
         className={cn(
-          "relative grid h-9 w-9 shrink-0 touch-manipulation place-items-center overflow-visible rounded-full bg-paper transition-all duration-200 after:absolute after:-inset-1 after:content-[''] sm:h-10 sm:w-10",
+          "relative grid h-10.5 w-10.5 sm:h-11 sm:w-11 shrink-0 touch-manipulation place-items-center overflow-visible rounded-full bg-paper transition-all duration-200 after:absolute after:-inset-1 after:content-['']",
           "hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-paper active:scale-95",
           open && "ring-2 ring-brand ring-offset-2 ring-offset-paper shadow-sm",
           !open && user && cn(statusInfo.ringClass, "ring-2 ring-offset-2 ring-offset-paper shadow-none"),
           !open && !user && "ring-1 ring-white/40 hover:ring-white",
         )}
       >
-        <AvatarFace className="h-9 w-9 text-xs sm:h-10 sm:w-10" />
+        <AvatarFace className="h-10.5 w-10.5 sm:h-11 sm:w-11 text-xs" />
         {user && (
           <span
             className={cn(

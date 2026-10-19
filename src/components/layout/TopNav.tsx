@@ -34,13 +34,13 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
         }}
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "flex min-h-[44px] shrink-0 whitespace-nowrap touch-manipulation items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
+          "flex min-h-[44px] shrink-0 whitespace-nowrap touch-manipulation items-center gap-2 rounded-full px-4 text-sm font-semibold transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
           isActive
             ? "bg-white text-brand shadow-[0_4px_12px_-4px_rgba(0,0,0,0.35)]"
             : "text-white hover:bg-white/15 hover:text-white",
         )}
       >
-        <Icon size={14} className={isActive ? "text-brand" : "text-white"} />
+        <Icon size={16} className={isActive ? "text-brand" : "text-white"} />
         <span>{pillar.label}</span>
       </button>
     );
@@ -53,8 +53,8 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: enterEase, delay: 0.12 }}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 app-page-gutter md:px-6">
-        <div className="flex items-center gap-3 shrink-0">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 app-page-gutter md:px-6">
+        <div className="flex flex-1 items-center justify-start min-w-[200px] shrink-0">
           <button
             onClick={() => {
               void triggerHaptic("light");
@@ -66,29 +66,29 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
             <BrandMark invert />
           </button>
         </div>
-        <nav className="flex items-center justify-center gap-1 rounded-full bg-white/15 p-1 ring-1 ring-white/30 shadow-xs">
+        <nav className="flex items-center justify-center gap-1.5 rounded-full bg-white/15 p-1.5 ring-1 ring-white/30 shadow-xs shrink-0">
           {PILLARS.map(renderPillar)}
           <BrowseMenu path={path} isHost={isHost} />
         </nav>
-        <div className="flex items-center justify-end gap-2 shrink-0">
+        <div className="flex flex-1 items-center justify-end gap-2.5 min-w-[200px] shrink-0">
           <IconButton
             icon={Search}
-            size="md"
+            size="lg"
             weight="medium"
             variant="ghost"
             haptic="medium"
-            className="text-white hover:bg-white/15 hover:text-white ring-1 ring-white/35"
+            className="text-white hover:bg-white/15 hover:text-white ring-1 ring-white/35 h-10.5 w-10.5 sm:h-11 sm:w-11"
             aria-label="Search AirPal (⌘K)"
             onClick={() => openGlobalSearch()}
           />
 
           <IconButton
             icon={Plus}
-            size="md"
+            size="lg"
             weight="semibold"
             variant="filled"
             haptic="medium"
-            className="bg-white text-brand hover:bg-white/90 shadow-[0_6px_16px_-8px_rgba(0,0,0,0.45)] ring-0"
+            className="bg-white text-brand hover:bg-white/90 shadow-[0_6px_16px_-8px_rgba(0,0,0,0.45)] ring-0 h-10.5 w-10.5 sm:h-11 sm:w-11"
             aria-label="Create something new (+)"
             onClick={() => openGlobalCreate()}
           />
@@ -98,7 +98,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
               void triggerHaptic("light");
               nav("/scan");
             }}
-            className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-3.5 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 lg:h-10 cursor-pointer"
+            className="hidden xl:inline-flex h-10.5 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
             title="Scan QR"
           >
             Scan
@@ -109,7 +109,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 void triggerHaptic("light");
                 nav("/event");
               }}
-              className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 lg:h-10 cursor-pointer"
+              className="hidden xl:inline-flex h-10.5 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4.5 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
             >
               Host
             </button>
@@ -120,7 +120,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 nav(partnerAccountPath({ signedIn: Boolean(user), hasPlace: Boolean(business) }));
               }}
               aria-label={NAMES.partnerAccount}
-              className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 lg:h-10 cursor-pointer"
+              className="hidden xl:inline-flex h-10.5 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4.5 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
             >
               {NAMES.partnerAccount}
             </button>
