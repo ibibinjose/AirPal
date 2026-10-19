@@ -14,19 +14,19 @@ function MenuLink({ link, active, onGo }: { link: BrowseLink; active: boolean; o
       aria-current={active ? "page" : undefined}
       onClick={() => onGo(link.href)}
       className={cn(
-        "flex min-h-[44px] w-full touch-manipulation items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition",
-        active ? "bg-brand text-white shadow-xs" : "text-ink hover:bg-paper",
+        "flex min-h-[44px] w-full touch-manipulation items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition cursor-pointer active:scale-[0.98]",
+        active ? "bg-brand text-white font-bold shadow-xs" : "text-ink font-semibold hover:bg-paper/80",
       )}
     >
       <span
         className={cn(
-          "grid h-8 w-8 shrink-0 place-items-center rounded-lg",
-          active ? "bg-brand" : "bg-brand/10 text-accent",
+          "grid h-8 w-8 shrink-0 place-items-center rounded-lg transition-colors",
+          active ? "bg-white/20 text-white" : "bg-brand/10 text-brand-ink dark:text-accent",
         )}
       >
         <Icon size={16} />
       </span>
-      {link.label}
+      <span>{link.label}</span>
     </button>
   );
 }
@@ -106,7 +106,7 @@ export function BrowseMenu({ path, isHost }: { path: string; isHost: boolean }) 
           "flex min-h-[44px] touch-manipulation cursor-pointer items-center gap-1 rounded-full px-3.5 text-sm font-semibold transition-all duration-200",
           active || open
             ? "bg-white text-brand shadow-[0_4px_12px_-4px_rgba(0,0,0,0.35)]"
-            : "text-white/75 hover:bg-white/10 hover:text-white",
+            : "text-white hover:bg-white/15 hover:text-white",
         )}
       >
         Browse
@@ -117,12 +117,12 @@ export function BrowseMenu({ path, isHost }: { path: string; isHost: boolean }) 
           role="menu"
           aria-label="Browse AirPal"
           onKeyDown={onMenuKeyDown}
-          className="absolute left-1/2 top-full z-50 mt-2 max-h-[70vh] w-72 -translate-x-1/2 overflow-y-auto overscroll-contain rounded-2xl bg-card p-2 shadow-xl ring-1 ring-line"
+          className="absolute left-1/2 top-full z-50 mt-2 max-h-[70vh] w-76 -translate-x-1/2 overflow-y-auto overscroll-contain rounded-2xl bg-card/95 p-2 shadow-2xl ring-1 ring-line/80 backdrop-blur-2xl"
         >
           {sections.map((section, index) => (
             <div key={section.title}>
-              {index > 0 && <div className="mx-2 my-2 border-t border-line" />}
-              <p className="px-3 pb-1 pt-2 text-[10px] font-black uppercase tracking-wider text-mute">
+              {index > 0 && <div className="mx-2 my-2 border-t border-line/70" />}
+              <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wider text-ink/70 dark:text-ink/65">
                 {section.title}
               </p>
               {section.links.map((link) => (

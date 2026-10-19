@@ -244,9 +244,9 @@ export function AddToCalendarMenu({
                       <span>{opt.name}</span>
                     </div>
                     {opt.id === "ics" ? (
-                      <Download size={14} className="text-mute opacity-70" />
+                      <Download size={14} className="text-ink/60" />
                     ) : (
-                      <ExternalLink size={14} className="text-mute opacity-70" />
+                      <ExternalLink size={14} className="text-ink/60" />
                     )}
                   </button>
                 ))}
@@ -264,7 +264,7 @@ export function AddToCalendarMenu({
                   width: "280px",
                 }}
                 className={cn(
-                  "hidden sm:block z-10 rounded-2xl bg-card p-2 shadow-2xl ring-1 ring-line duration-150 animate-in fade-in zoom-in-95",
+                  "hidden sm:block z-10 rounded-2xl bg-card/95 p-2 shadow-2xl ring-1 ring-line/80 backdrop-blur-2xl duration-150 animate-in fade-in zoom-in-95",
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -282,7 +282,7 @@ export function AddToCalendarMenu({
                       <X size={13} />
                     </button>
                   </div>
-                  <p className="text-[11px] text-mute truncate mt-0.5">{event.title}</p>
+                  <p className="text-[11px] text-ink/70 dark:text-ink/65 truncate mt-0.5">{event.title}</p>
                 </div>
 
                 <div className="py-1 space-y-0.5">
@@ -291,16 +291,16 @@ export function AddToCalendarMenu({
                       key={opt.id}
                       type="button"
                       onClick={opt.action}
-                      className="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs font-medium text-ink transition hover:bg-paper active:scale-[0.98] cursor-pointer"
+                      className="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs font-semibold text-ink transition hover:bg-paper active:scale-[0.98] cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-base">{opt.icon}</span>
                         <span>{opt.name}</span>
                       </div>
                       {opt.id === "ics" ? (
-                        <Download size={12} className="text-mute opacity-60" />
+                        <Download size={12} className="text-ink/60" />
                       ) : (
-                        <ExternalLink size={12} className="text-mute opacity-60" />
+                        <ExternalLink size={12} className="text-ink/60" />
                       )}
                     </button>
                   ))}

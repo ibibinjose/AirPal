@@ -66,7 +66,7 @@ function Row({
       className={cn(
         "group flex min-h-[46px] w-full touch-manipulation items-center gap-3 rounded-2xl px-3 py-2 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:scale-[0.98]",
         highlight
-          ? "bg-brand/10 text-accent hover:bg-brand/15 font-semibold"
+          ? "bg-brand/10 text-brand-ink dark:text-accent hover:bg-brand/15 font-semibold"
           : danger
             ? "text-red-600 hover:bg-red-500/10 dark:text-red-400 font-medium"
             : "text-ink hover:bg-paper/80 font-medium",
@@ -79,7 +79,7 @@ function Row({
             ? "bg-brand text-white ring-brand/30 shadow-2xs"
             : danger
               ? "bg-red-500/10 text-red-600 ring-red-500/25 dark:text-red-400"
-              : "bg-paper text-ink/80 ring-line/80 group-hover:bg-card group-hover:text-accent",
+              : "bg-paper text-ink ring-line/80 group-hover:bg-card group-hover:text-accent",
         )}
       >
         <Icon size={16} strokeWidth={1.9} />
@@ -87,28 +87,37 @@ function Row({
 
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5">
-          <span className={cn("block truncate text-xs sm:text-[13px]", highlight && "font-bold text-accent")}>
+          <span
+            className={cn(
+              "block truncate text-xs sm:text-[13px] font-semibold",
+              highlight && "font-bold text-brand-ink dark:text-accent",
+            )}
+          >
             {label}
           </span>
           {badge && (
             <span
               className={cn(
                 "rounded-full px-2 py-0.2 text-[10px] font-bold uppercase tracking-wider",
-                badgeColor || "bg-brand/10 text-accent",
+                badgeColor || "bg-brand/10 text-brand-ink dark:text-accent",
               )}
             >
               {badge}
             </span>
           )}
         </span>
-        {hint && <span className="block truncate text-[11px] text-mute group-hover:text-mute/90">{hint}</span>}
+        {hint && (
+          <span className="block truncate text-[11px] text-ink/70 dark:text-ink/65 group-hover:text-ink/90 font-normal">
+            {hint}
+          </span>
+        )}
       </span>
 
       <ChevronRight
         size={14}
         className={cn(
-          "shrink-0 opacity-40 transition-all duration-150 group-hover:opacity-100 group-hover:translate-x-0.5",
-          highlight ? "text-accent" : danger ? "text-red-500" : "text-mute",
+          "shrink-0 opacity-55 transition-all duration-150 group-hover:opacity-100 group-hover:translate-x-0.5",
+          highlight ? "text-brand-ink dark:text-accent" : danger ? "text-red-500" : "text-ink/50 group-hover:text-ink",
         )}
       />
     </button>
@@ -440,7 +449,9 @@ export function ProfileMenu() {
 
       {/* AirPal Me */}
       <div className="mt-2 space-y-0.5">
-        <p className="px-3 pt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">AirPal Me</p>
+        <p className="px-3 pt-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/70 dark:text-ink/65">
+          AirPal Me
+        </p>
         <Row
           icon={UserRound}
           label="Me Cockpit"
@@ -475,7 +486,9 @@ export function ProfileMenu() {
 
       {/* AirPal Pass */}
       <div className="my-1.5 h-px bg-line/80" />
-      <p className="px-3 pt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">AirPal Pass</p>
+      <p className="px-3 pt-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/70 dark:text-ink/65">
+        AirPal Pass
+      </p>
       <div className="mt-1 space-y-0.5">
         <Row
           icon={Ticket}
@@ -578,7 +591,9 @@ export function ProfileMenu() {
 
       {/* Guest: AirPal Me */}
       <div className="my-1.5 h-px bg-line/80" />
-      <p className="px-3 pt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">AirPal Me</p>
+      <p className="px-3 pt-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/70 dark:text-ink/65">
+        AirPal Me
+      </p>
       <div className="mt-1 space-y-0.5">
         <Row
           icon={Sparkles}
@@ -590,7 +605,9 @@ export function ProfileMenu() {
 
       {/* Guest: AirPal Pass */}
       <div className="my-1.5 h-px bg-line/80" />
-      <p className="px-3 pt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent">AirPal Pass</p>
+      <p className="px-3 pt-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/70 dark:text-ink/65">
+        AirPal Pass
+      </p>
       <div className="mt-1 space-y-0.5">
         <Row
           icon={Ticket}
@@ -642,7 +659,7 @@ export function ProfileMenu() {
           "hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-paper active:scale-95",
           open && "ring-2 ring-brand ring-offset-2 ring-offset-paper shadow-sm",
           !open && user && cn(statusInfo.ringClass, "ring-2 ring-offset-2 ring-offset-paper shadow-none"),
-          !open && !user && "ring-1 ring-line hover:ring-brand/50",
+          !open && !user && "ring-1 ring-white/40 hover:ring-white",
         )}
       >
         <AvatarFace className="h-9 w-9 text-xs sm:h-10 sm:w-10" />

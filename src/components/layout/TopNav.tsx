@@ -37,10 +37,10 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
           "flex min-h-[44px] shrink-0 whitespace-nowrap touch-manipulation items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
           isActive
             ? "bg-white text-brand shadow-[0_4px_12px_-4px_rgba(0,0,0,0.35)]"
-            : "text-white/75 hover:bg-white/10 hover:text-white",
+            : "text-white hover:bg-white/15 hover:text-white",
         )}
       >
-        <Icon size={14} className={isActive ? "text-brand" : "text-white/70"} />
+        <Icon size={14} className={isActive ? "text-brand" : "text-white"} />
         <span>{pillar.label}</span>
       </button>
     );
@@ -48,7 +48,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
 
   return (
     <motion.header
-      className="hidden bg-brand border-b border-white/10 lg:block transition-[background-color,border-color] duration-300"
+      className="hidden bg-brand border-b border-white/15 lg:block transition-[background-color,border-color] duration-300"
       initial={enter ? { opacity: 0, y: -12 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: enterEase, delay: 0.12 }}
@@ -66,7 +66,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
             <BrandMark invert />
           </button>
         </div>
-        <nav className="flex items-center justify-center gap-1 rounded-full bg-white/10 p-1 ring-1 ring-white/25 shadow-xs">
+        <nav className="flex items-center justify-center gap-1 rounded-full bg-white/15 p-1 ring-1 ring-white/30 shadow-xs">
           {PILLARS.map(renderPillar)}
           <BrowseMenu path={path} isHost={isHost} />
         </nav>
@@ -77,7 +77,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
             weight="medium"
             variant="ghost"
             haptic="medium"
-            className="text-white/85 hover:bg-white/10 hover:text-white ring-1 ring-white/25"
+            className="text-white hover:bg-white/15 hover:text-white ring-1 ring-white/35"
             aria-label="Search AirPal (⌘K)"
             onClick={() => openGlobalSearch()}
           />
@@ -98,7 +98,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
               void triggerHaptic("light");
               nav("/scan");
             }}
-            className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/10 px-3.5 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20 transition active:scale-95 lg:h-10 cursor-pointer"
+            className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-3.5 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 lg:h-10 cursor-pointer"
             title="Scan QR"
           >
             Scan
@@ -109,7 +109,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 void triggerHaptic("light");
                 nav("/event");
               }}
-              className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20 transition lg:h-10 cursor-pointer"
+              className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 lg:h-10 cursor-pointer"
             >
               Host
             </button>
@@ -120,7 +120,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 nav(partnerAccountPath({ signedIn: Boolean(user), hasPlace: Boolean(business) }));
               }}
               aria-label={NAMES.partnerAccount}
-              className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/10 px-4 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-white/20 transition active:scale-95 lg:h-10 cursor-pointer"
+              className="hidden xl:inline-flex h-9 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 lg:h-10 cursor-pointer"
             >
               {NAMES.partnerAccount}
             </button>

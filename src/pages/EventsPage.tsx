@@ -277,10 +277,10 @@ export function EventsPage() {
               {/* City Dropdown Menu */}
               {cityMenuOpen && (
                 <div
-                  className="absolute left-0 top-full z-30 mt-2 w-64 rounded-3xl bg-card p-2 shadow-xl ring-1 ring-line animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute left-0 top-full z-30 mt-2 w-64 rounded-3xl bg-card/95 p-2 shadow-2xl ring-1 ring-line/80 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150"
                   role="menu"
                 >
-                  <p className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-mute">
+                  <p className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-ink/70 dark:text-ink/65">
                     Choose Destination
                   </p>
                   <div className="max-h-60 overflow-y-auto space-y-1">
@@ -297,15 +297,22 @@ export function EventsPage() {
                             setCityMenuOpen(false);
                           }}
                           className={cn(
-                            "flex w-full min-h-[44px] items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition active:scale-[0.98]",
-                            selected ? "bg-brand text-white" : "text-ink hover:bg-paper",
+                            "flex w-full min-h-[44px] items-center justify-between rounded-xl px-3 py-2 text-xs transition active:scale-[0.98] cursor-pointer",
+                            selected
+                              ? "bg-brand text-white font-bold shadow-xs"
+                              : "text-ink font-semibold hover:bg-paper/80",
                           )}
                         >
                           <span className="flex items-center gap-2">
                             <MapPin size={13} className="shrink-0" aria-hidden />
                             <span>{c.label}</span>
                           </span>
-                          <span className={cn("text-[10px]", selected ? "text-white/80" : "text-mute")}>
+                          <span
+                            className={cn(
+                              "text-[10px] font-medium",
+                              selected ? "text-white/90" : "text-ink/65 dark:text-ink/60",
+                            )}
+                          >
                             {c.region}
                           </span>
                         </button>

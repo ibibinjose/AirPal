@@ -141,9 +141,7 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
         }}
         className={cn(
           "relative grid h-9 w-9 touch-manipulation place-items-center rounded-full ring-1 transition-transform active:scale-95 after:absolute after:-inset-1.5 after:content-['']",
-          onBrand
-            ? "text-white/85 hover:bg-white/10 hover:text-white ring-white/25"
-            : "text-accent hover:bg-card ring-line",
+          onBrand ? "text-white hover:bg-white/15 hover:text-white ring-white/35" : "text-ink hover:bg-card ring-line",
         )}
         aria-label={total ? `${total} unread notifications` : "Notifications"}
         title="Notifications"
@@ -190,7 +188,7 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
               <Link
                 href="/me/inbox"
                 onClick={() => setOpen(false)}
-                className="inline-flex min-h-[32px] items-center text-[12px] font-semibold text-mute hover:text-ink"
+                className="inline-flex min-h-[32px] items-center text-[12px] font-semibold text-ink/75 hover:text-ink"
               >
                 Open inbox →
               </Link>
@@ -202,7 +200,7 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
               <span className="mx-auto grid h-10 w-10 place-items-center rounded-2xl bg-paper text-mute ring-1 ring-line">
                 <Bell size={18} />
               </span>
-              <p className="mt-2 text-[13px] font-medium text-mute">No notifications right now.</p>
+              <p className="mt-2 text-[13px] font-medium text-ink/70">No notifications right now.</p>
             </div>
           ) : (
             notes.map((n) => {
@@ -233,7 +231,9 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
                       <span className="text-[10px] font-bold uppercase tracking-wider text-accent">
                         {presentation.label}
                       </span>
-                      {when ? <span className="shrink-0 text-[11px] text-mute">{when}</span> : null}
+                      {when ? (
+                        <span className="shrink-0 text-[11px] text-ink/65 dark:text-ink/60 font-medium">{when}</span>
+                      ) : null}
                     </div>
                     <p
                       className={cn(
@@ -243,14 +243,16 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
                     >
                       {n.title}
                     </p>
-                    <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-mute">{n.body}</p>
+                    <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-ink/70 dark:text-ink/65">
+                      {n.body}
+                    </p>
                   </div>
                   <button
                     type="button"
                     onClick={(e) => void dismissNote(e, n.id)}
                     title="Dismiss"
                     aria-label="Dismiss notification"
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-mute opacity-70 transition-opacity hover:bg-paper hover:text-ink hover:opacity-100"
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-ink/60 transition-opacity hover:bg-paper hover:text-ink hover:opacity-100"
                   >
                     <X size={14} />
                   </button>

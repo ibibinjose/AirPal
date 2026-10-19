@@ -335,12 +335,12 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function S
         <div
           id="search-autocomplete-listbox"
           role="listbox"
-          className="absolute left-0 right-0 top-full mt-2 z-50 overflow-hidden rounded-2xl bg-card p-1.5 ring-1 ring-line shadow-xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150"
+          className="absolute left-0 right-0 top-full mt-2 z-50 overflow-hidden rounded-2xl bg-card/95 p-1.5 ring-1 ring-line/80 shadow-2xl backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150"
         >
           {/* Header indicator */}
-          <div className="flex items-center justify-between px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-mute">
+          <div className="flex items-center justify-between px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-ink/70 dark:text-ink/65">
             <span>{value.trim() ? "Suggested Searches" : "Trending Searches"}</span>
-            <span className="flex items-center gap-1 text-[10px] text-accent lowercase font-medium">
+            <span className="flex items-center gap-1 text-[11px] text-brand-ink dark:text-accent lowercase font-medium">
               <TrendingUp size={11} />
               <span>from search logs</span>
             </span>
@@ -363,14 +363,16 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function S
                   onMouseEnter={() => setHighlightedIndex(idx)}
                   className={cn(
                     "flex w-full min-h-[44px] items-center justify-between rounded-xl px-3 py-2 text-left text-xs transition cursor-pointer touch-manipulation active:scale-[0.99]",
-                    isSelected ? "bg-brand/10 text-accent font-semibold" : "text-ink hover:bg-paper",
+                    isSelected
+                      ? "bg-brand/10 text-brand-ink dark:text-accent font-semibold"
+                      : "text-ink font-medium hover:bg-paper/80",
                   )}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
                     <span
                       className={cn(
                         "grid h-7 w-7 shrink-0 place-items-center rounded-lg transition-colors",
-                        isSelected ? "bg-brand text-white" : "bg-paper text-mute",
+                        isSelected ? "bg-brand text-white" : "bg-paper text-ink/70 ring-1 ring-line/60",
                       )}
                     >
                       {item.matchType === "trending" ? <TrendingUp size={13} /> : <Search size={13} />}
@@ -382,12 +384,12 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function S
 
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     {item.category && item.category !== "all" && (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-paper px-1.5 py-0.5 text-[10px] font-semibold text-mute uppercase">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-paper px-1.5 py-0.5 text-[10px] font-semibold text-ink/75 ring-1 ring-line/60 uppercase">
                         {getCategoryIcon(item.category)}
                         <span>{item.category}</span>
                       </span>
                     )}
-                    <span className="text-[10px] font-semibold text-mute">
+                    <span className="text-[10px] font-medium text-ink/65 dark:text-ink/60">
                       {item.count} {item.count === 1 ? "search" : "searches"}
                     </span>
                   </div>

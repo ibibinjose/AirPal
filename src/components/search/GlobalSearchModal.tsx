@@ -815,13 +815,13 @@ export function GlobalSearchModal() {
                   onMouseEnter={() => setSelectedIndex(index)}
                   className={cn(
                     "flex w-full items-center gap-3 rounded-2xl p-3 text-left transition touch-manipulation cursor-pointer",
-                    isSelected ? "bg-paper ring-1 ring-line text-ink" : "hover:bg-paper/60 text-mute",
+                    isSelected ? "bg-paper ring-1 ring-line text-ink" : "hover:bg-paper/70 text-ink/80",
                   )}
                 >
                   <div
                     className={cn(
                       "grid h-10 w-10 shrink-0 place-items-center rounded-xl transition",
-                      isSelected ? "bg-brand text-white shadow-sm" : "bg-paper text-mute ring-1 ring-line",
+                      isSelected ? "bg-brand text-white shadow-sm" : "bg-paper text-ink ring-1 ring-line/80",
                     )}
                   >
                     <Icon size={18} />
@@ -831,7 +831,7 @@ export function GlobalSearchModal() {
                       <span className="truncate text-sm font-semibold text-ink">
                         {highlightSearchMatch(item.title, query).map((seg, i) =>
                           seg.match ? (
-                            <span key={i} className="text-accent font-bold">
+                            <span key={i} className="text-brand-ink dark:text-accent font-bold">
                               {seg.text}
                             </span>
                           ) : (
@@ -840,12 +840,12 @@ export function GlobalSearchModal() {
                         )}
                       </span>
                       {item.badge && (
-                        <span className="rounded-full bg-paper px-2 py-0.5 text-[10px] font-medium text-accent ring-1 ring-line shrink-0">
+                        <span className="rounded-full bg-paper px-2 py-0.5 text-[10px] font-semibold text-brand-ink dark:text-accent ring-1 ring-line shrink-0">
                           {item.badge}
                         </span>
                       )}
                     </div>
-                    <p className="truncate text-xs text-mute mt-0.5">
+                    <p className="truncate text-xs text-ink/70 dark:text-ink/65 mt-0.5">
                       {highlightSearchMatch(item.subtitle, query).map((seg, i) =>
                         seg.match ? (
                           <span key={i} className="text-ink font-semibold">
