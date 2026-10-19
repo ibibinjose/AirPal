@@ -152,6 +152,9 @@ export function BioPublicPage() {
   const [copiedCode, setCopiedCode] = useState(false);
   const [visibilitySaving, setVisibilitySaving] = useState(false);
   const [activeVisibility, setActiveVisibility] = useState<"public" | "private" | null>(null);
+  const [catchUpReminderActive, setCatchUpReminderActive] = useState(() =>
+    handle ? hasCatchUpReminder(handle) : false,
+  );
   const { stalls, getEvent } = useEvents();
   const { isFollowing, followerHandles } = useSocial();
   const local = resolvePublicBio(handle, byHandle);
@@ -159,6 +162,12 @@ export function BioPublicPage() {
   const [tried, setTried] = useState(!handle);
   const [claim, setClaim] = useState<{ code: string; badge: string; detail: string } | null>(null);
   const viewed = useRef("");
+
+  useEffect(() => {
+    if (handle) {
+      setCatchUpReminderActive(hasCatchUpReminder(handle));
+    }
+  }, [handle]);
 
   useEffect(() => {
     const p = remote || local;
@@ -219,6 +228,12 @@ export function BioPublicPage() {
     return () => {
       live = false;
     };
+  }, [profile?.handle]);
+
+  useEffect(() => {
+    if (profile?.handle) {
+      setCatchUpReminderActive(hasCatchUpReminder(profile.handle));
+    }
   }, [profile?.handle]);
 
   const loadFailed = useRef("");
@@ -836,7 +851,7 @@ export function BioPublicPage() {
                 aria-label={`Profile visibility: ${isPublic ? "public" : "private"}. Activate to switch.`}
                 disabled={visibilitySaving}
                 onClick={() => void handleVisibilityToggle()}
-                className="mt-4 flex min-h-[52px] w-full max-w-sm items-center gap-3 rounded-2xl bg-paper px-3.5 py-2 text-left ring-1 ring-line/80 transition-[background-color,color,opacity] duration-200 hover:bg-card disabled:cursor-wait disabled:opacity-70"
+                className="mt-4 flex min-h-[52px] w-full max-w-sm items-center gap-3 rounded-2xl bg-paper px-3.5 py-2 text-left ring-1 ring-line/80 transition-[background-color,color,opacity] duration-200 hover:bg-card disabled:cursor-wait disabled:opacity-70 cursor-pointer touch-manipulation active:scale-[0.99]"
               >
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-card text-accent ring-1 ring-line/80">
                   <Lock size={14} aria-hidden="true" />
@@ -850,13 +865,13 @@ export function BioPublicPage() {
                 <span
                   className={cn(
                     "relative h-7 w-12 shrink-0 rounded-full p-1 transition-[background-color] duration-200",
-                    isPublic ? "bg-brand" : "bg-line",
+                    isPublic ? "bg-brand" : "bg-zinc-300 dark:bg-zinc-700",
                   )}
                   aria-hidden="true"
                 >
                   <span
                     className={cn(
-                      "block h-5 w-5 rounded-full bg-card shadow-sm transition-transform duration-200",
+                      "block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200",
                       isPublic ? "translate-x-5" : "translate-x-0",
                     )}
                   />
@@ -1523,6 +1538,7 @@ export function BioPublicPage() {
                         city: bio.city,
                         requesterUid: user?.uid,
                       });
+                      setCatchUpReminderActive(next);
                       toast[next ? "success" : "info"](
                         next ? `Saved a reminder to catch up with ${bio.name}` : `Removed reminder for ${bio.name}`,
                       );
@@ -1530,19 +1546,19 @@ export function BioPublicPage() {
                     }}
                     className={cn(
                       "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
-                      hasCatchUpReminder(bio.handle)
-                        ? "bg-amber-500/15 text-amber-800 ring-amber-500/40 font-bold"
+                      catchUpReminderActive
+                        ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 ring-amber-500/40 dark:ring-amber-500/30 font-bold"
                         : "bg-card text-mute ring-line hover:text-ink hover:bg-paper",
                     )}
-                    title={hasCatchUpReminder(bio.handle) ? "Catch-up reminder active" : "Set a reminder to catch up"}
+                    title={catchUpReminderActive ? "Catch-up reminder active" : "Set a reminder to catch up"}
                   >
                     <span
                       className={cn(
                         "h-2 w-2 shrink-0 rounded-full",
-                        hasCatchUpReminder(bio.handle) ? "bg-amber-500 motion-safe:animate-pulse" : "bg-mute/50",
+                        catchUpReminderActive ? "bg-amber-500 motion-safe:animate-pulse" : "bg-mute/50",
                       )}
                     />
-                    <span>{hasCatchUpReminder(bio.handle) ? "Reminder on ✓" : "Remind me"}</span>
+                    <span>{catchUpReminderActive ? "Reminder on ✓" : "Remind me"}</span>
                   </button>
                 </div>
                 <h3 className="font-display mt-2.5 text-lg sm:text-xl font-bold text-ink">Catch up with {bio.name}</h3>
@@ -2146,7 +2162,12 @@ export function BioPublicPage() {
       {/* Catch Up / Meeting / Hangout Modal */}
       <BioCatchUpModal
         open={catchUpModalOpen}
-        onClose={() => setCatchUpModalOpen(false)}
+        onClose={() => {
+          setCatchUpModalOpen(false);
+          if (bio.handle) {
+            setCatchUpReminderActive(hasCatchUpReminder(bio.handle));
+          }
+        }}
         handle={bio.handle}
         name={bio.name}
         city={bio.city}

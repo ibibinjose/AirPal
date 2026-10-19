@@ -67,12 +67,14 @@ export function FollowButton({
       title={following ? "Following" : "Follow"}
       onClick={() => toggleFollow(handle, name)}
       className={cn(
-        "inline-flex min-h-[44px] min-w-0 cursor-pointer items-center justify-center gap-1 sm:gap-1.5 rounded-full px-3 sm:px-4 text-xs font-semibold whitespace-nowrap transition active:scale-95",
-        following ? "bg-brand text-white shadow-sm" : "bg-brand text-white shadow-sm hover:brightness-110",
+        "inline-flex min-h-[44px] min-w-0 cursor-pointer items-center justify-center gap-1 sm:gap-1.5 rounded-full px-3 sm:px-4 text-xs font-semibold whitespace-nowrap transition active:scale-95 touch-manipulation",
+        following
+          ? "bg-paper text-ink ring-1 ring-line/80 hover:bg-card shadow-2xs font-semibold"
+          : "bg-brand text-white shadow-sm hover:brightness-110 font-bold",
         className,
       )}
     >
-      <Icon size={iconOnly ? 18 : 15} className="shrink-0" />
+      <Icon size={iconOnly ? 18 : 15} className={cn("shrink-0", following ? "text-accent" : "")} />
       {!iconOnly && <span className="truncate">{following ? "Following" : "Follow"}</span>}
     </button>
   );

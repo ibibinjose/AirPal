@@ -888,11 +888,14 @@ export function BioCatchUpModal({
                   className={cn(
                     "inline-flex min-h-[44px] whitespace-nowrap items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
                     isRemembered
-                      ? "bg-amber-500/15 text-amber-800 ring-amber-500/40 font-bold"
+                      ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 ring-amber-500/40 dark:ring-amber-500/30 font-bold"
                       : "bg-card text-ink ring-line hover:bg-paper",
                   )}
                 >
-                  <Bell size={13} className={cn("shrink-0", isRemembered ? "fill-amber-500 text-amber-600" : "")} />
+                  <Bell
+                    size={13}
+                    className={cn("shrink-0", isRemembered ? "fill-amber-500 text-amber-600 dark:text-amber-400" : "")}
+                  />
                   {isRemembered ? "Reminder on ✓" : "Remind me"}
                 </button>
                 <AddToCalendarMenu
