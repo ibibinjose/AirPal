@@ -37,6 +37,7 @@ import { mediaSrcSet, sizedImageUrl } from "@/lib/media-srcset";
 import { track } from "@/lib/analytics";
 import { triggerHaptic, shareNative } from "@/lib/native";
 import { toPublicUrl } from "@/lib/public-origin";
+import { EventLiveAttendeePreview } from "@/components/event/EventLiveAttendeePreview";
 
 interface CalendarEventCardProps {
   event: CalendarEvent;
@@ -427,6 +428,18 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
             ))}
           </div>
         )}
+      </div>
+
+      {/* Live Attendee Preview Pile */}
+      <div className="mt-3.5">
+        <EventLiveAttendeePreview
+          eventId={event.id}
+          guestCount={event.guestCounts?.goingHeads}
+          capacity={event.capacity}
+          isGoing={event.isGoing}
+          variant={compact ? "compact" : "card"}
+          gatePath={event.gatePath || `/e/${event.id}`}
+        />
       </div>
 
       {/* Interactive Attendance Toggle Bar */}

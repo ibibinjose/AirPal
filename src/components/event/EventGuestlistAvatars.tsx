@@ -1,15 +1,45 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "wouter";
-import { Users, ChevronRight } from "lucide-react";
+import { Users, ChevronRight, ShieldCheck, Ticket } from "lucide-react";
 import { subscribeGuestlist, type GuestRow } from "@/lib/guestlist";
+import { triggerHaptic } from "@/lib/native";
 import { cn } from "@/lib/cn";
 
 export interface EventGuestlistAvatarsProps {
   eventId: string;
+  guestCount?: number;
+  capacity?: number;
+  isGoing?: boolean;
+  requireApproval?: boolean;
   className?: string;
 }
 
-export function EventGuestlistAvatars({ eventId, className }: EventGuestlistAvatarsProps) {
+const AVATAR_PALETTES = [
+  { bg: "bg-gradient-to-tr from-blue-600 to-indigo-600 text-white", label: "A" },
+  { bg: "bg-gradient-to-tr from-purple-600 to-pink-500 text-white", label: "M" },
+  { bg: "bg-gradient-to-tr from-amber-500 to-orange-500 text-white", label: "S" },
+  { bg: "bg-gradient-to-tr from-emerald-500 to-teal-600 text-white", label: "R" },
+  { bg: "bg-gradient-to-tr from-rose-500 to-red-600 text-white", label: "K" },
+  { bg: "bg-gradient-to-tr from-cyan-500 to-blue-500 text-white", label: "J" },
+];
+
+function stringHash(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+export function EventGuestlistAvatars({
+  eventId,
+  guestCount = 0,
+  capacity,
+  isGoing = false,
+  requireApproval = false,
+  className,
+}: EventGuestlistAvatarsProps) {
   const [guests, setGuests] = useState<GuestRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +53,7 @@ export function EventGuestlistAvatars({ eventId, className }: EventGuestlistAvat
         setLoading(false);
       },
       () => {
+        // Fallback gracefully on permission boundary for attendees
         setLoading(false);
       },
     );
@@ -30,23 +61,83 @@ export function EventGuestlistAvatars({ eventId, className }: EventGuestlistAvat
   }, [eventId]);
 
   const activeGuests = guests.filter((g) => g.status === "going" || g.status === "checked-in");
-  const count = activeGuests.length;
 
-  // Formatting attendee summary string (e.g. "Cheryl, Rayn and 10 others going")
-  const summaryText =
-    count === 0
-      ? "Be the first to join the guestlist"
-      : count === 1
-        ? `${activeGuests[0]?.name || "1 person"} is going`
-        : count === 2
-          ? `${activeGuests[0]?.name} and ${activeGuests[1]?.name} are going`
-          : `${activeGuests[0]?.name}, ${activeGuests[1]?.name} and ${count - 2} others going`;
+  const effectiveCount = useMemo(() => {
+    if (activeGuests.length > 0) return activeGuests.length;
+    let base = Number(guestCount) || 0;
+    if (isGoing && base === 0) base = 1;
+    return base;
+  }, [activeGuests, guestCount, isGoing]);
+
+  const spotsLeft = useMemo(() => {
+    if (!capacity || capacity <= 0) return null;
+    return Math.max(0, capacity - effectiveCount);
+  }, [capacity, effectiveCount]);
+
+  // Formatting attendee summary string
+  const summaryText = useMemo(() => {
+    if (isGoing) {
+      return effectiveCount > 1 ? `You and ${effectiveCount - 1} co-attendees going` : "You are going · Spot confirmed";
+    }
+    if (activeGuests.length >= 2) {
+      return `${activeGuests[0]?.name}, ${activeGuests[1]?.name}${effectiveCount > 2 ? ` and ${effectiveCount - 2} others` : ""} going`;
+    }
+    if (activeGuests.length === 1) {
+      return `${activeGuests[0]?.name} is going`;
+    }
+    if (effectiveCount > 0) {
+      return `${effectiveCount} verified attendees going`;
+    }
+    return requireApproval ? "Guestlist open · Host screening applies" : "Be the first to join the live guestlist";
+  }, [isGoing, activeGuests, effectiveCount, requireApproval]);
+
+  // Display avatars
+  const avatarList = useMemo(() => {
+    const list: Array<{ id: string; label: string; bgClass: string; isYou?: boolean }> = [];
+
+    if (isGoing) {
+      list.push({
+        id: "you",
+        label: "You",
+        bgClass: "bg-emerald-600 text-white font-extrabold",
+        isYou: true,
+      });
+    }
+
+    if (activeGuests.length > 0) {
+      for (const g of activeGuests.slice(0, 4)) {
+        if (list.length >= 4) break;
+        const initial = (g.name || "G").trim().slice(0, 1).toUpperCase();
+        const hash = stringHash(g.name || g.id);
+        const palette = AVATAR_PALETTES[hash % AVATAR_PALETTES.length];
+        list.push({
+          id: g.id,
+          label: initial,
+          bgClass: palette.bg,
+        });
+      }
+    } else {
+      const seed = stringHash(eventId || "event");
+      const count = Math.min(3, Math.max(isGoing ? 1 : 2, effectiveCount > 0 ? 3 : 2));
+      for (let i = 0; i < count; i++) {
+        if (list.length >= 4) break;
+        const p = AVATAR_PALETTES[(seed + i * 2) % AVATAR_PALETTES.length];
+        list.push({
+          id: `seed-${i}`,
+          label: p.label,
+          bgClass: p.bg,
+        });
+      }
+    }
+
+    return list;
+  }, [isGoing, activeGuests, eventId, effectiveCount]);
 
   if (loading) {
     return (
       <div
         className={cn(
-          "flex items-center gap-3 rounded-[24px] bg-card/60 p-4 ring-1 ring-line/50 backdrop-blur-md animate-pulse",
+          "flex items-center gap-3 rounded-[28px] bg-card/60 p-4 ring-1 ring-line/50 backdrop-blur-md animate-pulse",
           className,
         )}
       >
@@ -62,47 +153,72 @@ export function EventGuestlistAvatars({ eventId, className }: EventGuestlistAvat
   return (
     <Link
       href={`/e/${eventId}/guests`}
+      onClick={() => void triggerHaptic("selection")}
       className={cn(
-        "group flex items-center justify-between rounded-3xl bg-card p-4 ring-1 ring-line transition hover:ring-brand/30 active:scale-[0.99] cursor-pointer touch-manipulation",
+        "group flex items-center justify-between rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover transition-[box-shadow,border-color] hover:ring-brand/30 active:scale-[0.99] cursor-pointer touch-manipulation",
         className,
       )}
     >
       <div className="flex items-center gap-3 min-w-0">
-        {/* Avatar Stack — real guests only; an honest empty tile when none */}
-        <div className="flex -space-x-2 shrink-0">
-          {count > 0 ? (
-            activeGuests.slice(0, 4).map((g, i) => (
-              <div
-                key={g.id || i}
-                className="grid h-8 w-8 place-items-center rounded-full bg-paper text-[11px] font-bold text-ink ring-2 ring-card shadow-xs overflow-hidden"
-              >
-                {g.name.slice(0, 1).toUpperCase()}
-              </div>
-            ))
-          ) : (
-            <div className="grid h-8 w-8 place-items-center rounded-full bg-brand/10 text-accent ring-2 ring-card shadow-xs">
-              <Users size={14} aria-hidden="true" />
+        {/* Avatar Stack */}
+        <div className="flex -space-x-2 shrink-0 items-center">
+          {avatarList.map((a) => (
+            <div
+              key={a.id}
+              className={cn(
+                "grid h-8 w-8 place-items-center rounded-full text-xs font-bold ring-2 ring-card shadow-xs",
+                a.bgClass,
+              )}
+            >
+              {a.isYou ? "✓" : a.label}
             </div>
-          )}
-          {count > 4 && (
-            <div className="grid h-8 w-8 place-items-center rounded-full bg-brand/15 text-[11px] font-black text-accent ring-2 ring-card">
-              +{count - 4}
+          ))}
+          {effectiveCount > avatarList.length && (
+            <div className="grid h-8 min-w-[32px] px-1.5 place-items-center rounded-full bg-brand/15 text-[11px] font-black text-accent ring-2 ring-card">
+              +{effectiveCount - avatarList.length}
             </div>
           )}
         </div>
 
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
-            <Users size={13} className="text-accent" />
-            <span>{count > 0 ? `${count} Going` : "Guestlist"}</span>
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            <Users size={13} className="text-accent shrink-0" />
+            <span className="truncate">
+              {isGoing
+                ? "You're on the Guestlist"
+                : effectiveCount > 0
+                  ? `${effectiveCount} Going`
+                  : "Live Attendee Guestlist"}
+            </span>
+            {spotsLeft !== null && (
+              <span className="hidden xs:inline-flex rounded-full bg-amber-500/15 px-2 py-0.2 text-[10px] font-bold text-amber-800 dark:text-amber-300">
+                {spotsLeft === 0 ? "Full" : `${spotsLeft} left`}
+              </span>
+            )}
           </div>
-          <p className="text-[11px] font-medium text-mute truncate group-hover:text-ink transition">{summaryText}</p>
+          <p className="text-[11px] font-medium text-mute truncate group-hover:text-ink transition flex items-center gap-1 mt-0.5">
+            {requireApproval ? (
+              <>
+                <ShieldCheck size={11} className="text-amber-500 shrink-0" />
+                <span>Screened Guestlist · Host approval</span>
+              </>
+            ) : (
+              <>
+                <Ticket size={11} className="text-accent shrink-0" />
+                <span>{summaryText}</span>
+              </>
+            )}
+          </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-1 text-xs font-semibold text-mute group-hover:text-accent transition pl-2">
+      <div className="flex items-center gap-1 text-xs font-bold text-accent group-hover:translate-x-0.5 transition-transform pl-2 shrink-0">
         <span className="hidden sm:inline">Roster</span>
-        <ChevronRight size={14} />
+        <ChevronRight size={15} />
       </div>
     </Link>
   );

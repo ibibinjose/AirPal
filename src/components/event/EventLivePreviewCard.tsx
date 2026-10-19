@@ -4,6 +4,7 @@ import { EventCoverGlow } from "./EventCoverGlow";
 import { EventDateCalendarBlock } from "./EventDateCalendarBlock";
 import { EventHostCard } from "./EventHostCard";
 import { EventLocationCard } from "./EventLocationCard";
+import { EventLiveAttendeePreview } from "./EventLiveAttendeePreview";
 import { cn } from "@/lib/cn";
 
 export interface EventLivePreviewCardProps {
@@ -153,6 +154,15 @@ export function EventLivePreviewCard({
         hostHandle={hostHandle}
         hostType={hostType}
         collaboratorHandles={collaboratorHandles}
+      />
+
+      {/* Live Attendee Preview Pile */}
+      <EventLiveAttendeePreview
+        eventId="preview-card"
+        guestCount={0}
+        capacity={capacity}
+        requireApproval={requireApproval}
+        variant="hero"
       />
 
       {/* Ticket Tier Mock Card */}

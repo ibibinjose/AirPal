@@ -97,6 +97,14 @@ export type EventRecord = {
   directions?: string;
   /** Host-closed registration. Closed card + notify-me replace the ticket flow. */
   registrationClosed?: boolean;
+  /** Live attendee and guest counts mirror from server guestlist triggers. */
+  guestCounts?: {
+    goingHeads: number;
+    checkedInHeads: number;
+    noshowHeads: number;
+    listedHeads: number;
+    entries: number;
+  };
   gatePath: string;
   /** Festival program this session belongs to (festivals/{slug}). */
   festivalSlug?: string;
@@ -389,6 +397,14 @@ export type CalendarEvent = {
   directions?: string;
   /** Host-closed registration. Closed card + notify-me replace the ticket flow. */
   registrationClosed?: boolean;
+  /** Live attendee and guest counts mirror from server guestlist triggers. */
+  guestCounts?: {
+    goingHeads: number;
+    checkedInHeads: number;
+    noshowHeads: number;
+    listedHeads: number;
+    entries: number;
+  };
 };
 
 export type EventAgendaItem = {

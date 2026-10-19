@@ -31,6 +31,7 @@ import { Photo } from "@/components/ui/Photo";
 import { mediaSrcSet } from "@/lib/media-srcset";
 import { type Promotion } from "@shared/promotions";
 import { promoArtFor } from "@/lib/promotions";
+import { EventLiveAttendeePreview } from "@/components/event/EventLiveAttendeePreview";
 
 type PassCategory = "all" | "cultural" | "music" | "festivals" | "deals" | "nightlife" | "community";
 
@@ -46,7 +47,7 @@ const PASS_CATEGORIES: { id: PassCategory; label: string; icon: typeof Ticket }[
 
 export function PassPage() {
   const { user } = useAuth();
-  const { calendarEvents, events } = useEvents();
+  const { calendarEvents, events, userStates } = useEvents();
   const { city, today } = useLocalNow();
   const effectiveCity = city && city !== "Choose a city" && city !== "Current location" ? city : "Sydney";
 
@@ -96,6 +97,9 @@ export function PassPage() {
         image: e.heroImage || "/media/live-music.jpg",
         priceLabel: e.ticketPrice || (e.ticketPriceCents ? `$${Math.round(e.ticketPriceCents / 100)}` : "Free Pass"),
         isFree: !e.ticketPriceCents || (e.ticketPrice ? e.ticketPrice.toLowerCase().includes("free") : false),
+        guestCounts: e.guestCounts,
+        capacity: e.capacity,
+        isGoing: e.isGoing,
       });
     }
 
@@ -117,6 +121,9 @@ export function PassPage() {
         priceLabel:
           base.ticketPrice || (base.ticketPriceCents ? `$${Math.round(base.ticketPriceCents / 100)}` : "Free Pass"),
         isFree: !base.ticketPriceCents || (base.ticketPrice ? base.ticketPrice.toLowerCase().includes("free") : false),
+        guestCounts: base.guestCounts,
+        capacity: base.capacity,
+        isGoing: Boolean(userStates[base.id]?.status === "going"),
       });
     }
 
@@ -191,7 +198,7 @@ export function PassPage() {
       }
       return true;
     });
-  }, [calendarEvents, events, today, activeCategory, searchQuery]);
+  }, [calendarEvents, events, today, activeCategory, searchQuery, userStates]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] md:px-6">
@@ -409,7 +416,7 @@ export function PassPage() {
                     </div>
                   </div>
 
-                  <div className="p-4">
+                  <div className="p-4 pb-3">
                     <p className="font-display text-base font-bold text-ink group-hover:text-accent transition-colors line-clamp-1 text-balance">
                       {event.title}
                     </p>
@@ -417,6 +424,18 @@ export function PassPage() {
                       <MapPin size={13} className="shrink-0 text-accent" aria-hidden="true" />
                       <span>{event.venue}</span>
                     </p>
+
+                    {/* Live Attendee Preview Pile */}
+                    <div className="mt-3">
+                      <EventLiveAttendeePreview
+                        eventId={event.id}
+                        guestCount={event.guestCounts?.goingHeads}
+                        capacity={event.capacity}
+                        isGoing={event.isGoing}
+                        variant="compact"
+                        gatePath={`/e/${event.id}`}
+                      />
+                    </div>
                   </div>
                 </div>
 

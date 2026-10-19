@@ -160,6 +160,7 @@ export function recordToCalendarBase(e: EventRecord): Omit<CalendarEvent, "isGoi
     refundPolicy: e.refundPolicy,
     directions: e.directions,
     registrationClosed: e.registrationClosed,
+    guestCounts: e.guestCounts,
     category,
     categoryLabel: e.flavour === "market" ? "Market" : e.flavour === "expo" ? "Expo" : "Event",
     gatePath: e.gatePath,
@@ -278,6 +279,10 @@ export function docToCalendarBase(
       refundPolicy: typeof doc.refundPolicy === "string" ? doc.refundPolicy : undefined,
       directions: typeof doc.directions === "string" ? doc.directions : undefined,
       registrationClosed: doc.registrationClosed === true ? true : undefined,
+      guestCounts:
+        typeof doc.guestCounts === "object" && doc.guestCounts
+          ? (doc.guestCounts as CalendarEvent["guestCounts"])
+          : undefined,
       sponsorHandles: cleanEventHandles(doc.sponsorHandles),
     };
   }
@@ -373,6 +378,10 @@ export function docToEventRecord(doc: Record<string, unknown>, id: string): Even
       ? doc.categoryChips.filter(isStallCategory)
       : ["eat", "coffee", "shops", "things"],
     stallCount: typeof doc.stallCount === "number" ? doc.stallCount : 0,
+    guestCounts:
+      typeof doc.guestCounts === "object" && doc.guestCounts
+        ? (doc.guestCounts as EventRecord["guestCounts"])
+        : undefined,
   };
 }
 

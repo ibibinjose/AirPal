@@ -304,7 +304,13 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
             />
 
             {/* Social Proof Attendee Avatar Pile */}
-            <EventGuestlistAvatars eventId={event.id} />
+            <EventGuestlistAvatars
+              eventId={event.id}
+              guestCount={event.guestCounts?.goingHeads}
+              capacity={event.capacity}
+              isGoing={event.isGoing}
+              requireApproval={event.requireApproval}
+            />
 
             {/* Report this event to the trust team */}
             <div className="flex justify-end">
