@@ -162,11 +162,19 @@ export function BioShareModal({
           <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
 
-          {/* Card Top Brand Row */}
+          {/* Card Top Brand Row - Balanced & Symmetrical */}
           <div className="relative z-10 flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <span
+              className="grid h-7 w-7 place-items-center rounded-full bg-white/15 text-white/90 backdrop-blur-md ring-1 ring-white/20"
+              title="Contactless NFC Ready"
+              aria-label="NFC Contactless"
+            >
+              <Wifi size={13} className="rotate-90 text-white" />
+            </span>
+
+            <div className="flex items-center gap-1.5">
               <BrandMark compact invert className="h-5 w-auto" />
-              <div className="flex items-baseline gap-1.5">
+              <div className="flex items-baseline gap-1">
                 <span className="font-display text-[13px] font-black uppercase tracking-wider text-white">
                   airpal<span className="opacity-90">.me</span>
                 </span>
@@ -174,23 +182,14 @@ export function BioShareModal({
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold tracking-wider text-white/95 backdrop-blur-md ring-1 ring-white/20">
-                {kind === "business" ? "PRO" : "MEMBER"}
-              </span>
-              <span
-                className="grid h-6 w-6 place-items-center rounded-full bg-white/15 text-white/90 backdrop-blur-md ring-1 ring-white/20"
-                title="Contactless NFC Ready"
-                aria-label="NFC Contactless"
-              >
-                <Wifi size={12} className="rotate-90 text-white" />
-              </span>
-            </div>
+            <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-white/95 backdrop-blur-md ring-1 ring-white/20">
+              {kind === "business" ? "PRO" : "MEMBER"}
+            </span>
           </div>
 
-          {/* Member Identity Row */}
-          <div className="relative z-10 mt-3.5 flex items-center gap-3 border-t border-white/15 pt-3">
-            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-white/90 shadow-sm bg-white/10">
+          {/* Member Identity - Perfectly Centered & Symmetrical */}
+          <div className="relative z-10 mt-3.5 border-t border-white/15 pt-3 text-center">
+            <div className="mx-auto relative h-12 w-12 overflow-hidden rounded-full ring-2 ring-white/90 shadow-sm bg-white/10">
               {avatar ? (
                 <img src={avatar} alt={name} className="h-full w-full rounded-full object-cover" />
               ) : (
@@ -200,12 +199,10 @@ export function BioShareModal({
               )}
             </div>
 
-            <div className="min-w-0 flex-1 text-left">
-              <h3 className="truncate font-display text-base font-bold tracking-tight text-white leading-tight">
-                {name || `@${cleanHandle}`}
-              </h3>
-              <p className="truncate font-mono text-xs font-semibold text-white/85">@{cleanHandle}</p>
-            </div>
+            <h3 className="mt-2 truncate font-display text-base font-bold tracking-tight text-white leading-tight">
+              {name || `@${cleanHandle}`}
+            </h3>
+            <p className="mt-0.5 truncate font-mono text-xs font-semibold text-white/85">@{cleanHandle}</p>
           </div>
 
           {/* Clean Ceramic White QR Plate */}
