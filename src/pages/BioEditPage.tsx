@@ -73,6 +73,8 @@ import { Photo } from "@/components/ui/Photo";
 import { BioHandleButton } from "@/components/bio/BioHandleButton";
 import { BioKindBadge, BioKindIcon } from "@/components/bio/BioKindBadge";
 import { ChangeHandleForm } from "@/components/bio/ChangeHandleForm";
+import { setAuthDisplayName } from "@/lib/auth-mail";
+import { getFirebaseAuth } from "@/lib/firebase";
 import { triggerHaptic } from "@/lib/native";
 import {
   BUSINESS_CATEGORY_PRESETS,
@@ -293,6 +295,14 @@ export function BioEditPage() {
         services,
         deals,
       });
+      const auth = getFirebaseAuth();
+      if (auth?.currentUser && name.trim()) {
+        try {
+          await setAuthDisplayName(auth.currentUser, name.trim());
+        } catch {
+          /* best effort */
+        }
+      }
       void triggerHaptic("success");
       toast.success(isBusiness ? "Saved business place profile" : "Saved AirPal Me profile");
     } catch (err) {

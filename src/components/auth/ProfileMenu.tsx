@@ -281,7 +281,7 @@ export function ProfileMenu() {
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-1">
               <p className="font-display truncate text-sm font-bold text-ink group-hover/card:text-accent transition-colors">
-                {user.displayName || mine?.name || "Account"}
+                {mine?.name || user.displayName || "Account"}
               </p>
               <span className="text-[10px] font-semibold text-mute group-hover/card:text-accent flex items-center gap-0.5 shrink-0">
                 <span>View</span>

@@ -12,6 +12,7 @@ import { VerifyEmailBanner } from "@/components/auth/VerifyEmailBanner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
 import { useLocalNow } from "@/contexts/LocalNowContext";
+import { ChangeDisplayNameForm } from "@/components/bio/ChangeDisplayNameForm";
 import { ChangeHandleForm } from "@/components/bio/ChangeHandleForm";
 import { partnerAccountPath } from "@/lib/partner-account";
 import { friendlyBirthdayError, setBirthdayAlertPrefsRemote } from "@/lib/birthday-freebies";
@@ -168,7 +169,7 @@ export function SettingsPage() {
         <div className="mt-5 flex items-center gap-3 rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
           <MeAvatar faceClassName="h-14 w-14 text-lg" />
           <div className="min-w-0">
-            <p className="truncate font-medium">{user.displayName || "Account"}</p>
+            <p className="truncate font-medium">{mine?.name || user.displayName || "Account"}</p>
             <p className="truncate text-sm text-mute">{user.email || user.phone || "Signed in"}</p>
           </div>
         </div>
@@ -177,6 +178,11 @@ export function SettingsPage() {
       )}
 
       {user && <AccountContacts />}
+      {user && (
+        <div className="mt-4 rounded-2xl bg-card p-4 ring-1 ring-line">
+          <ChangeDisplayNameForm currentName={mine?.name || user.displayName} />
+        </div>
+      )}
       {user && mine && (
         <div className="mt-4 rounded-2xl bg-card p-4 ring-1 ring-line">
           <ChangeHandleForm current={mine.handle} profileId={mine.id} />
