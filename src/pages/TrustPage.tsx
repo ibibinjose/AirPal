@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ExternalLink, ShieldCheck } from "lucide-react";
+import { CheckCircle2, ExternalLink, FileText, GitCommit, Lock, ShieldCheck } from "lucide-react";
 import { LEGAL } from "@/lib/legal";
 import { TRUST_FAQ, buildTrustJsonLd } from "@/lib/trust-meta";
 
@@ -201,6 +201,125 @@ export function TrustPage() {
               required. Home addresses, verification documents, phone numbers and emails are never exposed.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Security Posture & Penetration Testing */}
+      <section
+        aria-labelledby="trust-security"
+        className="mt-10 rounded-[28px] bg-gradient-to-br from-card to-paper p-6 ring-1 ring-line sm:p-8"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-accent">
+            <ShieldCheck size={16} className="text-accent" aria-hidden="true" />
+            Security & Attack Surface Hardening
+          </p>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Continuous Verification
+          </span>
+        </div>
+
+        <h2
+          id="trust-security"
+          className="font-display mt-2 text-2xl font-bold tracking-tight text-ink sm:text-3xl text-balance"
+        >
+          Securing every attack surface with continuous testing
+        </h2>
+        <p className="mt-3 text-base leading-relaxed text-ink/80">
+          We combine expert-led penetration testing with automated CI/CD security pipelines to provide real-time
+          vulnerability visibility and compliance-ready verification across all AirPal surfaces.
+        </p>
+
+        {/* 4 Core Pillars Grid */}
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {/* Card 1 */}
+          <div className="rounded-2xl bg-card p-5 ring-1 ring-line shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <CheckCircle2 size={20} />
+              </div>
+              <h3 className="text-base font-bold text-ink">Real Issues, Not Noisy Scans</h3>
+            </div>
+            <p className="mt-2.5 text-sm leading-relaxed text-ink/75">
+              Every identified vulnerability is reviewed by certified security engineers with video proof-of-concept
+              (PoC) and prioritized fix guidance, eliminating false-positive scan noise.
+            </p>
+          </div>
+
+          {/* Card 2 */}
+          <div className="rounded-2xl bg-card p-5 ring-1 ring-line shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <GitCommit size={20} />
+              </div>
+              <h3 className="text-base font-bold text-ink">Continuous Release & CI/CD Testing</h3>
+            </div>
+            <p className="mt-2.5 text-sm leading-relaxed text-ink/75">
+              Automated security regression tests plug directly into GitHub and CI/CD pipelines to catch vulnerabilities
+              and rule misconfigurations before changes reach production.
+            </p>
+          </div>
+
+          {/* Card 3 */}
+          <div className="rounded-2xl bg-card p-5 ring-1 ring-line shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <FileText size={20} />
+              </div>
+              <h3 className="text-base font-bold text-ink">Compliance & Audit Readiness</h3>
+            </div>
+            <p className="mt-2.5 text-sm leading-relaxed text-ink/75">
+              SOC 2, ISO 27001, PCI-DSS Level 1, and HIPAA-ready architecture with auditor-accepted reports, compliance
+              gap mapping, and transparent rails your team and customers can verify.
+            </p>
+          </div>
+
+          {/* Card 4 */}
+          <div className="rounded-2xl bg-card p-5 ring-1 ring-line shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <Lock size={20} />
+              </div>
+              <h3 className="text-base font-bold text-ink">Remediation & Retest Support</h3>
+            </div>
+            <p className="mt-2.5 text-sm leading-relaxed text-ink/75">
+              Step-by-step remediation guidance with fast turnaround retesting so our team closes attack surfaces
+              quickly without the usual back-and-forth friction.
+            </p>
+          </div>
+        </div>
+
+        {/* Attack Surface Scope Matrix */}
+        <div className="mt-6 rounded-2xl bg-paper/60 p-5 ring-1 ring-line/80">
+          <p className="text-xs font-bold uppercase tracking-wider text-mute">Protected Attack Surfaces</p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
+            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              🌐 Single-Page Web App (airpal.me)
+            </span>
+            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              📱 Native iOS & Android Shells
+            </span>
+            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              ⚡ Serverless Cloud Functions APIs
+            </span>
+            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              🛡️ Firestore Default-Deny Rules
+            </span>
+            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              💳 Stripe Encrypted Checkout Pipeline
+            </span>
+            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              🎟️ HMAC Anti-Tamper Ticket Gates
+            </span>
+          </div>
+          <p className="mt-3 text-xs leading-relaxed text-mute">
+            Found a potential security issue or vulnerability? Responsible disclosure reports are handled directly via{" "}
+            <a href="mailto:security@airpal.me" className="font-semibold text-accent hover:underline">
+              security@airpal.me
+            </a>{" "}
+            with priority response.
+          </p>
         </div>
       </section>
 
