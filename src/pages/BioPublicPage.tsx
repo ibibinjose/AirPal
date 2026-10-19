@@ -110,6 +110,26 @@ import { PingButton } from "@/components/social/PingButton";
 import { BizCircle } from "@/components/bio/BizCircle";
 import { triggerHaptic } from "@/lib/native";
 
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "AP";
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
+}
+
+function getInternalPath(href: string): string | null {
+  if (href.startsWith("/")) return href;
+  try {
+    const parsed = new URL(href);
+    if (parsed.hostname === "airpal.me" || parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
+      return parsed.pathname + parsed.search + parsed.hash;
+    }
+  } catch {
+    // not a valid url
+  }
+  return null;
+}
+
 export function BioPublicPage() {
   const [path, nav] = useLocation();
   const [, params] = useRoute(BIO_PUBLIC_PATH);
@@ -636,8 +656,8 @@ export function BioPublicPage() {
                 {avatar ? (
                   <Photo src={avatar} className="h-full w-full object-cover rounded-full" />
                 ) : (
-                  <span className="grid h-full w-full place-items-center bg-gradient-to-br from-neutral-900 to-neutral-800 font-display text-3xl sm:text-4xl font-extrabold text-white">
-                    {bio.name[0]}
+                  <span className="grid h-full w-full place-items-center bg-gradient-to-br from-[#1805db] via-[#100399] to-[#090259] font-display text-2xl sm:text-3xl font-extrabold text-white tracking-wider shadow-inner ring-2 ring-white/20">
+                    {getInitials(bio.name)}
                   </span>
                 )}
               </div>
@@ -930,8 +950,8 @@ export function BioPublicPage() {
             </button>
           </div>
 
-          {/* 1-Tap Quick Action Deck: [WhatsApp], [Call] */}
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          {/* 1-Tap Quick Action Deck: [WhatsApp], [Call], [Catch Up] */}
+          <div className={cn("mt-3 grid gap-2", isPersonBio ? "grid-cols-3" : "grid-cols-2")}>
             {whatsappUrl ? (
               <a
                 href={whatsappUrl}
@@ -941,7 +961,7 @@ export function BioPublicPage() {
                   void triggerHaptic("light");
                   recordTap(bio.handle, "whatsapp");
                 }}
-                className="group flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 px-3 text-xs font-bold text-emerald-700 ring-1 ring-emerald-500/30 transition-all duration-200 hover:bg-emerald-600 hover:text-white active:scale-95 shadow-2xs"
+                className="group flex min-h-[48px] items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-emerald-500/10 px-2 sm:px-3 text-xs font-bold text-emerald-700 ring-1 ring-emerald-500/30 transition-all duration-200 hover:bg-emerald-600 hover:text-white active:scale-95 shadow-2xs"
               >
                 <MessageCircle
                   size={16}
@@ -950,7 +970,7 @@ export function BioPublicPage() {
                 <span className="truncate">WhatsApp</span>
               </a>
             ) : (
-              <div className="flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper/30 px-3 text-xs font-medium text-mute/50 ring-1 ring-line/40 cursor-not-allowed">
+              <div className="flex min-h-[48px] items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-paper/30 px-2 sm:px-3 text-xs font-medium text-mute/50 ring-1 ring-line/40 cursor-not-allowed">
                 <MessageCircle size={16} className="opacity-40 shrink-0" />
                 <span className="truncate">WhatsApp</span>
               </div>
@@ -963,7 +983,7 @@ export function BioPublicPage() {
                   void triggerHaptic("light");
                   recordTap(bio.handle, "call");
                 }}
-                className="group flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 px-3 text-xs font-bold text-amber-700 ring-1 ring-amber-500/30 transition-all duration-200 hover:bg-amber-600 hover:text-white active:scale-95 shadow-2xs"
+                className="group flex min-h-[48px] items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-amber-500/10 px-2 sm:px-3 text-xs font-bold text-amber-700 ring-1 ring-amber-500/30 transition-all duration-200 hover:bg-amber-600 hover:text-white active:scale-95 shadow-2xs"
               >
                 <Phone
                   size={16}
@@ -972,10 +992,29 @@ export function BioPublicPage() {
                 <span className="truncate">Call</span>
               </a>
             ) : (
-              <div className="flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper/30 px-3 text-xs font-medium text-mute/50 ring-1 ring-line/40 cursor-not-allowed">
+              <div className="flex min-h-[48px] items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-paper/30 px-2 sm:px-3 text-xs font-medium text-mute/50 ring-1 ring-line/40 cursor-not-allowed">
                 <Phone size={16} className="opacity-40 shrink-0" />
                 <span className="truncate">Call</span>
               </div>
+            )}
+
+            {isPersonBio && (
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("medium");
+                  setCatchUpInitialType("catchup");
+                  setCatchUpModalOpen(true);
+                }}
+                className="group flex min-h-[48px] items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-brand/10 px-2 sm:px-3 text-xs font-bold text-accent ring-1 ring-brand/30 transition-all duration-200 hover:bg-brand hover:text-white active:scale-95 shadow-2xs cursor-pointer touch-manipulation"
+                title={`Propose a catch-up, meeting or hangout with ${bio.name}`}
+              >
+                <Coffee
+                  size={16}
+                  className="text-accent group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
+                />
+                <span className="truncate">Catch Up</span>
+              </button>
             )}
           </div>
 
@@ -1037,6 +1076,20 @@ export function BioPublicPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between sm:justify-start gap-4 pt-1 text-xs">
+                  {isPersonBio && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void triggerHaptic("medium");
+                        setCatchUpInitialType("catchup");
+                        setCatchUpModalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline cursor-pointer"
+                    >
+                      <Coffee size={13} className="text-accent" />
+                      <span>Plan Catch-Up</span>
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
@@ -1685,23 +1738,33 @@ export function BioPublicPage() {
               <ul className="space-y-2.5">
                 {stacked
                   .filter((link) => isSafeBioHref(link.href))
-                  .map((link) => (
-                    <li key={link.id}>
-                      <a
-                        href={link.href}
-                        target={link.href.startsWith("http") ? "_blank" : undefined}
-                        rel="noreferrer"
-                        onClick={() => {
-                          void triggerHaptic("light");
-                          recordTap(bio.handle, link.type, link.id);
-                        }}
-                        className="bio-theme-btn group flex min-h-[52px] sm:min-h-[56px] items-center justify-between rounded-full bg-brand px-6 text-sm sm:text-[15px] font-bold text-white shadow-xs transition-all duration-200 hover:bg-brand-ink hover:shadow-md active:scale-[0.99] touch-manipulation cursor-pointer"
-                      >
-                        <span className="truncate">{link.label || link.type}</span>
-                        <ChevronRight size={18} className="shrink-0 transition-transform group-hover:translate-x-1" />
-                      </a>
-                    </li>
-                  ))}
+                  .map((link) => {
+                    const internal = getInternalPath(link.href);
+                    return (
+                      <li key={link.id}>
+                        <a
+                          href={link.href}
+                          target={internal ? undefined : link.href.startsWith("http") ? "_blank" : undefined}
+                          rel={internal ? undefined : "noreferrer"}
+                          onClick={(e) => {
+                            if (internal) {
+                              e.preventDefault();
+                              void triggerHaptic("light");
+                              nav(internal);
+                              recordTap(bio.handle, link.type, link.id);
+                              return;
+                            }
+                            void triggerHaptic("light");
+                            recordTap(bio.handle, link.type, link.id);
+                          }}
+                          className="bio-theme-btn group flex min-h-[52px] sm:min-h-[56px] items-center justify-between rounded-full bg-brand px-6 text-sm sm:text-[15px] font-bold text-white shadow-xs transition-all duration-200 hover:bg-brand-ink hover:shadow-md active:scale-[0.99] touch-manipulation cursor-pointer"
+                        >
+                          <span className="truncate">{link.label || link.type}</span>
+                          <ChevronRight size={18} className="shrink-0 transition-transform group-hover:translate-x-1" />
+                        </a>
+                      </li>
+                    );
+                  })}
               </ul>
             </div>
           )}
@@ -2004,7 +2067,7 @@ export function BioPublicPage() {
             setShareModalOpen(true);
           }}
           aria-label={`Open QR code for @${bio.handle}`}
-          title="My QR code"
+          title={isOwner ? "My QR code" : `${bio.name.split(" ")[0]}'s Pass QR`}
           className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+92px)] left-4 z-40 flex cursor-pointer touch-manipulation flex-col items-center gap-1 rounded-[22px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 lg:bottom-6 lg:left-6"
         >
           <span className="relative grid h-16 w-16 place-items-center rounded-[22px] bg-white p-1.5 shadow-lg ring-2 ring-brand/70 transition-transform duration-150 active:scale-95">
@@ -2032,7 +2095,7 @@ export function BioPublicPage() {
             </span>
           </span>
           <span className="rounded-full bg-ink/85 px-2.5 py-0.5 text-[10px] font-bold text-white shadow backdrop-blur">
-            My QR
+            {isOwner ? "My QR" : "Pass QR"}
           </span>
         </button>
       )}
