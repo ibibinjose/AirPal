@@ -197,4 +197,3 @@ export async function openVCardContact(input: VCardInput): Promise<"contact" | "
   downloadVCard(input);
   return "download";
 }
-

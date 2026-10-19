@@ -54,7 +54,6 @@ import { triggerHaptic } from "@/lib/native";
 import { toast } from "sonner";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { cn } from "@/lib/cn";
-import { BIBIN_JOSE_PROFILE } from "@/lib/bio-handle";
 import { activePlaces } from "@/lib/catalog";
 
 import {
@@ -169,26 +168,8 @@ export function CirclePage() {
       });
     }
 
-    // 2. FRIENDS: Platform Persona - Bibin Jose (Founder & CTO)
-    if (myHandle !== "bibinjose") {
-      const isFw = followedHandles.has("bibinjose");
-      const isFr = effectiveFollowerHandles.has("bibinjose");
-      addContact({
-        id: "person-bibinjose",
-        handle: BIBIN_JOSE_PROFILE.handle,
-        name: BIBIN_JOSE_PROFILE.name,
-        avatar: BIBIN_JOSE_PROFILE.avatar,
-        city: BIBIN_JOSE_PROFILE.city,
-        category: "friends",
-        categoryLabel: "Founder & CTO",
-        isFollowing: isFw,
-        isFollower: isFr,
-        isMutual: isFw && isFr,
-        isMet: false,
-      });
-    }
+    // 2. FRIENDS: Any other personal followed or follower handles.
 
-    // 3. FRIENDS: Any other personal followed or follower handles.
     // Followed organisers go to Communities; followed business bios go to Places.
     const personalCandidates = new Set<string>();
     followedHandles.forEach((h) => personalCandidates.add(h));
@@ -259,44 +240,6 @@ export function CirclePage() {
     // 4. PLACES: Liked or followed places, plus an offline landmark fallback
     const placesCatalog = activePlaces();
     const candidatePlaces = placesCatalog.slice(0, 4);
-
-    // Offline fallback only: when the live catalog is empty, suggest two real
-    // Sydney landmarks instead of rendering an empty directory.
-    const seedPlaces =
-      candidatePlaces.length === 0
-        ? [
-            {
-              id: "the-glenmore",
-              handle: "theglenmore",
-              name: "The Glenmore Hotel",
-              city: "The Rocks, Sydney",
-              categoryLabel: "Historic Rooftop Pub",
-            },
-            {
-              id: "cut-bar-grill",
-              handle: "cutbar",
-              name: "Cut Bar & Grill",
-              city: "The Rocks, Sydney",
-              categoryLabel: "Dining & Drinks Partner",
-            },
-          ]
-        : [];
-
-    for (const sp of seedPlaces) {
-      const isFw = followedHandles.has(sp.handle) || likedHandles.has(sp.handle);
-      addContact({
-        id: `place-${sp.id}`,
-        handle: sp.handle,
-        name: sp.name,
-        city: sp.city,
-        category: "places",
-        categoryLabel: sp.categoryLabel,
-        isFollowing: isFw,
-        isFollower: false,
-        isMutual: false,
-        isMet: false,
-      });
-    }
 
     for (const cp of candidatePlaces) {
       const handle = cp.handle || cp.id;

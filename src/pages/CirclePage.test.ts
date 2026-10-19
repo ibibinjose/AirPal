@@ -34,7 +34,16 @@ vi.mock("@/contexts/BioContext", () => ({
       avatar: "",
       city: "Sydney",
     },
-    profiles: [],
+    profiles: [
+      {
+        id: "bio-bibinjose",
+        handle: "bibinjose",
+        name: "Bibin Jose",
+        kind: "person",
+        avatar: "",
+        city: "Sydney",
+      },
+    ],
   }),
 }));
 
