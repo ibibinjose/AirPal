@@ -216,10 +216,14 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
   overflow-x: clip;
   width: 100%;
   max-width: 100vw;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
   overscroll-behavior-x: none;
 }
 
@@ -229,6 +233,14 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+  -webkit-text-size-adjust: 100%;
+  -webkit-overflow-scrolling: touch;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
   overscroll-behavior-y: contain;
   overscroll-behavior-x: none;
   overflow-x: hidden;
@@ -244,19 +256,168 @@ body {
   overflow-x: hidden;
   overflow-x: clip;
   width: 100%;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
   min-height: 100dvh;
   min-height: 100svh;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Apple & WebKit Touch Ergonomics: zero tap delay, no gray highlights, no callout popups on controls */
 button,
-a {
+a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+[role="button"],
+[role="tab"],
+summary,
+.apple-nav-item,
+.apple-spring-press {
   -webkit-tap-highlight-color: transparent;
-  /* No tap delay / double-tap zoom on rapid taps (safe: panning stays on scroll containers). */
+  -webkit-touch-callout: none;
   touch-action: manipulation;
 }
 
 button:not(:disabled) {
   cursor: pointer;
+}
+
+/* Suppress unwanted iOS callout menus on decorative graphics and icons */
+img,
+svg {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* WebKit Form Controls Clean Reset (Removes iOS bevels and inner shadows) */
+input,
+select,
+textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+
+/* Remove WebKit search decoration & cancel X that clutters search inputs */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  display: none;
+}
+
+/* WebKit Date & Time Picker Indicator Styling */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.15s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Fix WebKit Autofill Box Color Distortion (Replaces yellow/blue box with theme canvas) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-ink) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--color-card) inset !important;
+  box-shadow: 0 0 0px 1000px var(--color-card) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* WebKit Scrollbar Styling (macOS / iPadOS / iOS WebKit) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 150, 0.35);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 140, 150, 0.55);
+}
+
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  -webkit-appearance: none;
+}
+
+/* WebKit Hardware GPU Compositing & 120Hz ProMotion Optimization */
+.webkit-gpu,
+.apple-gpu,
+.apple-liquid-glass-dock,
+.apple-liquid-glass-nav,
+.visual-viewport-modal {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  perspective: 1000;
+}
+
+/* WebKit Inertial Momentum Scrolling */
+.webkit-momentum-scroll,
+.apple-momentum-scroll,
+.overflow-y-auto,
+.overflow-x-auto,
+.overflow-auto,
+main,
+dialog,
+[role="dialog"] {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* WebKit Dynamic Viewport Fallbacks */
+.min-h-screen-safe {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
+}
+
+.h-screen-safe {
+  height: 100vh;
+  height: -webkit-fill-available;
+  height: 100dvh;
+}
+
+/* WebKit Backdrop Filter compatibility across all Tailwind backdrop-blur utilities */
+[class*="backdrop-blur"] {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur, blur(20px));
+}
+
+/* Numeric & tabular data alignment across Apple & WebKit */
+.tabular-nums,
+.tnum {
+  font-variant-numeric: tabular-nums;
+  -webkit-font-feature-settings: "tnum";
+  font-feature-settings: "tnum";
 }
 
 /* Clear outline for mouse/touch clicks, show high-contrast ring only for keyboard navigation. */
@@ -1097,6 +1258,8 @@ body.keyboard-open .keyboard-hide {
 .dark .apple-liquid-glass-dock,
 [data-theme="dark"] .apple-liquid-glass-dock {
   background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow:
     inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.15),
@@ -1107,6 +1270,8 @@ body.keyboard-open .keyboard-hide {
 .dark .apple-liquid-glass-nav,
 [data-theme="dark"] .apple-liquid-glass-nav {
   background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
 }
@@ -1114,6 +1279,8 @@ body.keyboard-open .keyboard-hide {
 .dark .apple-liquid-glass-card,
 [data-theme="dark"] .apple-liquid-glass-card {
   background: rgba(22, 24, 28, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.1),
@@ -1123,6 +1290,8 @@ body.keyboard-open .keyboard-hide {
 .dark .apple-liquid-glass-light,
 [data-theme="dark"] .apple-liquid-glass-light {
   background: rgba(28, 30, 34, 0.8);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow:
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
@@ -1132,6 +1301,8 @@ body.keyboard-open .keyboard-hide {
 .dark .apple-liquid-glass-hero,
 [data-theme="dark"] .apple-liquid-glass-hero {
   background: rgba(12, 14, 16, 0.85);
+  backdrop-filter: blur(36px) saturate(210%);
+  -webkit-backdrop-filter: blur(36px) saturate(210%);
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow:
     inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.22),

@@ -18,6 +18,13 @@ const config: CapacitorConfig = {
       },
     },
   },
+  ios: {
+    contentInset: "never",
+    allowsLinkPreview: false,
+    scrollEnabled: true,
+    preferredContentMode: "mobile",
+    backgroundColor: "#000000",
+  },
   server: {
     // WebView origin must be the live domain so Firebase Auth, phone reCAPTCHA,
     // and authorized domains match https://airpal.me — not capacitor://localhost.
