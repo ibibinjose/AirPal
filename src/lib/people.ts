@@ -1,4 +1,6 @@
 import { safeLocalStorage } from "./safe-storage";
+import { isNativeApp } from "./platform";
+import { Share } from "@capacitor/share";
 
 export type PersonMet = {
   id: string;
@@ -163,11 +165,13 @@ function downloadVCard(input: VCardInput): void {
 }
 
 /**
- * Opens a contact card in the device's Contacts application or saves the .vcf file.
- * Modern iOS Safari blocks top-frame navigation to data: URLs (WebKit security policy),
- * so we use navigator.share() with a vCard File instance. On iOS and Android, this
- * immediately prompts the native Contacts import ("Create New Contact" / "Add to Contacts").
- * On desktop or unsupported browsers, it falls back to direct .vcf file download.
+ * Opens a contact card in the device's Contacts application or shares it via native share sheet.
+ * On iOS and Android:
+ * 1. In Capacitor native apps: invokes native Share.share() so the OS contacts/share picker opens immediately.
+ * 2. On iOS WebKit (Mobile Safari / Chrome on iOS): direct data URI navigation launches the native iOS Contacts app sheet directly without downloading a file.
+ * 3. Uses navigator.share() with a vCard File instance if supported (prompts native Contacts "Add to Contacts").
+ * 4. On Android mobile: opens vCard blob to trigger Android Contacts app intent.
+ * 5. On desktop / fallback: downloads the .vcf file.
  */
 export async function openVCardContact(input: VCardInput): Promise<"contact" | "shared" | "download"> {
   const vcardText = buildVCard(input);
@@ -178,13 +182,49 @@ export async function openVCardContact(input: VCardInput): Promise<"contact" | "
       .replace(/\s+/g, "-") || "AirPal-Contact"
   }.vcf`;
 
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent || "" : "";
+  const isIOS =
+    typeof navigator !== "undefined" &&
+    (/iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+  const isAndroid = /Android/i.test(ua);
+
+  // 1. In Capacitor native iOS / Android app, use native Share to prompt native contact saving/sharing
+  if (isNativeApp()) {
+    try {
+      await Share.share({
+        title: input.name,
+        text: `Contact for ${input.name}${input.phone ? ` (${input.phone})` : ""}${input.url ? ` · ${input.url}` : ""}`,
+        url: input.url,
+        dialogTitle: `Add ${input.name} to Contacts`,
+      });
+      return "shared";
+    } catch {
+      /* user dismissed sheet */
+      return "shared";
+    }
+  }
+
+  // 2. On iOS WebKit (Safari / Chrome on iOS): direct data URI navigation launches the native iOS Contacts app sheet directly without downloading
+  if (isIOS && typeof window !== "undefined") {
+    try {
+      const dataUri = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcardText)}`;
+      window.location.href = dataUri;
+      return "contact";
+    } catch {
+      /* fallback */
+    }
+  }
+
+  // 3. Try Web Share API with a vCard File (supported by Android Chrome and modern browsers)
+  // This opens the native Contacts import ("Create New Contact" / "Add to Contacts") sheet.
   if (typeof navigator !== "undefined" && typeof File !== "undefined") {
     try {
-      const file = new File([vcardText], fileName, { type: "text/vcard;charset=utf-8" });
+      const mimeType = isAndroid ? "text/x-vcard;charset=utf-8" : "text/vcard;charset=utf-8";
+      const file = new File([vcardText], fileName, { type: mimeType });
       if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: input.name,
-          text: `Contact card for ${input.name}`,
+          text: `Contact for ${input.name}`,
           files: [file],
         });
         return "shared";
@@ -194,6 +234,22 @@ export async function openVCardContact(input: VCardInput): Promise<"contact" | "
     }
   }
 
+  // 4. On Android mobile if share failed: open vCard blob URL directly to trigger Android Contacts intent
+  if (isAndroid && typeof window !== "undefined") {
+    try {
+      const blob = new Blob([vcardText], { type: "text/x-vcard;charset=utf-8" });
+      const blobUrl = URL.createObjectURL(blob);
+      const w = window.open(blobUrl, "_blank");
+      if (w) {
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        return "contact";
+      }
+    } catch {
+      /* fallback */
+    }
+  }
+
+  // 5. Desktop / fallback browser: download .vcf file
   downloadVCard(input);
   return "download";
 }

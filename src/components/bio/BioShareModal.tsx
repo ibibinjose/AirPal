@@ -14,7 +14,7 @@ import {
   openAppleWalletPass,
   openGoogleWalletPass,
 } from "@/lib/wallet";
-import { triggerHaptic } from "@/lib/native";
+import { shareNative, triggerHaptic } from "@/lib/native";
 
 export type BioShareModalProps = {
   open: boolean;
@@ -93,29 +93,30 @@ export function BioShareModal({
     toast.success("Pass QR code saved");
   }
 
-  function handleSaveVCard() {
+  async function handleSaveVCard() {
     void triggerHaptic("medium");
-    void openVCardContact({
+    const res = await openVCardContact({
       name: name || `@${cleanHandle}`,
       url,
       phone,
       note: `AirPal Digital Bio Pass (@${cleanHandle})${headline ? ` · ${headline}` : ""}${city ? ` · ${city}` : ""}`,
     });
+    if (res === "contact" || res === "shared") {
+      toast.success("Opening Contact…");
+    } else {
+      toast.success("Contact card saved");
+    }
   }
 
   async function handleNativeShare() {
     void triggerHaptic("light");
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${name} (@${cleanHandle}) · AirPal Bio Pass`,
-          text: headline || `Connect with ${name} on AirPal`,
-          url,
-        });
-      } catch {
-        /* user cancelled */
-      }
-    } else {
+    const shared = await shareNative({
+      title: `${name} (@${cleanHandle}) · AirPal Bio Pass`,
+      text: headline || `Connect with ${name} on AirPal`,
+      url,
+      dialogTitle: `Share ${name}'s Pass`,
+    });
+    if (!shared) {
       void handleCopy();
     }
   }
