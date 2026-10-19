@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Check, Contact, Copy, Download, QrCode, Share2, Wifi, X } from "lucide-react";
+import { Check, Contact, Copy, Download, QrCode, Share2, X } from "lucide-react";
 import { toast } from "sonner";
 import { makeQrDataUrl } from "@/lib/qr";
 import { openVCardContact } from "@/lib/people";
@@ -38,7 +38,7 @@ export function BioShareModal({
   avatar,
   city,
   headline,
-  kind,
+  kind: _kind,
   phone,
 }: BioShareModalProps) {
   useScrollLock(open);
@@ -162,16 +162,8 @@ export function BioShareModal({
           <div className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
 
-          {/* Card Top Brand Row - Balanced & Symmetrical */}
-          <div className="relative z-10 flex items-center justify-between">
-            <span
-              className="grid h-8 w-8 place-items-center rounded-full bg-white/15 text-white/90 backdrop-blur-md ring-1 ring-white/20"
-              title="Contactless NFC Ready"
-              aria-label="NFC Contactless"
-            >
-              <Wifi size={14} className="rotate-90 text-white" />
-            </span>
-
+          {/* Card Top Brand Row - Centered & Clean */}
+          <div className="relative z-10 flex items-center justify-center">
             <div className="flex items-center gap-1.5">
               <BrandMark compact invert className="h-5 w-auto" />
               <div className="flex items-baseline gap-1">
@@ -181,10 +173,6 @@ export function BioShareModal({
                 <span className="text-[10px] font-bold tracking-widest uppercase text-white/70">PASS</span>
               </div>
             </div>
-
-            <span className="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold tracking-wider text-white/95 backdrop-blur-md ring-1 ring-white/20">
-              {kind === "business" ? "PRO PASS" : "VIP PASS"}
-            </span>
           </div>
 
           {/* Member Identity - Symmetrical Upper Ticket Body */}
