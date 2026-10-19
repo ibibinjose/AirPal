@@ -53,14 +53,14 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: enterEase, delay: 0.12 }}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 md:px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 app-page-gutter md:px-6">
         <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => {
               void triggerHaptic("light");
               nav("/");
             }}
-            className="shrink-0 text-left transition hover:opacity-90 cursor-pointer"
+            className="flex items-center shrink-0 text-left transition hover:opacity-95 active:scale-[0.98] cursor-pointer"
             aria-label="AirPal Home"
           >
             <BrandMark invert />

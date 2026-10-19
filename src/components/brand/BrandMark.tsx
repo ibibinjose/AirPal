@@ -77,19 +77,23 @@ export function BrandMark({
     return (
       <span className={cn("inline-flex items-center shrink-0 select-none", className)}>
         {invert ? (
-          <img src="/brand/airpal-mark-white.png" alt={brandAlt} className="h-8 w-8 object-contain shrink-0" />
+          <img
+            src="/brand/airpal-mark-white.png"
+            alt={brandAlt}
+            className="h-8.5 w-8.5 sm:h-9 sm:w-9 object-contain shrink-0"
+          />
         ) : forceLight ? (
-          <img src="/logo-mark.png" alt={brandAlt} className="h-8 w-8 object-contain shrink-0" />
+          <img src="/logo-mark.png" alt={brandAlt} className="h-8.5 w-8.5 sm:h-9 sm:w-9 object-contain shrink-0" />
         ) : (
           <>
             <img
               src="/brand/airpal-mark-white.png"
               alt={brandAlt}
-              className="h-8 w-8 object-contain shrink-0 hidden dark:block"
+              className="h-8.5 w-8.5 sm:h-9 sm:w-9 object-contain shrink-0 hidden dark:block"
             />
             <picture className="flex items-center dark:hidden">
               <source srcSet="/brand/airpal-mark-white.png" media="(prefers-color-scheme: dark)" />
-              <img src="/logo-mark.png" alt={brandAlt} className="h-8 w-8 object-contain shrink-0" />
+              <img src="/logo-mark.png" alt={brandAlt} className="h-8.5 w-8.5 sm:h-9 sm:w-9 object-contain shrink-0" />
             </picture>
           </>
         )}
@@ -99,11 +103,11 @@ export function BrandMark({
   }
 
   return (
-    <span className={cn("inline-flex items-center gap-2.5 shrink-0 select-none", className)}>
+    <span className={cn("inline-flex items-center gap-2.5 sm:gap-3 shrink-0 select-none", className)}>
       <div
         className={cn(
           "flex items-center justify-center rounded-xl shrink-0 shadow-2xs transition-colors",
-          "h-8.5 w-8.5 p-0.5 sm:h-9 sm:w-9 sm:p-1",
+          "h-9.5 w-9.5 p-1 sm:h-10 sm:w-10 sm:p-1.5",
           invert
             ? "bg-brand/90 ring-1 ring-white/20"
             : forceLight
@@ -132,7 +136,7 @@ export function BrandMark({
             alt={brandAlt}
             className={cn(
               "w-auto object-contain shrink-0 transition-opacity",
-              resolvedMode === "pass" ? "h-5 sm:h-6" : "h-6 sm:h-7",
+              resolvedMode === "pass" ? "h-6 sm:h-6.5 md:h-7" : "h-6.5 sm:h-7 md:h-7.5",
             )}
           />
         ) : forceLight ? (
@@ -141,7 +145,7 @@ export function BrandMark({
             alt={brandAlt}
             className={cn(
               "w-auto object-contain shrink-0 transition-opacity",
-              resolvedMode === "pass" ? "h-5 sm:h-6" : "h-6 sm:h-7",
+              resolvedMode === "pass" ? "h-6 sm:h-6.5 md:h-7" : "h-6.5 sm:h-7 md:h-7.5",
             )}
           />
         ) : (
@@ -151,7 +155,7 @@ export function BrandMark({
               alt={brandAlt}
               className={cn(
                 "w-auto object-contain shrink-0 transition-opacity hidden dark:block",
-                resolvedMode === "pass" ? "h-5 sm:h-6" : "h-6 sm:h-7",
+                resolvedMode === "pass" ? "h-6 sm:h-6.5 md:h-7" : "h-6.5 sm:h-7 md:h-7.5",
               )}
             />
             <picture className="flex items-center dark:hidden">
@@ -161,7 +165,7 @@ export function BrandMark({
                 alt={brandAlt}
                 className={cn(
                   "w-auto object-contain shrink-0 transition-opacity",
-                  resolvedMode === "pass" ? "h-5 sm:h-6" : "h-6 sm:h-7",
+                  resolvedMode === "pass" ? "h-6 sm:h-6.5 md:h-7" : "h-6.5 sm:h-7 md:h-7.5",
                 )}
               />
             </picture>

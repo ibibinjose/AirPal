@@ -126,9 +126,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <LocalNowBar />
             {workspace ? (
               <header className="overflow-visible border-b border-white/10 bg-brand">
-                <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-3 sm:px-4 md:h-16 md:px-6">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Link href={homePath} className="flex items-center min-w-0">
+                <div className="mx-auto flex h-14 sm:h-16 max-w-6xl items-center justify-between app-page-gutter md:px-6">
+                  <div className="flex items-center gap-2 min-w-0 shrink-0">
+                    <Link href={homePath} className="flex items-center min-w-0 py-1">
                       <BrandMark compact={false} invert />
                     </Link>
                   </div>
@@ -165,10 +165,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <TopNav path={path} enter={play} />
                 <motion.div
                   {...chrome}
-                  className="flex h-14 items-center justify-between bg-brand px-3.5 sm:px-4 lg:hidden transition-colors border-b border-white/10"
+                  className="flex h-14 sm:h-16 items-center justify-between bg-brand app-page-gutter lg:hidden transition-colors border-b border-white/10"
                 >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Link href={homePath} className="flex items-center min-w-0" aria-label="AirPal Home">
+                  <div className="flex items-center gap-2 min-w-0 shrink-0">
+                    <Link href={homePath} className="flex items-center min-w-0 py-1" aria-label="AirPal Home">
                       <BrandMark compact={false} invert />
                     </Link>
                   </div>
