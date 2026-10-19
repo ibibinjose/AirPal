@@ -335,6 +335,19 @@ export function updateCatchUpStatus(id: string, status: "pending" | "accepted" |
   void updateDoc(doc(db, "catchups", id), { status }).catch(() => undefined);
 }
 
+/** Permanently delete or withdraw a catch-up proposal */
+export async function deleteCatchUp(id: string): Promise<void> {
+  removeFromMemory(id);
+  if (!isFirebaseConfigured) return;
+  const db = getFirebaseDb();
+  if (!db) return;
+  try {
+    await deleteDoc(doc(db, "catchups", id));
+  } catch {
+    /* offline or denied */
+  }
+}
+
 export interface TimeConflict {
   hasConflict: boolean;
   conflictingTitle?: string;

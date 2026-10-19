@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRoute } from "wouter";
-import { ArrowLeft, BadgeCheck, Check, Download, Minus, Plus, Search, UserPlus, Users } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Check, Download, Minus, Plus, Search, Trash2, UserPlus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { Button } from "@/components/ui/Button";
@@ -16,6 +16,7 @@ import {
   addDoorGuest,
   addEventCoHost,
   canManageGuestlist,
+  deleteGuestEntry,
   fetchListHeader,
   guestStatusLabel,
   removeEventCoHost,
@@ -93,6 +94,7 @@ export function GuestlistPage() {
   const [teamLoading, setTeamLoading] = useState(false);
   const [handleDraft, setHandleDraft] = useState("");
   const [teamBusy, setTeamBusy] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     setHeader(null);
@@ -319,6 +321,21 @@ export function GuestlistPage() {
     }
   }
 
+  async function onDeleteGuest(row: GuestRow) {
+    if (!scope || !id) return;
+    if (!window.confirm(`Remove ${row.name} from the guestlist?`)) return;
+    setDeletingId(row.id);
+    try {
+      await deleteGuestEntry(scope, id, row.id);
+      void triggerHaptic("medium");
+      toast.success(`${row.name} removed from guestlist.`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't remove guest.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   function onExportCsv() {
     if (!rows.length) {
       toast.info("No guests to export yet.");
@@ -540,20 +557,32 @@ export function GuestlistPage() {
                   </p>
                   {row.note && <p className="mt-0.5 truncate text-[13px] text-mute">“{row.note}”</p>}
                 </div>
-                {row.status === "checked-in" ? (
-                  <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/25">
-                    <Check size={18} aria-label="Checked in" />
-                  </span>
-                ) : (
+                <div className="flex shrink-0 items-center gap-1.5">
+                  {row.status === "checked-in" ? (
+                    <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/25">
+                      <Check size={18} aria-label="Checked in" />
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => void onCheckIn(row)}
+                      disabled={checkingId !== null}
+                      className="h-11 shrink-0 cursor-pointer rounded-full bg-brand px-4 text-sm font-bold text-white shadow-sm transition active:scale-95 disabled:opacity-60"
+                    >
+                      {checkingId === row.id ? "…" : "Check in"}
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={() => void onCheckIn(row)}
-                    disabled={checkingId !== null}
-                    className="h-11 shrink-0 cursor-pointer rounded-full bg-brand px-4 text-sm font-bold text-white shadow-sm transition active:scale-95 disabled:opacity-60"
+                    onClick={() => void onDeleteGuest(row)}
+                    disabled={deletingId === row.id}
+                    aria-label={`Remove ${row.name}`}
+                    title="Remove from list"
+                    className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full text-mute transition hover:bg-paper hover:text-red-500 active:scale-95 disabled:opacity-50"
                   >
-                    {checkingId === row.id ? "…" : "Check in"}
+                    <Trash2 size={16} aria-hidden="true" />
                   </button>
-                )}
+                </div>
               </li>
             ))}
           </ul>

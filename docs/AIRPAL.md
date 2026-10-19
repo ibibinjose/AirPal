@@ -226,3 +226,142 @@ npm run cap:sync
 3. **Preserve Documentation Integrity:** Never overwrite existing comments, docstrings, or test files that are unrelated to the current task.
 4. **Never Commit Secrets:** `.env` and API keys must remain strictly uncommitted.
 5. **Honor the North Star:** Every code change must directly support **Completed Experiences per Active User**.
+
+---
+
+## Part J: Full Ecosystem CRUD Capability Matrix & Verification Checklist
+
+Every core entity in AIRPAL is fully built, configured, and operable with no placeholder UI, mock handlers, or stub data. All operations map to real Firestore collections, Cloud Functions, and Apple HIG ergonomics ($\ge 44\text{px}$ touch targets, tactile haptics, safe areas).
+
+### 1. Events, Ticketing & Door Access (AirPal Pass)
+*Primary surfaces: `/events`, `/pass`, `/event`, `/e/:id`, `/scan`, `/e/:id/guests`*
+
+- [x] **Live Events**
+  - **Create**: Publish concerts, cultural festivals, or meetups via `/event` studio with media, location, and dates.
+  - **Read**: Live catalog discovery on `/events`, `/pass`, `/e/:id`, search filters, and Live Attendee Preview.
+  - **Update**: Edit details, reschedule run dates, adjust capacity limits, and manage co-hosts via `/event/manage`.
+  - **Delete**: Cancel or unpublish live events via `EventManagePanel` (marks `status: "ended"`).
+- [x] **Ticket Tiers & Stalls**
+  - **Create**: Multi-tier tickets (Early Bird, VIP, General) or merchant stalls with pricing & quotas via `EventTicketFields`.
+  - **Read**: Tier selection and live remaining inventory counters on `/e/:id`.
+  - **Update**: Modify tier names, pricing, allocations, and active sales windows.
+  - **Delete**: Remove unsold tiers using `Trash2` tier deletion control.
+- [x] **Promo Coupons**
+  - **Create**: Generate discount coupon codes (fixed $ or % off, max redemptions, expiry) via `EventCouponManager`.
+  - **Read**: Live coupon dashboard on organiser studio.
+  - **Update**: Toggle active state and adjust discount limits.
+  - **Delete**: Deactivate or revoke promo codes.
+- [x] **Guestlist & Door Check-In**
+  - **Create**: Door team adds walk-in guests or manual door entries with party size (`addDoorGuest`).
+  - **Read**: Real-time door guestlist on `/e/:id/guests`, search by name/ref, and CSV export.
+  - **Update**: Check-in status updates (`checked-in`, `no-show`, `going`, `invited`) via `checkInGuestRemote`.
+  - **Delete**: Remove manual or cancelled entries with confirmation via `deleteGuestEntry`.
+- [x] **Tickets & RSVPs**
+  - **Create**: Stripe Checkout ticket purchase or 1-tap free RSVP on `/e/:id`.
+  - **Read**: Scannable passbook on `/me/tickets`, `/ticket/:id`, and Apple/Google Wallet `.pkpass` export.
+  - **Update**: Update attendee notes or gate check-in admission.
+  - **Delete**: Cancel ticket booking / RSVP with inventory restoration.
+
+### 2. Personal Bio & Digital Identity (AirPal.Me)
+*Primary surfaces: `/@handle`, `/bio/setup`, `/bio/edit`, `/me`*
+
+- [x] **Digital Bio & Handle**
+  - **Create**: Claim unique username handle (`/@yourhandle`), set avatar, bio, headline, and location at `/bio/setup`.
+  - **Read**: Public digital bio at `/@handle`, vCard 3.0 (.vcf) download, and QR code pass.
+  - **Update**: Edit bio details, change handle, update contact numbers, and toggle privacy (public/unlisted) at `/bio/edit`.
+  - **Delete**: Request account wipe or complete profile deletion (`/account_deletions`).
+- [x] **Social & Custom Links**
+  - **Create**: Add custom link tiles, portfolio links, and social accounts in `/bio/edit`.
+  - **Read**: Publicly accessible on bio link stack.
+  - **Update**: Reorder links, edit labels, URLs, and icons.
+  - **Delete**: Remove individual link tiles with instant sync.
+- [x] **Bio Perks / Offers**
+  - **Create**: Attach member perks, discounts, or services directly to your digital bio in `BioCatalogEditor`.
+  - **Read**: Visitors view and claim perks from public bio card.
+  - **Update**: Edit offer details, terms, and redemption quotas.
+  - **Delete**: Remove or archive perks via `Trash2` catalog action.
+
+### 3. Personal Calendar & Catch-Up Hangouts
+*Primary surfaces: `/calendar`, `/@handle`, `/me/inbox`*
+
+- [x] **Personal Schedule Entries**
+  - **Create**: Auto-import booked passes/RSVPs, or add custom plans via `PersonalScheduleModal` on `/calendar`.
+  - **Read**: Agenda, Day, Week, and Month views on `/calendar` + Apple/Google `.ics` export.
+  - **Update**: Edit details, drag-and-drop reschedule across days, or adjust times.
+  - **Delete**: Remove personal entries or cancel attendance (`setEventStatus(id, null)`).
+- [x] **1-on-1 Catch-Up Proposals**
+  - **Create**: Propose coffee, meeting, or hangout directly from any `/@handle` via `BioCatchUpModal`.
+  - **Read**: View proposal status, venue, and time in calendar & notifications inbox.
+  - **Update**: Accept, decline, counter-propose, or reschedule (`updateCatchUpStatus`).
+  - **Delete**: Cancel or withdraw proposal via `deleteCatchUp`.
+
+### 4. Networking Circle, Friends & Live Presence
+*Primary surfaces: `/circle`, `/friends`*
+
+- [x] **Social Graph (Follows & Likes)**
+  - **Create**: Follow members, connect with mutuals, and like profiles via `useSocial().toggleFollow` / `toggleLike`.
+  - **Read**: View Following, Followers, Mutuals, and "Going Together" co-attendees on `/friends` and `/circle`.
+  - **Update**: Mutual connection status updates in real-time.
+  - **Delete**: Unfollow or unlike with two-way graph deletion.
+- [x] **Live Presence (`<HereCheckIn />`)**
+  - **Create**: Check in at venue or event space with active duration via `<HereCheckIn />`.
+  - **Read**: View presence radar and active AirPals in the room or city.
+  - **Update**: Extend duration or switch active place key.
+  - **Delete**: Check out / stop sharing live presence (`stopHereRemote`).
+- [x] **AirPal Pings (Hangout Nudges)**
+  - **Create**: Send instant hangout ping ("Let's catch up") to another member.
+  - **Read**: View incoming and outgoing ping cards in `PingsPanel`.
+  - **Update**: Recipient marks `pinged_back`, `hanging_out`, or `dismissed`; sender can cancel.
+  - **Delete**: Dismiss or close ping thread.
+- [x] **Venue Wave**
+  - **Create**: Broadcast ultrasonic / BLE / proximity greeting via `WaveHostCard`.
+  - **Read**: Detect nearby AirPal waves.
+  - **Update**: Toggle active wave broadcast.
+  - **Delete**: End wave broadcast (`stopWave`).
+
+### 5. Business Hub, Places & Deals
+*Primary surfaces: `/business`, `/places`, `/deals`, `/claim`*
+
+- [x] **Places & Venues**
+  - **Create**: List a business/venue, import from Google Places (`GooglePlaceImport`), or claim a venue (`/claim`).
+  - **Read**: Verified public venue directory with trading hours, address, maps, and amenities.
+  - **Update**: Edit trading hours, photos, tags, contact info, and amenities on `/business`.
+  - **Delete**: Deactivate or remove place listing via `DeleteVenueDialog`.
+- [x] **Member Deals & Perks**
+  - **Create**: Merchants create member perks, discounts, or vouchers via `/business` and `/business/promotions/new`.
+  - **Read**: Browse deals directory on `/deals` and `/deals/:id`.
+  - **Update**: Edit deal terms, active dates, redemption caps, or discount values.
+  - **Delete**: Pause, expire, or remove deals (`Trash2`).
+- [x] **Deal Claims & Vouchers**
+  - **Create**: Members claim dining/activity deal vouchers.
+  - **Read**: View claimed vouchers with scannable QR passes on `/me`.
+  - **Update**: Merchants scan and redeem vouchers (`redeemVoucher`).
+  - **Delete**: Cancel unredeemed claim.
+- [x] **Promotions & Giveaways**
+  - **Create**: Host promotional campaigns, contests, or giveaways with entry criteria.
+  - **Read**: Public giveaway entry cards, prize summaries, and winner lists.
+  - **Update**: Update contest rules, draw winners (`closeAndDraw`), and notify entrants.
+  - **Delete**: Close or archive campaign.
+
+### 6. Notifications, Inbox & Trust Rails
+*Primary surfaces: `/me/inbox`, `/settings`*
+
+- [x] **Notifications**
+  - **Create**: Automated triggers for ticket sales, RSVPs, catch-up requests, and event updates.
+  - **Read**: Real-time notification center on `/me/inbox` and `<NotificationBell />`.
+  - **Update**: Mark single notification or all as read (`markAllNotificationsRead`).
+  - **Delete**: Clear single or bulk dismiss notifications (`deleteAllNotifications`).
+- [x] **Event & Venue Feedback**
+  - **Create**: Submit emoji mood and review feedback after attending.
+  - **Read**: Organisers and guests view sentiment and feedback.
+  - **Update / Delete**: Read-only once submitted to prevent review tampering.
+- [x] **Safety Reports & Blocks**
+  - **Create**: Submit confidential safety reports or block problematic users.
+  - **Read**: View blocked accounts in `/settings`.
+  - **Update**: Modify block status.
+  - **Delete**: Unblock accounts in `/settings`.
+- [x] **Privacy Data & Account**
+  - **Create**: Request self-service JSON data export or submit account deletion request.
+  - **Read**: Review profile data and privacy permissions in `/settings`.
+  - **Update**: Update email, phone, and communication preferences.
+  - **Delete**: Permanent account deletion (`/account_deletions`).

@@ -42,6 +42,7 @@ import { CalendarEventModal } from "@/components/calendar/CalendarEventModal";
 import { CalendarSidebar } from "@/components/calendar/CalendarSidebar";
 import { CalendarDragProvider, useCalendarDrag } from "@/components/calendar/CalendarDragContext";
 import { CalendarRescheduleModal } from "@/components/calendar/CalendarRescheduleModal";
+import { PersonalScheduleModal } from "@/components/calendar/PersonalScheduleModal";
 import { CalendarSkeleton } from "@/components/calendar/CalendarSkeleton";
 import { TabPills } from "@/components/ui/TabPills";
 import { cn } from "@/lib/cn";
@@ -58,11 +59,12 @@ const CATEGORIES = CALENDAR_CATEGORIES;
 function CalendarPageContent() {
   const [, nav] = useLocation();
   const searchStr = useSearch();
-  const { calendarEvents, exportItinerary } = useEvents();
+  const { calendarEvents, exportItinerary, upsertEvent, setEventStatus } = useEvents();
   const { upcomingBookings } = useMyBookings();
   const { today, city, usingGps, chooseLocation } = useLocalNow();
   const { reschedulingEvent, setReschedulingEvent } = useCalendarDrag();
   const [isLoading, setIsLoading] = useState(true);
+  const [quickScheduleOpen, setQuickScheduleOpen] = useState(false);
   // Skeleton only for genuinely slow loads — fast event data renders the
   // calendar directly with no full-page flash-swap layout shift.
   const showSkeleton = useDelayedLoading(isLoading);
@@ -358,8 +360,19 @@ function CalendarPageContent() {
 
       {/* Top Header / tools */}
       <div className="mb-6 flex flex-col gap-3.5 md:flex-row md:items-end md:justify-between">
-        <div className="shrink-0 flex items-center justify-between md:justify-start gap-3">
+        <div className="shrink-0 flex items-center justify-between md:justify-start gap-2">
           <h2 className="font-display text-xl font-bold tracking-tight text-ink whitespace-nowrap">Browse events</h2>
+          <button
+            type="button"
+            onClick={() => {
+              void triggerHaptic("light");
+              setQuickScheduleOpen(true);
+            }}
+            className="inline-flex min-h-[38px] items-center gap-1 rounded-full bg-brand px-3 text-xs font-bold text-white hover:bg-brand-ink transition active:scale-95 shadow-2xs whitespace-nowrap cursor-pointer"
+          >
+            <Plus size={13} className="shrink-0" />
+            <span>Add to Schedule</span>
+          </button>
           <Link
             href="/event"
             className="inline-flex min-h-[38px] items-center gap-1 rounded-full bg-card px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-2xs whitespace-nowrap"
@@ -936,6 +949,15 @@ function CalendarPageContent() {
 
       {/* Event Reschedule Modal */}
       <CalendarRescheduleModal event={reschedulingEvent} onClose={() => setReschedulingEvent(null)} />
+
+      {/* Personal Schedule Entry Modal */}
+      <PersonalScheduleModal
+        open={quickScheduleOpen}
+        onClose={() => setQuickScheduleOpen(false)}
+        defaultDate={selectedDate || today}
+        upsertEvent={upsertEvent}
+        setEventStatus={setEventStatus}
+      />
     </div>
   );
 }

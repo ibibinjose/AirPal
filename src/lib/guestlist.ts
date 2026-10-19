@@ -3,6 +3,7 @@ import {
   arrayRemove,
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -190,4 +191,11 @@ export async function removeEventCoHost(eventId: string, uid: string): Promise<v
     coHostUids: arrayRemove(uid),
     updatedAt: new Date().toISOString(),
   });
+}
+
+/** Remove a guest from the guestlist. Door-team-only per Firestore rules. */
+export async function deleteGuestEntry(scope: GuestScope, id: string, entryId: string): Promise<void> {
+  const db = getFirebaseDb();
+  if (!db) throw new Error("Guestlist is unavailable right now.");
+  await deleteDoc(doc(db, guestScopeCollection(scope), id, "guestlist", entryId));
 }
