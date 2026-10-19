@@ -14,7 +14,7 @@ import { useLocalNow } from "@/hooks/useLocalNow";
 import { useListings } from "@/contexts/ListingsContext";
 import { noteQrContext } from "@/lib/analytics";
 import { triggerHaptic } from "@/lib/native";
-import { qrContextIdFromPath } from "@shared/analytics";
+import { contextFromPath } from "@shared/analytics";
 import { WaveListenCard } from "@/components/wave/WaveListenCard";
 
 /**
@@ -43,8 +43,8 @@ export function ScanPage() {
 
   const go = useCallback(
     (href: string) => {
-      const contextId = qrContextIdFromPath(href.split("?")[0] || href);
-      if (contextId) noteQrContext(contextId, { source: "scan" });
+      const hit = contextFromPath(href.split("?")[0] || href);
+      if (hit) noteQrContext(`${hit.contextType}:${hit.contextId}`, { source: "scan" });
       nav(href);
     },
     [nav],
