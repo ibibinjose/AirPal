@@ -215,6 +215,7 @@ export const BIRTHDAY_DISCLAIMER =
 export type SetBirthdayAlertPrefsRequest = {
   birthdayAlertsEnabled?: boolean;
   birthdayAlertsRegion?: string;
+  birthdayMonth?: number | null;
 };
 
 export type BirthdayAlertKind = "start" | "mid";

@@ -14,9 +14,13 @@ export function friendlyBirthdayError(err: unknown): string {
   return friendlyFunctionError(err);
 }
 
-export function setBirthdayAlertPrefsRemote(data: { birthdayAlertsEnabled?: boolean; birthdayAlertsRegion?: string }) {
-  return callBirthday<{ birthdayAlertsEnabled?: boolean; birthdayAlertsRegion?: string }, { ok: boolean }>(
-    "setBirthdayAlertPrefs",
-    data,
-  );
+export function setBirthdayAlertPrefsRemote(data: {
+  birthdayAlertsEnabled?: boolean;
+  birthdayAlertsRegion?: string;
+  birthdayMonth?: number | null;
+}) {
+  return callBirthday<
+    { birthdayAlertsEnabled?: boolean; birthdayAlertsRegion?: string; birthdayMonth?: number | null },
+    { ok: boolean }
+  >("setBirthdayAlertPrefs", data);
 }

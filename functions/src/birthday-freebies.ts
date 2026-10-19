@@ -35,8 +35,23 @@ export const setBirthdayAlertPrefs = onCall(CALLABLE, async (request) => {
     }
     patch.birthdayAlertsRegion = region;
   }
-  if (patch.birthdayAlertsEnabled === undefined && patch.birthdayAlertsRegion === undefined) {
-    throw new HttpsError("invalid-argument", "Provide birthdayAlertsEnabled and/or birthdayAlertsRegion.");
+  if (data.birthdayMonth !== undefined) {
+    if (data.birthdayMonth === null) {
+      patch.birthdayMonth = null;
+    } else {
+      const bm = Number(data.birthdayMonth);
+      if (!Number.isInteger(bm) || bm < 1 || bm > 12) {
+        throw new HttpsError("invalid-argument", "Birthday month must be an integer from 1 to 12.");
+      }
+      patch.birthdayMonth = bm;
+    }
+  }
+  if (
+    patch.birthdayAlertsEnabled === undefined &&
+    patch.birthdayAlertsRegion === undefined &&
+    patch.birthdayMonth === undefined
+  ) {
+    throw new HttpsError("invalid-argument", "Provide birthdayAlertsEnabled, birthdayAlertsRegion, or birthdayMonth.");
   }
   await db.collection("users").doc(uid).set(patch, { merge: true });
   return { ok: true as const };

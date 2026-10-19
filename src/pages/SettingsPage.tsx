@@ -27,7 +27,12 @@ import {
   Briefcase,
 } from "lucide-react";
 import { authErrorMessage } from "@shared/auth-email";
-import { BIRTHDAY_REGIONS, isBirthdayRegionCode, type BirthdayRegionCode } from "@shared/birthday-freebies";
+import {
+  BIRTHDAY_MONTHS,
+  BIRTHDAY_REGIONS,
+  isBirthdayRegionCode,
+  type BirthdayRegionCode,
+} from "@shared/birthday-freebies";
 import { Button } from "@/components/ui/Button";
 import { MeAvatar } from "@/components/auth/MeAvatar";
 import { AccountContacts } from "@/components/auth/AccountContacts";
@@ -62,6 +67,7 @@ export function SettingsPage() {
   const [showDeleteZone, setShowDeleteZone] = useState(false);
   const [alertsEnabled, setAlertsEnabled] = useState(true);
   const [alertsRegion, setAlertsRegion] = useState<BirthdayRegionCode>("au");
+  const [birthdayMonth, setBirthdayMonth] = useState<number | null>(user?.birthdayMonth ?? null);
   const [alertsBusy, setAlertsBusy] = useState(false);
 
   useEffect(() => {
@@ -69,22 +75,27 @@ export function SettingsPage() {
     setAlertsEnabled(user.birthdayAlertsEnabled !== false);
     const region = String(user.birthdayAlertsRegion || "au").toLowerCase();
     setAlertsRegion(isBirthdayRegionCode(region) ? region : "au");
-  }, [user?.uid, user?.birthdayAlertsEnabled, user?.birthdayAlertsRegion]);
+    setBirthdayMonth(user.birthdayMonth ?? null);
+  }, [user?.uid, user?.birthdayAlertsEnabled, user?.birthdayAlertsRegion, user?.birthdayMonth]);
 
-  async function saveAlertPrefs(next: { enabled?: boolean; region?: BirthdayRegionCode }) {
+  async function saveAlertPrefs(next: { enabled?: boolean; region?: BirthdayRegionCode; month?: number | null }) {
     if (!user) return;
     const enabled = next.enabled ?? alertsEnabled;
     const region = next.region ?? alertsRegion;
+    const month = next.month !== undefined ? next.month : birthdayMonth;
     setAlertsBusy(true);
     try {
       await setBirthdayAlertPrefsRemote({
         birthdayAlertsEnabled: enabled,
         birthdayAlertsRegion: region,
+        birthdayMonth: month,
       });
       setAlertsEnabled(enabled);
       setAlertsRegion(region);
+      setBirthdayMonth(month);
       await refreshUser?.();
-      toast.success("Birthday alert preferences saved.");
+      void triggerHaptic("light");
+      toast.success("Birthday preferences saved 🎂");
     } catch (err) {
       toast.error(friendlyBirthdayError(err));
     } finally {
@@ -445,36 +456,77 @@ export function SettingsPage() {
                 </button>
               </div>
 
-              <div className="mt-3.5 border-t border-line/60 pt-3">
-                <label htmlFor="freebies-region" className="block text-xs font-semibold text-mute mb-1">
-                  Freebies Country / Region
-                </label>
-                <select
-                  id="freebies-region"
-                  className="w-full min-h-[44px] rounded-2xl border border-line bg-paper px-3 py-2 text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50 cursor-pointer"
-                  value={alertsRegion}
-                  disabled={alertsBusy}
-                  onChange={(e) => {
-                    const region = e.target.value as BirthdayRegionCode;
-                    void saveAlertPrefs({ region });
-                  }}
-                >
-                  {BIRTHDAY_REGIONS.map((r) => (
-                    <option key={r.code} value={r.code}>
-                      {r.flagEmoji ? `${r.flagEmoji} ` : ""}
-                      {r.label}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-2 flex items-center justify-between text-xs text-mute">
-                  <span>
-                    {user.birthdayMonth ? `Birthday set: ${user.birthdayMonth}` : "Add birthday in signup to unlock"}
+              <div className="mt-3.5 border-t border-line/60 pt-3 space-y-3">
+                <div>
+                  <label htmlFor="user-birthday-month" className="block text-xs font-semibold text-mute mb-1">
+                    Your Birthday Month
+                  </label>
+                  <select
+                    id="user-birthday-month"
+                    className="w-full min-h-[44px] rounded-2xl border border-line bg-paper px-3 py-2 text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50 cursor-pointer"
+                    value={birthdayMonth ?? ""}
+                    disabled={alertsBusy}
+                    onChange={(e) => {
+                      const val = e.target.value ? Number(e.target.value) : null;
+                      void saveAlertPrefs({ month: val });
+                    }}
+                  >
+                    <option value="">Select your birthday month...</option>
+                    {BIRTHDAY_MONTHS.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        🎂 {m.label} ({m.short})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="freebies-region" className="block text-xs font-semibold text-mute mb-1">
+                    Freebies Country / Region
+                  </label>
+                  <select
+                    id="freebies-region"
+                    className="w-full min-h-[44px] rounded-2xl border border-line bg-paper px-3 py-2 text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50 cursor-pointer"
+                    value={alertsRegion}
+                    disabled={alertsBusy}
+                    onChange={(e) => {
+                      const region = e.target.value as BirthdayRegionCode;
+                      void saveAlertPrefs({ region });
+                    }}
+                  >
+                    {BIRTHDAY_REGIONS.map((r) => (
+                      <option key={r.code} value={r.code}>
+                        {r.flagEmoji ? `${r.flagEmoji} ` : ""}
+                        {r.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs text-mute">
+                  <span className="flex items-center gap-1.5 font-medium text-ink">
+                    {birthdayMonth ? (
+                      <>
+                        <span aria-hidden="true">🎂</span>
+                        <span>
+                          Birthday set to:{" "}
+                          <strong className="text-ink">
+                            {BIRTHDAY_MONTHS.find((m) => m.value === birthdayMonth)?.label}
+                          </strong>
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-amber-500 font-medium">
+                        ⚠️ Select your birth month to unlock annual alerts
+                      </span>
+                    )}
                   </span>
                   <Link
                     href={`/birthday-freebies/${alertsRegion}`}
-                    className="font-semibold text-accent hover:underline"
+                    className="font-semibold text-accent hover:underline flex items-center gap-1"
                   >
-                    Browse Freebies &rarr;
+                    <span>Browse Freebies</span>
+                    <span>&rarr;</span>
                   </Link>
                 </div>
               </div>
