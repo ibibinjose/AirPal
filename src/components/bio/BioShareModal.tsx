@@ -190,10 +190,10 @@ export function BioShareModal({
           </div>
 
           {/* Authentic Apple Wallet Ticket Notches & Perforated Tear Line */}
-          <div className="relative my-5 flex items-center">
-            <div className="absolute -left-9 h-6 w-6 rounded-full bg-paper" />
-            <div className="w-full border-b border-dashed border-white/25" />
-            <div className="absolute -right-9 h-6 w-6 rounded-full bg-paper" />
+          <div className="relative my-5 flex items-center -mx-6">
+            <div className="h-6 w-3 rounded-r-full bg-paper shadow-inner shrink-0" />
+            <div className="flex-1 border-b border-dashed border-white/30 mx-2" />
+            <div className="h-6 w-3 rounded-l-full bg-paper shadow-inner shrink-0" />
           </div>
 
           {/* Lower Ticket Scanner Section - Elongated & Centered */}

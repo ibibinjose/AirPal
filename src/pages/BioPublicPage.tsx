@@ -3,6 +3,7 @@ import { useLocation, useRoute, Link } from "wouter";
 import { toast } from "sonner";
 import {
   ArrowLeft,
+  ArrowUpRight,
   Calendar,
   Check,
   ChevronRight,
@@ -967,54 +968,8 @@ export function BioPublicPage() {
             </button>
           </div>
 
-          {/* 1-Tap Quick Action Deck: [WhatsApp], [Call], [Catch Up] */}
-          <div className={cn("mt-3 grid gap-2", isPersonBio ? "grid-cols-3" : "grid-cols-2")}>
-            {whatsappUrl ? (
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => {
-                  void triggerHaptic("light");
-                  recordTap(bio.handle, "whatsapp");
-                }}
-                className="group flex min-h-[48px] items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-emerald-500/10 px-2 sm:px-3 text-xs font-bold text-emerald-700 ring-1 ring-emerald-500/30 transition-all duration-200 hover:bg-emerald-600 hover:text-white active:scale-95 shadow-2xs"
-              >
-                <MessageCircle
-                  size={16}
-                  className="text-emerald-600 group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
-                />
-                <span className="truncate">WhatsApp</span>
-              </a>
-            ) : (
-              <div className="flex min-h-[48px] items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-paper/30 px-2 sm:px-3 text-xs font-medium text-mute/50 ring-1 ring-line/40 cursor-not-allowed">
-                <MessageCircle size={16} className="opacity-40 shrink-0" />
-                <span className="truncate">WhatsApp</span>
-              </div>
-            )}
-
-            {tel ? (
-              <a
-                href={tel}
-                onClick={() => {
-                  void triggerHaptic("light");
-                  recordTap(bio.handle, "call");
-                }}
-                className="group flex min-h-[48px] items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-amber-500/10 px-2 sm:px-3 text-xs font-bold text-amber-700 ring-1 ring-amber-500/30 transition-all duration-200 hover:bg-amber-600 hover:text-white active:scale-95 shadow-2xs"
-              >
-                <Phone
-                  size={16}
-                  className="text-amber-600 group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
-                />
-                <span className="truncate">Call</span>
-              </a>
-            ) : (
-              <div className="flex min-h-[48px] items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-paper/30 px-2 sm:px-3 text-xs font-medium text-mute/50 ring-1 ring-line/40 cursor-not-allowed">
-                <Phone size={16} className="opacity-40 shrink-0" />
-                <span className="truncate">Call</span>
-              </div>
-            )}
-
+          {/* 1-Tap Quick Action Deck: Catch Up, WhatsApp, Call, Save Contact */}
+          <div className="mt-3 flex flex-wrap sm:flex-nowrap items-stretch gap-2">
             {isPersonBio && (
               <button
                 type="button"
@@ -1023,16 +978,69 @@ export function BioPublicPage() {
                   setCatchUpInitialType("catchup");
                   setCatchUpModalOpen(true);
                 }}
-                className="group flex min-h-[48px] items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-brand/10 px-2 sm:px-3 text-xs font-bold text-accent ring-1 ring-brand/30 transition-all duration-200 hover:bg-brand hover:text-white active:scale-95 shadow-2xs cursor-pointer touch-manipulation"
+                className="group flex-1 min-w-[120px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-brand px-3 text-xs font-bold text-white shadow-xs transition-all duration-200 hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
                 title={`Propose a catch-up, meeting or hangout with ${bio.name}`}
               >
-                <Coffee
-                  size={16}
-                  className="text-accent group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
-                />
+                <Coffee size={16} className="shrink-0 group-hover:scale-110 transition-transform" />
                 <span className="truncate">Catch Up</span>
               </button>
             )}
+
+            {whatsappUrl && (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  recordTap(bio.handle, "whatsapp");
+                }}
+                className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/30 transition-all duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
+              >
+                <MessageCircle
+                  size={16}
+                  className="text-emerald-600 dark:text-emerald-400 group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
+                />
+                <span className="truncate">WhatsApp</span>
+              </a>
+            )}
+
+            {tel && (
+              <a
+                href={tel}
+                onClick={() => {
+                  void triggerHaptic("light");
+                  recordTap(bio.handle, "call");
+                }}
+                className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/30 transition-all duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
+              >
+                <Phone
+                  size={16}
+                  className="text-amber-600 dark:text-amber-400 group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
+                />
+                <span className="truncate">Call</span>
+              </a>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("light");
+                void saveBioContact({
+                  name: bio.name,
+                  handle: bio.handle,
+                  phone: bio.phone,
+                  avatar: bio.avatar,
+                  url: share,
+                  note: `AirPal bio · AirPal.Me/@${bio.handle}`,
+                });
+              }}
+              className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper/80 dark:bg-card/70 px-3 text-xs font-semibold text-ink ring-1 ring-line/80 transition-all duration-200 hover:bg-paper hover:ring-brand/40 active:scale-95 shadow-2xs cursor-pointer touch-manipulation"
+              title={`Save ${bio.name} to phone contacts (.vcf)`}
+            >
+              <ContactRound size={16} className="text-accent group-hover:scale-110 transition-transform shrink-0" />
+              <span className="truncate">Save Contact</span>
+            </button>
           </div>
 
           {/* AirPal Pass (QR + Apple & Google Wallet) */}
@@ -1048,13 +1056,15 @@ export function BioPublicPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-5">
-              <div
+              <button
+                type="button"
                 onClick={() => {
-                  void triggerHaptic("light");
+                  void triggerHaptic("medium");
                   setShareModalOpen(true);
                 }}
                 className="relative group cursor-pointer shrink-0 grid place-items-center h-36 w-36 rounded-[22px] bg-white p-2.5 shadow-inner ring-1 ring-black/10 hover:ring-brand/50 transition-all duration-200 active:scale-95"
-                title="Click to enlarge or download QR Code"
+                title="Tap to enlarge or share Pass QR"
+                aria-label="Enlarge QR Code"
               >
                 {bioQrUrl ? (
                   <img src={bioQrUrl} alt={`QR Code for @${bio.handle}`} className="h-full w-full object-contain" />
@@ -1066,12 +1076,12 @@ export function BioPublicPage() {
                     Enlarge QR
                   </span>
                 </span>
-              </div>
+              </button>
 
-              <div className="flex-1 min-w-0 w-full space-y-2.5">
+              <div className="flex-1 min-w-0 w-full space-y-3">
                 <p className="text-sm text-mute leading-relaxed text-center sm:text-left">
-                  Scan to view this profile instantly on any phone, or add to Apple Wallet &amp; Google Wallet as a
-                  verified digital contact pass.
+                  Scan to view this profile instantly, or add directly to Apple Wallet &amp; Google Wallet as a verified
+                  digital contact pass.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
@@ -1092,56 +1102,17 @@ export function BioPublicPage() {
                   />
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between sm:justify-start gap-4 pt-1 text-xs">
-                  {isPersonBio && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void triggerHaptic("medium");
-                        setCatchUpInitialType("catchup");
-                        setCatchUpModalOpen(true);
-                      }}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline cursor-pointer"
-                    >
-                      <Coffee size={13} className="text-accent" />
-                      <span>Plan Catch-Up</span>
-                    </button>
-                  )}
+                <div className="flex items-center justify-center sm:justify-start pt-1">
                   <button
                     type="button"
                     onClick={() => {
                       void triggerHaptic("light");
                       setShareModalOpen(true);
                     }}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline cursor-pointer"
+                    className="inline-flex min-h-[36px] items-center gap-1.5 text-xs font-semibold text-accent hover:text-brand-ink transition cursor-pointer"
                   >
                     <Share2 size={13} />
-                    <span>Share or Print QR</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleQuickCopy}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-mute hover:text-ink cursor-pointer"
-                  >
-                    {copiedLink ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
-                    <span>{copiedLink ? "Link Copied" : "Copy Link"}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void saveBioContact({
-                        name: bio.name,
-                        handle: bio.handle,
-                        phone: bio.phone,
-                        avatar: bio.avatar,
-                        url: share,
-                        note: `AirPal bio · AirPal.Me/@${bio.handle}`,
-                      });
-                    }}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-mute hover:text-ink cursor-pointer"
-                  >
-                    <ContactRound size={13} className="text-accent" />
-                    <span>Save Contact</span>
+                    <span>View Branded Pass Card &amp; Share Sheet &rarr;</span>
                   </button>
                 </div>
               </div>
@@ -1753,20 +1724,27 @@ export function BioPublicPage() {
           {/* Custom Outbound Links Stack */}
           {stacked.length > 0 && (
             <div className="mt-8">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent mb-3 px-0.5">
-                Featured Links
-              </h3>
+              <div className="flex items-center justify-between mb-3 px-0.5">
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Featured Links</h3>
+                <span className="text-[10px] font-medium text-mute uppercase tracking-wider">
+                  {stacked.length} {stacked.length === 1 ? "Link" : "Links"}
+                </span>
+              </div>
               <ul className="space-y-2.5">
                 {stacked
                   .filter((link) => isSafeBioHref(link.href))
                   .map((link) => {
                     const internal = getInternalPath(link.href);
+                    const isLinkedIn = link.type === "linkedin" || link.href.includes("linkedin.com");
+                    const isX = link.type === "x" || link.href.includes("x.com") || link.href.includes("twitter.com");
+                    const isInternal = Boolean(internal);
+
                     return (
                       <li key={link.id}>
                         <a
                           href={link.href}
-                          target={internal ? undefined : link.href.startsWith("http") ? "_blank" : undefined}
-                          rel={internal ? undefined : "noreferrer"}
+                          target={isInternal ? undefined : link.href.startsWith("http") ? "_blank" : undefined}
+                          rel={isInternal ? undefined : "noreferrer"}
                           onClick={(e) => {
                             if (internal) {
                               e.preventDefault();
@@ -1778,10 +1756,41 @@ export function BioPublicPage() {
                             void triggerHaptic("light");
                             recordTap(bio.handle, link.type, link.id);
                           }}
-                          className="bio-theme-btn group flex min-h-[52px] sm:min-h-[56px] items-center justify-between rounded-full bg-brand px-6 text-sm sm:text-[15px] font-bold text-white shadow-xs transition-all duration-200 hover:bg-brand-ink hover:shadow-md active:scale-[0.99] touch-manipulation cursor-pointer"
+                          className="bio-theme-btn group flex min-h-[56px] sm:min-h-[60px] items-center justify-between rounded-[22px] bg-card/90 dark:bg-card/75 p-3.5 sm:px-4 sm:py-3 ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition-all duration-200 hover:bg-card hover:ring-brand/40 hover:shadow-xs active:scale-[0.99] touch-manipulation cursor-pointer"
                         >
-                          <span className="truncate">{link.label || link.type}</span>
-                          <ChevronRight size={18} className="shrink-0 transition-transform group-hover:translate-x-1" />
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-paper dark:bg-paper/50 text-ink ring-1 ring-line/60 group-hover:bg-brand/10 group-hover:text-brand transition-colors">
+                              {isInternal ? (
+                                <Sparkles size={16} className="text-accent" />
+                              ) : isLinkedIn ? (
+                                <Globe size={16} className="text-[#0a66c2]" />
+                              ) : isX ? (
+                                <Globe size={16} className="text-ink" />
+                              ) : (
+                                <Globe size={16} className="text-accent" />
+                              )}
+                            </span>
+                            <div className="min-w-0 text-left">
+                              <span className="block truncate text-sm sm:text-[15px] font-bold text-ink group-hover:text-brand transition-colors">
+                                {link.label || link.type}
+                              </span>
+                              <span className="block truncate text-[11px] text-mute font-medium">
+                                {isInternal
+                                  ? "AirPal Experience"
+                                  : link.href.replace(/^https?:\/\/(www\.)?/, "").split("/")[0]}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-mute group-hover:text-ink transition-colors ml-2">
+                            {isInternal ? (
+                              <ChevronRight size={17} className="transition-transform group-hover:translate-x-0.5" />
+                            ) : (
+                              <ArrowUpRight
+                                size={17}
+                                className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                              />
+                            )}
+                          </span>
                         </a>
                       </li>
                     );
