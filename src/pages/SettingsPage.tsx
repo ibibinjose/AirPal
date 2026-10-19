@@ -423,7 +423,7 @@ export function SettingsPage() {
         </p>
         <div className="mt-3">
           <Link
-            href="/account-sync"
+            href="/calendar"
             className="flex min-h-[56px] items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line hover:bg-paper active:scale-[0.99] transition cursor-pointer"
           >
             <div className="flex items-center gap-3">

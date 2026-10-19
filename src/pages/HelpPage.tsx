@@ -41,7 +41,7 @@ export function HelpPage() {
       <h1 className="human-title mt-2 text-3xl text-balance">How can we help?</h1>
       <p className="mt-1 text-sm leading-6 text-mute">
         Short guides to tickets, safety, and your account. Still stuck?{" "}
-        <Link href="/assist" className="font-semibold text-accent hover:underline">
+        <Link href="/contact" className="font-semibold text-accent hover:underline">
           Contact support
         </Link>
         .

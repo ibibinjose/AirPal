@@ -43,11 +43,17 @@ export function PersonalScheduleModal({
       const cleanDate = date || todayStr;
       const cleanTime = time || "12:00";
       const startsAt = `${cleanDate}T${cleanTime}:00`;
-      // Default 1 hour later
-      const [h, m] = cleanTime.split(":").map(Number);
-      const endHour = Math.min(23, (h || 12) + 1);
-      const endHourStr = String(endHour).padStart(2, "0");
-      const endsAt = `${cleanDate}T${endHourStr}:${String(m || 0).padStart(2, "0")}:00`;
+      // Default 1 hour later with midnight/day rollover
+      const startDate = new Date(`${cleanDate}T${cleanTime}:00`);
+      const endDate = !isNaN(startDate.getTime())
+        ? new Date(startDate.getTime() + 60 * 60 * 1000)
+        : new Date(Date.now() + 60 * 60 * 1000);
+      const endYear = endDate.getFullYear();
+      const endMonth = String(endDate.getMonth() + 1).padStart(2, "0");
+      const endDay = String(endDate.getDate()).padStart(2, "0");
+      const endH = String(endDate.getHours()).padStart(2, "0");
+      const endM = String(endDate.getMinutes()).padStart(2, "0");
+      const endsAt = `${endYear}-${endMonth}-${endDay}T${endH}:${endM}:00`;
 
       const created = await upsertEvent({
         name: title.trim(),

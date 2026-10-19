@@ -656,7 +656,7 @@ export function StartPage() {
               <span>You’re invited by </span>
               <span className="font-bold text-accent">@{inviterHandle}</span>
               <span> — unlocks access to the </span>
-              <Link href="/founders" className="font-bold text-accent hover:underline">
+              <Link href="/about" className="font-bold text-accent hover:underline">
                 Founders 100K pool
               </Link>
               .

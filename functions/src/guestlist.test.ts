@@ -145,6 +145,7 @@ import {
   markTicketCheckedIn,
   onGuestBookingWritten,
   onGuestRsvpWritten,
+  onGuestlistEntryWritten,
 } from "./guestlist";
 
 type Handler = (request: unknown) => Promise<Record<string, unknown>>;
@@ -349,5 +350,22 @@ describe("guestlist server", () => {
   it("markTicketCheckedIn skips missing lists", async () => {
     await markTicketCheckedIn("event", "ghost", "bk-1", "g-1");
     expect(fakes.guestlist["events/ghost"]).toBeUndefined();
+  });
+
+  it("onGuestlistEntryWritten recomputes guestCounts on direct entry change", async () => {
+    fakes.events = { "evt-1": { organiserUid: "org-1" } };
+    fakes.guestlist = {
+      "events/evt-1": {
+        entry_1: { name: "VIP Walk-in", status: "going", partySize: 3 },
+      },
+    };
+    await fire(onGuestlistEntryWritten, { eventId: "evt-1", entryId: "entry_1" });
+    expect(fakes.events["evt-1"].guestCounts).toEqual({
+      listedHeads: 3,
+      goingHeads: 3,
+      checkedInHeads: 0,
+      noshowHeads: 0,
+      entries: 1,
+    });
   });
 });

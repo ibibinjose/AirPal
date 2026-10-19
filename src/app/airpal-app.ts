@@ -177,7 +177,7 @@ export const STATIC_ALIASES: Array<{ from: string; to: string }> = [
   { from: "/notifications", to: "/me/inbox" },
   { from: "/inbox", to: "/me/inbox" },
 
-  { from: "/account-sync", to: "/settings" },
+  { from: "/account-sync", to: "/calendar" },
   { from: "/search/analytics", to: "/admin/search-analytics" },
   { from: "/offers", to: "/deals" },
   { from: "/promotions", to: "/deals" },

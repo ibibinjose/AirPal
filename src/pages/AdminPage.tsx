@@ -161,7 +161,7 @@ export function AdminPage() {
           {/* Quick Hub Portals */}
           <div className="flex w-full sm:w-auto flex-wrap items-center gap-2">
             <Link
-              href="/support"
+              href="/help"
               className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-2xl bg-paper px-3.5 sm:px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs whitespace-nowrap"
             >
               <Headphones className="h-3.5 w-3.5 shrink-0 text-accent" />

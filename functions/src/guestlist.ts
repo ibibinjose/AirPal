@@ -373,3 +373,13 @@ export async function markTicketCheckedIn(
   }
   await refreshGuestCounts(scope, id);
 }
+
+/**
+ * Direct door guestlist writes (walk-ins added by door staff, deletions, manual status edits)
+ * recompute guestCounts on the parent event doc so public attendee counters stay synchronized.
+ */
+export const onGuestlistEntryWritten = onDocumentWritten("events/{eventId}/guestlist/{entryId}", async (event) => {
+  const eventId = String(event.params.eventId || "");
+  if (!eventId) return;
+  await refreshGuestCounts("event", eventId);
+});

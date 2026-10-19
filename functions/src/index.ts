@@ -55,7 +55,14 @@ export {
 export { announceEventToGuests, createBroadcast, onEventPublishedToFollowers, reviewBroadcast } from "./notifications";
 export { testSendBrandEmail } from "./email";
 export { verifyTicket, admitTicket } from "./gate";
-export { checkInGuest, closeGuestlist, listDoorTeam, onGuestBookingWritten, onGuestRsvpWritten } from "./guestlist";
+export {
+  checkInGuest,
+  closeGuestlist,
+  listDoorTeam,
+  onGuestBookingWritten,
+  onGuestRsvpWritten,
+  onGuestlistEntryWritten,
+} from "./guestlist";
 export {
   joinGuestlistSignup,
   listBioSubscribers,
