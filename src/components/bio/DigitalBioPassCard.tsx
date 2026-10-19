@@ -186,15 +186,15 @@ export function DigitalBioPassCard({
 
       {/* Wallet Pass Card Body */}
       <div className="overflow-hidden rounded-3xl ring-1 ring-line/80 bg-paper/60">
-        {/* Dark Passbook Banner */}
-        <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-[#0c1024] via-[#141b38] to-[#0a0d1e] px-4 sm:px-5 py-3.5 text-white">
+        {/* Brand Blue Passbook Banner */}
+        <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-[#0055ff] via-[#0047eb] to-[#0035b8] px-4 sm:px-5 py-3.5 text-white">
           <div className="flex items-center gap-2.5 min-w-0">
             <BrandMark compact invert />
-            <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/80 truncate">
+            <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/95 truncate">
               AirPal.Me · Digital Bio Pass
             </span>
           </div>
-          <span className="truncate max-w-[46%] sm:max-w-none sm:shrink-0 text-xs font-mono font-semibold text-amber-300">
+          <span className="truncate max-w-[46%] sm:max-w-none sm:shrink-0 text-xs font-mono font-semibold text-white/95">
             airpal.me/@{cleanHandle}
           </span>
         </div>

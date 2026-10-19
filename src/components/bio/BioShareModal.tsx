@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Check, Contact, Copy, Download, MapPin, QrCode, Share2, ShieldCheck, Sparkles, Wifi, X } from "lucide-react";
+import { Check, Contact, Copy, Download, MapPin, QrCode, Share2, Wifi, X } from "lucide-react";
 import { toast } from "sonner";
 import { makeQrDataUrl } from "@/lib/qr";
 import { openVCardContact } from "@/lib/people";
@@ -74,7 +74,7 @@ export function BioShareModal({
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      toast.success("Profile pass link copied!");
+      toast.success("Pass link copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.message(url);
@@ -90,7 +90,7 @@ export function BioShareModal({
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    toast.success("Pass QR Code downloaded for print & counters");
+    toast.success("Pass QR code saved");
   }
 
   function handleSaveVCard() {
@@ -125,21 +125,21 @@ export function BioShareModal({
       role="dialog"
       aria-modal="true"
       aria-label="My Digital Bio Pass"
-      className="visual-viewport-modal z-50 flex items-end sm:items-center justify-center bg-black/75 p-0 sm:p-4 backdrop-blur-md animate-in fade-in duration-200"
+      className="visual-viewport-modal z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4 backdrop-blur-md animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="modal-safe relative w-full max-w-sm rounded-t-[36px] sm:rounded-[36px] bg-paper p-5 sm:p-6 text-center shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 max-h-[min(94dvh,calc(var(--visual-viewport-height,100dvh)-1rem))] overflow-y-auto pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] sm:pb-6 no-scrollbar"
+        className="modal-safe relative w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] bg-paper p-5 sm:p-6 text-center shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 max-h-[min(94dvh,calc(var(--visual-viewport-height,100dvh)-1rem))] overflow-y-auto pb-[calc(env(safe-area-inset-bottom,0px)+1.25rem)] sm:pb-6 no-scrollbar"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Mobile Pull Tab */}
+        {/* Top Mobile Drag Indicator */}
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />
 
-        {/* Top Modal Header */}
+        {/* Modal Top Bar */}
         <div className="flex items-center justify-between pb-3">
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-accent">
-            <Sparkles size={14} className="text-amber-400" />
-            <span>AirPal Wallet Card</span>
+          <div className="text-left">
+            <h2 className="font-display text-base font-bold text-ink">AirPal Pass</h2>
+            <p className="text-[11px] text-mute font-medium">Digital Bio &amp; Networking Card</p>
           </div>
           <button
             type="button"
@@ -155,66 +155,61 @@ export function BioShareModal({
         </div>
 
         {/* ============================================================== */}
-        {/* LUXURY AIRPAL-BRANDED METALLIC WALLET CARD */}
+        {/* CLEAN LUXURY BRAND BLUE PASS CARD */}
         {/* ============================================================== */}
-        <div className="relative mt-1 overflow-hidden rounded-[26px] bg-gradient-to-b from-[#0d122b] via-[#101736] to-[#070a16] p-5 text-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.85),inset_0_1px_1.5px_rgba(255,255,255,0.45),0_0_35px_rgba(24,5,219,0.3)] ring-1 ring-white/20 select-none">
-          {/* Ambient Sheen & Holographic Light Effects */}
-          <div className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-blue-500/25 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-16 -left-16 h-44 w-44 rounded-full bg-indigo-600/20 blur-2xl" />
+        <div className="relative mt-1 overflow-hidden rounded-[24px] bg-gradient-to-br from-[#0055ff] via-[#0047eb] to-[#002f9e] p-5 text-white shadow-[0_16px_36px_-10px_rgba(0,78,255,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] ring-1 ring-white/20 select-none">
+          {/* Subtle Specular Highlights */}
+          <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
 
           {/* Card Top Brand Row */}
-          <div className="relative z-10 flex items-center justify-between gap-2">
+          <div className="relative z-10 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <BrandMark compact invert className="h-6 w-auto drop-shadow-sm" />
-              <div className="flex flex-col text-left">
-                <span className="font-display text-[11px] font-black uppercase tracking-[0.22em] text-white/95">
-                  AirPal<span className="text-amber-400">.Me</span>
+              <BrandMark compact invert className="h-5 w-auto" />
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-display text-[13px] font-black uppercase tracking-wider text-white">
+                  airpal<span className="opacity-90">.me</span>
                 </span>
-                <span className="text-[9px] font-bold tracking-widest uppercase text-white/55">Digital Bio Pass</span>
+                <span className="text-[9px] font-bold tracking-widest uppercase text-white/70">PASS</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-md ring-1 ring-white/15">
-                <ShieldCheck size={11} className="text-emerald-400" />
-                <span className="tracking-wide text-[10px]">{kind === "business" ? "PRO" : "VIP"}</span>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold tracking-wider text-white/95 backdrop-blur-md ring-1 ring-white/20">
+                {kind === "business" ? "PRO" : "MEMBER"}
               </span>
               <span
-                className="grid h-7 w-7 place-items-center rounded-full bg-white/10 text-white/80 backdrop-blur-md ring-1 ring-white/15"
-                title="NFC Contactless Ready"
+                className="grid h-6 w-6 place-items-center rounded-full bg-white/15 text-white/90 backdrop-blur-md ring-1 ring-white/20"
+                title="Contactless NFC Ready"
                 aria-label="NFC Contactless"
               >
-                <Wifi size={13} className="rotate-90 text-amber-300" />
+                <Wifi size={12} className="rotate-90 text-white" />
               </span>
             </div>
           </div>
 
           {/* Member Identity Row */}
-          <div className="relative z-10 mt-4 flex items-center gap-3.5 border-t border-white/10 pt-4">
-            <div className="relative h-13 w-13 shrink-0 overflow-hidden rounded-full ring-2 ring-amber-400/80 p-0.5 bg-gradient-to-tr from-amber-400 to-indigo-500 shadow-md">
+          <div className="relative z-10 mt-4 flex items-center gap-3 border-t border-white/15 pt-3.5">
+            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-white/90 shadow-sm bg-white/10">
               {avatar ? (
                 <img src={avatar} alt={name} className="h-full w-full rounded-full object-cover" />
               ) : (
-                <div className="grid h-full w-full place-items-center rounded-full bg-[#141b38] font-display text-base font-black text-white">
+                <div className="grid h-full w-full place-items-center rounded-full bg-white/15 font-display text-base font-black text-white">
                   {name[0]?.toUpperCase() || cleanHandle[0]?.toUpperCase() || "A"}
                 </div>
               )}
-              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-[#0d122b]" />
             </div>
 
             <div className="min-w-0 flex-1 text-left">
-              <div className="flex items-center gap-1.5">
-                <h3 className="truncate font-display text-lg font-bold tracking-tight text-white">
-                  {name || `@${cleanHandle}`}
-                </h3>
-              </div>
-              <p className="truncate font-mono text-xs font-semibold text-amber-300">@{cleanHandle}</p>
+              <h3 className="truncate font-display text-base font-bold tracking-tight text-white leading-tight">
+                {name || `@${cleanHandle}`}
+              </h3>
+              <p className="truncate font-mono text-xs font-semibold text-white/85">@{cleanHandle}</p>
               {(city || headline) && (
-                <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-white/60">
+                <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-white/70">
                   {city && (
                     <>
-                      <MapPin size={10} className="shrink-0 text-white/40" />
+                      <MapPin size={10} className="shrink-0 text-white/60" />
                       <span className="truncate">{city}</span>
                     </>
                   )}
@@ -225,33 +220,32 @@ export function BioShareModal({
             </div>
           </div>
 
-          {/* High-Contrast Ceramic QR Plate */}
-          <div className="relative z-10 mt-4 rounded-2xl bg-white p-3.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.06),0_12px_28px_-8px_rgba(0,0,0,0.45)] ring-1 ring-black/10">
-            <div className="relative mx-auto flex aspect-square max-h-[210px] w-full max-w-[210px] items-center justify-center">
+          {/* Clean Ceramic White QR Plate */}
+          <div className="relative z-10 mt-4 rounded-2xl bg-white p-3.5 shadow-sm">
+            <div className="relative mx-auto flex aspect-square max-h-[190px] w-full max-w-[190px] items-center justify-center">
               {qrData ? (
                 <img
                   src={qrData}
                   alt={`QR Code for @${cleanHandle}`}
-                  width={210}
-                  height={210}
+                  width={190}
+                  height={190}
                   className="h-full w-full object-contain"
                 />
               ) : (
                 <div className="flex flex-col items-center gap-2 text-xs text-neutral-400 animate-pulse">
                   <QrCode size={32} className="text-neutral-300" />
-                  <span>Generating Pass QR…</span>
+                  <span>Loading QR…</span>
                 </div>
               )}
             </div>
 
-            {/* Clickable Quick URL Pill */}
+            {/* Clean 1-Tap Copy Link Button */}
             <button
               type="button"
               onClick={() => void handleCopy()}
-              className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl bg-neutral-100 px-3 py-2 text-center font-mono text-[11px] font-semibold text-neutral-700 transition hover:bg-neutral-200 active:scale-[0.98] cursor-pointer"
+              className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 text-center font-mono text-[11px] font-semibold text-neutral-700 transition active:scale-[0.98] cursor-pointer"
               title="Tap to copy link"
             >
-              <QrCode size={12} className="text-brand shrink-0" />
               <span className="truncate">airpal.me/@{cleanHandle}</span>
               {copied ? (
                 <span className="ml-1 inline-flex items-center gap-0.5 font-sans text-[10px] font-bold text-emerald-600">
@@ -263,91 +257,64 @@ export function BioShareModal({
             </button>
           </div>
 
-          {/* Authentic Pass Number & Specimen Details */}
-          <div className="relative z-10 mt-3.5 flex items-center justify-between border-t border-white/10 pt-2.5 text-[9px] uppercase tracking-wider text-white/50">
-            <span className="font-medium">Universal Contact Pass</span>
-            <span className="font-mono text-white/40 tracking-widest">
-              AP·{cleanHandle.slice(0, 4).toUpperCase()}·MEMBER
-            </span>
+          {/* Pass Footer */}
+          <div className="relative z-10 mt-3 flex items-center justify-between text-[9px] uppercase tracking-wider text-white/60">
+            <span>AirPal Network Pass</span>
+            <span className="font-mono text-white/50 tracking-widest">AP·{cleanHandle.slice(0, 6).toUpperCase()}</span>
           </div>
         </div>
 
         {/* ============================================================== */}
-        {/* APPLE WALLET & GOOGLE WALLET INTEGRATION */}
+        {/* CLEAN QUICK ACTION BUTTONS */}
         {/* ============================================================== */}
-        <div className="mt-4 space-y-2">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-mute text-center">
-            Save to Mobile Passbook
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <AppleWalletButton
-              className="w-full justify-center min-h-[44px]"
-              onClick={() => {
-                void triggerHaptic("medium");
-                const passUrl = businessCardWalletPassUrl(cleanHandle);
-                void openAppleWalletPass(passUrl, "@" + cleanHandle + "-AirPal-Pass");
-              }}
-            />
-            <GoogleWalletButton
-              className="w-full justify-center min-h-[44px]"
-              onClick={() => {
-                void triggerHaptic("medium");
-                void openGoogleWalletPass(googleWalletCardUrl(cleanHandle));
-              }}
-            />
-          </div>
-        </div>
-
-        {/* ============================================================== */}
-        {/* ACTION SHORTCUT TILES */}
-        {/* ============================================================== */}
-        <div className="mt-3.5 grid grid-cols-4 gap-2">
+        <div className="mt-4 grid grid-cols-3 gap-2">
           <button
             type="button"
-            onClick={() => void handleCopy()}
-            className="flex min-h-[48px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-[11px] font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer"
+            onClick={() => void handleNativeShare()}
+            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer"
           >
-            {copied ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} className="text-accent" />}
-            <span>{copied ? "Copied" : "Copy Link"}</span>
+            <Share2 size={16} className="text-brand" />
+            <span>Share</span>
           </button>
           <button
             type="button"
             onClick={handleSaveVCard}
-            className="flex min-h-[48px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-[11px] font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer"
+            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer"
           >
-            <Contact size={16} className="text-emerald-600" />
+            <Contact size={16} className="text-brand" />
             <span>Save Contact</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => void handleNativeShare()}
-            className="flex min-h-[48px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-[11px] font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer"
-          >
-            <Share2 size={16} className="text-indigo-600" />
-            <span>Share</span>
           </button>
           <button
             type="button"
             onClick={handleDownload}
             disabled={!qrData}
-            className="flex min-h-[48px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-[11px] font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer disabled:opacity-40"
+            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer disabled:opacity-40"
           >
-            <Download size={16} className="text-amber-500" />
-            <span>Save PNG</span>
+            <Download size={16} className="text-brand" />
+            <span>Save QR</span>
           </button>
         </div>
 
-        {/* Dismiss Button */}
-        <button
-          type="button"
-          onClick={() => {
-            void triggerHaptic("light");
-            onClose();
-          }}
-          className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-full bg-card text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95 cursor-pointer touch-manipulation"
-        >
-          Done
-        </button>
+        {/* ============================================================== */}
+        {/* APPLE WALLET & GOOGLE WALLET INTEGRATION */}
+        {/* ============================================================== */}
+        <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <AppleWalletButton
+            className="w-full justify-center min-h-[44px]"
+            onClick={() => {
+              void triggerHaptic("medium");
+              const passUrl = businessCardWalletPassUrl(cleanHandle);
+              void openAppleWalletPass(passUrl, "@" + cleanHandle + "-AirPal-Pass");
+            }}
+          />
+          <GoogleWalletButton
+            className="w-full justify-center min-h-[44px]"
+            onClick={() => {
+              void triggerHaptic("medium");
+              void openGoogleWalletPass(googleWalletCardUrl(cleanHandle));
+            }}
+          />
+        </div>
       </div>
     </div>,
     document.body,
