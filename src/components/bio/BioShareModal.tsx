@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Check, Contact, Copy, Download, MapPin, QrCode, Share2, Wifi, X } from "lucide-react";
+import { Check, Contact, Copy, Download, QrCode, Share2, Wifi, X } from "lucide-react";
 import { toast } from "sonner";
 import { makeQrDataUrl } from "@/lib/qr";
 import { openVCardContact } from "@/lib/people";
@@ -189,12 +189,12 @@ export function BioShareModal({
           </div>
 
           {/* Member Identity Row */}
-          <div className="relative z-10 mt-4 flex items-center gap-3 border-t border-white/15 pt-3.5">
-            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-white/90 shadow-sm bg-white/10">
+          <div className="relative z-10 mt-3.5 flex items-center gap-3 border-t border-white/15 pt-3">
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-white/90 shadow-sm bg-white/10">
               {avatar ? (
                 <img src={avatar} alt={name} className="h-full w-full rounded-full object-cover" />
               ) : (
-                <div className="grid h-full w-full place-items-center rounded-full bg-white/15 font-display text-base font-black text-white">
+                <div className="grid h-full w-full place-items-center rounded-full bg-white/15 font-display text-sm font-black text-white">
                   {name[0]?.toUpperCase() || cleanHandle[0]?.toUpperCase() || "A"}
                 </div>
               )}
@@ -205,23 +205,11 @@ export function BioShareModal({
                 {name || `@${cleanHandle}`}
               </h3>
               <p className="truncate font-mono text-xs font-semibold text-white/85">@{cleanHandle}</p>
-              {(city || headline) && (
-                <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-white/70">
-                  {city && (
-                    <>
-                      <MapPin size={10} className="shrink-0 text-white/60" />
-                      <span className="truncate">{city}</span>
-                    </>
-                  )}
-                  {city && headline && <span>·</span>}
-                  {headline && <span className="truncate">{headline}</span>}
-                </p>
-              )}
             </div>
           </div>
 
           {/* Clean Ceramic White QR Plate */}
-          <div className="relative z-10 mt-4 rounded-2xl bg-white p-3.5 shadow-sm">
+          <div className="relative z-10 mt-3.5 rounded-2xl bg-white p-3.5 shadow-sm">
             <div className="relative mx-auto flex aspect-square max-h-[190px] w-full max-w-[190px] items-center justify-center">
               {qrData ? (
                 <img
@@ -255,12 +243,6 @@ export function BioShareModal({
                 <Copy size={11} className="text-neutral-400 shrink-0 ml-0.5" />
               )}
             </button>
-          </div>
-
-          {/* Pass Footer */}
-          <div className="relative z-10 mt-3 flex items-center justify-between text-[9px] uppercase tracking-wider text-white/60">
-            <span>AirPal Network Pass</span>
-            <span className="font-mono text-white/50 tracking-widest">AP·{cleanHandle.slice(0, 6).toUpperCase()}</span>
           </div>
         </div>
 
