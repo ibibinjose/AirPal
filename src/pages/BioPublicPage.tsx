@@ -1043,81 +1043,83 @@ export function BioPublicPage() {
             </button>
           </div>
 
-          {/* AirPal Pass (QR + Apple & Google Wallet) */}
-          <div className="human-card mt-6 p-5 sm:p-6 relative overflow-hidden">
-            <div className="flex items-center justify-between gap-2 mb-4">
-              <div className="human-eyebrow flex items-center gap-2">
-                <QrCode size={15} aria-hidden="true" />
-                <span>AirPal Pass</span>
-              </div>
-              <span className="text-xs font-mono font-bold text-mute bg-paper/80 px-2.5 py-0.5 rounded-full ring-1 ring-line/60 tabular-data">
-                @{bio.handle}
-              </span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center gap-5">
-              <button
-                type="button"
-                onClick={() => {
-                  void triggerHaptic("medium");
-                  setShareModalOpen(true);
-                }}
-                className="relative group cursor-pointer shrink-0 grid place-items-center h-36 w-36 rounded-[22px] bg-white p-2.5 shadow-inner ring-1 ring-black/10 hover:ring-brand/50 transition-all duration-200 active:scale-95"
-                title="Tap to enlarge or share Pass QR"
-                aria-label="Enlarge QR Code"
-              >
-                {bioQrUrl ? (
-                  <img src={bioQrUrl} alt={`QR Code for @${bio.handle}`} className="h-full w-full object-contain" />
-                ) : (
-                  <div className="text-xs text-mute animate-pulse">Loading QR…</div>
-                )}
-                <span className="absolute inset-0 bg-brand/5 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center">
-                  <span className="text-[11px] font-bold bg-ink/85 text-white rounded-full px-2.5 py-1 shadow-sm">
-                    Enlarge QR
-                  </span>
+          {/* AirPal Pass (Owner-only: save to Apple & Google Wallet for device NFC card & in-person scanning) */}
+          {isOwner && (
+            <div className="human-card mt-6 p-5 sm:p-6 relative overflow-hidden ring-1 ring-brand/30 shadow-xs">
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <div className="human-eyebrow flex items-center gap-2">
+                  <QrCode size={15} aria-hidden="true" />
+                  <span>Your AirPal Pass · Digital Card</span>
+                </div>
+                <span className="text-xs font-mono font-bold text-accent bg-brand/10 px-2.5 py-0.5 rounded-full ring-1 ring-brand/30 tabular-data">
+                  @{bio.handle}
                 </span>
-              </button>
+              </div>
 
-              <div className="flex-1 min-w-0 w-full space-y-3">
-                <p className="text-sm text-mute leading-relaxed text-center sm:text-left">
-                  Scan to view this profile instantly, or add directly to Apple Wallet &amp; Google Wallet as a verified
-                  digital contact pass.
-                </p>
+              <div className="flex flex-col sm:flex-row items-center gap-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("medium");
+                    setShareModalOpen(true);
+                  }}
+                  className="relative group cursor-pointer shrink-0 grid place-items-center h-36 w-36 rounded-[22px] bg-white p-2.5 shadow-inner ring-1 ring-black/10 hover:ring-brand/50 transition-all duration-200 active:scale-95"
+                  title="Tap to preview or share Pass QR"
+                  aria-label="Enlarge QR Code"
+                >
+                  {bioQrUrl ? (
+                    <img src={bioQrUrl} alt={`QR Code for @${bio.handle}`} className="h-full w-full object-contain" />
+                  ) : (
+                    <div className="text-xs text-mute animate-pulse">Loading QR…</div>
+                  )}
+                  <span className="absolute inset-0 bg-brand/5 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center">
+                    <span className="text-[11px] font-bold bg-ink/85 text-white rounded-full px-2.5 py-1 shadow-sm">
+                      Enlarge QR
+                    </span>
+                  </span>
+                </button>
 
-                <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
-                  <AppleWalletButton
-                    className="w-full sm:w-auto flex-1 justify-center min-h-[44px]"
-                    onClick={() => {
-                      void triggerHaptic("medium");
-                      const passUrl = businessCardWalletPassUrl(bio.handle);
-                      void openAppleWalletPass(passUrl, "@" + bio.handle + "-AirPal-Pass");
-                    }}
-                  />
-                  <GoogleWalletButton
-                    className="w-full sm:w-auto flex-1 justify-center min-h-[44px]"
-                    onClick={() => {
-                      void triggerHaptic("medium");
-                      void openGoogleWalletPass(googleWalletCardUrl(bio.handle));
-                    }}
-                  />
-                </div>
+                <div className="flex-1 min-w-0 w-full space-y-3">
+                  <p className="text-sm text-mute leading-relaxed text-center sm:text-left">
+                    Add this pass to Apple Wallet &amp; Google Wallet on your device to use as a digital NFC card and
+                    scan for instant in-person networking.
+                  </p>
 
-                <div className="flex items-center justify-center sm:justify-start pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void triggerHaptic("light");
-                      setShareModalOpen(true);
-                    }}
-                    className="inline-flex min-h-[36px] items-center gap-1.5 text-xs font-semibold text-accent hover:text-brand-ink transition cursor-pointer"
-                  >
-                    <Share2 size={13} />
-                    <span>View Branded Pass Card &amp; Share Sheet &rarr;</span>
-                  </button>
+                  <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
+                    <AppleWalletButton
+                      className="w-full sm:w-auto flex-1 justify-center min-h-[44px]"
+                      onClick={() => {
+                        void triggerHaptic("medium");
+                        const passUrl = businessCardWalletPassUrl(bio.handle);
+                        void openAppleWalletPass(passUrl, "@" + bio.handle + "-AirPal-Pass");
+                      }}
+                    />
+                    <GoogleWalletButton
+                      className="w-full sm:w-auto flex-1 justify-center min-h-[44px]"
+                      onClick={() => {
+                        void triggerHaptic("medium");
+                        void openGoogleWalletPass(googleWalletCardUrl(bio.handle));
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-center sm:justify-start pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void triggerHaptic("light");
+                        setShareModalOpen(true);
+                      }}
+                      className="inline-flex min-h-[36px] items-center gap-1.5 text-xs font-semibold text-accent hover:text-brand-ink transition cursor-pointer"
+                    >
+                      <Share2 size={13} />
+                      <span>View Branded Pass Card &amp; Share Sheet &rarr;</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Business profile specific overview & actions */}
           {bio.kind === "business" && (
