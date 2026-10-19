@@ -1241,24 +1241,24 @@ export function BioPublicPage() {
             </div>
           )}
 
-          {/* Owner Meet & Hangout Hub and Proposals Inbox */}
+          {/* Owner Hangout Planner Hub and Proposals Inbox */}
           {isOwner && (
             <div className="mt-7 rounded-[28px] sm:rounded-[32px] bg-gradient-to-br from-paper/90 via-card to-paper/60 p-5 sm:p-6 ring-1 ring-brand/30 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
                   <Sparkles size={12} className="text-accent" />
-                  <span>Meet &amp; Hangout · Your AirPal Link</span>
+                  <span>AirPal Hangout Planner</span>
                 </span>
                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-500/15 rounded-full px-2.5 py-0.5">
                   Live on @{bio.handle}
                 </span>
               </div>
               <h3 className="font-display mt-2.5 text-lg sm:text-xl font-bold text-ink">
-                Meet &amp; Hangout with Friends &amp; Mates
+                Plan Catch-Ups &amp; Hangouts
               </h3>
               <p className="mt-1 text-xs sm:text-sm leading-relaxed text-mute">
                 Anyone visiting your bio can request a 1-on-1 coffee, schedule a meeting, or invite you to a group
-                hangout.
+                hangout with instant calendar sync.
               </p>
 
               {/* Format Launcher Options */}
@@ -1457,7 +1457,7 @@ export function BioPublicPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
                     <Sparkles size={12} className="text-accent" />
-                    <span>Meet &amp; Hangout</span>
+                    <span>AirPal Hangout Planner</span>
                   </span>
                   <button
                     type="button"

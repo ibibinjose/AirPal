@@ -377,7 +377,7 @@ export function BioCatchUpModal({
             <div>
               <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-accent">
                 <Sparkles size={11} className="text-accent" />
-                Meet &amp; Hangout
+                AirPal Hangout Planner
               </p>
               <h2 id="catchup-modal-title" className="font-display text-lg font-bold text-ink">
                 {submittedSummary ? `Catch-up Proposed!` : `Catch up with ${name}`}
