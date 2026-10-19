@@ -979,12 +979,12 @@ export function BioPublicPage() {
             )}
           </div>
 
-          {/* Digital ID · AirPal Bio Pass (QR + Apple & Google Wallet) */}
+          {/* AirPal Pass (QR + Apple & Google Wallet) */}
           <div className="human-card mt-6 p-5 sm:p-6 relative overflow-hidden">
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="human-eyebrow flex items-center gap-2">
                 <QrCode size={15} aria-hidden="true" />
-                <span>AirPal Bio Pass · Digital ID</span>
+                <span>AirPal Pass</span>
               </div>
               <span className="text-xs font-mono font-bold text-mute bg-paper/80 px-2.5 py-0.5 rounded-full ring-1 ring-line/60 tabular-data">
                 @{bio.handle}
