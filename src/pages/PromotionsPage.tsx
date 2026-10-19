@@ -208,9 +208,7 @@ export function PromotionsPage() {
             {search ? `No deals found matching "${search}"` : "No active deals in this category yet"}
           </h2>
           <p className="mt-1 text-xs text-mute max-w-sm mx-auto">
-            {isAdmin
-              ? "Be the first business to publish an offer or seed Sydney sample deals to explore."
-              : "Be the first business to publish an offer."}
+            Be the first business to publish an offer or member perk.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">

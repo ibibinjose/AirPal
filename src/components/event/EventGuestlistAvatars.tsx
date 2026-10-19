@@ -116,22 +116,10 @@ export function EventGuestlistAvatars({
           bgClass: palette.bg,
         });
       }
-    } else {
-      const seed = stringHash(eventId || "event");
-      const count = Math.min(3, Math.max(isGoing ? 1 : 2, effectiveCount > 0 ? 3 : 2));
-      for (let i = 0; i < count; i++) {
-        if (list.length >= 4) break;
-        const p = AVATAR_PALETTES[(seed + i * 2) % AVATAR_PALETTES.length];
-        list.push({
-          id: `seed-${i}`,
-          label: p.label,
-          bgClass: p.bg,
-        });
-      }
     }
 
     return list;
-  }, [isGoing, activeGuests, eventId, effectiveCount]);
+  }, [isGoing, activeGuests]);
 
   if (loading) {
     return (
@@ -161,24 +149,30 @@ export function EventGuestlistAvatars({
     >
       <div className="flex items-center gap-3 min-w-0">
         {/* Avatar Stack */}
-        <div className="flex -space-x-2 shrink-0 items-center">
-          {avatarList.map((a) => (
-            <div
-              key={a.id}
-              className={cn(
-                "grid h-8 w-8 place-items-center rounded-full text-xs font-bold ring-2 ring-card shadow-xs",
-                a.bgClass,
-              )}
-            >
-              {a.isYou ? "✓" : a.label}
-            </div>
-          ))}
-          {effectiveCount > avatarList.length && (
-            <div className="grid h-8 min-w-[32px] px-1.5 place-items-center rounded-full bg-brand/15 text-[11px] font-black text-accent ring-2 ring-card">
-              +{effectiveCount - avatarList.length}
-            </div>
-          )}
-        </div>
+        {avatarList.length > 0 ? (
+          <div className="flex -space-x-2 shrink-0 items-center">
+            {avatarList.map((a) => (
+              <div
+                key={a.id}
+                className={cn(
+                  "grid h-8 w-8 place-items-center rounded-full text-xs font-bold ring-2 ring-card shadow-xs",
+                  a.bgClass,
+                )}
+              >
+                {a.isYou ? "✓" : a.label}
+              </div>
+            ))}
+            {effectiveCount > avatarList.length && (
+              <div className="grid h-8 min-w-[32px] px-1.5 place-items-center rounded-full bg-brand/15 text-[11px] font-black text-accent ring-2 ring-card">
+                +{effectiveCount - avatarList.length}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-brand/10 text-accent ring-1 ring-brand/20 shrink-0">
+            <Users size={16} />
+          </div>
+        )}
 
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 text-xs font-bold text-ink">

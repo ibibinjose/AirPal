@@ -151,7 +151,6 @@ export function EventLiveAttendeePreview({
             </div>
           )}
 
-
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
