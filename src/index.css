@@ -537,40 +537,82 @@ body.keyboard-open .keyboard-hide {
 }
 
 /* OLED true black & neutral hairline border (like x.com in dark mode).
- * All text on black backgrounds is crisp white for optimal contrast. */
+ * All text on black backgrounds is crisp white for optimal contrast.
+ * Even if an owner selected a color profile (e.g. green/forest/ocean),
+ * dark mode enforces pure black canvas and crisp white typography across all devices. */
 @media (prefers-color-scheme: dark) {
-  :root:not(.light) .bio-page-card {
-    background: #000000;
-    border: 1px solid var(--color-line);
-    box-shadow: none;
-    color: #ffffff;
+  :root:not(.light) .bio-themed,
+  :root:not(.light) .bio-themed * {
+    --bio-bg: #000000 !important;
+    --bio-ink: #ffffff !important;
+    --bio-muted: #ffffff !important;
   }
 
-  :root:not(.light) .bio-page-shell:not(.bio-themed)::before {
-    background: #000000;
+  :root:not(.light) .bio-page-card,
+  :root:not(.light) .bio-themed .bio-page-card {
+    background: #000000 !important;
+    border: 1px solid var(--color-line) !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
   }
 
-  :root:not(.light) [class*="text-ink/"] {
-    color: #ffffff;
+  :root:not(.light) .bio-page-shell::before,
+  :root:not(.light) .bio-themed.bio-page-shell::before {
+    background: #000000 !important;
   }
+
+  :root:not(.light) .bio-page-card .text-ink,
+  :root:not(.light) .bio-themed .bio-page-card .text-ink,
+  :root:not(.light) .bio-page-card .text-mute,
+  :root:not(.light) .bio-themed .bio-page-card .text-mute,
+  :root:not(.light) [class*="text-ink/"],
+  :root:not(.light) .bio-themed [class*="text-ink"],
+  :root:not(.light) .bio-themed [class*="text-mute"] {
+    color: #ffffff !important;
+  }
+}
+
+.dark .bio-themed,
+.dark .bio-themed *,
+[data-theme="dark"] .bio-themed,
+[data-theme="dark"] .bio-themed * {
+  --bio-bg: #000000 !important;
+  --bio-ink: #ffffff !important;
+  --bio-muted: #ffffff !important;
 }
 
 .dark .bio-page-card,
-[data-theme="dark"] .bio-page-card {
-  background: #000000;
-  border: 1px solid var(--color-line);
-  box-shadow: none;
-  color: #ffffff;
+[data-theme="dark"] .bio-page-card,
+.dark .bio-themed .bio-page-card,
+[data-theme="dark"] .bio-themed .bio-page-card {
+  background: #000000 !important;
+  border: 1px solid var(--color-line) !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
 }
 
-.dark .bio-page-shell:not(.bio-themed)::before,
-[data-theme="dark"] .bio-page-shell:not(.bio-themed)::before {
-  background: #000000;
+.dark .bio-page-shell::before,
+[data-theme="dark"] .bio-page-shell::before,
+.dark .bio-themed.bio-page-shell::before,
+[data-theme="dark"] .bio-themed.bio-page-shell::before {
+  background: #000000 !important;
 }
 
+.dark .bio-page-card .text-ink,
+[data-theme="dark"] .bio-page-card .text-ink,
+.dark .bio-themed .bio-page-card .text-ink,
+[data-theme="dark"] .bio-themed .bio-page-card .text-ink,
+.dark .bio-page-card .text-mute,
+[data-theme="dark"] .bio-page-card .text-mute,
+.dark .bio-themed .bio-page-card .text-mute,
+[data-theme="dark"] .bio-themed .bio-page-card .text-mute,
 .dark [class*="text-ink/"],
-[data-theme="dark"] [class*="text-ink/"] {
-  color: #ffffff;
+[data-theme="dark"] [class*="text-ink/"],
+.dark .bio-themed [class*="text-ink"],
+[data-theme="dark"] .bio-themed [class*="text-ink"],
+.dark .bio-themed [class*="text-mute"],
+[data-theme="dark"] .bio-themed [class*="text-mute"] {
+  color: #ffffff !important;
 }
 
 /* Skip rendering for off-screen sections/cards (mobile scroll perf). No visual
