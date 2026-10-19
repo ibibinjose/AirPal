@@ -85,6 +85,15 @@ export function TicketGatePanel({ ticketId, deniedMessage }: { ticketId: string;
     };
   }, [verify]);
 
+  // Auto-retry when connection comes back online
+  useEffect(() => {
+    function handleOnline() {
+      if (failed) void verify();
+    }
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [failed, verify]);
+
   async function admit() {
     if (!guardRef.current.tryAcquire()) return;
     setAdmitting(true);

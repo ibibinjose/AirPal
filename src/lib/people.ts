@@ -1,4 +1,3 @@
-import { isNativeApp } from "./native";
 import { safeLocalStorage } from "./safe-storage";
 
 export type PersonMet = {
@@ -164,36 +163,13 @@ function downloadVCard(input: VCardInput): void {
 }
 
 /**
- * Opens a contact card directly in the phone's Contacts app instead of a
- * share sheet. No browser/WebView API can prefill the native contact editor,
- * so on mobile web we navigate to the vCard itself: iOS opens the contact
- * preview with "Create New Contact", Android saves the .vcf so tapping it
- * opens Contacts import. Inside the Capacitor shell the WebView cannot open
- * a vCard, so the OS share sheet stays the handoff there; desktop keeps the
- * file download.
+ * Opens a contact card in the device's Contacts application or saves the .vcf file.
+ * Modern iOS Safari blocks top-frame navigation to data: URLs (WebKit security policy),
+ * so we use navigator.share() with a vCard File instance. On iOS and Android, this
+ * immediately prompts the native Contacts import ("Create New Contact" / "Add to Contacts").
+ * On desktop or unsupported browsers, it falls back to direct .vcf file download.
  */
 export async function openVCardContact(input: VCardInput): Promise<"contact" | "shared" | "download"> {
-  if (typeof window !== "undefined" && typeof navigator !== "undefined") {
-    const ua = navigator.userAgent || "";
-    const isMobileWeb = !isNativeApp() && /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-    if (isMobileWeb) {
-      window.location.href = `data:text/vcard;charset=utf-8,${encodeURIComponent(buildVCard(input))}`;
-      return "contact";
-    }
-    if (isNativeApp()) {
-      await shareOrDownloadVCard(input);
-      return "shared";
-    }
-  }
-  downloadVCard(input);
-  return "download";
-}
-
-/**
- * Triggers native iOS / Android contact share sheet if supported,
- * otherwise triggers vCard .vcf file download.
- */
-async function shareOrDownloadVCard(input: VCardInput): Promise<{ shared: boolean }> {
   const vcardText = buildVCard(input);
   const fileName = `${
     input.name
@@ -201,22 +177,24 @@ async function shareOrDownloadVCard(input: VCardInput): Promise<{ shared: boolea
       .replace(/[^\w\- ]+/g, "")
       .replace(/\s+/g, "-") || "AirPal-Contact"
   }.vcf`;
-  const file = new File([vcardText], fileName, { type: "text/vcard" });
 
-  if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [file] })) {
+  if (typeof navigator !== "undefined" && typeof File !== "undefined") {
     try {
-      await navigator.share({
-        title: input.name,
-        text: `Contact card for ${input.name} on AirPal`,
-        files: [file],
-      });
-      return { shared: true };
+      const file = new File([vcardText], fileName, { type: "text/vcard;charset=utf-8" });
+      if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: input.name,
+          text: `Contact card for ${input.name}`,
+          files: [file],
+        });
+        return "shared";
+      }
     } catch (err) {
-      if ((err as Error)?.name === "AbortError") return { shared: false };
+      if ((err as Error)?.name === "AbortError") return "shared";
     }
   }
 
-  // Fallback to direct .vcf download
   downloadVCard(input);
-  return { shared: true };
+  return "download";
 }
+

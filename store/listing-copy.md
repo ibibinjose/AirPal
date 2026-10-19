@@ -1,73 +1,18 @@
-# AirPal — store listing copy (LEGACY single-app version)
+# AirPal Ecosystem — Store Listing Assets & Submission Index
 
-> **Superseded.** Current submission copy lives in [`docs/store/listing.md`](../docs/store/listing.md) (AirPal) and [`docs/store/listing-pass.md`](../docs/store/listing-pass.md) (AirPal Pass). This file is kept for the `store/screenshots/` + `store/icons/` asset map below, which still describes the files in this folder.
+Current production store submission copy and App Store Reviewer notes:
 
-App name: **AirPal** · Subtitle (iOS, max 30 chars): `Scan. Discover. Stay.`
-Bundle IDs: iOS `me.airpal.app` (confirm in Xcode) · Android `me.airpal.app`
-Category: Travel (primary) · Content rating: 4+ / Everyone · Privacy: https://airpal.me/privacy
+- **AirPal (me.airpal.app)**: [`docs/store/listing.md`](../docs/store/listing.md)
+- **AirPal Pass (me.airpal.pass)**: [`docs/store/listing-pass.md`](../docs/store/listing-pass.md)
+- **App Review Guidelines & 4.3 Defense**: [`docs/store/README.md`](../docs/store/README.md)
 
-## iOS keywords (max 100 chars incl. commas)
+## App Review Notes & Demo Account (Both Stores)
 
-```
-hotel guide,qr concierge,local events,city walks,guest wifi,stay companion
-```
+```text
+Test Demo Account: reviewer@airpal.me
+Test Demo Password: AirPalStoreReview2026!
 
-Count: hotel guide(11)+qr concierge(12)+local events(12)+city walks(10)+guest wifi(10)+stay companion(14)+commas(5) = 74. Room to add `markets,nightlife` if needed.
-
-## Play short description (max 80 chars)
-
-```
-Scan a place. See what's around — no account, no download.
-```
-
-(62 chars.)
-
-## Full description (both stores)
-
-```
-AirPal is the guest concierge and local guide that starts with a scan.
-
-Staying somewhere? Point your camera at the room or lobby QR and your stay
-opens instantly: Wi-Fi details, breakfast hours, checkout, facilities —
-answered on the spot.
-
-Exploring? Discover laneway dining, night markets, live sessions and
-self-guided harbour walks near you, then save the ones you love.
-
-Planning with friends? Build a night-out plan together, from rooftop drinks
-to the last train home.
-
-Hosts, venues and campuses: print one QR and give every guest a concierge.
-No hardware, no app install for your guests.
-
-• No account, no download for guests — the browser is enough
-• Native iOS and Android apps for hosts and regulars
-• Works offline for essentials once opened
-• Private by design: anonymous guest sessions
-
-Download AirPal — scan a place, see what's around.
-```
-
-## What's new (v2.0)
-
-```
-Live local map on Stay, Open now / Closed from real hours, and Tonight that
-matches today — not last weekend’s markets. Time and weather follow your
-stay (or GPS if you allow it).
-```
-
-## Promo text (iOS, 170 chars, editable without review)
-
-```
-New: live Stay map, tonight that matches today, and weather on your local clock. Scan a QR to start — no account.
-```
-
-## Review notes (both stores)
-
-```
-Guest demo (no login needed): open the app, tap Scan, or visit /concierge
-for the stay demo and /guide for walks. Host demo: /start. All guest
-features work anonymously; no account is required to evaluate the app.
+AirPal operates as a unified two-shell platform (me.airpal.app for Personal Bio, Circle, and Hangout Calendar; me.airpal.pass for Live Event Tickets, Apple/Google Wallet passbook, and Door Scanning). See docs/store/README.md for the complete reviewer walkthrough.
 ```
 
 ## Asset map (this repo, `store/`)
