@@ -33,7 +33,7 @@ import { resolveBioTheme } from "@shared/bio";
 import type { CSSProperties } from "react";
 import { BUSINESS_CATEGORIES } from "@shared/business";
 import { FollowButton, LikeButton } from "@/components/social/SocialButtons";
-import { openVCardContact, upsertPerson } from "@/lib/people";
+import { saveBioContact, upsertPerson } from "@/lib/people";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { BioHandleButton } from "@/components/bio/BioHandleButton";
 import { BioSocials } from "@/components/bio/BioSocials";
@@ -764,10 +764,11 @@ export function BioPublicPage() {
                     aria-label={`Save ${bio.name} to phone contacts`}
                     title="Save contact to phone (.vcf)"
                     onClick={() => {
-                      void triggerHaptic("light");
-                      void openVCardContact({
+                      void saveBioContact({
                         name: bio.name,
+                        handle: bio.handle,
                         phone: bio.phone,
+                        avatar: bio.avatar,
                         url: share,
                         note: `AirPal bio · AirPal.Me/@${bio.handle}`,
                       });
@@ -785,10 +786,11 @@ export function BioPublicPage() {
                   aria-label={`Save ${bio.name} to phone contacts`}
                   title="Save contact to phone (.vcf)"
                   onClick={() => {
-                    void triggerHaptic("light");
-                    void openVCardContact({
+                    void saveBioContact({
                       name: bio.name,
+                      handle: bio.handle,
                       phone: bio.phone,
+                      avatar: bio.avatar,
                       url: share,
                       note: `AirPal bio · AirPal.Me/@${bio.handle}`,
                     });
@@ -1127,10 +1129,11 @@ export function BioPublicPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      void triggerHaptic("light");
-                      void openVCardContact({
+                      void saveBioContact({
                         name: bio.name,
+                        handle: bio.handle,
                         phone: bio.phone,
+                        avatar: bio.avatar,
                         url: share,
                         note: `AirPal bio · AirPal.Me/@${bio.handle}`,
                       });
@@ -1252,9 +1255,11 @@ export function BioPublicPage() {
                   label="Save"
                   Icon={ContactRound}
                   onClick={() => {
-                    void openVCardContact({
+                    void saveBioContact({
                       name: bio.name,
+                      handle: bio.handle,
                       phone: bio.phone,
+                      avatar: bio.avatar,
                       url: share,
                       note: `AirPal bio · AirPal.Me/@${bio.handle}`,
                     });

@@ -1,6 +1,7 @@
 import { safeLocalStorage } from "./safe-storage";
 import { isNativeApp } from "./platform";
 import { Share } from "@capacitor/share";
+import { toast } from "sonner";
 
 export type PersonMet = {
   id: string;
@@ -146,6 +147,9 @@ export function buildVCard(input: VCardInput): string {
 }
 
 function downloadVCard(input: VCardInput): void {
+  if (typeof document === "undefined") {
+    return;
+  }
   const vcardText = buildVCard(input);
   const fileName = `${
     input.name
@@ -252,4 +256,38 @@ export async function openVCardContact(input: VCardInput): Promise<"contact" | "
   // 5. Desktop / fallback browser: download .vcf file
   downloadVCard(input);
   return "download";
+}
+
+export interface SaveBioContactInput {
+  name: string;
+  handle: string;
+  phone?: string;
+  email?: string;
+  url?: string;
+  headline?: string;
+  city?: string;
+  avatar?: string;
+  note?: string;
+}
+
+/**
+ * Universal helper to save or share a member's contact card with instant user feedback.
+ */
+export async function saveBioContact(input: SaveBioContactInput): Promise<"contact" | "shared" | "download"> {
+  const cleanHandle = input.handle.trim().replace(/^@+/, "").toLowerCase();
+  const res = await openVCardContact({
+    name: input.name || `@${cleanHandle}`,
+    phone: input.phone,
+    email: input.email,
+    url: input.url,
+    note:
+      input.note ||
+      `AirPal Digital Bio Pass (@${cleanHandle})${input.headline ? ` · ${input.headline}` : ""}${input.city ? ` · ${input.city}` : ""}`,
+  });
+  if (res === "contact" || res === "shared") {
+    toast.success("Opening Contact…");
+  } else {
+    toast.success("Contact card saved");
+  }
+  return res;
 }

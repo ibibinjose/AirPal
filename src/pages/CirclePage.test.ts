@@ -78,6 +78,7 @@ vi.mock("@/lib/people", () => ({
   ],
   upsertPerson: vi.fn(),
   openVCardContact: vi.fn(),
+  saveBioContact: vi.fn(),
 }));
 
 vi.mock("@/components/circle/HereCheckIn", () => ({

@@ -21,7 +21,8 @@ import { BioShareModal } from "@/components/bio/BioShareModal";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
 import { makeQrDataUrl } from "@/lib/qr";
-import { openVCardContact } from "@/lib/people";
+import { saveBioContact } from "@/lib/people";
+import { shareBioPass } from "@/lib/share";
 import { publicSiteOrigin } from "@/lib/public-origin";
 import {
   businessCardWalletPassUrl,
@@ -111,29 +112,24 @@ export function DigitalBioPassCard({
 
   const handleNativeShare = async () => {
     void triggerHaptic("medium");
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: `${name} (@${cleanHandle}) · AirPal Bio Pass`,
-          text: headline || `Connect with ${name} on AirPal`,
-          url: profileUrl,
-        });
-        return;
-      } catch (err) {
-        if ((err as Error)?.name === "AbortError") return;
-      }
-    }
-    await handleCopyLink();
+    await shareBioPass({
+      name,
+      handle: cleanHandle,
+      url: profileUrl,
+      headline,
+    });
   };
 
-  const handleSaveVCard = () => {
+  const handleSaveVCard = async () => {
     void triggerHaptic("medium");
-    void openVCardContact({
-      name: name || `@${cleanHandle}`,
+    await saveBioContact({
+      name,
+      handle: cleanHandle,
       phone,
       email,
       url: profileUrl,
-      note: headline ? `${headline} · AirPal (@${cleanHandle})` : `AirPal Bio Pass (@${cleanHandle})`,
+      headline,
+      city,
     });
   };
 

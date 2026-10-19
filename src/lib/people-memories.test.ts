@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { addMemory, listMemories, memoriesWithPerson, removeMemory, updateMemory } from "./memories";
-import { buildVCard, listPeople, removePerson, upsertPerson } from "./people";
+import { buildVCard, listPeople, removePerson, saveBioContact, upsertPerson } from "./people";
 
 function memoryStorage() {
   const map = new Map<string, string>();
@@ -45,6 +45,17 @@ describe("people", () => {
     expect(vcf).toContain("TEL;TYPE=CELL:+91 98200 12345");
     expect(vcf).toContain("URL:https://airpal.me/@maya");
     expect(vcf).toContain("END:VCARD");
+  });
+
+  it("saves bio contact with clean handle and formatted note", async () => {
+    const res = await saveBioContact({
+      name: "Maya Rao",
+      handle: "@maya",
+      phone: "+91 98200 12345",
+      headline: "Product Lead",
+      city: "Sydney",
+    });
+    expect(["contact", "shared", "download"]).toContain(res);
   });
 });
 

@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { isShareSupported, shareContent, shareCurrentLocation, shareCuratedGuide, shareTour } from "./share";
+import {
+  isShareSupported,
+  shareBioPass,
+  shareContent,
+  shareCurrentLocation,
+  shareCuratedGuide,
+  shareTour,
+} from "./share";
 
 describe("share utility (Web Share API & clipboard fallback)", () => {
   const originalNavigator = global.navigator;
@@ -148,6 +155,31 @@ describe("share utility (Web Share API & clipboard fallback)", () => {
       expect.objectContaining({
         title: "The Rocks Heritage Walk · Curated Walk",
         url: expect.stringContaining("/tour/rocks-harbour"),
+      }),
+    );
+  });
+
+  it("formats shareBioPass with clean handle and profile URL", async () => {
+    const mockShare = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(global, "navigator", {
+      value: { share: mockShare },
+      writable: true,
+      configurable: true,
+    });
+
+    const result = await shareBioPass({
+      name: "Alex Rivera",
+      handle: "@alex",
+      url: "https://airpal.me/@alex",
+      headline: "Design Engineer",
+    });
+
+    expect(result).toBe("shared");
+    expect(mockShare).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Alex Rivera (@alex) · AirPal Bio Pass",
+        text: "Design Engineer",
+        url: "https://airpal.me/@alex",
       }),
     );
   });

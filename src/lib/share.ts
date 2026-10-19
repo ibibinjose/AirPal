@@ -175,3 +175,22 @@ export async function shareTour(tour: {
     copiedMessage: "Walking tour link copied to clipboard",
   });
 }
+
+/**
+ * Share a member's AirPal digital bio pass.
+ */
+export async function shareBioPass(options: {
+  name: string;
+  handle: string;
+  url: string;
+  headline?: string;
+}): Promise<ShareResult> {
+  const cleanHandle = options.handle.trim().replace(/^@+/, "").toLowerCase();
+  return shareContent({
+    title: `${options.name} (@${cleanHandle}) · AirPal Bio Pass`,
+    text: options.headline || `Connect with ${options.name} on AirPal`,
+    url: options.url,
+    dialogTitle: `Share ${options.name}'s Pass`,
+    copiedMessage: "Bio pass link copied to clipboard",
+  });
+}

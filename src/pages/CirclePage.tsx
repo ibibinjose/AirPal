@@ -37,7 +37,7 @@ import {
   markCircleInviteSent,
   sameCity,
 } from "@/lib/circle";
-import { listPeople, openVCardContact, upsertPerson, type PersonMet } from "@/lib/people";
+import { listPeople, saveBioContact, upsertPerson, type PersonMet } from "@/lib/people";
 import { triggerHaptic } from "@/lib/native";
 import { toast } from "sonner";
 import { FilterChips } from "@/components/ui/FilterChips";
@@ -342,10 +342,11 @@ export function CirclePage() {
   const handleSaveVCard = (contact: CircleContact) => {
     void triggerHaptic("light");
     const origin = typeof window !== "undefined" ? window.location.origin : "https://airpal.me";
-    void openVCardContact({
+    void saveBioContact({
       name: contact.name,
+      handle: contact.handle,
       url: `${origin}/@${contact.handle}`,
-      note: contact.whereMet ? `Met at ${contact.whereMet} via AirPal Circle` : "Connected on AirPal Circle",
+      headline: contact.whereMet ? `Met at ${contact.whereMet}` : undefined,
     });
   };
 

@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { Check, Contact, Copy, Download, QrCode, Share2, X } from "lucide-react";
 import { toast } from "sonner";
 import { makeQrDataUrl } from "@/lib/qr";
-import { openVCardContact } from "@/lib/people";
+import { saveBioContact } from "@/lib/people";
+import { shareBioPass } from "@/lib/share";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
@@ -14,7 +15,7 @@ import {
   openAppleWalletPass,
   openGoogleWalletPass,
 } from "@/lib/wallet";
-import { shareNative, triggerHaptic } from "@/lib/native";
+import { triggerHaptic } from "@/lib/native";
 
 export type BioShareModalProps = {
   open: boolean;
@@ -95,30 +96,24 @@ export function BioShareModal({
 
   async function handleSaveVCard() {
     void triggerHaptic("medium");
-    const res = await openVCardContact({
-      name: name || `@${cleanHandle}`,
+    await saveBioContact({
+      name,
+      handle: cleanHandle,
       url,
       phone,
-      note: `AirPal Digital Bio Pass (@${cleanHandle})${headline ? ` · ${headline}` : ""}${city ? ` · ${city}` : ""}`,
+      headline,
+      city,
     });
-    if (res === "contact" || res === "shared") {
-      toast.success("Opening Contact…");
-    } else {
-      toast.success("Contact card saved");
-    }
   }
 
   async function handleNativeShare() {
     void triggerHaptic("light");
-    const shared = await shareNative({
-      title: `${name} (@${cleanHandle}) · AirPal Bio Pass`,
-      text: headline || `Connect with ${name} on AirPal`,
+    await shareBioPass({
+      name,
+      handle: cleanHandle,
       url,
-      dialogTitle: `Share ${name}'s Pass`,
+      headline,
     });
-    if (!shared) {
-      void handleCopy();
-    }
   }
 
   return createPortal(
