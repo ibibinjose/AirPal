@@ -187,11 +187,12 @@ export function BioEditPage() {
   // Compute dirty/unsaved state
   const isDirty = useMemo(() => {
     if (!activeProfile) return false;
+    const defaultTag = isBusiness ? "Local Business" : "AirPal Star";
     return (
       name !== activeProfile.name ||
       shortWhy !== (activeProfile.shortWhy || "") ||
       aboutText !== (activeProfile.aboutText || "") ||
-      categoryTag !== (activeProfile.categoryTag || (isBusiness ? "Local Business" : "Explorer & Local")) ||
+      categoryTag !== (activeProfile.categoryTag || defaultTag) ||
       pronouns !== (activeProfile.pronouns || "") ||
       languages !== (activeProfile.languages || "") ||
       primaryCta !== (activeProfile.primaryCta || (isBusiness ? "Order Online" : "Catch Up")) ||
@@ -200,6 +201,7 @@ export function BioEditPage() {
       availabilityStatus !== (activeProfile.availabilityStatus || "available") ||
       visibility !== (activeProfile.visibility === "public" ? "public" : "private") ||
       customStatus !== (activeProfile.customStatus || "") ||
+      customStatusEmoji !== (activeProfile.customStatusEmoji || "☕") ||
       phone !== (activeProfile.phone || "") ||
       meetingUrl !== (activeProfile.meetingUrl || "") ||
       preferredMeetingPlatform !== (activeProfile.preferredMeetingPlatform || "in_person") ||
@@ -220,11 +222,41 @@ export function BioEditPage() {
     availabilityStatus,
     visibility,
     customStatus,
+    customStatusEmoji,
     phone,
     meetingUrl,
     preferredMeetingPlatform,
     zooHunt,
   ]);
+
+  const handleResetChanges = () => {
+    if (!activeProfile) return;
+    void triggerHaptic("medium");
+    setName(activeProfile.name);
+    setShortWhy(activeProfile.shortWhy || "");
+    setAboutText(activeProfile.aboutText || "");
+    const rawTag = activeProfile.categoryTag?.trim();
+    setCategoryTag(
+      rawTag?.toLowerCase() === "airpal mate"
+        ? "AirPal Star"
+        : rawTag || (isBusinessKind(activeProfile.kind) ? "Local Business" : "AirPal Star"),
+    );
+    setPronouns(activeProfile.pronouns || "");
+    setLanguages(activeProfile.languages || "");
+    setPrimaryCta(activeProfile.primaryCta || (isBusinessKind(activeProfile.kind) ? "Order Online" : "Catch Up"));
+    setCity(activeProfile.city || "");
+    setHours(activeProfile.hours || "");
+    setOpenNow(activeProfile.openNow ?? true);
+    setAvailabilityStatus(activeProfile.availabilityStatus || "available");
+    setVisibility(activeProfile.visibility === "public" ? "public" : "private");
+    setCustomStatus(activeProfile.customStatus || "");
+    setCustomStatusEmoji(activeProfile.customStatusEmoji || "☕");
+    setPhone(activeProfile.phone || "");
+    setMeetingUrl(activeProfile.meetingUrl || "");
+    setPreferredMeetingPlatform(activeProfile.preferredMeetingPlatform || "in_person");
+    setZooHunt(Boolean(activeProfile.zooHunt));
+    toast.info("Changes reset to saved profile");
+  };
 
   if (!activeProfile) {
     return (
@@ -843,7 +875,7 @@ export function BioEditPage() {
                       ? isBusiness
                         ? "bg-amber-600 text-white shadow-xs"
                         : "bg-brand text-white shadow-xs"
-                      : "text-mute hover:text-ink hover:bg-white/50",
+                      : "text-mute hover:text-ink hover:bg-card",
                   )}
                 >
                   <item.icon size={15} className="shrink-0" />
@@ -1823,6 +1855,43 @@ export function BioEditPage() {
             >
               Done Previewing
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Unsaved Changes Pill / Island */}
+      {isDirty && (
+        <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center px-4 pointer-events-none animate-in slide-in-from-bottom-4 duration-300">
+          <div className="pointer-events-auto flex items-center gap-3 rounded-full bg-card/95 border border-line p-2 pl-4 pr-2 shadow-2xl backdrop-blur-md ring-1 ring-black/10">
+            <span className="flex items-center gap-2 text-xs font-semibold text-ink">
+              <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+              <span>Unsaved changes</span>
+            </span>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleResetChanges}
+                className="h-8 px-3 rounded-full text-xs font-semibold text-mute hover:text-ink hover:bg-paper transition cursor-pointer"
+              >
+                Discard
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => void handleSaveAll()}
+                className={cn(
+                  "h-8 px-4 rounded-full text-xs font-semibold text-white shadow-xs transition active:scale-95 cursor-pointer flex items-center gap-1.5",
+                  isBusiness ? "bg-amber-600 hover:bg-amber-700" : "bg-brand hover:bg-brand-ink",
+                )}
+              >
+                {saving ? (
+                  <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Check size={13} />
+                )}
+                <span>{saving ? "Saving…" : "Save Now"}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
