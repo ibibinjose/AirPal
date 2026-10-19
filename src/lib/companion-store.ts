@@ -5,13 +5,13 @@ import {
   type CompanionApplicationInput,
   type CompanionStatus,
 } from "@shared/companion";
+import { safeGetJSON, safeRemoveItem, safeSetJSON } from "./safe-storage";
 
 const STORAGE_KEY = "airpal.companion.v1";
 const NOTIFICATIONS_KEY = "airpal.companion-notifications.v1";
 const MAX_NOTIFICATIONS = 100;
 
 let cached: CompanionApplication[] = [];
-let memoryNotifications: CompanionNotification[] = [];
 const subscribers = new Set<() => void>();
 
 export interface CompanionNotification {
@@ -34,26 +34,13 @@ const STATUS_MESSAGE: Record<CompanionStatus, string> = {
 };
 
 function readFromStorage(): CompanionApplication[] {
-  if (typeof window === "undefined") return [...cached];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const parsed = safeGetJSON<CompanionApplication[]>(STORAGE_KEY, []);
+  return Array.isArray(parsed) ? parsed : [];
 }
 
 function writeToStorage(all: CompanionApplication[]): void {
   cached = all;
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-    } catch {
-      /* ignore */
-    }
-  }
+  safeSetJSON(STORAGE_KEY, all);
   subscribers.forEach((fn) => fn());
 }
 
@@ -227,15 +214,8 @@ export function listApplicationsForAdmin(filters?: {
 }
 
 function readNotifications(): CompanionNotification[] {
-  if (typeof window === "undefined") return [...memoryNotifications];
-  try {
-    const raw = localStorage.getItem(NOTIFICATIONS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const parsed = safeGetJSON<CompanionNotification[]>(NOTIFICATIONS_KEY, []);
+  return Array.isArray(parsed) ? parsed : [];
 }
 
 function recordNotification(app: CompanionApplication): void {
@@ -248,15 +228,7 @@ function recordNotification(app: CompanionApplication): void {
     createdAt: new Date().toISOString(),
   };
   const next = [...readNotifications(), record].slice(-MAX_NOTIFICATIONS);
-  if (typeof window === "undefined") {
-    memoryNotifications = next;
-    return;
-  }
-  try {
-    localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(next));
-  } catch {
-    /* ignore */
-  }
+  safeSetJSON(NOTIFICATIONS_KEY, next);
 }
 
 export function listCompanionNotifications(userId?: string): CompanionNotification[] {
@@ -266,13 +238,6 @@ export function listCompanionNotifications(userId?: string): CompanionNotificati
 
 export function clearCompanionStore(): void {
   cached = [];
-  memoryNotifications = [];
-  if (typeof window !== "undefined") {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(NOTIFICATIONS_KEY);
-    } catch {
-      /* ignore */
-    }
-  }
+  safeRemoveItem(STORAGE_KEY);
+  safeRemoveItem(NOTIFICATIONS_KEY);
 }

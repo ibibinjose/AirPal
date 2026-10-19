@@ -1,20 +1,15 @@
 import { DEFAULT_LISTING_GEO, DEFAULT_PRECINCT_ID, listingToPlace, type BusinessListing } from "@shared/business";
 import { isContentLive, stampContentMeta } from "@shared/content-meta";
 import type { NearbyPlace } from "@shared/nearby";
+import { safeGetJSON, safeSetJSON } from "./safe-storage";
 
 const KEY = "airpal.listings.v1";
 
 let cache: BusinessListing[] = [];
 
 function read(): BusinessListing[] {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as BusinessListing[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const parsed = safeGetJSON<BusinessListing[]>(KEY, []);
+  return Array.isArray(parsed) ? parsed : [];
 }
 
 const listeners = new Set<() => void>();
@@ -28,11 +23,7 @@ export function subscribeListings(fn: () => void) {
 
 function write(rows: BusinessListing[]) {
   cache = rows;
-  try {
-    localStorage.setItem(KEY, JSON.stringify(rows));
-  } catch {
-    /* ignore */
-  }
+  safeSetJSON(KEY, rows);
   listeners.forEach((fn) => fn());
 }
 

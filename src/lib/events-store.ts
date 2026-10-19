@@ -5,6 +5,7 @@ import {
   type StallRecord,
   type UserEventState,
 } from "@shared/event";
+import { safeGetJSON, safeSetJSON } from "./safe-storage";
 
 const EVENTS_KEY = "airpal.events.v1";
 const STALLS_KEY = "airpal.event-stalls.v1";
@@ -13,22 +14,11 @@ const SAVED_STALLS_KEY = "airpal.saved-stalls.v1";
 const CALENDAR_STATES_KEY = "airpal.calendar-state.v1";
 
 function readJson<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    const parsed = JSON.parse(raw) as T;
-    return parsed ?? fallback;
-  } catch {
-    return fallback;
-  }
+  return safeGetJSON<T>(key, fallback);
 }
 
 function writeJson(key: string, value: unknown) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    /* ignore */
-  }
+  safeSetJSON(key, value);
 }
 
 /** Device-local organiser events. Empty store → empty list, honestly. */

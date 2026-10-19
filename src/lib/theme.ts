@@ -1,16 +1,13 @@
+import { safeGetItem, safeSetItem } from "./safe-storage";
+
 export type ThemeMode = "system" | "light" | "dark";
 
 const THEME_STORAGE_KEY = "airpal_theme";
 
 export function getThemePreference(): ThemeMode {
-  if (typeof window === "undefined") return "system";
-  try {
-    const saved = localStorage.getItem(THEME_STORAGE_KEY);
-    if (saved === "light" || saved === "dark" || saved === "system") {
-      return saved;
-    }
-  } catch {
-    /* fallback */
+  const saved = safeGetItem(THEME_STORAGE_KEY);
+  if (saved === "light" || saved === "dark" || saved === "system") {
+    return saved;
   }
   return "system";
 }
@@ -59,11 +56,7 @@ function applyTheme(mode: ThemeMode): void {
 }
 
 export function setThemePreference(mode: ThemeMode): void {
-  try {
-    localStorage.setItem(THEME_STORAGE_KEY, mode);
-  } catch {
-    /* ignore */
-  }
+  safeSetItem(THEME_STORAGE_KEY, mode);
   applyTheme(mode);
 }
 

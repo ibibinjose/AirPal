@@ -1,3 +1,5 @@
+import { safeGetJSON, safeRemoveItem, safeSetJSON } from "./safe-storage";
+
 export type BiometricType = "face_id" | "touch_id" | "windows_hello" | "fingerprint" | "passkey";
 
 export interface EnrolledBiometric {
@@ -93,14 +95,7 @@ function base64ToBuffer(base64: string): Uint8Array {
  * Retrieve the enrolled biometric credential on this device.
  */
 export function getEnrolledBiometrics(): EnrolledBiometric | null {
-  if (typeof localStorage === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as EnrolledBiometric;
-  } catch {
-    return null;
-  }
+  return safeGetJSON<EnrolledBiometric | null>(STORAGE_KEY, null);
 }
 
 export function hasEnrolledBiometrics(): boolean {
@@ -111,12 +106,7 @@ export function hasEnrolledBiometrics(): boolean {
  * Remove enrolled biometrics from this device.
  */
 export function removeBiometrics(): void {
-  if (typeof localStorage === "undefined") return;
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    /* ignore */
-  }
+  safeRemoveItem(STORAGE_KEY);
 }
 
 /**
@@ -189,12 +179,7 @@ export async function enrollBiometrics(user: {
     biometricType: bioType,
   };
 
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(enrolled));
-  } catch {
-    /* ignore */
-  }
-
+  safeSetJSON(STORAGE_KEY, enrolled);
   return enrolled;
 }
 

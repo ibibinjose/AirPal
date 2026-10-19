@@ -33,6 +33,7 @@ import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { useVirtualKeyboard } from "@/lib/keyboard";
 import { KEYBOARD_SAFE_INPUT, nudgeIntoView } from "@/components/auth/auth-field";
 import { phonePasswordNeedsSms, phoneReady } from "@shared/phone-auth";
+import { safeGetItem } from "@/lib/safe-storage";
 import { MeAvatar } from "@/components/auth/MeAvatar";
 import { BiometricAuthButton } from "@/components/auth/BiometricAuthButton";
 import { BiometricEnrollCard } from "@/components/auth/BiometricEnrollCard";
@@ -80,9 +81,7 @@ export function StartPage() {
   const [signInPhone, setSignInPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [resetEmail, setResetEmail] = useState(
-    () => emailParam || (typeof window !== "undefined" ? localStorage.getItem(LAST_EMAIL_KEY) || "" : ""),
-  );
+  const [resetEmail, setResetEmail] = useState(() => emailParam || safeGetItem(LAST_EMAIL_KEY) || "");
   const [resetSent, setResetSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [phoneSignup, setPhoneSignup] = useState(false);

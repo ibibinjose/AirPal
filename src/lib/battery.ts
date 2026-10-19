@@ -1,3 +1,5 @@
+import { safeGetItem, safeSetItem } from "./safe-storage";
+
 export type PowerSaveMode = "auto" | "on" | "off";
 
 export type BatteryState = {
@@ -75,14 +77,10 @@ let memoryMode: PowerSaveMode | null = null;
  */
 export function getStoredPowerSaveMode(): PowerSaveMode {
   if (memoryMode !== null) return memoryMode;
-  try {
-    const val = typeof localStorage !== "undefined" ? localStorage.getItem(POWER_SAVE_STORAGE_KEY) : null;
-    if (val === "on" || val === "off" || val === "auto") {
-      memoryMode = val;
-      return val;
-    }
-  } catch {
-    /* ignore storage errors */
+  const val = safeGetItem(POWER_SAVE_STORAGE_KEY);
+  if (val === "on" || val === "off" || val === "auto") {
+    memoryMode = val;
+    return val;
   }
   return "auto";
 }
@@ -92,13 +90,7 @@ export function getStoredPowerSaveMode(): PowerSaveMode {
  */
 export function savePowerSaveMode(mode: PowerSaveMode): void {
   memoryMode = mode;
-  try {
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem(POWER_SAVE_STORAGE_KEY, mode);
-    }
-  } catch {
-    /* ignore storage errors */
-  }
+  safeSetItem(POWER_SAVE_STORAGE_KEY, mode);
 }
 
 /**

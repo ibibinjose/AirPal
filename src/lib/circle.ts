@@ -1,3 +1,5 @@
+import { safeGetItem, safeSetItem } from "./safe-storage";
+
 export type CircleTab = "nearby" | "met" | "following" | "followers" | "likes";
 
 export const CIRCLE_QUESTS = [
@@ -12,19 +14,11 @@ export type CircleQuestId = (typeof CIRCLE_QUESTS)[number]["id"];
 const CIRCLE_INVITE_KEY = "airpal.circle.invited";
 
 export function hasMarkedCircleInvite(): boolean {
-  try {
-    return typeof localStorage !== "undefined" && localStorage.getItem(CIRCLE_INVITE_KEY) === "1";
-  } catch {
-    return false;
-  }
+  return safeGetItem(CIRCLE_INVITE_KEY) === "1";
 }
 
 export function markCircleInviteSent(): void {
-  try {
-    localStorage.setItem(CIRCLE_INVITE_KEY, "1");
-  } catch {
-    /* private mode */
-  }
+  safeSetItem(CIRCLE_INVITE_KEY, "1");
 }
 
 export function circleLevel(completed: number): { rank: number; name: string } {

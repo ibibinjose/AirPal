@@ -21,6 +21,7 @@ import { triggerHaptic } from "@/lib/native";
 import { getThemePreference, setThemePreference, type ThemeMode } from "@/lib/theme";
 import { CITY_OPTIONS } from "@/lib/cities";
 import { cn } from "@/lib/cn";
+import { safeGetItem, safeSetItem } from "@/lib/safe-storage";
 
 export function SettingsPage() {
   const [, nav] = useLocation();
@@ -64,38 +65,16 @@ export function SettingsPage() {
   }
 
   const [theme, setTheme] = useState<ThemeMode>(() => getThemePreference());
-  const [notifDeals, setNotifDeals] = useState(() => {
-    try {
-      return localStorage.getItem("airpal_notif_deals") !== "false";
-    } catch {
-      return true;
-    }
-  });
+  const [notifDeals, setNotifDeals] = useState(() => safeGetItem("airpal_notif_deals") !== "false");
   const [pushStatus, setPushStatus] = useState<string>("default");
-  const [searchIndexing, setSearchIndexing] = useState(() => {
-    try {
-      return localStorage.getItem("airpal_privacy_search_indexing") !== "false";
-    } catch {
-      return true;
-    }
-  });
-  const [circlePresence, setCirclePresence] = useState(() => {
-    try {
-      return localStorage.getItem("airpal_privacy_circle_presence") !== "false";
-    } catch {
-      return true;
-    }
-  });
+  const [searchIndexing, setSearchIndexing] = useState(() => safeGetItem("airpal_privacy_search_indexing") !== "false");
+  const [circlePresence, setCirclePresence] = useState(() => safeGetItem("airpal_privacy_circle_presence") !== "false");
 
   const handleSearchIndexingToggle = () => {
     void triggerHaptic("light");
     setSearchIndexing((prev) => {
       const next = !prev;
-      try {
-        localStorage.setItem("airpal_privacy_search_indexing", String(next));
-      } catch {
-        /* ignore */
-      }
+      safeSetItem("airpal_privacy_search_indexing", String(next));
       toast.success(next ? "Profile directory indexing enabled" : "Profile hidden from search indexing");
       return next;
     });
@@ -105,11 +84,7 @@ export function SettingsPage() {
     void triggerHaptic("light");
     setCirclePresence((prev) => {
       const next = !prev;
-      try {
-        localStorage.setItem("airpal_privacy_circle_presence", String(next));
-      } catch {
-        /* ignore */
-      }
+      safeSetItem("airpal_privacy_circle_presence", String(next));
       toast.success(next ? "Live presence check-ins visible to Circle" : "Circle presence set to private");
       return next;
     });
@@ -132,11 +107,7 @@ export function SettingsPage() {
     void triggerHaptic("light");
     setNotifDeals((prev) => {
       const nextVal = !prev;
-      try {
-        localStorage.setItem("airpal_notif_deals", String(nextVal));
-      } catch {
-        /* ignore */
-      }
+      safeSetItem("airpal_notif_deals", String(nextVal));
       return nextVal;
     });
   };

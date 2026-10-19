@@ -17,19 +17,10 @@ import type { FacilityItem } from "@shared/airpal-data";
 import { STAR_TIERS } from "@shared/stars";
 import { getFirebaseDb } from "./firebase";
 import { toZonedDateStr } from "./local-time";
+import { safeGetJSON, safeSetJSON } from "./safe-storage";
 
 const KEY = "airpal.bios.v1";
 const TAPS_KEY = "airpal.bio-taps.v1";
-
-function readJson<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
-}
 
 function normalizeCategoryTag(raw: unknown): string | undefined {
   if (!raw) return undefined;
@@ -50,7 +41,7 @@ function withCatalog(row: BioProfile): BioProfile {
 }
 
 export function loadBios(): BioProfile[] {
-  const extra = readJson<BioProfile[]>(KEY, []);
+  const extra = safeGetJSON<BioProfile[]>(KEY, []);
   const by = new Map<string, BioProfile>();
   for (const row of extra) by.set(row.handle, withCatalog(row));
   return Array.from(by.values());
@@ -66,11 +57,7 @@ export function subscribeBios(fn: () => void) {
 }
 
 export function persistBios(rows: BioProfile[]) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(rows));
-  } catch {
-    /* ignore */
-  }
+  safeSetJSON(KEY, rows);
   listeners.forEach((fn) => fn());
 }
 
@@ -79,19 +66,15 @@ function todayKey() {
 }
 
 export function tapCount(handle: string) {
-  const all = readJson<Record<string, number>>(TAPS_KEY, {});
+  const all = safeGetJSON<Record<string, number>>(TAPS_KEY, {});
   return all[`${handle}:${todayKey()}`] || 0;
 }
 
 export function bumpTap(handle: string) {
-  const all = readJson<Record<string, number>>(TAPS_KEY, {});
+  const all = safeGetJSON<Record<string, number>>(TAPS_KEY, {});
   const k = `${handle}:${todayKey()}`;
   all[k] = (all[k] || 0) + 1;
-  try {
-    localStorage.setItem(TAPS_KEY, JSON.stringify(all));
-  } catch {
-    /* ignore */
-  }
+  safeSetJSON(TAPS_KEY, all);
   return all[k];
 }
 
