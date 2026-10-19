@@ -234,7 +234,8 @@ npm run cap:sync
 Every core entity in AIRPAL is fully built, configured, and operable with no placeholder UI, mock handlers, or stub data. All operations map to real Firestore collections, Cloud Functions, and Apple HIG ergonomics ($\ge 44\text{px}$ touch targets, tactile haptics, safe areas).
 
 ### 1. Events, Ticketing & Door Access (AirPal Pass)
-*Primary surfaces: `/events`, `/pass`, `/event`, `/e/:id`, `/scan`, `/e/:id/guests`*
+
+_Primary surfaces: `/events`, `/pass`, `/event`, `/e/:id`, `/scan`, `/e/:id/guests`_
 
 - [x] **Live Events**
   - **Create**: Publish concerts, cultural festivals, or meetups via `/event` studio with media, location, and dates.
@@ -263,7 +264,8 @@ Every core entity in AIRPAL is fully built, configured, and operable with no pla
   - **Delete**: Cancel ticket booking / RSVP with inventory restoration.
 
 ### 2. Personal Bio & Digital Identity (AirPal.Me)
-*Primary surfaces: `/@handle`, `/bio/setup`, `/bio/edit`, `/me`*
+
+_Primary surfaces: `/@handle`, `/bio/setup`, `/bio/edit`, `/me`_
 
 - [x] **Digital Bio & Handle**
   - **Create**: Claim unique username handle (`/@yourhandle`), set avatar, bio, headline, and location at `/bio/setup`.
@@ -282,7 +284,8 @@ Every core entity in AIRPAL is fully built, configured, and operable with no pla
   - **Delete**: Remove or archive perks via `Trash2` catalog action.
 
 ### 3. Personal Calendar & Catch-Up Hangouts
-*Primary surfaces: `/calendar`, `/@handle`, `/me/inbox`*
+
+_Primary surfaces: `/calendar`, `/@handle`, `/me/inbox`_
 
 - [x] **Personal Schedule Entries**
   - **Create**: Auto-import booked passes/RSVPs, or add custom plans via `PersonalScheduleModal` on `/calendar`.
@@ -296,7 +299,8 @@ Every core entity in AIRPAL is fully built, configured, and operable with no pla
   - **Delete**: Cancel or withdraw proposal via `deleteCatchUp`.
 
 ### 4. Networking Circle, Friends & Live Presence
-*Primary surfaces: `/circle`, `/friends`*
+
+_Primary surfaces: `/circle`, `/friends`_
 
 - [x] **Social Graph (Follows & Likes)**
   - **Create**: Follow members, connect with mutuals, and like profiles via `useSocial().toggleFollow` / `toggleLike`.
@@ -320,7 +324,8 @@ Every core entity in AIRPAL is fully built, configured, and operable with no pla
   - **Delete**: End wave broadcast (`stopWave`).
 
 ### 5. Business Hub, Places & Deals
-*Primary surfaces: `/business`, `/places`, `/deals`, `/claim`*
+
+_Primary surfaces: `/business`, `/places`, `/deals`, `/claim`_
 
 - [x] **Places & Venues**
   - **Create**: List a business/venue, import from Google Places (`GooglePlaceImport`), or claim a venue (`/claim`).
@@ -344,7 +349,8 @@ Every core entity in AIRPAL is fully built, configured, and operable with no pla
   - **Delete**: Close or archive campaign.
 
 ### 6. Notifications, Inbox & Trust Rails
-*Primary surfaces: `/me/inbox`, `/settings`*
+
+_Primary surfaces: `/me/inbox`, `/settings`_
 
 - [x] **Notifications**
   - **Create**: Automated triggers for ticket sales, RSVPs, catch-up requests, and event updates.
