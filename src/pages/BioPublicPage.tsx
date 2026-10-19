@@ -2157,6 +2157,11 @@ export function BioPublicPage() {
         handle={bio.handle}
         name={bio.name}
         url={share}
+        avatar={bio.avatar}
+        city={bio.city}
+        headline={bio.shortWhy}
+        kind={bio.kind}
+        phone={bio.phone}
       />
 
       {/* Catch Up / Meeting / Hangout Modal */}

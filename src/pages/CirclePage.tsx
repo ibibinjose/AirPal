@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Building2,
@@ -8,14 +8,10 @@ import {
   ChevronDown,
   ChevronUp,
   Contact,
-  Copy,
-  Download,
   Handshake,
   MapPin,
   QrCode,
   Search,
-  Share2,
-  ShieldCheck,
   Sparkles,
   Store,
   UserCheck,
@@ -26,14 +22,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
-import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
-import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
 import { fieldInput } from "@/components/forms/ValidField";
 import { useBio } from "@/contexts/BioContext";
 import { useEvents } from "@/contexts/EventsContext";
 import { useSocial } from "@/contexts/SocialContext";
 import { HereCheckIn } from "@/components/circle/HereCheckIn";
 import { BioCatchUpModal } from "@/components/bio/BioCatchUpModal";
+import { BioShareModal } from "@/components/bio/BioShareModal";
 import { openGlobalSearch } from "@/components/search/openSearch";
 import {
   CIRCLE_QUESTS,
@@ -43,13 +38,6 @@ import {
   sameCity,
 } from "@/lib/circle";
 import { listPeople, openVCardContact, upsertPerson, type PersonMet } from "@/lib/people";
-import { makeQrDataUrl } from "@/lib/qr";
-import {
-  businessCardWalletPassUrl,
-  googleWalletCardUrl,
-  openAppleWalletPass,
-  openGoogleWalletPass,
-} from "@/lib/wallet";
 import { triggerHaptic } from "@/lib/native";
 import { toast } from "sonner";
 import { FilterChips } from "@/components/ui/FilterChips";
@@ -88,27 +76,11 @@ export function CirclePage() {
 
   // In-person QR Circle Pass sheet
   const [qrOpen, setQrOpen] = useState(false);
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   const circleInviteUrl = useMemo(() => {
     const origin = typeof window !== "undefined" ? window.location.origin : "https://airpal.me";
     return mine?.handle ? `${origin}/@${mine.handle}` : `${origin}/start`;
   }, [mine?.handle]);
-
-  useEffect(() => {
-    if (!qrOpen) return;
-    let active = true;
-    void makeQrDataUrl(circleInviteUrl, 260)
-      .then((url) => {
-        if (active) setQrDataUrl(url);
-      })
-      .catch(() => {
-        if (active) setQrDataUrl(null);
-      });
-    return () => {
-      active = false;
-    };
-  }, [qrOpen, circleInviteUrl]);
 
   // Organisers running upcoming events, keyed by handle — the Communities bucket source.
   const organisers = useMemo(() => {
@@ -335,28 +307,6 @@ export function CirclePage() {
     }
     markCircleInviteSent();
     setInvitedSent(true);
-    toast.success("Circle invite link copied to clipboard!");
-  };
-
-  const handleNativeShareInvite = async () => {
-    void triggerHaptic("medium");
-    markCircleInviteSent();
-    setInvitedSent(true);
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: mine?.name ? `Join ${mine.name}’s Circle on AirPal` : "Join my Circle on AirPal",
-          text: "Connect with me on AirPal so we can catch up and share live events.",
-          url: circleInviteUrl,
-        });
-        return;
-      } catch (err) {
-        if ((err as Error)?.name === "AbortError") return;
-      }
-    }
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      void navigator.clipboard.writeText(circleInviteUrl);
-    }
     toast.success("Circle invite link copied to clipboard!");
   };
 
@@ -1022,115 +972,19 @@ export function CirclePage() {
         </button>
       </Sheet>
 
-      {/* In-Person My Digital Bio Pass Sheet */}
-      <Sheet open={qrOpen} onClose={() => setQrOpen(false)} title="My Digital Bio Pass">
-        <p className="text-sm leading-6 text-mute">
-          Have a friend scan this in person to open your AirPal bio, save your contact card, or add to Apple &amp;
-          Google Wallet.
-        </p>
-        <div className="mt-4 overflow-hidden rounded-3xl bg-paper ring-1 ring-line">
-          <div className="flex items-center justify-between bg-gradient-to-r from-[#0c1024] via-[#141b38] to-[#0a0d1e] px-4 py-3 text-white">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white/85">
-              <ShieldCheck size={13} className="text-emerald-400" aria-hidden="true" />
-              <span>AirPal.Me · Digital Bio Pass</span>
-            </span>
-            {mine?.handle && <span className="font-mono text-xs font-semibold text-amber-300">@{mine.handle}</span>}
-          </div>
-          <div className="flex flex-col items-center p-5">
-            {qrDataUrl ? (
-              <img
-                src={qrDataUrl}
-                alt="Your Circle QR code"
-                width={220}
-                height={220}
-                className="h-[220px] w-[220px] rounded-2xl bg-white p-2.5 shadow-2xs ring-1 ring-line/60"
-              />
-            ) : (
-              <div className="grid h-[220px] w-[220px] place-items-center rounded-2xl bg-card text-xs text-mute ring-1 ring-line">
-                Generating QR…
-              </div>
-            )}
-            <p className="mt-3 font-display text-base font-bold text-ink">{mine?.name || "AirPal Member"}</p>
-            <p className="text-xs text-mute">
-              {mine?.handle ? `@${mine.handle}` : "Claim your @handle to personalise"}
-              {mine?.city ? ` · ${mine.city}` : ""}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <Button
-            variant="outlined"
-            onClick={handleShareCircleInvite}
-            className="min-h-[44px] gap-1.5 px-2.5 text-xs font-semibold"
-          >
-            <Copy size={14} aria-hidden="true" />
-            <span>Copy</span>
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              void triggerHaptic("light");
-              void openVCardContact({
-                name: mine?.name || (mine?.handle ? `@${mine.handle}` : "AirPal Member"),
-                url: circleInviteUrl,
-                note: mine?.city ? `AirPal Digital Bio Pass · ${mine.city}` : "AirPal Digital Bio Pass",
-              });
-            }}
-            className="min-h-[44px] gap-1.5 px-2.5 text-xs font-semibold"
-          >
-            <Contact size={14} className="text-emerald-600" aria-hidden="true" />
-            <span>vCard</span>
-          </Button>
-          {qrDataUrl ? (
-            <a
-              href={qrDataUrl}
-              download={`airpal-${mine?.handle || "circle"}-qr.png`}
-              onClick={() => void triggerHaptic("light")}
-              className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-2.5 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card"
-            >
-              <Download size={14} aria-hidden="true" />
-              <span>QR PNG</span>
-            </a>
-          ) : (
-            <Button
-              variant="primary"
-              onClick={() => void handleNativeShareInvite()}
-              className="min-h-[44px] gap-1.5 px-2.5 text-xs font-semibold"
-            >
-              <Share2 size={14} aria-hidden="true" />
-              <span>Share</span>
-            </Button>
-          )}
-        </div>
-
-        {mine?.handle && (
-          <div className="mt-3 space-y-2">
-            <AppleWalletButton
-              className="w-full justify-center min-h-[44px]"
-              onClick={() => {
-                const passUrl = businessCardWalletPassUrl(mine.handle);
-                void openAppleWalletPass(passUrl, "@" + mine.handle + "-AirPal-Pass");
-              }}
-            />
-            <GoogleWalletButton
-              className="w-full justify-center min-h-[44px]"
-              onClick={() => {
-                void openGoogleWalletPass(googleWalletCardUrl(mine.handle));
-              }}
-            />
-          </div>
-        )}
-
-        <Button
-          variant="primary"
-          onClick={() => void handleNativeShareInvite()}
-          className="mt-3 w-full min-h-[44px] gap-1.5 text-xs font-semibold"
-        >
-          <Share2 size={14} aria-hidden="true" />
-          <span>Share Digital Bio Pass</span>
-        </Button>
-      </Sheet>
+      {/* In-Person My Digital Bio Pass Luxury Wallet Pass Modal */}
+      <BioShareModal
+        open={qrOpen}
+        onClose={() => setQrOpen(false)}
+        handle={mine?.handle || "member"}
+        name={mine?.name || "AirPal Member"}
+        url={circleInviteUrl}
+        avatar={mine?.avatar}
+        city={mine?.city}
+        headline={mine?.shortWhy}
+        kind={mine?.kind}
+        phone={mine?.phone}
+      />
 
       {catchUpContact && (
         <BioCatchUpModal

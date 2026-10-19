@@ -368,6 +368,11 @@ export function DigitalBioPassCard({
         handle={cleanHandle}
         name={name}
         url={profileUrl}
+        avatar={avatar}
+        city={city}
+        headline={headline}
+        kind={kind}
+        phone={phone}
       />
     </section>
   );
