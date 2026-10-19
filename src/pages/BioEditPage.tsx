@@ -14,8 +14,10 @@ import {
   Globe,
   HeartHandshake,
   Link2,
+  Lock,
   MapPin,
   MessageCircle,
+  Moon,
   Package,
   Phone,
   PhoneCall,
@@ -26,6 +28,7 @@ import {
   Sparkles,
   Star,
   Store,
+  Sun,
   Archive,
   BarChart3,
   CalendarDays,
@@ -43,6 +46,7 @@ import {
   catalogDeals,
   isBusinessKind,
   isSocialLinkType,
+  resolveBioTheme,
   type AvailabilityStatus,
   type BioCatalogItem,
   type BioCatalogKind,
@@ -147,6 +151,7 @@ export function BioEditPage() {
 
   // Mobile Live Preview Modal Sheet State
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [previewThemeMode, setPreviewThemeMode] = useState<"dark" | "light">("dark");
 
   // Synchronize form states when active target profile changes
   useEffect(() => {
@@ -380,245 +385,380 @@ export function BioEditPage() {
 
   const statusInfo = AVAILABILITY_STATUSES[availabilityStatus] || AVAILABILITY_STATUSES.available;
 
-  // Live Phone Screen Mockup Preview (used on desktop sidebar and mobile sheet)
-  const renderLivePhoneMockup = () => (
-    <div className="relative mx-auto w-full max-w-[340px] select-none rounded-[44px] border-[5px] border-slate-900/90 dark:border-slate-800 bg-card p-1 shadow-2xl ring-1 ring-black/10">
-      {/* Device Hardware Top Speaker & Notch */}
-      <div className="relative z-30 flex h-6 w-full items-center justify-between px-6 pt-1">
-        <span className="font-mono text-[10px] font-semibold text-ink/80">9:41</span>
-        <div className="h-3.5 w-20 rounded-full bg-slate-900/90 dark:bg-slate-700" />
-        <div className="flex items-center gap-1 text-[10px] text-ink/80">
-          <span>5G</span>
-          <div className="h-2 w-3 rounded-[2px] border border-current p-[1px]">
-            <div className="h-full w-full bg-current" />
-          </div>
-        </div>
-      </div>
+  // Live Phone Screen Mockup Preview (iPhone 16 Pro Max Authentic Hardware & Screen Mirror)
+  const renderLivePhoneMockup = () => {
+    const activeTheme = resolveBioTheme(activeProfile.theme);
+    const isDarkPreview = previewThemeMode === "dark";
+    const screenBg = isDarkPreview ? "#000000" : activeTheme.pageBg;
+    const screenInk = isDarkPreview ? "#ffffff" : activeTheme.ink;
+    const screenMute = isDarkPreview ? "#8b98a5" : activeTheme.muted;
+    const screenCardBg = isDarkPreview ? "#121214" : "#ffffff";
+    const screenBorder = isDarkPreview ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)";
 
-      {/* Screen Inner Viewport Container */}
-      <div className="relative mt-1 max-h-[560px] overflow-y-auto rounded-[36px] bg-canvas scrollbar-none pb-6">
-        {/* Distinction Header Banner */}
+    return (
+      <div className="relative mx-auto w-full max-w-[340px] select-none pt-2 pb-4">
+        {/* Hardware Buttons Silhouettes (Titanium frame edges) */}
+        {/* Left: Action Button, Volume Up, Volume Down */}
         <div
-          className={cn(
-            "flex items-center justify-between px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider border-b",
-            isBusiness
-              ? "bg-amber-500/10 text-amber-900 dark:text-amber-300 border-amber-500/20"
-              : "bg-brand/10 text-accent border-brand/20",
-          )}
-        >
-          <span className="flex items-center gap-1.5">
-            {isBusiness ? <Store size={12} /> : <UserCheck size={12} />}
-            {isBusiness ? "AirPal Pass Place" : "AirPal Me Bio"}
-          </span>
-          <span className="font-mono text-[10px] lowercase text-ink/70">@{activeProfile.handle}</span>
-        </div>
+          className="absolute -left-[3px] top-[108px] h-7 w-[4px] rounded-l-[3px] bg-neutral-600/80 shadow-2xs"
+          title="Action Button"
+        />
+        <div
+          className="absolute -left-[3px] top-[148px] h-12 w-[4px] rounded-l-[3px] bg-neutral-600/80 shadow-2xs"
+          title="Volume Up"
+        />
+        <div
+          className="absolute -left-[3px] top-[208px] h-12 w-[4px] rounded-l-[3px] bg-neutral-600/80 shadow-2xs"
+          title="Volume Down"
+        />
+        {/* Right: Side Power Button & Camera Control */}
+        <div
+          className="absolute -right-[3px] top-[160px] h-16 w-[4px] rounded-r-[3px] bg-neutral-600/80 shadow-2xs"
+          title="Side Button"
+        />
+        <div
+          className="absolute -right-[2.5px] bottom-[160px] h-12 w-[3.5px] rounded-r-[2px] bg-neutral-500/70 shadow-2xs"
+          title="Camera Control"
+        />
 
-        {/* Cover Photo Hero */}
-        <div className="relative">
-          {cover ? (
-            <Photo src={cover} className="h-32 w-full object-cover" />
-          ) : (
+        {/* iPhone 16 Pro Max Titanium Chassis */}
+        <div className="relative overflow-hidden rounded-[50px] border-[9px] border-[#18181b] dark:border-[#101012] bg-[#000000] shadow-[0_25px_65px_-12px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.12),inset_0_0_0_1px_rgba(255,255,255,0.08)] ring-1 ring-black/50">
+          {/* Dynamic Island */}
+          <div className="absolute left-1/2 top-2.5 z-40 -translate-x-1/2">
+            <div
+              className="group flex h-[27px] w-[105px] items-center justify-between rounded-full bg-black px-2.5 shadow-md ring-1 ring-white/10 transition-all duration-300 hover:w-[155px]"
+              title="iPhone Dynamic Island"
+            >
+              {/* Sensor */}
+              <div className="h-2.5 w-2.5 rounded-full bg-[#030308] ring-1 ring-white/5" />
+
+              {/* Center text on expand */}
+              <span className="hidden text-[9px] font-bold text-white group-hover:inline-block tracking-wider uppercase">
+                AirPal Live
+              </span>
+
+              {/* TrueDepth Camera */}
+              <div className="relative h-3 w-3 rounded-full bg-[#0a0d18] ring-1 ring-white/10">
+                <span className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-sky-900/60 to-purple-900/60 opacity-80" />
+              </div>
+            </div>
+          </div>
+
+          {/* iOS 18 Top Status Bar */}
+          <div className="relative z-30 flex h-11 w-full items-center justify-between px-6 pt-1 text-[11px] font-semibold text-white select-none">
+            <span className="font-sans font-semibold tracking-tight text-white/95">9:41</span>
+            <div className="flex items-center gap-1.5 text-white/95">
+              <div className="flex items-end gap-[1.5px] h-2.5">
+                <span className="w-[2.5px] h-1 bg-current rounded-xs" />
+                <span className="w-[2.5px] h-1.5 bg-current rounded-xs" />
+                <span className="w-[2.5px] h-2 bg-current rounded-xs" />
+                <span className="w-[2.5px] h-2.5 bg-current rounded-xs" />
+              </div>
+              <span className="text-[10px] font-bold">5G</span>
+              <div className="h-3 w-5 rounded-[4px] border border-current p-[1.5px] flex items-center">
+                <div className="h-full w-full bg-current rounded-[1px]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Mini Safari Address Bar */}
+          <div className="relative z-20 px-5 pb-1">
+            <div className="flex h-7 items-center justify-between rounded-full bg-white/10 dark:bg-white/10 backdrop-blur-md px-3 text-[10px] text-white/80 ring-1 ring-white/10">
+              <div className="flex items-center gap-1.5 truncate">
+                <Lock size={10} className="text-emerald-400 shrink-0" />
+                <span className="font-mono truncate">airpal.me/@{activeProfile.handle}</span>
+              </div>
+              <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold shrink-0">Live</span>
+            </div>
+          </div>
+
+          {/* Screen Inner Viewport (Real-Time Live Bio Mirror) */}
+          <div
+            className="relative max-h-[570px] overflow-y-auto rounded-b-[40px] pb-6 scrollbar-none transition-colors duration-300"
+            style={{
+              backgroundColor: screenBg,
+              color: screenInk,
+            }}
+          >
+            {/* Distinction Header Banner inside view */}
             <div
               className={cn(
-                "relative h-32 w-full overflow-hidden",
+                "flex items-center justify-between px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider border-b",
                 isBusiness
-                  ? "bg-gradient-to-br from-[#1d1e22] via-[#2a2c33] to-[#121316]"
-                  : "bg-gradient-to-br from-[#121829] via-[#1c2438] to-[#0f1424]",
+                  ? "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                  : "bg-brand/10 text-brand border-brand/20",
               )}
             >
-              <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#004eff_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+              <span className="flex items-center gap-1.5">
+                {isBusiness ? <Store size={12} /> : <UserCheck size={12} />}
+                {isBusiness ? "AirPal Pass Place" : "AirPal Me Bio"}
+              </span>
+              <span className="font-mono text-[10px] lowercase opacity-75">@{activeProfile.handle}</span>
             </div>
-          )}
 
-          {/* Real-time Indicator Pill */}
-          <div className="absolute right-2.5 top-2.5 z-10">
-            <span className="inline-flex items-center gap-1 rounded-full bg-black/65 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-md shadow-xs">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
-              PREVIEW
-            </span>
-          </div>
-        </div>
-
-        {/* Body Content */}
-        <div className="px-4">
-          {/* Avatar and Handle Row */}
-          <div className="flex items-end justify-between -mt-9">
+            {/* Cover Photo Hero */}
             <div className="relative">
-              <div
-                className={cn(
-                  "relative z-10 h-20 w-20 overflow-hidden rounded-full bg-paper ring-3 shadow-md transition-all",
-                  statusInfo.ringClass,
-                )}
-              >
-                {avatar ? (
-                  <Photo src={avatar} className="h-full w-full object-cover" />
-                ) : (
-                  <span className="grid h-full w-full place-items-center bg-neutral-900 font-display text-xl font-bold text-white">
-                    {(name || "A")[0]}
-                  </span>
-                )}
-              </div>
-              <div className="absolute -bottom-1 -right-1 z-20">
-                <BioKindIcon kind={activeProfile.kind} className="h-5 w-5 shadow-xs ring-1 ring-card" />
+              {cover ? (
+                <Photo src={cover} className="h-32 w-full object-cover" />
+              ) : (
+                <div
+                  className={cn(
+                    "relative h-32 w-full overflow-hidden",
+                    isBusiness
+                      ? "bg-gradient-to-br from-[#1d1e22] via-[#2a2c33] to-[#121316]"
+                      : "bg-gradient-to-br from-[#121829] via-[#1c2438] to-[#0f1424]",
+                  )}
+                >
+                  <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#004eff_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
+                </div>
+              )}
+
+              {/* Real-time Indicator Pill */}
+              <div className="absolute right-2.5 top-2.5 z-10">
+                <span className="inline-flex items-center gap-1 rounded-full bg-black/75 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-md shadow-xs">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
+                  PREVIEW
+                </span>
               </div>
             </div>
 
-            <div className="mb-0.5">
-              <BioHandleButton handle={activeProfile.handle} />
-            </div>
-          </div>
-
-          {/* Title, Category & Handle */}
-          <div className="mt-2.5 text-left">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <h3 className="font-display text-lg font-bold tracking-tight text-ink truncate max-w-[190px]">
-                {name || "Your Name"}
-              </h3>
-              {categoryTag &&
-                (categoryTag.trim().toLowerCase() === "airpal mate" ||
-                categoryTag.trim().toLowerCase() === "airpal star" ? (
-                  <span
-                    className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/30"
-                    title="AirPal Star"
-                    aria-label="AirPal Star"
+            {/* Body Content */}
+            <div className="px-4">
+              {/* Avatar and Handle Row */}
+              <div className="flex items-end justify-between -mt-9">
+                <div className="relative">
+                  <div
+                    className={cn(
+                      "relative z-10 h-20 w-20 overflow-hidden rounded-full ring-3 shadow-md transition-all",
+                      statusInfo.ringClass,
+                    )}
+                    style={{ backgroundColor: screenCardBg }}
                   >
-                    <Star size={11} className="fill-amber-400 text-amber-500" aria-hidden="true" />
-                  </span>
-                ) : (
+                    {avatar ? (
+                      <Photo src={avatar} className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="grid h-full w-full place-items-center bg-neutral-900 font-display text-xl font-bold text-white">
+                        {(name || "A")[0]}
+                      </span>
+                    )}
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 z-20">
+                    <BioKindIcon kind={activeProfile.kind} className="h-5 w-5 shadow-xs ring-1 ring-black/10" />
+                  </div>
+                </div>
+
+                <div className="mb-0.5">
+                  <BioHandleButton handle={activeProfile.handle} />
+                </div>
+              </div>
+
+              {/* Title, Category & Handle */}
+              <div className="mt-2.5 text-left">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h3
+                    className="font-display text-lg font-bold tracking-tight truncate max-w-[190px]"
+                    style={{ color: screenInk }}
+                  >
+                    {name || "Your Name"}
+                  </h3>
+                  {categoryTag &&
+                    (categoryTag.trim().toLowerCase() === "airpal mate" ||
+                    categoryTag.trim().toLowerCase() === "airpal star" ? (
+                      <span
+                        className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/30"
+                        title="AirPal Star"
+                        aria-label="AirPal Star"
+                      >
+                        <Star size={11} className="fill-amber-400 text-amber-500" aria-hidden="true" />
+                      </span>
+                    ) : (
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+                          isBusiness ? "bg-amber-500/15 text-amber-500" : "bg-brand/10 text-brand",
+                        )}
+                      >
+                        {categoryTag}
+                      </span>
+                    ))}
+                </div>
+
+                <p className="text-[11px] font-medium mt-0.5" style={{ color: screenMute }}>
+                  @{activeProfile.handle}
+                  {pronouns && ` · ${pronouns}`}
+                </p>
+
+                {/* Live Availability Status Badge */}
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   <span
                     className={cn(
-                      "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
-                      isBusiness ? "bg-amber-500/15 text-amber-800 dark:text-amber-300" : "bg-brand/10 text-accent",
+                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border",
+                      statusInfo.badgeBg,
+                      statusInfo.textColor,
                     )}
                   >
-                    {categoryTag}
+                    <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", statusInfo.dotColor)} />
+                    <span>{statusInfo.label}</span>
+                    {customStatus && (
+                      <>
+                        <span className="opacity-40">·</span>
+                        <span className="font-normal truncate max-w-[120px]">
+                          {customStatusEmoji} {customStatus}
+                        </span>
+                      </>
+                    )}
                   </span>
-                ))}
-            </div>
-
-            <p className="text-[11px] font-medium text-mute mt-0.5">
-              @{activeProfile.handle}
-              {pronouns && ` · ${pronouns}`}
-            </p>
-
-            {/* Live Availability Status Badge */}
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border",
-                  statusInfo.badgeBg,
-                  statusInfo.textColor,
-                )}
-              >
-                <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", statusInfo.dotColor)} />
-                <span>{statusInfo.label}</span>
-                {customStatus && (
-                  <>
-                    <span className="opacity-40">·</span>
-                    <span className="font-normal text-ink/90 truncate max-w-[120px]">
-                      {customStatusEmoji} {customStatus}
+                  {hours && (
+                    <span className="text-[10px] font-medium truncate max-w-[110px]" style={{ color: screenMute }}>
+                      · {hours}
                     </span>
-                  </>
-                )}
-              </span>
-              {hours && <span className="text-[10px] text-mute font-medium truncate max-w-[110px]">· {hours}</span>}
-            </div>
-
-            {/* Location & Languages */}
-            {(city || languages) && (
-              <p className="mt-1.5 inline-flex flex-wrap items-center gap-1 text-[11px] text-mute font-medium">
-                {city && (
-                  <>
-                    <MapPin size={11} className="text-accent shrink-0" />
-                    <span className="truncate max-w-[120px]">{city}</span>
-                  </>
-                )}
-                {city && languages && <span>·</span>}
-                {languages && <span className="truncate max-w-[120px]">{languages}</span>}
-              </p>
-            )}
-
-            {/* Tagline */}
-            {shortWhy && <p className="mt-1.5 text-[11px] leading-relaxed text-ink/85 font-normal">{shortWhy}</p>}
-
-            {/* About Story Box */}
-            {aboutText && (
-              <div className="mt-2 rounded-xl bg-card p-2.5 text-[11px] leading-relaxed text-ink/80 border border-line/70 shadow-2xs">
-                <p className="font-semibold text-[9px] uppercase tracking-wider text-mute mb-0.5">
-                  {isBusiness ? "About Venue" : "About Story"}
-                </p>
-                <p className="whitespace-pre-line line-clamp-3">{aboutText}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Primary Action Button */}
-          <div className="mt-3">
-            <button
-              type="button"
-              className={cn(
-                "flex h-9 w-full items-center justify-center gap-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-white shadow-xs transition",
-                isBusiness ? "bg-amber-600 hover:bg-amber-700" : "bg-brand hover:bg-brand-ink",
-              )}
-            >
-              {isBusiness ? <Building2 size={13} /> : <HeartHandshake size={13} />}
-              <span className="truncate">{primaryCta || (isBusiness ? "Order Online" : "Catch Up")}</span>
-            </button>
-          </div>
-
-          {/* Quick Action Row */}
-          <div className="mt-2 grid grid-cols-3 gap-1">
-            <div className="flex h-8 items-center justify-center gap-1 rounded-full bg-card border border-line text-[10px] font-medium text-ink">
-              <Globe size={11} className="text-sky-600" />
-              <span>Website</span>
-            </div>
-            <div className="flex h-8 items-center justify-center gap-1 rounded-full bg-card border border-line text-[10px] font-medium text-ink">
-              <MessageCircle size={11} className="text-emerald-600" />
-              <span>WhatsApp</span>
-            </div>
-            <div className="flex h-8 items-center justify-center gap-1 rounded-full bg-card border border-line text-[10px] font-medium text-ink">
-              <Phone size={11} className="text-amber-600" />
-              <span>Call</span>
-            </div>
-          </div>
-
-          {/* Deals / Special Highlight */}
-          {deals.length > 0 && (
-            <div className="mt-3 rounded-xl bg-gradient-to-br from-paper to-card p-2.5 border border-gold/30">
-              <div className="flex items-center justify-between">
-                <span className="text-[9px] font-bold uppercase tracking-wider text-accent flex items-center gap-1">
-                  <Sparkles size={10} /> Offer
-                </span>
-                <span className="text-[9px] text-mute">{deals[0].badge || "Offer"}</span>
-              </div>
-              <p className="mt-0.5 font-semibold text-[11px] text-ink truncate">{deals[0].title}</p>
-            </div>
-          )}
-
-          {/* Bio Links stack */}
-          {links.length > 0 && (
-            <div className="mt-3 space-y-1">
-              <p className="text-[9px] font-semibold uppercase tracking-wider text-mute">
-                {isBusiness ? "Place Links" : "Links"} ({links.length})
-              </p>
-              {links.slice(0, 3).map((l) => (
-                <div
-                  key={l.id}
-                  className="flex h-8 items-center justify-between rounded-lg bg-card px-2.5 text-[10px] font-medium text-ink border border-line/60"
-                >
-                  <span className="truncate">{l.label}</span>
-                  <ExternalLink size={10} className="text-mute shrink-0" />
+                  )}
                 </div>
-              ))}
-              {links.length > 3 && (
-                <p className="text-[9px] text-center text-mute font-medium">+ {links.length - 3} more links</p>
+
+                {/* Location & Languages */}
+                {(city || languages) && (
+                  <p
+                    className="mt-1.5 inline-flex flex-wrap items-center gap-1 text-[11px] font-medium"
+                    style={{ color: screenMute }}
+                  >
+                    {city && (
+                      <>
+                        <MapPin size={11} className="text-brand shrink-0" />
+                        <span className="truncate max-w-[120px]">{city}</span>
+                      </>
+                    )}
+                    {city && languages && <span>·</span>}
+                    {languages && <span className="truncate max-w-[120px]">{languages}</span>}
+                  </p>
+                )}
+
+                {/* Tagline */}
+                {shortWhy && (
+                  <p className="mt-1.5 text-[11px] leading-relaxed font-normal" style={{ color: screenInk }}>
+                    {shortWhy}
+                  </p>
+                )}
+
+                {/* About Story Box */}
+                {aboutText && (
+                  <div
+                    className="mt-2 rounded-xl p-2.5 text-[11px] leading-relaxed border shadow-2xs"
+                    style={{
+                      backgroundColor: screenCardBg,
+                      borderColor: screenBorder,
+                      color: screenInk,
+                    }}
+                  >
+                    <p
+                      className="font-semibold text-[9px] uppercase tracking-wider mb-0.5"
+                      style={{ color: screenMute }}
+                    >
+                      {isBusiness ? "About Venue" : "About Story"}
+                    </p>
+                    <p className="whitespace-pre-line line-clamp-3">{aboutText}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Primary Action Button styled with active theme */}
+              <div className="mt-3">
+                <button
+                  type="button"
+                  style={{
+                    backgroundColor: activeTheme.buttonBg,
+                    color: activeTheme.buttonText,
+                    borderRadius: activeTheme.buttonRadius,
+                  }}
+                  className="flex h-10 w-full items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-wider shadow-sm transition active:scale-98"
+                >
+                  {isBusiness ? <Building2 size={13} /> : <HeartHandshake size={13} />}
+                  <span className="truncate">{primaryCta || (isBusiness ? "Order Online" : "Catch Up")}</span>
+                </button>
+              </div>
+
+              {/* Quick Action Row */}
+              <div className="mt-2 grid grid-cols-3 gap-1">
+                <div
+                  className="flex h-8 items-center justify-center gap-1 rounded-full border text-[10px] font-medium"
+                  style={{ backgroundColor: screenCardBg, borderColor: screenBorder, color: screenInk }}
+                >
+                  <Globe size={11} className="text-sky-500" />
+                  <span>Website</span>
+                </div>
+                <div
+                  className="flex h-8 items-center justify-center gap-1 rounded-full border text-[10px] font-medium"
+                  style={{ backgroundColor: screenCardBg, borderColor: screenBorder, color: screenInk }}
+                >
+                  <MessageCircle size={11} className="text-emerald-500" />
+                  <span>WhatsApp</span>
+                </div>
+                <div
+                  className="flex h-8 items-center justify-center gap-1 rounded-full border text-[10px] font-medium"
+                  style={{ backgroundColor: screenCardBg, borderColor: screenBorder, color: screenInk }}
+                >
+                  <Phone size={11} className="text-amber-500" />
+                  <span>Call</span>
+                </div>
+              </div>
+
+              {/* Deals / Special Highlight */}
+              {deals.length > 0 && (
+                <div
+                  className="mt-3 rounded-2xl p-2.5 border"
+                  style={{ backgroundColor: screenCardBg, borderColor: screenBorder }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-amber-500 flex items-center gap-1">
+                      <Sparkles size={10} /> Offer
+                    </span>
+                    <span className="text-[9px]" style={{ color: screenMute }}>
+                      {deals[0].badge || "Offer"}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 font-semibold text-[11px] truncate" style={{ color: screenInk }}>
+                    {deals[0].title}
+                  </p>
+                </div>
               )}
+
+              {/* Bio Links stack */}
+              {links.length > 0 && (
+                <div className="mt-3 space-y-1">
+                  <p className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: screenMute }}>
+                    {isBusiness ? "Place Links" : "Links"} ({links.length})
+                  </p>
+                  {links.slice(0, 4).map((l) => (
+                    <div
+                      key={l.id}
+                      className="flex h-8 items-center justify-between rounded-xl px-2.5 text-[10px] font-medium border"
+                      style={{
+                        backgroundColor: screenCardBg,
+                        borderColor: screenBorder,
+                        color: screenInk,
+                      }}
+                    >
+                      <span className="truncate">{l.label}</span>
+                      <ExternalLink size={10} className="shrink-0" style={{ color: screenMute }} />
+                    </div>
+                  ))}
+                  {links.length > 4 && (
+                    <p className="text-[9px] text-center font-medium" style={{ color: screenMute }}>
+                      + {links.length - 4} more links
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* iOS Home Indicator Bar */}
+              <div className="pt-4 pb-1">
+                <div className="h-[4px] w-28 rounded-full bg-neutral-400/80 dark:bg-neutral-600/80 mx-auto" />
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-canvas pb-[calc(env(safe-area-inset-bottom,0px)+6rem)]">
@@ -1807,13 +1947,42 @@ export function BioEditPage() {
           <div className="hidden lg:block lg:col-span-5">
             <div className="sticky top-20">
               <div className="flex items-center justify-between mb-3 px-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-mute flex items-center gap-1.5">
-                  <Smartphone size={14} className="text-accent" />
-                  <span>Real-Time Visitor Preview</span>
-                </p>
-                <span className="text-[10px] font-mono font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                  Live Mirror
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-mute flex items-center gap-1.5">
+                    <Smartphone size={14} className="text-accent" />
+                    <span>Live Mirror</span>
+                  </p>
+                  <span className="text-[10px] font-semibold text-mute/80 bg-paper px-2 py-0.5 rounded-full border border-line">
+                    iPhone 16 Pro Max
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void triggerHaptic("selection");
+                      setPreviewThemeMode((m) => (m === "dark" ? "light" : "dark"));
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border border-line bg-card hover:bg-paper text-ink transition active:scale-95 cursor-pointer shadow-xs"
+                    title={`Switch mirror to ${previewThemeMode === "dark" ? "light" : "dark"} mode`}
+                    aria-label={`Switch mirror to ${previewThemeMode === "dark" ? "light" : "dark"} mode`}
+                  >
+                    {previewThemeMode === "dark" ? (
+                      <>
+                        <Sun size={11} className="text-amber-500" />
+                        <span>Light</span>
+                      </>
+                    ) : (
+                      <>
+                        <Moon size={11} className="text-brand" />
+                        <span>Dark</span>
+                      </>
+                    )}
+                  </button>
+                  <span className="text-[10px] font-mono font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    Live
+                  </span>
+                </div>
               </div>
               {renderLivePhoneMockup()}
             </div>
@@ -1834,9 +2003,32 @@ export function BioEditPage() {
             <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-line/80" />
 
             <div className="flex items-center justify-between pb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
-                <Eye size={14} /> Real-Time Live Profile Preview
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
+                  <Eye size={14} /> iPhone 16 Pro Max Mirror
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("selection");
+                    setPreviewThemeMode((m) => (m === "dark" ? "light" : "dark"));
+                  }}
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border border-line bg-card hover:bg-paper text-ink transition active:scale-95 cursor-pointer shadow-xs"
+                  title={`Switch mirror to ${previewThemeMode === "dark" ? "light" : "dark"} mode`}
+                >
+                  {previewThemeMode === "dark" ? (
+                    <>
+                      <Sun size={10} className="text-amber-500" />
+                      <span>Light</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon size={10} className="text-brand" />
+                      <span>Dark</span>
+                    </>
+                  )}
+                </button>
+              </div>
               <button
                 type="button"
                 className="rounded-full p-2 text-mute hover:bg-card hover:text-ink cursor-pointer"
