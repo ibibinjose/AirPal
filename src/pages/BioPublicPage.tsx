@@ -652,7 +652,7 @@ export function BioPublicPage() {
                   </>
                 ) : (
                   <>
-                    <Share2 size={13} className="shrink-0 text-ink/75" />
+                    <Share2 size={13} className="shrink-0 text-ink" />
                     <span className="hidden xs:inline">Share</span>
                   </>
                 )}
@@ -827,7 +827,7 @@ export function BioPublicPage() {
 
             {/* Handle, Location & Subtitle Metadata Strip */}
             <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm font-medium text-mute">
-              <span className="font-bold text-ink/80">@{bio.handle}</span>
+              <span className="font-bold text-ink">@{bio.handle}</span>
               {bio.pronouns && <span>· {bio.pronouns}</span>}
               {bio.city && (
                 <span className="inline-flex items-center gap-1">
@@ -916,9 +916,7 @@ export function BioPublicPage() {
               bio.shortWhy.trim().toLowerCase() !== bio.customStatus?.trim().toLowerCase() &&
               bio.shortWhy.trim().toLowerCase() !==
                 `${bio.customStatusEmoji || ""} ${bio.customStatus || ""}`.trim().toLowerCase() && (
-                <p className="mt-3.5 text-[14px] sm:text-[15px] leading-relaxed text-ink/85 font-normal">
-                  {bio.shortWhy}
-                </p>
+                <p className="mt-3.5 text-[14px] sm:text-[15px] leading-relaxed text-ink font-normal">{bio.shortWhy}</p>
               )}
 
             {/* Extended About Story Card */}
@@ -928,7 +926,7 @@ export function BioPublicPage() {
                 className="mt-4 scroll-mt-24 rounded-[26px] bg-paper/70 p-4 sm:p-5 ring-1 ring-line/80 shadow-2xs"
               >
                 <p className="human-eyebrow mb-1.5">About Story</p>
-                <p className="text-sm sm:text-base leading-relaxed text-ink/80 whitespace-pre-line">{bio.aboutText}</p>
+                <p className="text-sm sm:text-base leading-relaxed text-ink whitespace-pre-line">{bio.aboutText}</p>
               </div>
             )}
           </div>
@@ -995,11 +993,11 @@ export function BioPublicPage() {
                   void triggerHaptic("light");
                   recordTap(bio.handle, "whatsapp");
                 }}
-                className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/30 transition-all duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
+                className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-white ring-1 ring-emerald-500/30 transition-all duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
               >
                 <MessageCircle
                   size={16}
-                  className="text-emerald-600 dark:text-emerald-400 group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
+                  className="text-emerald-600 dark:text-white group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
                 />
                 <span className="truncate">WhatsApp</span>
               </a>
@@ -1012,11 +1010,11 @@ export function BioPublicPage() {
                   void triggerHaptic("light");
                   recordTap(bio.handle, "call");
                 }}
-                className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/30 transition-all duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
+                className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-white ring-1 ring-amber-500/30 transition-all duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
               >
                 <Phone
                   size={16}
-                  className="text-amber-600 dark:text-amber-400 group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
+                  className="text-amber-600 dark:text-white group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
                 />
                 <span className="truncate">Call</span>
               </a>
@@ -1428,7 +1426,7 @@ export function BioPublicPage() {
                                   {item.venue && ` · ${item.venue}`}
                                 </p>
                                 {item.notes && (
-                                  <p className="text-[11px] text-ink/80 italic mt-0.5 truncate">"{item.notes}"</p>
+                                  <p className="text-[11px] text-ink italic mt-0.5 truncate">"{item.notes}"</p>
                                 )}
                               </div>
                             </div>
@@ -2144,8 +2142,8 @@ export function BioPublicPage() {
           ) : (
             <Copy size={13} className="shrink-0 text-mute group-hover:text-ink transition" />
           )}
-          <span className="font-semibold text-ink/90">airpal.me/@{bio.handle}</span>
-          <span className="text-[11px] font-sans text-mute/80 group-hover:text-accent transition">
+          <span className="font-semibold text-ink">airpal.me/@{bio.handle}</span>
+          <span className="text-[11px] font-sans text-mute group-hover:text-accent transition">
             {copiedLink ? "Copied" : "Copy"}
           </span>
         </button>
