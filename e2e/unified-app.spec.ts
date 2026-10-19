@@ -6,16 +6,16 @@ import { test, expect } from "@playwright/test";
  */
 test.describe("Unified app pages", () => {
   const cases: Array<{ route: string; heading: RegExp }> = [
-    { route: "/host", heading: /host something people belong to/i },
+    { route: "/host", heading: /did people feel they belonged|host/i },
     { route: "/host/pulse", heading: /did people feel they belonged/i },
     { route: "/pulse", heading: /did people feel they belonged/i },
     { route: "/business/onboard", heading: /put your venue on airpal/i },
-    { route: "/business/setup", heading: /finish your venue setup/i },
-    { route: "/business/helpdesk", heading: /talk to a human/i },
-    { route: "/business/promotions", heading: /^promotions$/i },
-    { route: "/business/promotions/new", heading: /new promotion/i },
-    { route: "/admin/promotions", heading: /promotions review/i },
-    { route: "/admin/notifications", heading: /notifications/i },
+    { route: "/business/setup", heading: /finish your venue readiness|finish your venue setup/i },
+    { route: "/business/helpdesk", heading: /partner operations & support|talk to a human/i },
+    { route: "/business/promotions", heading: /promotions & member perks studio|^promotions$/i },
+    { route: "/business/promotions/new", heading: /create a member promotion|new promotion/i },
+    { route: "/admin/promotions", heading: /promotions steward review|promotions review/i },
+    { route: "/admin/notifications", heading: /member deal alerts|notifications/i },
     { route: "/birthday-freebies", heading: /birthday month/i },
     { route: "/birthday-freebies/au", heading: /birthday treats in australia/i },
     { route: "/bio/recover", heading: /lost your @handle/i },

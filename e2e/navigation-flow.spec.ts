@@ -29,7 +29,7 @@ test.describe("Global Navigation & Profile Flow", () => {
     const header = page.locator("header.hidden.lg\\:block");
     await expect(header).toBeVisible();
 
-    await header.getByRole("button", { name: "Communities" }).click();
+    await header.getByRole("button", { name: "Explore" }).click();
     await expect(page).toHaveURL(/\/events/);
 
     await header.getByRole("button", { name: "Me", exact: true }).click();
