@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit",
     "functions:typecheck": "npm --prefix functions run typecheck",
     "test": "vitest run",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-rules-test \"npx vitest run functions/src/rules.test.ts\"",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:pass": "playwright test --config=playwright.pass.config.ts",
@@ -75,6 +76,7 @@
   "devDependencies": {
     "@capacitor/cli": "^8.5.2",
     "@eslint/js": "^9.39.5",
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/node": "^24.7.0",

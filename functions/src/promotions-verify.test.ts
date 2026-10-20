@@ -113,10 +113,7 @@ vi.mock("./notifications", () => ({
 }));
 
 vi.mock("./analytics", () => ({
-  writeAuthoritativeEvent: async (input: {
-    eventName: string;
-    properties: Record<string, unknown>;
-  }) => {
+  writeAuthoritativeEvent: async (input: { eventName: string; properties: Record<string, unknown> }) => {
     ledger.push({ eventName: input.eventName, properties: input.properties });
   },
 }));
@@ -130,11 +127,7 @@ vi.mock("firebase-functions/v2/scheduler", () => ({
   onSchedule: vi.fn(() => () => undefined),
 }));
 
-import {
-  consumePromotionRedemption,
-  redeemPoints,
-  verifyPromotionRedemption,
-} from "./promotions";
+import { consumePromotionRedemption, redeemPoints, verifyPromotionRedemption } from "./promotions";
 
 type Handler = (request: unknown) => Promise<Record<string, unknown>>;
 

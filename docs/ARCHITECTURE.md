@@ -65,4 +65,5 @@ requires a composite index entry (`firestore.indexes.json`); the
    service-account JSON) stays on signing machines, never in git.
 4. `npm run secrets:check` scans tracked files; `npm run verify` runs it
    plus format, types, lint, both unit suites, both builds, rules, v3,
-   SEO, and prod-readiness.
+   SEO, and prod-readiness. Live rules behaviour is covered separately by
+   `npm run test:rules` (emulator-backed suite, skipped by default gates).

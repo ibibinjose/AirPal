@@ -203,8 +203,8 @@ This single command executes and enforces:
 2. `npm run typecheck` — TypeScript strict typecheck on the client app.
 3. `npm run functions:typecheck` — TypeScript strict typecheck on Cloud Functions.
 4. `npm run lint` — ESLint rules with zero errors and zero warnings.
-5. `npm test` — Vitest client and shared unit test suite (>1,100 tests).
-6. `npm run functions:test` — Vitest Cloud Functions unit test suite (>180 tests).
+5. `npm test` — Vitest client and shared unit test suite (>1,110 tests).
+6. `npm run functions:test` — Vitest Cloud Functions unit test suite (>200 tests).
 7. `npm run build` — Production Vite build and route prerender.
 8. `npm run functions:build` — esbuild bundling for Cloud Functions.
 9. `npm run rules:check` — Security rules consistency and composite index check.
@@ -212,6 +212,7 @@ This single command executes and enforces:
 11. `npm run secrets:check` — Secret scanner ensuring no tokens or `.env` leak.
 12. `npm run seo:check` — Route integrity check across sitemap and prerender paths.
 13. `npm run check:prod` — Production & App Store readiness (secrets manifest, listings, icons, native files).
+14. `npm run test:rules` — Firestore rules regression suite (`functions/src/rules.test.ts`) against the local emulator (skipped by default gates, so they stay hermetic).
 
 After any web build, sync native mobile containers:
 

@@ -14,7 +14,8 @@ All major structural, architectural, and security changes made during the Rebuil
 - **Rules hardening (`firestore.rules`):** organiser/listing ownership immutable via edit, blocks pin `blockerUid`, split booking rights (guests cancel-only) with `cancelReason` cap, shaped safety-report creates, catchup party pin + status allowlist, trips owner/admin-only, secret-bearing keys blocked on public property docs.
 - **Client correctness & a11y:** TicketPage staff gate, ScanPage ticket-id validation, RFC 5545 ICS folding + unique UIDs, vCard `PHOTO;VALUE=URI`, live follower counters, 44px touch targets, CalendarEventModal haptics, `Sheet` focus trap + restore, GuestlistPage capacity guard, Sold-out states.
 - **Docs canon sync:** `docs/AIRPAL.md` (rails, gates incl. `check:prod`, corrected Part J matrix), route fixes (`/me/tickets`, `/e/:id/guests`, live `/join` + `/host`), V3 build doc (32 callables, 4 test files), store sandbox note, runbook webhook list.
-- **Gates:** 1,103 client tests + 184 functions tests passing; full `npm run verify` green.
+- **Gates:** 1,114 client tests + 195 functions tests passing (incl. new verify/consume, redeem-idempotency, and staff-PIN redeem gap suites); full `npm run verify` green.
+- **Gap closure (2026-10-20):** `claimDeal` creation/idempotency, `createEventBooking` transaction (pricing, group normalisation, oversell + pending-hold rejection), and a 16-case Firestore rules emulator suite (`npm run test:rules`, skipped by hermetic default gates) — 1,122 client + 203 functions tests passing, rules suite 16/16.
 
 ## Release 2.1.0 — 2026-10-19 (Brand Flow, Liquid Glass & Communications Engine)
 
