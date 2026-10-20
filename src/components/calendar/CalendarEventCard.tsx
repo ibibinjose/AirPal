@@ -5,6 +5,7 @@ import {
   Star,
   MapPin,
   CalendarPlus,
+  CalendarDays,
   Share2,
   ExternalLink,
   Sparkles,
@@ -12,6 +13,10 @@ import {
   GripVertical,
   Clock,
   RotateCcw,
+  Globe,
+  Apple,
+  Mail,
+  Briefcase,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -187,7 +192,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
     >
       {/* Top Banner / Image — laneway fallback when the event has no art */}
       {!compact && (
-        <div className="relative mb-3.5 aspect-square w-full overflow-hidden rounded-2xl bg-paper/60">
+        <div className="relative mb-3.5 aspect-[16/10] w-full overflow-hidden rounded-2xl bg-paper/60">
           {/* Loading placeholder */}
           {!imageLoaded && !imageError && (
             <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-paper via-line/30 to-paper" />
@@ -276,7 +281,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                     void resetEventSchedule(event.id);
                     toast.info(`Restored "${event.title}" to original date`);
                   }}
-                  className="ml-0.5 underline hover:text-ink font-extrabold"
+                  className="relative ml-0.5 underline hover:text-ink font-extrabold after:absolute after:-inset-2 after:content-['']"
                   title="Restore original date"
                 >
                   Reset
@@ -359,7 +364,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                       void resetEventSchedule(event.id);
                       toast.info(`Restored "${event.title}" to original date`);
                     }}
-                    className="ml-0.5 underline font-bold hover:text-ink cursor-pointer"
+                    className="relative ml-0.5 underline font-bold hover:text-ink cursor-pointer after:absolute after:-inset-2 after:content-['']"
                     title="Restore original date"
                   >
                     Reset
@@ -386,7 +391,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
             <button
               type="button"
               onClick={openDirections}
-              className="flex items-center gap-1.5 hover:text-ink transition-colors text-left"
+              className="flex items-center gap-1.5 hover:text-ink transition-colors text-left -my-2 py-2"
             >
               <MapPin size={14} className="shrink-0 text-accent" />
               <span className="line-clamp-1">{event.venue}</span>
@@ -418,7 +423,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                 className={cn(
                   "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium transition",
                   onSelectTag
-                    ? "bg-paper text-mute hover:bg-card hover:text-ink ring-1 ring-line/70 cursor-pointer active:scale-95"
+                    ? "relative bg-paper text-mute hover:bg-card hover:text-ink ring-1 ring-line/70 cursor-pointer active:scale-95 after:absolute after:-inset-2 after:content-['']"
                     : "bg-paper text-mute ring-1 ring-line/50",
                 )}
                 title={`Filter events by #${tag}`}
@@ -454,7 +459,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               aria-pressed={event.isGoing}
               title={event.isGoing ? "You are going" : "Mark as Going"}
               className={cn(
-                "inline-flex min-h-[40px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition active:scale-95",
+                "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition active:scale-95",
                 event.isGoing
                   ? "bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-700 font-semibold"
                   : "bg-paper text-ink/80 hover:bg-emerald-50 hover:text-emerald-800 ring-1 ring-line/80",
@@ -471,7 +476,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               aria-pressed={event.isInterested}
               title={event.isInterested ? "You are interested" : "Mark as Interested"}
               className={cn(
-                "inline-flex min-h-[40px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition active:scale-95",
+                "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition active:scale-95",
                 event.isInterested
                   ? "bg-amber-500 text-white shadow-sm ring-1 ring-amber-600 font-semibold"
                   : "bg-paper text-ink/80 hover:bg-amber-50 hover:text-amber-800 ring-1 ring-line/80",
@@ -492,7 +497,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               aria-pressed={event.isLiked}
               title={event.isLiked ? "Liked" : "Like event"}
               className={cn(
-                "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition active:scale-95",
+                "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition active:scale-95",
                 event.isLiked
                   ? "bg-rose-500 text-white shadow-sm ring-1 ring-rose-600"
                   : "bg-paper text-ink/70 hover:bg-rose-50 hover:text-rose-600 ring-1 ring-line/80",
@@ -514,7 +519,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                 }}
                 title="Add to calendar"
                 aria-label="Add to calendar"
-                className="inline-flex h-10 w-10 touch-manipulation items-center justify-center rounded-full text-mute hover:bg-paper hover:text-ink transition cursor-pointer"
+                className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full text-mute hover:bg-paper hover:text-ink transition cursor-pointer"
               >
                 <CalendarPlus size={15} />
               </button>
@@ -542,9 +547,9 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                         window.open(getGoogleCalendarUrl(event), "_blank", "noopener,noreferrer");
                         setShowExportMenu(false);
                       }}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
+                      className="flex min-h-[44px] w-full items-center gap-2.5 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
                     >
-                      <span className="text-sm">🌐</span>
+                      <Globe size={15} className="shrink-0 text-mute" aria-hidden="true" />
                       <span>Google Calendar</span>
                     </button>
                     <button
@@ -554,9 +559,9 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                         setShowExportMenu(false);
                         toast.success("Downloaded event (.ics)");
                       }}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
+                      className="flex min-h-[44px] w-full items-center gap-2.5 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
                     >
-                      <span className="text-sm">🍎</span>
+                      <Apple size={15} className="shrink-0 text-mute" aria-hidden="true" />
                       <span>Apple Calendar (.ics)</span>
                     </button>
                     <button
@@ -565,9 +570,9 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                         window.open(getOutlookLiveCalendarUrl(event), "_blank", "noopener,noreferrer");
                         setShowExportMenu(false);
                       }}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
+                      className="flex min-h-[44px] w-full items-center gap-2.5 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
                     >
-                      <span className="text-sm">🟦</span>
+                      <Mail size={15} className="shrink-0 text-mute" aria-hidden="true" />
                       <span>Outlook (Live)</span>
                     </button>
                     <button
@@ -576,9 +581,9 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                         window.open(getOffice365CalendarUrl(event), "_blank", "noopener,noreferrer");
                         setShowExportMenu(false);
                       }}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
+                      className="flex min-h-[44px] w-full items-center gap-2.5 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
                     >
-                      <span className="text-sm">💼</span>
+                      <Briefcase size={15} className="shrink-0 text-mute" aria-hidden="true" />
                       <span>Microsoft 365</span>
                     </button>
                     <button
@@ -587,9 +592,9 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                         window.open(getYahooCalendarUrl(event), "_blank", "noopener,noreferrer");
                         setShowExportMenu(false);
                       }}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
+                      className="flex min-h-[44px] w-full items-center gap-2.5 rounded-xl px-3 py-1.5 text-left text-xs font-medium text-ink hover:bg-paper"
                     >
-                      <span className="text-sm">🟣</span>
+                      <CalendarDays size={15} className="shrink-0 text-mute" aria-hidden="true" />
                       <span>Yahoo Calendar</span>
                     </button>
                     {(event.isGoing || event.isInterested) && (
@@ -599,7 +604,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                           setShowExportMenu(false);
                           exportItinerary("all-saved");
                         }}
-                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-accent hover:bg-brand/5 border-t border-line/60 mt-1"
+                        className="flex min-h-[44px] w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-accent hover:bg-brand/5 border-t border-line/60 mt-1"
                       >
                         <Sparkles size={13} />
                         <span>Export Full Itinerary (.ics)</span>
@@ -619,7 +624,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               }}
               title="Reschedule event"
               aria-label="Reschedule event"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-amber-50 hover:text-amber-800 transition"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:bg-amber-50 hover:text-amber-800 transition"
             >
               <Clock size={14} />
             </button>
@@ -645,7 +650,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               type="button"
               onClick={handleShare}
               title="Share event"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-paper hover:text-ink transition"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:bg-paper hover:text-ink transition"
             >
               <Share2 size={14} />
             </button>
@@ -659,7 +664,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                   nav(event.gatePath!);
                 }}
                 title="View market stalls & expo directory"
-                className="inline-flex min-h-[40px] items-center gap-1 whitespace-nowrap rounded-full bg-brand px-3 text-xs font-medium text-white hover:bg-brand-ink transition shadow-xs"
+                className="inline-flex min-h-[44px] items-center gap-1 whitespace-nowrap rounded-full bg-brand px-3 text-xs font-medium text-white hover:bg-brand-ink transition shadow-xs"
               >
                 <span>Stalls</span>
                 <ExternalLink size={11} className="shrink-0" />

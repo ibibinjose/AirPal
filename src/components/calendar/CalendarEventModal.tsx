@@ -226,7 +226,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
                   void resetEventSchedule(event.id);
                   toast.info(`Restored "${event.title}" to original schedule`);
                 }}
-                className="inline-flex items-center gap-1 font-semibold text-amber-900 hover:underline active:scale-95"
+                className="relative inline-flex min-h-[44px] items-center gap-1 font-semibold text-amber-900 hover:underline active:scale-95"
               >
                 <RotateCcw size={11} />
                 <span>Reset</span>

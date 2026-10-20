@@ -9,9 +9,11 @@ import {
   Martini,
   Music,
   Plus,
+  Search,
   Sparkles,
   Ticket,
   Tent,
+  X,
 } from "lucide-react";
 import { useEvents } from "@/contexts/EventsContext";
 import { useLocalNow } from "@/contexts/LocalNowContext";
@@ -276,50 +278,61 @@ export function EventsPage() {
 
               {/* City Dropdown Menu */}
               {cityMenuOpen && (
-                <div
-                  className="absolute left-0 top-full z-30 mt-2 w-64 rounded-3xl bg-card/95 p-2 shadow-2xl ring-1 ring-line/80 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150"
-                  role="menu"
-                >
-                  <p className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-ink/70 dark:text-ink/65">
-                    Choose Destination
-                  </p>
-                  <div className="max-h-60 overflow-y-auto space-y-1">
-                    {CITY_OPTIONS.map((c) => {
-                      const selected = cityMatches(c.label, effectiveCity);
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          role="menuitem"
-                          onClick={() => {
-                            void triggerHapticSelection();
-                            chooseLocation({ mode: "city", city: c.label, lat: c.lat, lng: c.lng });
-                            setCityMenuOpen(false);
-                          }}
-                          className={cn(
-                            "flex w-full min-h-[44px] items-center justify-between rounded-xl px-3 py-2 text-xs transition active:scale-[0.98] cursor-pointer",
-                            selected
-                              ? "bg-brand text-white font-bold shadow-xs"
-                              : "text-ink font-semibold hover:bg-paper/80",
-                          )}
-                        >
-                          <span className="flex items-center gap-2">
-                            <MapPin size={13} className="shrink-0" aria-hidden />
-                            <span>{c.label}</span>
-                          </span>
-                          <span
+                <>
+                  <button
+                    type="button"
+                    aria-label="Close city menu"
+                    onClick={() => setCityMenuOpen(false)}
+                    className="fixed inset-0 z-20 cursor-default"
+                  />
+                  <div
+                    className="absolute left-0 top-full z-30 mt-2 w-64 rounded-3xl bg-card/95 p-2 shadow-2xl ring-1 ring-line/80 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150"
+                    role="menu"
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setCityMenuOpen(false);
+                    }}
+                  >
+                    <p className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-ink/70 dark:text-ink/65">
+                      Choose Destination
+                    </p>
+                    <div className="max-h-60 overflow-y-auto space-y-1">
+                      {CITY_OPTIONS.map((c) => {
+                        const selected = cityMatches(c.label, effectiveCity);
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              void triggerHapticSelection();
+                              chooseLocation({ mode: "city", city: c.label, lat: c.lat, lng: c.lng });
+                              setCityMenuOpen(false);
+                            }}
                             className={cn(
-                              "text-[10px] font-medium",
-                              selected ? "text-white/90" : "text-ink/65 dark:text-ink/60",
+                              "flex w-full min-h-[44px] items-center justify-between rounded-xl px-3 py-2 text-xs transition active:scale-[0.98] cursor-pointer",
+                              selected
+                                ? "bg-brand text-white font-bold shadow-xs"
+                                : "text-ink font-semibold hover:bg-paper/80",
                             )}
                           >
-                            {c.region}
-                          </span>
-                        </button>
-                      );
-                    })}
+                            <span className="flex items-center gap-2">
+                              <MapPin size={13} className="shrink-0" aria-hidden />
+                              <span>{c.label}</span>
+                            </span>
+                            <span
+                              className={cn(
+                                "text-[10px] font-medium",
+                                selected ? "text-white/90" : "text-ink/65 dark:text-ink/60",
+                              )}
+                            >
+                              {c.region}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
           </div>
@@ -362,20 +375,65 @@ export function EventsPage() {
         onChange={setCategory}
       />
 
-      {/* Secondary Filter & Search Bar */}
-      <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Search Bar */}
+      <div className="relative mt-4">
+        <Search
+          size={16}
+          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-mute"
+          aria-hidden="true"
+        />
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={`Search events, venues in ${effectiveCity}…`}
+          aria-label="Search events"
+          enterKeyHint="search"
+          className="min-h-[44px] w-full rounded-full bg-card py-2.5 pl-11 pr-11 text-sm text-ink shadow-xs ring-1 ring-line placeholder:text-mute focus:outline-none focus:ring-2 focus:ring-brand"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            aria-label="Clear search"
+            className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-mute transition hover:bg-paper hover:text-ink"
+          >
+            <X size={15} aria-hidden="true" />
+          </button>
+        )}
+      </div>
+
+      {/* Secondary Filter Bar */}
+      <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Date Ranges */}
         <FilterChips ariaLabel="Date ranges" options={DATE_RANGES} value={dateRange} onChange={setDateRange} />
       </div>
+
+      {/* Result count */}
+      {visible.length > 0 && (
+        <p className="mt-4 text-xs font-semibold text-mute" role="status" aria-live="polite">
+          {visible.length} {visible.length === 1 ? "event" : "events"}
+          {query.trim() && (
+            <>
+              {" "}
+              for <span className="text-ink">“{query.trim()}”</span>
+            </>
+          )}
+          {category !== "all" && <> · {CATEGORIES.find((c) => c.id === category)?.label}</>}
+          {dateRange !== "all" && <> · {DATE_RANGES.find((d) => d.id === dateRange)?.label}</>}
+        </p>
+      )}
 
       {/* Event Results Section */}
       {visible.length === 0 ? (
         <div className="human-card mt-6 p-10 text-center">
           <Ticket size={36} className="mx-auto text-mute" aria-hidden="true" />
-          <p className="human-section-title mt-3 text-lg">No events match these filters</p>
+          <p className="human-section-title mt-3 text-lg">
+            {query.trim() ? `No results for “${query.trim()}”` : "No events match these filters"}
+          </p>
           <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
-            Nothing live in {effectiveCity} for this combination yet. Try resetting the filters — or host your own
-            gathering.
+            Nothing live in {effectiveCity} for this combination yet. Try a different search or reset the filters — or
+            host your own gathering.
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
             <button
