@@ -126,7 +126,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <LocalNowBar />
             {workspace ? (
               <header className="overflow-visible border-b border-white/10 bg-brand">
-                <div className="mx-auto flex h-14 sm:h-[56px] max-w-6xl items-center justify-between app-page-gutter md:px-6">
+                <div className="mx-auto flex h-12 max-w-6xl items-center justify-between app-page-gutter md:px-6">
                   <div className="flex items-center gap-2 min-w-0 shrink-0">
                     <Link href={homePath} className="flex items-center min-w-0 py-1">
                       <BrandMark compact={false} invert />
@@ -139,17 +139,17 @@ export function AppShell({ children }: { children: ReactNode }) {
                         void triggerHaptic("medium");
                         openGlobalCreate();
                       }}
-                      className="relative grid h-9.5 w-9.5 sm:h-10 sm:w-10 min-h-[38px] min-w-[38px] shrink-0 touch-manipulation place-items-center rounded-full bg-white text-[#004eff] hover:bg-white/95 ring-1 ring-white/60 shadow-[0_4px_14px_-3px_rgba(0,0,0,0.35)] transition-transform active:scale-95 cursor-pointer after:absolute after:-inset-1.5 after:content-['']"
+                      className="relative grid h-8.5 w-8.5 sm:h-9 sm:w-9 min-h-[34px] min-w-[34px] shrink-0 touch-manipulation place-items-center rounded-full bg-white text-[#004eff] hover:bg-white/95 ring-1 ring-white/60 shadow-[0_3px_10px_-2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 cursor-pointer after:absolute after:-inset-1.5 after:content-['']"
                       aria-label="Create something new"
                       title="Create (+)"
                     >
-                      <Plus size={19} strokeWidth={2.85} className="text-[#004eff] shrink-0" />
+                      <Plus size={18} strokeWidth={2.85} className="text-[#004eff] shrink-0" />
                     </button>
                     <Link
                       href="/"
                       aria-current={path === "/" ? "page" : undefined}
                       className={cn(
-                        "hidden md:inline-flex h-9 sm:h-9.5 min-h-[36px] touch-manipulation items-center rounded-full px-4 text-sm font-semibold",
+                        "hidden md:inline-flex h-8 sm:h-8.5 min-h-[32px] sm:min-h-[34px] touch-manipulation items-center rounded-full px-3.5 text-xs sm:text-sm font-semibold",
                         path === "/" ? "bg-white text-brand" : "text-white/80 hover:bg-white/15 hover:text-white",
                       )}
                     >
@@ -165,7 +165,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <TopNav path={path} enter={play} />
                 <motion.div
                   {...chrome}
-                  className="flex h-14 sm:h-[56px] items-center justify-between bg-brand app-page-gutter lg:hidden transition-colors border-b border-white/10"
+                  className="flex h-12 items-center justify-between bg-brand app-page-gutter lg:hidden transition-colors border-b border-white/10"
                 >
                   <div className="flex items-center gap-2 min-w-0 shrink-0">
                     <Link href={homePath} className="flex items-center min-w-0 py-1" aria-label="AirPal Home">
@@ -179,11 +179,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                         void triggerHaptic("medium");
                         openGlobalCreate();
                       }}
-                      className="relative grid h-9.5 w-9.5 sm:h-10 sm:w-10 min-h-[38px] min-w-[38px] shrink-0 touch-manipulation place-items-center rounded-full bg-white text-[#004eff] hover:bg-white/95 ring-1 ring-white/60 shadow-[0_4px_14px_-3px_rgba(0,0,0,0.35)] transition-transform active:scale-95 cursor-pointer after:absolute after:-inset-1.5 after:content-['']"
+                      className="relative grid h-8.5 w-8.5 sm:h-9 sm:w-9 min-h-[34px] min-w-[34px] shrink-0 touch-manipulation place-items-center rounded-full bg-white text-[#004eff] hover:bg-white/95 ring-1 ring-white/60 shadow-[0_3px_10px_-2px_rgba(0,0,0,0.35)] transition-transform active:scale-95 cursor-pointer after:absolute after:-inset-1.5 after:content-['']"
                       aria-label="Create something new"
                       title="Create (+)"
                     >
-                      <Plus size={19} strokeWidth={2.85} className="text-[#004eff] shrink-0" />
+                      <Plus size={18} strokeWidth={2.85} className="text-[#004eff] shrink-0" />
                     </button>
                     <button
                       type="button"
@@ -191,11 +191,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                         void triggerHaptic("medium");
                         openGlobalSearch();
                       }}
-                      className="relative grid h-9.5 w-9.5 sm:h-10 sm:w-10 min-h-[38px] min-w-[38px] shrink-0 touch-manipulation place-items-center rounded-full text-white bg-white/15 hover:bg-white/25 ring-1 ring-white/35 transition-transform active:scale-95 cursor-pointer after:absolute after:-inset-1.5 after:content-['']"
+                      className="relative grid h-8.5 w-8.5 sm:h-9 sm:w-9 min-h-[34px] min-w-[34px] shrink-0 touch-manipulation place-items-center rounded-full text-white bg-white/15 hover:bg-white/25 ring-1 ring-white/35 transition-transform active:scale-95 cursor-pointer after:absolute after:-inset-1.5 after:content-['']"
                       aria-label="Search"
                       title="Search AirPal (⌘K)"
                     >
-                      <Search size={18} strokeWidth={2.2} className="text-white shrink-0" />
+                      <Search size={17} strokeWidth={2.2} className="text-white shrink-0" />
                     </button>
                     <NotificationBell onBrand />
                     <ProfileMenu />
