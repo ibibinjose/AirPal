@@ -1,4 +1,4 @@
-import { UserCheck, UserPlus } from "lucide-react";
+import { Heart, UserCheck, UserPlus } from "lucide-react";
 import { useSocial } from "@/contexts/SocialContext";
 import { cn } from "@/lib/cn";
 
@@ -37,9 +37,7 @@ export function LikeButton({
         className,
       )}
     >
-      <span aria-hidden="true" className={cn("shrink-0 leading-none", iconOnly ? "text-lg" : "text-sm")}>
-        ❤️
-      </span>
+      <Heart size={iconOnly ? 18 : 14} aria-hidden="true" className={cn("shrink-0", liked && "fill-current")} />
       {!iconOnly && <span className="truncate">{liked ? "Liked" : "Like"}</span>}
     </button>
   );

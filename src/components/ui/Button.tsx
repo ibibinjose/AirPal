@@ -4,17 +4,7 @@ import { triggerHaptic, type HapticStyle } from "@/lib/native";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?:
-    | "primary"
-    | "ghost"
-    | "dark"
-    | "gold"
-    | "light"
-    | "onDark"
-    | "tonal"
-    | "elevated"
-    | "outlined"
-    | "glass"
-    | "destructive";
+    "primary" | "ghost" | "dark" | "gold" | "light" | "onDark" | "tonal" | "elevated" | "outlined" | "destructive";
   size?: "md" | "lg" | "sm";
   loading?: boolean;
   haptic?: HapticStyle | false;
@@ -48,14 +38,13 @@ export function Button({
         variant === "primary" && "bg-brand text-white shadow-[0_10px_24px_-10px_rgba(18,22,20,0.28)]",
         variant === "ghost" && "bg-card text-ink ring-1 ring-line hover:bg-paper",
         variant === "dark" && "bg-brand text-white",
-        variant === "gold" && "bg-gold text-white",
+        variant === "gold" && "badge-gold",
         variant === "light" && "bg-white text-zinc-950 hover:bg-white/90",
         variant === "onDark" && "bg-neutral-900/80 text-white ring-1 ring-white/55 hover:bg-neutral-900",
         variant === "tonal" && "bg-brand/10 text-accent font-semibold hover:bg-brand/15 active:bg-brand/20",
         variant === "elevated" &&
           "bg-card text-ink shadow-clay ring-1 ring-line hover:shadow-clay-hover active:shadow-clay-active",
         variant === "outlined" && "bg-transparent text-ink border border-line hover:bg-black/[0.04]",
-        variant === "glass" && "apple-liquid-glass-light text-ink ring-1 ring-white/60 hover:ring-brand/40 shadow-xs",
         variant === "destructive" &&
           "bg-red-500/10 text-red-600 ring-1 ring-red-500/25 hover:bg-red-500/20 font-semibold dark:text-red-400",
         className,

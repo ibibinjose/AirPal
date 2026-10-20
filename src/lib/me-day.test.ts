@@ -72,4 +72,15 @@ describe("me day filters", () => {
     expect(upcomingTickets(tickets, TODAY).map((t) => t.id)).toEqual(["t1"]);
     expect(upcomingTickets(undefined, TODAY)).toEqual([]);
   });
+
+  it("keeps reminder-only bookmarks out of every appointment list", () => {
+    const items = [
+      catchUp({ id: "rem", status: "pending", isReminderOnly: true }),
+      catchUp({ id: "rem-today", status: "pending", isReminderOnly: true, date: TODAY }),
+      catchUp({ id: "p", status: "pending" }),
+    ];
+    expect(pendingAppointments(items).map((i) => i.id)).toEqual(["p"]);
+    expect(todayAppointments(items, TODAY).map((i) => i.id)).toEqual([]);
+    expect(upcomingScheduledAppointments(items, TODAY).map((i) => i.id)).toEqual([]);
+  });
 });

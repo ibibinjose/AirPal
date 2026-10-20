@@ -299,7 +299,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                 {relative.label}
               </span>
               {isWeekend && !relative.highlight && (
-                <span className="rounded-full bg-indigo-500/80 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-md">
+                <span className="rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-md">
                   Weekend
                 </span>
               )}

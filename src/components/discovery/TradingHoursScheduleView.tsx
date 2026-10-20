@@ -69,7 +69,7 @@ export function TradingHoursScheduleView({
           type="button"
           onClick={() => setSheetOpen(true)}
           className={cn(
-            "group inline-flex items-center gap-1.5 rounded-full bg-paper/80 backdrop-blur-xs px-2.5 py-1 text-xs font-medium text-ink ring-1 ring-line/60 hover:ring-brand/40 transition shadow-xs",
+            "group inline-flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-1 text-xs font-medium text-ink ring-1 ring-line/60 hover:ring-brand/40 transition shadow-xs",
             className,
           )}
         >

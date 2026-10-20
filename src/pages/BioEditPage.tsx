@@ -389,11 +389,13 @@ export function BioEditPage() {
   const renderLivePhoneMockup = () => {
     const activeTheme = resolveBioTheme(activeProfile.theme);
     const isDarkPreview = previewThemeMode === "dark";
-    const screenBg = isDarkPreview ? "#000000" : activeTheme.pageBg;
-    const screenInk = isDarkPreview ? "#ffffff" : activeTheme.ink;
-    const screenMute = isDarkPreview ? "#8b98a5" : activeTheme.muted;
-    const screenCardBg = isDarkPreview ? "#121214" : "#ffffff";
-    const screenBorder = isDarkPreview ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)";
+    // Same tokens as the public page (`bioThemeCssVars`): the mirror can
+    // never drift from what visitors see, in either scheme.
+    const screenBg = isDarkPreview ? activeTheme.darkPageBg : activeTheme.pageBg;
+    const screenInk = isDarkPreview ? activeTheme.darkInk : activeTheme.ink;
+    const screenMute = isDarkPreview ? activeTheme.darkMuted : activeTheme.muted;
+    const screenCardBg = isDarkPreview ? activeTheme.darkSurface : activeTheme.surface;
+    const screenBorder = isDarkPreview ? "rgba(255,255,255,0.14)" : activeTheme.border;
 
     return (
       <div className="relative mx-auto w-full max-w-[340px] select-none pt-2 pb-4">
@@ -502,12 +504,10 @@ export function BioEditPage() {
                 <Photo src={cover} className="h-32 w-full object-cover" />
               ) : (
                 <div
-                  className={cn(
-                    "relative h-32 w-full overflow-hidden",
-                    isBusiness
-                      ? "bg-gradient-to-br from-[#1d1e22] via-[#2a2c33] to-[#121316]"
-                      : "bg-gradient-to-br from-[#121829] via-[#1c2438] to-[#0f1424]",
-                  )}
+                  className="relative h-32 w-full overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${activeTheme.heroFrom}, ${activeTheme.heroTo})`,
+                  }}
                 >
                   <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#004eff_1.5px,transparent_1.5px)] [background-size:16px_16px]" />
                 </div>
@@ -565,11 +565,12 @@ export function BioEditPage() {
                     (categoryTag.trim().toLowerCase() === "airpal mate" ||
                     categoryTag.trim().toLowerCase() === "airpal star" ? (
                       <span
-                        className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/30"
+                        className="inline-flex items-center"
                         title="AirPal Star"
                         aria-label="AirPal Star"
+                        role="img"
                       >
-                        <Star size={11} className="fill-amber-400 text-amber-500" aria-hidden="true" />
+                        <Star size={15} className="fill-current text-accent" aria-hidden="true" />
                       </span>
                     ) : (
                       <span

@@ -149,7 +149,7 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
             </button>
           </p>
 
-          <p className="order-first text-center text-sm font-semibold tracking-wide text-amber-300 sm:order-none">
+          <p className="order-first text-center text-sm font-semibold tracking-wide text-gold sm:order-none">
             Built for humanity · live worldwide
           </p>
 

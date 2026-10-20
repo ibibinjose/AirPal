@@ -12,38 +12,59 @@ export function BioThemePicker({
 }) {
   const current = value || "airpal";
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5" role="radiogroup" aria-label="Public page theme">
       {BIO_THEMES.map((theme) => {
         const selected = current === theme.id;
         return (
           <button
             key={theme.id}
             type="button"
+            role="radio"
+            aria-checked={selected}
+            aria-pressed={selected}
+            aria-label={`${theme.name} theme: ${theme.blurb}`}
+            title={`${theme.name} — ${theme.blurb}`}
             onClick={() => {
               void triggerHaptic("selection");
               onSelect(theme.id === "airpal" ? undefined : theme.id);
             }}
-            aria-pressed={selected}
             className={cn(
-              "rounded-2xl border p-2.5 text-left transition active:scale-95 cursor-pointer",
+              "min-h-[44px] rounded-2xl border p-2.5 text-left transition active:scale-95 cursor-pointer",
               selected
                 ? "border-brand ring-2 ring-brand/30 bg-brand/[0.04]"
                 : "border-line bg-paper hover:border-brand/40",
             )}
           >
+            {/* Mini page mock: page bg, ink text bar, accent cue, live button pill. */}
             <span
-              className="flex h-16 flex-col items-center justify-center gap-1.5 overflow-hidden rounded-xl px-3"
+              className="flex h-16 flex-col justify-center gap-1.5 overflow-hidden rounded-xl px-3 ring-1 ring-black/5"
               style={{ backgroundColor: theme.pageBg }}
             >
+              <span className="flex items-center gap-1.5">
+                <span
+                  className="h-3.5 w-3.5 shrink-0 rounded-full ring-1 ring-black/10"
+                  style={{ backgroundColor: theme.accent }}
+                />
+                <span className="h-1.5 w-1/2 rounded-full" style={{ backgroundColor: theme.ink, opacity: 0.85 }} />
+              </span>
               <span
-                className="h-4 w-full"
-                style={{ backgroundColor: theme.buttonBg, borderRadius: Math.min(theme.buttonRadius, 8) }}
-              />
-              <span className="h-1.5 w-2/3 rounded-full" style={{ backgroundColor: theme.accent }} />
+                className="flex h-5 w-full items-center justify-center text-[9px] font-bold"
+                style={{
+                  backgroundColor: theme.buttonBg,
+                  color: theme.buttonText,
+                  borderRadius: Math.min(theme.buttonRadius, 8),
+                }}
+              >
+                Aa
+              </span>
+              <span className="h-1 w-2/3 rounded-full" style={{ backgroundColor: theme.muted, opacity: 0.7 }} />
             </span>
-            <span className="mt-1.5 flex items-center justify-between px-0.5">
-              <span className="text-xs font-semibold text-ink">{theme.name}</span>
-              {selected && <Check size={14} className="text-accent" />}
+            <span className="mt-1.5 flex items-center justify-between gap-1 px-0.5">
+              <span className="min-w-0">
+                <span className="block truncate text-xs font-semibold text-ink">{theme.name}</span>
+                <span className="block truncate text-[10px] font-normal text-mute">{theme.blurb}</span>
+              </span>
+              {selected && <Check size={14} className="shrink-0 text-accent" />}
             </span>
           </button>
         );

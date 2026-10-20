@@ -92,12 +92,7 @@ export function EventLivePreviewCard({
   };
 
   return (
-    <div
-      className={cn(
-        "rounded-[32px] bg-card/90 p-4 sm:p-5 ring-1 ring-line/80 shadow-clay backdrop-blur-xl space-y-4",
-        className,
-      )}
-    >
+    <div className={cn("rounded-[32px] bg-card p-4 sm:p-5 ring-1 ring-line/80 shadow-clay space-y-4", className)}>
       {/* Live Preview Header Pill */}
       <div className="flex items-center justify-between border-b border-line/60 pb-3">
         <div className="flex items-center gap-2">
@@ -189,7 +184,7 @@ export function EventLivePreviewCard({
             <span>Host Approval Required</span>
           </div>
         )}
-        <div className="rounded-xl bg-gradient-to-r from-brand/10 to-amber-500/10 p-2 text-center text-[11px] font-bold text-accent">
+        <div className="rounded-xl bg-brand/10 p-2 text-center text-[11px] font-bold text-accent">
           {requireApproval
             ? "Request to Join · Passbook unlocked upon host approval"
             : "One-tap RSVP & Instant Apple/Google Wallet Pass"}

@@ -30,7 +30,7 @@ import {
   X,
 } from "lucide-react";
 import type { BioCatalogItem, BioTheme } from "@shared/bio";
-import { resolveBioTheme } from "@shared/bio";
+import { bioThemeCssVars, isClaimableBioProfile, resolveBioTheme } from "@shared/bio";
 import type { CSSProperties } from "react";
 import { BUSINESS_CATEGORIES } from "@shared/business";
 import { FollowButton, LikeButton } from "@/components/social/SocialButtons";
@@ -356,15 +356,8 @@ export function BioPublicPage() {
   const theme: BioTheme = resolveBioTheme(bio.theme);
   const themed = theme.id !== "airpal";
   const isBizBio = bio.kind === "business";
-  const themeVars = {
-    "--bio-bg": theme.pageBg,
-    "--bio-ink": theme.ink,
-    "--bio-muted": theme.muted,
-    "--bio-accent": theme.accent,
-    "--bio-btn": theme.buttonBg,
-    "--bio-btn-text": theme.buttonText,
-    "--bio-radius": `${theme.buttonRadius}px`,
-  } as CSSProperties;
+  // Single source of truth shared with the edit-preview mirror.
+  const themeVars = bioThemeCssVars(theme) as CSSProperties;
 
   const isOwner = Boolean(
     (user && bio.ownerUid && bio.ownerUid === user.uid) ||
@@ -407,10 +400,11 @@ export function BioPublicPage() {
   }
 
   const appearing = stalls.filter((s) => s.handle === bio.handle && s.status === "active");
-  const unclaimed =
-    !isOwner &&
-    !bio.ownerUid &&
-    (bio.id.startsWith("place-") || bio.id.startsWith("stall-") || bio.id.startsWith("bio-"));
+  const unclaimed = isClaimableBioProfile(bio, isOwner);
+  // Unified Connect card: format tiles + reminder exactly where the old
+  // visitor planner deck rendered; direct-reach actions for every viewer.
+  const hasCatalog = (bio.products || []).length > 0 || (bio.services || []).length > 0;
+  const showPlanner = !isOwner && !(bio.kind === "business" && hasCatalog);
 
   const maps = bio.mapsPlaceId
     ? mapsPlaceIdUrl(bio.mapsPlaceId)
@@ -580,6 +574,7 @@ export function BioPublicPage() {
           : "bio-page-shell px-3 pb-[calc(env(safe-area-inset-bottom,0px)+2.5rem)] pt-3 sm:px-4 sm:pt-8 sm:pb-12 lg:px-0"
       }
       style={themed ? themeVars : undefined}
+      data-bio-theme={themed ? theme.id : undefined}
     >
       {/* A solid content card keeps the profile readable; glass is reserved for navigation. */}
       <main className="bio-page-card overflow-hidden ring-1 ring-line/80" aria-label={`${bio.name}'s AirPal bio`}>
@@ -591,7 +586,13 @@ export function BioPublicPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/10" />
             </div>
           ) : (
-            <div className="bio-hero relative w-full overflow-hidden bg-gradient-to-br from-[#0c1024] via-[#141b38] to-[#0a0d1e]">
+            <div
+              className={
+                themed
+                  ? "bio-hero bio-hero-fallback relative w-full overflow-hidden"
+                  : "bio-hero relative w-full overflow-hidden bg-gradient-to-br from-[#0c1024] via-[#141b38] to-[#0a0d1e]"
+              }
+            >
               <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#2563eb_1.5px,transparent_1.5px)] [background-size:22px_22px]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
             </div>
@@ -811,12 +812,8 @@ export function BioPublicPage() {
               {bio.categoryTag &&
                 (bio.categoryTag.trim().toLowerCase() === "airpal mate" ||
                 bio.categoryTag.trim().toLowerCase() === "airpal star" ? (
-                  <span
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/30 shadow-2xs"
-                    title="AirPal Star"
-                    aria-label="AirPal Star"
-                  >
-                    <Star size={14} className="fill-amber-400 text-amber-500" aria-hidden="true" />
+                  <span className="inline-flex items-center" title="AirPal Star" aria-label="AirPal Star" role="img">
+                    <Star size={20} className="fill-current text-accent" aria-hidden="true" />
                   </span>
                 ) : (
                   <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent ring-1 ring-brand/20">
@@ -918,17 +915,6 @@ export function BioPublicPage() {
                 `${bio.customStatusEmoji || ""} ${bio.customStatus || ""}`.trim().toLowerCase() && (
                 <p className="mt-3.5 text-[14px] sm:text-[15px] leading-relaxed text-ink font-normal">{bio.shortWhy}</p>
               )}
-
-            {/* Extended About Story Card */}
-            {bio.aboutText && (
-              <div
-                id="bio-about"
-                className="mt-4 scroll-mt-24 rounded-[26px] bg-paper/70 p-4 sm:p-5 ring-1 ring-line/80 shadow-2xs"
-              >
-                <p className="human-eyebrow mb-1.5">About Story</p>
-                <p className="text-sm sm:text-base leading-relaxed text-ink whitespace-pre-line">{bio.aboutText}</p>
-              </div>
-            )}
           </div>
 
           {/* Social Engagement Deck: Follow, Like, www, and QR all in one horizontal line on mobile & desktop */}
@@ -966,80 +952,206 @@ export function BioPublicPage() {
             </button>
           </div>
 
-          {/* 1-Tap Quick Action Deck: Catch Up, WhatsApp, Call, Save Contact */}
-          <div className="mt-3 flex flex-wrap sm:flex-nowrap items-stretch gap-2">
-            {isPersonBio && (
+          {/* Connect: one card for formats + direct reach. Replaces the old
+              quick-action deck and the visitor planner deck — same actions,
+              same conditions, single composition in the shared design language. */}
+          <div className="mt-3 rounded-[28px] bg-card p-4 sm:p-5 ring-1 ring-line/80 shadow-2xs">
+            {showPlanner ? (
+              <>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
+                    <Sparkles size={12} className="text-accent" />
+                    <span>AirPal Hangout Planner</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void triggerHaptic("light");
+                      const next = toggleCatchUpReminder({
+                        handle: bio.handle,
+                        name: bio.name,
+                        photo: avatar,
+                        city: bio.city,
+                        requesterUid: user?.uid,
+                      });
+                      setCatchUpReminderActive(next);
+                      toast[next ? "success" : "info"](
+                        next ? `Saved a reminder to catch up with ${bio.name}` : `Removed reminder for ${bio.name}`,
+                      );
+                      setCatchUpsList(listCatchUpsForHandle(bio.handle));
+                    }}
+                    className={cn(
+                      "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
+                      catchUpReminderActive
+                        ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 ring-amber-500/40 dark:ring-amber-500/30 font-bold"
+                        : "bg-card text-mute ring-line hover:text-ink hover:bg-paper",
+                    )}
+                    title={catchUpReminderActive ? "Catch-up reminder active" : "Set a reminder to catch up"}
+                  >
+                    <span
+                      className={cn(
+                        "h-2 w-2 shrink-0 rounded-full",
+                        catchUpReminderActive ? "bg-amber-500 motion-safe:animate-pulse" : "bg-mute/50",
+                      )}
+                    />
+                    <span className="inline-flex items-center gap-1">
+                      {catchUpReminderActive ? (
+                        <>
+                          <span>Reminder on</span>
+                          <Check size={12} className="shrink-0" aria-hidden="true" />
+                        </>
+                      ) : (
+                        <span>Remind me</span>
+                      )}
+                    </span>
+                  </button>
+                </div>
+                {!user && (
+                  <p className="mt-1.5 text-right text-[11px] font-medium text-mute">
+                    Saved on this device only — sign in to sync
+                  </p>
+                )}
+                <h3 className="font-display mt-2.5 text-lg sm:text-xl font-bold text-ink">Catch up with {bio.name}</h3>
+                <p className="mt-1 text-xs sm:text-sm leading-relaxed text-mute">
+                  Propose a 1-on-1 coffee, schedule a sync meeting, or create a group hangout with instant calendar
+                  sync.
+                </p>
+
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                  {(
+                    [
+                      {
+                        type: "catchup" as const,
+                        label: "Catch Up",
+                        sub: "1-on-1 coffee · 45m",
+                        Icon: Coffee,
+                        tint: "bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/20",
+                      },
+                      {
+                        type: "meeting" as const,
+                        label: "Meeting",
+                        sub: "1-on-1 sync · 30m",
+                        Icon: Calendar,
+                        tint: "bg-sky-500/15 text-sky-700 dark:text-sky-400 ring-1 ring-sky-500/20",
+                      },
+                      {
+                        type: "nightout" as const,
+                        label: "Hangout",
+                        sub: "Group catch-up · 2h",
+                        Icon: Users,
+                        tint: "bg-rose-500/15 text-rose-700 dark:text-rose-400 ring-1 ring-rose-500/20",
+                      },
+                    ] as const
+                  ).map((opt) => (
+                    <button
+                      key={opt.type}
+                      type="button"
+                      onClick={() => {
+                        void triggerHaptic("light");
+                        setCatchUpInitialType(opt.type);
+                        setCatchUpModalOpen(true);
+                      }}
+                      className="group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[68px] sm:min-h-[104px] rounded-[24px] bg-card/90 p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:ring-brand/40 hover:shadow-md active:scale-[0.98] cursor-pointer touch-manipulation"
+                    >
+                      <span
+                        className={cn(
+                          "sm:mb-2 grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-2xl transition-transform group-hover:scale-105",
+                          opt.tint,
+                        )}
+                      >
+                        <opt.Icon size={19} />
+                      </span>
+                      <span className="flex flex-col sm:items-center">
+                        <span className="text-xs font-bold text-ink">{opt.label}</span>
+                        <span className="mt-0.5 text-[11px] sm:text-[10px] text-mute">{opt.sub}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
+                <Sparkles size={12} className="text-accent" />
+                <span>Get in touch</span>
+              </p>
+            )}
+
+            {/* Direct reach: same actions and conditions as the old quick-action deck. */}
+            <div
+              className={cn(
+                "flex flex-wrap sm:flex-nowrap items-stretch gap-2",
+                showPlanner && "mt-4 border-t border-line/70 pt-4",
+                !showPlanner && "mt-3",
+              )}
+            >
+              {whatsappUrl && (
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => {
+                    void triggerHaptic("light");
+                    recordTap(bio.handle, "whatsapp");
+                  }}
+                  className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-white ring-1 ring-emerald-500/30 transition-all duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
+                >
+                  <MessageCircle
+                    size={16}
+                    className="text-emerald-600 dark:text-white group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
+                  />
+                  <span className="truncate">WhatsApp</span>
+                </a>
+              )}
+
+              {tel && (
+                <a
+                  href={tel}
+                  onClick={() => {
+                    void triggerHaptic("light");
+                    recordTap(bio.handle, "call");
+                  }}
+                  className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-white ring-1 ring-amber-500/30 transition-all duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
+                >
+                  <Phone
+                    size={16}
+                    className="text-amber-600 dark:text-white group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
+                  />
+                  <span className="truncate">Call</span>
+                </a>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
-                  void triggerHaptic("medium");
-                  setCatchUpInitialType("catchup");
-                  setCatchUpModalOpen(true);
+                  void triggerHaptic("light");
+                  void saveBioContact({
+                    name: bio.name,
+                    handle: bio.handle,
+                    phone: bio.phone,
+                    avatar: bio.avatar,
+                    url: share,
+                    note: `AirPal bio · AirPal.Me/@${bio.handle}`,
+                  });
                 }}
-                className="group flex-1 min-w-[120px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-brand px-3 text-xs font-bold text-white shadow-xs transition-all duration-200 hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
-                title={`Propose a catch-up, meeting or hangout with ${bio.name}`}
+                className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper/80 dark:bg-card/70 px-3 text-xs font-semibold text-ink ring-1 ring-line/80 transition-all duration-200 hover:bg-paper hover:ring-brand/40 active:scale-95 shadow-2xs cursor-pointer touch-manipulation"
+                title={`Save ${bio.name} to phone contacts (.vcf)`}
               >
-                <Coffee size={16} className="shrink-0 group-hover:scale-110 transition-transform" />
-                <span className="truncate">Catch Up</span>
+                <ContactRound size={16} className="text-accent group-hover:scale-110 transition-transform shrink-0" />
+                <span className="truncate">Save Contact</span>
               </button>
-            )}
-
-            {whatsappUrl && (
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => {
-                  void triggerHaptic("light");
-                  recordTap(bio.handle, "whatsapp");
-                }}
-                className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-white ring-1 ring-emerald-500/30 transition-all duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
-              >
-                <MessageCircle
-                  size={16}
-                  className="text-emerald-600 dark:text-white group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
-                />
-                <span className="truncate">WhatsApp</span>
-              </a>
-            )}
-
-            {tel && (
-              <a
-                href={tel}
-                onClick={() => {
-                  void triggerHaptic("light");
-                  recordTap(bio.handle, "call");
-                }}
-                className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-white ring-1 ring-amber-500/30 transition-all duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
-              >
-                <Phone
-                  size={16}
-                  className="text-amber-600 dark:text-white group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
-                />
-                <span className="truncate">Call</span>
-              </a>
-            )}
-
-            <button
-              type="button"
-              onClick={() => {
-                void triggerHaptic("light");
-                void saveBioContact({
-                  name: bio.name,
-                  handle: bio.handle,
-                  phone: bio.phone,
-                  avatar: bio.avatar,
-                  url: share,
-                  note: `AirPal bio · AirPal.Me/@${bio.handle}`,
-                });
-              }}
-              className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper/80 dark:bg-card/70 px-3 text-xs font-semibold text-ink ring-1 ring-line/80 transition-all duration-200 hover:bg-paper hover:ring-brand/40 active:scale-95 shadow-2xs cursor-pointer touch-manipulation"
-              title={`Save ${bio.name} to phone contacts (.vcf)`}
-            >
-              <ContactRound size={16} className="text-accent group-hover:scale-110 transition-transform shrink-0" />
-              <span className="truncate">Save Contact</span>
-            </button>
+            </div>
           </div>
+
+          {/* Extended About Story Card: the story follows the action, connection-first. */}
+          {bio.aboutText && (
+            <div
+              id="bio-about"
+              className="mt-4 scroll-mt-24 rounded-[26px] bg-paper/70 p-4 sm:p-5 ring-1 ring-line/80 shadow-2xs"
+            >
+              <p className="human-eyebrow mb-1.5">About Story</p>
+              <p className="text-sm sm:text-base leading-relaxed text-ink whitespace-pre-line">{bio.aboutText}</p>
+            </div>
+          )}
 
           {/* AirPal Pass (Owner-only: save to Apple & Google Wallet for device NFC card & in-person scanning) */}
           {isOwner && (
@@ -1328,7 +1440,7 @@ export function BioPublicPage() {
                       label: "Hangout",
                       sub: "Group catch-up",
                       Icon: Users,
-                      tint: "bg-violet-500/15 text-violet-700",
+                      tint: "bg-rose-500/15 text-rose-700 dark:text-rose-400 ring-1 ring-rose-500/20",
                     },
                   ] as const
                 ).map((opt) => (
@@ -1493,109 +1605,6 @@ export function BioPublicPage() {
               )}
             </div>
           )}
-
-          {/* Catch Up & Hangout Deck for Visitors */}
-          {!isOwner &&
-            !(bio.kind === "business" && ((bio.products || []).length > 0 || (bio.services || []).length > 0)) && (
-              <div className="mt-7 rounded-[28px] sm:rounded-[32px] bg-gradient-to-br from-paper/95 via-card/90 to-paper/70 p-5 sm:p-6 ring-1 ring-white/60 dark:ring-white/10 shadow-clay backdrop-blur-xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
-                    <Sparkles size={12} className="text-accent" />
-                    <span>AirPal Hangout Planner</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void triggerHaptic("light");
-                      const next = toggleCatchUpReminder({
-                        handle: bio.handle,
-                        name: bio.name,
-                        photo: avatar,
-                        city: bio.city,
-                        requesterUid: user?.uid,
-                      });
-                      setCatchUpReminderActive(next);
-                      toast[next ? "success" : "info"](
-                        next ? `Saved a reminder to catch up with ${bio.name}` : `Removed reminder for ${bio.name}`,
-                      );
-                      setCatchUpsList(listCatchUpsForHandle(bio.handle));
-                    }}
-                    className={cn(
-                      "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
-                      catchUpReminderActive
-                        ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 ring-amber-500/40 dark:ring-amber-500/30 font-bold"
-                        : "bg-card text-mute ring-line hover:text-ink hover:bg-paper",
-                    )}
-                    title={catchUpReminderActive ? "Catch-up reminder active" : "Set a reminder to catch up"}
-                  >
-                    <span
-                      className={cn(
-                        "h-2 w-2 shrink-0 rounded-full",
-                        catchUpReminderActive ? "bg-amber-500 motion-safe:animate-pulse" : "bg-mute/50",
-                      )}
-                    />
-                    <span>{catchUpReminderActive ? "Reminder on ✓" : "Remind me"}</span>
-                  </button>
-                </div>
-                <h3 className="font-display mt-2.5 text-lg sm:text-xl font-bold text-ink">Catch up with {bio.name}</h3>
-                <p className="mt-1 text-xs sm:text-sm leading-relaxed text-mute">
-                  Propose a 1-on-1 coffee, schedule a sync meeting, or create a group hangout with instant calendar
-                  sync.
-                </p>
-
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
-                  {(
-                    [
-                      {
-                        type: "catchup" as const,
-                        label: "Catch Up",
-                        sub: "1-on-1 coffee · 45m",
-                        Icon: Coffee,
-                        tint: "bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/20",
-                      },
-                      {
-                        type: "meeting" as const,
-                        label: "Meeting",
-                        sub: "1-on-1 sync · 30m",
-                        Icon: Calendar,
-                        tint: "bg-sky-500/15 text-sky-700 dark:text-sky-400 ring-1 ring-sky-500/20",
-                      },
-                      {
-                        type: "nightout" as const,
-                        label: "Hangout",
-                        sub: "Group catch-up · 2h",
-                        Icon: Users,
-                        tint: "bg-violet-500/15 text-violet-700 dark:text-violet-400 ring-1 ring-violet-500/20",
-                      },
-                    ] as const
-                  ).map((opt) => (
-                    <button
-                      key={opt.type}
-                      type="button"
-                      onClick={() => {
-                        void triggerHaptic("light");
-                        setCatchUpInitialType(opt.type);
-                        setCatchUpModalOpen(true);
-                      }}
-                      className="group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[68px] sm:min-h-[104px] rounded-[24px] bg-card/90 p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:ring-brand/40 hover:shadow-md active:scale-[0.98] cursor-pointer touch-manipulation"
-                    >
-                      <span
-                        className={cn(
-                          "sm:mb-2 grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-2xl transition-transform group-hover:scale-105",
-                          opt.tint,
-                        )}
-                      >
-                        <opt.Icon size={19} />
-                      </span>
-                      <span className="flex flex-col sm:items-center">
-                        <span className="text-xs font-bold text-ink">{opt.label}</span>
-                        <span className="mt-0.5 text-[11px] sm:text-[10px] text-mute">{opt.sub}</span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
           {/* What's On / Appearing at Events */}
           {appearing.length > 0 && (
@@ -1911,7 +1920,7 @@ export function BioPublicPage() {
               placeholder="Your Name"
               autoComplete="name"
               maxLength={80}
-              className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
+              className="bio-theme-field min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
             />
             <label htmlFor="guestlist-city" className="sr-only">
               Your city
@@ -1920,7 +1929,7 @@ export function BioPublicPage() {
               id="guestlist-city"
               value={listCity}
               onChange={(e) => setListCity(e.target.value)}
-              className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
+              className="bio-theme-field min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
             >
               <option value="">Your City</option>
               {CITY_OPTIONS.map((c) => (
@@ -1943,7 +1952,7 @@ export function BioPublicPage() {
                   placeholder="Your city or town"
                   autoComplete="address-level2"
                   maxLength={60}
-                  className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
+                  className="bio-theme-field min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
                 />
               </>
             )}
@@ -1960,7 +1969,7 @@ export function BioPublicPage() {
               value={listEmail}
               onChange={(e) => setListEmail(e.target.value)}
               placeholder="Your Email"
-              className="min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
+              className="bio-theme-field min-h-[48px] h-12 w-full rounded-2xl bg-card px-4 text-[16px] sm:text-sm font-medium text-ink border border-line outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand shadow-2xs"
             />
             <fieldset>
               <legend className="text-[11px] font-semibold text-mute">I&apos;m into — pick any</legend>
@@ -1993,7 +2002,7 @@ export function BioPublicPage() {
             <button
               type="submit"
               disabled={listSending}
-              className="min-h-[48px] h-12 w-full rounded-full bg-brand text-xs sm:text-sm font-bold text-white transition hover:bg-brand-ink active:scale-95 shadow-xs disabled:opacity-60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
+              className="bio-theme-primary min-h-[48px] h-12 w-full rounded-full bg-brand text-xs sm:text-sm font-bold text-white transition hover:bg-brand-ink active:scale-95 shadow-xs disabled:opacity-60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
             >
               {listSending
                 ? isBizBio
@@ -2037,7 +2046,7 @@ export function BioPublicPage() {
                 <button
                   type="button"
                   onClick={() => void handleShareInvite()}
-                  className="inline-flex min-h-[44px] flex-1 sm:flex-initial sm:shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-brand px-4 text-xs font-bold text-white shadow-xs transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
+                  className="bio-theme-primary inline-flex min-h-[44px] flex-1 sm:flex-initial sm:shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-brand px-4 text-xs font-bold text-white shadow-xs transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
                   aria-label="Share invite link"
                 >
                   <Share2 size={14} className="shrink-0" />
@@ -2248,7 +2257,7 @@ export function BioPublicPage() {
             </div>
             <button
               type="button"
-              className="mt-5 min-h-[48px] h-12 w-full rounded-full bg-brand py-3 text-xs sm:text-sm font-bold text-white transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation shadow-xs"
+              className="bio-theme-primary mt-5 min-h-[48px] h-12 w-full rounded-full bg-brand py-3 text-xs sm:text-sm font-bold text-white transition hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation shadow-xs"
               onClick={() => {
                 void triggerHaptic("light");
                 setClaim(null);

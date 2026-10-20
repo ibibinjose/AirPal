@@ -307,6 +307,8 @@ export type BioProfile = {
 export type BioTheme = {
   id: string;
   name: string;
+  /** One-line picker description of the preset. */
+  blurb: string;
   pageBg: string;
   ink: string;
   muted: string;
@@ -314,23 +316,45 @@ export type BioTheme = {
   buttonBg: string;
   buttonText: string;
   buttonRadius: number;
+  /** Solid card/section surface drawn on top of pageBg. */
+  surface: string;
+  /** Hairline ring drawn on the surface. */
+  border: string;
+  /** Cover-fallback gradient stops (deep solid tones, never purple-blue). */
+  heroFrom: string;
+  heroTo: string;
+  /** Explicit dark-scheme variants so dark mode keeps the theme identity. */
+  darkPageBg: string;
+  darkSurface: string;
+  darkInk: string;
+  darkMuted: string;
 };
 
 export const BIO_THEMES: BioTheme[] = [
   {
     id: "airpal",
     name: "AirPal",
+    blurb: "Warm paper, ember accents",
     pageBg: "#faf7f2",
     ink: "#1c1917",
-    muted: "#3F2A2F",
+    muted: "#3f2a2f",
     accent: "#c2410c",
     buttonBg: "#1c1917",
     buttonText: "#ffffff",
     buttonRadius: 999,
+    surface: "#ffffff",
+    border: "#e7e0d3",
+    heroFrom: "#1b2340",
+    heroTo: "#0a0d1e",
+    darkPageBg: "#100f0d",
+    darkSurface: "#1c1917",
+    darkInk: "#faf7f2",
+    darkMuted: "#d6cec2",
   },
   {
     id: "midnight",
     name: "Midnight",
+    blurb: "True dark, high contrast",
     pageBg: "#0c0a09",
     ink: "#fafaf9",
     muted: "#a8a29e",
@@ -338,21 +362,39 @@ export const BIO_THEMES: BioTheme[] = [
     buttonBg: "#fafaf9",
     buttonText: "#0c0a09",
     buttonRadius: 999,
+    surface: "#171412",
+    border: "#2b2622",
+    heroFrom: "#1c1917",
+    heroTo: "#000000",
+    darkPageBg: "#0c0a09",
+    darkSurface: "#171412",
+    darkInk: "#fafaf9",
+    darkMuted: "#a8a29e",
   },
   {
     id: "forest",
     name: "Forest",
+    blurb: "Pale green, deep green buttons",
     pageBg: "#f0fdf4",
     ink: "#052e16",
-    muted: "#4d7c5f",
+    muted: "#3f6b4e",
     accent: "#15803d",
     buttonBg: "#14532d",
     buttonText: "#ffffff",
     buttonRadius: 16,
+    surface: "#ffffff",
+    border: "#d7e5da",
+    heroFrom: "#14532d",
+    heroTo: "#052e16",
+    darkPageBg: "#0a1a10",
+    darkSurface: "#10241a",
+    darkInk: "#ecfdf3",
+    darkMuted: "#a9c8b4",
   },
   {
     id: "ocean",
     name: "Ocean",
+    blurb: "Pale blue, harbour-blue buttons",
     pageBg: "#eff6ff",
     ink: "#172554",
     muted: "#4b6584",
@@ -360,21 +402,39 @@ export const BIO_THEMES: BioTheme[] = [
     buttonBg: "#0c4a6e",
     buttonText: "#ffffff",
     buttonRadius: 16,
+    surface: "#ffffff",
+    border: "#d3e3f0",
+    heroFrom: "#0c4a6e",
+    heroTo: "#082f49",
+    darkPageBg: "#0a1626",
+    darkSurface: "#10233a",
+    darkInk: "#eaf4ff",
+    darkMuted: "#a9c2d6",
   },
   {
     id: "sunset",
     name: "Sunset",
+    blurb: "Warm apricot, ember buttons",
     pageBg: "#fff7ed",
     ink: "#431407",
-    muted: "#9a6a4f",
-    accent: "#ea580c",
-    buttonBg: "#ea580c",
+    muted: "#8a5a3b",
+    accent: "#c2410c",
+    buttonBg: "#c2410c",
     buttonText: "#ffffff",
     buttonRadius: 999,
+    surface: "#ffffff",
+    border: "#f2ddc9",
+    heroFrom: "#9a3412",
+    heroTo: "#431407",
+    darkPageBg: "#1d0f06",
+    darkSurface: "#2c1808",
+    darkInk: "#fff4e8",
+    darkMuted: "#d9b896",
   },
   {
     id: "mono",
     name: "Mono",
+    blurb: "Black on white, square buttons",
     pageBg: "#ffffff",
     ink: "#09090b",
     muted: "#71717a",
@@ -382,6 +442,94 @@ export const BIO_THEMES: BioTheme[] = [
     buttonBg: "#09090b",
     buttonText: "#ffffff",
     buttonRadius: 0,
+    surface: "#ffffff",
+    border: "#e4e4e7",
+    heroFrom: "#18181b",
+    heroTo: "#09090b",
+    darkPageBg: "#000000",
+    darkSurface: "#101012",
+    darkInk: "#fafafa",
+    darkMuted: "#c9c9ce",
+  },
+  {
+    id: "eucalypt",
+    name: "Eucalypt",
+    blurb: "Pale sage, forest buttons",
+    pageBg: "#edf3ec",
+    ink: "#14231a",
+    muted: "#3d5a45",
+    accent: "#2f7d4f",
+    buttonBg: "#1d4a2c",
+    buttonText: "#ffffff",
+    buttonRadius: 18,
+    surface: "#ffffff",
+    border: "#dbe5da",
+    heroFrom: "#1d4a2c",
+    heroTo: "#0e2416",
+    darkPageBg: "#0c1510",
+    darkSurface: "#14231a",
+    darkInk: "#eef4ee",
+    darkMuted: "#b9cdc0",
+  },
+  {
+    id: "reef",
+    name: "Reef",
+    blurb: "Pale teal, deep sea buttons",
+    pageBg: "#ebf5f4",
+    ink: "#0c2530",
+    muted: "#33565f",
+    accent: "#0e7490",
+    buttonBg: "#0e4a5e",
+    buttonText: "#ffffff",
+    buttonRadius: 18,
+    surface: "#ffffff",
+    border: "#d3e5e3",
+    heroFrom: "#0e4a5e",
+    heroTo: "#082a36",
+    darkPageBg: "#08161c",
+    darkSurface: "#0c2530",
+    darkInk: "#e8f3f4",
+    darkMuted: "#aec6cd",
+  },
+  {
+    id: "wattle",
+    name: "Wattle",
+    blurb: "Dark honey, gold buttons",
+    pageBg: "#201503",
+    ink: "#fdf6e7",
+    muted: "#d9c9a8",
+    accent: "#ffb224",
+    buttonBg: "#ffb224",
+    buttonText: "#201503",
+    buttonRadius: 999,
+    surface: "#2c1f0a",
+    border: "#4a3a1c",
+    heroFrom: "#3a2a0c",
+    heroTo: "#201503",
+    darkPageBg: "#201503",
+    darkSurface: "#2c1f0a",
+    darkInk: "#fdf6e7",
+    darkMuted: "#d9c9a8",
+  },
+  {
+    id: "blush",
+    name: "Blush",
+    blurb: "Pale rose, oxblood buttons",
+    pageBg: "#fbeeee",
+    ink: "#3d1d1d",
+    muted: "#7a4444",
+    accent: "#be123c",
+    buttonBg: "#881337",
+    buttonText: "#ffffff",
+    buttonRadius: 999,
+    surface: "#ffffff",
+    border: "#f3d9d9",
+    heroFrom: "#881337",
+    heroTo: "#4c0519",
+    darkPageBg: "#1c0e10",
+    darkSurface: "#2c1518",
+    darkInk: "#fbeeee",
+    darkMuted: "#d9aeae",
   },
 ];
 
@@ -399,6 +547,45 @@ export function resolveBioTheme(raw: unknown): BioTheme {
     .trim()
     .toLowerCase();
   return BIO_THEMES.find((theme) => theme.id === id) || BIO_THEMES[0];
+}
+
+/**
+ * Single source of truth for the CSS custom properties a public bio page
+ * needs. Both the web page and the edit-preview mirror consume this, so the
+ * visitor view and the owner preview can never drift apart.
+ */
+/**
+ * Ownerless business listings (venue/stall seeds and unsynced local
+ * business profiles) can be claimed from the public page. Person profiles
+ * are never claimable — visitors get Connect / Save Contact instead.
+ */
+export function isClaimableBioProfile(
+  profile: Pick<BioProfile, "id" | "kind" | "ownerUid">,
+  isOwner: boolean,
+): boolean {
+  if (isOwner || profile.ownerUid) return false;
+  if (!isBusinessKind(profile.kind)) return false;
+  return profile.id.startsWith("place-") || profile.id.startsWith("stall-") || profile.id.startsWith("bio-");
+}
+
+export function bioThemeCssVars(theme: BioTheme): Record<string, string> {
+  return {
+    "--bio-bg": theme.pageBg,
+    "--bio-surface": theme.surface,
+    "--bio-border": theme.border,
+    "--bio-ink": theme.ink,
+    "--bio-muted": theme.muted,
+    "--bio-accent": theme.accent,
+    "--bio-btn": theme.buttonBg,
+    "--bio-btn-text": theme.buttonText,
+    "--bio-radius": `${theme.buttonRadius}px`,
+    "--bio-hero-from": theme.heroFrom,
+    "--bio-hero-to": theme.heroTo,
+    "--bio-dark-bg": theme.darkPageBg,
+    "--bio-dark-surface": theme.darkSurface,
+    "--bio-dark-ink": theme.darkInk,
+    "--bio-dark-muted": theme.darkMuted,
+  };
 }
 
 export function normalizeHandle(raw: string) {

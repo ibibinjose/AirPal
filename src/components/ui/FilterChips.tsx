@@ -1,4 +1,4 @@
-import { isValidElement, useRef, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
+import { useRef, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { LucideIcon } from "lucide-react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -7,23 +7,17 @@ import { triggerHapticSelection } from "@/lib/native";
 export type FilterChipOption<T extends string> = {
   id: T;
   label: string;
-  icon?: LucideIcon | ReactNode;
+  /** Lucide icons only — emoji strings are not icons and never render here. */
+  icon?: LucideIcon;
   /** Active result count shown beside the label. Undefined hides the badge. */
   count?: number;
 };
 
-function ChipIcon({ icon }: { icon: LucideIcon | ReactNode }) {
-  if (!icon) return null;
-  // Renderable nodes (emoji strings, elements) go straight in; anything
-  // else is a Lucide component (forwardRef objects included).
-  if (isValidElement(icon) || typeof icon === "string" || typeof icon === "number") {
-    return (
-      <span className="shrink-0" aria-hidden>
-        {icon}
-      </span>
-    );
-  }
-  const Icon = icon as LucideIcon;
+function ChipIcon({ icon }: { icon?: LucideIcon }) {
+  // Lucide icons are components (functions or forwardRef objects). Anything
+  // else — e.g. an emoji string slipping past TypeScript — renders nothing.
+  if (!icon || (typeof icon !== "function" && typeof icon !== "object")) return null;
+  const Icon = icon;
   return <Icon size={14} className="shrink-0" aria-hidden />;
 }
 

@@ -896,7 +896,16 @@ export function BioCatchUpModal({
                     size={13}
                     className={cn("shrink-0", isRemembered ? "fill-amber-500 text-amber-600 dark:text-amber-400" : "")}
                   />
-                  {isRemembered ? "Reminder on ✓" : "Remind me"}
+                  <span className="inline-flex items-center gap-1">
+                    {isRemembered ? (
+                      <>
+                        <span>Reminder on</span>
+                        <Check size={12} className="shrink-0" aria-hidden="true" />
+                      </>
+                    ) : (
+                      <span>Remind me</span>
+                    )}
+                  </span>
                 </button>
                 <AddToCalendarMenu
                   event={eventPayload}
@@ -906,6 +915,11 @@ export function BioCatchUpModal({
                   buttonClassName="rounded-full text-xs font-semibold min-h-[44px]"
                 />
               </div>
+              {!user && (
+                <p className="mt-1.5 text-right text-[11px] font-medium text-mute">
+                  Reminders save on this device only — sign in to sync
+                </p>
+              )}
             </div>
           </>
         )}

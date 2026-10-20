@@ -647,27 +647,31 @@ body.keyboard-open .keyboard-hide {
   min-height: clamp(14rem, 38vw, 18rem);
 }
 
-/* Bio themes: an owner-selected preset recolours the public bio page. All
- * rules are scoped under `.bio-themed`, so the default AirPal look is
- * untouched. Scoped selectors beat Tailwind utilities on specificity. */
+/* Bio themes: an owner-selected preset recolours the full public bio page.
+ * All rules are scoped under `.bio-themed`, so the default AirPal look is
+ * untouched. Unlayered author CSS beats Tailwind utilities, so the theme
+ * wins without per-component `dark:` overrides. Substring class matches
+ * cover opacity variants (`bg-card/90`, `text-ink/75`) too. */
 .bio-themed.bio-page-shell::before {
   background: var(--bio-bg);
 }
 
 .bio-themed .bio-page-card {
   background: var(--bio-bg);
-}
-
-.bio-themed .bio-page-card .bg-card,
-.bio-themed .bio-page-card .bg-paper {
-  background-color: transparent;
-}
-
-.bio-themed .bio-page-card .text-ink {
+  border-color: var(--bio-border);
   color: var(--bio-ink);
 }
 
-.bio-themed .bio-page-card .text-mute {
+.bio-themed .bio-page-card [class*="bg-card"],
+.bio-themed .bio-page-card [class*="bg-paper"] {
+  background-color: var(--bio-surface);
+}
+
+.bio-themed .bio-page-card [class*="text-ink"] {
+  color: var(--bio-ink);
+}
+
+.bio-themed .bio-page-card [class*="text-mute"] {
   color: var(--bio-muted);
 }
 
@@ -675,15 +679,54 @@ body.keyboard-open .keyboard-hide {
   color: var(--bio-accent);
 }
 
+/* List-row links: solid surface rows in theme ink; radius follows the theme. */
 .bio-themed .bio-theme-btn {
-  background-color: var(--bio-btn);
-  color: var(--bio-btn-text);
-  border-radius: var(--bio-radius, 999px);
+  background-color: var(--bio-surface);
+  border-color: var(--bio-border);
+  border-radius: var(--bio-radius, 22px);
+  color: var(--bio-ink);
 }
 
 .bio-themed .bio-theme-btn:hover {
+  border-color: var(--bio-accent);
+}
+
+/* Primary CTAs: solid theme button fill with readable button text. */
+.bio-themed .bio-theme-primary {
   background-color: var(--bio-btn);
+  border-color: transparent;
+  color: var(--bio-btn-text);
+}
+
+.bio-themed .bio-theme-primary:hover {
   filter: brightness(0.93);
+}
+
+.bio-themed .bio-theme-primary:focus-visible,
+.bio-themed .bio-theme-btn:focus-visible {
+  outline: 2px solid var(--bio-accent);
+  outline-offset: 2px;
+}
+
+/* Guestlist form fields sit on the theme surface with an accent focus ring. */
+.bio-themed .bio-theme-field {
+  background-color: var(--bio-surface);
+  border-color: var(--bio-border);
+  color: var(--bio-ink);
+}
+
+.bio-themed .bio-theme-field::placeholder {
+  color: var(--bio-muted);
+  opacity: 0.8;
+}
+
+.bio-themed .bio-theme-field:focus {
+  border-color: var(--bio-accent);
+}
+
+/* Cover fallback when a bio has no cover photo: deep theme gradient. */
+.bio-themed .bio-hero-fallback {
+  background: linear-gradient(135deg, var(--bio-hero-from), var(--bio-hero-to));
 }
 
 @media (min-width: 640px) {
@@ -699,82 +742,73 @@ body.keyboard-open .keyboard-hide {
   }
 }
 
-/* OLED true black & neutral hairline border (like x.com in dark mode).
- * All text on black backgrounds is crisp white for optimal contrast.
- * Even if an owner selected a color profile (e.g. green/forest/ocean),
- * dark mode enforces pure black canvas and crisp white typography across all devices. */
+/* OLED true black for the default (unthemed) bio look in dark mode.
+ * Themed pages keep their identity: the four core vars remap to the
+ * preset's explicit dark variants (authored contrast-checked), so a
+ * forest/ocean/reef page stays forest/ocean/reef after dark. `!important`
+ * wins over the inline light vars set from `bioThemeCssVars`. */
 @media (prefers-color-scheme: dark) {
-  :root:not(.light) .bio-themed,
-  :root:not(.light) .bio-themed * {
-    --bio-bg: #000000 !important;
-    --bio-ink: #ffffff !important;
-    --bio-muted: #ffffff !important;
+  :root:not(.light) .bio-themed {
+    --bio-bg: var(--bio-dark-bg) !important;
+    --bio-surface: var(--bio-dark-surface) !important;
+    --bio-ink: var(--bio-dark-ink) !important;
+    --bio-muted: var(--bio-dark-muted) !important;
   }
 
-  :root:not(.light) .bio-page-card,
-  :root:not(.light) .bio-themed .bio-page-card {
+  :root:not(.light) .bio-themed .bio-page-card .text-accent {
+    color: color-mix(in srgb, var(--bio-accent) 62%, var(--bio-dark-ink)) !important;
+  }
+
+  :root:not(.light) .bio-page-shell:not(.bio-themed) .bio-page-card {
     background: #000000 !important;
     border: 1px solid var(--color-line) !important;
     box-shadow: none !important;
     color: #ffffff !important;
   }
 
-  :root:not(.light) .bio-page-shell::before,
-  :root:not(.light) .bio-themed.bio-page-shell::before {
+  :root:not(.light) .bio-page-shell:not(.bio-themed)::before {
     background: #000000 !important;
   }
 
-  :root:not(.light) .bio-page-card .text-ink,
-  :root:not(.light) .bio-themed .bio-page-card .text-ink,
-  :root:not(.light) .bio-page-card .text-mute,
-  :root:not(.light) .bio-themed .bio-page-card .text-mute,
-  :root:not(.light) [class*="text-ink/"],
-  :root:not(.light) .bio-themed [class*="text-ink"],
-  :root:not(.light) .bio-themed [class*="text-mute"] {
+  :root:not(.light) .bio-page-shell:not(.bio-themed) .bio-page-card .text-ink,
+  :root:not(.light) .bio-page-shell:not(.bio-themed) .bio-page-card .text-mute,
+  :root:not(.light) .bio-page-shell:not(.bio-themed) [class*="text-ink/"] {
     color: #ffffff !important;
   }
 }
 
 .dark .bio-themed,
-.dark .bio-themed *,
-[data-theme="dark"] .bio-themed,
-[data-theme="dark"] .bio-themed * {
-  --bio-bg: #000000 !important;
-  --bio-ink: #ffffff !important;
-  --bio-muted: #ffffff !important;
+[data-theme="dark"] .bio-themed {
+  --bio-bg: var(--bio-dark-bg) !important;
+  --bio-surface: var(--bio-dark-surface) !important;
+  --bio-ink: var(--bio-dark-ink) !important;
+  --bio-muted: var(--bio-dark-muted) !important;
 }
 
-.dark .bio-page-card,
-[data-theme="dark"] .bio-page-card,
-.dark .bio-themed .bio-page-card,
-[data-theme="dark"] .bio-themed .bio-page-card {
+.dark .bio-themed .bio-page-card .text-accent,
+[data-theme="dark"] .bio-themed .bio-page-card .text-accent {
+  color: color-mix(in srgb, var(--bio-accent) 62%, var(--bio-dark-ink)) !important;
+}
+
+.dark .bio-page-shell:not(.bio-themed) .bio-page-card,
+[data-theme="dark"] .bio-page-shell:not(.bio-themed) .bio-page-card {
   background: #000000 !important;
   border: 1px solid var(--color-line) !important;
   box-shadow: none !important;
   color: #ffffff !important;
 }
 
-.dark .bio-page-shell::before,
-[data-theme="dark"] .bio-page-shell::before,
-.dark .bio-themed.bio-page-shell::before,
-[data-theme="dark"] .bio-themed.bio-page-shell::before {
+.dark .bio-page-shell:not(.bio-themed)::before,
+[data-theme="dark"] .bio-page-shell:not(.bio-themed)::before {
   background: #000000 !important;
 }
 
-.dark .bio-page-card .text-ink,
-[data-theme="dark"] .bio-page-card .text-ink,
-.dark .bio-themed .bio-page-card .text-ink,
-[data-theme="dark"] .bio-themed .bio-page-card .text-ink,
-.dark .bio-page-card .text-mute,
-[data-theme="dark"] .bio-page-card .text-mute,
-.dark .bio-themed .bio-page-card .text-mute,
-[data-theme="dark"] .bio-themed .bio-page-card .text-mute,
-.dark [class*="text-ink/"],
-[data-theme="dark"] [class*="text-ink/"],
-.dark .bio-themed [class*="text-ink"],
-[data-theme="dark"] .bio-themed [class*="text-ink"],
-.dark .bio-themed [class*="text-mute"],
-[data-theme="dark"] .bio-themed [class*="text-mute"] {
+.dark .bio-page-shell:not(.bio-themed) .bio-page-card .text-ink,
+[data-theme="dark"] .bio-page-shell:not(.bio-themed) .bio-page-card .text-ink,
+.dark .bio-page-shell:not(.bio-themed) .bio-page-card .text-mute,
+[data-theme="dark"] .bio-page-shell:not(.bio-themed) .bio-page-card .text-mute,
+.dark .bio-page-shell:not(.bio-themed) [class*="text-ink/"],
+[data-theme="dark"] .bio-page-shell:not(.bio-themed) [class*="text-ink/"] {
   color: #ffffff !important;
 }
 
@@ -1387,6 +1421,14 @@ body.keyboard-open .keyboard-hide {
   color: var(--color-on-brand);
 }
 
+/* Solid gold surfaces with readable dark ink. The rule above forces white
+ * text on `bg-gold` (kept for legacy call sites), so gold badges and fills
+ * that carry text or meaningful icons must use THIS class instead. */
+.badge-gold {
+  background-color: var(--color-gold);
+  color: #201503;
+}
+
 /* Dedicated Solid Surfaces (High Legibility / Opaque Fallback) */
 .apple-solid-dock {
   background: var(--color-surface-lowest, #ffffff);
@@ -1436,24 +1478,6 @@ body.keyboard-open .keyboard-hide {
   .apple-liquid-glass-dark {
     background: #0f172a !important;
   }
-}
-
-/* Micro-interaction utilities */
-.hover-lift {
-  transition:
-    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 12px 28px -8px rgba(0, 78, 255, 0.14),
-    0 4px 12px -2px rgba(18, 22, 20, 0.04);
-}
-
-.hover-lift:active {
-  transform: translateY(0) scale(0.985);
 }
 
 .glass-sheen {

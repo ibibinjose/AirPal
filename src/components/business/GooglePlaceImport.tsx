@@ -155,13 +155,13 @@ export function GooglePlaceImportCard({
           aria-controls={listId}
           aria-autocomplete="list"
           aria-activedescendant={open && hits[active] ? `${listId}-${hits[active]!.placeId}` : undefined}
-          className="w-full rounded-xl border border-line bg-card py-2.5 pl-9 pr-10 text-sm outline-none placeholder:text-mute focus:border-brand focus:ring-2 focus:ring-brand/20"
+          className="w-full rounded-xl border border-line bg-card py-3 pl-9 pr-14 text-sm outline-none placeholder:text-mute focus:border-brand focus:ring-2 focus:ring-brand/20"
         />
         {query && (
           <button
             type="button"
             onClick={clear}
-            className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-mute hover:bg-paper"
+            className="absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-mute hover:bg-paper"
             aria-label="Clear"
           >
             <X size={14} />
@@ -249,7 +249,11 @@ export function GooglePlaceImportCard({
           <p className="text-[12px] text-mute">
             {fromGoogle ? "Copied from Google." : "Address, hours, and phone copied when listed."}
           </p>
-          <button type="button" className="text-[12px] font-semibold text-accent" onClick={clear}>
+          <button
+            type="button"
+            className="inline-flex min-h-[44px] items-center rounded-lg px-2 text-[12px] font-semibold text-accent"
+            onClick={clear}
+          >
             Change
           </button>
         </div>

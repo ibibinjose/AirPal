@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   BIO_CATALOG_MAX,
   BIO_PUBLIC_PATH,
+  BIO_THEMES,
   bioButtonLabel,
   bioKindLabel,
+  bioThemeCssVars,
   catalogDeals,
   handleFromDomain,
   handleFromName,
@@ -11,6 +13,7 @@ import {
   handleError,
   handleMatchesClaim,
   isBusinessKind,
+  isClaimableBioProfile,
   isHexHandle,
   isSafeBioHref,
   isSocialLinkType,
@@ -150,6 +153,26 @@ describe("bio href allowlist", () => {
   });
 });
 
+describe("claimable bio profiles", () => {
+  it("offers claim only for ownerless business listings", () => {
+    expect(isClaimableBioProfile({ id: "place-x", kind: "business" }, false)).toBe(true);
+    expect(isClaimableBioProfile({ id: "stall-x", kind: "business" }, false)).toBe(true);
+    expect(isClaimableBioProfile({ id: "bio-abc123", kind: "business" }, false)).toBe(true);
+    expect(isClaimableBioProfile({ id: "event-1", kind: "business" }, false)).toBe(false);
+  });
+
+  it("never offers claim on person profiles", () => {
+    expect(isClaimableBioProfile({ id: "bio-bibinjose", kind: "person" }, false)).toBe(false);
+    expect(isClaimableBioProfile({ id: "bio-abc123", kind: "person" }, false)).toBe(false);
+    expect(isClaimableBioProfile({ id: "place-x" }, false)).toBe(false);
+  });
+
+  it("never offers claim to the owner or when owned", () => {
+    expect(isClaimableBioProfile({ id: "place-x", kind: "business" }, true)).toBe(false);
+    expect(isClaimableBioProfile({ id: "place-x", kind: "business", ownerUid: "u1" }, false)).toBe(false);
+  });
+});
+
 describe("profile kind identifier", () => {
   it("labels businesses and individuals", () => {
     expect(bioKindLabel("business")).toBe("Business");
@@ -168,6 +191,8 @@ describe("profile kind identifier", () => {
 describe("bio themes", () => {
   it("accepts known presets and collapses the default", () => {
     expect(normalizeBioTheme("midnight")).toBe("midnight");
+    expect(normalizeBioTheme("reef")).toBe("reef");
+    expect(normalizeBioTheme("wattle")).toBe("wattle");
     expect(normalizeBioTheme("AirPal")).toBeUndefined();
     expect(normalizeBioTheme(undefined)).toBeUndefined();
     expect(normalizeBioTheme("evil-theme")).toBeUndefined();
@@ -175,10 +200,76 @@ describe("bio themes", () => {
 
   it("resolves unknown values to the default preset", () => {
     expect(resolveBioTheme("midnight").id).toBe("midnight");
+    expect(resolveBioTheme("blush").id).toBe("blush");
     expect(resolveBioTheme("nope").id).toBe("airpal");
     expect(resolveBioTheme(undefined).id).toBe("airpal");
   });
+
+  it("ships unique presets with picker copy", () => {
+    const ids = new Set(BIO_THEMES.map((theme) => theme.id));
+    expect(ids.size).toBe(BIO_THEMES.length);
+    expect(BIO_THEMES.length).toBeGreaterThanOrEqual(10);
+    for (const theme of BIO_THEMES) {
+      expect(theme.name.trim().length).toBeGreaterThan(0);
+      expect(theme.blurb.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("keeps every preset readable in both schemes (4.5:1 text contrast)", () => {
+    for (const theme of BIO_THEMES) {
+      expect(contrastRatio(theme.ink, theme.pageBg)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(theme.muted, theme.pageBg)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(theme.buttonText, theme.buttonBg)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(theme.darkInk, theme.darkPageBg)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(theme.darkMuted, theme.darkPageBg)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("emits every CSS var the public page and preview consume", () => {
+    const vars = bioThemeCssVars(resolveBioTheme("reef"));
+    for (const key of [
+      "--bio-bg",
+      "--bio-surface",
+      "--bio-border",
+      "--bio-ink",
+      "--bio-muted",
+      "--bio-accent",
+      "--bio-btn",
+      "--bio-btn-text",
+      "--bio-radius",
+      "--bio-hero-from",
+      "--bio-hero-to",
+      "--bio-dark-bg",
+      "--bio-dark-surface",
+      "--bio-dark-ink",
+      "--bio-dark-muted",
+    ]) {
+      expect(vars[key]).toBeTruthy();
+    }
+    expect(vars["--bio-radius"]).toMatch(/^\d+px$/);
+    expect(vars["--bio-bg"]).toBe(resolveBioTheme("reef").pageBg);
+  });
 });
+
+function channelToLinear(value: number): number {
+  const c = value / 255;
+  return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+}
+
+function relativeLuminance(hex: string): number {
+  const match = /^#([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) throw new Error(`Not a 6-digit hex color: ${hex}`);
+  const raw = match[1];
+  const r = channelToLinear(parseInt(raw.slice(0, 2), 16));
+  const g = channelToLinear(parseInt(raw.slice(2, 4), 16));
+  const b = channelToLinear(parseInt(raw.slice(4, 6), 16));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrastRatio(a: string, b: string): number {
+  const [lighter, darker] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x);
+  return (lighter + 0.05) / (darker + 0.05);
+}
 
 describe("status picks", () => {
   it("resolves saved values with safe defaults", () => {

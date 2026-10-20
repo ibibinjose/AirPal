@@ -46,12 +46,13 @@ describe("FilterChips", () => {
     expect(markup).toContain("Clear 2 filters");
   });
 
-  it("renders Lucide components and emoji strings as icons", () => {
+  it("renders Lucide components as icons and ignores non-icon values", () => {
     const markup = renderToStaticMarkup(
       createElement(FilterChips, {
         options: [
           { id: "all", label: "All", icon: Sparkles },
-          { id: "music", label: "Music", icon: "🎵" },
+          // Deliberately wrong type: emoji strings are not icons and must not render.
+          { id: "music", label: "Music", icon: "🎵" as never },
         ],
         value: "all",
         onChange: () => undefined,
@@ -59,7 +60,7 @@ describe("FilterChips", () => {
       }),
     );
     expect(markup).toContain("<svg");
-    expect(markup).toContain("🎵");
+    expect(markup).not.toContain("🎵");
   });
 
   it("hides the clear button when nothing is selected", () => {

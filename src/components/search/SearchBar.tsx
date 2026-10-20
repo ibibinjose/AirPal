@@ -12,7 +12,7 @@ export interface SearchBarProps extends Omit<React.InputHTMLAttributes<HTMLInput
   /** Size token optimized for mobile ergonomics (all have >= 44px touch targets on mobile) */
   sizeVariant?: "sm" | "md" | "lg";
   /** Background & visual treatment */
-  variant?: "card" | "paper" | "ghost" | "glass";
+  variant?: "card" | "paper" | "ghost";
   /** Whether to show a button/shortcut to perform a full platform-wide search */
   showFullSearchAction?: boolean;
   /** Custom label for full search button */
@@ -62,8 +62,6 @@ const VARIANT_STYLES = {
   card: "bg-card text-ink ring-1 ring-line/90 shadow-xs focus-within:ring-2 focus-within:ring-brand/40 focus-within:shadow-[0_4px_16px_-4px_rgba(18,22,20,0.08)]",
   paper:
     "bg-paper text-ink ring-1 ring-line focus-within:ring-2 focus-within:ring-brand/40 focus-within:bg-card shadow-2xs",
-  glass:
-    "bg-card/85 backdrop-blur-md text-ink ring-1 ring-line/80 shadow-xs focus-within:ring-2 focus-within:ring-brand/40 focus-within:bg-card",
   ghost:
     "bg-transparent text-ink ring-1 ring-transparent focus-within:ring-1 focus-within:ring-line focus-within:bg-paper/50",
 };

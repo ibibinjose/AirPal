@@ -96,11 +96,26 @@ vi.mock("@/lib/catchup", async (importOriginal) => {
     status: "accepted",
     meetingLink: "https://meet.google.com/abc",
   };
+  const reminderItem = {
+    id: "cup-rem-1",
+    targetHandle: "bibinjose",
+    requesterUid: "u123",
+    requesterName: "Bibin Jose",
+    type: "catchup",
+    venue: "Sydney",
+    status: "pending",
+    isReminderOnly: true,
+    createdAt: "2026-10-09T00:00:00+10:00",
+  };
   return {
     ...actual,
-    listCatchUps: () => [testItem],
+    listCatchUps: () => [testItem, reminderItem],
     subscribeCatchUpsForOwner: (_uid: string, cb: (items: unknown[]) => void) => {
       cb([testItem]);
+      return () => undefined;
+    },
+    subscribeMyCatchUps: (_uid: string, cb: (items: unknown[]) => void) => {
+      cb([reminderItem]);
       return () => undefined;
     },
     updateCatchUpStatus: vi.fn(),
@@ -130,5 +145,12 @@ describe("MePage", () => {
 
     // Digital Bio Pass card
     expect(markup).toContain("My Digital Bio Pass");
+
+    // Saved catch-up reminders surface on /me without leaking into the inbox
+    expect(markup).toContain("People to catch up with (1)");
+    expect(markup).toContain("Bibin Jose");
+    expect(markup).toContain("@bibinjose");
+    expect(markup).toContain("Remove reminder for Bibin Jose");
+    expect(markup).not.toContain("Requests awaiting your response");
   });
 });

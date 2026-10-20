@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
+  Bell,
   Building2,
   Calendar,
   Camera,
@@ -28,12 +29,19 @@ import {
   Ticket,
   UserRound,
   Users,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
 import { useLocalNow } from "@/contexts/LocalNowContext";
 import { useMyBookings } from "@/hooks/useMyBookings";
-import { listCatchUps, subscribeCatchUpsForOwner, updateCatchUpStatus, type CatchUpItem } from "@/lib/catchup";
+import {
+  listCatchUps,
+  subscribeCatchUpsForOwner,
+  subscribeMyCatchUps,
+  updateCatchUpStatus,
+  type CatchUpItem,
+} from "@/lib/catchup";
 import { getDailyOutfitRecommendation } from "@/lib/outfit";
 import { AddToCalendarMenu } from "@/components/calendar/AddToCalendarMenu";
 import { AuthGate } from "@/components/auth/AuthGate";
@@ -76,6 +84,9 @@ export function MePage() {
   const { myEvent } = useEvents();
 
   const [catchUpsList, setCatchUpsList] = useState<CatchUpItem[]>(() => listCatchUps());
+  const [myReminders, setMyReminders] = useState<CatchUpItem[]>(() =>
+    listCatchUps().filter((item) => item.isReminderOnly && item.status !== "dismissed"),
+  );
   const [bioQrData, setBioQrData] = useState<string>("");
   const [copiedBioLink, setCopiedBioLink] = useState(false);
   const [activeTab, setActiveTab] = useState<MeTab>("all");
@@ -86,6 +97,17 @@ export function MePage() {
     if (!user?.uid) return;
     return subscribeCatchUpsForOwner(user.uid, (items) => {
       setCatchUpsList(items);
+    });
+  }, [user?.uid]);
+
+  // Subscribe to my saved catch-up reminders (bookmark flags I set on bios)
+  useEffect(() => {
+    if (!user?.uid) {
+      setMyReminders([]);
+      return;
+    }
+    return subscribeMyCatchUps(user.uid, (items) => {
+      setMyReminders(items.filter((item) => item.isReminderOnly));
     });
   }, [user?.uid]);
 
@@ -196,7 +218,7 @@ export function MePage() {
       {/* 🌟 1. APPLE HIG NATIVE HERO PROFILE CARD */}
       <div className="relative overflow-hidden rounded-[36px] bg-card ring-1 ring-line/80 shadow-clay mb-6 transition-all">
         {/* Ambient Top Glow & Pattern */}
-        <div className="relative h-32 sm:h-44 bg-gradient-to-r from-brand-ink via-[#0d173f] to-[#1a0a52] overflow-hidden">
+        <div className="relative h-32 sm:h-44 bg-gradient-to-r from-brand-ink via-[#0d173f] to-[#0a0d1e] overflow-hidden">
           <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#ffffff_1.2px,transparent_1.2px)] [background-size:18px_18px]" />
           <Photo
             src="/media/harbour.jpg"
@@ -208,7 +230,7 @@ export function MePage() {
           <div className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 flex items-center gap-2">
             <Link
               href="/pass"
-              className="inline-flex min-h-[38px] items-center gap-2 rounded-full bg-black/40 px-3.5 py-1.5 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl transition hover:bg-black/60 active:scale-95"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-black/40 px-3.5 py-1.5 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl transition hover:bg-black/60 active:scale-95"
             >
               <Ticket size={13} className="text-amber-400" />
               <span>AirPal Pass</span>
@@ -741,6 +763,80 @@ export function MePage() {
               </div>
             )}
 
+            {/* Saved Reminders: people I flagged for a future catch-up */}
+            {myReminders.length > 0 && (
+              <div className="mb-5 rounded-2xl bg-brand/5 p-4 sm:p-5 ring-1 ring-brand/20">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-ink">
+                    <Bell size={15} className="text-accent" />
+                    <span>People to catch up with ({myReminders.length})</span>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase rounded-full bg-brand/10 px-2.5 py-0.5 text-accent">
+                    Reminders
+                  </span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {myReminders.map((item) => {
+                    const displayName = item.requesterName || `@${item.targetHandle}`;
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl bg-card p-4 ring-1 ring-line/80 shadow-2xs"
+                      >
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <div className="h-11 w-11 overflow-hidden rounded-full ring-2 ring-line bg-paper shrink-0">
+                            {item.requesterPhoto ? (
+                              <Photo src={item.requesterPhoto} className="h-full w-full object-cover rounded-full" />
+                            ) : (
+                              <span className="grid h-full w-full place-items-center bg-neutral-900 font-bold text-xs text-white rounded-full">
+                                {(item.requesterName || item.targetHandle)[0]}
+                              </span>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-sm text-ink truncate">{displayName}</p>
+                            <p className="text-xs text-mute truncate mt-0.5">
+                              @{item.targetHandle}
+                              {item.venue && ` · ${item.venue}`}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex w-full sm:w-auto items-center justify-end gap-2 shrink-0 border-t border-line/40 pt-2.5 sm:border-0 sm:pt-0">
+                          <Button
+                            size="sm"
+                            className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full bg-brand px-3.5 text-xs font-bold text-white hover:bg-brand-ink active:scale-95"
+                            onClick={() => {
+                              void triggerHaptic("light");
+                              nav(bioPath(item.targetHandle));
+                            }}
+                          >
+                            <Coffee size={13} className="mr-1 shrink-0" />
+                            Catch up
+                          </Button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              void triggerHaptic("light");
+                              updateCatchUpStatus(item.id, "dismissed");
+                              setMyReminders((prev) => prev.filter((r) => r.id !== item.id));
+                              toast.info(`Removed reminder for ${displayName}`);
+                            }}
+                            className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute ring-1 ring-line transition hover:text-ink hover:bg-black/5 active:scale-95 cursor-pointer touch-manipulation"
+                            aria-label={`Remove reminder for ${displayName}`}
+                            title="Remove reminder"
+                          >
+                            <X size={15} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Upcoming Scheduled Syncs */}
             {upcomingScheduledAppointments.length > 0 ? (
               <div className="space-y-3">
@@ -807,7 +903,7 @@ export function MePage() {
                   </div>
                 ))}
               </div>
-            ) : pendingAppointments.length === 0 ? (
+            ) : pendingAppointments.length === 0 && myReminders.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-line/80 p-5 text-center bg-paper/40">
                 <Coffee size={24} className="mx-auto text-mute/80 mb-1.5" />
                 <p className="text-xs text-mute font-medium">No upcoming appointments or catch-ups.</p>
@@ -1035,7 +1131,7 @@ export function MePage() {
                   href="/me/memories"
                   className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition text-xs font-bold text-ink active:scale-95"
                 >
-                  <Images size={15} className="text-purple-600" />
+                  <Images size={15} className="text-accent" />
                   <span>Memories</span>
                 </Link>
                 <Link

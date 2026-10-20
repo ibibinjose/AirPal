@@ -63,7 +63,7 @@ function ItemCard({
       {onClaim && (
         <button
           type="button"
-          className="mt-2.5 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs transition hover:bg-brand-ink active:scale-[0.98] cursor-pointer touch-manipulation"
+          className="bio-theme-primary mt-2.5 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs transition hover:bg-brand-ink active:scale-[0.98] cursor-pointer touch-manipulation"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
