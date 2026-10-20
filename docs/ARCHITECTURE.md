@@ -27,7 +27,8 @@ product canon is [`AIRPAL.md`](./AIRPAL.md); this file is the tree legend.
 | `playwright-report/`, `test-results/`                                                          | test output  | **no**    | Local only, never committed                                                                                                                     |
 | `*.log`                                                                                        | logs         | **no**    | Emulator/debug logs, never committed                                                                                                            |
 | `.env`                                                                                         | secrets      | **no**    | Root: **client keys only** (`VITE_*`). See below                                                                                                |
-| `functions/.env`                                                                               | secrets      | **no**    | Server secrets for the local emulator (Stripe keys). Production uses Secret Manager via `defineSecret`                                          |
+| `functions/.env`                                                                               | local config | **no**   | Non-secret Functions environment config; do not duplicate keys bound with `defineSecret`                                                       |
+| `functions/.secret.local`                                                                      | secrets      | **no**    | Local emulator overrides for `defineSecret` bindings; production uses Secret Manager                                                          |
 | `Certificates.p12`, keystores, service-account JSON                                            | secrets      | **no**    | Local signing/credentials. Ignored by pattern (`*.p12`, `*.jks`, `android/**/keystore.properties`, `*serviceAccount*.json`). Back up off-repo   |
 
 ## `src/` conventions
@@ -57,8 +58,10 @@ requires a composite index entry (`firestore.indexes.json`); the
 
 ## Secrets discipline
 
-1. Root `.env` = public client config only. Server keys live in
-   `functions/.env` (emulator) and Secret Manager (production).
+1. Root `.env` = public client config only. Non-secret Functions config lives
+   in `functions/.env`; local secret overrides for `defineSecret` bindings go
+   in `functions/.secret.local`, while production secrets live in Secret
+   Manager. Never put a `defineSecret` key in a plain `.env` file.
 2. Vite exposes only `VITE_*` to the bundle — but never put a secret in
    root `.env` at all; the file's own header says so.
 3. Signing material (`.p12`, keystores, `keystore.properties`,
