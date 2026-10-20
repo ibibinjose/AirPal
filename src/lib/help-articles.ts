@@ -86,7 +86,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     category: "account",
     summary: "One AirPal account everywhere. You must be 18 or older to hold one.",
     steps: [
-      "Sign in with email, phone, Google, or Apple — same account on web and app.",
+      "Sign in with email, Google, or Apple — same account on web and app.",
       "Claim your personal @handle; it stays a person, never a business.",
       "Add a photo, bio, interests, and languages so friends know you.",
       "Businesses run on the same login as a separate profile.",

@@ -32,7 +32,7 @@ export function BioRecoverPage() {
               1
             </span>
             <span>
-              <strong>Sign in</strong> with the email, phone, or social account you used to claim the handle.{" "}
+              <strong>Sign in</strong> with the email or social account you used to claim the handle.{" "}
               <Link href="/start" className="font-semibold text-accent hover:underline">
                 Go to sign-in
               </Link>

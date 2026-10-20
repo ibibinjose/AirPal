@@ -28,7 +28,7 @@ describe("NativeOpenScreen", () => {
     expect(html).toContain("Life Made Easy.");
     expect(html).toContain("Continue with Google");
     expect(html).toContain("Continue with Apple");
-    expect(html).toContain("Sign In with Mobile Number");
+    expect(html).toContain("Sign In with Email");
     expect(html).toContain("Create Free Account");
   });
 

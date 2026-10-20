@@ -12,9 +12,10 @@ test.describe("Authentication & Security Flow", () => {
     await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Continue with Apple/i })).toBeVisible();
 
-    await expect(page.getByPlaceholder("412 345 678")).toBeVisible();
+    await expect(page.getByLabel("Email Address")).toBeVisible();
     await expect(page.getByPlaceholder("••••••••")).toBeVisible();
     await expect(page.getByRole("button", { name: "Forgot password?" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "SMS Code", exact: true })).toHaveCount(0);
   });
 
   test("create account starts with mobile number and handle, followed by account info", async ({ page }) => {
@@ -39,12 +40,13 @@ test.describe("Authentication & Security Flow", () => {
     await expect(passwordInput).toHaveAttribute("type", "password");
   });
 
-  test("mobile sign-in offers password and SMS", async ({ page }) => {
-    await expect(page.getByRole("button", { name: "Password", exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "SMS Code", exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "SMS Code", exact: true }).click();
-    await expect(page.getByPlaceholder("412 345 678")).toBeVisible();
-    await expect(page.getByRole("button", { name: /Send SMS Code/i })).toBeVisible();
+  test("email sign-in is available without phone sign-in controls", async ({ page }) => {
+    await expect(page.getByLabel("Email Address")).toBeVisible();
+    await expect(page.getByPlaceholder("••••••••")).toBeVisible();
+    await expect(page.getByPlaceholder("412 345 678")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "SMS Code", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /Continue with Google/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Continue with Apple/i })).toBeVisible();
   });
 
   test("displays context-aware role banner for Host and Business", async ({ page }) => {
@@ -66,16 +68,16 @@ test.describe("Authentication & Security Flow", () => {
 
     await page.getByRole("button", { name: "Back to Sign In" }).click();
     await expect(page.getByRole("button", { name: "Create Account", exact: true })).toBeVisible();
-    await expect(page.getByPlaceholder("412 345 678")).toBeVisible();
+    await expect(page.getByLabel("Email Address")).toBeVisible();
   });
 
   test("displays AuthGate when navigating to protected role routes", async ({ page }) => {
     await page.goto("/event");
     await expect(page.getByRole("heading", { name: "Create an event" })).toBeVisible();
     await expect(page.getByText("Event Organiser", { exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("button", { name: /Sign In with Mobile or Social/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Sign In with Email or Social/i })).toBeVisible();
 
-    await page.getByRole("button", { name: /Sign In with Mobile or Social/i }).click();
+    await page.getByRole("button", { name: /Sign In with Email or Social/i }).click();
     await expect(page).toHaveURL(/\/start\?tab=signin&next=%2Fevent/);
   });
 
@@ -102,9 +104,9 @@ test.describe("Authentication & Security Flow", () => {
     await expect(authCard).toBeVisible();
 
     // Inputs have font-size >= 16px to prevent iOS auto-zoom
-    const phoneInput = page.getByPlaceholder("412 345 678");
-    await expect(phoneInput).toBeVisible();
-    const fontSize = await phoneInput.evaluate((el) => window.getComputedStyle(el).fontSize);
+    const emailInput = page.getByLabel("Email Address");
+    await expect(emailInput).toBeVisible();
+    const fontSize = await emailInput.evaluate((el) => window.getComputedStyle(el).fontSize);
     expect(parseFloat(fontSize)).toBeGreaterThanOrEqual(16);
   });
 });

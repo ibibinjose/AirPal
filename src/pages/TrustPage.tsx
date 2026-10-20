@@ -209,8 +209,8 @@ export function TrustPage() {
           <div className="py-4">
             <h3 className="text-[15px] font-bold text-ink">Identity</h3>
             <p className="mt-1 text-sm leading-relaxed text-ink/80">
-              Accounts are 18+. Sign in with email, phone, Google or Apple, with email and phone verification where
-              required. Home addresses, verification documents, phone numbers and emails are never exposed.
+              Accounts are 18+. Sign in with email, Google or Apple, with email and phone verification where required.
+              Home addresses, verification documents, phone numbers and emails are never exposed.
             </p>
           </div>
         </div>

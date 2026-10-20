@@ -117,7 +117,7 @@ function AppleMark() {
   );
 }
 
-export function SocialAuthDivider({ label = "or continue with mobile" }: { label?: string }) {
+export function SocialAuthDivider({ label = "or continue with email" }: { label?: string }) {
   if (!SHOW_SOCIAL_AUTH) return null;
   return (
     <div className="my-4 flex items-center gap-3">

@@ -29,7 +29,15 @@ function nudgeIntoView(e: React.FocusEvent<HTMLElement>) {
   });
 }
 
-export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; initialPhone?: string }) {
+export function SignupFlow({
+  onDone,
+  onPhoneConfirm,
+  initialPhone = "",
+}: {
+  onDone: () => void;
+  onPhoneConfirm?: () => void;
+  initialPhone?: string;
+}) {
   const {
     sendPhoneCode,
     confirmPhoneCode,
@@ -101,6 +109,7 @@ export function SignupFlow({ onDone, initialPhone = "" }: { onDone: () => void; 
       toast.error("Enter the 6-digit code");
       return;
     }
+    onPhoneConfirm?.();
     setBusy(true);
     try {
       await confirmPhoneCode(normalizeOtp(code));

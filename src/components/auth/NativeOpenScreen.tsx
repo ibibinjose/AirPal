@@ -12,8 +12,8 @@ import {
   Flame,
   Gift,
   Heart,
+  Mail,
   MapPin,
-  Phone,
   QrCode,
   Radio,
   ShieldCheck,
@@ -652,7 +652,7 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
                 <ArrowRight size={16} />
               </Button>
 
-              {/* Secondary Phone Login Action */}
+              {/* Secondary Email Login Action */}
               <Button
                 variant="ghost"
                 className="w-full min-h-[44px] h-11 text-sm font-semibold transition active:scale-[0.98]"
@@ -662,8 +662,8 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
                   nav("/start?tab=signin");
                 }}
               >
-                <Phone size={15} />
-                <span>Sign In with Mobile Number</span>
+                <Mail size={15} />
+                <span>Sign In with Email</span>
               </Button>
 
               {/* Guest Exploration / Browse Without Account */}
