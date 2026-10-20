@@ -81,9 +81,7 @@ export function HomePage() {
         <div className="human-eyebrow">Life made easy</div>
         <h1 className="human-title mt-2 text-2xl sm:text-3xl">
           {firstName ? `Hey ${firstName}, good to see you ` : "Hey, good to see you "}
-          <span className="text-accent inline-block" aria-hidden="true">
-            ✳
-          </span>
+          <Sparkles size={22} className="inline text-accent" aria-hidden="true" />
         </h1>
         <p className="human-lede text-sm sm:text-base">
           A whole city of possibilities. Real places, real people, one day at a time.
@@ -320,7 +318,7 @@ export function HomePage() {
                     className="flex flex-col justify-between rounded-2xl bg-paper p-4 ring-1 ring-line/80 hover:bg-card hover:ring-brand/40 transition active:scale-[0.98] cursor-pointer"
                   >
                     <div>
-                      <div className="grid h-9 w-9 place-items-center rounded-xl bg-purple-500/15 text-purple-700 dark:text-purple-300 mb-2.5">
+                      <div className="grid h-9 w-9 place-items-center rounded-xl bg-rose-500/15 text-rose-700 dark:text-rose-400 mb-2.5">
                         <Gift size={18} />
                       </div>
                       <h4 className="font-display text-sm font-bold text-ink">4. Deals &amp; Business</h4>

@@ -291,7 +291,11 @@ export function ScanPage() {
         </div>
       ) : quickPlaces.length === 0 ? (
         <div className="mt-5 pb-6">
-          <EmptyState title="Nothing nearby to try yet" body="Enter a ticket code, event link, or @handle." />
+          <EmptyState
+            icon={<Zap size={28} className="text-mute" />}
+            title="Nothing nearby to try yet"
+            body="Enter a ticket code, event link, or @handle."
+          />
         </div>
       ) : (
         <>

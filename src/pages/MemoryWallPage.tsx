@@ -267,6 +267,7 @@ export function MemoryWallPage() {
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
                 placeholder="Caption — sunset swim at Bondi"
+                aria-label="Memory caption"
                 maxLength={120}
                 className={`mt-3 ${fieldInput}`}
               />
@@ -274,6 +275,7 @@ export function MemoryWallPage() {
                 value={withPeople}
                 onChange={(e) => setWithPeople(e.target.value)}
                 placeholder="With — Maya, @leo (comma separated)"
+                aria-label="People in this memory"
                 maxLength={120}
                 list="memory-people"
                 className={`mt-2 ${fieldInput}`}
@@ -289,6 +291,7 @@ export function MemoryWallPage() {
                 value={place}
                 onChange={(e) => setPlace(e.target.value)}
                 placeholder="Place — Bondi Beach"
+                aria-label="Place where this memory was made"
                 maxLength={80}
                 className={`mt-2 ${fieldInput}`}
               />

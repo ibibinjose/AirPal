@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useRoute, useLocation, useSearch } from "wouter";
-import { ArrowLeft, Heart, Settings, Share2, Sparkles, Star, Ticket } from "lucide-react";
+import { ArrowLeft, Check, Heart, Settings, Share2, Sparkles, Star, Ticket } from "lucide-react";
 import { toast } from "sonner";
 import { StickyAction } from "@/components/design-system/companions";
 import { Button } from "@/components/ui/Button";
@@ -536,14 +536,17 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
                 event.isGoing ? "bg-emerald-600 text-white" : isPaid ? "bg-brand text-white" : "bg-brand text-white",
               )}
             >
-              <span>
-                {buying
-                  ? "Starting checkout…"
-                  : event.isGoing
-                    ? "You're going ✓"
-                    : isPaid
-                      ? `Get ${effectiveSpots > 1 ? `${effectiveSpots} tickets` : "ticket"} · $${(effectivePriceCents / 100).toFixed(2)}`
-                      : "Register Free Pass · I'm going"}
+              <span className="inline-flex items-center gap-1.5">
+                {event.isGoing && !buying && <Check size={16} className="shrink-0" aria-hidden="true" />}
+                <span>
+                  {buying
+                    ? "Starting checkout…"
+                    : event.isGoing
+                      ? "You're going"
+                      : isPaid
+                        ? `Get ${effectiveSpots > 1 ? `${effectiveSpots} tickets` : "ticket"} · $${(effectivePriceCents / 100).toFixed(2)}`
+                        : "Register Free Pass · I'm going"}
+                </span>
               </span>
             </button>
           }

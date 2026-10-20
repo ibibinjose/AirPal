@@ -53,7 +53,7 @@ function NotificationKindIcon({ kind }: { kind: string }) {
     case "here":
       return <Radio size={16} className="text-brand" />;
     case "wave":
-      return <Hand size={16} className="text-indigo-500" />;
+      return <Hand size={16} className="text-rose-500" />;
     case "winner_selected":
     case "prize_available":
     case "winner_verification":
@@ -223,6 +223,7 @@ export function InboxPage() {
     return (
       <div className="mx-auto max-w-md px-4 py-8">
         <EmptyState
+          icon={<Bell size={28} className="text-mute" />}
           title="Couldn't load your inbox"
           body="Check your connection and try again — your notifications are safe."
           action={() => setRetryToken((t) => t + 1)}
@@ -368,7 +369,7 @@ export function InboxPage() {
                   setFilter("all");
                 }}
                 className={cn(
-                  "inline-flex min-h-[36px] items-center rounded-full px-3 text-[12px] font-semibold transition-colors",
+                  "inline-flex min-h-[44px] items-center rounded-full px-3 text-[12px] font-semibold transition-colors",
                   filter === "all"
                     ? "bg-accent text-card shadow-sm"
                     : "bg-paper text-mute hover:bg-paper/80 hover:text-ink ring-1 ring-line/60",
@@ -383,7 +384,7 @@ export function InboxPage() {
                   setFilter("unread");
                 }}
                 className={cn(
-                  "inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3 text-[12px] font-semibold transition-colors",
+                  "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-[12px] font-semibold transition-colors",
                   filter === "unread"
                     ? "bg-accent text-card shadow-sm"
                     : "bg-paper text-mute hover:bg-paper/80 hover:text-ink ring-1 ring-line/60",
@@ -409,7 +410,7 @@ export function InboxPage() {
                   type="button"
                   disabled={markingAll}
                   onClick={() => void markSegmentRead(activeList)}
-                  className="inline-flex min-h-[36px] items-center text-[12px] font-bold text-accent disabled:opacity-40 hover:underline"
+                  className="inline-flex min-h-[44px] items-center text-[12px] font-bold text-accent disabled:opacity-40 hover:underline"
                 >
                   {markingAll ? "Marking…" : "Mark all read"}
                 </button>
@@ -419,7 +420,7 @@ export function InboxPage() {
                   type="button"
                   disabled={clearing}
                   onClick={() => void clearReadNotifications(activeList)}
-                  className="inline-flex min-h-[36px] items-center text-[12px] font-bold text-rose-500/90 disabled:opacity-40 hover:underline"
+                  className="inline-flex min-h-[44px] items-center text-[12px] font-bold text-rose-500/90 disabled:opacity-40 hover:underline"
                 >
                   {clearing ? "Clearing…" : "Clear read"}
                 </button>
@@ -474,6 +475,12 @@ export function InboxPage() {
                 <p className="mx-auto mt-1 max-w-xs text-[14px] leading-relaxed text-mute">
                   News from AirPal — features, safety notices, city launches — lands here.
                 </p>
+                <Link
+                  href="/events"
+                  className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition active:scale-95"
+                >
+                  Explore events
+                </Link>
               </div>
             )
           ) : (

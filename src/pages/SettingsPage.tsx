@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import {
+  AlertTriangle,
   ArrowLeft,
+  ArrowRight,
   Bell,
+  Cake,
   Calendar,
   Check,
   ChevronRight,
@@ -186,7 +189,7 @@ export function SettingsPage() {
               nav("/me");
             }
           }}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-card ring-1 ring-line text-ink transition hover:bg-paper active:scale-95 cursor-pointer"
+          className="inline-flex h-10 w-10 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-card ring-1 ring-line text-ink transition hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
           aria-label="Go back"
         >
           <ArrowLeft size={18} />
@@ -463,7 +466,7 @@ export function SettingsPage() {
                   </label>
                   <select
                     id="user-birthday-month"
-                    className="w-full min-h-[44px] rounded-2xl border border-line bg-paper px-3 py-2 text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50 cursor-pointer"
+                    className="w-full min-h-[44px] rounded-2xl border border-line bg-paper px-3 py-2 text-[16px] sm:text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50 cursor-pointer"
                     value={birthdayMonth ?? ""}
                     disabled={alertsBusy}
                     onChange={(e) => {
@@ -486,7 +489,7 @@ export function SettingsPage() {
                   </label>
                   <select
                     id="freebies-region"
-                    className="w-full min-h-[44px] rounded-2xl border border-line bg-paper px-3 py-2 text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50 cursor-pointer"
+                    className="w-full min-h-[44px] rounded-2xl border border-line bg-paper px-3 py-2 text-[16px] sm:text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50 cursor-pointer"
                     value={alertsRegion}
                     disabled={alertsBusy}
                     onChange={(e) => {
@@ -507,7 +510,7 @@ export function SettingsPage() {
                   <span className="flex items-center gap-1.5 font-medium text-ink">
                     {birthdayMonth ? (
                       <>
-                        <span aria-hidden="true">🎂</span>
+                        <Cake size={13} className="shrink-0 text-amber-600" aria-hidden="true" />
                         <span>
                           Birthday set to:{" "}
                           <strong className="text-ink">
@@ -516,8 +519,9 @@ export function SettingsPage() {
                         </span>
                       </>
                     ) : (
-                      <span className="text-amber-500 font-medium">
-                        ⚠️ Select your birth month to unlock annual alerts
+                      <span className="text-amber-500 font-medium inline-flex items-center gap-1">
+                        <AlertTriangle size={12} className="shrink-0" aria-hidden="true" />
+                        <span>Select your birth month to unlock annual alerts</span>
                       </span>
                     )}
                   </span>
@@ -526,7 +530,7 @@ export function SettingsPage() {
                     className="font-semibold text-accent hover:underline flex items-center gap-1"
                   >
                     <span>Browse Freebies</span>
-                    <span>&rarr;</span>
+                    <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
                   </Link>
                 </div>
               </div>
@@ -568,7 +572,7 @@ export function SettingsPage() {
                   }
                 }
               }}
-              className="w-full min-h-[44px] rounded-2xl bg-paper px-3 py-2 text-sm font-medium text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer"
+              className="w-full min-h-[44px] rounded-2xl bg-paper px-3 py-2 text-[16px] sm:text-sm font-medium text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer"
             >
               <option value="gps">📍 Current device location (GPS)</option>
               {CITY_OPTIONS.map((c) => (

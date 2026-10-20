@@ -141,7 +141,7 @@ export function CalendarDayView({
         sublabel: "After 5:00 PM",
         icon: Moon,
         items: evening,
-        iconColor: "text-indigo-400",
+        iconColor: "text-sky-500",
       },
     ];
   }, [dayEvents]);

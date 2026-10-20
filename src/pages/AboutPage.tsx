@@ -104,10 +104,7 @@ export function AboutPage() {
       {/* Hero Card */}
       <div className="relative overflow-hidden rounded-[32px] bg-card ring-1 ring-line shadow-clay">
         <div className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden">
-          <Photo
-            src="/media/harbour.jpg"
-            className="h-full w-full object-cover brightness-90 transition-transform duration-700 hover:scale-105"
-          />
+          <Photo src="/media/harbour.jpg" className="h-full w-full object-cover brightness-90" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent" />
 
           {/* Floating Badges */}
@@ -166,11 +163,11 @@ export function AboutPage() {
             return (
               <div
                 key={item.title}
-                className="group relative flex flex-col justify-between rounded-[28px] bg-card p-5 ring-1 ring-line/80 shadow-clay transition-all duration-200 hover:-translate-y-0.5 hover:shadow-clay-hover hover:ring-brand/30"
+                className="group relative flex flex-col justify-between rounded-[28px] bg-card p-5 ring-1 ring-line/80 shadow-clay transition-all duration-200 hover:shadow-clay-hover hover:ring-brand/30"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20 transition-transform group-hover:scale-105">
+                    <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
                       <Icon size={20} strokeWidth={2} />
                     </span>
                     <span className="rounded-full bg-paper px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-mute ring-1 ring-line/60">
@@ -263,9 +260,10 @@ export function AboutPage() {
         <Link
           href="/trust"
           onClick={() => void triggerHaptic("light")}
-          className="mt-2 inline-block text-xs font-bold text-accent hover:underline"
+          className="mt-2 inline-flex min-h-[44px] items-center gap-1 text-xs font-bold text-accent hover:underline"
         >
-          Company facts, verification & what AirPal.Me isn&apos;t →
+          Company facts, verification & what AirPal.Me isn&apos;t
+          <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
         </Link>
 
         <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">

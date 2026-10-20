@@ -127,8 +127,8 @@ export function AuthGate({
           "Interactive stall map, categories & CSV import",
           "Live visitor sentiment and emoji ratings",
         ],
-        accentColor: "text-indigo-600 dark:text-indigo-400",
-        accentBg: "bg-indigo-500/10",
+        accentColor: "text-sky-600 dark:text-sky-400",
+        accentBg: "bg-sky-500/10",
       };
     }
     if (target.includes("claim") || target.includes("venue")) {

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation, useSearch, Link } from "wouter";
 import {
+  ArrowRight,
   CalendarDays,
   CalendarRange,
   Check,
@@ -14,7 +15,6 @@ import {
   Download,
   List,
   Plus,
-  PlusCircle,
   SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -345,7 +345,8 @@ function CalendarPageContent() {
                 className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1 text-xs sm:text-sm font-bold text-white ring-1 ring-white/25 backdrop-blur-md hover:bg-white/25 transition active:scale-95 whitespace-nowrap"
               >
                 <Ticket size={13} className="shrink-0 text-amber-400" aria-hidden="true" />
-                <span>AirPal Pass →</span>
+                <span>AirPal Pass</span>
+                <ArrowRight size={13} className="shrink-0" aria-hidden="true" />
               </Link>
             </div>
           </div>
@@ -360,7 +361,7 @@ function CalendarPageContent() {
 
       {/* Top Header / tools */}
       <div className="mb-6 flex flex-col gap-3.5 md:flex-row md:items-end md:justify-between">
-        <div className="shrink-0 flex items-center justify-between md:justify-start gap-2">
+        <div className="shrink-0 flex flex-wrap items-center justify-between md:justify-start gap-2">
           <h2 className="font-display text-xl font-bold tracking-tight text-ink whitespace-nowrap">Browse events</h2>
           <button
             type="button"
@@ -368,14 +369,14 @@ function CalendarPageContent() {
               void triggerHaptic("light");
               setQuickScheduleOpen(true);
             }}
-            className="inline-flex min-h-[38px] items-center gap-1 rounded-full bg-brand px-3 text-xs font-bold text-white hover:bg-brand-ink transition active:scale-95 shadow-2xs whitespace-nowrap cursor-pointer"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-brand px-3 text-xs font-bold text-white hover:bg-brand-ink transition active:scale-95 shadow-2xs whitespace-nowrap cursor-pointer"
           >
             <Plus size={13} className="shrink-0" />
             <span>Add to Schedule</span>
           </button>
           <Link
             href="/event"
-            className="inline-flex min-h-[38px] items-center gap-1 rounded-full bg-card px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-2xs whitespace-nowrap"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-2xs whitespace-nowrap"
           >
             <Plus size={12} className="shrink-0" />
             <span>Host Event</span>
@@ -464,17 +465,6 @@ function CalendarPageContent() {
                 {savedItineraryCount}
               </span>
             )}
-          </button>
-
-          {/* Host Event link */}
-          <button
-            type="button"
-            onClick={() => nav("/event")}
-            title="Create an event and invite your Circle"
-            className="inline-flex flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-semibold text-white hover:bg-brand-ink transition active:scale-95 cursor-pointer shadow-xs whitespace-nowrap"
-          >
-            <PlusCircle size={14} className="shrink-0" />
-            <span>Create</span>
           </button>
         </div>
       </div>
@@ -628,7 +618,7 @@ function CalendarPageContent() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/me/tickets"
-                  className="inline-flex min-h-[38px] items-center gap-1 rounded-full bg-brand px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
+                  className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-brand px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
                 >
                   <span>View Pass (QR)</span>
                 </Link>
@@ -663,8 +653,8 @@ function CalendarPageContent() {
                     </p>
                   </div>
 
-                  {/* Quick actions for current events list */}
-                  {filteredEvents.length > 0 && (
+                  {/* Quick actions for current events list (hidden on a selected day — the notice above already offers the same export) */}
+                  {filteredEvents.length > 0 && !selectedDate && (
                     <button
                       type="button"
                       onClick={() => {
@@ -725,7 +715,7 @@ function CalendarPageContent() {
                     {usingGps && filter === "all" && (
                       <button
                         type="button"
-                        className="mt-3 text-[13px] font-semibold text-accent"
+                        className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-[13px] font-semibold text-accent ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
                         onClick={() => chooseLocation(ROCKS_BROWSE)}
                       >
                         See The Rocks
@@ -854,9 +844,10 @@ function CalendarPageContent() {
                     <p>No booked passes yet. Browse concerts, Diwali festivals, or dining perks on AirPal Pass.</p>
                     <Link
                       href="/pass"
-                      className="mt-2 inline-flex items-center text-xs font-bold text-accent hover:underline"
+                      className="mt-2 inline-flex min-h-[44px] items-center gap-1 text-xs font-bold text-accent hover:underline"
                     >
-                      Find experiences on Pass →
+                      Find experiences on Pass
+                      <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
                     </Link>
                   </div>
                 ) : (
@@ -875,8 +866,9 @@ function CalendarPageContent() {
                         </Link>
                         <Link
                           href="/me/tickets"
-                          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card ring-1 ring-line text-accent hover:ring-brand/40 transition active:scale-90"
+                          className="grid h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 place-items-center rounded-full bg-card ring-1 ring-line text-accent hover:ring-brand/40 transition active:scale-90"
                           title="View Gate QR Pass"
+                          aria-label="View gate QR pass"
                         >
                           <Ticket size={16} />
                         </Link>
@@ -887,8 +879,12 @@ function CalendarPageContent() {
               </div>
               {upcomingBookings.length > 5 && (
                 <div className="mt-3 text-right">
-                  <Link href="/me/tickets" className="text-xs font-bold text-accent hover:underline">
-                    View all {upcomingBookings.length} passes →
+                  <Link
+                    href="/me/tickets"
+                    className="inline-flex min-h-[44px] items-center gap-1 text-xs font-bold text-accent hover:underline"
+                  >
+                    View all {upcomingBookings.length} passes
+                    <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
                   </Link>
                 </div>
               )}

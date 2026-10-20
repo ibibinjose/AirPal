@@ -51,6 +51,16 @@ describe("one AirPal App registry", () => {
     }
   });
 
+  it("redirects retired promo targets to live pillar routes", () => {
+    const tos = new Map(STATIC_ALIASES.map((a) => [a.from, a.to]));
+    expect(tos.get("/mate")).toBe("/friends");
+    expect(tos.get("/experiences")).toBe("/events");
+    expect(tos.get("/fashion")).toBe("/deals");
+    for (const to of ["/friends", "/events", "/deals"]) {
+      expect(canonicalRouteFor(to)).toBeDefined();
+    }
+  });
+
   it("matches params by whole segment only", () => {
     expect(patternMatches("/e/:id", "/e/abc")).toBe(true);
     expect(patternMatches("/e/:id", "/e/abc/guests")).toBe(false);

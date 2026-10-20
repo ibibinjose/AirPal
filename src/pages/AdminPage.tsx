@@ -19,6 +19,7 @@ import { GuestListPanel } from "@/components/club/GuestListPanel";
 import { CompanionAdmin } from "@/components/admin/CompanionAdmin";
 import { MateRequestsAdmin } from "@/components/admin/MateRequestsAdmin";
 import { PartnerLeadsAdmin } from "@/components/admin/PartnerLeadsAdmin";
+import { PartnerApplicationsAdmin } from "@/components/admin/PartnerApplicationsAdmin";
 import { SafetyInboxAdmin } from "@/components/admin/SafetyInboxAdmin";
 import { CampaignInboxAdmin } from "@/components/admin/CampaignInboxAdmin";
 import { FestivalAdmin } from "@/components/admin/FestivalAdmin";
@@ -273,7 +274,7 @@ export function AdminPage() {
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
                     <Search className="h-5 w-5" />
                   </span>
                   <ArrowUpRight className="h-4 w-4 text-mute transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
@@ -309,7 +310,7 @@ export function AdminPage() {
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
                     <QrCode className="h-5 w-5" />
                   </span>
                   <ArrowUpRight className="h-4 w-4 text-mute transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
@@ -489,7 +490,12 @@ export function AdminPage() {
 
           {tab === "mates" && <CompanionAdmin />}
           {tab === "marketplace" && <MateRequestsAdmin />}
-          {tab === "partners" && <PartnerLeadsAdmin />}
+          {tab === "partners" && (
+            <div className="space-y-6">
+              <PartnerApplicationsAdmin />
+              <PartnerLeadsAdmin />
+            </div>
+          )}
           {tab === "claims" && <ClaimReviewQueue />}
           {tab === "safety" && <SafetyInboxAdmin />}
           {tab === "search" && <SearchQueriesDashboardTab />}

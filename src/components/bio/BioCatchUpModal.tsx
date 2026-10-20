@@ -9,16 +9,22 @@ import {
   Clock,
   Coffee,
   Copy,
+  Dices,
   ExternalLink,
+  Laptop,
   Loader2,
   MapPin,
+  Martini,
   MessageSquare,
+  Music,
   PhoneCall,
   Sparkles,
   Users,
+  UtensilsCrossed,
   Video,
   X,
   Zap,
+  type LucideIcon,
 } from "lucide-react";
 import { Photo } from "@/components/ui/Photo";
 import { Button } from "@/components/ui/Button";
@@ -71,13 +77,13 @@ const DURATION_OPTIONS = [
   { mins: 120, label: "2 hr", sub: "Hangout" },
 ];
 
-const HANGOUT_VIBES = [
-  { id: "coffee", label: "Coffee walk", icon: "☕" },
-  { id: "dinner", label: "Dinner & bites", icon: "🍽️" },
-  { id: "drinks", label: "Drinks & bar", icon: "🍸" },
-  { id: "gig", label: "Live gig / Music", icon: "🎵" },
-  { id: "games", label: "Games & trivia", icon: "🎲" },
-  { id: "cowork", label: "Co-working sync", icon: "💻" },
+const HANGOUT_VIBES: Array<{ id: string; label: string; icon: LucideIcon }> = [
+  { id: "coffee", label: "Coffee walk", icon: Coffee },
+  { id: "dinner", label: "Dinner & bites", icon: UtensilsCrossed },
+  { id: "drinks", label: "Drinks & bar", icon: Martini },
+  { id: "gig", label: "Live gig / Music", icon: Music },
+  { id: "games", label: "Games & trivia", icon: Dices },
+  { id: "cowork", label: "Co-working sync", icon: Laptop },
 ];
 
 const VENUE_SHORTCUTS = ["Nearby Café", "The Rocks", "Circular Quay", "Central", "Surry Hills"];
@@ -198,7 +204,7 @@ export function BioCatchUpModal({
       sublabel: "Group catch-up",
       icon: Users,
       badge: "Group",
-      color: "from-purple-500/20 to-pink-500/20 text-purple-600 border-purple-500/30",
+      color: "from-rose-500/20 to-orange-500/20 text-rose-600 border-rose-500/30",
     },
   ];
 
@@ -445,7 +451,10 @@ export function BioCatchUpModal({
                 {copiedInvite ? (
                   <>
                     <Check size={14} className="text-emerald-600" />
-                    <span>Copied Message ✓</span>
+                    <span className="inline-flex items-center gap-1">
+                      Copied Message
+                      <Check size={12} className="shrink-0" aria-hidden="true" />
+                    </span>
                   </>
                 ) : (
                   <>
@@ -553,13 +562,13 @@ export function BioCatchUpModal({
                           setSelectedVibe(selectedVibe === vibe.label ? "" : vibe.label);
                         }}
                         className={cn(
-                          "inline-flex min-h-[40px] items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
+                          "inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
                           selectedVibe === vibe.label
-                            ? "bg-purple-500/15 text-purple-700 ring-purple-500/30 font-bold"
+                            ? "bg-rose-500/15 text-rose-700 dark:text-rose-300 ring-rose-500/30 font-bold"
                             : "bg-paper text-mute ring-line hover:text-ink hover:bg-card",
                         )}
                       >
-                        <span>{vibe.icon}</span>
+                        <vibe.icon size={13} className="shrink-0" aria-hidden="true" />
                         <span className="truncate">{vibe.label}</span>
                       </button>
                     ))}

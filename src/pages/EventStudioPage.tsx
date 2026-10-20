@@ -854,7 +854,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                       maxLength={300}
                       rows={2}
                       placeholder="e.g. Take the lift to Level 4 and meet at the bar from 6pm"
-                      className="w-full rounded-2xl border border-line bg-paper p-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                      className="w-full rounded-2xl border border-line bg-paper p-3 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
                     />
                   </div>
                 </div>
@@ -884,7 +884,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         value={startsLocal}
                         onChange={(e) => setStartsLocal(e.target.value)}
                         required
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
                     <div>
@@ -895,7 +895,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         type="datetime-local"
                         value={endsLocal}
                         onChange={(e) => setEndsLocal(e.target.value)}
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
                   </div>
@@ -1041,7 +1041,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     maxLength={500}
                     rows={2}
                     placeholder="e.g. No refunds, but tickets are transferable — message us to swap the name over."
-                    className="w-full rounded-2xl border border-line bg-paper p-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                    className="w-full rounded-2xl border border-line bg-paper p-3 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
                   />
                 </div>
 
@@ -1249,7 +1249,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     setCreatingNew(false);
                   }}
                   className={cn(
-                    "min-h-[38px] shrink-0 rounded-xl px-3 text-xs font-semibold transition whitespace-nowrap",
+                    "min-h-[44px] shrink-0 rounded-xl px-3 text-xs font-semibold transition whitespace-nowrap",
                     isCurrent ? "bg-brand text-white shadow-xs" : "bg-paper text-mute ring-1 ring-line hover:text-ink",
                   )}
                 >
@@ -1542,7 +1542,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                       {editingStallId && (
                         <button
                           type="button"
-                          className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-rose-600 border border-line hover:bg-card"
+                          className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-3 py-1 text-xs font-bold text-rose-600 border border-line hover:bg-card"
                           onClick={resetStallForm}
                         >
                           Cancel Edit
@@ -1559,7 +1559,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         onChange={(e) => setStallName(e.target.value)}
                         placeholder={labels.businessPlaceholder}
                         required
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
 
@@ -1572,7 +1572,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                           value={booth}
                           onChange={(e) => setBooth(e.target.value)}
                           placeholder={labels.unitPlaceholder}
-                          className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                         />
                       </div>
                       <StallHandleField
@@ -1596,7 +1596,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         onChange={(e) => setStallLocation(e.target.value)}
                         placeholder="e.g. Aisle C · Bay 12, near Gate B"
                         maxLength={120}
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60"
+                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60"
                       />
                     </div>
 
@@ -1632,7 +1632,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         value={stallWhy}
                         onChange={(e) => setStallWhy(e.target.value)}
                         placeholder="One-line summary guests see (e.g. Handmade ceramic cups & vases)"
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
 
@@ -1644,7 +1644,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         value={stallOffer}
                         onChange={(e) => setStallOffer(e.target.value)}
                         placeholder="e.g. Free espresso with bag of beans, or 10% off"
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
 
@@ -1873,7 +1873,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   maxLength={300}
                   rows={2}
                   placeholder="e.g. Take the lift to Level 4 and meet at the bar from 6pm"
-                  className="w-full rounded-2xl border border-line bg-paper p-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                  className="w-full rounded-2xl border border-line bg-paper p-3 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
                 />
               </div>
             </div>
@@ -1926,7 +1926,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   type="datetime-local"
                   value={startsLocal}
                   onChange={(e) => setStartsLocal(e.target.value)}
-                  className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                 />
               </div>
               <div>
@@ -1935,7 +1935,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   type="datetime-local"
                   value={endsLocal}
                   onChange={(e) => setEndsLocal(e.target.value)}
-                  className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                 />
               </div>
             </div>
@@ -1996,7 +1996,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 maxLength={500}
                 rows={2}
                 placeholder="e.g. No refunds, but tickets are transferable — message us to swap the name over."
-                className="w-full rounded-2xl border border-line bg-paper p-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                className="w-full rounded-2xl border border-line bg-paper p-3 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
               />
             </div>
 

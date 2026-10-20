@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 
 export function EmptyState({
+  icon,
   kicker,
   title,
   body,
@@ -9,6 +11,7 @@ export function EmptyState({
   secondary,
   secondaryLabel,
 }: {
+  icon?: ReactNode;
   kicker?: string;
   title: string;
   body?: string;
@@ -19,6 +22,11 @@ export function EmptyState({
 }) {
   return (
     <div className="rounded-3xl bg-card px-5 py-8 text-center ring-1 ring-line">
+      {icon ? (
+        <div aria-hidden="true" className="mb-2 flex justify-center">
+          {icon}
+        </div>
+      ) : null}
       {kicker ? <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">{kicker}</p> : null}
       <p className="font-display mt-1 text-lg font-semibold">{title}</p>
       {body ? <p className="mx-auto mt-1 max-w-xs text-sm text-mute">{body}</p> : null}

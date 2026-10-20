@@ -8,7 +8,10 @@ import {
   Sparkles,
   Users,
   Building2,
+  ArrowDown,
   ArrowRight,
+  ArrowUp,
+  CornerDownLeft,
   X,
   Compass,
   HeartHandshake,
@@ -872,15 +875,28 @@ export function GlobalSearchModal() {
                 Try searching &ldquo;glenmore&rdquo;, &ldquo;wifi&rdquo;, &ldquo;market&rdquo;, or &ldquo;night
                 out&rdquo;
               </p>
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+              >
+                Clear search
+              </button>
             </div>
           )}
         </div>
 
         {/* Footer Hint for Desktop */}
         <div className="hidden border-t border-line/60 bg-paper/60 px-4 py-2 text-[11px] text-mute sm:flex items-center gap-2">
-          <kbd className="rounded bg-card px-1.5 py-0.5 font-mono text-[10px] ring-1 ring-line">↑</kbd>
-          <kbd className="rounded bg-card px-1.5 py-0.5 font-mono text-[10px] ring-1 ring-line">↓</kbd>
-          <kbd className="rounded bg-card px-1.5 py-0.5 font-mono text-[10px] ring-1 ring-line">↵ Select</kbd>
+          <kbd className="rounded bg-card px-1.5 py-0.5 font-mono text-[10px] ring-1 ring-line">
+            <ArrowUp size={10} aria-hidden="true" />
+          </kbd>
+          <kbd className="rounded bg-card px-1.5 py-0.5 font-mono text-[10px] ring-1 ring-line">
+            <ArrowDown size={10} aria-hidden="true" />
+          </kbd>
+          <kbd className="rounded bg-card px-1.5 py-0.5 font-mono text-[10px] ring-1 ring-line">
+            <CornerDownLeft size={10} aria-hidden="true" /> Select
+          </kbd>
         </div>
       </div>
     </div>,

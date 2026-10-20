@@ -393,7 +393,7 @@ export function BusinessPage() {
                 value={mine.id}
                 onChange={(e) => setSelectedListingId(e.target.value)}
                 aria-label="Select active venue"
-                className="rounded-xl bg-paper py-1.5 pl-3 pr-8 text-xs font-bold text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand/40"
+                className="rounded-xl bg-paper py-1.5 pl-3 pr-8 text-[16px] sm:text-xs font-bold text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand/40 min-h-[44px]"
               >
                 {myListings.map((l) => (
                   <option key={l.id} value={l.id}>
@@ -523,7 +523,7 @@ export function BusinessPage() {
           </div>
           <Link
             href="/bio/edit"
-            className="inline-flex min-h-[40px] shrink-0 items-center gap-1 rounded-full bg-card px-3.5 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-card px-3.5 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap"
           >
             <span>Edit Link-in-Bio</span>
             <ArrowRight className="h-3 w-3 shrink-0" />
@@ -940,7 +940,7 @@ export function BusinessPage() {
               <button
                 type="button"
                 onClick={() => nav(hrefForPlace(listingToPlace(mine)))}
-                className="font-semibold text-accent hover:underline inline-flex items-center gap-1"
+                className="font-semibold text-accent hover:underline inline-flex min-h-[44px] items-center gap-1"
               >
                 Open Bio Page <ExternalLink className="h-3 w-3" />
               </button>

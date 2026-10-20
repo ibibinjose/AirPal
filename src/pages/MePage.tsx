@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
+  ArrowRight,
   Bell,
   Building2,
   Calendar,
@@ -514,11 +515,9 @@ export function MePage() {
                   </span>
                   <div>
                     <p className="text-xs font-bold text-ink leading-snug">
-                      👕 Outfit Recommendation: {outfitAdvice.outfit}
+                      Outfit Recommendation: {outfitAdvice.outfit}
                     </p>
-                    <p className="text-[11px] font-medium text-accent leading-snug mt-0.5">
-                      ✨ {outfitAdvice.accessory}
-                    </p>
+                    <p className="text-[11px] font-medium text-accent leading-snug mt-0.5">{outfitAdvice.accessory}</p>
                   </div>
                 </div>
                 <div className="text-left sm:text-right shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-line/40">
@@ -607,7 +606,7 @@ export function MePage() {
                         <p className="text-xs text-mute mt-1 flex items-center gap-1.5 truncate">
                           <Flame size={12} className="text-amber-600 shrink-0" />
                           <span>
-                            🎟 Pass ({ticket.spots || 1}x) {ticket.time ? `· Doors ${ticket.time}` : ""}
+                            Pass ({ticket.spots || 1}x) {ticket.time ? `· Doors ${ticket.time}` : ""}
                           </span>
                           <span>· {ticket.suburb || "Venue"}</span>
                         </p>
@@ -720,12 +719,23 @@ export function MePage() {
                         </div>
                         <div className="min-w-0">
                           <p className="font-bold text-sm text-ink truncate">{item.requesterName}</p>
-                          <p className="text-xs text-mute truncate mt-0.5">
-                            {item.type === "meeting"
-                              ? "📅 Meeting"
-                              : item.type === "nightout"
-                                ? "👥 Hangout"
-                                : "☕ Coffee"}
+                          <p className="text-xs text-mute truncate mt-0.5 flex items-center gap-1">
+                            {item.type === "meeting" ? (
+                              <>
+                                <Calendar size={11} className="shrink-0" aria-hidden="true" />
+                                <span>Meeting</span>
+                              </>
+                            ) : item.type === "nightout" ? (
+                              <>
+                                <Users size={11} className="shrink-0" aria-hidden="true" />
+                                <span>Hangout</span>
+                              </>
+                            ) : (
+                              <>
+                                <Coffee size={11} className="shrink-0" aria-hidden="true" />
+                                <span>Coffee</span>
+                              </>
+                            )}
                             {item.date && ` · ${item.date}`}
                             {item.time && ` @ ${item.time}`}
                             {item.venue && ` · ${item.venue}`}
@@ -910,9 +920,10 @@ export function MePage() {
                 <button
                   type="button"
                   onClick={() => nav("/circle")}
-                  className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-accent underline cursor-pointer hover:text-brand transition"
+                  className="mt-2 inline-flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-accent underline cursor-pointer hover:text-brand transition"
                 >
-                  Find someone to meet →
+                  Find someone to meet
+                  <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
                 </button>
               </div>
             ) : null}
@@ -1018,7 +1029,8 @@ export function MePage() {
                   className="mt-4 rounded-full bg-brand px-5 text-xs font-bold text-white active:scale-95 shadow-xs"
                   onClick={() => nav("/pass")}
                 >
-                  Browse AirPal Pass →
+                  Browse AirPal Pass
+                  <ArrowRight size={13} className="shrink-0" aria-hidden="true" />
                 </Button>
               </div>
             )}

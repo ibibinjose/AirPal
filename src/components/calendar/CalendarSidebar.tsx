@@ -99,9 +99,9 @@ export function CalendarSidebar({
       label: "Weekend Picks",
       count: statusCounts.weekend,
       icon: Compass,
-      activeClass: "bg-indigo-600 text-white font-semibold",
-      softClass: "bg-indigo-500/10 ring-1 ring-indigo-500/40 hover:bg-indigo-500/20",
-      iconClass: "text-indigo-600",
+      activeClass: "bg-sky-600 text-white font-semibold",
+      softClass: "bg-sky-500/10 ring-1 ring-sky-500/40 hover:bg-sky-500/20",
+      iconClass: "text-sky-600",
     },
     {
       id: "free",
@@ -181,7 +181,7 @@ export function CalendarSidebar({
               type="button"
               onClick={onCloseMobile}
               aria-label="Close filters drawer"
-              className="grid h-7 w-7 place-items-center rounded-full text-mute hover:bg-paper hover:text-ink lg:hidden cursor-pointer"
+              className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute hover:bg-paper hover:text-ink lg:hidden cursor-pointer touch-manipulation"
             >
               <X size={16} />
             </button>
@@ -296,7 +296,7 @@ export function CalendarSidebar({
               type="button"
               onClick={() => onSearchChange("")}
               aria-label="Clear search input"
-              className="absolute right-1 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center text-mute hover:text-ink transition active:scale-95 cursor-pointer"
+              className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center text-mute hover:text-ink transition active:scale-95 cursor-pointer touch-manipulation"
             >
               <X size={15} />
             </button>

@@ -184,7 +184,7 @@ export function PromotionsStudioPage({
             <Link
               href="/business/promotions"
               className={cn(
-                "inline-flex min-h-[38px] items-center rounded-xl px-3 text-xs font-bold transition",
+                "inline-flex min-h-[44px] items-center rounded-xl px-3 text-xs font-bold transition",
                 view === "list" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
               )}
             >
@@ -193,7 +193,7 @@ export function PromotionsStudioPage({
             <Link
               href="/business/promotions/new"
               className={cn(
-                "inline-flex min-h-[38px] items-center rounded-xl px-3 text-xs font-bold transition",
+                "inline-flex min-h-[44px] items-center rounded-xl px-3 text-xs font-bold transition",
                 view === "new" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
               )}
             >
@@ -317,7 +317,7 @@ export function PromotionsStudioPage({
                     placeholder="e.g. 2-for-1 house drink for AirPal Pass holders"
                     required
                     maxLength={120}
-                    className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                   />
                 </div>
 
@@ -331,7 +331,7 @@ export function PromotionsStudioPage({
                       onChange={(e) => setDealBadge(e.target.value)}
                       placeholder="e.g. Member Perk, 20% Off, Birthday"
                       maxLength={32}
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                     />
                   </div>
                   <div>
@@ -343,7 +343,7 @@ export function PromotionsStudioPage({
                       onChange={(e) => setDealUntil(e.target.value)}
                       placeholder="e.g. Thu–Sun · 5pm–8pm"
                       maxLength={80}
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                     />
                   </div>
                 </div>
@@ -357,7 +357,7 @@ export function PromotionsStudioPage({
                     onChange={(e) => setDealTerms(e.target.value)}
                     placeholder="e.g. Present AirPal Pass QR on arrival · 1 redemption per member"
                     maxLength={160}
-                    className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                   />
                 </div>
               </div>

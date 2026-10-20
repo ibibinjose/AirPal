@@ -215,7 +215,7 @@ export function CalendarMonthGrid({
               type="button"
               onClick={jumpToday}
               aria-label="Jump to today's date"
-              className="inline-flex min-h-[40px] items-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
+              className="inline-flex min-h-[44px] items-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-medium text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
             >
               Today
             </button>
@@ -223,7 +223,7 @@ export function CalendarMonthGrid({
               type="button"
               onClick={prevMonth}
               aria-label="Previous month"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
+              className="inline-flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
             >
               <ChevronLeft size={16} />
             </button>
@@ -231,7 +231,7 @@ export function CalendarMonthGrid({
               type="button"
               onClick={nextMonth}
               aria-label="Next month"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
+              className="inline-flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-paper text-ink hover:bg-line transition ring-1 ring-line/60 active:scale-95"
             >
               <ChevronRight size={16} />
             </button>

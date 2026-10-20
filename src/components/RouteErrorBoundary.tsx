@@ -82,6 +82,12 @@ export class RouteErrorBoundary extends React.Component<
                   </button>
                 </>
               )}
+              <a
+                href="/"
+                className="inline-flex h-11 items-center rounded-full bg-paper px-5 text-sm font-semibold text-mute ring-1 ring-line hover:bg-card hover:text-ink transition"
+              >
+                Back to home
+              </a>
             </div>
           </div>
         </div>

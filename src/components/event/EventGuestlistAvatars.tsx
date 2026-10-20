@@ -15,8 +15,8 @@ export interface EventGuestlistAvatarsProps {
 }
 
 const AVATAR_PALETTES = [
-  { bg: "bg-gradient-to-tr from-blue-600 to-indigo-600 text-white", label: "A" },
-  { bg: "bg-gradient-to-tr from-purple-600 to-pink-500 text-white", label: "M" },
+  { bg: "bg-gradient-to-tr from-blue-600 to-sky-500 text-white", label: "A" },
+  { bg: "bg-gradient-to-tr from-orange-500 to-rose-500 text-white", label: "M" },
   { bg: "bg-gradient-to-tr from-amber-500 to-orange-500 text-white", label: "S" },
   { bg: "bg-gradient-to-tr from-emerald-500 to-teal-600 text-white", label: "R" },
   { bg: "bg-gradient-to-tr from-rose-500 to-red-600 text-white", label: "K" },

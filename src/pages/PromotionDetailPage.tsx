@@ -224,8 +224,11 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
       <div className="mx-auto max-w-2xl px-4 py-12 text-center">
         <p className="font-display text-xl font-bold">This campaign isn't available.</p>
         <p className="mt-1 text-sm text-mute">It may have ended or been removed.</p>
-        <Link href="/deals">
-          <Button className="mt-4">Back to deals</Button>
+        <Link
+          href="/deals"
+          className="mt-4 inline-flex min-h-[44px] items-center justify-center rounded-full bg-brand px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-ink active:scale-95"
+        >
+          Back to deals
         </Link>
       </div>
     );
@@ -266,7 +269,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
       <p className="mt-1 text-sm text-mute">by {promo.sponsorName}</p>
 
       {promo.winnerNote && (
-        <p className="mt-3 flex items-center gap-1.5 rounded-2xl border-2 border-gold bg-card p-3 text-sm font-semibold">
+        <p className="mt-3 flex items-center gap-1.5 rounded-2xl bg-amber-500/10 p-3 text-sm font-semibold ring-1 ring-amber-500/30">
           <Trophy size={16} className="text-accent" /> {promo.winnerNote}
         </p>
       )}
@@ -358,7 +361,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Promotional code"
-                className="min-h-[48px] w-full rounded-2xl ring-1 ring-line bg-card px-4 py-3 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-mute focus:ring-2 focus:ring-brand"
+                className="min-h-[48px] w-full rounded-2xl ring-1 ring-line bg-card px-4 py-3 text-[16px] sm:text-sm font-semibold outline-none placeholder:font-normal placeholder:text-mute focus:ring-2 focus:ring-brand"
                 aria-label="Promotional code"
               />
             )}

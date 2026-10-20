@@ -538,6 +538,18 @@ export function GuestlistPage() {
                 ? "RSVPs and ticket buyers land here automatically."
                 : "Try a different search or filter."}
             </p>
+            {rows.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setFilter("all");
+                }}
+                className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+              >
+                Clear search & filters
+              </button>
+            )}
           </div>
         ) : (
           <ul className="divide-y divide-line overflow-hidden rounded-2xl bg-card ring-1 ring-line shadow-clay">

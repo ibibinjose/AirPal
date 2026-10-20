@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Calendar, QrCode, RefreshCw, Search, Ticket, WifiOff, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, QrCode, RefreshCw, Search, Ticket, WifiOff, X } from "lucide-react";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { PaymentCanceledNotice } from "@/components/booking/PaymentCanceledNotice";
 import { AirPalTicketPass } from "@/components/tickets/AirPalTicketPass";
@@ -144,8 +144,9 @@ export function MyTicketsPage() {
         <>
           <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-brand/10 p-3.5 text-sm font-semibold text-accent ring-1 ring-brand/20 mb-4">
             <span>Viewing passes saved on this device. Sign in to sync across all your devices.</span>
-            <Link href="/start?tab=signin" className="underline shrink-0 font-bold">
-              Sign in →
+            <Link href="/start?tab=signin" className="underline shrink-0 font-bold inline-flex items-center gap-1">
+              Sign in
+              <ArrowRight size={13} className="shrink-0" aria-hidden="true" />
             </Link>
           </div>
           <div className="space-y-4">
@@ -212,13 +213,14 @@ export function MyTicketsPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search passes by event, venue, or date…"
-              className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-9 text-xs sm:text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
+              aria-label="Search passes by event, venue, or date"
+              className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-12 text-[16px] sm:text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
             />
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="absolute right-3 top-3 text-mute hover:text-ink cursor-pointer p-0.5"
+                className="absolute right-1 top-1/2 -translate-y-1/2 grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute hover:text-ink cursor-pointer touch-manipulation"
                 aria-label="Clear search"
               >
                 <X size={15} />
@@ -312,7 +314,7 @@ export function MyTicketsPage() {
                 <button
                   type="button"
                   onClick={() => setQuery("")}
-                  className="mt-2 inline-flex min-h-[40px] items-center rounded-full bg-card px-4 text-xs font-semibold ring-1 ring-line text-ink hover:bg-paper"
+                  className="mt-2 inline-flex min-h-[44px] items-center rounded-full bg-card px-4 text-xs font-semibold ring-1 ring-line text-ink hover:bg-paper"
                 >
                   Clear search
                 </button>

@@ -441,7 +441,7 @@ export function BioEditPage() {
 
               {/* TrueDepth Camera */}
               <div className="relative h-3 w-3 rounded-full bg-[#0a0d18] ring-1 ring-white/10">
-                <span className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-sky-900/60 to-purple-900/60 opacity-80" />
+                <span className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-sky-900/60 to-slate-900/60 opacity-80" />
               </div>
             </div>
           </div>

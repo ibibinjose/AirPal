@@ -348,8 +348,8 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
       title: "Live Circles & Presence",
       desc: "Effortless group hangouts, real-time presence check-ins, and living memory walls.",
       icon: Users,
-      accent: "text-indigo-500",
-      accentBg: "bg-indigo-500/10",
+      accent: "text-blue-500",
+      accentBg: "bg-blue-500/10",
       widget: (
         <div className="relative overflow-hidden rounded-2xl bg-card/95 p-3.5 ring-1 ring-line/80 shadow-2xs">
           <div className="flex items-center justify-between">
@@ -480,7 +480,7 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
               aria-selected={flavor === "pass"}
               onClick={() => handleSelectFlavor("pass")}
               className={cn(
-                "min-h-[34px] px-3.5 rounded-full text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
+                "min-h-[44px] px-3.5 rounded-full text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                 flavor === "pass"
                   ? "bg-brand text-white shadow-xs font-bold"
                   : "text-mute hover:text-ink hover:bg-black/5 dark:hover:bg-white/5",
@@ -494,7 +494,7 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
               aria-selected={flavor === "me"}
               onClick={() => handleSelectFlavor("me")}
               className={cn(
-                "min-h-[34px] px-3.5 rounded-full text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
+                "min-h-[44px] px-3.5 rounded-full text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                 flavor === "me"
                   ? "bg-brand text-white shadow-xs font-bold"
                   : "text-mute hover:text-ink hover:bg-black/5 dark:hover:bg-white/5",
@@ -560,7 +560,7 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
               type="button"
               onClick={handlePrevSlide}
               aria-label="Previous slide"
-              className="grid h-7 w-7 place-items-center rounded-full text-mute hover:text-ink hover:bg-black/5 dark:hover:bg-white/5 active:scale-90 transition cursor-pointer"
+              className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute hover:text-ink hover:bg-black/5 dark:hover:bg-white/5 active:scale-90 transition cursor-pointer touch-manipulation"
             >
               <ChevronLeft size={16} />
             </button>
@@ -578,7 +578,7 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
                       void triggerHapticSelection();
                       setActiveSlide(idx);
                     }}
-                    className="min-h-[28px] min-w-[28px] flex items-center justify-center cursor-pointer transition active:scale-90"
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer transition active:scale-90"
                   >
                     <span
                       className={cn(
@@ -595,7 +595,7 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
               type="button"
               onClick={handleNextSlide}
               aria-label="Next slide"
-              className="grid h-7 w-7 place-items-center rounded-full text-mute hover:text-ink hover:bg-black/5 dark:hover:bg-white/5 active:scale-90 transition cursor-pointer"
+              className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute hover:text-ink hover:bg-black/5 dark:hover:bg-white/5 active:scale-90 transition cursor-pointer touch-manipulation"
             >
               <ChevronRight size={16} />
             </button>
@@ -693,7 +693,7 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
             By continuing you agree to AirPal{" "}
             <button
               type="button"
-              className="font-semibold text-ink underline min-h-[24px]"
+              className="font-semibold text-ink underline relative after:absolute after:-inset-4 after:content-['']"
               onClick={() => nav("/terms")}
             >
               Terms
@@ -701,7 +701,7 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
             and{" "}
             <button
               type="button"
-              className="font-semibold text-ink underline min-h-[24px]"
+              className="font-semibold text-ink underline relative after:absolute after:-inset-4 after:content-['']"
               onClick={() => nav("/privacy")}
             >
               Privacy

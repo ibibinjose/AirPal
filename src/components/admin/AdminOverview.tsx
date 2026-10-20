@@ -124,7 +124,7 @@ export function AdminOverview({ onSelectTab }: { onSelectTab: (t: AdminTab) => v
             value: String(completed),
             hint: "awaiting review",
             tab: "marketplace",
-            badgeClass: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
+            badgeClass: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
           },
           {
             label: "Pending Bookings",
@@ -159,7 +159,7 @@ export function AdminOverview({ onSelectTab }: { onSelectTab: (t: AdminTab) => v
             value: String(cPending),
             hint: "needs admin review",
             tab: "experiences",
-            badgeClass: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+            badgeClass: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
             urgent: cPending > 0,
           },
           {

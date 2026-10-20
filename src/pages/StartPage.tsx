@@ -169,8 +169,8 @@ export function StartPage() {
         title: "Sign in to Event Console",
         signupTitle: "Create Organiser Account",
         desc: "Unlimited events, tiered tickets, interactive coupons, door QR scanning, and CSV export.",
-        color: "text-indigo-600 dark:text-indigo-400",
-        bg: "bg-indigo-500/10",
+        color: "text-sky-600 dark:text-sky-400",
+        bg: "bg-sky-500/10",
       };
     }
     if (target.includes("club")) {
@@ -327,7 +327,8 @@ export function StartPage() {
                   nav(next);
                 }}
               >
-                Continue →
+                Continue
+                <ArrowRight size={13} className="shrink-0" aria-hidden="true" />
               </Button>
             </div>
           )}
@@ -552,8 +553,12 @@ export function StartPage() {
               <ArrowRight size={14} />
             </button>
             <span className="text-line">|</span>
-            <Link href="/business" className="text-xs font-semibold text-mute hover:text-ink">
-              Become a Host, Business or Organiser →
+            <Link
+              href="/business"
+              className="inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold text-mute hover:text-ink"
+            >
+              Become a Host, Business or Organiser
+              <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
             </Link>
           </div>
         </div>
@@ -613,7 +618,7 @@ export function StartPage() {
                   void triggerHaptic("light");
                   nav("/");
                 }}
-                className="mt-2.5 inline-flex min-h-[38px] items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
+                className="mt-2.5 inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
               >
                 <span>Browse first, join later</span>
                 <ArrowRight size={13} />
@@ -665,10 +670,7 @@ export function StartPage() {
           {/* ======================================================== */}
           {/* MAIN AUTHENTICATION CARD */}
           {/* ======================================================== */}
-          <div
-            id="auth-card"
-            className="rounded-3xl ring-1 ring-line bg-card/95 backdrop-blur-2xl p-6 sm:p-7 shadow-clay scroll-mt-6"
-          >
+          <div id="auth-card" className="rounded-3xl ring-1 ring-line bg-card p-6 sm:p-7 shadow-clay scroll-mt-6">
             {mode === "reset" ? (
               /* Password Reset Flow */
               <div>
@@ -808,9 +810,10 @@ export function StartPage() {
                           <button
                             type="button"
                             onClick={() => switchMode("signin")}
-                            className="mt-1 font-bold text-accent underline block cursor-pointer"
+                            className="mt-1 font-bold text-accent underline inline-flex min-h-[44px] items-center gap-1 cursor-pointer"
                           >
-                            Sign in with this account instead →
+                            Sign in with this account instead
+                            <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
                           </button>
                         )}
                         {(inlineError.code === "auth/wrong-password" ||
@@ -818,9 +821,10 @@ export function StartPage() {
                           <button
                             type="button"
                             onClick={() => switchMode("reset")}
-                            className="mt-1 font-bold text-accent underline block cursor-pointer"
+                            className="mt-1 font-bold text-accent underline inline-flex min-h-[44px] items-center gap-1 cursor-pointer"
                           >
-                            Forgot your password? Reset it here →
+                            Forgot your password? Reset it here
+                            <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
                           </button>
                         )}
                       </div>

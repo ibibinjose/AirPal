@@ -49,6 +49,9 @@ export const CANONICAL_ROUTES: CanonicalRoute[] = [
   { pattern: "/", section: "home", label: "Home" },
   // Pass: Events & Access
   { pattern: "/pass", section: "pass", label: "Pass hub" },
+  { pattern: "/pass/partners", section: "pass", label: "Partner directory" },
+  { pattern: "/pass/partners/apply", section: "pass", label: "Partner application" },
+  { pattern: "/pass/partners/:slug", section: "pass", label: "Partner detail" },
   { pattern: "/events", section: "pass", label: "Events list" },
   { pattern: "/events/new", section: "pass", label: "New event" },
   { pattern: "/e/:id", section: "pass", label: "Event detail" },
@@ -77,6 +80,7 @@ export const CANONICAL_ROUTES: CanonicalRoute[] = [
   { pattern: "/me/inbox", section: "circle", label: "Inbox" },
   // Business & Arrival
   { pattern: "/business", section: "business", label: "Business hub" },
+  { pattern: "/business/partner", section: "business", label: "Partner dashboard" },
   { pattern: "/business/onboard", section: "business", label: "Business onboarding" },
   { pattern: "/business/setup", section: "business", label: "Business setup" },
   { pattern: "/business/helpdesk", section: "business", label: "Business helpdesk" },
@@ -100,6 +104,7 @@ export const CANONICAL_ROUTES: CanonicalRoute[] = [
   { pattern: "/birthday-freebies/:region", section: "business", label: "Birthday freebies by region" },
   // Admin
   { pattern: "/admin", section: "admin", label: "Admin" },
+  { pattern: "/admin/partners", section: "admin", label: "Partner applications" },
   { pattern: "/admin/search-analytics", section: "admin", label: "Search analytics" },
   { pattern: "/admin/promotions", section: "admin", label: "Admin promotions" },
   { pattern: "/admin/promotions/:id", section: "admin", label: "Admin promotion detail" },
@@ -194,6 +199,11 @@ export const STATIC_ALIASES: Array<{ from: string; to: string }> = [
   { from: "/auth", to: "/start?tab=signin" },
   { from: "/signin", to: "/start?tab=signin" },
   { from: "/getAirPal", to: "/getAirPalApp" },
+  // Retired deep-link targets still emitted by promotion + birthday data
+  // land on the closest live pillar surface instead of a 404.
+  { from: "/mate", to: "/friends" },
+  { from: "/experiences", to: "/events" },
+  { from: "/fashion", to: "/deals" },
 ];
 
 /** Match a concrete path against a `:param` pattern (exact-segment). */

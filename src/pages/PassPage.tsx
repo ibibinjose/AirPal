@@ -52,7 +52,6 @@ export function PassPage() {
   const effectiveCity = city && city !== "Choose a city" && city !== "Current location" ? city : "Sydney";
 
   const [activeCategory, setActiveCategory] = useState<PassCategory>("all");
-  const [searchQuery, setSearchQuery] = useState("");
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const { bookings: myBookings, upcomingBookings: myUpcomingBookings } = useMyBookings();
 
@@ -131,11 +130,6 @@ export function PassPage() {
     return all.filter((item) => {
       const titleLower = item.title.toLowerCase();
       const catLower = item.category.toLowerCase();
-      const q = searchQuery.toLowerCase().trim();
-
-      if (q && !titleLower.includes(q) && !item.venue.toLowerCase().includes(q)) {
-        return false;
-      }
 
       if (activeCategory === "cultural") {
         return (
@@ -198,15 +192,12 @@ export function PassPage() {
       }
       return true;
     });
-  }, [calendarEvents, events, today, activeCategory, searchQuery, userStates]);
+  }, [calendarEvents, events, today, activeCategory, userStates]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] md:px-6">
       {/* Hero Pass Section */}
       <header className="relative mt-2 sm:mt-4 overflow-hidden rounded-[32px] bg-gradient-to-br from-neutral-950 via-neutral-900 to-amber-950 text-white shadow-lg">
-        <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-amber-500/20 blur-3xl" />
-        <div className="absolute -left-20 -bottom-20 h-80 w-80 rounded-full bg-rose-500/15 blur-3xl" />
-
         <div className="relative px-6 py-10 md:px-10 md:py-14">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
@@ -241,7 +232,7 @@ export function PassPage() {
           <div className="mt-6 grid grid-cols-1 min-[400px]:grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3">
             <Link
               href="/events"
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-neutral-950 shadow-md transition hover:brightness-110 active:scale-95"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-amber-500 px-5 py-2.5 text-xs sm:text-sm font-bold text-neutral-950 shadow-md transition hover:brightness-110 active:scale-95"
             >
               <Flame size={16} className="shrink-0" />
               Browse What's On
@@ -283,7 +274,7 @@ export function PassPage() {
 
       {/* Active Pass Wallet Bar (For Signed-In Members) */}
       <section aria-label="Passbook Wallet" className="mt-6">
-        <div className="rounded-3xl bg-gradient-to-r from-card via-card to-paper p-5 ring-1 ring-line shadow-clay">
+        <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/30">
@@ -365,9 +356,10 @@ export function PassPage() {
           </div>
           <Link
             href="/events"
-            className="inline-flex min-h-[44px] items-center text-sm font-bold text-accent hover:underline"
+            className="inline-flex min-h-[44px] items-center gap-1 text-sm font-bold text-accent hover:underline"
           >
-            See Calendar →
+            See Calendar
+            <ArrowRight size={14} className="shrink-0" aria-hidden="true" />
           </Link>
         </div>
 
@@ -380,7 +372,6 @@ export function PassPage() {
               type="button"
               onClick={() => {
                 setActiveCategory("all");
-                setSearchQuery("");
               }}
               className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-brand px-4 py-2 text-sm font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
             >
@@ -463,9 +454,10 @@ export function PassPage() {
           </div>
           <Link
             href="/deals"
-            className="inline-flex min-h-[44px] items-center text-sm font-bold text-accent hover:underline"
+            className="inline-flex min-h-[44px] items-center gap-1 text-sm font-bold text-accent hover:underline"
           >
-            All Deals →
+            All Deals
+            <ArrowRight size={14} className="shrink-0" aria-hidden="true" />
           </Link>
         </div>
 

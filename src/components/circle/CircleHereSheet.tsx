@@ -120,7 +120,7 @@ export function CircleHereSheet({
               type="button"
               onClick={() => setPlaceName(spot)}
               className={cn(
-                "min-h-[36px] rounded-full px-3 py-1 text-xs font-medium ring-1 ring-line transition cursor-pointer",
+                "min-h-[44px] rounded-full px-3 py-1 text-xs font-medium ring-1 ring-line transition cursor-pointer",
                 placeName === spot ? "bg-brand/10 text-accent ring-brand/30" : "bg-paper text-mute hover:text-ink",
               )}
             >

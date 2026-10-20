@@ -45,7 +45,7 @@ export const CREATE_OPTIONS: CreateOption[] = [
     subtitle: "Scan guest ticket, passbook, or venue door QR",
     href: "/scan",
     icon: QrCode,
-    colorClass: "bg-purple-500/10 text-purple-600 ring-purple-500/20",
+    colorClass: "bg-emerald-500/10 text-emerald-600 ring-emerald-500/20",
     group: "you",
   },
   {

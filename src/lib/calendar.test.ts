@@ -451,7 +451,7 @@ describe("Collision Prevention & Nearest Slot Opening", () => {
       const musicTheme = CATEGORY_THEMES.music;
       expect(musicTheme.label).toBe("Live Music");
       expect(musicTheme.shortTag).toBe("Music");
-      expect(musicTheme.tagClass).toContain("border-l-2 border-l-violet-600");
+      expect(musicTheme.tagClass).toContain("border-l-2 border-l-blue-600");
 
       const foodTheme = CATEGORY_THEMES.food;
       expect(foodTheme.label).toBe("Food & Drinks");

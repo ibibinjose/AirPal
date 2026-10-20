@@ -1,5 +1,17 @@
 import { Link } from "wouter";
-import { CheckCircle2, ExternalLink, FileText, GitCommit, Lock, ShieldCheck } from "lucide-react";
+import {
+  CheckCircle2,
+  CreditCard,
+  ExternalLink,
+  FileText,
+  GitCommit,
+  Globe,
+  Lock,
+  ShieldCheck,
+  Smartphone,
+  Ticket,
+  Zap,
+} from "lucide-react";
 import { LEGAL } from "@/lib/legal";
 import { TRUST_FAQ, buildTrustJsonLd } from "@/lib/trust-meta";
 
@@ -294,23 +306,29 @@ export function TrustPage() {
         <div className="mt-6 rounded-2xl bg-paper/60 p-5 ring-1 ring-line/80">
           <p className="text-xs font-bold uppercase tracking-wider text-mute">Protected Attack Surfaces</p>
           <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
-              🌐 Single-Page Web App (airpal.me)
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              <Globe size={13} className="shrink-0 text-accent" aria-hidden="true" />
+              Single-Page Web App (airpal.me)
             </span>
-            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
-              📱 Native iOS & Android Shells
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              <Smartphone size={13} className="shrink-0 text-accent" aria-hidden="true" />
+              Native iOS & Android Shells
             </span>
-            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
-              ⚡ Serverless Cloud Functions APIs
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              <Zap size={13} className="shrink-0 text-accent" aria-hidden="true" />
+              Serverless Cloud Functions APIs
             </span>
-            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
-              🛡️ Firestore Default-Deny Rules
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              <ShieldCheck size={13} className="shrink-0 text-accent" aria-hidden="true" />
+              Firestore Default-Deny Rules
             </span>
-            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
-              💳 Stripe Encrypted Checkout Pipeline
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              <CreditCard size={13} className="shrink-0 text-accent" aria-hidden="true" />
+              Stripe Encrypted Checkout Pipeline
             </span>
-            <span className="rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
-              🎟️ HMAC Anti-Tamper Ticket Gates
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-card px-3 py-1.5 text-ink ring-1 ring-line">
+              <Ticket size={13} className="shrink-0 text-accent" aria-hidden="true" />
+              HMAC Anti-Tamper Ticket Gates
             </span>
           </div>
           <p className="mt-3 text-xs leading-relaxed text-mute">

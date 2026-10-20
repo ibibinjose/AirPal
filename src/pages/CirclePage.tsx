@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
+  ArrowRight,
+  AtSign,
   Building2,
   CalendarDays,
   Check,
@@ -8,6 +10,7 @@ import {
   ChevronDown,
   ChevronUp,
   Contact,
+  Crown,
   Handshake,
   MapPin,
   QrCode,
@@ -29,6 +32,7 @@ import { useSocial } from "@/contexts/SocialContext";
 import { HereCheckIn } from "@/components/circle/HereCheckIn";
 import { BioCatchUpModal } from "@/components/bio/BioCatchUpModal";
 import { BioShareModal } from "@/components/bio/BioShareModal";
+import { ConfettiBurst } from "@/components/brand/ConfettiBurst";
 import { openGlobalSearch } from "@/components/search/openSearch";
 import {
   CIRCLE_QUESTS,
@@ -36,6 +40,7 @@ import {
   hasMarkedCircleInvite,
   markCircleInviteSent,
   sameCity,
+  type CircleQuestId,
 } from "@/lib/circle";
 import { listPeople, saveBioContact, upsertPerson, type PersonMet } from "@/lib/people";
 import { triggerHaptic } from "@/lib/native";
@@ -52,6 +57,12 @@ import {
 } from "@/lib/circle-sort";
 export type { CircleContact, CircleFilter, CircleRelationshipFilter } from "@/lib/circle-sort";
 export { sortCircleContacts } from "@/lib/circle-sort";
+
+/** Progress-ring circumference for the rank emblem (r = 27). */
+const RING_CIRCUMFERENCE = 2 * Math.PI * 27;
+
+/** Per-quest tile icons for the rank card. */
+const QUEST_ICONS = { handle: AtSign, city: MapPin, invite: UserPlus, people: Users } as const;
 
 export function CirclePage() {
   const { mine, profiles } = useBio();
@@ -300,6 +311,20 @@ export function CirclePage() {
     });
   }, [mine?.handle, mine?.city, invitedSent, allContacts.length]);
 
+  const isMaxRank = quest.completed >= quest.total;
+  const nextQuest = CIRCLE_QUESTS.find((q) => !quest.done[q.id]);
+
+  // Celebrate rank-ups with confetti + haptic (respects reduced motion).
+  const [celebrate, setCelebrate] = useState(0);
+  const prevCompletedRef = useRef(quest.completed);
+  useEffect(() => {
+    if (quest.completed > prevCompletedRef.current) {
+      void triggerHaptic("success");
+      setCelebrate((k) => k + 1);
+    }
+    prevCompletedRef.current = quest.completed;
+  }, [quest.completed]);
+
   const handleShareCircleInvite = () => {
     void triggerHaptic("medium");
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -308,6 +333,14 @@ export function CirclePage() {
     markCircleInviteSent();
     setInvitedSent(true);
     toast.success("Circle invite link copied to clipboard!");
+  };
+
+  const startQuest = (id: CircleQuestId) => {
+    void triggerHaptic("light");
+    if (id === "handle") nav("/bio/setup");
+    else if (id === "city") nav("/bio/edit");
+    else if (id === "invite") handleShareCircleInvite();
+    else openGlobalSearch({ category: "people" });
   };
 
   const handleToggleFollow = (handle: string, name: string) => {
@@ -410,91 +443,113 @@ export function CirclePage() {
         </div>
       </header>
 
-      {/* Compact Connector Rank Card */}
-      <div className="human-card mt-6 p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-human-blush text-human-clay">
-              <Zap size={20} aria-hidden="true" />
-            </span>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-mute">Connector Rank</span>
-                <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold text-accent tabular-nums">
-                  Level {quest.level.rank}
-                </span>
-              </div>
-              <h3 className="font-display text-sm font-bold text-ink truncate">{quest.level.name}</h3>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="text-right">
-              <span className="text-sm font-bold text-accent tabular-nums">{quest.points} pts</span>
-              <p className="text-xs text-mute tabular-nums">
-                {quest.completed}/{quest.total} quests
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                void triggerHaptic("light");
-                setShowQuests((prev) => !prev);
-              }}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-paper ring-1 ring-line text-mute hover:text-ink cursor-pointer"
-              aria-label={showQuests ? "Hide quests" : "Show quests"}
-            >
-              {showQuests ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-line/80">
+      {/* Connector Rank Card */}
+      <div className="human-card relative mt-6 overflow-hidden p-4 sm:p-5">
+        <ConfettiBurst fireKey={celebrate} />
+        <div className="flex items-center gap-3.5">
+          {/* Level emblem with progress ring */}
           <div
-            className="h-full bg-brand transition-[width] duration-500 rounded-full"
-            style={{ width: `${Math.round((quest.completed / quest.total) * 100)}%` }}
-          />
+            className="relative h-16 w-16 shrink-0"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={quest.total}
+            aria-valuenow={quest.completed}
+            aria-label={`Connector rank ${quest.level.name}, ${quest.completed} of ${quest.total} quests complete`}
+          >
+            <svg viewBox="0 0 64 64" className="h-16 w-16 -rotate-90" aria-hidden="true">
+              <circle cx="32" cy="32" r="27" fill="none" stroke="var(--color-line)" strokeWidth="6" />
+              <circle
+                cx="32"
+                cy="32"
+                r="27"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="6"
+                strokeLinecap="round"
+                strokeDasharray={RING_CIRCUMFERENCE}
+                strokeDashoffset={RING_CIRCUMFERENCE * (1 - quest.completed / quest.total)}
+                className="transition-[stroke-dashoffset] duration-500"
+              />
+            </svg>
+            <span
+              className={cn("absolute inset-0 grid place-items-center", isMaxRank ? "text-amber-500" : "text-accent")}
+            >
+              {isMaxRank ? <Crown size={24} aria-hidden="true" /> : <Zap size={24} aria-hidden="true" />}
+            </span>
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-mute">Connector Rank</p>
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              <h3 className="font-display text-lg font-bold leading-tight text-ink">{quest.level.name}</h3>
+              <span
+                className={cn(
+                  "rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums ring-1",
+                  isMaxRank
+                    ? "bg-amber-500/15 text-amber-700 ring-amber-500/30 dark:text-amber-400"
+                    : "bg-brand/10 text-accent ring-brand/25",
+                )}
+              >
+                Level {quest.level.rank}
+              </span>
+            </div>
+            <p className="mt-0.5 truncate text-xs text-mute tabular-nums">
+              {quest.completed}/{quest.total} quests · {quest.points} pts
+              {nextQuest ? ` · Next: ${nextQuest.title}` : " · Maxed out"}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              void triggerHaptic("light");
+              setShowQuests((prev) => !prev);
+            }}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-paper ring-1 ring-line text-mute hover:text-ink cursor-pointer"
+            aria-label={showQuests ? "Hide quests" : "Show quests"}
+            aria-expanded={showQuests}
+            aria-controls="circle-quests"
+          >
+            {showQuests ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
         </div>
 
         {showQuests && (
-          <div className="mt-3.5 space-y-2 border-t border-line/70 pt-3">
+          <div id="circle-quests" className="mt-3.5 space-y-2 border-t border-line/70 pt-3">
             {CIRCLE_QUESTS.map((q) => {
               const isDone = quest.done[q.id];
+              const Icon = QUEST_ICONS[q.id];
               return (
-                <div
-                  key={q.id}
-                  className="flex items-center justify-between gap-3 rounded-xl bg-paper/70 p-2.5 ring-1 ring-line/50 text-xs"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span
-                      className={cn(
-                        "grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold tabular-nums",
-                        isDone ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-brand/10 text-accent",
-                      )}
-                    >
-                      {isDone ? <CheckCircle2 size={13} /> : `+${q.points}`}
-                    </span>
-                    <div className="min-w-0">
-                      <p className={cn("font-bold truncate", isDone ? "text-ink/70 line-through" : "text-ink")}>
-                        {q.title}
-                      </p>
-                      <p className="text-xs text-mute truncate">{q.hint}</p>
-                    </div>
+                <div key={q.id} className="flex items-center gap-3 rounded-2xl bg-paper/70 p-3 ring-1 ring-line/50">
+                  <span
+                    className={cn(
+                      "grid h-10 w-10 shrink-0 place-items-center rounded-xl",
+                      isDone ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-brand/10 text-accent",
+                    )}
+                    aria-hidden="true"
+                  >
+                    {isDone ? <CheckCircle2 size={18} /> : <Icon size={18} />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className={cn("truncate text-sm font-bold", isDone ? "text-ink/70 line-through" : "text-ink")}>
+                      {q.title}
+                    </p>
+                    <p className="truncate text-xs text-mute">{q.hint}</p>
                   </div>
-
-                  {!isDone && (
+                  {isDone ? (
+                    <span className="shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-700 tabular-nums ring-1 ring-emerald-500/25 dark:text-emerald-400">
+                      +{q.points}
+                    </span>
+                  ) : (
                     <Button
                       size="sm"
                       variant="ghost"
                       className="shrink-0 text-xs min-h-[44px] px-3.5"
-                      onClick={() => {
-                        void triggerHaptic("light");
-                        if (q.id === "handle") nav("/bio/setup");
-                        else if (q.id === "city") nav("/bio/edit");
-                        else if (q.id === "invite") handleShareCircleInvite();
-                        else if (q.id === "people") openGlobalSearch({ category: "people" });
-                      }}
+                      onClick={() => startQuest(q.id)}
+                      aria-label={`Start: ${q.title}`}
                     >
-                      Start →
+                      Start
+                      <ArrowRight size={13} className="shrink-0" aria-hidden="true" />
                     </Button>
                   )}
                 </div>
@@ -526,7 +581,7 @@ export function CirclePage() {
                 setRelationshipFilter((prev) => (prev === "incoming" ? "all" : "incoming"));
               }}
               className={cn(
-                "inline-flex min-h-[36px] items-center gap-1.5 self-start sm:self-auto rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer",
+                "inline-flex min-h-[44px] items-center gap-1.5 self-start sm:self-auto rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer",
                 relationshipFilter === "incoming"
                   ? "bg-brand text-white"
                   : "bg-brand/10 text-accent ring-1 ring-brand/25 hover:bg-brand/15",
@@ -609,7 +664,7 @@ export function CirclePage() {
                       setRelationshipFilter((prev) => (prev === pill.id && pill.id !== "all" ? "all" : pill.id));
                     }}
                     className={cn(
-                      "inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition cursor-pointer",
+                      "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition cursor-pointer",
                       active ? "bg-ink text-card shadow-2xs" : "bg-paper text-mute ring-1 ring-line hover:text-ink",
                     )}
                   >
@@ -764,7 +819,7 @@ export function CirclePage() {
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <Link
                         href={`/@${contact.handle}`}
-                        className="font-bold text-sm text-ink hover:underline truncate"
+                        className="inline-flex min-h-[44px] items-center font-bold text-sm text-ink hover:underline truncate"
                       >
                         {contact.name}
                       </Link>
@@ -847,10 +902,11 @@ export function CirclePage() {
                   ) : contact.category === "communities" ? (
                     <Link
                       href="/events"
-                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
+                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1 whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
                       aria-label={`Find events near ${contact.name}`}
                     >
-                      Events →
+                      Events
+                      <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
                     </Link>
                   ) : (
                     <button
@@ -938,7 +994,7 @@ export function CirclePage() {
                 type="button"
                 onClick={() => setMetWhere(spot)}
                 className={cn(
-                  "min-h-[36px] rounded-full px-3 py-1 text-xs font-medium ring-1 ring-line transition cursor-pointer",
+                  "min-h-[44px] rounded-full px-3 py-1 text-xs font-medium ring-1 ring-line transition cursor-pointer",
                   metWhere === spot ? "bg-brand/10 text-accent ring-brand/30" : "bg-paper text-mute hover:text-ink",
                 )}
               >

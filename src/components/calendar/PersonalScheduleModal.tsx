@@ -113,7 +113,7 @@ export function PersonalScheduleModal({
               onClose();
             }}
             aria-label="Close"
-            className="grid h-9 w-9 cursor-pointer place-items-center rounded-full text-mute transition hover:bg-paper hover:text-ink active:scale-95"
+            className="grid h-11 w-11 min-h-[44px] min-w-[44px] cursor-pointer place-items-center rounded-full text-mute transition hover:bg-paper hover:text-ink active:scale-95 touch-manipulation"
           >
             <X size={18} />
           </button>

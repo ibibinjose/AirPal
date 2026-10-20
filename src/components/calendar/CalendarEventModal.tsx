@@ -149,7 +149,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
             {relative.label}
           </span>
           {isWeekend && (
-            <span className="rounded-full bg-indigo-100 text-indigo-800 px-3 py-1 text-xs font-medium">Weekend</span>
+            <span className="rounded-full bg-brand/10 text-accent px-3 py-1 text-xs font-medium">Weekend</span>
           )}
           {isFree && (
             <span className="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-semibold">

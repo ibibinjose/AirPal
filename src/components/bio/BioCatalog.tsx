@@ -79,7 +79,7 @@ function ItemCard({
   );
 
   const cardCls = cn(
-    "group block relative rounded-[26px] bg-card p-4 sm:p-5 text-left ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:shadow-xs hover:ring-brand/40 active:scale-[0.99] touch-manipulation",
+    "group block relative rounded-[26px] bg-card p-4 sm:p-5 text-left ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:shadow-xs hover:ring-brand/40 active:scale-[0.99] touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
     featured && "bg-gradient-to-br from-card via-card to-paper ring-gold/40 shadow-sm",
   );
 
@@ -100,13 +100,23 @@ function ItemCard({
     );
   }
 
+  const activate = () => {
+    void triggerHaptic("light");
+    onTap(item.kind);
+  };
   return (
     <div
       className={cardCls}
-      onClick={() => {
-        void triggerHaptic("light");
-        onTap(item.kind);
+      onClick={activate}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          activate();
+        }
       }}
+      role="button"
+      tabIndex={0}
+      aria-label={item.title}
     >
       {inner}
     </div>

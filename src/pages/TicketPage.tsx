@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useRoute } from "wouter";
 import { doc, getDoc } from "firebase/firestore";
-import { ArrowLeft, ShieldCheck, Sun, SunMedium, Ticket } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShieldCheck, Sun, SunMedium, Ticket } from "lucide-react";
 import { toast } from "sonner";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { useAuth } from "@/contexts/AuthContext";
@@ -159,9 +159,10 @@ export function TicketPage() {
 
           <Link
             href="/pass"
-            className="inline-flex min-h-[44px] shrink-0 items-center text-xs sm:text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation whitespace-nowrap"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1 text-xs sm:text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation whitespace-nowrap"
           >
-            AirPal Pass →
+            AirPal Pass
+            <ArrowRight size={13} className="shrink-0" aria-hidden="true" />
           </Link>
         </div>
 

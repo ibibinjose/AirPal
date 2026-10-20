@@ -124,6 +124,20 @@ describe("CirclePage", () => {
     expect(markup).toContain("Follow Back");
   });
 
+  it("gives contact name links a 44px tap target for mobile", () => {
+    const markup = renderToStaticMarkup(createElement(CirclePage));
+    expect(markup).toContain('href="/@bibinjose"');
+    expect(markup).toContain("inline-flex min-h-[44px] items-center font-bold");
+  });
+
+  it("shows the rank emblem with progress, points, and the next quest", () => {
+    const markup = renderToStaticMarkup(createElement(CirclePage));
+    expect(markup).toContain('role="progressbar"');
+    expect(markup).toContain("Connector rank Connector, 3 of 4 quests complete");
+    expect(markup).toContain("Level 3");
+    expect(markup).toContain("Next: Invite family or a friend");
+  });
+
   it("shows only real relationship info, never fabricated in-common counts", () => {
     const markup = renderToStaticMarkup(createElement(CirclePage));
     expect(markup).toContain("Personal Friend");

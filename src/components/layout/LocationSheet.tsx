@@ -1,6 +1,26 @@
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Navigation, Check, Globe2, X, Sparkles, MapPin, Share2, ShieldCheck, Compass } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  Check,
+  Coffee,
+  Compass,
+  FerrisWheel,
+  Globe2,
+  Landmark,
+  MapPin,
+  Martini,
+  Navigation,
+  Share2,
+  ShieldCheck,
+  Ship,
+  ShoppingBag,
+  Sparkles,
+  Waves,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { toast } from "sonner";
@@ -18,6 +38,18 @@ type RegionFilter = "all" | "india" | "uae" | "europe" | "northamerica" | "austr
 const EUROPE_COUNTRIES = ["United Kingdom", "France", "Germany", "Spain", "Italy", "Netherlands", "Ireland"];
 
 const NORTH_AMERICA_COUNTRIES = ["United States", "Canada"];
+
+/** Precinct marks as Lucide icons, keyed by precinct id. */
+const PRECINCT_ICONS: Record<string, LucideIcon> = {
+  therocks: Landmark,
+  cbd: Building2,
+  bondi: Waves,
+  surryhills: Coffee,
+  darlingharbour: FerrisWheel,
+  barangaroo: Martini,
+  manly: Ship,
+  paddington: ShoppingBag,
+};
 
 export function LocationSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { city, choice, chooseLocation, shareLocation, setShareLocation, source } = useLocalNow();
@@ -206,7 +238,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                   <Compass size={14} className="text-accent" />
                   <span>Sydney precincts</span>
                 </span>
-                <span className="text-[11px] font-bold text-mute">Sydney, NSW 🇦🇺</span>
+                <span className="text-[11px] font-bold text-mute">Sydney, NSW</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {SYDNEY_PRECINCTS.map((p) => {
@@ -224,7 +256,14 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                         isSelected ? "bg-brand text-white border-ink" : "bg-paper text-ink border-ink hover:bg-card",
                       )}
                     >
-                      <span className="text-base shrink-0">{p.icon}</span>
+                      {(() => {
+                        const PIcon: LucideIcon | undefined = PRECINCT_ICONS[p.id];
+                        return PIcon ? (
+                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand/10 text-accent">
+                            <PIcon size={15} aria-hidden="true" />
+                          </span>
+                        ) : null;
+                      })()}
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-xs font-bold">{p.name}</p>
                         <p
@@ -268,7 +307,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 type="button"
                 onClick={() => setFilter("all")}
                 className={cn(
-                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "all" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
@@ -278,61 +317,61 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 type="button"
                 onClick={() => setFilter("india")}
                 className={cn(
-                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "india" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
-                🇮🇳 India
+                India
               </button>
               <button
                 type="button"
                 onClick={() => setFilter("uae")}
                 className={cn(
-                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "uae" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
-                🇦🇪 UAE
+                UAE
               </button>
               <button
                 type="button"
                 onClick={() => setFilter("europe")}
                 className={cn(
-                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "europe" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
-                🇪🇺 UK &amp; Europe
+                UK &amp; Europe
               </button>
               <button
                 type="button"
                 onClick={() => setFilter("northamerica")}
                 className={cn(
-                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "northamerica" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
-                🇺🇸 US &amp; Canada
+                US &amp; Canada
               </button>
               <button
                 type="button"
                 onClick={() => setFilter("australia")}
                 className={cn(
-                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "australia" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
-                🇦🇺 Australia &amp; NZ
+                Australia &amp; NZ
               </button>
               <button
                 type="button"
                 onClick={() => setFilter("international")}
                 className={cn(
-                  "min-h-[38px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
+                  "min-h-[44px] shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition active:scale-95 cursor-pointer border border-line",
                   filter === "international" ? "bg-brand text-white shadow-xs" : "bg-paper text-ink hover:bg-card",
                 )}
               >
-                🌐 International
+                International
               </button>
             </div>
 
@@ -355,7 +394,6 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                   >
                     <div className="min-w-0 pr-1">
                       <div className="flex items-center gap-1">
-                        <span className="text-xs">{c.flag}</span>
                         <span className="truncate text-xs font-bold">{c.label}</span>
                       </div>
                       {c.region && (
@@ -447,7 +485,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
                 }}
               >
                 <span>Browse events</span>
-                <span>→</span>
+                <ArrowRight size={13} className="shrink-0" aria-hidden="true" />
               </button>
             </div>
           </div>

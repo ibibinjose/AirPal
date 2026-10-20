@@ -492,6 +492,42 @@ match /dining_orders/{orderId} {
       allow delete: if false;
     }
 
+    // Pass partners directory: public reads of approved profiles only;
+    // owners read their own pending/suspended rows and may edit non-status
+    // fields. Status moves server-side only (review callable, admin SDK).
+    // Mirrors applicationCanTransition in shared/partner.ts — keep in sync.
+    match /partners/{partnerId} {
+      allow get, list: if resource.data.status == 'approved'
+        || (signedIn() && resource.data.ownerUid == request.auth.uid)
+        || platformAdmin();
+      allow create, delete: if false;
+      allow update: if signedIn() && (platformAdmin()
+        || (resource.data.ownerUid == request.auth.uid
+          && request.resource.data.ownerUid == request.auth.uid
+          && request.resource.data.status == resource.data.status));
+    }
+
+    // Pass partner applications: applicants file and read their own;
+    // applicants may only withdraw (submitted/under_review -> withdrawn),
+    // admins have full triage. Approval/rejection is server-mediated.
+    // Mirrors applicationApplicantCanTransition in shared/partner.ts.
+    match /partner_applications/{applicationId} {
+      allow get, list: if signedIn()
+        && (resource.data.applicantUid == request.auth.uid || platformAdmin());
+      allow create: if signedIn()
+        && !isAnonymous()
+        && request.resource.data.applicantUid == request.auth.uid
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.keys().hasAny(['updatedAt']);
+      allow update: if platformAdmin()
+        || (signedIn()
+          && resource.data.applicantUid == request.auth.uid
+          && resource.data.status in ['submitted', 'under_review']
+          && request.resource.data.applicantUid == request.auth.uid
+          && request.resource.data.status == 'withdrawn');
+      allow delete: if platformAdmin();
+    }
+
     // §20 operating system: every admin action writes here. Admins only.
     match /admin_audits/{auditId} {
       allow create: if signedIn() && platformAdmin()

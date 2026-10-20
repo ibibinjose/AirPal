@@ -9,6 +9,13 @@ import { STATIC_ALIASES } from "@/app/airpal-app";
 import { HomePage } from "@/pages/HomePage";
 
 // V2 Canonical Rebuilt Routes
+const PassPartnersPage = lazy(() => import("@/pages/PassPartnersPage").then((m) => ({ default: m.PassPartnersPage })));
+const PassPartnerDetailPage = lazy(() =>
+  import("@/pages/PassPartnerDetailPage").then((m) => ({ default: m.PassPartnerDetailPage })),
+);
+const PassPartnerApplyPage = lazy(() =>
+  import("@/pages/PassPartnerApplyPage").then((m) => ({ default: m.PassPartnerApplyPage })),
+);
 const CirclePage = lazy(() => import("@/pages/CirclePage").then((m) => ({ default: m.CirclePage })));
 const PlacesPage = lazy(() => import("@/pages/PlacesPage").then((m) => ({ default: m.PlacesPage })));
 const CommunitiesPage = lazy(() => import("@/pages/CommunitiesPage").then((m) => ({ default: m.CommunitiesPage })));
@@ -33,6 +40,9 @@ const SettingsPage = lazy(() => import("@/pages/SettingsPage").then((m) => ({ de
 const StartPage = lazy(() => import("@/pages/StartPage").then((m) => ({ default: m.StartPage })));
 const AuthActionPage = lazy(() => import("@/pages/AuthActionPage").then((m) => ({ default: m.AuthActionPage })));
 const BusinessPage = lazy(() => import("@/pages/BusinessPage").then((m) => ({ default: m.BusinessPage })));
+const BusinessPartnerPage = lazy(() =>
+  import("@/pages/BusinessPartnerPage").then((m) => ({ default: m.BusinessPartnerPage })),
+);
 const ClaimVenuePage = lazy(() => import("@/pages/ClaimVenuePage").then((m) => ({ default: m.ClaimVenuePage })));
 const BioPublicPage = lazy(() => import("@/pages/BioPublicPage").then((m) => ({ default: m.BioPublicPage })));
 const BioSetupPage = lazy(() => import("@/pages/BioSetupPage").then((m) => ({ default: m.BioSetupPage })));
@@ -42,6 +52,9 @@ const SearchAnalyticsPage = lazy(() =>
   import("@/pages/SearchAnalyticsPage").then((m) => ({ default: m.SearchAnalyticsPage })),
 );
 const AdminPage = lazy(() => import("@/pages/AdminPage").then((m) => ({ default: m.AdminPage })));
+const AdminPartnersPage = lazy(() =>
+  import("@/pages/AdminPartnersPage").then((m) => ({ default: m.AdminPartnersPage })),
+);
 const PromotionsPage = lazy(() => import("@/pages/PromotionsPage").then((m) => ({ default: m.PromotionsPage })));
 const PromotionDetailPage = lazy(() =>
   import("@/pages/PromotionDetailPage").then((m) => ({ default: m.PromotionDetailPage })),
@@ -113,6 +126,11 @@ export function AppRoutes() {
             <EventStudioPage />
           </Route>
 
+          {/* Pass partners directory — apply before :slug so "apply" never reads as a slug. */}
+          <Route path="/pass/partners/apply" component={PassPartnerApplyPage} />
+          <Route path="/pass/partners/:slug">{(p) => <PassPartnerDetailPage slug={p.slug} />}</Route>
+          <Route path="/pass/partners" component={PassPartnersPage} />
+
           {/* Discover: places & communities */}
           <Route path="/places" component={PlacesPage} />
           <Route path="/communities" component={CommunitiesPage} />
@@ -130,6 +148,7 @@ export function AppRoutes() {
 
           {/* Business & Arrival */}
           <Route path="/business" component={BusinessPage} />
+          <Route path="/business/partner" component={BusinessPartnerPage} />
           <Route path="/business/onboard">
             <BusinessOnboardPage step="onboard" />
           </Route>
@@ -177,6 +196,7 @@ export function AppRoutes() {
           <Route path="/birthday-freebies" component={BirthdayFreebiesPage} />
 
           {/* Admin */}
+          <Route path="/admin/partners" component={AdminPartnersPage} />
           <Route path="/admin/search-analytics" component={SearchAnalyticsPage} />
           <Route path="/admin/promotions/:id">
             <PromotionsStudioPage scope="admin" view="detail" />

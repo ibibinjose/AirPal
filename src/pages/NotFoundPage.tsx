@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { CalendarDays, Compass, QrCode, Sparkles, Ticket } from "lucide-react";
+import { ArrowLeft, CalendarDays, Compass, QrCode, Sparkles, Ticket } from "lucide-react";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { Button } from "@/components/ui/Button";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -45,6 +45,19 @@ export function NotFoundPage() {
           <QrCode size={16} />
           {t("scan")}
         </Button>
+        <Button
+          variant="light"
+          size="lg"
+          onClick={() => {
+            void triggerHaptic("light");
+            if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
+            else nav("/");
+          }}
+          className="min-h-[44px] rounded-full ring-1 ring-line px-5 text-sm font-semibold hover:bg-paper"
+        >
+          <ArrowLeft size={16} />
+          Go back
+        </Button>
       </div>
 
       {/* Pillar Recovery Links */}
@@ -82,7 +95,7 @@ export function NotFoundPage() {
             onClick={() => void triggerHaptic("light")}
             className="flex min-h-[44px] items-center gap-2 rounded-2xl bg-paper/60 p-3 text-ink ring-1 ring-line/50 transition hover:bg-paper active:scale-95"
           >
-            <Sparkles size={16} className="text-purple-500 shrink-0" />
+            <Sparkles size={16} className="text-accent shrink-0" />
             <span>Inner Circle</span>
           </Link>
         </div>

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useParams } from "wouter";
+import { toast } from "sonner";
 import { ArrowRight, CalendarDays, KeyRound, Store, Ticket, Users } from "lucide-react";
 
 function CodeEntry({ mode }: { mode: "join" | "arrival" }) {
@@ -11,7 +12,10 @@ function CodeEntry({ mode }: { mode: "join" | "arrival" }) {
   function handleApplyCode(e: FormEvent) {
     e.preventDefault();
     const cleaned = inputCode.trim().toUpperCase();
-    if (!cleaned) return;
+    if (!cleaned) {
+      toast.info("Enter your arrival or cohort code first.");
+      return;
+    }
     nav(mode === "join" ? `/join/${encodeURIComponent(cleaned)}` : `/arrival/${encodeURIComponent(cleaned)}`);
   }
 
@@ -39,7 +43,7 @@ function CodeEntry({ mode }: { mode: "join" | "arrival" }) {
           <span className="font-mono text-lg font-bold tracking-widest text-ink">{code}</span>
           <Link
             href={mode === "join" ? "/join" : "/arrival"}
-            className="text-xs font-semibold text-accent hover:underline"
+            className="inline-flex min-h-[44px] items-center px-2 -mx-2 text-xs font-semibold text-accent hover:underline"
           >
             Change code
           </Link>
@@ -51,7 +55,8 @@ function CodeEntry({ mode }: { mode: "join" | "arrival" }) {
             onChange={(e) => setInputCode(e.target.value)}
             placeholder="Enter arrival or cohort code (e.g. SYD-WELCOME)"
             maxLength={32}
-            className="h-12 flex-1 rounded-2xl border border-line bg-paper px-4 font-mono text-sm uppercase tracking-wider text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:font-sans placeholder:normal-case placeholder:tracking-normal"
+            aria-label="Arrival or cohort code"
+            className="h-12 flex-1 rounded-2xl border border-line bg-paper px-4 font-mono text-[16px] sm:text-sm uppercase tracking-wider text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:font-sans placeholder:normal-case placeholder:tracking-normal"
           />
           <button
             type="submit"

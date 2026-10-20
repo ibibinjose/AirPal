@@ -394,7 +394,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g. Reuben Hills Roastery"
                       required
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                     />
                   </div>
                   <div>
@@ -405,7 +405,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
                       value={handle}
                       onChange={(e) => setHandle(e.target.value)}
                       placeholder="e.g. reubenhills"
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                     />
                   </div>
                 </div>
@@ -441,7 +441,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       placeholder="61 Albion St, Surry Hills NSW 2010"
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                     />
                   </div>
                   <div>
@@ -452,7 +452,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
                       value={hours}
                       onChange={(e) => setHours(e.target.value)}
                       placeholder="Mon–Sun · 7am–4pm"
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                     />
                   </div>
                 </div>
@@ -466,7 +466,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
                     onChange={(e) => setShortWhy(e.target.value)}
                     placeholder="What makes locals love your spot? e.g. Specialty single-origin espresso & weekend brunch."
                     maxLength={140}
-                    className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                   />
                 </div>
 
@@ -619,7 +619,8 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
                   value={quickDealTitle}
                   onChange={(e) => setQuickDealTitle(e.target.value)}
                   placeholder="e.g. Free pastry with any morning coffee"
-                  className="h-12 flex-1 rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  aria-label="Instant member offer title"
+                  className="h-12 flex-1 rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
                 />
                 <Button
                   type="button"

@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useParams } from "wouter";
 import {
+  AlertTriangle,
   ArrowRight,
   Bookmark,
   BookmarkCheck,
+  Brush,
   Building2,
   Cake,
   Calendar,
@@ -12,6 +14,7 @@ import {
   ChevronUp,
   Clock,
   Compass,
+  CupSoda,
   ExternalLink,
   Gift,
   Heart,
@@ -19,8 +22,13 @@ import {
   MapPin,
   PartyPopper,
   Search,
+  ShoppingBag,
   Sparkles,
+  Ticket,
   Users,
+  UtensilsCrossed,
+  X,
+  type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -37,14 +45,14 @@ import { friendlyBirthdayError, setBirthdayAlertPrefsRemote } from "@/lib/birthd
 import { cn } from "@/lib/cn";
 import { CURATED_BIRTHDAY_OFFERS, type CuratedBirthdayOffer, type FreebieCategory } from "@/lib/birthdayFreebiesData";
 
-const CATEGORIES: Array<{ id: FreebieCategory; label: string; emoji: string }> = [
-  { id: "all", label: "All Treats", emoji: "✨" },
-  { id: "food", label: "Dining & Meals", emoji: "🍔" },
-  { id: "sweets", label: "Sweets & Bakery", emoji: "🍩" },
-  { id: "drinks", label: "Drinks & Boba", emoji: "☕" },
-  { id: "beauty", label: "Beauty & Care", emoji: "💄" },
-  { id: "retail", label: "Shopping", emoji: "🛍️" },
-  { id: "activity", label: "Experiences", emoji: "🎢" },
+const CATEGORIES: Array<{ id: FreebieCategory; label: string; icon: LucideIcon }> = [
+  { id: "all", label: "All Treats", icon: Sparkles },
+  { id: "food", label: "Dining & Meals", icon: UtensilsCrossed },
+  { id: "sweets", label: "Sweets & Bakery", icon: Cake },
+  { id: "drinks", label: "Drinks & Boba", icon: CupSoda },
+  { id: "beauty", label: "Beauty & Care", icon: Brush },
+  { id: "retail", label: "Shopping", icon: ShoppingBag },
+  { id: "activity", label: "Experiences", icon: Ticket },
 ];
 
 export function BirthdayFreebiesPage() {
@@ -267,8 +275,8 @@ export function BirthdayFreebiesPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-2xl" aria-hidden="true">
-                🎂
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-amber-500/15 text-amber-600">
+                <Cake size={20} aria-hidden="true" />
               </span>
               <h2 className="font-display text-lg font-bold text-ink">
                 {userBirthMonthName && user && selectedMonth === user.birthdayMonth
@@ -315,7 +323,7 @@ export function BirthdayFreebiesPage() {
                   void triggerHaptic("light");
                   setSelectedMonth(null);
                 }}
-                className="text-[11px] font-semibold text-accent hover:underline cursor-pointer"
+                className="inline-flex min-h-[44px] items-center text-[11px] font-semibold text-accent hover:underline cursor-pointer"
               >
                 Show All Year
               </button>
@@ -329,7 +337,7 @@ export function BirthdayFreebiesPage() {
                 setSelectedMonth(null);
               }}
               className={cn(
-                "min-h-[36px] rounded-xl px-3 text-xs font-medium transition shrink-0 cursor-pointer",
+                "min-h-[44px] rounded-xl px-3 text-xs font-medium transition shrink-0 cursor-pointer",
                 selectedMonth === null
                   ? "bg-ink text-paper font-semibold shadow-xs"
                   : "bg-paper text-mute hover:text-ink ring-1 ring-line",
@@ -351,14 +359,16 @@ export function BirthdayFreebiesPage() {
                     setSelectedMonth(m.value);
                   }}
                   className={cn(
-                    "min-h-[36px] rounded-xl px-3 text-xs transition shrink-0 cursor-pointer flex items-center gap-1",
+                    "min-h-[44px] rounded-xl px-3 text-xs transition shrink-0 cursor-pointer flex items-center gap-1",
                     isSelected
                       ? "bg-brand text-white font-semibold shadow-xs"
                       : "bg-paper text-ink ring-1 ring-line hover:bg-card",
                   )}
                 >
                   <span>{m.short}</span>
-                  {isUserMonth && <span title="Your Birthday Month">🎂</span>}
+                  {isUserMonth && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" title="Your Birthday Month" />
+                  )}
                   {isCurrentCalMonth && !isUserMonth && (
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" title="Current Month" />
                   )}
@@ -438,15 +448,17 @@ export function BirthdayFreebiesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search brands, treats, burgers, zoo, boba..."
-              className="w-full rounded-2xl bg-card pl-10 pr-4 py-2.5 text-sm text-ink placeholder:text-mute ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
+              aria-label="Search birthday freebies"
+              className="w-full rounded-2xl bg-card pl-10 pr-12 py-2.5 text-[16px] sm:text-sm text-ink placeholder:text-mute ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-mute hover:text-ink cursor-pointer"
+                className="absolute right-1 top-1/2 -translate-y-1/2 grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute hover:text-ink cursor-pointer touch-manipulation"
+                aria-label="Clear freebie search"
               >
-                Clear
+                <X size={15} />
               </button>
             )}
           </div>
@@ -499,13 +511,13 @@ export function BirthdayFreebiesPage() {
                   setSelectedCategory(cat.id);
                 }}
                 className={cn(
-                  "min-h-[38px] rounded-xl px-3 text-xs transition shrink-0 cursor-pointer flex items-center gap-1.5",
+                  "min-h-[44px] rounded-xl px-3 text-xs transition shrink-0 cursor-pointer flex items-center gap-1.5",
                   isCatActive
                     ? "bg-ink text-paper font-semibold shadow-xs"
                     : "bg-card text-ink ring-1 ring-line hover:bg-paper",
                 )}
               >
-                <span>{cat.emoji}</span>
+                <cat.icon size={13} className="shrink-0" aria-hidden="true" />
                 <span>{cat.label}</span>
               </button>
             );
@@ -523,9 +535,10 @@ export function BirthdayFreebiesPage() {
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="text-mute hover:text-ink cursor-pointer"
+                className="grid h-7 w-7 -m-2 p-2 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
+                aria-label="Clear search"
               >
-                ×
+                <X size={12} />
               </button>
             </span>
           )}
@@ -535,9 +548,10 @@ export function BirthdayFreebiesPage() {
               <button
                 type="button"
                 onClick={() => setSelectedCategory("all")}
-                className="text-mute hover:text-ink cursor-pointer"
+                className="grid h-7 w-7 -m-2 p-2 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
+                aria-label="Clear category filter"
               >
-                ×
+                <X size={12} />
               </button>
             </span>
           )}
@@ -547,9 +561,10 @@ export function BirthdayFreebiesPage() {
               <button
                 type="button"
                 onClick={() => setOnlyCompletelyFree(false)}
-                className="hover:opacity-75 cursor-pointer"
+                className="grid h-7 w-7 -m-2 p-2 place-items-center rounded-full hover:opacity-75 cursor-pointer"
+                aria-label="Clear free-only filter"
               >
-                ×
+                <X size={12} />
               </button>
             </span>
           )}
@@ -569,7 +584,7 @@ export function BirthdayFreebiesPage() {
               setOnlyCompletelyFree(false);
               setOnlyWishlist(false);
             }}
-            className="text-accent underline font-semibold ml-auto cursor-pointer"
+            className="text-accent underline font-semibold ml-auto cursor-pointer inline-flex min-h-[44px] items-center"
           >
             Reset all
           </button>
@@ -640,7 +655,7 @@ export function BirthdayFreebiesPage() {
                           type="button"
                           onClick={() => toggleWishlist(offer.id)}
                           aria-label={isSaved ? "Remove from wishlist" : "Save to wishlist"}
-                          className="grid h-9 w-9 place-items-center rounded-xl bg-paper text-mute ring-1 ring-line hover:text-rose-500 hover:bg-card active:scale-90 transition cursor-pointer"
+                          className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-xl bg-paper text-mute ring-1 ring-line hover:text-rose-500 hover:bg-card active:scale-90 transition cursor-pointer touch-manipulation"
                         >
                           {isSaved ? (
                             <BookmarkCheck size={16} className="text-rose-500 fill-rose-500" />
@@ -703,8 +718,9 @@ export function BirthdayFreebiesPage() {
                             </li>
                           ))}
                           {offer.requiresEarlySignup && (
-                            <li className="pt-1 text-[11px] text-amber-600 dark:text-amber-400 font-medium">
-                              ⚠️ Requires joining before your birthday month.
+                            <li className="flex items-center gap-1 pt-1 text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                              <AlertTriangle size={12} className="shrink-0" aria-hidden="true" />
+                              <span>Requires joining before your birthday month.</span>
                             </li>
                           )}
                         </ol>
@@ -877,7 +893,7 @@ export function BirthdayFreebiesPage() {
         </div>
         <Link
           href="/deals"
-          className="inline-flex min-h-[42px] items-center gap-1.5 rounded-2xl bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card shrink-0"
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card shrink-0"
         >
           <span>Browse Member Deals</span>
           <ArrowRight size={13} />

@@ -10,6 +10,7 @@ import {
   Moon,
   Share2,
   Sun,
+  Umbrella,
 } from "lucide-react";
 import { useState } from "react";
 import { useLocalNow } from "@/hooks/useLocalNow";
@@ -52,7 +53,7 @@ export function LocalNowBar() {
             void trackFeatureEngagement("weather", "open_location_picker", { city });
             setPicker(true);
           }}
-          className="group flex min-w-0 max-w-[42%] items-center gap-1 rounded-full px-1 py-0.5 text-ink transition hover:bg-card active:scale-95 sm:max-w-none"
+          className="group relative flex min-w-0 max-w-[42%] items-center gap-1 rounded-full px-1 py-0.5 text-ink transition hover:bg-card active:scale-95 after:absolute after:-inset-2 after:content-[''] sm:max-w-none"
           title="Select location & precinct"
           aria-label={`Current location: ${placeLabel}. Tap to select location`}
         >
@@ -76,7 +77,7 @@ export function LocalNowBar() {
             void trackFeatureEngagement("share", "share_current_location", { city });
             void shareCurrentLocation(city);
           }}
-          className="hidden h-6 w-6 shrink-0 items-center justify-center rounded-full text-mute ring-1 ring-line/60 transition hover:bg-card hover:text-ink sm:grid"
+          className="relative hidden h-6 w-6 shrink-0 items-center justify-center rounded-full text-mute ring-1 ring-line/60 transition hover:bg-card hover:text-ink after:absolute after:-inset-2.5 after:content-[''] sm:grid"
           title={`Share ${city || "current location"} guide`}
           aria-label={`Share ${city || "current location"} guide`}
         >
@@ -105,9 +106,15 @@ export function LocalNowBar() {
               {today && (
                 <span className="hidden min-[400px]:inline-flex sm:inline-flex shrink-0 text-[11px] font-medium text-mute items-center gap-1.5">
                   {today.rain > 0 ? (
-                    <span className="inline-flex items-center gap-0.5 font-semibold text-accent">☔ {today.rain}%</span>
+                    <span className="inline-flex items-center gap-0.5 font-semibold text-accent">
+                      <Umbrella size={11} className="shrink-0" aria-hidden="true" />
+                      <span>{today.rain}%</span>
+                    </span>
                   ) : (
-                    <span className="hidden text-[10px] text-mute/80 md:inline">☔ 0%</span>
+                    <span className="hidden items-center gap-0.5 text-[10px] text-mute/80 md:inline-flex">
+                      <Umbrella size={10} className="shrink-0" aria-hidden="true" />
+                      <span>0%</span>
+                    </span>
                   )}
                   <span className="hidden text-[11px] text-mute md:inline">
                     {today.high}° / {today.low}°
