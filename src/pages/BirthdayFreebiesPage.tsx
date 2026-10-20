@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Link, useParams } from "wouter";
 import {
   AlertTriangle,
@@ -10,10 +10,6 @@ import {
   Cake,
   Calendar,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
-  Clock,
-  Compass,
   CupSoda,
   ExternalLink,
   Gift,
@@ -47,12 +43,61 @@ import { CURATED_BIRTHDAY_OFFERS, type CuratedBirthdayOffer, type FreebieCategor
 
 const CATEGORIES: Array<{ id: FreebieCategory; label: string; icon: LucideIcon }> = [
   { id: "all", label: "All Treats", icon: Sparkles },
-  { id: "food", label: "Dining & Meals", icon: UtensilsCrossed },
-  { id: "sweets", label: "Sweets & Bakery", icon: Cake },
-  { id: "drinks", label: "Drinks & Boba", icon: CupSoda },
-  { id: "beauty", label: "Beauty & Care", icon: Brush },
+  { id: "food", label: "Dining", icon: UtensilsCrossed },
+  { id: "sweets", label: "Sweets", icon: Cake },
+  { id: "drinks", label: "Drinks", icon: CupSoda },
+  { id: "beauty", label: "Beauty", icon: Brush },
   { id: "retail", label: "Shopping", icon: ShoppingBag },
-  { id: "activity", label: "Experiences", icon: Ticket },
+  { id: "activity", label: "Fun", icon: Ticket },
+];
+
+/** 4 Bright Color Card Themes: Pink, Blue, Green, Red */
+interface CardColorTheme {
+  name: "pink" | "blue" | "green" | "red";
+  cardBg: string;
+  badgeBg: string;
+  btnPrimary: string;
+  btnSecondary: string;
+  glow: string;
+}
+
+const COLOR_THEMES: CardColorTheme[] = [
+  // 1. Bright Pink
+  {
+    name: "pink",
+    cardBg: "bg-gradient-to-br from-[#ff1b7b] via-[#ff3b8d] to-[#e11d48] text-white",
+    badgeBg: "bg-white/20 text-white backdrop-blur-md",
+    btnPrimary: "bg-white text-[#e11d48] hover:bg-white/95",
+    btnSecondary: "bg-white/20 text-white hover:bg-white/30 ring-1 ring-white/30",
+    glow: "shadow-[0_12px_28px_-6px_rgba(255,27,123,0.38)] ring-1 ring-white/25",
+  },
+  // 2. Bright Blue
+  {
+    name: "blue",
+    cardBg: "bg-gradient-to-br from-[#0052ff] via-[#0284c7] to-[#0369a1] text-white",
+    badgeBg: "bg-white/20 text-white backdrop-blur-md",
+    btnPrimary: "bg-white text-[#0052ff] hover:bg-white/95",
+    btnSecondary: "bg-white/20 text-white hover:bg-white/30 ring-1 ring-white/30",
+    glow: "shadow-[0_12px_28px_-6px_rgba(0,82,255,0.38)] ring-1 ring-white/25",
+  },
+  // 3. Bright Green
+  {
+    name: "green",
+    cardBg: "bg-gradient-to-br from-[#00b341] via-[#10b981] to-[#047857] text-white",
+    badgeBg: "bg-white/20 text-white backdrop-blur-md",
+    btnPrimary: "bg-white text-[#047857] hover:bg-white/95",
+    btnSecondary: "bg-white/20 text-white hover:bg-white/30 ring-1 ring-white/30",
+    glow: "shadow-[0_12px_28px_-6px_rgba(0,179,65,0.38)] ring-1 ring-white/25",
+  },
+  // 4. Bright Red
+  {
+    name: "red",
+    cardBg: "bg-gradient-to-br from-[#ff2424] via-[#ef4444] to-[#b91c1c] text-white",
+    badgeBg: "bg-white/20 text-white backdrop-blur-md",
+    btnPrimary: "bg-white text-[#dc2626] hover:bg-white/95",
+    btnSecondary: "bg-white/20 text-white hover:bg-white/30 ring-1 ring-white/30",
+    glow: "shadow-[0_12px_28px_-6px_rgba(255,36,36,0.38)] ring-1 ring-white/25",
+  },
 ];
 
 export function BirthdayFreebiesPage() {
@@ -62,8 +107,6 @@ export function BirthdayFreebiesPage() {
   const active = BIRTHDAY_REGIONS.find((r) => r.code === region) ?? null;
 
   const { user } = useAuth();
-
-  // Current calendar month (1-12)
   const currentCalendarMonth = useMemo(() => new Date().getMonth() + 1, []);
 
   // Filter states
@@ -78,12 +121,10 @@ export function BirthdayFreebiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [onlyCompletelyFree, setOnlyCompletelyFree] = useState(false);
   const [onlyWishlist, setOnlyWishlist] = useState(false);
-
-  // Confetti trigger
   const [confettiKey, setConfettiKey] = useState(0);
 
-  // Expanded "How to claim" accordion IDs
-  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
+  // Claim steps modal
+  const [claimModalOffer, setClaimModalOffer] = useState<CuratedBirthdayOffer | null>(null);
 
   // Wishlist in localStorage
   const [wishlist, setWishlist] = useState<string[]>(() => {
@@ -95,142 +136,95 @@ export function BirthdayFreebiesPage() {
     }
   });
 
-  // Birthday Alert settings state (synced with user prefs)
   const [alertsEnabled, setAlertsEnabled] = useState(true);
   const [isSavingAlerts, setIsSavingAlerts] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      setAlertsEnabled(user.birthdayAlertsEnabled !== false);
-    }
-  }, [user]);
-
-  // Sync wishlist to localStorage
-  const toggleWishlist = (offerId: string) => {
-    void triggerHaptic("selection");
-    setWishlist((prev) => {
-      const next = prev.includes(offerId) ? prev.filter((id) => id !== offerId) : [...prev, offerId];
+  const toggleWishlist = (id: string) => {
+    void triggerHaptic("medium");
+    setWishlist((cur) => {
+      const next = cur.includes(id) ? cur.filter((item) => item !== id) : [...cur, id];
       try {
         localStorage.setItem("airpal_birthday_wishlist", JSON.stringify(next));
       } catch {
-        // ignore
-      }
-      if (!prev.includes(offerId)) {
-        toast.success("Saved to your birthday wishlist 🎁");
-      } else {
-        toast.info("Removed from your wishlist");
+        /* storage safe */
       }
       return next;
     });
   };
 
-  const toggleExpanded = (offerId: string) => {
-    void triggerHaptic("light");
-    setExpandedIds((prev) => ({ ...prev, [offerId]: !prev[offerId] }));
-  };
-
   const handleCelebrate = () => {
-    void triggerHaptic("medium");
+    void triggerHaptic("heavy");
     setConfettiKey((k) => k + 1);
-    toast.success("Happy Birthday Month from AirPal! 🎉 Treat yourself!", {
-      duration: 3500,
-    });
+    toast.success("Happy Birthday Month! 🥳 Enjoy all your treats!");
   };
 
   const handleShareWithMate = async (offer: CuratedBirthdayOffer) => {
     void triggerHaptic("light");
-    const shareText = `Hey! Check out this birthday perk at ${offer.brand}: ${offer.reward}. Life made easy — let's go celebrate together!`;
     const shareUrl = typeof window !== "undefined" ? window.location.href : "https://airpal.me/birthday-freebies";
+    const shareText = `Hey! Found this birthday freebie from ${offer.brand}: ${offer.reward}! Let's grab it together on AirPal:`;
 
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: `${offer.brand} Birthday Treat`,
+          title: `${offer.brand} Birthday Treat · AirPal`,
           text: shareText,
           url: shareUrl,
         });
         return;
       } catch {
-        // fallback to copy
+        /* user cancelled or fallback */
       }
     }
 
     try {
       await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-      toast.success("Invite message copied to clipboard! Send to your mate 📲");
+      toast.success("Link copied! Share it with your mate.");
     } catch {
-      toast.info("Could not copy link automatically.");
+      toast.error("Could not copy link.");
     }
   };
 
   const handleToggleAlerts = async () => {
+    void triggerHaptic("light");
+    const nextState = !alertsEnabled;
+    setAlertsEnabled(nextState);
     if (!user) {
-      toast.message("Sign in to your AirPal account to receive birthday alerts.");
+      toast.info("Sign in to sync your birthday alerts across devices.");
       return;
     }
-    const next = !alertsEnabled;
-    setAlertsEnabled(next);
     setIsSavingAlerts(true);
     try {
-      await setBirthdayAlertPrefsRemote({
-        birthdayAlertsEnabled: next,
-        birthdayAlertsRegion: region ?? user.birthdayAlertsRegion ?? "au",
-      });
-      void triggerHaptic("light");
-      toast.success(next ? "Birthday month alerts enabled 🎂" : "Birthday month alerts paused");
+      await setBirthdayAlertPrefsRemote({ birthdayAlertsEnabled: nextState });
+      toast.success(nextState ? "Birthday alerts active!" : "Birthday alerts paused.");
     } catch (err) {
-      setAlertsEnabled(!next);
+      setAlertsEnabled(!nextState);
       toast.error(friendlyBirthdayError(err));
     } finally {
       setIsSavingAlerts(false);
     }
   };
 
-  // Filtered offers list
+  // Filter offers
   const filteredOffers = useMemo(() => {
     return CURATED_BIRTHDAY_OFFERS.filter((offer) => {
-      // Region filter
-      if (region && !offer.regions.includes(region)) {
-        return false;
-      }
+      if (region && !offer.regions.includes(region)) return false;
+      if (selectedMonth !== null && offer.months.length > 0 && !offer.months.includes(selectedMonth)) return false;
+      if (selectedCategory !== "all" && offer.category !== selectedCategory) return false;
+      if (onlyCompletelyFree && !offer.isCompletelyFree) return false;
+      if (onlyWishlist && !wishlist.includes(offer.id)) return false;
 
-      // Month filter (if set and offer is month-specific)
-      if (selectedMonth && offer.months.length > 0 && !offer.months.includes(selectedMonth)) {
-        return false;
-      }
-
-      // Category filter
-      if (selectedCategory !== "all" && offer.category !== selectedCategory) {
-        return false;
-      }
-
-      // 100% Free toggle
-      if (onlyCompletelyFree && !offer.isCompletelyFree) {
-        return false;
-      }
-
-      // Wishlist toggle
-      if (onlyWishlist && !wishlist.includes(offer.id)) {
-        return false;
-      }
-
-      // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
-        const matchesBrand = offer.brand.toLowerCase().includes(q);
-        const matchesReward = offer.reward.toLowerCase().includes(q);
-        const matchesCategory = offer.category.toLowerCase().includes(q);
-        const matchesNotes = offer.notes?.toLowerCase().includes(q);
-        if (!matchesBrand && !matchesReward && !matchesCategory && !matchesNotes) {
-          return false;
-        }
+        const match =
+          offer.brand.toLowerCase().includes(q) ||
+          offer.reward.toLowerCase().includes(q) ||
+          offer.category.toLowerCase().includes(q);
+        if (!match) return false;
       }
-
       return true;
     });
   }, [region, selectedMonth, selectedCategory, onlyCompletelyFree, onlyWishlist, wishlist, searchQuery]);
 
-  // Current active month label
   const activeMonthLabel = useMemo(() => {
     if (!selectedMonth) return "All Year";
     return BIRTHDAY_MONTHS.find((m) => m.value === selectedMonth)?.label ?? "All Year";
@@ -242,14 +236,14 @@ export function BirthdayFreebiesPage() {
   }, [user?.birthdayMonth]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-28 pt-6 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 pb-28 pt-4 sm:px-6">
       <ConfettiBurst fireKey={confettiKey} />
 
       {/* Header Eyebrow */}
       <div className="flex items-center justify-between gap-2">
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/20">
           <Cake size={13} aria-hidden="true" />
-          <span>Birthday Month Freebies · Life Made Easy</span>
+          <span>Birthday Freebies</span>
         </div>
         {userBirthMonthName && (
           <span className="text-xs font-medium text-mute hidden sm:inline-block">
@@ -258,212 +252,134 @@ export function BirthdayFreebiesPage() {
         )}
       </div>
 
-      {/* Primary Heading strictly matching e2e contracts */}
-      <div className="mt-3 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
-        <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-4xl">
+      {/* Primary Heading (Strict contract for E2E tests) */}
+      <div className="mt-2.5 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
+        <h1 className="font-display text-2xl font-black tracking-tight text-ink sm:text-4xl">
           {active ? `Birthday treats in ${active.label}.` : "Your birthday month freebies, on us-ish."}
         </h1>
       </div>
 
-      <p className="mt-2 text-sm text-mute sm:text-base leading-relaxed max-w-2xl">
-        Discover verified birthday rewards, complimentary meals, desserts, and secret perks across Australia, the US,
-        UK, Europe, India, and UAE. Save your favourites, set an alert, and redeem with a mate.
+      <p className="mt-1 text-xs text-mute sm:text-sm max-w-xl">
+        Complimentary meals, desserts & verified perks for your birthday month.
       </p>
 
-      {/* Celebration Festive Card */}
-      <div className="relative mt-6 overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500/15 via-card to-brand/10 p-5 sm:p-6 ring-1 ring-line shadow-clay">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-amber-500/15 text-amber-600">
-                <Cake size={20} aria-hidden="true" />
-              </span>
-              <h2 className="font-display text-lg font-bold text-ink">
-                {userBirthMonthName && user && selectedMonth === user.birthdayMonth
-                  ? `Happy Birthday Month, ${user.displayName || "Member"}!`
-                  : `Celebrating your birthday in ${activeMonthLabel}?`}
-              </h2>
-            </div>
-            <p className="text-xs sm:text-sm text-mute max-w-lg">
-              Most brands require you to join their rewards club 7–30 days prior. Plan your birthday route now and never
-              leave a free burger or boba behind.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={handleCelebrate}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-brand px-4 text-xs sm:text-sm font-semibold text-white shadow-sm transition hover:bg-brand-ink active:scale-95 cursor-pointer"
-            >
-              <PartyPopper size={16} />
-              <span>Celebrate! 🥳</span>
-            </button>
+      {/* Region Selector Pills */}
+      <div className="mt-4 flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        <MapPin size={13} className="shrink-0 text-accent ml-1 mr-0.5" />
+        <Link
+          href="/birthday-freebies"
+          className={cn(
+            "min-h-[34px] rounded-full px-3 text-xs font-semibold transition shrink-0 flex items-center gap-1",
+            region === null ? "bg-brand text-white shadow-xs" : "bg-card text-ink ring-1 ring-line hover:bg-paper",
+          )}
+        >
+          <span>Global / All</span>
+        </Link>
+        {BIRTHDAY_REGIONS.map((r) => {
+          const isRegActive = region === r.code;
+          return (
             <Link
-              href="/settings"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-card px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition"
-            >
-              <Sparkles size={14} className="text-amber-500" />
-              <span>{user?.birthdayMonth ? "Edit Birthday" : "Set Birthday in Profile"}</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* 12-Month Quick Selector Pill Bar */}
-        <div className="mt-5 border-t border-line/60 pt-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-ink flex items-center gap-1">
-              <Calendar size={13} className="text-mute" />
-              Filter by Birthday Month:
-            </span>
-            {selectedMonth && (
-              <button
-                type="button"
-                onClick={() => {
-                  void triggerHaptic("light");
-                  setSelectedMonth(null);
-                }}
-                className="inline-flex min-h-[44px] items-center text-[11px] font-semibold text-accent hover:underline cursor-pointer"
-              >
-                Show All Year
-              </button>
-            )}
-          </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-            <button
-              type="button"
-              onClick={() => {
-                void triggerHaptic("selection");
-                setSelectedMonth(null);
-              }}
+              key={r.code}
+              href={`/birthday-freebies/${r.code}`}
               className={cn(
-                "min-h-[44px] rounded-xl px-3 text-xs font-medium transition shrink-0 cursor-pointer",
-                selectedMonth === null
-                  ? "bg-ink text-paper font-semibold shadow-xs"
-                  : "bg-paper text-mute hover:text-ink ring-1 ring-line",
+                "min-h-[34px] rounded-full px-3 text-xs font-semibold transition shrink-0 flex items-center gap-1",
+                isRegActive ? "bg-brand text-white shadow-xs" : "bg-card text-ink ring-1 ring-line hover:bg-paper",
               )}
             >
-              All Year
-            </button>
-            {BIRTHDAY_MONTHS.map((m) => {
-              const isSelected = selectedMonth === m.value;
-              const isUserMonth = user?.birthdayMonth === m.value;
-              const isCurrentCalMonth = currentCalendarMonth === m.value;
-
-              return (
-                <button
-                  key={m.value}
-                  type="button"
-                  onClick={() => {
-                    void triggerHaptic("selection");
-                    setSelectedMonth(m.value);
-                  }}
-                  className={cn(
-                    "min-h-[44px] rounded-xl px-3 text-xs transition shrink-0 cursor-pointer flex items-center gap-1",
-                    isSelected
-                      ? "bg-brand text-white font-semibold shadow-xs"
-                      : "bg-paper text-ink ring-1 ring-line hover:bg-card",
-                  )}
-                >
-                  <span>{m.short}</span>
-                  {isUserMonth && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" title="Your Birthday Month" />
-                  )}
-                  {isCurrentCalMonth && !isUserMonth && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" title="Current Month" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+              {r.flagEmoji && <span>{r.flagEmoji}</span>}
+              <span>{r.label}</span>
+            </Link>
+          );
+        })}
       </div>
 
-      {/* Regional Selector Pills */}
-      <section className="mt-8">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-mute flex items-center gap-1.5">
-            <MapPin size={13} />
-            Select Region
-          </span>
-          <span className="text-xs text-mute">{filteredOffers.length} perks available</span>
+      {/* Compact Month Filter & Celebration Strip */}
+      <div className="mt-3.5 rounded-2xl bg-card p-3 ring-1 ring-line shadow-xs">
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
+            <Calendar size={13} className="text-rose-500" />
+            <span>Month: {activeMonthLabel}</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleCelebrate}
+            className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-95 cursor-pointer"
+          >
+            <PartyPopper size={12} />
+            <span>Celebrate! 🥳</span>
+          </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-          <Link
-            href="/birthday-freebies"
-            aria-current={!region ? "page" : undefined}
-            onClick={() => void triggerHaptic("light")}
+        <div className="flex items-center gap-1 overflow-x-auto pb-0.5 no-scrollbar">
+          <button
+            type="button"
+            onClick={() => {
+              void triggerHaptic("selection");
+              setSelectedMonth(null);
+            }}
             className={cn(
-              "flex min-h-[48px] items-center justify-center gap-2 rounded-2xl px-3 text-xs sm:text-sm font-semibold transition text-center",
-              !region
-                ? "bg-ink text-paper shadow-xs"
-                : "bg-card text-ink ring-1 ring-line hover:bg-paper hover:shadow-xs",
+              "min-h-[32px] rounded-lg px-2.5 text-xs font-medium transition shrink-0 cursor-pointer",
+              selectedMonth === null
+                ? "bg-ink text-paper font-bold shadow-xs"
+                : "bg-paper text-mute hover:text-ink ring-1 ring-line",
             )}
           >
-            <span>🌍 All Regions</span>
-          </Link>
-          {BIRTHDAY_REGIONS.map((r) => {
-            const on = r.code === region;
-            const regionCount = CURATED_BIRTHDAY_OFFERS.filter((o) => o.regions.includes(r.code)).length;
+            All Year
+          </button>
+          {BIRTHDAY_MONTHS.map((m) => {
+            const isSelected = selectedMonth === m.value;
+            const isUserMonth = user?.birthdayMonth === m.value;
             return (
-              <Link
-                key={r.code}
-                href={`/birthday-freebies/${r.code}`}
-                aria-current={on ? "page" : undefined}
-                onClick={() => void triggerHaptic("light")}
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("selection");
+                  setSelectedMonth(m.value);
+                }}
                 className={cn(
-                  "flex min-h-[48px] items-center justify-between rounded-2xl px-3 text-xs sm:text-sm font-semibold transition",
-                  on
-                    ? "bg-brand text-white shadow-xs"
-                    : "bg-card text-ink ring-1 ring-line hover:bg-paper hover:shadow-xs",
+                  "min-h-[32px] rounded-lg px-2 text-xs transition shrink-0 cursor-pointer flex items-center gap-1",
+                  isSelected
+                    ? "bg-brand text-white font-bold shadow-xs"
+                    : isUserMonth
+                      ? "bg-rose-500/15 text-rose-700 dark:text-rose-300 font-semibold ring-1 ring-rose-500/30"
+                      : "bg-paper text-mute hover:text-ink ring-1 ring-line",
                 )}
               >
-                <span className="flex items-center gap-1.5 truncate">
-                  <span>{r.flagEmoji}</span>
-                  <span className="truncate">{r.label}</span>
-                </span>
-                <span
-                  className={cn(
-                    "ml-1 rounded-full px-1.5 py-0.5 text-[10px]",
-                    on ? "bg-white/20 text-white" : "bg-paper text-mute",
-                  )}
-                >
-                  {regionCount}
-                </span>
-              </Link>
+                <span>{m.label.slice(0, 3)}</span>
+                {isUserMonth && <span className="text-[10px]">🎂</span>}
+              </button>
             );
           })}
         </div>
-      </section>
+      </div>
 
-      {/* Search & Category Filter Bar */}
-      <section className="mt-6 space-y-3">
-        {/* Search input + toggles */}
+      {/* Search & Category Pills */}
+      <section className="mt-3.5 space-y-2">
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search brands, treats, burgers, zoo, boba..."
+              placeholder="Search treats, burgers, drinks, zoo..."
               aria-label="Search birthday freebies"
-              className="w-full rounded-2xl bg-card pl-10 pr-12 py-2.5 text-[16px] sm:text-sm text-ink placeholder:text-mute ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-full rounded-xl bg-card pl-9 pr-10 py-2 text-sm text-ink placeholder:text-mute ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-1 top-1/2 -translate-y-1/2 grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute hover:text-ink cursor-pointer touch-manipulation"
-                aria-label="Clear freebie search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
+                aria-label="Clear search"
               >
-                <X size={15} />
+                <X size={14} />
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -471,14 +387,14 @@ export function BirthdayFreebiesPage() {
                 setOnlyCompletelyFree((v) => !v);
               }}
               className={cn(
-                "inline-flex min-h-[42px] items-center gap-1.5 rounded-2xl px-3 text-xs font-semibold transition cursor-pointer shrink-0",
+                "inline-flex min-h-[36px] items-center gap-1 rounded-xl px-2.5 text-xs font-semibold transition cursor-pointer shrink-0",
                 onlyCompletelyFree
                   ? "bg-emerald-600 text-white shadow-xs"
                   : "bg-card text-ink ring-1 ring-line hover:bg-paper",
               )}
             >
-              <CheckCircle2 size={13} />
-              <span>100% Free Only</span>
+              <CheckCircle2 size={12} />
+              <span>100% Free</span>
             </button>
 
             <button
@@ -488,18 +404,18 @@ export function BirthdayFreebiesPage() {
                 setOnlyWishlist((v) => !v);
               }}
               className={cn(
-                "inline-flex min-h-[42px] items-center gap-1.5 rounded-2xl px-3 text-xs font-semibold transition cursor-pointer shrink-0",
+                "inline-flex min-h-[36px] items-center gap-1 rounded-xl px-2.5 text-xs font-semibold transition cursor-pointer shrink-0",
                 onlyWishlist ? "bg-rose-600 text-white shadow-xs" : "bg-card text-ink ring-1 ring-line hover:bg-paper",
               )}
             >
-              <Heart size={13} className={onlyWishlist ? "fill-white" : ""} />
+              <Heart size={12} className={onlyWishlist ? "fill-white" : ""} />
               <span>Wishlist ({wishlist.length})</span>
             </button>
           </div>
         </div>
 
         {/* Category horizontal scroll */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        <div className="flex items-center gap-1 overflow-x-auto pb-0.5 no-scrollbar">
           {CATEGORIES.map((cat) => {
             const isCatActive = selectedCategory === cat.id;
             return (
@@ -511,13 +427,13 @@ export function BirthdayFreebiesPage() {
                   setSelectedCategory(cat.id);
                 }}
                 className={cn(
-                  "min-h-[44px] rounded-xl px-3 text-xs transition shrink-0 cursor-pointer flex items-center gap-1.5",
+                  "min-h-[32px] rounded-lg px-2.5 text-xs transition shrink-0 cursor-pointer flex items-center gap-1 font-medium",
                   isCatActive
-                    ? "bg-ink text-paper font-semibold shadow-xs"
+                    ? "bg-ink text-paper font-bold shadow-xs"
                     : "bg-card text-ink ring-1 ring-line hover:bg-paper",
                 )}
               >
-                <cat.icon size={13} className="shrink-0" aria-hidden="true" />
+                <cat.icon size={12} className="shrink-0" aria-hidden="true" />
                 <span>{cat.label}</span>
               </button>
             );
@@ -525,83 +441,14 @@ export function BirthdayFreebiesPage() {
         </div>
       </section>
 
-      {/* Active Filter Indicators */}
-      {(searchQuery || selectedCategory !== "all" || onlyCompletelyFree || onlyWishlist) && (
-        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-mute">
-          <span>Active filters:</span>
-          {searchQuery && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-paper px-2.5 py-0.5 ring-1 ring-line text-ink">
-              “{searchQuery}”
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="grid h-7 w-7 -m-2 p-2 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
-                aria-label="Clear search"
-              >
-                <X size={12} />
-              </button>
-            </span>
-          )}
-          {selectedCategory !== "all" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-paper px-2.5 py-0.5 ring-1 ring-line text-ink">
-              {CATEGORIES.find((c) => c.id === selectedCategory)?.label}
-              <button
-                type="button"
-                onClick={() => setSelectedCategory("all")}
-                className="grid h-7 w-7 -m-2 p-2 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
-                aria-label="Clear category filter"
-              >
-                <X size={12} />
-              </button>
-            </span>
-          )}
-          {onlyCompletelyFree && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20">
-              100% Free
-              <button
-                type="button"
-                onClick={() => setOnlyCompletelyFree(false)}
-                className="grid h-7 w-7 -m-2 p-2 place-items-center rounded-full hover:opacity-75 cursor-pointer"
-                aria-label="Clear free-only filter"
-              >
-                <X size={12} />
-              </button>
-            </span>
-          )}
-          {onlyWishlist && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 px-2.5 py-0.5 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/20">
-              Wishlist Only
-              <button type="button" onClick={() => setOnlyWishlist(false)} className="hover:opacity-75 cursor-pointer">
-                ×
-              </button>
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={() => {
-              setSearchQuery("");
-              setSelectedCategory("all");
-              setOnlyCompletelyFree(false);
-              setOnlyWishlist(false);
-            }}
-            className="text-accent underline font-semibold ml-auto cursor-pointer inline-flex min-h-[44px] items-center"
-          >
-            Reset all
-          </button>
-        </div>
-      )}
-
-      {/* Main Treats Grid */}
-      <section className="mt-6 space-y-4">
+      {/* Main Treats Grid: Bright Pink, Blue, Green, Red Color Cards */}
+      <section className="mt-5">
         {filteredOffers.length === 0 ? (
-          <div className="rounded-3xl bg-card p-10 text-center ring-1 ring-line shadow-xs">
-            <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-amber-500/10 text-amber-500 mb-3">
-              <Gift size={28} />
+          <div className="rounded-3xl bg-card p-8 text-center ring-1 ring-line shadow-xs">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-amber-500/10 text-amber-500 mb-2">
+              <Gift size={24} />
             </div>
-            <h3 className="font-display text-base font-bold text-ink">No treats match your criteria</h3>
-            <p className="mt-1 text-xs text-mute max-w-sm mx-auto">
-              Try switching your region, selecting "All Months", or clearing the search filters to discover more perks.
-            </p>
+            <h3 className="font-display text-sm font-bold text-ink">No treats match your filters</h3>
             <button
               type="button"
               onClick={() => {
@@ -611,144 +458,137 @@ export function BirthdayFreebiesPage() {
                 setOnlyWishlist(false);
                 setSelectedMonth(null);
               }}
-              className="mt-4 inline-flex min-h-[40px] items-center gap-2 rounded-2xl bg-brand px-4 text-xs font-semibold text-white shadow-xs"
+              className="mt-3 inline-flex min-h-[36px] items-center gap-1.5 rounded-xl bg-brand px-3 text-xs font-semibold text-white shadow-xs"
             >
               Show all birthday treats
             </button>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
-            {filteredOffers.map((offer) => {
+          <div className="grid gap-3.5 sm:grid-cols-2">
+            {filteredOffers.map((offer, index) => {
               const isSaved = wishlist.includes(offer.id);
-              const isExpanded = !!expandedIds[offer.id];
+              // Cycle through 4 bright themes: Pink, Blue, Green, Red
+              const theme = COLOR_THEMES[index % COLOR_THEMES.length];
+
+              const categoryEmoji =
+                offer.category === "food"
+                  ? "🍔"
+                  : offer.category === "drinks"
+                    ? "☕"
+                    : offer.category === "sweets"
+                      ? "🍩"
+                      : offer.category === "beauty"
+                        ? "💄"
+                        : offer.category === "retail"
+                          ? "🛍️"
+                          : "🎢";
 
               return (
                 <div
                   key={offer.id}
-                  className="group relative flex flex-col justify-between rounded-3xl bg-card p-5 ring-1 ring-line transition hover:shadow-clay hover:ring-brand/30"
+                  className={cn(
+                    "group relative flex flex-col justify-between rounded-3xl p-4 sm:p-5 transition-transform duration-200 hover:-translate-y-0.5",
+                    theme.cardBg,
+                    theme.glow,
+                  )}
                 >
                   <div>
-                    {/* Top card row: brand, category, wishlist icon */}
+                    {/* Header Row: Emoji icon + Brand + Category + Wishlist */}
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-paper ring-1 ring-line text-lg">
-                          {offer.category === "food"
-                            ? "🍔"
-                            : offer.category === "drinks"
-                              ? "☕"
-                              : offer.category === "sweets"
-                                ? "🍩"
-                                : offer.category === "beauty"
-                                  ? "💄"
-                                  : offer.category === "retail"
-                                    ? "🛍️"
-                                    : "🎢"}
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/20 text-lg backdrop-blur-md shadow-inner">
+                          {categoryEmoji}
                         </span>
                         <div className="min-w-0">
-                          <span className="block font-display text-sm font-bold text-ink truncate">{offer.brand}</span>
-                          <span className="block text-[11px] text-mute capitalize">{offer.category}</span>
+                          <span className="block font-display text-sm font-extrabold text-white truncate tracking-tight">
+                            {offer.brand}
+                          </span>
+                          <span className="block text-[10.5px] font-semibold uppercase tracking-wider text-white/80">
+                            {offer.category}
+                          </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => toggleWishlist(offer.id)}
-                          aria-label={isSaved ? "Remove from wishlist" : "Save to wishlist"}
-                          className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-xl bg-paper text-mute ring-1 ring-line hover:text-rose-500 hover:bg-card active:scale-90 transition cursor-pointer touch-manipulation"
-                        >
-                          {isSaved ? (
-                            <BookmarkCheck size={16} className="text-rose-500 fill-rose-500" />
-                          ) : (
-                            <Bookmark size={16} />
-                          )}
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => toggleWishlist(offer.id)}
+                        aria-label={isSaved ? "Remove from wishlist" : "Save to wishlist"}
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition active:scale-90 cursor-pointer"
+                      >
+                        {isSaved ? (
+                          <BookmarkCheck size={16} className="text-yellow-300 fill-yellow-300" />
+                        ) : (
+                          <Bookmark size={16} />
+                        )}
+                      </button>
                     </div>
 
-                    {/* Reward Title */}
-                    <div className="mt-3">
-                      <h3 className="font-display text-base font-bold text-ink leading-snug">{offer.reward}</h3>
-                    </div>
+                    {/* Bold Reward Headline */}
+                    <h3 className="mt-3 font-display text-lg sm:text-xl font-black leading-snug line-clamp-2 text-white drop-shadow-xs">
+                      {offer.reward}
+                    </h3>
 
-                    {/* Badges: Value, Timing */}
+                    {/* Badges: Value & Timing */}
                     <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                       <span
                         className={cn(
-                          "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold",
-                          offer.isCompletelyFree
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20"
-                            : "bg-paper text-ink ring-1 ring-line",
+                          "inline-flex items-center rounded-full px-2 py-0.5 text-[10.5px] font-bold",
+                          theme.badgeBg,
                         )}
                       >
-                        {offer.isCompletelyFree ? "100% Free" : "Member Perk"} · {offer.valueEst}
+                        {offer.isCompletelyFree ? "100% Free" : "Perk"} · {offer.valueEst}
                       </span>
-
-                      <span className="inline-flex items-center gap-1 rounded-full bg-paper px-2.5 py-0.5 text-[11px] text-mute ring-1 ring-line">
-                        <Clock size={11} />
+                      <span
+                        className={cn(
+                          "inline-flex items-center rounded-full px-2 py-0.5 text-[10.5px] font-medium",
+                          theme.badgeBg,
+                        )}
+                      >
                         {offer.timing}
                       </span>
                     </div>
-
-                    {/* Notes if present */}
-                    {offer.notes && <p className="mt-2 text-xs text-mute italic">Note: {offer.notes}</p>}
-
-                    {/* How to claim accordion */}
-                    <div className="mt-3 border-t border-line/60 pt-3">
-                      <button
-                        type="button"
-                        onClick={() => toggleExpanded(offer.id)}
-                        className="flex w-full items-center justify-between text-xs font-semibold text-accent hover:underline cursor-pointer"
-                      >
-                        <span className="flex items-center gap-1">
-                          <HelpCircle size={13} />
-                          {isExpanded ? "Hide claim steps" : "How to claim this treat"}
-                        </span>
-                        {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                      </button>
-
-                      {isExpanded && (
-                        <ol className="mt-2.5 space-y-1.5 rounded-2xl bg-paper p-3 text-xs text-ink/90 ring-1 ring-line">
-                          {offer.howToClaim.map((step, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-brand/10 text-[10px] font-bold text-brand mt-0.5">
-                                {idx + 1}
-                              </span>
-                              <span className="leading-relaxed">{step}</span>
-                            </li>
-                          ))}
-                          {offer.requiresEarlySignup && (
-                            <li className="flex items-center gap-1 pt-1 text-[11px] text-amber-600 dark:text-amber-400 font-medium">
-                              <AlertTriangle size={12} className="shrink-0" aria-hidden="true" />
-                              <span>Requires joining before your birthday month.</span>
-                            </li>
-                          )}
-                        </ol>
-                      )}
-                    </div>
                   </div>
 
-                  {/* Action Buttons: Redeem with Mate & Official Link */}
-                  <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line/60 pt-3">
-                    <button
-                      type="button"
-                      onClick={() => void handleShareWithMate(offer)}
-                      title={BIRTHDAY_MATE_CTA.blurb}
-                      className="inline-flex min-h-[40px] flex-1 items-center justify-center gap-1.5 rounded-2xl bg-brand px-3 text-xs font-semibold text-white shadow-xs hover:bg-brand-ink active:scale-95 transition cursor-pointer"
-                    >
-                      <Users size={13} />
-                      <span>{BIRTHDAY_MATE_CTA.label}</span>
-                    </button>
-
+                  {/* Actions: Claim CTA + Share + Info */}
+                  <div className="mt-4 flex items-center gap-2 pt-2 border-t border-white/20">
                     <a
                       href={offer.claimUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-2xl bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
+                      className={cn(
+                        "inline-flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-2xl px-3 text-xs font-extrabold shadow-md transition active:scale-95 cursor-pointer",
+                        theme.btnPrimary,
+                      )}
                     >
-                      <span>Join / Claim</span>
-                      <ExternalLink size={12} className="text-mute" />
+                      <span>Join & Claim</span>
+                      <ExternalLink size={12} />
                     </a>
+
+                    <button
+                      type="button"
+                      onClick={() => void handleShareWithMate(offer)}
+                      title={BIRTHDAY_MATE_CTA.blurb}
+                      className={cn(
+                        "inline-flex min-h-[38px] items-center justify-center gap-1 rounded-2xl px-2.5 text-xs font-semibold transition active:scale-95 cursor-pointer shrink-0",
+                        theme.btnSecondary,
+                      )}
+                    >
+                      <Users size={12} />
+                      <span className="hidden min-[380px]:inline">Invite</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setClaimModalOffer(offer)}
+                      title="View claim steps"
+                      className={cn(
+                        "grid h-9 w-9 shrink-0 place-items-center rounded-2xl transition active:scale-95 cursor-pointer",
+                        theme.btnSecondary,
+                      )}
+                      aria-label="View how to claim"
+                    >
+                      <HelpCircle size={14} />
+                    </button>
                   </div>
                 </div>
               );
@@ -757,151 +597,139 @@ export function BirthdayFreebiesPage() {
         )}
       </section>
 
-      {/* Birthday Month Alert Preferences Card */}
-      <section className="mt-10 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand/10 text-brand">
-                <Cake size={20} />
-              </span>
-              <div>
-                <h3 className="font-display text-base font-bold text-ink">Birthday Month Alerts</h3>
-                <p className="text-xs text-mute">
-                  Receive a personal heads-up on the 1st of your birthday month with all your live treats.
-                </p>
+      {/* Claim Steps Bottom Sheet / Modal */}
+      {claimModalOffer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-3xl bg-card p-5 ring-1 ring-line shadow-2xl">
+            <div className="flex items-center justify-between border-b border-line pb-3">
+              <div className="flex items-center gap-2">
+                <span className="grid h-8 w-8 place-items-center rounded-xl bg-amber-500/15 text-amber-500">
+                  <Gift size={16} />
+                </span>
+                <div>
+                  <h4 className="font-display text-sm font-bold text-ink">{claimModalOffer.brand}</h4>
+                  <p className="text-[11px] text-mute">{claimModalOffer.reward}</p>
+                </div>
               </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {user ? (
               <button
                 type="button"
-                onClick={() => void handleToggleAlerts()}
-                disabled={isSavingAlerts}
-                className={cn(
-                  "relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
-                  alertsEnabled ? "bg-brand" : "bg-line",
-                )}
-                role="switch"
-                aria-checked={alertsEnabled}
-                aria-label="Toggle birthday month alerts"
+                onClick={() => setClaimModalOffer(null)}
+                className="grid h-8 w-8 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
+                aria-label="Close"
               >
-                <span
-                  className={cn(
-                    "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out mt-1 ml-1",
-                    alertsEnabled ? "translate-x-5" : "translate-x-0",
-                  )}
-                />
+                <X size={16} />
               </button>
-            ) : (
-              <Link
-                href="/settings"
-                className="inline-flex min-h-[40px] items-center gap-2 rounded-2xl bg-brand px-4 text-xs font-semibold text-white shadow-xs hover:bg-brand-ink"
+            </div>
+
+            <div className="mt-3 space-y-2">
+              <p className="text-xs font-bold text-ink uppercase tracking-wider">How to Claim:</p>
+              <ol className="space-y-1.5 text-xs text-ink">
+                {claimModalOffer.howToClaim.map((step, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-brand/10 text-[10px] font-bold text-brand mt-0.5">
+                      {idx + 1}
+                    </span>
+                    <span className="leading-relaxed">{step}</span>
+                  </li>
+                ))}
+              </ol>
+
+              {claimModalOffer.requiresEarlySignup && (
+                <div className="flex items-center gap-1.5 rounded-xl bg-amber-500/10 p-2 text-[11px] font-medium text-amber-700 dark:text-amber-300">
+                  <AlertTriangle size={13} className="shrink-0" />
+                  <span>Requires joining before your birthday month.</span>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 flex items-center gap-2 border-t border-line pt-3">
+              <a
+                href={claimModalOffer.claimUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 inline-flex min-h-[38px] items-center justify-center gap-1 rounded-xl bg-brand text-xs font-bold text-white shadow-xs hover:bg-brand-ink"
               >
-                Sign in to enable alerts
-              </Link>
-            )}
+                <span>Go to {claimModalOffer.brand}</span>
+                <ExternalLink size={12} />
+              </a>
+              <button
+                type="button"
+                onClick={() => setClaimModalOffer(null)}
+                className="inline-flex min-h-[38px] items-center justify-center rounded-xl bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      )}
 
-      {/* 4 Secrets to Maximizing Your Birthday Haul */}
-      <section className="mt-8 rounded-3xl bg-paper p-5 sm:p-6 ring-1 ring-line">
-        <h3 className="font-display text-base font-bold text-ink flex items-center gap-2">
-          <Sparkles size={16} className="text-amber-500" />
-          Pro Tips: How to Maximize Your Birthday Freebies
-        </h3>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 text-xs">
-          <div className="rounded-2xl bg-card p-3.5 ring-1 ring-line">
-            <strong className="block text-ink font-semibold mb-1">1. Sign Up 2–4 Weeks Early</strong>
-            <p className="text-mute leading-relaxed">
-              Most loyalty systems generate birthday vouchers automatically on the 1st of the month. If your birthday is
-              in October, join by September 25th.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-card p-3.5 ring-1 ring-line">
-            <strong className="block text-ink font-semibold mb-1">2. Keep Photo ID Ready</strong>
-            <p className="text-mute leading-relaxed">
-              Attractions like Taronga Zoo ($1 entry) and restaurants like Denny’s require government-issued photo ID
-              confirming your DOB.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-card p-3.5 ring-1 ring-line">
-            <strong className="block text-ink font-semibold mb-1">3. Check App Reward Wallets</strong>
-            <p className="text-mute leading-relaxed">
-              Brands like Boost, Starbucks, and Sephora issue digital barcodes directly inside their native apps rather
-              than email coupons.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-card p-3.5 ring-1 ring-line">
-            <strong className="block text-ink font-semibold mb-1">4. Redeem With a Mate</strong>
-            <p className="text-mute leading-relaxed">
-              Freebies like San Churro (Churros for Two) and Wild Wadi Waterpark tickets are designed to be shared. Tap
-              “Redeem with a Mate” on any card to invite a friend!
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Add Your Business Perk / Merchant CTA */}
-      <section className="mt-8 rounded-3xl bg-gradient-to-r from-card to-paper p-5 sm:p-6 ring-1 ring-line shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-accent flex items-center gap-1">
-              <Building2 size={13} />
-              For Business Owners & Cafes
+      {/* Birthday Month Alerts & Merchant Strip */}
+      <section className="mt-8 grid gap-3 sm:grid-cols-2">
+        {/* Alerts Card */}
+        <div className="flex items-center justify-between rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand/10 text-brand">
+              <Cake size={18} />
             </span>
-            <h3 className="font-display text-base font-bold text-ink">List your venue's birthday perk on AirPal</h3>
-            <p className="text-xs text-mute max-w-lg">
-              Drive local celebrations and new loyal customers to your door. Publish birthday perks, member discounts,
-              and special promotions in minutes.
-            </p>
+            <div className="min-w-0">
+              <h3 className="font-display text-xs font-bold text-ink">Birthday Month Alerts</h3>
+              <p className="text-[11px] text-mute truncate">Heads-up on the 1st of your month.</p>
+            </div>
           </div>
+          {user ? (
+            <button
+              type="button"
+              onClick={() => void handleToggleAlerts()}
+              disabled={isSavingAlerts}
+              className={cn(
+                "relative inline-flex h-6 w-10 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out",
+                alertsEnabled ? "bg-brand" : "bg-line",
+              )}
+              role="switch"
+              aria-checked={alertsEnabled}
+              aria-label="Toggle birthday month alerts"
+            >
+              <span
+                className={cn(
+                  "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition duration-200 ease-in-out mt-1 ml-1",
+                  alertsEnabled ? "translate-x-4" : "translate-x-0",
+                )}
+              />
+            </button>
+          ) : (
+            <Link
+              href="/settings"
+              className="inline-flex min-h-[32px] items-center rounded-xl bg-brand px-2.5 text-xs font-bold text-white shadow-xs"
+            >
+              Enable
+            </Link>
+          )}
+        </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <Link
-              href="/business/promotions/new"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-brand px-4 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-brand-ink transition active:scale-95"
-            >
-              <span>Add Your Perk</span>
-              <ArrowRight size={14} />
-            </Link>
-            <Link
-              href="/business"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-card px-4 text-xs sm:text-sm font-semibold text-ink ring-1 ring-line hover:bg-paper transition"
-            >
-              <span>Business Hub</span>
-            </Link>
+        {/* Business Partner Card */}
+        <div className="flex items-center justify-between rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600">
+              <Building2 size={18} />
+            </span>
+            <div className="min-w-0">
+              <h3 className="font-display text-xs font-bold text-ink">Add Your Venue Perk</h3>
+              <p className="text-[11px] text-mute truncate">List freebies & welcome celebrators.</p>
+            </div>
           </div>
+          <Link
+            href="/business/promotions/new"
+            className="inline-flex min-h-[32px] items-center gap-1 rounded-xl bg-ink px-2.5 text-xs font-bold text-paper shadow-xs shrink-0"
+          >
+            <span>Add Perk</span>
+            <ArrowRight size={12} />
+          </Link>
         </div>
       </section>
-
-      {/* Deals & Live Offers Cross-link */}
-      <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-3xl bg-card p-5 ring-1 ring-line">
-        <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-brand/10 text-brand shrink-0">
-            <Compass size={22} />
-          </span>
-          <div>
-            <h4 className="font-display text-sm font-bold text-ink">Explore Year-Round Deals</h4>
-            <p className="text-xs text-mute">
-              Looking for perks today even if it's not your birthday? Browse live member promotions.
-            </p>
-          </div>
-        </div>
-        <Link
-          href="/deals"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card shrink-0"
-        >
-          <span>Browse Member Deals</span>
-          <ArrowRight size={13} />
-        </Link>
-      </div>
 
       {/* Legal & Editorial Disclaimer */}
-      <p className="mt-8 text-center text-xs text-mute leading-relaxed max-w-xl mx-auto">{BIRTHDAY_DISCLAIMER}</p>
+      <p className="mt-8 text-center text-[11px] text-mute leading-relaxed max-w-xl mx-auto">{BIRTHDAY_DISCLAIMER}</p>
     </div>
   );
 }
