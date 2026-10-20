@@ -44,32 +44,81 @@ export function LocalNowBar() {
   const placeLabel = usingGps ? city : weather?.city || city || (loading ? t("locating") : t("nearYou"));
 
   return (
-    <div className="border-b border-line/70 bg-paper/95 backdrop-blur-xl">
+    <div className="border-b border-black/10 dark:border-white/10 bg-[#f4efe4] dark:bg-[#0d0f12] text-[#3c362f] dark:text-[#a0a8b4] font-mono text-[10px] sm:text-[11px] leading-none select-none transition-colors">
       <LocationSheet open={picker} onClose={() => setPicker(false)} />
-      <div className="mx-auto flex h-8 max-w-6xl items-center gap-2 px-3 sm:h-9 sm:gap-3 sm:px-4 md:px-6">
+      <div className="mx-auto flex h-[22px] sm:h-6 max-w-6xl items-center gap-1.5 px-2.5 sm:gap-2.5 sm:px-4 md:px-6 overflow-hidden">
+        <span className="relative flex h-1.5 w-1.5 shrink-0" aria-hidden="true">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+        </span>
+
         <button
           type="button"
           onClick={() => {
             void trackFeatureEngagement("weather", "open_location_picker", { city });
             setPicker(true);
           }}
-          className="group relative flex min-w-0 max-w-[42%] items-center gap-1 rounded-full px-1 py-0.5 text-ink transition hover:bg-card active:scale-95 after:absolute after:-inset-2 after:content-[''] sm:max-w-none"
+          className="group relative flex min-w-0 max-w-[38%] items-center gap-1 font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink transition hover:text-brand-ink dark:hover:text-amber-300 active:scale-95 after:absolute after:-inset-2 after:content-[''] sm:max-w-none cursor-pointer"
           title="Select location & precinct"
           aria-label={`Current location: ${placeLabel}. Tap to select location`}
         >
-          <MapPin size={12} className="shrink-0 text-accent" />
-          <span
-            className="truncate text-[12px] font-semibold sm:text-[13px]"
-            title={source === "gps" ? t("nearYou") : placeLabel}
-          >
+          <MapPin size={10} className="shrink-0 text-accent opacity-90" />
+          <span className="truncate" title={source === "gps" ? t("nearYou") : placeLabel}>
             {placeLabel}
           </span>
           {shareLocation && (
-            <span className="hidden shrink-0 rounded-full bg-emerald-500/15 px-1.5 py-px text-[10px] font-semibold text-emerald-800 sm:inline">
-              Circle
+            <span className="hidden shrink-0 rounded bg-emerald-500/15 px-1 py-0.5 text-[9px] font-bold text-emerald-700 dark:text-emerald-400 sm:inline">
+              GPS
             </span>
           )}
         </button>
+
+        <span className="shrink-0 text-black/25 dark:text-white/25 select-none text-[9px]">/</span>
+
+        <p className="shrink-0 whitespace-nowrap font-mono text-[10px] sm:text-[11px] font-bold tabular-nums text-ink dark:text-zinc-100 tracking-wider">
+          {time}
+          <span className="ml-1 font-normal opacity-60 text-[9.5px] uppercase">{day}</span>
+        </p>
+
+        <span className="shrink-0 text-black/25 dark:text-white/25 select-none text-[9px]">/</span>
+
+        <div
+          className={cn(
+            "flex min-w-0 flex-1 items-center gap-1 font-mono text-[10px] sm:text-[11px]",
+            loading && "opacity-50",
+          )}
+        >
+          {weather ? (
+            <>
+              <span className="shrink-0 text-amber-600 dark:text-amber-400">
+                <SkyIcon code={weather.code} isDay={weather.isDay} size={11} />
+              </span>
+              <span className="shrink-0 font-mono font-bold text-amber-700 dark:text-amber-300 tabular-nums">
+                {weather.temp}°
+              </span>
+              <span className="truncate opacity-75 uppercase tracking-wide text-[9.5px] sm:text-[10px]">
+                {condition}
+              </span>
+              {today && (
+                <span className="hidden min-[480px]:inline-flex shrink-0 opacity-70 text-[9.5px] items-center gap-1">
+                  {today.rain > 0 ? (
+                    <span className="inline-flex items-center gap-0.5 font-bold text-cyan-700 dark:text-cyan-300">
+                      <Umbrella size={9} className="shrink-0" aria-hidden="true" />
+                      <span>{today.rain}%</span>
+                    </span>
+                  ) : null}
+                  <span className="hidden md:inline tabular-nums">
+                    H:{today.high}° L:{today.low}°
+                  </span>
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="truncate opacity-60 text-[9.5px] uppercase">
+              {loading ? t("forecast") : t("timeOnly")}
+            </span>
+          )}
+        </div>
 
         <button
           type="button"
@@ -77,70 +126,28 @@ export function LocalNowBar() {
             void trackFeatureEngagement("share", "share_current_location", { city });
             void shareCurrentLocation(city);
           }}
-          className="relative hidden h-6 w-6 shrink-0 items-center justify-center rounded-full text-mute ring-1 ring-line/60 transition hover:bg-card hover:text-ink after:absolute after:-inset-2.5 after:content-[''] sm:grid"
+          className="relative hidden shrink-0 items-center gap-1 font-mono text-[9.5px] uppercase tracking-wider text-mute hover:text-ink transition after:absolute after:-inset-2 after:content-[''] sm:flex cursor-pointer"
           title={`Share ${city || "current location"} guide`}
           aria-label={`Share ${city || "current location"} guide`}
         >
-          <Share2 size={11} className="text-accent" />
+          <Share2 size={10} className="text-accent" />
+          <span>Share</span>
         </button>
-
-        <span className="h-3.5 w-px shrink-0 bg-line" />
-
-        <p className="shrink-0 whitespace-nowrap font-display text-[12px] font-semibold tabular-nums leading-none sm:text-[14px]">
-          {time}
-          <span className="ml-1.5 font-normal text-mute text-[12px]">{day}</span>
-        </p>
-
-        <span className="h-3.5 w-px shrink-0 bg-line" />
-
-        <div className={cn("flex min-w-0 flex-1 items-center gap-1.5", loading && "opacity-50")}>
-          {weather ? (
-            <>
-              <span className="shrink-0 text-accent">
-                <SkyIcon code={weather.code} isDay={weather.isDay} />
-              </span>
-              <span className="shrink-0 font-display text-[13px] font-semibold leading-none sm:text-[14px]">
-                {weather.temp}°
-              </span>
-              <span className="truncate text-[11px] text-mute sm:text-[12px]">{condition}</span>
-              {today && (
-                <span className="hidden min-[400px]:inline-flex sm:inline-flex shrink-0 text-[11px] font-medium text-mute items-center gap-1.5">
-                  {today.rain > 0 ? (
-                    <span className="inline-flex items-center gap-0.5 font-semibold text-accent">
-                      <Umbrella size={11} className="shrink-0" aria-hidden="true" />
-                      <span>{today.rain}%</span>
-                    </span>
-                  ) : (
-                    <span className="hidden items-center gap-0.5 text-[10px] text-mute/80 md:inline-flex">
-                      <Umbrella size={10} className="shrink-0" aria-hidden="true" />
-                      <span>0%</span>
-                    </span>
-                  )}
-                  <span className="hidden text-[11px] text-mute md:inline">
-                    {today.high}° / {today.low}°
-                  </span>
-                </span>
-              )}
-            </>
-          ) : (
-            <span className="truncate text-[11px] text-mute">{loading ? t("forecast") : t("timeOnly")}</span>
-          )}
-        </div>
 
         {(isLowBattery || powerSaveActive) && (
           <button
             type="button"
             onClick={togglePowerSave}
             className={cn(
-              "shrink-0 flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium transition active:scale-95",
+              "shrink-0 flex items-center gap-0.5 rounded px-1 text-[9.5px] font-mono uppercase tracking-wider transition active:scale-95",
               powerSaveActive
-                ? "bg-amber-500/15 text-amber-900 ring-1 ring-amber-500/30 hover:bg-amber-500/25"
-                : "bg-paper text-mute ring-1 ring-line hover:text-ink",
+                ? "bg-amber-500/20 text-amber-800 dark:text-amber-300 ring-1 ring-amber-500/40"
+                : "text-mute hover:text-ink",
             )}
             title={`Battery ${percentageText} · Power Saver ${powerSaveActive ? "active" : "off"} · Tap to toggle`}
             aria-label={`Battery ${percentageText}. Power Saver is ${powerSaveActive ? "active" : "off"}`}
           >
-            <BatteryLow size={12} className={powerSaveActive ? "text-amber-700" : "text-mute"} />
+            <BatteryLow size={10} className={powerSaveActive ? "text-amber-600 dark:text-amber-400" : "text-mute"} />
             <span className="tabular-nums">{percentageText !== "—%" ? percentageText : "Saver"}</span>
           </button>
         )}

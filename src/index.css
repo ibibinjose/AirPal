@@ -823,18 +823,18 @@ body.keyboard-open .keyboard-hide {
  * LocalNowBar + header) instead of sliding underneath it. */
 .sticky-pagebar {
   position: sticky;
-  top: calc(env(safe-area-inset-top, 0px) + 90px);
+  top: calc(env(safe-area-inset-top, 0px) + 72px);
 }
 
 @media (min-width: 640px) {
   .sticky-pagebar {
-    top: calc(env(safe-area-inset-top, 0px) + 94px);
+    top: calc(env(safe-area-inset-top, 0px) + 72px);
   }
 }
 
 @media (min-width: 1024px) {
   .sticky-pagebar {
-    top: 102px;
+    top: 72px;
   }
 }
 
