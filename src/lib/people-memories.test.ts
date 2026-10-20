@@ -47,6 +47,18 @@ describe("people", () => {
     expect(vcf).toContain("END:VCARD");
   });
 
+  it("emits remote portraits as PHOTO;VALUE=URI", () => {
+    const vcf = buildVCard({ name: "Maya Rao", photoUrl: "https://cdn.airpal.me/maya.jpg" });
+    expect(vcf).toContain("PHOTO;VALUE=URI:https://cdn.airpal.me/maya.jpg");
+  });
+
+  it("never emits data-blob or non-remote photos", () => {
+    const dataUri = buildVCard({ name: "Maya Rao", photoUrl: "data:image/png;base64,AAA" });
+    expect(dataUri).not.toContain("PHOTO");
+    const empty = buildVCard({ name: "Maya Rao" });
+    expect(empty).not.toContain("PHOTO");
+  });
+
   it("saves bio contact with clean handle and formatted note", async () => {
     const res = await saveBioContact({
       name: "Maya Rao",

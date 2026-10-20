@@ -33,7 +33,7 @@ Both apps share a single universal account model so that an event ticket claimed
 
 - **Test Demo Account**: `reviewer@airpal.me`
 - **Test Demo Password**: `AirPalStoreReview2026!`
-- **Pre-Loaded Sample Data**:
+- **Pre-Loaded Sample Data** (App Store / Play review sandbox only — never production seed data, per the authenticity rails in `docs/AIRPAL.md`):
   - Active Digital Bio: `/@bibinjose`
   - Active Confirmed Ticket: Sydney Tech & AI Mixer 2026
   - Active Calendar Hangout Proposal: Coffee Catch-Up at Surry Hills

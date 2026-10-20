@@ -16,6 +16,7 @@ import {
 } from "../../shared/booking";
 import { CALLABLE, db, isPlatformAdmin, requireAuth } from "./admin";
 import { applyEventCouponInTx } from "./coupons";
+import { assertEventHeadroom, assertEventHeadroomTx } from "./guestlist";
 import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "./abuse";
 import type { AccessClaims } from "../../shared/airpal-security";
 
@@ -28,6 +29,45 @@ export const STRIPE_CALLABLE = { ...CALLABLE, secrets: [stripeSecret] };
 /** Sandbox (unpaid) bookings only with explicit opt-in or the local emulator. */
 export function sandboxBookingsAllowed(): boolean {
   return process.env.ALLOW_SANDBOX_BOOKINGS === "true" || process.env.FUNCTIONS_EMULATOR === "true";
+}
+
+export interface EventTierRow {
+  id: string;
+  priceCents: number;
+}
+
+/**
+ * Single server-side price authority for event tickets. Named tiers resolve
+ * from the live event row; legacy tier ids (`standard` / `vip` / `group`)
+ * apply the same multipliers the client displays so a booking can never be
+ * charged a bare 1x unit price for multi-spot or VIP/group passes.
+ */
+export function authoritativeEventTotal(args: {
+  unitCents: unknown;
+  tierId: string;
+  spots: unknown;
+  tiers: EventTierRow[];
+}): { totalCents: number; spots: number } {
+  const spots = Math.min(20, Math.max(1, Math.floor(Number(args.spots) || 1)));
+  const unit = Math.floor(Number(args.unitCents));
+  if (!Number.isInteger(unit) || unit < 0) {
+    throw new HttpsError("failed-precondition", "This event has no valid ticket price.");
+  }
+  const tierId = args.tierId.trim();
+  if (!tierId || tierId === "standard") return { totalCents: unit * spots, spots };
+  if (tierId === "vip") return { totalCents: Math.round(unit * 1.5) * spots, spots };
+  // Group is a fixed 4-pass bundle with a 10% bundle discount.
+  if (tierId === "group") return { totalCents: Math.round(unit * 4 * 0.9), spots: 4 };
+  const tier = args.tiers.find(
+    (row) =>
+      !!row &&
+      typeof row.id === "string" &&
+      row.id === tierId &&
+      Number.isInteger(Number(row.priceCents)) &&
+      Number(row.priceCents) >= 0,
+  );
+  if (!tier) throw new HttpsError("failed-precondition", "This ticket tier is unavailable.");
+  return { totalCents: Math.floor(Number(tier.priceCents)) * spots, spots };
 }
 
 function readSecret(param: { value: () => string }, envName: string): string {
@@ -280,60 +320,58 @@ export const createEventBooking = onCall(STRIPE_CALLABLE, async (request) => {
   const data = (request.data || {}) as { eventId?: unknown; spots?: unknown; tierId?: unknown; couponCode?: unknown };
   const eventId = String(data.eventId || "").trim();
   if (!eventId) throw new HttpsError("invalid-argument", "eventId is required.");
-  const eventSnap = await db.collection("events").doc(eventId).get();
-  if (!eventSnap.exists) throw new HttpsError("not-found", "Event not found.");
-  const event = eventSnap.data() as Record<string, unknown>;
-  if (event.status !== "live") throw new HttpsError("failed-precondition", "This event is not on sale.");
-  if (event.registrationClosed === true) throw new HttpsError("failed-precondition", "Registration is closed.");
-  const spots = Math.min(20, Math.max(1, Math.floor(Number(data.spots) || 1)));
+  const requestedSpots = Math.min(20, Math.max(1, Math.floor(Number(data.spots) || 1)));
   const tierId = typeof data.tierId === "string" ? data.tierId.trim() : "";
-  const tiers = Array.isArray(event.ticketTiers) ? event.ticketTiers : [];
-  let priceCents = Number(event.ticketPriceCents || 0);
-  if (tierId) {
-    const tier = tiers.find(
-      (row): row is { id: string; priceCents: number } =>
-        !!row &&
-        typeof row === "object" &&
-        typeof (row as { id?: unknown }).id === "string" &&
-        (row as { id: string }).id === tierId &&
-        Number.isInteger(Number((row as { priceCents?: unknown }).priceCents)) &&
-        Number((row as { priceCents?: unknown }).priceCents) >= 0,
-    );
-    if (!tier) throw new HttpsError("failed-precondition", "This ticket tier is unavailable.");
-    priceCents = tier.priceCents * spots;
-  }
-  if (!Number.isInteger(priceCents) || priceCents < 0) {
-    throw new HttpsError("failed-precondition", "This event has no valid ticket price.");
-  }
-  const now = new Date().toISOString();
-  const startsAt = String(event.startsAt || "");
-  const dateMatch = /^(\d{4}-\d{2}-\d{2})/.exec(startsAt);
-  const timeMatch = /T(\d{2}:\d{2})/.exec(startsAt);
+  const couponCode =
+    typeof data.couponCode === "string" && data.couponCode.trim()
+      ? data.couponCode.trim().toUpperCase().slice(0, 64)
+      : null;
+  const eventRef = db.collection("events").doc(eventId);
   const ref = db.collection("bookings").doc();
-  await ref.set({
-    requestId: eventId,
-    eventId,
-    customerUid: uid,
-    providerUid: String(event.organiserUid || ""),
-    providerKind: "business",
-    providerName: String(event.hostName || event.businessName || event.name || "AirPal"),
-    title: String(event.name || "AirPal event"),
-    suburb: String(event.venue || event.city || ""),
-    date: dateMatch?.[1] || startsAt,
-    time: timeMatch?.[1] || "",
-    priceCents,
-    feeCents: 0,
-    paymentStatus: "unpaid",
-    payoutStatus: "unpaid",
-    status: "pending",
-    cancelReason: "",
-    spots,
-    ...(tierId ? { tierId } : {}),
-    ...(typeof data.couponCode === "string" && data.couponCode.trim()
-      ? { couponCode: data.couponCode.trim().toUpperCase().slice(0, 64) }
-      : {}),
-    createdAt: now,
-    updatedAt: now,
+  // One transaction reads the live event, prices authoritatively, enforces
+  // capacity, and creates the booking — concurrent checkouts serialize here,
+  // so two guests can never take the same last seats.
+  await db.runTransaction(async (tx) => {
+    const eventSnap = await tx.get(eventRef);
+    if (!eventSnap.exists) throw new HttpsError("not-found", "Event not found.");
+    const event = eventSnap.data() as Record<string, unknown>;
+    if (event.status !== "live") throw new HttpsError("failed-precondition", "This event is not on sale.");
+    if (event.registrationClosed === true) throw new HttpsError("failed-precondition", "Registration is closed.");
+    const tiers = Array.isArray(event.ticketTiers) ? event.ticketTiers : [];
+    const priced = authoritativeEventTotal({
+      unitCents: event.ticketPriceCents,
+      tierId,
+      spots: requestedSpots,
+      tiers: tiers as EventTierRow[],
+    });
+    await assertEventHeadroomTx(tx, eventId, priced.spots);
+    const now = new Date().toISOString();
+    const startsAt = String(event.startsAt || "");
+    const dateMatch = /^(\d{4}-\d{2}-\d{2})/.exec(startsAt);
+    const timeMatch = /T(\d{2}:\d{2})/.exec(startsAt);
+    tx.set(ref, {
+      requestId: eventId,
+      eventId,
+      customerUid: uid,
+      providerUid: String(event.organiserUid || ""),
+      providerKind: "business",
+      providerName: String(event.hostName || event.businessName || event.name || "AirPal"),
+      title: String(event.name || "AirPal event"),
+      suburb: String(event.venue || event.city || ""),
+      date: dateMatch?.[1] || startsAt,
+      time: timeMatch?.[1] || "",
+      priceCents: priced.totalCents,
+      feeCents: 0,
+      paymentStatus: "unpaid",
+      payoutStatus: "unpaid",
+      status: "pending",
+      cancelReason: "",
+      spots: priced.spots,
+      ...(tierId ? { tierId } : {}),
+      ...(couponCode ? { couponCode } : {}),
+      createdAt: now,
+      updatedAt: now,
+    });
   });
   return { bookingId: ref.id };
 });
@@ -379,17 +417,13 @@ export const createBookingCheckoutSession = onCall(STRIPE_CALLABLE, async (reque
             Number((t as { priceCents?: unknown }).priceCents) >= 0,
         )
       : [];
-    let authoritative: number;
-    if (booking.tierId) {
-      const tier = tiers.find((t) => t.id === booking.tierId);
-      if (!tier) throw new HttpsError("failed-precondition", "This ticket tier is no longer available.");
-      const spots = Math.max(1, Math.floor(Number(booking.spots) || 1));
-      authoritative = Math.floor(Number(tier.priceCents)) * spots;
-    } else {
-      const repriced = repriceSourcedBooking({ exists: true, priceCents: eventData.ticketPriceCents });
-      if ("error" in repriced) throw new HttpsError("failed-precondition", "This event is no longer on sale.");
-      authoritative = repriced.priceCents;
-    }
+    const repriced = authoritativeEventTotal({
+      unitCents: eventData.ticketPriceCents,
+      tierId: typeof booking.tierId === "string" ? booking.tierId : "",
+      spots: booking.spots,
+      tiers,
+    });
+    let authoritative: number = repriced.totalCents;
     let couponCode: string | null = null;
     let discountPercent: number | null = null;
     if (typeof booking.couponCode === "string" && booking.couponCode.trim()) {
@@ -405,6 +439,13 @@ export const createBookingCheckoutSession = onCall(STRIPE_CALLABLE, async (reque
       patch.priceCents = authoritative;
       booking.priceCents = authoritative;
     }
+    if (booking.spots !== repriced.spots) {
+      patch.spots = repriced.spots;
+      booking.spots = repriced.spots;
+    }
+    // Fail fast when the event filled up after booking — the authoritative
+    // total above already reflects the live event row.
+    await assertEventHeadroom(booking.eventId as string, booking.spots as number);
     if ((booking.couponCode || null) !== couponCode) {
       patch.couponCode = couponCode;
       booking.couponCode = couponCode as string;
@@ -1078,6 +1119,27 @@ export const stripeWebhook = onRequest(
               { paymentStatus: "unpaid", payoutStatus: "unpaid", updatedAt: new Date().toISOString() },
               { merge: true },
             );
+        }
+      } else if (event.type === "checkout.session.expired") {
+        // Abandoned checkouts release their inventory hold: capacity checks
+        // count unpaid pending bookings, so an expired session must cancel
+        // the booking instead of squatting on seats forever.
+        const session = event.data.object as Stripe.Checkout.Session;
+        const bookingId = String(session.metadata?.bookingId || "").trim();
+        if (bookingId) {
+          const bookingRef = db.collection("bookings").doc(bookingId);
+          const snap = await bookingRef.get();
+          const row = snap.data() as { status?: unknown; paymentStatus?: unknown } | undefined;
+          if (snap.exists && row?.status === "pending" && row?.paymentStatus === "unpaid") {
+            await bookingRef.set(
+              {
+                status: "cancelled",
+                cancelReason: "Checkout expired",
+                updatedAt: new Date().toISOString(),
+              },
+              { merge: true },
+            );
+          }
         }
       } else if (
         event.type === "customer.subscription.created" ||

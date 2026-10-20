@@ -89,7 +89,7 @@ export function SignInPrompt() {
           <button
             type="button"
             onClick={dismissSignInPrompt}
-            className="inline-flex h-9 items-center gap-1 px-3 text-xs font-medium text-mute transition hover:text-ink"
+            className="inline-flex min-h-[44px] items-center gap-1 px-3 text-xs font-medium text-mute transition hover:text-ink"
           >
             <X size={13} />
             Not now

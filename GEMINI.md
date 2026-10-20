@@ -10,6 +10,14 @@ This is a Vite SPA (not Next.js) on Firebase project `airpalme-app`, with two Ca
 - **AirPal.Me:** Personal Life & Identity companion (`/@handle`, `/bio/setup`, `/bio/edit`, `/friends`, `/circle`, `/calendar`, `/me`).
 - **AirPal Pass:** Events, Deals & Experiences hub (`/pass`, `/events`, `/me/tickets`, `/deals`, `/scan`, `/event`, `/business`).
 
+### Server Authorities (never reimplement client-side):
+
+- **Pricing:** `authoritativeEventTotal()` in `functions/src/stripe.ts` (named tiers + legacy `standard`/`vip`/`group`).
+- **Inventory:** transactional booking + RSVP gates, `bookedHeads` trigger mirror, capacity floor in rules (`functions/src/guestlist.ts`).
+- **Redemptions:** idempotent `redeemPoints`; verify/consume via `verifyPromotionRedemption` / `consumePromotionRedemption`, staff-PIN `redeemVoucher`.
+- **Presence:** person-audience shares never hit the `here_at` mirror (`resolvePinOnMap` in `shared/here.ts`); `here_pins` is owner/admin-only.
+- **Routes:** `src/app/routes.tsx` + canon in `src/app/airpal-app.ts`.
+
 ### Communications & Real-Time Engine:
 
 - **Master Brand Email Templates:** Dual-lens responsive email system (`shared/email-templates.ts`) supporting dark/light mode client styles, $\ge 48\text{px}$ touch CTAs, and legal footers.

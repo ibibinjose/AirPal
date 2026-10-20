@@ -16,10 +16,10 @@ To eliminate clutter and maintain crystal-clear user mental models, **AIRPAL** s
 
 Your personal life companion.
 
-- **Digital Bio & Identity:** Fast link-in-bio at `/@handle` (`/bio/setup`, `/bio/edit`) with 1-tap vCard (.vcf) contact saving and live availability status rings.
-- **Personal Calendar:** Universal schedule combining booked event tickets, RSVPs, and catch-ups at `/calendar` with ICS calendar exports.
-- **Friends Hub:** Track mutuals, followers, and friends going together to the same events at `/friends`.
-- **Networking Circle:** Live presence radar with `<HereCheckIn />`, connector quests, and BLE/ultrasonic wave handshakes at `/circle`.
+- **Digital Bio & Identity:** Fast link-in-bio at `/@handle` (`/bio/setup`, `/bio/edit`) with 1-tap vCard (.vcf) contact saving (remote portraits included) and live availability status rings.
+- **Personal Calendar:** Universal schedule combining booked event tickets, RSVPs, and catch-ups at `/calendar` with RFC 5545-compliant ICS calendar exports.
+- **Friends Hub:** Track mutuals, followers, and friends going together to the same events at `/friends` (live counters).
+- **Networking Circle:** Live presence radar with `<HereCheckIn />` (one-person shares stay private by design), connector quests, and BLE/ultrasonic wave handshakes at `/circle`.
 - **Central Dashboard:** Personal attendance and hosting dashboard at `/me`.
 - **Live Notifications Inbox:** Unified notification center at `/me/inbox` with full CRUD (read/unread toggle, single dismiss, and bulk clear-read).
 
@@ -30,9 +30,10 @@ Your personal life companion.
 Your scannable mobile access pass to real-world experiences.
 
 - **What's On & Passes:** Curated concerts, Indian cultural festivals (Diwali, Dandiya), nightlife, and community gatherings at `/pass` and `/events`.
-- **Passbook Wallet:** Live digital QR pass cards, Apple Wallet (.pkpass) & Google Wallet passes at `/me/tickets` and `/ticket/:id`.
-- **Local Perks & Dining Deals:** Exclusive member dining deals, food perks, and voucher redemptions at `/deals`.
-- **Door Check-In Scanner:** Rapid QR ticket admission scanner for event hosts and door teams at `/scan`.
+- **Passbook Wallet:** Live digital QR pass cards, Apple Wallet & Google Wallet passes at `/me/tickets` and `/ticket/:id`.
+- **Server-authoritative ticketing:** One price authority, transactional booking with capacity enforcement (no oversell), expired-checkout cleanup, and Sold-out states throughout.
+- **Local Perks & Dining Deals:** Exclusive member dining deals, food perks, and voucher redemptions at `/deals` — merchant QRs verify server-side inline in `/scan`.
+- **Door Check-In Scanner:** Rapid QR ticket admission scanner for event hosts and door teams at `/scan` (tickets, guestlists, and merchant vouchers).
 - **Event Hosting Studio:** Full organizer tooling to publish events, manage ticket tiers, and track guestlists at `/event`.
 - **Business Hub:** Partner and venue hub for merchant perks, listing management, and claims at `/business`.
 
@@ -65,7 +66,7 @@ Copy `.env.example` → `.env` first. Restart Vite after changing `VITE_*` value
 npm install
 npm run dev          # http://localhost:3000
 npm test             # run unit & integration tests (Vitest)
-npm run verify       # full verification gate (format, types, lint, test, build, rules, secrets, SEO)
+npm run verify       # full verification gate (format, types, lint, tests, builds, rules, secrets, SEO, prod readiness)
 npm run cap:sync     # sync web bundle to iOS and Android Capacitor containers
 npm run deploy       # verify + deploy hosting, functions, and firestore rules
 ```

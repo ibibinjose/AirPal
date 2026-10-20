@@ -21,6 +21,7 @@ import {
 } from "./calendar-utils";
 import {
   buildCalendarShareDescription,
+  foldIcsLine,
   generateIcs,
   generateMultipleIcs,
   getGoogleCalendarUrl,
@@ -209,13 +210,15 @@ describe("Calendar Export (ICS & Google Calendar)", () => {
   });
 
   it("embeds video meeting links (FaceTime & Google Meet) into ICS with URL property", () => {
+    // Folded lines unfold back to the exact content (RFC 5545 §3.1).
+    const unfold = (ics: string): string => ics.replace(/\r\n /g, "");
     const meetPayload = {
       title: "1-on-1 Catch Up",
       startsAt: "2026-09-15T14:00:00+10:00",
       meetingLink: "https://meet.google.com/abc-defg-hij",
       meetingPlatform: "google_meet",
     };
-    const icsMeet = generateIcs(meetPayload);
+    const icsMeet = unfold(generateIcs(meetPayload));
     expect(icsMeet).toContain("URL:https://meet.google.com/abc-defg-hij");
     expect(icsMeet).toContain("LOCATION:https://meet.google.com/abc-defg-hij");
     expect(icsMeet).toContain("Join Google Meet: https://meet.google.com/abc-defg-hij");
@@ -226,7 +229,7 @@ describe("Calendar Export (ICS & Google Calendar)", () => {
       meetingLink: "https://facetime.apple.com/join#v=1&p=xyz",
       meetingPlatform: "facetime",
     };
-    const icsFt = generateIcs(facetimePayload);
+    const icsFt = unfold(generateIcs(facetimePayload));
     expect(icsFt).toContain("URL:https://facetime.apple.com/join#v=1&p=xyz");
     expect(icsFt).toContain("Join FaceTime: https://facetime.apple.com/join#v=1&p=xyz");
   });
@@ -322,6 +325,35 @@ describe("New Calendar Features & Filters", () => {
     expect(multiIcs).toContain("Argyle Laneway Jazz");
     expect(multiIcs).toContain("Harbour Sunrise Yoga");
     expect(multiIcs).toContain("END:VCALENDAR");
+  });
+
+  it("gives every batched event a unique UID", () => {
+    const multiIcs = generateMultipleIcs(MOCK_EVENTS, "Sydney Trip");
+    const uids = [...multiIcs.matchAll(/^UID:(.+)$/gm)].map((match) => match[1]);
+    expect(uids.length).toBe(MOCK_EVENTS.length);
+    expect(new Set(uids).size).toBe(uids.length);
+  });
+
+  it("folds ICS lines past 75 octets per RFC 5545", () => {
+    const folded = foldIcsLine(`DESCRIPTION:${"a".repeat(200)}`);
+    const encoder = new TextEncoder();
+    for (const line of folded.split("\r\n")) {
+      expect(encoder.encode(line).length).toBeLessThanOrEqual(76);
+    }
+    expect(folded).toContain("\r\n ");
+    // Short lines pass through untouched.
+    expect(foldIcsLine("SUMMARY:Hi")).toBe("SUMMARY:Hi");
+  });
+
+  it("never splits multi-byte characters across a fold", () => {
+    const folded = foldIcsLine(`SUMMARY:${"·".repeat(60)}`);
+    expect(folded).toContain("·");
+    const encoder = new TextEncoder();
+    for (const line of folded.split("\r\n")) {
+      expect(encoder.encode(line).length).toBeLessThanOrEqual(76);
+    }
+    // Every continuation byte sequence still decodes cleanly.
+    expect(() => new TextDecoder("utf-8", { fatal: true }).decode(encoder.encode(folded))).not.toThrow();
   });
 });
 

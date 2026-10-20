@@ -1,7 +1,10 @@
+import type { Transaction } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { ticketAdmitCheck, type Booking } from "../../shared/booking";
 import {
+  activeGuestHeads,
+  eventHeadsAllowed,
   guestEntryIdForRsvp,
   guestEntryIdForTicket,
   guestScopeCollection,
@@ -99,7 +102,72 @@ async function refreshGuestCounts(scope: GuestScope, id: string): Promise<void> 
   await db
     .collection(guestScopeCollection(scope))
     .doc(id)
-    .set({ guestCounts: counts, guestCountsAt: now }, { merge: true });
+    .set(
+      {
+        guestCounts: counts,
+        guestCountsAt: now,
+        // Server-maintained inventory ledger (display + fast checks).
+        // Booking-time enforcement re-reads live rows; this never drifts
+        // because it is recomputed from the rows on every write.
+        bookedHeads: activeGuestHeads(counts),
+      },
+      { merge: true },
+    );
+}
+
+/** Booking states that still hold inventory (unpaid but not dead). */
+const HOLD_STATUSES = new Set(["pending", "confirmed", "in_progress"]);
+
+function countPositive(value: unknown): number {
+  return Number.isInteger(Number(value)) && Number(value) > 0 ? Math.floor(Number(value)) : 0;
+}
+
+function readCapacity(eventData: Record<string, unknown>): number | null {
+  const cap = Number(eventData.capacity);
+  return Number.isInteger(cap) && cap > 0 ? cap : null;
+}
+
+/**
+ * Live inventory gate: active guestlist heads plus unpaid pending booking
+ * holds, checked against event capacity. Null capacity means uncapped.
+ * Runs inside a transaction so concurrent bookings serialize on the read
+ * set — a second racing transaction retries and sees the first booking.
+ */
+export async function assertEventHeadroomTx(tx: Transaction, eventId: string, requestedHeads: number): Promise<void> {
+  const eventSnap = await tx.get(db.collection("events").doc(eventId));
+  const capacity = readCapacity((eventSnap.data() || {}) as Record<string, unknown>);
+  if (capacity == null) return;
+  const [guests, pendings] = await Promise.all([
+    tx.get(guestlistCol("event", eventId).where("status", "in", ["going", "invited", "checked-in"])),
+    tx.get(db.collection("bookings").where("eventId", "==", eventId).where("paymentStatus", "==", "unpaid")),
+  ]);
+  let used = 0;
+  for (const doc of guests.docs) used += countPositive((doc.data() as { partySize?: unknown }).partySize) || 1;
+  for (const doc of pendings.docs) {
+    const row = doc.data() as { status?: unknown; spots?: unknown };
+    if (HOLD_STATUSES.has(String(row.status))) used += Math.max(1, countPositive(row.spots));
+  }
+  const gate = eventHeadsAllowed(capacity, used, requestedHeads);
+  if (!gate.ok) throw new HttpsError("failed-precondition", gate.reason);
+}
+
+/** Non-transaction fast path (checkout re-check, UI guards). Fail-fast only. */
+export async function assertEventHeadroom(eventId: string, requestedHeads: number): Promise<void> {
+  const eventSnap = await db.collection("events").doc(eventId).get();
+  const capacity = readCapacity((eventSnap.data() || {}) as Record<string, unknown>);
+  if (capacity == null) return;
+  const [guests, pendings] = await Promise.all([
+    guestlistCol("event", eventId).where("status", "in", ["going", "invited", "checked-in"]).get(),
+    db.collection("bookings").where("eventId", "==", eventId).where("paymentStatus", "==", "unpaid").get(),
+  ]);
+  let used = 0;
+  for (const doc of guests.docs) used += countPositive((doc.data() as { partySize?: unknown }).partySize) || 1;
+  for (const doc of pendings.docs) {
+    const row = doc.data() as { status?: unknown; spots?: unknown };
+    if (HOLD_STATUSES.has(String(row.status))) used += Math.max(1, countPositive(row.spots));
+  }
+  const gate = eventHeadsAllowed(capacity, used, requestedHeads);
+  if (!gate.ok) throw new HttpsError("failed-precondition", gate.reason);
 }
 
 function parseScope(value: unknown): GuestScope {
@@ -122,28 +190,57 @@ export const onGuestRsvpWritten = onDocumentWritten("users/{uid}/calendar/{event
   const ref = guestlistCol("event", eventId).doc(guestEntryIdForRsvp(uid));
 
   if (after?.status === "going") {
-    const existing = await ref.get();
-    if (existing.exists && TERMINAL_KEEP.has(String(existing.data()?.status))) {
+    const display = await guestDisplayFor(uid);
+    const now = new Date().toISOString();
+    // Capacity gate inside the same transaction that writes the row, so two
+    // guests RSVPing the last seat can't both land. A guest who already holds
+    // an active row keeps their seat without re-competing. When full the row
+    // is skipped — the door list is the source of truth, never the calendar doc.
+    const seated = await db.runTransaction(async (tx) => {
+      const existing = await tx.get(ref);
+      if (existing.exists) {
+        const current = String(existing.data()?.status);
+        if (TERMINAL_KEEP.has(current)) return true;
+        if (["going", "invited", "checked-in"].includes(current)) {
+          tx.set(ref, { status: "going" }, { merge: true });
+          return true;
+        }
+      }
+      const eventSnap = await tx.get(db.collection("events").doc(eventId));
+      const capacity = readCapacity((eventSnap.data() || {}) as Record<string, unknown>);
+      if (capacity != null) {
+        const guests = await tx.get(
+          guestlistCol("event", eventId).where("status", "in", ["going", "invited", "checked-in"]),
+        );
+        let used = 0;
+        for (const doc of guests.docs) {
+          used += countPositive((doc.data() as { partySize?: unknown }).partySize) || 1;
+        }
+        const gate = eventHeadsAllowed(capacity, used, 1);
+        if (!gate.ok) return false;
+      }
+      tx.set(
+        ref,
+        {
+          name: display.name,
+          uid,
+          ...(display.handle ? { handle: display.handle } : {}),
+          verified: display.verified,
+          status: "going",
+          partySize: 1,
+          source: "rsvp",
+          addedBy: uid,
+          addedAt: now,
+          checkedInAt: null,
+        },
+        { merge: true },
+      );
+      return true;
+    });
+    if (!seated) {
       await refreshGuestCounts("event", eventId);
       return;
     }
-    const display = await guestDisplayFor(uid);
-    const now = new Date().toISOString();
-    await ref.set(
-      {
-        name: display.name,
-        uid,
-        ...(display.handle ? { handle: display.handle } : {}),
-        verified: display.verified,
-        status: "going",
-        partySize: 1,
-        source: "rsvp",
-        addedBy: uid,
-        addedAt: now,
-        checkedInAt: null,
-      },
-      { merge: true },
-    );
     const before = event.data?.before?.data() as { status?: string } | undefined;
     if (before?.status !== "going") {
       void sendEventRsvpEmail(eventId, uid);

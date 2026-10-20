@@ -339,6 +339,29 @@ export function admitTicketRemote(data: { ticketId: string }) {
   );
 }
 
+export function verifyPromotionRedemptionRemote(data: { promotionId: string; code: string }) {
+  return callFunction<
+    typeof data,
+    {
+      promotionId: string;
+      code: string;
+      title: string;
+      status: string;
+      pointsSpent: number;
+      redeemedAt: string | null;
+      valid: boolean;
+      reason: "already_redeemed" | "expired" | "not_found" | null;
+    }
+  >(CALLABLES.verifyPromotionRedemption, data);
+}
+
+export function consumePromotionRedemptionRemote(data: { promotionId: string; code: string }) {
+  return callFunction<typeof data, { promotionId: string; code: string; redeemedAt: string }>(
+    CALLABLES.consumePromotionRedemption,
+    data,
+  );
+}
+
 export function checkInGuestRemote(data: { scope: "event"; id: string; entryId: string }) {
   return callFunction<
     typeof data,

@@ -37,6 +37,7 @@ vi.mock("firebase-functions/v2/https", () => ({
 
 import {
   assertChargeableAmount,
+  authoritativeEventTotal,
   needsTransferReversal,
   payoutIdempotencyKey,
   refundIdempotencyKey,
@@ -99,6 +100,53 @@ describe("money idempotency keys", () => {
     expect(refundIdempotencyKey("bk-1")).toBe(refundIdempotencyKey("bk-1"));
     expect(payoutIdempotencyKey("bk-1")).not.toBe(payoutIdempotencyKey("bk-2"));
     expect(payoutIdempotencyKey("bk-1")).not.toBe(refundIdempotencyKey("bk-1"));
+  });
+});
+
+describe("authoritativeEventTotal", () => {
+  const tiers = [
+    { id: "early", priceCents: 2000 },
+    { id: "vip-tier", priceCents: 5000 },
+  ];
+
+  it("multiplies the unit price by spots when no tier is sent", () => {
+    expect(authoritativeEventTotal({ unitCents: 1500, tierId: "", spots: 3, tiers })).toEqual({
+      totalCents: 4500,
+      spots: 3,
+    });
+  });
+
+  it("prices named tiers per spot", () => {
+    expect(authoritativeEventTotal({ unitCents: 1500, tierId: "early", spots: 2, tiers })).toEqual({
+      totalCents: 4000,
+      spots: 2,
+    });
+  });
+
+  it("prices legacy VIP at 1.5x per spot", () => {
+    expect(authoritativeEventTotal({ unitCents: 1000, tierId: "vip", spots: 2, tiers })).toEqual({
+      totalCents: 3000,
+      spots: 2,
+    });
+  });
+
+  it("prices the legacy group bundle as 4 passes with the bundle discount", () => {
+    expect(authoritativeEventTotal({ unitCents: 1000, tierId: "group", spots: 4, tiers })).toEqual({
+      totalCents: 3600,
+      spots: 4,
+    });
+  });
+
+  it("rejects unknown tier ids instead of falling back to 1x", () => {
+    expect(() => authoritativeEventTotal({ unitCents: 1000, tierId: "nope", spots: 2, tiers })).toThrowError(
+      expect.objectContaining({ code: "failed-precondition" }),
+    );
+  });
+
+  it("rejects invalid unit prices", () => {
+    expect(() => authoritativeEventTotal({ unitCents: -5, tierId: "", spots: 1, tiers })).toThrowError(
+      expect.objectContaining({ code: "failed-precondition" }),
+    );
   });
 });
 

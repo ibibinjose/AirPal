@@ -98,7 +98,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
               void triggerHaptic("light");
               nav("/scan");
             }}
-            className="hidden xl:inline-flex h-10.5 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
+            className="hidden xl:inline-flex min-h-[44px] shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
             title="Scan QR"
           >
             Scan
@@ -109,7 +109,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 void triggerHaptic("light");
                 nav("/event");
               }}
-              className="hidden xl:inline-flex h-10.5 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4.5 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
+              className="hidden xl:inline-flex min-h-[44px] shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4.5 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
             >
               Host
             </button>
@@ -120,7 +120,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 nav(partnerAccountPath({ signedIn: Boolean(user), hasPlace: Boolean(business) }));
               }}
               aria-label={NAMES.partnerAccount}
-              className="hidden xl:inline-flex h-10.5 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4.5 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
+              className="hidden xl:inline-flex min-h-[44px] shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-4.5 text-sm font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
             >
               {NAMES.partnerAccount}
             </button>

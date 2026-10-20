@@ -248,6 +248,13 @@ export function GuestlistPage() {
   async function onSaveCapacity() {
     if (capSaving) return;
     const next = Number.parseInt(capDraft, 10);
+    // Client soft guard — the server rules enforce the same floor, so the
+    // organiser gets instant feedback instead of a denied write.
+    const seated = (counts.goingHeads || 0) + (counts.checkedInHeads || 0);
+    if (Number.isInteger(next) && next >= 1 && next < seated) {
+      toast.error(`Capacity can't drop below the ${seated} guests already on the list.`);
+      return;
+    }
     setCapSaving(true);
     try {
       await setEventCapacity(id, next);

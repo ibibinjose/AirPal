@@ -82,7 +82,8 @@ export function CircleHereSheet({
         audience,
         toHandle: audience === "person" ? toHandle.trim() : undefined,
         hours,
-        pinOnMap: audience === "circle" ? pinOnMap : pinOnMap,
+        // One-person shares are direct and never pinned on the public map.
+        pinOnMap: audience === "circle" ? pinOnMap : false,
       });
       toast.success(audience === "person" ? `Shared with @${toHandle.replace(/^@/, "")}` : "Shared with your Circle");
       onShared?.();
@@ -196,15 +197,17 @@ export function CircleHereSheet({
         ))}
       </div>
 
-      <label className="mt-4 flex min-h-[44px] cursor-pointer items-center gap-3 px-1 py-1">
-        <input
-          type="checkbox"
-          className="h-5 w-5 accent-[#004eff]"
-          checked={pinOnMap}
-          onChange={(e) => setPinOnMap(e.target.checked)}
-        />
-        <span className="text-[15px] text-ink">Pin me for people at this place</span>
-      </label>
+      {audience === "circle" && (
+        <label className="mt-4 flex min-h-[44px] cursor-pointer items-center gap-3 px-1 py-1">
+          <input
+            type="checkbox"
+            className="h-5 w-5 accent-[#004eff]"
+            checked={pinOnMap}
+            onChange={(e) => setPinOnMap(e.target.checked)}
+          />
+          <span className="text-[15px] text-ink">Pin me for people at this place</span>
+        </label>
+      )}
 
       <Button className="mt-5 w-full min-h-[44px]" disabled={busy} loading={busy} onClick={() => void send()}>
         Share

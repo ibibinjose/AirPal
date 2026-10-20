@@ -102,6 +102,34 @@ export function guestEntryValid(entry: Partial<GuestEntry>): boolean {
   return true;
 }
 
+/**
+ * Heads that occupy event inventory: admitted plus holding-a-spot rows.
+ * Door walk-ins, RSVPs, and paid tickets all count — cancelled rows don't.
+ */
+export function activeGuestHeads(counts: Pick<GuestCounts, "goingHeads" | "checkedInHeads">): number {
+  return (
+    Math.max(0, Math.floor(Number(counts.goingHeads) || 0)) +
+    Math.max(0, Math.floor(Number(counts.checkedInHeads) || 0))
+  );
+}
+
+/**
+ * Single capacity decision used by every booking path. Null/zero capacity
+ * means uncapped; otherwise used + requested must fit.
+ */
+export function eventHeadsAllowed(
+  capacity: unknown,
+  usedHeads: unknown,
+  requestedHeads: unknown,
+): { ok: true } | { ok: false; reason: string } {
+  const cap = Number(capacity);
+  if (capacity == null || !(Number.isInteger(cap) && cap > 0)) return { ok: true };
+  const used = Math.max(0, Math.floor(Number(usedHeads) || 0));
+  const requested = Math.max(1, Math.floor(Number(requestedHeads) || 1));
+  if (used + requested > cap) return { ok: false, reason: "This event is sold out." };
+  return { ok: true };
+}
+
 /** Head counts per status. Cancelled rows are excluded from every head total. */
 export function summarizeGuestlist(entries: Pick<GuestEntry, "status" | "partySize">[]): GuestCounts {
   let goingHeads = 0;

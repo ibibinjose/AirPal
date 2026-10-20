@@ -118,10 +118,9 @@ export function TicketPage() {
 
   // Whether the viewer is the ticket holder
   const isHolder = Boolean(user && booking && booking.customerUid === user.uid);
-  // Whether the viewer can also act as gate staff/organiser
-  const isStaff = Boolean(
-    isAdmin || (user && booking && (booking.providerUid === user.uid || booking.customerUid !== user.uid)),
-  );
+  // Gate staff tab is reserved for the organiser/provider and admins — any
+  // other signed-in viewer is a guest, even though the server re-checks.
+  const isStaff = Boolean(isAdmin || (user && booking && booking.providerUid === user.uid));
 
   const toggleBrightness = () => {
     const next = !brightnessBoost;

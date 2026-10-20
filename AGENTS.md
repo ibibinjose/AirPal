@@ -2,6 +2,8 @@
 
 **Agents: read [`docs/AIRPAL.md`](./docs/AIRPAL.md) before any edit. It is the binding source of truth** — product, dual-lens ecosystem, V1 scope, trust/safety/privacy/money rails, tech rules, design system, launch plan, and agent rules. This file is only the boot pointer so every tool lands in the same place.
 
+Repo map (source vs generated vs secrets, directory conventions): [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).
+
 ## Core Architecture: Master Brand & The 5 Core Pillars
 
 - **AIRPAL:** Master brand ("Life Made Easy") with unified Firebase Auth, Firestore, and trust rails.

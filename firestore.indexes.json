@@ -210,6 +210,14 @@
       ]
     },
     {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "eventId", "order": "ASCENDING" },
+        { "fieldPath": "paymentStatus", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "pings",
       "queryScope": "COLLECTION",
       "fields": [
@@ -235,6 +243,14 @@
     },
     {
       "collectionGroup": "promotion_entries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "promotionId", "order": "ASCENDING" },
+        { "fieldPath": "uid", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "promotion_redemptions",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "promotionId", "order": "ASCENDING" },

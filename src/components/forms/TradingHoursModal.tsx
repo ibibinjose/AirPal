@@ -141,7 +141,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                   onClick={() => applyPreset(p.id)}
                   title={p.description}
                   className={cn(
-                    "rounded-full px-2.5 py-1 text-xs font-medium transition active:scale-95 whitespace-nowrap",
+                    "relative rounded-full px-2.5 py-1 inline-flex items-center text-xs font-medium transition active:scale-95 whitespace-nowrap after:absolute after:-inset-2 after:content-['']",
                     isSelected
                       ? "bg-brand text-white shadow-xs"
                       : "bg-surface hover:bg-surface-high text-ink ring-1 ring-line/60",
@@ -196,7 +196,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                       type="button"
                       onClick={() => handleStatusChange(dayKey, "open")}
                       className={cn(
-                        "min-h-[40px] whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition active:scale-95",
+                        "min-h-[44px] whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition active:scale-95",
                         daySched.status === "open" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
                       )}
                     >
@@ -206,7 +206,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                       type="button"
                       onClick={() => handleStatusChange(dayKey, "closed")}
                       className={cn(
-                        "min-h-[40px] whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition active:scale-95",
+                        "min-h-[44px] whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition active:scale-95",
                         daySched.status === "closed" ? "bg-rose-500 text-white shadow-xs" : "text-mute hover:text-ink",
                       )}
                     >
@@ -216,7 +216,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                       type="button"
                       onClick={() => handleStatusChange(dayKey, "24hours")}
                       className={cn(
-                        "min-h-[40px] whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition active:scale-95",
+                        "min-h-[44px] whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition active:scale-95",
                         daySched.status === "24hours" ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
                       )}
                     >
@@ -298,7 +298,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                       type="button"
                       onClick={() => copyDayToAll(dayKey)}
                       title="Set all 7 days to Closed"
-                      className="min-h-[40px] whitespace-nowrap rounded-xl bg-surface hover:bg-surface-high px-3 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition ml-2"
+                      className="min-h-[44px] whitespace-nowrap rounded-xl bg-surface hover:bg-surface-high px-3 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition ml-2"
                     >
                       {isCopied ? (
                         <Check size={11} className="shrink-0 text-emerald-500" />
@@ -317,7 +317,7 @@ export function TradingHoursModal({ open, onClose, value, onApply }: TradingHour
                       type="button"
                       onClick={() => copyDayToAll(dayKey)}
                       title="Set all 7 days to 24 Hours"
-                      className="min-h-[40px] whitespace-nowrap rounded-xl bg-surface hover:bg-surface-high px-3 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition ml-2"
+                      className="min-h-[44px] whitespace-nowrap rounded-xl bg-surface hover:bg-surface-high px-3 text-[11px] font-medium text-mute hover:text-ink border border-line/60 flex items-center gap-1 transition ml-2"
                     >
                       {isCopied ? (
                         <Check size={11} className="shrink-0 text-emerald-500" />

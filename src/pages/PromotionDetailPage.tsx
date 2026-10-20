@@ -100,14 +100,17 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
   }, [id, kind]);
 
   const activeVoucherCode = redeemCode || promo?.promoCode || (reference ? `REF-${reference}` : null);
+  // Only per-guest redemption codes mint a scannable QR: static promo codes
+  // and entry references can't be verified at the till, so they stay text.
+  const scannableCode = redeemCode || null;
 
   useEffect(() => {
-    if (!activeVoucherCode) {
+    if (!scannableCode) {
       setVoucherQr("");
       return;
     }
     let alive = true;
-    void makeQrDataUrl(`AIRPAL:DEAL:${promo?.id}:${activeVoucherCode}`, 240)
+    void makeQrDataUrl(`AIRPAL:DEAL:${promo?.id}:${scannableCode}`, 240)
       .then((url) => {
         if (alive) setVoucherQr(url);
       })
@@ -115,7 +118,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
     return () => {
       alive = false;
     };
-  }, [activeVoucherCode, promo?.id]);
+  }, [scannableCode, promo?.id]);
 
   useEffect(() => {
     const db = getFirebaseDb();
@@ -418,7 +421,9 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
               </button>
             </div>
             <p className="mt-2 text-xs text-mute font-medium">
-              Show barcode or quote code to staff at {promo.sponsorName || "venue"}.
+              {voucherQr
+                ? `Show barcode or quote code to staff at ${promo.sponsorName || "venue"}.`
+                : `Quote this code to staff at ${promo.sponsorName || "venue"} — scannable barcodes appear on redeemed offers.`}
             </p>
           </div>
         </div>

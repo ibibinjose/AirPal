@@ -75,6 +75,8 @@ export const CALLABLES = {
   setBirthdayAlertPrefs: "setBirthdayAlertPrefs",
   verifyTicket: "verifyTicket",
   admitTicket: "admitTicket",
+  verifyPromotionRedemption: "verifyPromotionRedemption",
+  consumePromotionRedemption: "consumePromotionRedemption",
   checkInGuest: "checkInGuest",
   closeGuestlist: "closeGuestlist",
   listDoorTeam: "listDoorTeam",
@@ -110,6 +112,32 @@ export type AdmitTicketResponse = {
   ticketId: string;
   admittedAt: string;
   already: boolean;
+};
+
+/**
+ * Merchant scan: read-only promotion redemption check. The promotion owner
+ * or a platform admin only — guests can't validate each other's codes.
+ */
+export type VerifyPromotionRedemptionRequest = { promotionId: string; code: string };
+
+export type VerifyPromotionRedemptionResponse = {
+  promotionId: string;
+  code: string;
+  title: string;
+  status: string;
+  pointsSpent: number;
+  redeemedAt: string | null;
+  valid: boolean;
+  reason: "already_redeemed" | "expired" | "not_found" | null;
+};
+
+/** Merchant scan: consume a verified redemption. Fails when already spent. */
+export type ConsumePromotionRedemptionRequest = { promotionId: string; code: string };
+
+export type ConsumePromotionRedemptionResponse = {
+  promotionId: string;
+  code: string;
+  redeemedAt: string;
 };
 
 /** Door check-in for one guestlist row. Door team or admin only. */

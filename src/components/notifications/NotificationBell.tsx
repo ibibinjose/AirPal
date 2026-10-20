@@ -179,7 +179,7 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
                   type="button"
                   disabled={markingAll}
                   onClick={() => void markAllRead()}
-                  className="inline-flex min-h-[32px] items-center text-[12px] font-semibold text-accent hover:underline disabled:opacity-40"
+                  className="inline-flex min-h-[44px] items-center text-[12px] font-semibold text-accent hover:underline disabled:opacity-40"
                 >
                   <Check size={13} className="mr-1" />
                   Mark read
@@ -188,7 +188,7 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
               <Link
                 href="/me/inbox"
                 onClick={() => setOpen(false)}
-                className="inline-flex min-h-[32px] items-center text-[12px] font-semibold text-ink/75 hover:text-ink"
+                className="inline-flex min-h-[44px] items-center text-[12px] font-semibold text-ink/75 hover:text-ink"
               >
                 Open inbox →
               </Link>

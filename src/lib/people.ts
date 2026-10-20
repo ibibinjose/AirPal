@@ -141,6 +141,10 @@ export function buildVCard(input: VCardInput): string {
   if (input.phone?.trim()) lines.push(`TEL;TYPE=CELL:${escapeVCard(input.phone.trim())}`);
   if (input.email?.trim()) lines.push(`EMAIL:${escapeVCard(input.email.trim())}`);
   if (input.url?.trim()) lines.push(`URL:${escapeVCard(input.url.trim())}`);
+  // vCard 3.0 photo by reference — remote portraits only, never data blobs.
+  if (input.photoUrl?.trim() && /^https?:\/\//i.test(input.photoUrl.trim())) {
+    lines.push(`PHOTO;VALUE=URI:${escapeVCard(input.photoUrl.trim())}`);
+  }
   if (input.note?.trim()) lines.push(`NOTE:${escapeVCard(input.note.trim())}`);
   lines.push("END:VCARD");
   return lines.join("\r\n");
@@ -280,6 +284,7 @@ export async function saveBioContact(input: SaveBioContactInput): Promise<"conta
     phone: input.phone,
     email: input.email,
     url: input.url,
+    photoUrl: input.avatar,
     note:
       input.note ||
       `AirPal Digital Bio Pass (@${cleanHandle})${input.headline ? ` · ${input.headline}` : ""}${input.city ? ` · ${input.city}` : ""}`,

@@ -82,9 +82,11 @@ service cloud.firestore {
     }
 
     // ACL fields must only change via privileged Cloud Functions (setPropertyMember, etc.).
+    // Secret-bearing keys can never land on the publicly readable property doc —
+    // wifi/password material lives in the host-only private/hostSecrets subcollections.
     function propertyAclUnlocked() {
       return !request.resource.data.diff(resource.data).affectedKeys()
-        .hasAny(['ownerId', 'members', 'id']);
+        .hasAny(['ownerId', 'members', 'id', 'wifi', 'wifiPassword', 'password', 'secrets', 'hostSecrets']);
     }
 
     // Phone → uid index for mobile + password sign-in. Functions only.
@@ -192,15 +194,28 @@ service cloud.firestore {
         && !isAnonymous()
         && request.resource.data.organiserUid == request.auth.uid
         && request.resource.data.keys().hasAny(['updatedAt']);
-      // Organiser edits anything (co-host roster capped at 5); co-hosts only capacity.
+      // Organiser edits anything (co-host roster capped at 5) but can never
+      // reassign ownership; co-hosts only capacity. bookedHeads is a
+      // server trigger mirror — clients can't rewrite it — and capacity can
+      // only move when it still fits the heads already on the list.
       allow update: if platformAdmin()
         || (signedIn() && resource.data.organiserUid == request.auth.uid
+          && request.resource.data.organiserUid == resource.data.organiserUid
+          && (!request.resource.data.keys().hasAny(['bookedHeads'])
+            || request.resource.data.bookedHeads == resource.data.bookedHeads)
+          && (request.resource.data.capacity == resource.data.capacity
+            || request.resource.data.capacity == null
+            || !(resource.data.keys().hasAny(['bookedHeads']))
+            || request.resource.data.capacity >= resource.data.bookedHeads)
           && (!(request.resource.data.keys().hasAny(['coHostUids']))
             || request.resource.data.coHostUids.size() <= 5))
         || (signedIn()
           && resource.data.keys().hasAny(['coHostUids'])
           && request.auth.uid in resource.data.coHostUids
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['capacity', 'updatedAt']));
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['capacity', 'updatedAt'])
+          && (request.resource.data.capacity == null
+            || !(resource.data.keys().hasAny(['bookedHeads']))
+            || request.resource.data.capacity >= resource.data.bookedHeads));
       allow delete: if signedIn() && resource.data.organiserUid == request.auth.uid
         || platformAdmin();
 
@@ -477,7 +492,11 @@ match /dining_orders/{orderId} {
         && !isAnonymous()
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.keys().hasAny(['updatedAt']);
-      allow update, delete: if signedIn() && resource.data.ownerUid == request.auth.uid
+      // Ownership never transfers via edit; use the claim flow server-side.
+      allow update: if signedIn() && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        || platformAdmin();
+      allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid
         || platformAdmin();
     }
 
@@ -711,19 +730,33 @@ match /dining_orders/{orderId} {
         resource.data.providerUid == request.auth.uid ||
         platformAdmin()
       );
+      // Split rights: guests can only cancel their own booking (with a short
+      // reason); providers move service status. Money fields stay server-only.
       allow update: if signedIn() && (
         platformAdmin() ||
         (
-          (
-            resource.data.customerUid == request.auth.uid
-            || resource.data.providerUid == request.auth.uid
-          )
+          resource.data.customerUid == request.auth.uid
+          && resource.data.status in ['pending', 'confirmed', 'in_progress']
+          && request.resource.data.status == 'cancelled'
+          && request.resource.data.customerUid == resource.data.customerUid
+          && request.resource.data.providerUid == resource.data.providerUid
+          && request.resource.data.priceCents == resource.data.priceCents
+          && request.resource.data.feeCents == resource.data.feeCents
+          && request.resource.data.paymentStatus == resource.data.paymentStatus
+          && request.resource.data.cancelReason is string
+          && request.resource.data.cancelReason.size() <= 500
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt', 'cancelReason'])
+        ) ||
+        (
+          resource.data.providerUid == request.auth.uid
           && resource.data.status in ['pending', 'confirmed', 'in_progress']
           && request.resource.data.customerUid == resource.data.customerUid
           && request.resource.data.providerUid == resource.data.providerUid
           && request.resource.data.priceCents == resource.data.priceCents
           && request.resource.data.feeCents == resource.data.feeCents
           && request.resource.data.paymentStatus == resource.data.paymentStatus
+          && request.resource.data.cancelReason is string
+          && request.resource.data.cancelReason.size() <= 500
           && request.resource.data.status in ['pending', 'confirmed', 'cancelled', 'in_progress']
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt', 'cancelReason'])
         )
@@ -798,9 +831,16 @@ match /dining_orders/{orderId} {
         resource.data.reporterUid == request.auth.uid ||
         platformAdmin()
       );
+      // Tightly shaped: fixed field set, new cases only, bounded text.
       allow create: if signedIn()
         && !isAnonymous()
         && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.status == 'new'
+        && request.resource.data.details is string
+        && request.resource.data.details.size() >= 10
+        && request.resource.data.details.size() <= 2000
+        && request.resource.data.keys().hasOnly(['reporterUid', 'target', 'targetUid', 'eventTitle',
+          'reason', 'details', 'status', 'adminNote', 'createdAt', 'updatedAt'])
         && request.resource.data.keys().hasAny(['updatedAt']);
       allow update: if signedIn() && platformAdmin();
       allow delete: if false;
@@ -812,7 +852,10 @@ match /dining_orders/{orderId} {
         && request.resource.data.blockerUid == request.auth.uid;
       allow get: if signedIn() && (resource.data.blockerUid == request.auth.uid || platformAdmin());
       allow list: if signedIn() && platformAdmin();
-      allow update, delete: if signedIn() && resource.data.blockerUid == request.auth.uid;
+      // The block record can never be re-pointed at another blocker.
+      allow update: if signedIn() && resource.data.blockerUid == request.auth.uid
+        && request.resource.data.blockerUid == resource.data.blockerUid;
+      allow delete: if signedIn() && resource.data.blockerUid == request.auth.uid;
     }
 
     // AirPal Mate requests: owner + assigned mate; approved Mates can read open ones and accept.
@@ -936,9 +979,11 @@ match /dining_orders/{orderId} {
       allow delete: if platformAdmin();
     }
 
-    // Share-by-id: anyone signed in with the link can get a trip; listing the collection is blocked.
+    // Trips are private to their owner (and admins); listing is blocked.
     match /trips/{tripId} {
-      allow get: if signedIn();
+      allow get: if signedIn() && (
+        resource.data.ownerId == request.auth.uid || platformAdmin()
+      );
       allow list: if false;
       allow create: if signedIn()
         && request.resource.data.id == tripId
@@ -980,8 +1025,11 @@ match /dining_orders/{orderId} {
     }
 
     // Event-space “I’m here” pins. Rounded venue coords only; writes via callables.
+    // Private by default: only the owner (and admins) can read their pin doc.
+    // The public venue board reads the audience-scrubbed here_at mirror.
     match /here_pins/{handle} {
-      allow read: if signedIn();
+      allow get: if signedIn() && (resource.data.uid == request.auth.uid || platformAdmin());
+      allow list: if false;
       allow write: if false;
     }
     match /here_at/{placeKey} {
@@ -1149,7 +1197,18 @@ match /dining_orders/{orderId} {
         resource.data.requesterUid == request.auth.uid
         || resource.data.targetOwnerUid == request.auth.uid
       );
-      allow update, delete: if signedIn() && (
+      // Parties can move status forward but never reassign the proposal.
+      // targetOwnerUid is set-once: legacy rows created without it can gain
+      // it once, then it pins like requesterUid.
+      allow update: if signedIn() && (
+        resource.data.requesterUid == request.auth.uid
+        || resource.data.targetOwnerUid == request.auth.uid
+      )
+        && request.resource.data.requesterUid == resource.data.requesterUid
+        && (!(resource.data.keys().hasAny(['targetOwnerUid']))
+          || request.resource.data.targetOwnerUid == resource.data.targetOwnerUid)
+        && request.resource.data.status in ['pending', 'accepted', 'scheduled', 'dismissed'];
+      allow delete: if signedIn() && (
         resource.data.requesterUid == request.auth.uid
         || resource.data.targetOwnerUid == request.auth.uid
       );

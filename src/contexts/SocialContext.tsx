@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, onSnapshot, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
@@ -105,6 +105,8 @@ export function SocialProvider({ children }: { children: ReactNode }) {
     };
   }, [user]);
 
+  // Live counters: realtime listeners so a counterparty unfollow/like-remove
+  // reflects instantly instead of going stale until the next reload.
   useEffect(() => {
     const db = getFirebaseDb();
     const handle = mine?.handle;
@@ -113,19 +115,19 @@ export function SocialProvider({ children }: { children: ReactNode }) {
       setFollowers(new Set());
       return;
     }
-    let live = true;
-    void Promise.all([
-      getDocs(collection(db, "graph", handle, "likedBy")),
-      getDocs(collection(db, "graph", handle, "followers")),
-    ])
-      .then(([likeSnap, followSnap]) => {
-        if (!live) return;
-        setLikedBy(new Set(likeSnap.docs.map((d) => norm(d.id))));
-        setFollowers(new Set(followSnap.docs.map((d) => norm(d.id))));
-      })
-      .catch(() => undefined);
+    const offLikes = onSnapshot(
+      collection(db, "graph", handle, "likedBy"),
+      (snap) => setLikedBy(new Set(snap.docs.map((d) => norm(d.id)))),
+      () => undefined,
+    );
+    const offFollowers = onSnapshot(
+      collection(db, "graph", handle, "followers"),
+      (snap) => setFollowers(new Set(snap.docs.map((d) => norm(d.id)))),
+      () => undefined,
+    );
     return () => {
-      live = false;
+      offLikes();
+      offFollowers();
     };
   }, [mine?.handle, user]);
 

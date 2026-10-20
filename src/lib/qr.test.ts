@@ -49,4 +49,18 @@ describe("qr payload", () => {
       "/pulse/pls_abcABC1234567890xyz",
     );
   });
+
+  it("parses merchant voucher QRs as inline deal intents, never routes", () => {
+    expect(parseQrPayload("AIRPAL:DEAL:promo123:RDM-PROM-4242")).toEqual({
+      kind: "deal",
+      promotionId: "promo123",
+      code: "RDM-PROM-4242",
+    });
+    expect(pathForIntent({ kind: "deal", promotionId: "promo123", code: "RDM-PROM-4242" })).toBe(null);
+  });
+
+  it("rejects malformed deal payloads as unknown", () => {
+    expect(parseQrPayload("AIRPAL:DEAL:onlypromo").kind).toBe("unknown");
+    expect(parseQrPayload("AIRPAL:DEAL::code").kind).toBe("unknown");
+  });
 });

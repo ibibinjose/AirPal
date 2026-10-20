@@ -52,6 +52,8 @@ export {
   recordPromotionClick,
   setWeeklyCampaign,
   redeemPoints,
+  verifyPromotionRedemption,
+  consumePromotionRedemption,
   promotionEndingSoon,
 } from "./promotions";
 export { announceEventToGuests, createBroadcast, onEventPublishedToFollowers, reviewBroadcast } from "./notifications";

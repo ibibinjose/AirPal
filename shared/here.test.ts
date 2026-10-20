@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { herePinLive, herePlaceKey, roundHereGeo, validateShareHere } from "./here";
+import { herePinLive, herePlaceKey, resolvePinOnMap, roundHereGeo, validateShareHere } from "./here";
 
 describe("here share", () => {
   it("rounds GPS so a venue pin is not a street address", () => {
@@ -25,5 +25,13 @@ describe("here share", () => {
   it("treats an expired pin as not live", () => {
     expect(herePinLive({ expiresAt: new Date(Date.now() + 60_000).toISOString() })).toBe(true);
     expect(herePinLive({ expiresAt: new Date(Date.now() - 60_000).toISOString() })).toBe(false);
+  });
+
+  it("never maps a one-person share, even when the client asks to pin", () => {
+    expect(resolvePinOnMap("person", true)).toBe(false);
+    expect(resolvePinOnMap("person", undefined)).toBe(false);
+    expect(resolvePinOnMap("circle", true)).toBe(true);
+    expect(resolvePinOnMap("circle", undefined)).toBe(true);
+    expect(resolvePinOnMap("circle", false)).toBe(false);
   });
 });

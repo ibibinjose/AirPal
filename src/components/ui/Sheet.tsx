@@ -1,4 +1,4 @@
-import { useEffect, useId, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { dismissKeyboard } from "@/lib/keyboard";
@@ -18,6 +18,8 @@ export function Sheet({
   className?: string;
 }) {
   const titleId = useId();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const prevFocus = useRef<HTMLElement | null>(null);
   useScrollLock(open);
 
   const handleClose = () => {
@@ -25,13 +27,37 @@ export function Sheet({
     onClose();
   };
 
+  // Escape to close, initial focus into the sheet, Tab trapped inside,
+  // and focus restored to the opener on close.
   useEffect(() => {
     if (!open) return;
+    prevFocus.current = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus({ preventScroll: true });
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") handleClose();
+      if (e.key === "Escape") {
+        handleClose();
+        return;
+      }
+      if (e.key !== "Tab" || !panelRef.current) return;
+      const focusables = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      prevFocus.current?.focus?.();
+    };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -46,6 +72,8 @@ export function Sheet({
         onClick={handleClose}
       />
       <div
+        ref={panelRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}

@@ -1,5 +1,12 @@
 # AirPal Global Win Plan
 
+> _Status note (2026-10-20): this was a point-in-time plan. `docs/AIRPAL.md`
+> is restored as the binding source of truth, and its scope locks (`/join`
+> cut, no Stripe/rules changes) are superseded — `/join` and `/host` are
+> live Arrival surfaces, and money/rules rails have since been hardened
+> (transactional booking + capacity, pricing authority, verified vouchers).
+> Kept for history; follow `docs/AIRPAL.md` for current canon._
+
 Source: full reverse-engineering of this repo (routes, contexts, money rails,
 SEO, analytics). Scope locked by user: plan + Phase-1 code, cut `/join`
 cohorts, safe paths only (no Stripe, payout, or `firestore.rules` changes).

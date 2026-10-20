@@ -362,7 +362,7 @@ export function ProfileMenu() {
               <button
                 type="button"
                 onClick={() => setStatusEditing(false)}
-                className="text-mute hover:text-ink text-xs p-1"
+                className="relative text-mute hover:text-ink text-xs p-1 after:absolute after:-inset-3 after:content-['']"
                 aria-label="Close status editor"
               >
                 <X size={14} />
@@ -412,7 +412,7 @@ export function ProfileMenu() {
               ))}
             </div>
 
-            <div className="mt-1 flex h-9 items-center gap-2 rounded-xl bg-paper/70 px-2.5 ring-1 ring-line/80">
+            <div className="mt-1 flex min-h-[44px] items-center gap-2 rounded-xl bg-paper/70 px-2.5 ring-1 ring-line/80">
               <span className="text-sm shrink-0">{editEmoji}</span>
               <input
                 type="text"

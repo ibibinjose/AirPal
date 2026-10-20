@@ -277,7 +277,8 @@ export function AddToCalendarMenu({
                     <button
                       type="button"
                       onClick={() => setOpen(false)}
-                      className="text-mute hover:text-ink transition"
+                      aria-label="Close calendar options"
+                      className="relative -m-2 p-2 text-mute hover:text-ink transition after:absolute after:-inset-2 after:content-['']"
                     >
                       <X size={13} />
                     </button>
@@ -291,7 +292,7 @@ export function AddToCalendarMenu({
                       key={opt.id}
                       type="button"
                       onClick={opt.action}
-                      className="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs font-semibold text-ink transition hover:bg-paper active:scale-[0.98] cursor-pointer"
+                      className="flex w-full min-h-[44px] items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs font-semibold text-ink transition hover:bg-paper active:scale-[0.98] cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-base">{opt.icon}</span>

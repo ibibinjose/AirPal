@@ -47,6 +47,15 @@ export function roundHereGeo(geo: Geo): Geo {
   return { lat: Math.round(geo.lat * n) / n, lng: Math.round(geo.lng * n) / n };
 }
 
+/**
+ * Person-audience shares are direct (delivered via here_shares + push) and
+ * never enter the public venue mirror — even if the client asks to pin.
+ */
+export function resolvePinOnMap(audience: HereAudience, pinOnMap?: boolean): boolean {
+  if (audience === "person") return false;
+  return pinOnMap !== false;
+}
+
 export function herePlaceKey(input: { placeId?: string; eventId?: string; geo?: Geo }): string {
   const placeId = String(input.placeId || "").trim();
   if (placeId) return `place_${placeId}`.slice(0, 80);

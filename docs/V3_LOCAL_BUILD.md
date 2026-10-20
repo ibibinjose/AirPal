@@ -10,11 +10,11 @@ the V1 rules, indexes, and callables; every V3 artifact is additive and gated.
 | -------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Shared contracts + validation          | `shared/v3-contract.ts`, `shared/v3-contract.test.ts`, `shared/abuse.ts` (V3 rate limits) |
 | Default-deny rules + canonical indexes | `firestore.rules.v3`, `firestore.indexes.v3.json`, `firebase.v3.json`                     |
-| Callable domains (38 callables)        | `functions/src/v3/*.ts` + 5 test files, wired in `functions/src/index.ts`                 |
+| Callable domains (32 callables)        | `functions/src/v3/*.ts` + 4 test files, wired in `functions/src/index.ts`                 |
 | Emulator gates                         | `scripts/check-v3.mjs`                                                                    |
 | Frontend adapters (local-only gate)    | `src/lib/v3/{gate,client,reads}.ts` + tests                                               |
 | Claim UI (evolved brand)               | `src/pages/ClaimVenuePage.tsx` (`/claim`), `src/components/claim/*`, admin Claims tab     |
-| Browser rules journeys                 | `e2e/v3-journeys.spec.ts`                                                                 |
+| Rules parity journeys                  | `functions/src/v3/*.test.ts` (browser e2e journeys not yet authored)                      |
 
 Design notes:
 
@@ -30,9 +30,10 @@ Design notes:
 - Commerce without `STRIPE_SECRET_KEY` creates honest `provider: "stub"`
   pending orders (emulator path). The webhook fails closed without a signing
   secret, and paid tickets issue only from a paid order, never browser input.
-- `docs/AIRPAL.md` is absent from this checkout, so the V3 contract document
-  is the operative source; a brain review against the skill invariants passed
-  (single Firebase identity, no parallel engines, experience-loop mapping).
+- `docs/AIRPAL.md` is the binding canon for the V1 app; the V3 contract
+  document remains the operative source for V3 scope. A review against the
+  skill invariants passed (single Firebase identity, no parallel engines,
+  experience-loop mapping).
 
 ## Venue claims (no bulk import)
 

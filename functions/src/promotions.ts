@@ -27,6 +27,7 @@ import {
 } from "../../shared/promotions";
 import { enforceRateLimit, noteAppCheck } from "./abuse";
 import { CALLABLE, auth, db, isPlatformAdmin, requireAccount, requireAuth } from "./admin";
+import { writeAuthoritativeEvent } from "./analytics";
 import { isAnonymousAuth } from "./abuse";
 import { sendPushIfAllowed } from "./notifications";
 import type { AccessClaims } from "../../shared/airpal-security";
@@ -738,6 +739,120 @@ export const setWeeklyCampaign = onCall(CALLABLE, async (request) => {
   return { ok: true, weekId };
 });
 
+/**
+ * Deterministic redemption id: one doc per member per offer, so retries and
+ * double-taps replay the same redemption instead of charging twice.
+ */
+/**
+ * Merchant scan support: the promotion owner (or a platform admin) verifies a
+ * guest's redemption code and consumes it, mirroring the staff-PIN voucher
+ * flow in deals.ts. Guests can never validate each other's codes.
+ */
+async function requirePromotionOwner(promotionId: string, uid: string, caller: AccessClaims): Promise<Promotion> {
+  const promoSnap = await db.collection("promotions").doc(promotionId).get();
+  if (!promoSnap.exists) throw new HttpsError("not-found", "Offer not found.");
+  const promo = promoSnap.data() as Promotion;
+  if (!isPlatformAdmin(caller) && promo.ownerUid !== uid) {
+    throw new HttpsError("permission-denied", "Not your offer.");
+  }
+  return promo;
+}
+
+async function findRedemption(promotionId: string, code: string) {
+  const snap = await db.collection("promotion_redemptions").where("code", "==", code).limit(10).get();
+  const hit = snap.docs.find((doc) => String(doc.data()?.promotionId || "") === promotionId);
+  return hit || null;
+}
+
+export const verifyPromotionRedemption = onCall(CALLABLE, async (request) => {
+  const uid = requireAccount(request, "Sign in to verify redemptions.");
+  const data = (request.data || {}) as { promotionId?: unknown; code?: unknown };
+  const promotionId = String(data.promotionId || "").trim();
+  const code = String(data.code || "").trim();
+  if (!promotionId || !code) throw new HttpsError("invalid-argument", "Offer and code are required.");
+  const caller = (request.auth?.token || {}) as AccessClaims;
+  const promo = await requirePromotionOwner(promotionId, uid, caller);
+  const hit = await findRedemption(promotionId, code);
+  if (!hit) {
+    return {
+      promotionId,
+      code,
+      title: String(promo.title || "Offer"),
+      status: "missing",
+      pointsSpent: 0,
+      redeemedAt: null,
+      valid: false,
+      reason: "not_found",
+    };
+  }
+  const row = hit.data() as { status?: unknown; pointsSpent?: unknown; redeemedAt?: unknown };
+  const status = String(row.status || "active");
+  return {
+    promotionId,
+    code,
+    title: String(promo.title || "Offer"),
+    status,
+    pointsSpent: Math.max(0, Math.floor(Number(row.pointsSpent) || 0)),
+    redeemedAt: typeof row.redeemedAt === "string" ? row.redeemedAt : null,
+    valid: status === "active",
+    reason: status === "active" ? null : status === "redeemed" ? "already_redeemed" : "expired",
+  };
+});
+
+export const consumePromotionRedemption = onCall(CALLABLE, async (request) => {
+  const uid = requireAccount(request, "Sign in to verify redemptions.");
+  const data = (request.data || {}) as { promotionId?: unknown; code?: unknown };
+  const promotionId = String(data.promotionId || "").trim();
+  const code = String(data.code || "").trim();
+  if (!promotionId || !code) throw new HttpsError("invalid-argument", "Offer and code are required.");
+  const caller = (request.auth?.token || {}) as AccessClaims;
+  const promo = await requirePromotionOwner(promotionId, uid, caller);
+  const now = new Date().toISOString();
+  const redeemed = await db.runTransaction(async (tx) => {
+    const hit = await findRedemption(promotionId, code);
+    if (!hit) throw new HttpsError("not-found", "Code not found for this offer.");
+    const current = await tx.get(hit.ref);
+    const status = String(current.data()?.status || "active");
+    if (status !== "active") throw new HttpsError("failed-precondition", "This code has already been used.");
+    tx.set(hit.ref, { status: "redeemed", redeemedAt: now, redeemedBy: uid }, { merge: true });
+    return { id: hit.id };
+  });
+  const guestUid = String((await db.collection("promotion_redemptions").doc(redeemed.id).get()).data()?.uid || "");
+  if (guestUid) {
+    await notifyUser(
+      guestUid,
+      "points_redeemed",
+      "Offer used in-store",
+      `${promotionId} — code ${code} marked as used.`,
+      promotionId,
+    ).catch(() => undefined);
+    // Server ledger for WQGA: mirrors the staff-PIN voucher redeem event.
+    await writeAuthoritativeEvent({
+      uid: guestUid,
+      eventName: "offer_redeem",
+      contextId: promotionId,
+      contextType: "business",
+      source: "internal",
+      properties: {
+        offerId: promotionId,
+        partnerId: String(promo.ownerUid || "unknown"),
+        claimId: code,
+        redemptionChannel: "promotion_staff_verify",
+      },
+    }).catch(() => undefined);
+  }
+  return { promotionId, code, redeemedAt: now };
+});
+
+export function promotionRedemptionId(uid: string, promotionId: string): string {
+  const clean = (value: string): string =>
+    value
+      .trim()
+      .replace(/[^a-zA-Z0-9_-]/g, "_")
+      .substring(0, 120) || "x";
+  return `${clean(uid)}_${clean(promotionId)}`;
+}
+
 export const redeemPoints = onCall(CALLABLE, async (request) => {
   const uid = requireAccount(request, "Sign in to redeem member offers.");
   const data = (request.data || {}) as RedeemPointsRequest;
@@ -752,33 +867,57 @@ export const redeemPoints = onCall(CALLABLE, async (request) => {
   const cost = Math.max(1, Math.floor(Number(promo.pointsCost) || 0));
   if (!cost) throw new HttpsError("failed-precondition", "This offer has no points price.");
 
+  // Legacy redemptions used random doc ids: if this member already holds an
+  // active code for this offer, replay it without charging again.
+  const legacy = await db
+    .collection("promotion_redemptions")
+    .where("promotionId", "==", promotionId)
+    .where("uid", "==", uid)
+    .limit(10)
+    .get();
+  const legacyActive = legacy.docs
+    .map((doc) => doc.data() as { status?: unknown; code?: unknown })
+    .find((row) => row.status === "active" && typeof row.code === "string" && row.code);
+  if (legacyActive) return { ok: true, code: String(legacyActive.code), duplicate: true };
+
+  const redemptionRef = db.collection("promotion_redemptions").doc(promotionRedemptionId(uid, promotionId));
   const rewardRef = db.collection("rewards").doc(uid);
-  await db.runTransaction(async (tx) => {
-    const snap = await tx.get(rewardRef);
-    const balance = snap.exists ? Number(snap.data()?.points || 0) : 0;
-    if (balance < cost) throw new HttpsError("failed-precondition", `You need ${cost} points (balance ${balance}).`);
-    tx.set(rewardRef, { uid, points: balance - cost, updatedAt: new Date().toISOString() }, { merge: true });
-  });
   const code = `RDM-${
     promotionId
       .replace(/[^a-zA-Z]/g, "")
       .substring(0, 4)
       .toUpperCase() || "AP"
   }-${1000 + randomInt(9000)}`;
+  try {
+    await db.runTransaction(async (tx) => {
+      const [snap, existing] = await Promise.all([tx.get(rewardRef), tx.get(redemptionRef)]);
+      if (existing.exists) throw new HttpsError("already-exists", "This offer is already redeemed.");
+      const balance = snap.exists ? Number(snap.data()?.points || 0) : 0;
+      if (balance < cost) throw new HttpsError("failed-precondition", `You need ${cost} points (balance ${balance}).`);
+      tx.set(rewardRef, { uid, points: balance - cost, updatedAt: new Date().toISOString() }, { merge: true });
+      tx.set(redemptionRef, {
+        uid,
+        promotionId,
+        pointsSpent: cost,
+        code,
+        status: "active",
+        at: new Date().toISOString(),
+        createdAt: FieldValue.serverTimestamp(),
+      });
+    });
+  } catch (err) {
+    // A concurrent or retried call won the transaction: replay its code.
+    if (err instanceof HttpsError && err.code === "already-exists") {
+      const current = await redemptionRef.get();
+      if (current.exists) return { ok: true, code: String(current.data()?.code || code), duplicate: true };
+    }
+    throw err;
+  }
   await db.collection("reward_transactions").add({
     uid,
     delta: -cost,
     reason: "member_offer_redeem",
     refId: promotionId,
-    at: new Date().toISOString(),
-    createdAt: FieldValue.serverTimestamp(),
-  });
-  await db.collection("promotion_redemptions").add({
-    uid,
-    promotionId,
-    pointsSpent: cost,
-    code,
-    status: "active",
     at: new Date().toISOString(),
     createdAt: FieldValue.serverTimestamp(),
   });

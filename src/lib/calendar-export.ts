@@ -95,6 +95,32 @@ function escapeIcsText(text: string): string {
   return text.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 }
 
+/**
+ * RFC 5545 line folding: content lines must stay within 75 octets, continued
+ * on the next line with a single leading space. Byte-aware so multi-byte
+ * characters are never split across the fold.
+ */
+export function foldIcsLine(line: string): string {
+  const encoder = new TextEncoder();
+  if (encoder.encode(line).length <= 75) return line;
+  const chunks: string[] = [];
+  let current = "";
+  let currentBytes = 0;
+  const limit = (): number => (chunks.length === 0 ? 75 : 74);
+  for (const char of line) {
+    const size = encoder.encode(char).length;
+    if (currentBytes + size > limit()) {
+      chunks.push(current);
+      current = "";
+      currentBytes = 0;
+    }
+    current += char;
+    currentBytes += size;
+  }
+  if (current) chunks.push(current);
+  return chunks.map((chunk, index) => (index === 0 ? chunk : ` ${chunk}`)).join("\r\n");
+}
+
 export function generateIcs(event: CalendarEvent | SimpleCalendarPayload): string {
   const norm = normalizePayload(event);
   const dtStart = formatIcsDate(norm.startsAt);
@@ -125,7 +151,7 @@ export function generateIcs(event: CalendarEvent | SimpleCalendarPayload): strin
   }
 
   lines.push("STATUS:CONFIRMED", "END:VEVENT", "END:VCALENDAR");
-  return lines.join("\r\n");
+  return lines.map(foldIcsLine).join("\r\n");
 }
 
 export function generateMultipleIcs(
@@ -133,13 +159,14 @@ export function generateMultipleIcs(
   calendarTitle = "AirPal Stay Itinerary",
 ): string {
   const dtStamp = formatIcsDate(new Date().toISOString());
-  const vEvents = events.map((event) => {
+  const vEvents = events.map((event, index) => {
     const norm = normalizePayload(event);
     const dtStart = formatIcsDate(norm.startsAt);
     const dtEnd = formatIcsDate(norm.endsAt);
     const summary = escapeIcsText(norm.title);
     const description = escapeIcsText(norm.description);
-    const uid = `${norm.id}-${Date.now()}@airpal.me`;
+    // Unique per event: id + position, not a shared Date.now() suffix.
+    const uid = `${norm.id}-${index}@airpal.me`;
 
     const lines = [
       "BEGIN:VEVENT",
@@ -157,19 +184,19 @@ export function generateMultipleIcs(
     }
 
     lines.push("STATUS:CONFIRMED", "END:VEVENT");
-    return lines.join("\r\n");
+    return lines.map(foldIcsLine).join("\r\n");
   });
 
-  return [
+  // Header lines fold individually; vEvents are already folded internally.
+  const header = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//AirPal//Event Itinerary//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${escapeIcsText(calendarTitle)}`,
-    ...vEvents,
-    "END:VCALENDAR",
-  ].join("\r\n");
+  ].map(foldIcsLine);
+  return [...header, ...vEvents, "END:VCALENDAR"].join("\r\n");
 }
 
 export function downloadIcs(event: CalendarEvent | SimpleCalendarPayload): void {

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  activeGuestHeads,
+  eventHeadsAllowed,
   guestEntryIdForRsvp,
   guestEntryIdForTicket,
   guestEntryIsActive,
@@ -75,5 +77,18 @@ describe("guestlist model", () => {
     expect(guestEntryIsActive("checked-in")).toBe(true);
     expect(guestEntryIsActive("no-show")).toBe(false);
     expect(guestEntryIsActive("cancelled")).toBe(false);
+  });
+
+  it("counts admitted plus holding-a-spot heads as inventory", () => {
+    expect(activeGuestHeads({ goingHeads: 90, checkedInHeads: 10 })).toBe(100);
+    expect(activeGuestHeads({ goingHeads: 0, checkedInHeads: 0 })).toBe(0);
+  });
+
+  it("allows bookings while heads fit and rejects oversell", () => {
+    expect(eventHeadsAllowed(null, 500, 2)).toEqual({ ok: true });
+    expect(eventHeadsAllowed(0, 500, 2)).toEqual({ ok: true });
+    expect(eventHeadsAllowed(100, 98, 2)).toEqual({ ok: true });
+    expect(eventHeadsAllowed(100, 99, 2)).toEqual({ ok: false, reason: "This event is sold out." });
+    expect(eventHeadsAllowed(100, 100, 1).ok).toBe(false);
   });
 });

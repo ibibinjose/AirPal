@@ -46,6 +46,8 @@ const CALLABLES = [
   "createManagedCheckoutSession",
   "scheduleCatchUp",
   "createBookingCheckoutSession",
+  "verifyPromotionRedemption",
+  "consumePromotionRedemption",
   "createConnectAccountLink",
   "refreshConnectAccount",
   "createConnectLoginLink",

@@ -96,6 +96,15 @@ vi.mock("./admin", () => ({
       }
       throw new Error(`unexpected collection ${name}`);
     },
+    runTransaction: async (fn: (tx: unknown) => Promise<unknown>) => {
+      const tx = {
+        get: (ref: { get: () => Promise<unknown> }) => ref.get(),
+        set: (ref: { set: (d: unknown, o?: unknown) => unknown }, data: unknown, opts?: unknown) => {
+          void ref.set(data, opts);
+        },
+      };
+      return fn(tx);
+    },
     batch: () => {
       const ops: (() => Promise<void>)[] = [];
       return {
@@ -252,6 +261,33 @@ describe("guestlist server", () => {
       source: "rsvp",
     });
     expect(fakes.events["evt-1"].guestCounts).toMatchObject({ goingHeads: 1 });
+    expect(fakes.events["evt-1"].bookedHeads).toBe(1);
+  });
+
+  it("RSVP going is refused when the event is already full", async () => {
+    fakes.events = { "evt-1": { organiserUid: "org-1", capacity: 2 } };
+    fakes.guestlist = {
+      "events/evt-1": {
+        rsvp_a: { name: "A", status: "going", partySize: 1, source: "rsvp" },
+        t_bk: { name: "B", status: "checked-in", partySize: 1, source: "ticket" },
+      },
+    };
+    fakes.users = { "u-9": { displayName: "Ava Stone" } };
+    await fire(onGuestRsvpWritten, { uid: "u-9", eventId: "evt-1" }, { status: "going" });
+    expect(fakes.guestlist["events/evt-1"]["rsvp_u-9"]).toBeUndefined();
+    expect(fakes.events["evt-1"].bookedHeads).toBe(2);
+  });
+
+  it("RSVP going keeps its own seat when re-affirming at capacity", async () => {
+    fakes.events = { "evt-1": { organiserUid: "org-1", capacity: 1 } };
+    fakes.guestlist = {
+      "events/evt-1": {
+        rsvp_u9: { name: "Ava", status: "going", partySize: 1, source: "rsvp" },
+      },
+    };
+    fakes.users = { "u-9": { displayName: "Ava Stone" } };
+    await fire(onGuestRsvpWritten, { uid: "u-9", eventId: "evt-1" }, { status: "going" });
+    expect(fakes.guestlist["events/evt-1"]["rsvp_u9"].status).toBe("going");
   });
 
   it("RSVP withdrawal cancels the row but never a checked-in guest", async () => {

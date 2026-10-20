@@ -3,6 +3,7 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import {
   HERE_MAX_HOURS,
   herePlaceKey,
+  resolvePinOnMap,
   roundHereGeo,
   validateShareHere,
   type ShareHereRequest,
@@ -72,7 +73,8 @@ export const shareHere = onCall(CALLABLE, async (request) => {
     if (!toUid) throw new HttpsError("not-found", "That person isn’t on AirPal yet.");
   }
 
-  const pinOnMap = data.pinOnMap !== false && audience === "circle" ? true : Boolean(data.pinOnMap);
+  // Person-audience shares stay direct and never enter the public mirror.
+  const pinOnMap = resolvePinOnMap(audience, data.pinOnMap);
   const now = new Date();
   const expiresAt = new Date(now.getTime() + hours * 60 * 60 * 1000).toISOString();
   const updatedAt = now.toISOString();

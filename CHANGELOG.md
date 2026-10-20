@@ -4,6 +4,18 @@ All major structural, architectural, and security changes made during the Rebuil
 
 ---
 
+## Release 2.1.1 — 2026-10-20 (Trust Rails, Inventory & Verified Vouchers)
+
+- **Server price authority (`functions/src/stripe.ts`):** `authoritativeEventTotal()` prices named tiers from the live event row and legacy `standard` / `vip` (1.5x) / `group` (4-pass bundle) multipliers; the client always sends the tier it displayed. No-tier bookings can no longer be charged a bare 1x unit.
+- **Transactional booking + capacity enforcement (`functions/src/stripe.ts`, `functions/src/guestlist.ts`):** `createEventBooking` runs in one transaction (live event read, pricing, headroom gate over guestlist heads plus unpaid pending holds); `createBookingCheckoutSession` re-checks headroom; free RSVPs gate inside the row-write trigger. `refreshGuestCounts` maintains server-authoritative `bookedHeads`; rules pin it client-immutable and forbid lowering `capacity` below seated heads. `checkout.session.expired` auto-cancels stale pending bookings. New composite index `bookings(eventId, paymentStatus)`.
+- **Idempotent points redemptions (`functions/src/promotions.ts`):** `promotionRedemptionId` (one doc per member per offer, transactional; retries replay instead of re-charging) with legacy active-code replay.
+- **Merchant voucher verification (`functions/src/promotions.ts`, `src/components/deals/DealGatePanel.tsx`, `src/pages/ScanPage.tsx`):** owner-or-admin-only `verifyPromotionRedemption` / `consumePromotionRedemption` (consuming writes a server `offer_redeem` ledger event); `AIRPAL:DEAL:` QRs verify inline in `/scan`. Only per-guest codes mint scannable QRs.
+- **Presence privacy (`functions/src/here.ts`, `shared/here.ts`, `firestore.rules`):** person-audience shares never enter the `here_at` mirror (`resolvePinOnMap`); `here_pins` reads are owner/admin-only; the board filters legacy person-audience rows.
+- **Rules hardening (`firestore.rules`):** organiser/listing ownership immutable via edit, blocks pin `blockerUid`, split booking rights (guests cancel-only) with `cancelReason` cap, shaped safety-report creates, catchup party pin + status allowlist, trips owner/admin-only, secret-bearing keys blocked on public property docs.
+- **Client correctness & a11y:** TicketPage staff gate, ScanPage ticket-id validation, RFC 5545 ICS folding + unique UIDs, vCard `PHOTO;VALUE=URI`, live follower counters, 44px touch targets, CalendarEventModal haptics, `Sheet` focus trap + restore, GuestlistPage capacity guard, Sold-out states.
+- **Docs canon sync:** `docs/AIRPAL.md` (rails, gates incl. `check:prod`, corrected Part J matrix), route fixes (`/me/tickets`, `/e/:id/guests`, live `/join` + `/host`), V3 build doc (32 callables, 4 test files), store sandbox note, runbook webhook list.
+- **Gates:** 1,103 client tests + 184 functions tests passing; full `npm run verify` green.
+
 ## Release 2.1.0 — 2026-10-19 (Brand Flow, Liquid Glass & Communications Engine)
 
 - **Master Brand Email Templates Suite (`shared/email-templates.ts`):** Complete dual-lens responsive email design system with dark/light mode support, lens badges (`PASS`, `ME`, `ACCOUNT`, `CIRCLE`), $\ge 48\text{px}$ touch targets, and universal legal footers. Templates for Tickets, RSVPs, Catch-ups, Broadcasts, and Welcome orientation.

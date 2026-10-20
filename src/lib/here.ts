@@ -65,9 +65,13 @@ export async function fetchHereAt(placeKey: string): Promise<HerePin[]> {
   if (!db || !placeKey) return [];
   try {
     const snap = await getDocs(collection(db, "here_at", placeKey, "pins"));
-    return snap.docs
-      .map((d) => asPin(d.id, d.data() as Record<string, unknown>))
-      .filter((p) => herePinLive(p) && p.pinOnMap);
+    return (
+      snap.docs
+        .map((d) => asPin(d.id, d.data() as Record<string, unknown>))
+        // Belt-and-braces: one-person shares never render on the public board,
+        // even if a legacy mirror doc predates the server-side pin block.
+        .filter((p) => herePinLive(p) && p.pinOnMap && p.audience !== "person")
+    );
   } catch {
     return [];
   }

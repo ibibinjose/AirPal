@@ -148,8 +148,17 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
       : unitPriceCents * spots
     : 0;
 
+  // Server enforces the same gate at booking time; this only stops the UI
+  // from promising a seat that the door list can't hold.
+  const seatedHeads = (event.guestCounts?.goingHeads || 0) + (event.guestCounts?.checkedInHeads || 0);
+  const soldOut = (event.capacity || 0) > 0 && seatedHeads >= (event.capacity || 0) && !event.isGoing;
+
   async function handleRegisterOrBuy(coupon?: string, finalPriceCents?: number, tierId?: string) {
     if (!isPaid) {
+      if (soldOut) {
+        toast.error("This event is sold out.");
+        return;
+      }
       const applied = toggleGoing(event.id);
       if (applied && !event.isGoing) {
         toast.success(`You're registered for "${event.title}"! Added to your AirPal Pass.`);
@@ -199,7 +208,9 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
         priceCents: priceToCharge,
         customerUid: user.uid,
         spots: effectiveSpots,
-        tierId: tierId || (namedTiers ? tier : undefined),
+        // Always send the tier (named or legacy standard/vip/group) so the
+        // server prices the exact pass the guest saw — never a bare 1x unit.
+        tierId: tierId || tier,
         couponCode: coupon,
       });
       const res = await createBookingCheckoutSessionRemote({ bookingId });
@@ -458,6 +469,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
                   capacity={event.capacity}
                   requireApproval={event.requireApproval}
                   isGoing={event.isGoing}
+                  soldOut={soldOut}
                   buying={buying}
                   tier={tier}
                   tiers={namedTiers || undefined}

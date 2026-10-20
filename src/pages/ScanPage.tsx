@@ -16,6 +16,7 @@ import { noteQrContext } from "@/lib/analytics";
 import { triggerHaptic } from "@/lib/native";
 import { contextFromPath } from "@shared/analytics";
 import { WaveListenCard } from "@/components/wave/WaveListenCard";
+import { DealGatePanel } from "@/components/deals/DealGatePanel";
 
 /**
  * Universal Scanner for AirPal — Scans live QR camera feed, user photo library images,
@@ -39,7 +40,16 @@ export function ScanPage() {
   const [manualCode, setManualCode] = useState("");
   const [cameraAttempt, setCameraAttempt] = useState(0);
   const [uploading, setUploading] = useState(false);
+  const [dealScan, setDealScan] = useState<{ promotionId: string; code: string } | null>(null);
   const running = useRef(false);
+
+  // Merchant voucher flow: stay on the scanner and verify inline instead of
+  // navigating — the code is worthless until the server confirms it.
+  const takeDealScan = useCallback((promotionId: string, code: string) => {
+    running.current = false;
+    void triggerHaptic("success");
+    setDealScan({ promotionId, code });
+  }, []);
 
   const go = useCallback(
     (href: string) => {
@@ -76,6 +86,10 @@ export function ScanPage() {
               const code = jsQR(img.data, img.width, img.height);
               if (code?.data) {
                 const intent = parseQrPayload(code.data);
+                if (intent.kind === "deal") {
+                  takeDealScan(intent.promotionId, intent.code);
+                  return;
+                }
                 const path = pathForIntent(intent);
                 if (path) {
                   void triggerHaptic("success");
@@ -101,7 +115,7 @@ export function ScanPage() {
       cancelAnimationFrame(raf);
       stream?.getTracks().forEach((t) => t.stop());
     };
-  }, [go, cameraAttempt]);
+  }, [go, cameraAttempt, takeDealScan]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -112,6 +126,11 @@ export function ScanPage() {
       const qrData = await decodeQrFromImageFile(file);
       if (qrData) {
         const intent = parseQrPayload(qrData);
+        if (intent.kind === "deal") {
+          toast.success("Voucher QR decoded from photo");
+          takeDealScan(intent.promotionId, intent.code);
+          return;
+        }
         const path = pathForIntent(intent);
         if (path) {
           void triggerHaptic("success");
@@ -142,19 +161,33 @@ export function ScanPage() {
       go(`/${clean}`);
       return;
     }
-    // Handle ticket tokens / booking IDs
+    // Handle ticket tokens / booking IDs — only when the stripped token is a
+    // real ticket id; otherwise fall through to generic parsing so a typo
+    // never routes to a bogus /ticket/... page.
     if (clean.toLowerCase().startsWith("tkt-") || clean.toLowerCase().startsWith("ticket-")) {
       const tid = clean.replace(/^(tkt-|ticket-)/i, "");
-      go(`/ticket/${encodeURIComponent(tid)}`);
-      return;
+      if (isTicketId(tid)) {
+        go(`/ticket/${encodeURIComponent(tid)}`);
+        return;
+      }
     }
     // Handle direct path
     if (clean.startsWith("/")) {
       go(clean);
       return;
     }
+    // Merchant voucher codes verify inline on this screen.
+    const dealMatch = clean.match(/^AIRPAL:DEAL:([^:]+):(.+)$/i);
+    if (dealMatch?.[1] && dealMatch?.[2]) {
+      takeDealScan(dealMatch[1].trim(), dealMatch[2].trim());
+      return;
+    }
     // Parse as QR payload
     const intent = parseQrPayload(clean);
+    if (intent.kind === "deal") {
+      takeDealScan(intent.promotionId, intent.code);
+      return;
+    }
     const path = pathForIntent(intent);
     if (path) {
       go(path);
@@ -261,6 +294,26 @@ export function ScanPage() {
       </div>
 
       <WaveListenCard />
+
+      {dealScan && (
+        <div className="mt-4 space-y-2">
+          <DealGatePanel
+            promotionId={dealScan.promotionId}
+            code={dealScan.code}
+            deniedMessage="Only this offer's owner can verify codes."
+          />
+          <button
+            type="button"
+            onClick={() => {
+              setDealScan(null);
+              setCameraAttempt((n) => n + 1);
+            }}
+            className="min-h-[44px] w-full text-center text-sm font-semibold text-mute hover:text-ink transition cursor-pointer"
+          >
+            Scan another code
+          </button>
+        </div>
+      )}
 
       {/* Manual Code / PIN Entry */}
       <form onSubmit={handleManualSubmit} className="mt-4 flex gap-2">

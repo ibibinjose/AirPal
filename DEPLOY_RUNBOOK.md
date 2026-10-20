@@ -5,6 +5,11 @@ Prepared 2026-10-15. No deploy, commit, or secret access was executed.
 
 ## 0. Blocker (resolved 2026-10-15 16:36, author review still required)
 
+_NOTE (2026-10-20): `src/pages/ManageEventPage.tsx` never landed in the
+tree. Its role is covered — `/e/:id/manage` and `/event/manage` render
+`EventStudioPage` (`src/pages/EventStudioPage.tsx`, registered in
+`src/app/routes.tsx`). The original blocker below is kept for history._
+
 `src/pages/ManageEventPage.tsx` (new page, `/e/:id/manage` reroute in
 `src/app/routes.tsx`) initially landed with typecheck errors; its author
 has since fixed them and full `tsc --noEmit` passes. Before deploy, that
@@ -22,8 +27,10 @@ this plan and was not audited here beyond compilation.
 4. Stripe webhook endpoint points at production:
    `https://airpalme-app.web.app/api/stripe/webhook`
    (see `firebase.json` rewrites) with events: `checkout.session.completed`,
-   `checkout.session.async_payment_*`, `charge.dispute.created`,
-   `customer.subscription.*`, `account.updated`.
+   `checkout.session.async_payment_*`, `checkout.session.expired`,
+   `charge.dispute.created`, `customer.subscription.*`, `account.updated`.
+   (`checkout.session.expired` auto-cancels abandoned pending bookings so
+   inventory holds release; added after this plan's date.)
 
 ## 2. Certify (must pass)
 
@@ -93,7 +100,7 @@ npm run cap:sync
 ## 6. What this runbook does not cover
 
 - The `$500 GMV` milestone itself (real sales, not code).
-- `ManageEventPage` (in-progress, §0) — deploy it only once it compiles,
-  is tested, and is reviewed by its author.
+- `ManageEventPage` (in-progress, §0) — superseded: `/e/:id/manage` renders
+  `EventStudioPage`; no such page file exists in the tree.
 - Live Stripe reads from this machine (no live key present; test key is
   rejected by the API).

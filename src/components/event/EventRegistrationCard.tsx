@@ -22,6 +22,8 @@ export interface EventRegistrationCardProps {
   onSpotsChange: (spots: number) => void;
   onSubmit: (coupon?: string, finalPriceCents?: number, tierId?: string) => void;
   onToggleGoing?: () => void;
+  /** Capacity reached and the viewer holds no seat — server enforces the same. */
+  soldOut?: boolean;
   className?: string;
 }
 
@@ -38,8 +40,10 @@ export function EventRegistrationCard({
   onTierChange,
   onSpotsChange,
   onSubmit,
+  soldOut,
   className,
 }: EventRegistrationCardProps) {
+  const isSoldOut = soldOut === true && !isGoing;
   const isPaid = paidCents > 0;
   const namedTiers = tiers && tiers.length > 0 ? tiers : null;
   const activeNamedTier = namedTiers?.find((t) => t.id === tier) ?? null;
@@ -302,8 +306,8 @@ export function EventRegistrationCard({
             void triggerHaptic("medium");
             onSubmit(appliedCoupon || undefined, totalPriceCents, activeNamedTier?.id);
           }}
-          disabled={buying || validating}
-          aria-disabled={buying || validating}
+          disabled={buying || validating || isSoldOut}
+          aria-disabled={buying || validating || isSoldOut}
           className={cn(
             "w-full h-[52px] rounded-full text-sm sm:text-base font-bold shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer touch-manipulation disabled:opacity-60 disabled:cursor-wait",
             isGoing
@@ -313,6 +317,11 @@ export function EventRegistrationCard({
         >
           {buying ? (
             <span>Processing…</span>
+          ) : isSoldOut ? (
+            <>
+              <Ticket size={18} />
+              <span>Sold out — join the next one</span>
+            </>
           ) : isGoing ? (
             <>
               <Check size={18} strokeWidth={3} />

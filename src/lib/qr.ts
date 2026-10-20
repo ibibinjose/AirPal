@@ -23,6 +23,7 @@ export type QrIntent =
   | { kind: "marker"; markerId: string }
   | { kind: "vanity"; city: string; handle: string }
   | { kind: "pulse"; publicToken: string }
+  | { kind: "deal"; promotionId: string; code: string }
   | { kind: "url"; href: string }
   | { kind: "unknown"; raw: string };
 
@@ -96,6 +97,12 @@ export function parseQrPayload(raw: string): QrIntent {
 
   const tagged = value.match(/^AIRPAL:MARKER:(.+)$/i);
   if (tagged?.[1]) return { kind: "marker", markerId: tagged[1] };
+  // Merchant-scan voucher: AIRPAL:DEAL:<promotionId>:<code>. Only per-guest
+  // redemption codes are scannable — static promo codes never mint a QR.
+  const deal = value.match(/^AIRPAL:DEAL:([^:]+):(.+)$/i);
+  if (deal?.[1] && deal?.[2]) {
+    return { kind: "deal", promotionId: deal[1].trim(), code: deal[2].trim() };
+  }
   return { kind: "unknown", raw: value };
 }
 
@@ -107,6 +114,9 @@ export function pathForIntent(intent: QrIntent): string | null {
       return `/q/${intent.city}/${intent.handle}`;
     case "pulse":
       return `/pulse/${encodeURIComponent(intent.publicToken)}`;
+    case "deal":
+      // Handled inline by the scanner (merchant verify panel), not a route.
+      return null;
     case "url":
       return intent.href;
     default:

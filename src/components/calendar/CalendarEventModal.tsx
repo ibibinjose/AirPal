@@ -17,6 +17,7 @@ import {
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import type { CalendarEvent } from "@shared/event";
+import { triggerHaptic } from "@/lib/native";
 import { useEvents } from "@/contexts/EventsContext";
 import { toPublicUrl } from "@/lib/public-origin";
 import { useCalendarDrag } from "./CalendarDragContext";
@@ -277,6 +278,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
             <button
               type="button"
               onClick={() => {
+                void triggerHaptic("selection");
                 if (toggleGoing(event.id) && !event.isGoing) toast.success("Marked as Going");
               }}
               className={cn(
@@ -293,6 +295,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
             <button
               type="button"
               onClick={() => {
+                void triggerHaptic("selection");
                 if (toggleInterested(event.id) && !event.isInterested) toast.success("Added to Interested");
               }}
               className={cn(
@@ -315,6 +318,7 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
               aria-pressed={event.isLiked}
               aria-label={event.isLiked ? "Liked" : "Like this event"}
               onClick={() => {
+                void triggerHaptic("selection");
                 if (toggleLiked(event.id) && !event.isLiked) toast.success("Liked event");
               }}
               className={cn(
