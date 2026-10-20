@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useParams } from "wouter";
 import {
   AlertTriangle,
@@ -106,13 +106,52 @@ export function BirthdayFreebiesPage() {
   const region = raw && isBirthdayRegionCode(raw) ? raw : null;
   const active = BIRTHDAY_REGIONS.find((r) => r.code === region) ?? null;
 
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const currentCalendarMonth = useMemo(() => new Date().getMonth() + 1, []);
 
-  // Filter states
+  // Persistent birthday month for this user / device
+  const [myBirthdayMonth, setMyBirthdayMonth] = useState<number | null>(() => {
+    if (user?.birthdayMonth && user.birthdayMonth >= 1 && user.birthdayMonth <= 12) {
+      return user.birthdayMonth;
+    }
+    try {
+      const stored = localStorage.getItem("airpal_user_birthday_month");
+      if (stored) {
+        const val = parseInt(stored, 10);
+        if (val >= 1 && val <= 12) return val;
+      }
+    } catch {
+      /* ignore */
+    }
+    return null;
+  });
+
+  const [isSavingMonth, setIsSavingMonth] = useState(false);
+
+  useEffect(() => {
+    if (user?.birthdayMonth && user.birthdayMonth >= 1 && user.birthdayMonth <= 12) {
+      setMyBirthdayMonth(user.birthdayMonth);
+      try {
+        localStorage.setItem("airpal_user_birthday_month", String(user.birthdayMonth));
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [user?.birthdayMonth]);
+
+  // Filter states: default to user's birthday month if set, otherwise current calendar month
   const [selectedMonth, setSelectedMonth] = useState<number | null>(() => {
     if (user?.birthdayMonth && user.birthdayMonth >= 1 && user.birthdayMonth <= 12) {
       return user.birthdayMonth;
+    }
+    try {
+      const stored = localStorage.getItem("airpal_user_birthday_month");
+      if (stored) {
+        const val = parseInt(stored, 10);
+        if (val >= 1 && val <= 12) return val;
+      }
+    } catch {
+      /* ignore */
     }
     return currentCalendarMonth;
   });
@@ -122,6 +161,50 @@ export function BirthdayFreebiesPage() {
   const [onlyCompletelyFree, setOnlyCompletelyFree] = useState(false);
   const [onlyWishlist, setOnlyWishlist] = useState(false);
   const [confettiKey, setConfettiKey] = useState(0);
+
+  const handleSetBirthdayMonth = async (month: number | null) => {
+    void triggerHaptic("medium");
+    setMyBirthdayMonth(month);
+    if (month !== null) {
+      setSelectedMonth(month);
+      try {
+        localStorage.setItem("airpal_user_birthday_month", String(month));
+      } catch {
+        /* storage safe */
+      }
+      setConfettiKey((k) => k + 1);
+    } else {
+      try {
+        localStorage.removeItem("airpal_user_birthday_month");
+      } catch {
+        /* storage safe */
+      }
+    }
+
+    const monthLabel = month ? BIRTHDAY_MONTHS.find((m) => m.value === month)?.label : null;
+
+    if (user) {
+      setIsSavingMonth(true);
+      try {
+        await setBirthdayAlertPrefsRemote({
+          birthdayMonth: month,
+          birthdayAlertsEnabled: true,
+        });
+        await refreshUser?.();
+        toast.success(monthLabel ? `Birthday month set to ${monthLabel}! 🎂` : "Birthday month cleared.");
+      } catch (err) {
+        toast.error(friendlyBirthdayError(err));
+      } finally {
+        setIsSavingMonth(false);
+      }
+    } else {
+      toast.success(
+        monthLabel
+          ? `Birthday month set to ${monthLabel}! 🎂 Sign in to sync across devices.`
+          : "Birthday month cleared.",
+      );
+    }
+  };
 
   // Claim steps modal
   const [claimModalOffer, setClaimModalOffer] = useState<CuratedBirthdayOffer | null>(null);
@@ -230,37 +313,62 @@ export function BirthdayFreebiesPage() {
     return BIRTHDAY_MONTHS.find((m) => m.value === selectedMonth)?.label ?? "All Year";
   }, [selectedMonth]);
 
-  const userBirthMonthName = useMemo(() => {
-    if (!user?.birthdayMonth) return null;
-    return BIRTHDAY_MONTHS.find((m) => m.value === user.birthdayMonth)?.label ?? null;
-  }, [user?.birthdayMonth]);
+  const myBirthMonthLabel = useMemo(() => {
+    if (!myBirthdayMonth) return null;
+    return BIRTHDAY_MONTHS.find((m) => m.value === myBirthdayMonth)?.label ?? null;
+  }, [myBirthdayMonth]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-28 pt-4 sm:px-6">
       <ConfettiBurst fireKey={confettiKey} />
 
-      {/* Header Eyebrow */}
-      <div className="flex items-center justify-between gap-2">
+      {/* Top Bar with Birthday Month Chooser */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5">
         <div className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/20">
           <Cake size={13} aria-hidden="true" />
           <span>Birthday Freebies</span>
         </div>
-        {userBirthMonthName && (
-          <span className="text-xs font-medium text-mute hidden sm:inline-block">
-            Your Birthday: <strong className="text-ink font-semibold">{userBirthMonthName}</strong>
-          </span>
-        )}
+
+        {/* Interactive Birthday Month Chooser */}
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor="user-birthday-month-select"
+            className="text-xs font-semibold text-ink flex items-center gap-1"
+          >
+            <span>🎂 Your Birthday:</span>
+          </label>
+          <div className="relative">
+            <select
+              id="user-birthday-month-select"
+              aria-label="Choose your birthday month"
+              value={myBirthdayMonth ?? ""}
+              onChange={(e) => handleSetBirthdayMonth(e.target.value ? Number(e.target.value) : null)}
+              disabled={isSavingMonth}
+              className="min-h-[34px] rounded-xl bg-card border border-line pl-2.5 pr-8 py-1 text-xs font-bold text-ink shadow-xs transition hover:border-brand/40 focus:outline-hidden focus:ring-2 focus:ring-brand/30 cursor-pointer disabled:opacity-50 appearance-none"
+            >
+              <option value="">Choose Month... 🎂</option>
+              {BIRTHDAY_MONTHS.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label} ({m.short})
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-mute">
+              <span className="text-[10px]">▼</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Primary Heading (Strict contract for E2E tests) */}
-      <div className="mt-2.5 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
+      <div className="mt-3 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
         <h1 className="font-display text-2xl font-black tracking-tight text-ink sm:text-4xl">
-          {active ? `Birthday treats in ${active.label}.` : "Your birthday month freebies, on us-ish."}
+          {active ? `Birthday treats in ${active.label}.` : "Your Birthday Month Freebies."}
         </h1>
       </div>
 
       <p className="mt-1 text-xs text-mute sm:text-sm max-w-xl">
-        Complimentary meals, desserts & verified perks for your birthday month.
+        Free meals, drinks, desserts & gifts curated for your celebration.
       </p>
 
       {/* Region Selector Pills */}
@@ -295,19 +403,47 @@ export function BirthdayFreebiesPage() {
 
       {/* Compact Month Filter & Celebration Strip */}
       <div className="mt-3.5 rounded-2xl bg-card p-3 ring-1 ring-line shadow-xs">
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
-            <Calendar size={13} className="text-rose-500" />
-            <span>Month: {activeMonthLabel}</span>
+        <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+          <div className="flex items-center gap-2 text-xs font-bold text-ink flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <Calendar size={13} className="text-rose-500" />
+              <span>
+                Viewing: <strong className="text-brand font-black">{activeMonthLabel}</strong>
+              </span>
+            </div>
+            {myBirthdayMonth && selectedMonth !== myBirthdayMonth && (
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("selection");
+                  setSelectedMonth(myBirthdayMonth);
+                }}
+                className="rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 px-2 py-0.5 text-[11px] font-bold ring-1 ring-rose-500/30 hover:bg-rose-500/25 cursor-pointer transition"
+              >
+                🎂 Switch to My Month ({myBirthMonthLabel?.slice(0, 3)})
+              </button>
+            )}
           </div>
-          <button
-            type="button"
-            onClick={handleCelebrate}
-            className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-95 cursor-pointer"
-          >
-            <PartyPopper size={12} />
-            <span>Celebrate! 🥳</span>
-          </button>
+          <div className="flex items-center gap-1.5 ml-auto">
+            {selectedMonth && selectedMonth !== myBirthdayMonth && (
+              <button
+                type="button"
+                onClick={() => handleSetBirthdayMonth(selectedMonth)}
+                className="inline-flex items-center gap-1 rounded-xl bg-paper px-2.5 py-1 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card shadow-xs cursor-pointer transition"
+                title="Save this month as your birthday month"
+              >
+                <span>🎂 Set as My Month</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleCelebrate}
+              className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-95 cursor-pointer"
+            >
+              <PartyPopper size={12} />
+              <span>Celebrate! 🥳</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-1 overflow-x-auto pb-0.5 no-scrollbar">
@@ -328,7 +464,7 @@ export function BirthdayFreebiesPage() {
           </button>
           {BIRTHDAY_MONTHS.map((m) => {
             const isSelected = selectedMonth === m.value;
-            const isUserMonth = user?.birthdayMonth === m.value;
+            const isUserBirthdayMonth = myBirthdayMonth === m.value;
             return (
               <button
                 key={m.value}
@@ -341,13 +477,17 @@ export function BirthdayFreebiesPage() {
                   "min-h-[32px] rounded-lg px-2 text-xs transition shrink-0 cursor-pointer flex items-center gap-1",
                   isSelected
                     ? "bg-brand text-white font-bold shadow-xs"
-                    : isUserMonth
+                    : isUserBirthdayMonth
                       ? "bg-rose-500/15 text-rose-700 dark:text-rose-300 font-semibold ring-1 ring-rose-500/30"
                       : "bg-paper text-mute hover:text-ink ring-1 ring-line",
                 )}
               >
                 <span>{m.label.slice(0, 3)}</span>
-                {isUserMonth && <span className="text-[10px]">🎂</span>}
+                {isUserBirthdayMonth && (
+                  <span className="text-[10px]" title="Your Birthday Month">
+                    🎂
+                  </span>
+                )}
               </button>
             );
           })}
