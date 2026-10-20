@@ -322,7 +322,7 @@ export const BIO_THEMES: BioTheme[] = [
     name: "AirPal",
     pageBg: "#faf7f2",
     ink: "#1c1917",
-    muted: "#78716c",
+    muted: "#3F2A2F",
     accent: "#c2410c",
     buttonBg: "#1c1917",
     buttonText: "#ffffff",

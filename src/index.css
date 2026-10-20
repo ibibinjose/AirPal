@@ -23,6 +23,7 @@
   --color-paper: #000000;
   --color-ink: #ffffff;
   --color-mute: #ffffff;
+  --color-secondary: var(--color-mute);
   --color-line: #ffffff;
   --color-card: #000000;
   --color-brand: #004eff;
@@ -182,7 +183,8 @@
     --color-paper: #f4f2e9;
     --color-card: #fbf9f2;
     --color-ink: #16170f;
-    --color-mute: #5d6152;
+    --color-mute: #3f2a2f;
+    --color-secondary: #3f2a2f;
     --color-line: #ddd5bd;
     --color-surface-lowest: #ffffff;
     --color-surface-low: #ece7d5;
@@ -1348,7 +1350,8 @@ body.keyboard-open .keyboard-hide {
   --color-paper: #f4f2e9;
   --color-card: #fbf9f2;
   --color-ink: #16170f;
-  --color-mute: #5d6152;
+  --color-mute: #3f2a2f;
+  --color-secondary: #3f2a2f;
   --color-line: #ddd5bd;
   --color-surface-lowest: #ffffff;
   --color-surface-low: #ece7d5;
