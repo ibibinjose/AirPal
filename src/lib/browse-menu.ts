@@ -1,13 +1,16 @@
 import {
   Activity,
   BadgePercent,
+  Cake,
   CalendarDays,
   Gift,
   Headphones,
+  HeartHandshake,
   Images,
   Info,
   LifeBuoy,
   Mail,
+  MapPin,
   QrCode,
   Receipt,
   Settings,
@@ -25,6 +28,7 @@ export interface BrowseLink {
   href: string;
   label: string;
   icon: LucideIcon;
+  hint?: string;
   match: (path: string) => boolean;
 }
 
@@ -40,20 +44,56 @@ export interface BrowseSection {
  * points at a real discovery surface — no dead menu items.
  */
 export const BROWSE_LINKS: BrowseLink[] = [
-  { href: "/pass", label: "AirPal Pass", icon: Ticket, match: (p) => p.startsWith("/pass") },
+  { href: "/pass", label: "AirPal Pass", hint: "Passbook & access", icon: Ticket, match: (p) => p.startsWith("/pass") },
   {
     href: "/events",
     label: "Events",
+    hint: "Live events & festivals",
     icon: CalendarDays,
     match: (p) => p.startsWith("/events") || p.startsWith("/calendar") || p.startsWith("/e/"),
   },
   {
     href: "/deals",
     label: "Offers & Deals",
+    hint: "Member perks & vouchers",
     icon: BadgePercent,
     match: (p) => p.startsWith("/offers") || p.startsWith("/deals") || p.startsWith("/promotions"),
   },
-  { href: "/circle", label: "Circle", icon: Users, match: (p) => p.startsWith("/circle") },
+  {
+    href: "/birthday-freebies",
+    label: "Birthday Freebies",
+    hint: "Annual treats & perks",
+    icon: Cake,
+    match: (p) => p.startsWith("/birthday-freebies"),
+  },
+  {
+    href: "/places",
+    label: "Places & Venues",
+    hint: "Curated local spots",
+    icon: MapPin,
+    match: (p) => p.startsWith("/places"),
+  },
+  {
+    href: "/communities",
+    label: "Communities",
+    hint: "Interest hubs & clubs",
+    icon: Users,
+    match: (p) => p.startsWith("/communities"),
+  },
+  {
+    href: "/friends",
+    label: "Friends & Mutuals",
+    hint: "Social radar & co-attendees",
+    icon: HeartHandshake,
+    match: (p) => p.startsWith("/friends"),
+  },
+  {
+    href: "/circle",
+    label: "Circle",
+    hint: "Live local presence",
+    icon: Users,
+    match: (p) => p.startsWith("/circle"),
+  },
 ];
 
 /** Host shortcuts: everything a host needs, one tap from the browse menu. */
@@ -77,12 +117,14 @@ export const GUIDE_LINKS: BrowseLink[] = [
   {
     href: "/bio/setup",
     label: "Personal Bio",
+    hint: "Claim your @handle",
     icon: UserRound,
     match: (p) => p.startsWith("/bio"),
   },
   {
     href: "/scan",
     label: "Scan code",
+    hint: "Door scanner",
     icon: QrCode,
     match: (p) => p.startsWith("/scan") || p.startsWith("/w/") || p.startsWith("/q/"),
   },
@@ -93,6 +135,7 @@ export const BUSINESS_LINKS: BrowseLink[] = [
   {
     href: "/business",
     label: "Business hub",
+    hint: "Studio, listing & perks",
     icon: Store,
     match: (p) =>
       (p.startsWith("/business") && !p.startsWith("/business/promotions")) ||
@@ -103,12 +146,14 @@ export const BUSINESS_LINKS: BrowseLink[] = [
   {
     href: "/event",
     label: "Host an event",
+    hint: "Create tickets & guestlist",
     icon: Ticket,
     match: (p) => p === "/event" || p.startsWith("/event/"),
   },
   {
     href: "/business/promotions/new",
     label: "Create offer",
+    hint: "Launch member perk",
     icon: Gift,
     match: (p) => p === "/business/promotions/new",
   },
@@ -116,10 +161,28 @@ export const BUSINESS_LINKS: BrowseLink[] = [
 
 /** Account: the signed-in user's own pages. */
 export const ACCOUNT_LINKS: BrowseLink[] = [
-  { href: "/me", label: "Me dashboard", icon: UserRound, match: (p) => p === "/me" },
-  { href: "/me/tickets", label: "My tickets", icon: Receipt, match: (p) => p.startsWith("/me/tickets") },
-  { href: "/me/memories", label: "Memory wall", icon: Images, match: (p) => p.startsWith("/me/memories") },
-  { href: "/settings", label: "Settings", icon: Settings, match: (p) => p.startsWith("/settings") },
+  { href: "/me", label: "Me dashboard", hint: "Overview & identity", icon: UserRound, match: (p) => p === "/me" },
+  {
+    href: "/me/tickets",
+    label: "My tickets",
+    hint: "Passes & reservations",
+    icon: Receipt,
+    match: (p) => p.startsWith("/me/tickets"),
+  },
+  {
+    href: "/me/memories",
+    label: "Memory wall",
+    hint: "Photo keepsakes",
+    icon: Images,
+    match: (p) => p.startsWith("/me/memories"),
+  },
+  {
+    href: "/settings",
+    label: "Settings",
+    hint: "Preferences & security",
+    icon: Settings,
+    match: (p) => p.startsWith("/settings"),
+  },
 ];
 
 /** Help & Trust: support, company, and install pages. */

@@ -4,14 +4,18 @@ import { useLocation } from "wouter";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import {
   Activity,
+  BadgePercent,
   Building2,
+  Cake,
   CalendarDays,
   ChevronRight,
   Headphones,
+  HeartHandshake,
   Images,
   Info,
   LogIn,
   LogOut,
+  MapPin,
   PencilLine,
   QrCode,
   Settings,
@@ -20,6 +24,7 @@ import {
   Store,
   Ticket,
   UserRound,
+  Users,
   X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -481,13 +486,28 @@ export function ProfileMenu() {
         {mine && (
           <Row icon={PencilLine} label="Edit Bio" hint="Profile, links, shop & share" onClick={() => go("/bio/edit")} />
         )}
+        <Row
+          icon={HeartHandshake}
+          label="Friends & Mutuals"
+          hint="Social radar & invites"
+          onClick={() => go("/friends")}
+        />
+        <Row icon={Users} label="Networking Circle" hint="Live presence & check-ins" onClick={() => go("/circle")} />
+        <Row
+          icon={Cake}
+          label="Birthday Freebies"
+          hint="Annual treats & birthday perks"
+          badge="GIFT"
+          badgeColor="bg-rose-500/15 text-rose-600 dark:text-rose-400"
+          onClick={() => go("/birthday-freebies")}
+        />
         <Row icon={Images} label="Memory Wall" hint="Keepsakes & moments" onClick={() => go("/me/memories")} />
       </div>
 
       {/* AirPal Pass */}
       <div className="my-1.5 h-px bg-line/80" />
       <p className="px-3 pt-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/70 dark:text-ink/65">
-        AirPal Pass
+        AirPal Pass & Experiences
       </p>
       <div className="mt-1 space-y-0.5">
         <Row
@@ -498,6 +518,15 @@ export function ProfileMenu() {
           badgeColor="bg-amber-500/15 text-amber-600 dark:text-amber-400"
           onClick={() => go("/pass")}
         />
+        <Row
+          icon={CalendarDays}
+          label="Events & Concerts"
+          hint="Discover live happenings"
+          onClick={() => go("/events")}
+        />
+        <Row icon={MapPin} label="Places & Venues" hint="Curated local spots" onClick={() => go("/places")} />
+        <Row icon={Users} label="Communities" hint="Clubs, groups & follows" onClick={() => go("/communities")} />
+        <Row icon={BadgePercent} label="Offers & Deals" hint="Exclusive member perks" onClick={() => go("/deals")} />
         <Row icon={Ticket} label="My Tickets" hint="Passes & reservations" onClick={() => go("/me/tickets")} />
         <Row icon={QrCode} label="Door Scanner" hint="Scan tickets & guest entry" onClick={() => go("/scan")} />
 
@@ -601,12 +630,21 @@ export function ProfileMenu() {
           hint="Reserve your unique AirPal handle"
           onClick={() => go("/bio/setup")}
         />
+        <Row
+          icon={Cake}
+          label="Birthday Freebies"
+          hint="Annual treats & birthday passes"
+          badge="FREE"
+          badgeColor="bg-rose-500/15 text-rose-600 dark:text-rose-400"
+          onClick={() => go("/birthday-freebies")}
+        />
+        <Row icon={Users} label="Networking Circle" hint="Connect with locals nearby" onClick={() => go("/circle")} />
       </div>
 
       {/* Guest: AirPal Pass */}
       <div className="my-1.5 h-px bg-line/80" />
       <p className="px-3 pt-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink/70 dark:text-ink/65">
-        AirPal Pass
+        AirPal Pass & Experiences
       </p>
       <div className="mt-1 space-y-0.5">
         <Row
@@ -615,6 +653,15 @@ export function ProfileMenu() {
           hint="Concerts, cultural festivals & dining perks"
           onClick={() => go("/pass")}
         />
+        <Row
+          icon={CalendarDays}
+          label="Events & Concerts"
+          hint="Discover live happenings"
+          onClick={() => go("/events")}
+        />
+        <Row icon={MapPin} label="Places & Venues" hint="Curated local spots" onClick={() => go("/places")} />
+        <Row icon={Users} label="Communities" hint="Clubs, groups & follows" onClick={() => go("/communities")} />
+        <Row icon={BadgePercent} label="Offers & Deals" hint="Exclusive member perks" onClick={() => go("/deals")} />
         <Row icon={QrCode} label="Scan QR Pass" hint="Scan marks & tickets" onClick={() => go("/scan")} />
         <Row
           icon={Store}
@@ -655,14 +702,14 @@ export function ProfileMenu() {
           setOpen((v) => !v);
         }}
         className={cn(
-          "relative grid h-10.5 w-10.5 sm:h-11 sm:w-11 shrink-0 touch-manipulation place-items-center overflow-visible rounded-full bg-paper transition-all duration-200 after:absolute after:-inset-1 after:content-['']",
+          "relative grid h-9.5 w-9.5 sm:h-10 sm:w-10 min-h-[38px] min-w-[38px] shrink-0 touch-manipulation place-items-center overflow-visible rounded-full bg-paper transition-all duration-200 after:absolute after:-inset-1.5 after:content-['']",
           "hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-paper active:scale-95",
           open && "ring-2 ring-brand ring-offset-2 ring-offset-paper shadow-sm",
           !open && user && cn(statusInfo.ringClass, "ring-2 ring-offset-2 ring-offset-paper shadow-none"),
           !open && !user && "ring-1 ring-white/40 hover:ring-white",
         )}
       >
-        <AvatarFace className="h-10.5 w-10.5 sm:h-11 sm:w-11 text-xs" />
+        <AvatarFace className="h-9.5 w-9.5 sm:h-10 sm:w-10 text-xs" />
         {user && (
           <span
             className={cn(

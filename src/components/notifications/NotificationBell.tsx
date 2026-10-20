@@ -140,7 +140,7 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
           setOpen((v) => !v);
         }}
         className={cn(
-          "relative grid h-10.5 w-10.5 sm:h-11 sm:w-11 touch-manipulation place-items-center rounded-full ring-1 transition-transform active:scale-95 after:absolute after:-inset-1.5 after:content-['']",
+          "relative grid h-9.5 w-9.5 sm:h-10 sm:w-10 min-h-[38px] min-w-[38px] shrink-0 touch-manipulation place-items-center rounded-full ring-1 transition-transform active:scale-95 after:absolute after:-inset-1.5 after:content-['']",
           onBrand ? "text-white hover:bg-white/15 hover:text-white ring-white/35" : "text-ink hover:bg-card ring-line",
         )}
         aria-label={total ? `${total} unread notifications` : "Notifications"}
