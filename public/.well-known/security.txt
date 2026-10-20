@@ -1,3 +1,5 @@
 Contact: https://airpal.me/contact
 Expires: 2027-12-31T00:00:00.000Z
 Preferred-Languages: en
+Policy: https://airpal.me/trust
+Canonical: https://airpal.me/.well-known/security.txt

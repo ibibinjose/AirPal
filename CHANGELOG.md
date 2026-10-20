@@ -4,6 +4,22 @@ All major structural, architectural, and security changes made during the Rebuil
 
 ---
 
+## Unreleased — robots, SEO metadata & security headers
+
+- **robots.txt rewrite:** dropped the deprecated `Host:` directive; fixed the stale `/event/*/guestlist` rule (real paths are `/e/:id/guests` + `/e/:id/manage`); added auth-gated/token/studio surface (`/bio`, `/friends`, `/event/manage`, `/events/new`, `/business/*` studio paths, `/join`, `/arrival`, `/pulse`, `/start`, `/welcome`, `/unsubscribe`, `/api/`).
+- **Apple association sync:** root `apple-app-site-association` was a stale single-app file; now identical to `.well-known` (dual-app `me.airpal.app` + `me.airpal.pass` split).
+- **SEO metadata:** new `src/lib/events-meta.ts` `CollectionPage` JSON-LD rendered by `/events` at runtime and embedded by prerender (same single-source pattern as `trust-meta`); `prerender.test.ts` now enforces per-route parity.
+- **Security headers:** catch-all responses add `Cross-Origin-Opener-Policy: same-origin-allow-popups` (popup auth/Stripe keep working), `X-Permitted-Cross-Domain-Policies: none`, `Origin-Agent-Cluster: ?1`; `security.txt` gains `Policy` + `Canonical`.
+- **Gates:** `seo:check` extended (new robots rules, header set, association sync, policy link); `npm run audit` clean (0 actionable high/critical).
+
+## Unreleased — `/events` UI/UX pass
+
+- **Search that works (`src/pages/EventsPage.tsx`):** visible search box wired to the existing `query` state (was state-only with no input), `?q=` deep-link seeding, clear button, live result count, query-aware empty state, dismissible city menu (backdrop + Escape).
+- **Card polish (`src/components/calendar/CalendarEventCard.tsx`):** 16:10 hero (was square), lucide icons replacing emoji in the calendar export menu, all quick actions at 44px targets (icon buttons 44px, hit-slop on inline Reset/tags/directions), itinerary export included.
+- **Tests:** new `src/pages/EventsPage.test.ts` (search render, `?q=` filtering, query-aware empty state, collapsed city menu) — 1,129 client tests passing, `npm run verify` + `npm run test:rules` green.
+
+---
+
 ## Release 2.1.1 — 2026-10-20 (Trust Rails, Inventory & Verified Vouchers)
 
 - **Server price authority (`functions/src/stripe.ts`):** `authoritativeEventTotal()` prices named tiers from the live event row and legacy `standard` / `vip` (1.5x) / `group` (4-pass bundle) multipliers; the client always sends the tier it displayed. No-tier bookings can no longer be charged a bare 1x unit.

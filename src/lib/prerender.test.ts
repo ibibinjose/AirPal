@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { routeMetaFor } from "./share-meta";
+import { buildEventsJsonLd } from "./events-meta";
 import { buildTrustJsonLd } from "./trust-meta";
 
 const root = resolve(import.meta.dirname, "../..");
@@ -46,10 +47,15 @@ describe("prerender routes", () => {
   });
 
   it("injects the same structured data the page renders", () => {
+    const builders: Record<string, () => unknown> = {
+      "/trust": buildTrustJsonLd,
+      "/events": buildEventsJsonLd,
+    };
     for (const route of loadRoutes()) {
       if (route.jsonLd === undefined) continue;
-      expect(route.path, "only /trust carries prerendered JSON-LD").toBe("/trust");
-      expect(route.jsonLd).toEqual(buildTrustJsonLd());
+      const build = builders[route.path];
+      expect(build, `${route.path} prerendered JSON-LD must have a page builder`).toBeDefined();
+      expect(route.jsonLd).toEqual(build!());
     }
   });
 

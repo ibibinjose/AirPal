@@ -24,6 +24,15 @@ must(robots.includes("User-agent: GPTBot"), "robots.txt must welcome AI crawlers
 must(robots.includes("Disallow: /admin"), "robots.txt must keep admin out of indexes");
 must(robots.includes("Disallow: /g/"), "robots.txt must keep private stay sessions out of indexes");
 must(robots.includes("Disallow: /invite/"), "robots.txt must keep invites out of indexes");
+must(!robots.includes("/event/*/guestlist"), "robots.txt must use the real /e/*/guests path (no stale guestlist rule)");
+must(robots.includes("Disallow: /e/*/guests"), "robots.txt must keep door guestlists out of indexes");
+must(robots.includes("Disallow: /e/*/manage"), "robots.txt must keep the organiser studio out of indexes");
+must(/^Disallow: \/bio$/m.test(robots), "robots.txt must disallow the auth-gated /bio surface");
+must(robots.includes("Disallow: /friends"), "robots.txt must keep the private friends hub out of indexes");
+must(robots.includes("Disallow: /join"), "robots.txt must keep invite-code arrivals out of indexes");
+must(robots.includes("Disallow: /arrival"), "robots.txt must keep arrival codes out of indexes");
+must(robots.includes("Disallow: /start"), "robots.txt must keep the sign-in flow out of indexes");
+must(!/^Host:/m.test(robots), "robots.txt must not use the deprecated Host directive");
 
 const sitemap = read("public/sitemap.xml");
 must(sitemap.includes("<urlset"), "sitemap.xml must be a urlset");
@@ -50,6 +59,13 @@ must(llms.includes("/alternatives/"), "llms.txt must point AI at the comparison 
 const security = read("public/.well-known/security.txt");
 must(/^Contact: /m.test(security), "security.txt must declare a Contact");
 must(/^Expires: \d{4}-\d{2}-\d{2}T/m.test(security), "security.txt must declare an Expires date");
+must(/^Policy: https:/m.test(security), "security.txt must link the disclosure policy");
+
+// iOS falls back to the root association file — it must match .well-known.
+must(
+  read("public/apple-app-site-association").trim() === read("public/.well-known/apple-app-site-association").trim(),
+  "apple-app-site-association root copy must match .well-known (dual-app split)",
+);
 
 // Head tags: canonical, crawler hints, and structured data.
 const head = read("index.html");
@@ -84,6 +100,20 @@ const hosting = JSON.parse(read("firebase.json")).hosting;
 const sources = (hosting.headers || []).map((h) => h.source);
 for (const s of ["/robots.txt", "/sitemap.xml", "/llms.txt", "/.well-known/security.txt"]) {
   must(sources.includes(s), `firebase.json must set headers for ${s}`);
+}
+
+// Catch-all response must carry the full hardening set.
+const catchAll = (hosting.headers || []).find((h) => h.source === "**");
+const catchAllKeys = ((catchAll && catchAll.headers) || []).map((h) => h.key);
+for (const key of [
+  "X-Content-Type-Options",
+  "X-Frame-Options",
+  "Referrer-Policy",
+  "Cross-Origin-Opener-Policy",
+  "Strict-Transport-Security",
+  "Content-Security-Policy",
+]) {
+  must(catchAllKeys.includes(key), `firebase.json catch-all headers must include ${key}`);
 }
 
 // Non-JS crawlers must get readable words, not an empty shell.

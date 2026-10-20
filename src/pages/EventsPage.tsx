@@ -26,6 +26,7 @@ import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { CITY_OPTIONS } from "@/lib/cities";
 import { toZonedDateStr } from "@/lib/local-time";
 import { cn } from "@/lib/cn";
+import { buildEventsJsonLd } from "@/lib/events-meta";
 
 type EventCategory = "all" | "cultural" | "music" | "festivals" | "nightlife" | "community";
 type DateRange = "all" | "today" | "weekend" | "week" | "month";
@@ -243,6 +244,13 @@ export function EventsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] md:px-6">
+      {buildEventsJsonLd().map((block, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(block).replace(/</g, "\\u003c") }}
+        />
+      ))}
       {/* Top Navigation & Header */}
       <header className="pt-4 sm:pt-6 flex flex-wrap items-center justify-between gap-4">
         <div>

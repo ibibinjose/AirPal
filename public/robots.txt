@@ -2,25 +2,40 @@
 # AirPal.Me Robots Policy
 # Canonical: https://airpal.me/
 # Sitemap: https://airpal.me/sitemap.xml
+#
+# Private surface (auth-gated, token-gated, or studio tooling) stays out of
+# every index. Public event, place, deal, and bio pages stay crawlable.
+# NOTE: `*` wildcards below rely on Google-style pattern matching
+# (supported by Googlebot, Bingbot, and most major crawlers).
 # ==============================================================================
 
+# Default — every crawler not named below.
 User-agent: *
 Allow: /
 Disallow: /admin
-Disallow: /admin/
 Disallow: /auth
-Disallow: /auth/
 Disallow: /me
-Disallow: /me/
 Disallow: /settings
-Disallow: /settings/
-Disallow: /bio/edit
-Disallow: /bio/recover
+Disallow: /bio
+Disallow: /friends
 Disallow: /scan
-Disallow: /scan/
 Disallow: /ticket/
-Disallow: /event/*/guestlist
+Disallow: /e/*/guests
+Disallow: /e/*/manage
+Disallow: /event/manage
+Disallow: /events/new
+Disallow: /business/onboard
+Disallow: /business/setup
+Disallow: /business/helpdesk
+Disallow: /business/promotions
+Disallow: /join
+Disallow: /arrival
+Disallow: /pulse
 Disallow: /host
+Disallow: /start
+Disallow: /welcome
+Disallow: /unsubscribe
+Disallow: /api/
 Disallow: /g/
 Disallow: /invite/
 Disallow: /q/
@@ -35,25 +50,34 @@ User-agent: Baiduspider
 User-agent: YandexBot
 Allow: /
 Disallow: /admin
-Disallow: /admin/
 Disallow: /auth
-Disallow: /auth/
 Disallow: /me
-Disallow: /me/
 Disallow: /settings
-Disallow: /settings/
-Disallow: /bio/edit
-Disallow: /bio/recover
+Disallow: /bio
+Disallow: /friends
 Disallow: /scan
-Disallow: /scan/
 Disallow: /ticket/
-Disallow: /event/*/guestlist
+Disallow: /e/*/guests
+Disallow: /e/*/manage
+Disallow: /event/manage
+Disallow: /events/new
+Disallow: /business/onboard
+Disallow: /business/setup
+Disallow: /business/helpdesk
+Disallow: /business/promotions
+Disallow: /join
+Disallow: /arrival
+Disallow: /pulse
 Disallow: /host
+Disallow: /start
+Disallow: /welcome
+Disallow: /unsubscribe
+Disallow: /api/
 Disallow: /g/
 Disallow: /invite/
 Disallow: /q/
 
-# Social Media Snippets & Previews
+# Social Media Snippets & Previews (need public pages, never private ones)
 User-agent: Twitterbot
 User-agent: facebookexternalhit
 User-agent: WhatsApp
@@ -63,10 +87,18 @@ Allow: /
 Disallow: /admin
 Disallow: /auth
 Disallow: /me
-Disallow: /me/
 Disallow: /settings
+Disallow: /bio
+Disallow: /friends
 Disallow: /ticket/
 Disallow: /scan
+Disallow: /e/*/guests
+Disallow: /e/*/manage
+Disallow: /join
+Disallow: /arrival
+Disallow: /pulse
+Disallow: /start
+Disallow: /unsubscribe
 Disallow: /g/
 Disallow: /invite/
 Disallow: /q/
@@ -86,13 +118,20 @@ Allow: /
 Disallow: /admin
 Disallow: /auth
 Disallow: /me
-Disallow: /me/
 Disallow: /settings
+Disallow: /bio
+Disallow: /friends
 Disallow: /ticket/
 Disallow: /scan
+Disallow: /e/*/guests
+Disallow: /e/*/manage
+Disallow: /join
+Disallow: /arrival
+Disallow: /pulse
+Disallow: /start
+Disallow: /unsubscribe
 Disallow: /g/
 Disallow: /invite/
 Disallow: /q/
 
-Host: https://airpal.me
 Sitemap: https://airpal.me/sitemap.xml

@@ -105,7 +105,25 @@
     "title": "Events · AirPal.Me",
     "description": "Every upcoming event in one feed — at places, in the community, or from friends.",
     "heading": "Events",
-    "summary": "Every upcoming event in one feed — gigs and dinners at places, community markets and expos, and events from friends."
+    "summary": "Every upcoming event in one feed — gigs and dinners at places, community markets and expos, and events from friends.",
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Events · AirPal.Me",
+        "description": "Every upcoming event in one feed — gigs and dinners at places, community markets and expos, and events from friends.",
+        "url": "https://airpal.me/events",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "AirPal.Me",
+          "url": "https://airpal.me/"
+        },
+        "about": {
+          "@type": "Thing",
+          "name": "Local events, concerts, cultural festivals, gigs and nightlife in Sydney, Australia"
+        }
+      }
+    ]
   },
   {
     "path": "/event",
