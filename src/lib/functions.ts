@@ -57,6 +57,10 @@ export function upsertBusinessListingRemote(data: {
   return callFunction<typeof data, { listingId: string; placeId: string }>(CALLABLES.upsertBusinessListing, data);
 }
 
+export function deleteBusinessListingRemote(data: { listingId: string }) {
+  return callFunction<typeof data, { listingId: string; placeId: string }>(CALLABLES.deleteBusinessListing, data);
+}
+
 export function upsertBusinessDealRemote(data: {
   listingId: string;
   badge: string;

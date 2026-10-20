@@ -23,6 +23,7 @@ export const CALLABLES = {
   claimFreeVenuePresence: "claimFreeVenuePresence",
   upsertBusinessListing: "upsertBusinessListing",
   upsertBusinessDeal: "upsertBusinessDeal",
+  deleteBusinessListing: "deleteBusinessListing",
   upsertEvent: "upsertEvent",
   upsertEventStall: "upsertEventStall",
   saveAttendeeStall: "saveAttendeeStall",
@@ -382,6 +383,13 @@ export type UpsertBusinessDealRequest = {
   expiry?: string;
   active?: boolean;
 };
+
+/** Owner-or-admin listing removal. Server deletes the listing, parks the
+ *  place as inactive, and writes the audit + ledger entries the direct
+ *  client delete used to skip. */
+export type DeleteBusinessListingRequest = { listingId: string };
+
+export type DeleteBusinessListingResponse = { listingId: string; placeId: string };
 
 export type UpsertEventRequest = {
   eventId?: string;

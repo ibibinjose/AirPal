@@ -10,7 +10,7 @@ export {
   claimFreeVenuePresence,
   reviewPartnerClaim,
 } from "./deals";
-export { upsertBusinessListing, upsertBusinessDeal } from "./listings";
+export { upsertBusinessListing, upsertBusinessDeal, deleteBusinessListing } from "./listings";
 export { submitPartnerApplication, reviewPartnerApplication } from "./partners";
 export { upsertEvent, upsertEventStall, saveAttendeeStall, submitVenueRating } from "./events";
 export {

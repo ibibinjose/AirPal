@@ -5,7 +5,7 @@ import {
   initializeTestEnvironment,
   type RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 /**
  * Firestore rules regression suite for the trust rails hardened in
@@ -79,6 +79,10 @@ describe.skipIf(!process.env.FIRESTORE_EMULATOR_HOST)("firestore rules", () => {
       const db = authed("alice");
       await assertSucceeds(updateDoc(doc(db, "listings/lst-1"), { title: "New" }));
       await assertFails(updateDoc(doc(db, "listings/lst-1"), { ownerUid: "mallory" }));
+    });
+
+    it("routes deletes through the server callable, never the client", async () => {
+      await assertFails(deleteDoc(doc(authed("alice"), "listings/lst-1")));
     });
 
     it("denies strangers", async () => {

@@ -8,7 +8,8 @@ import { emailMatchesWebsite } from "../../shared/google-place";
 import type { UpsertBusinessDealRequest, UpsertBusinessListingRequest } from "../../shared/airpal-security";
 import { enforceRateLimit, noteAppCheck, writeAudit } from "./abuse";
 import { writeAuthoritativeEvent } from "./analytics";
-import { CALLABLE, auth, db, requireAccount } from "./admin";
+import { CALLABLE, auth, db, isPlatformAdmin, requireAccount } from "./admin";
+import type { AccessClaims } from "../../shared/airpal-security";
 
 export const upsertBusinessListing = onCall(CALLABLE, async (request) => {
   await noteAppCheck(request, "upsertBusinessListing");
@@ -171,4 +172,40 @@ export const upsertBusinessDeal = onCall(CALLABLE, async (request) => {
     .set({ deal, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
   await db.collection("places").doc(placeId).set({ deal, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
   return { ok: true as const, deal };
+});
+
+/**
+ * Owner-or-admin listing removal. Replaces the direct client delete so the
+ * place is parked inactive and the audit + ledger entries are always
+ * written — the client cannot skip them.
+ */
+export const deleteBusinessListing = onCall(CALLABLE, async (request) => {
+  await noteAppCheck(request, "deleteBusinessListing");
+  const uid = requireAccount(request, "Sign in to manage your listing.");
+  await enforceRateLimit(uid, "listingWrite", false);
+  const data = (request.data || {}) as { listingId?: unknown };
+  const listingId = String(data.listingId || "").trim();
+  if (!listingId) throw new HttpsError("invalid-argument", "listingId is required.");
+  const caller = (request.auth?.token || {}) as AccessClaims;
+  const snap = await db.collection("listings").doc(listingId).get();
+  if (!snap.exists) throw new HttpsError("not-found", "Listing not found.");
+  if (String(snap.data()?.ownerUid) !== uid && !isPlatformAdmin(caller)) {
+    throw new HttpsError("permission-denied", "Not your listing.");
+  }
+  const placeId = String(snap.data()?.placeId || listingId.replace(/^list-/, "pl-"));
+  const now = new Date().toISOString();
+  await db.runTransaction(async (tx) => {
+    tx.delete(db.collection("listings").doc(listingId));
+    tx.set(db.collection("places").doc(placeId), { status: "inactive", updatedAt: now }, { merge: true });
+  });
+  await writeAudit({ collection: "listings", docId: listingId, action: "delete", actorUid: uid });
+  await writeAuthoritativeEvent({
+    uid,
+    eventName: "host_activation",
+    contextId: listingId,
+    contextType: "business",
+    source: "internal",
+    properties: { tenantId: uid, activationStep: "listing_deleted", contextId: listingId, actorRole: "host_admin" },
+  });
+  return { listingId, placeId };
 });

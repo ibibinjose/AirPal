@@ -496,8 +496,10 @@ match /dining_orders/{orderId} {
       allow update: if signedIn() && resource.data.ownerUid == request.auth.uid
         && request.resource.data.ownerUid == resource.data.ownerUid
         || platformAdmin();
-      allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid
-        || platformAdmin();
+      // Deletes run through the deleteBusinessListing callable (owner-checked
+      // server-side, place parked inactive, audit + ledger written) — direct
+      // client deletes would skip all of that.
+      allow delete: if platformAdmin();
     }
 
     // Partnership inquiries: anyone can introduce themselves (tightly validated);

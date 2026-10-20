@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { collection, deleteDoc, doc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { nanoid } from "nanoid";
 import {
   DEFAULT_LISTING_GEO,
@@ -11,7 +11,12 @@ import {
 import type { PlaceDeal } from "@shared/nearby";
 import { getFirebaseAuth, getFirebaseDb } from "@/lib/firebase";
 import { onIdle } from "@/lib/on-idle";
-import { liveBackendEnabled, upsertBusinessDealRemote, upsertBusinessListingRemote } from "@/lib/functions";
+import {
+  deleteBusinessListingRemote,
+  liveBackendEnabled,
+  upsertBusinessDealRemote,
+  upsertBusinessListingRemote,
+} from "@/lib/functions";
 import {
   getCachedListings,
   hydrateListings,
@@ -334,19 +339,11 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
           );
           setSelectedListingId(remaining[0]?.id || null);
         }
-        const db = getFirebaseDb();
-        if (db && user) {
-          try {
-            await deleteDoc(doc(db, "listings", listingId));
-            const placeId = listingId.replace(/^list-/, "pl-");
-            await setDoc(
-              doc(db, "places", placeId),
-              { status: "inactive", updatedAt: new Date().toISOString() },
-              { merge: true },
-            );
-          } catch {
-            /* ignore */
-          }
+        // Server-owned delete: removes the listing, parks the place as
+        // inactive, and writes the audit + ledger entries. Optimistic local
+        // removal above keeps the UI instant; failures surface loudly.
+        if (user) {
+          await deleteBusinessListingRemote({ listingId });
         }
         void track("host_activation", {
           tenantId: user?.uid || "local",

@@ -351,7 +351,7 @@ _Primary surfaces: `/business`, `/places`, `/deals`, `/claim`_
   - **Create**: List a business/venue, import from Google Places (`GooglePlaceImport`), or claim a venue (`/claim`).
   - **Read**: Verified public venue directory with trading hours, address, maps, and amenities.
   - **Update**: Edit trading hours, photos, tags, contact info, and amenities on `/business`.
-  - **Delete**: Deactivate or remove place listing via `DeleteVenueDialog`.
+  - **Delete**: Listing removal runs through `deleteBusinessListing` (owner/server-checked, place parked inactive, audit + ledger written; direct client deletes are denied). Deactivate a place via `DeleteVenueDialog`.
 - [x] **Member Deals & Perks**
   - **Create**: Merchants create member perks, discounts, or vouchers via `/business` and `/business/promotions/new`.
   - **Read**: Browse deals directory on `/deals` and `/deals/:id`.

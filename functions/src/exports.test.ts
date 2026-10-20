@@ -18,6 +18,7 @@ const CALLABLES = [
   "reviewPartnerClaim",
   "upsertBusinessListing",
   "upsertBusinessDeal",
+  "deleteBusinessListing",
   "upsertEvent",
   "upsertEventStall",
   "saveAttendeeStall",
