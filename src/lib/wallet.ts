@@ -123,6 +123,8 @@ export async function openGoogleWalletPass(url: string): Promise<boolean> {
  * Opens or downloads the Apple Wallet pass.
  * On iOS/macOS Safari and native iOS Capacitor, navigating directly to a .pkpass
  * URL triggers the native PKAddPassesViewController dialog automatically.
+ * Public card passes take that direct path; ticket passes keep the
+ * authenticated download below because a navigation cannot carry headers.
  *
  * A HEAD preflight runs first so a missing pass or an unconfigured signer
  * shows an honest toast instead of downloading an error page as a "pass".
@@ -143,13 +145,26 @@ export async function openAppleWalletPass(url: string, title?: string): Promise<
       );
       return false;
     }
+    // Public card passes need no auth, so on Apple platforms hand the real
+    // .pkpass URL to the OS: only a top-level navigation opens Wallet — a
+    // blob download never triggers the Add sheet.
+    if (isApplePlatform() && targetUrl.includes("/wallet/card/")) {
+      if (getNativePlatform() === "ios") {
+        // In iOS WKWebView / Capacitor, opening with target '_system' delegates
+        // the .pkpass mime type to iOS Safari, which automatically displays
+        // the native PKAddPassesViewController "Add to Apple Wallet" sheet.
+        window.open(targetUrl, "_system");
+      } else {
+        window.location.assign(targetUrl);
+      }
+      return true;
+    }
     const pass = await fetch(targetUrl, { headers });
     if (!pass.ok) throw new Error("Pass download failed");
     const blobUrl = URL.createObjectURL(await pass.blob());
     if (getNativePlatform() === "ios") {
-      // In iOS WKWebView / Capacitor, opening with target '_system' delegates
-      // the .pkpass mime type to iOS Safari, which automatically displays
-      // the native PKAddPassesViewController "Add to Apple Wallet" sheet.
+      // Authenticated ticket passes still download here: a navigation cannot
+      // carry the auth header, so blob delivery is the honest fallback.
       window.open(blobUrl, "_system");
       return true;
     }

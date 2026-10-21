@@ -1,12 +1,21 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { Capacitor } from "@capacitor/core";
 import {
   ticketWalletPassUrl,
   businessCardWalletPassUrl,
   googleWalletTicketUrl,
   googleWalletCardUrl,
   isApplePlatform,
+  openAppleWalletPass,
   openGoogleWalletPass,
 } from "./wallet";
+
+vi.mock("@capacitor/core", () => ({
+  Capacitor: {
+    isNativePlatform: vi.fn(),
+    getPlatform: vi.fn(),
+  },
+}));
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -68,5 +77,94 @@ describe("wallet helper", () => {
 
     await expect(result).resolves.toBe(true);
     expect(walletWindow.location.replace).toHaveBeenCalledWith(saveUrl);
+  });
+});
+
+describe("openAppleWalletPass handoff", () => {
+  const iPhoneUA =
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
+  const desktopUA =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
+
+  function stubWindow() {
+    const open = vi.fn();
+    const assign = vi.fn();
+    vi.stubGlobal("window", {
+      location: { hostname: "airpal.me", assign },
+      open,
+      setTimeout: () => 0,
+    });
+    return { open, assign };
+  }
+
+  beforeEach(() => {
+    vi.mocked(Capacitor.getPlatform).mockReset().mockReturnValue("web");
+  });
+
+  it("navigates directly to public card passes on Apple platforms", async () => {
+    vi.stubGlobal("navigator", { userAgent: iPhoneUA });
+    const { open, assign } = stubWindow();
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(openAppleWalletPass(businessCardWalletPassUrl("bibinjose"), "@bibinjose-AirPal-Pass")).resolves.toBe(
+      true,
+    );
+
+    // HEAD preflight only — no authenticated GET, no blob round-trip.
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/api/wallet/card/bibinjose.pkpass"),
+      expect.objectContaining({ method: "HEAD" }),
+    );
+    expect(assign).toHaveBeenCalledWith(expect.stringContaining("/api/wallet/card/bibinjose.pkpass"));
+    expect(open).not.toHaveBeenCalled();
+  });
+
+  it("delegates card passes to the system browser in the native iOS shell", async () => {
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("ios");
+    const { open, assign } = stubWindow();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, status: 200 })),
+    );
+
+    await expect(openAppleWalletPass(businessCardWalletPassUrl("bibinjose"))).resolves.toBe(true);
+
+    expect(open).toHaveBeenCalledWith(expect.stringContaining("/api/wallet/card/bibinjose.pkpass"), "_system");
+    expect(assign).not.toHaveBeenCalled();
+  });
+
+  it("keeps the authenticated blob download for ticket passes", async () => {
+    vi.stubGlobal("navigator", { userAgent: desktopUA });
+    stubWindow();
+    const anchor = { click: vi.fn(), href: "", rel: "", target: "", download: "" };
+    const appended: unknown[] = [];
+    const removed: unknown[] = [];
+    vi.stubGlobal("document", {
+      createElement: vi.fn(() => anchor),
+      body: {
+        appendChild: (node: unknown) => {
+          appended.push(node);
+        },
+        removeChild: (node: unknown) => {
+          removed.push(node);
+        },
+      },
+    });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, status: 200 })
+      .mockResolvedValueOnce({ ok: true, status: 200, blob: async () => new Blob(["pkpass"]) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(openAppleWalletPass(ticketWalletPassUrl("booking-12345"), "My Ticket")).resolves.toBe(true);
+
+    // HEAD preflight, then the authenticated GET the navigation cannot do.
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(anchor.download).toBe("my-ticket.pkpass");
+    expect(anchor.click).toHaveBeenCalled();
+    expect(appended).toContain(anchor);
+    expect(removed).toContain(anchor);
   });
 });

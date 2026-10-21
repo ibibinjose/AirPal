@@ -143,6 +143,7 @@ describe("walletPass", () => {
     expect(out.status).toBe(204);
     expect(out.headers["Access-Control-Allow-Origin"]).toBe("*");
     expect(out.headers["Access-Control-Allow-Methods"]).toBe("GET, HEAD, OPTIONS");
+    expect(out.headers["Access-Control-Allow-Headers"]).toBe("Authorization, Content-Type");
   });
 
   it("rejects non-GET/HEAD methods", async () => {
@@ -168,6 +169,7 @@ describe("walletPass", () => {
     const out = await run("GET", "/api/wallet/ticket/b1.pkpass");
     expect(out.status).toBe(501);
     expect(out.body).toEqual({ error: "wallet_not_configured" });
+    expect(out.headers["Access-Control-Allow-Headers"]).toBe("Authorization, Content-Type");
   });
 
   it("rejects tickets that are unpaid, cancelled, refunded, or otherwise inadmissible", async () => {

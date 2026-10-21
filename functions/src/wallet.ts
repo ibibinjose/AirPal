@@ -298,7 +298,9 @@ export const walletPass = onRequest(
     if (typeof res.set === "function") {
       res.set("Access-Control-Allow-Origin", "*");
       res.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
-      res.set("Access-Control-Allow-Headers", "Content-Type");
+      // Ticket fetches attach an auth header, so it must be allow-listed here
+      // or browsers block the request at preflight.
+      res.set("Access-Control-Allow-Headers", "Authorization, Content-Type");
     }
     if (req.method === "OPTIONS") {
       res.status(204).send("");

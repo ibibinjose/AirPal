@@ -93,6 +93,7 @@ describe("googleWalletPass", () => {
     expect(res.status).toBe(204);
     expect(res.headers["access-control-allow-origin"]).toBe("*");
     expect(res.headers["access-control-allow-methods"]).toBe("GET, OPTIONS");
+    expect(res.headers["access-control-allow-headers"]).toBe("Authorization, Content-Type");
   });
 
   it("rejects non-GET methods and malformed paths", async () => {
