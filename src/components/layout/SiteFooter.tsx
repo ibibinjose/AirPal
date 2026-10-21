@@ -1,4 +1,4 @@
-import { ArrowUp, Smartphone } from "lucide-react";
+import { ArrowUp, Globe2, Smartphone } from "lucide-react";
 import { Link } from "wouter";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { LEGAL } from "@/lib/legal";
@@ -149,8 +149,15 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
             </button>
           </p>
 
-          <p className="order-first text-center text-sm font-semibold tracking-wide text-gold sm:order-none">
-            Built for humanity · live worldwide
+          <p className="order-first text-center sm:order-none">
+            <span className="inline-flex min-h-11 items-center gap-2 rounded-md border-2 border-[#8fadff] bg-[#004eff] px-3.5 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-[3px_3px_0_#8fadff]">
+              <Globe2 size={15} aria-hidden="true" />
+              <span>Built for humanity</span>
+              <span aria-hidden="true" className="text-white/60">
+                ·
+              </span>
+              <span>Live worldwide</span>
+            </span>
           </p>
 
           <button

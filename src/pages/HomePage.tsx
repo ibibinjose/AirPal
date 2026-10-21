@@ -153,28 +153,28 @@ export function HomePage() {
         <div className="flex flex-col gap-10">
           {/* Section: Live Events from Backend */}
           <section aria-labelledby="what-now-heading">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2">
+            <div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-2">
                   <Sparkles size={18} className="text-accent" aria-hidden="true" />
-                  <h2 id="what-now-heading" className="human-section-title text-xl">
+                  <h2 id="what-now-heading" className="human-section-title min-w-0 text-xl">
                     What's on now
                   </h2>
                 </div>
-                <p className="mt-0.5 text-sm text-mute">
-                  Live experiences, concerts, and gatherings from verified organisers.
-                </p>
-              </div>
 
-              {filteredEvents.length > 0 && (
-                <Link
-                  href="/events"
-                  className="inline-flex min-h-[44px] items-center gap-1 text-xs sm:text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation"
-                >
-                  <span>See all</span>
-                  <ArrowRight size={14} />
-                </Link>
-              )}
+                {filteredEvents.length > 0 && (
+                  <Link
+                    href="/events"
+                    className="inline-flex min-h-[44px] shrink-0 items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer touch-manipulation sm:text-sm"
+                  >
+                    <span>See all</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                )}
+              </div>
+              <p className="mt-0.5 text-sm text-mute">
+                Live experiences, concerts, and gatherings from verified organisers.
+              </p>
             </div>
 
             {filteredEvents.length > 0 ? (
