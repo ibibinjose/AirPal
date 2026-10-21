@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { defineSecret } from "firebase-functions/params";
 import { onRequest } from "firebase-functions/v2/https";
-import { ticketGateUrl } from "../../shared/booking";
+import { ticketAdmitCheck, ticketGateUrl } from "../../shared/booking";
 import { auth, db } from "./admin";
 import { cardFieldsFromProfile } from "./pass-profile";
 
@@ -229,7 +229,7 @@ export const googleWalletPass = onRequest(
       if (kind === "ticket") {
         const booking = await getDocData("bookings", key);
         const uid = await ticketOwnerUid(req);
-        if (!booking || !uid || String(booking.customerUid || "") !== uid) {
+        if (!booking || !uid || String(booking.customerUid || "") !== uid || !ticketAdmitCheck(booking).valid) {
           res.status(404).json({ error: "pass_not_found" });
           return;
         }

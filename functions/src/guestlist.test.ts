@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { sendEventRsvpEmail, sendTicketReceiptEmail } from "./email";
 
 const { fakes, FakeHttpsError } = vi.hoisted(() => {
   class FakeHttpsError extends Error {
@@ -173,6 +174,7 @@ function fire(trigger: unknown, params: Record<string, string>, afterData?: Reco
 
 describe("guestlist server", () => {
   afterEach(() => {
+    vi.clearAllMocks();
     fakes.isAdmin = false;
     fakes.events = {};
     fakes.guestlist = {};
@@ -262,6 +264,7 @@ describe("guestlist server", () => {
     });
     expect(fakes.events["evt-1"].guestCounts).toMatchObject({ goingHeads: 1 });
     expect(fakes.events["evt-1"].bookedHeads).toBe(1);
+    expect(sendEventRsvpEmail).toHaveBeenCalledWith("evt-1", "u-9");
   });
 
   it("RSVP going is refused when the event is already full", async () => {
@@ -331,6 +334,7 @@ describe("guestlist server", () => {
       ticketId: "bk-1",
       source: "ticket",
     });
+    expect(sendTicketReceiptEmail).toHaveBeenCalledWith("bk-1");
     await fire(
       onGuestBookingWritten,
       { bookingId: "bk-2" },

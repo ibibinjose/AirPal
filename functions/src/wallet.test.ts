@@ -156,10 +156,25 @@ describe("walletPass", () => {
   });
 
   it("answers 501 while the signer is not configured", async () => {
-    fakes.docs["bookings/b1"] = { title: "Show", date: "2026-10-02", time: "19:00", customerUid: "u1" };
+    fakes.docs["bookings/b1"] = {
+      title: "Show",
+      date: "2026-10-02",
+      time: "19:00",
+      customerUid: "u1",
+      paymentStatus: "paid",
+      priceCents: 5000,
+      status: "confirmed",
+    };
     const out = await run("GET", "/api/wallet/ticket/b1.pkpass");
     expect(out.status).toBe(501);
     expect(out.body).toEqual({ error: "wallet_not_configured" });
+  });
+
+  it("rejects tickets that are unpaid, cancelled, refunded, or otherwise inadmissible", async () => {
+    fakes.docs["bookings/b1"] = { customerUid: "u1", paymentStatus: "unpaid", priceCents: 5000, status: "pending" };
+    expect((await run("GET", "/api/wallet/ticket/b1.pkpass")).status).toBe(404);
+    fakes.docs["bookings/b1"] = { customerUid: "u1", paymentStatus: "refunded", priceCents: 5000, status: "refunded" };
+    expect((await run("GET", "/api/wallet/ticket/b1.pkpass")).status).toBe(404);
   });
 
   it("404s unknown bookings and handles once configured", async () => {
@@ -176,7 +191,15 @@ describe("walletPass", () => {
     process.env.WALLET_TEAM_ID = "TEAMID1234";
     process.env.WALLET_SIGNER_CERT = "-----BEGIN CERTIFICATE-----\nfake\n-----END CERTIFICATE-----";
     process.env.WALLET_SIGNER_KEY = "-----BEGIN PRIVATE KEY-----\nexample-invalid-key\n-----END PRIVATE KEY-----";
-    fakes.docs["bookings/b1"] = { title: "Show", date: "2026-10-02", time: "19:00", customerUid: "u1" };
+    fakes.docs["bookings/b1"] = {
+      title: "Show",
+      date: "2026-10-02",
+      time: "19:00",
+      customerUid: "u1",
+      paymentStatus: "paid",
+      priceCents: 5000,
+      status: "confirmed",
+    };
     const err = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const out = await run("GET", "/api/wallet/ticket/b1.pkpass");
     expect(out.status).toBe(500);

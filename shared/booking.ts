@@ -175,12 +175,22 @@ export type TicketAdmitCheck = { valid: true } | { valid: false; reason: TicketA
  * and still open. Cancelled/refunded/disputed/completed bookings never
  * admit — the gate shows the reason instead of a button.
  */
-export function ticketAdmitCheck(b: Pick<Booking, "paymentStatus" | "priceCents" | "status">): TicketAdmitCheck {
+export function ticketAdmitCheck(b: {
+  paymentStatus?: unknown;
+  priceCents?: unknown;
+  status?: unknown;
+}): TicketAdmitCheck {
+  if (typeof b.status !== "string" || !BOOKING_STATUSES.includes(b.status as BookingStatus)) {
+    return { valid: false, reason: "unpaid" };
+  }
   if (b.status === "cancelled") return { valid: false, reason: "cancelled" };
   if (b.status === "refunded") return { valid: false, reason: "refunded" };
   if (b.status === "disputed") return { valid: false, reason: "disputed" };
   if (b.status === "completed") return { valid: false, reason: "completed" };
-  if (!bookingDisplayPaid(b)) return { valid: false, reason: "unpaid" };
+  const priceCents = typeof b.priceCents === "number" ? b.priceCents : Number.NaN;
+  if (b.paymentStatus !== "paid" && (!Number.isFinite(priceCents) || priceCents !== 0)) {
+    return { valid: false, reason: "unpaid" };
+  }
   return { valid: true };
 }
 

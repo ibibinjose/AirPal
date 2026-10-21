@@ -132,6 +132,9 @@ describe("googleWalletPass", () => {
       suburb: "Surry Hills",
       providerName: "AirPal Live",
       customerUid: "u1",
+      paymentStatus: "paid",
+      priceCents: 5000,
+      status: "confirmed",
     };
     fakes.docs["users/u1"] = { displayName: "Bibin" };
     const out = await run("GET", "/api/wallet/google/ticket/b1");
@@ -153,6 +156,24 @@ describe("googleWalletPass", () => {
       value: "https://airpal.me/ticket/b1",
       alternateText: "b1",
     });
+  });
+
+  it("rejects unpaid and refunded bookings from Google Wallet", async () => {
+    configure();
+    fakes.docs["bookings/b1"] = {
+      customerUid: "u1",
+      paymentStatus: "unpaid",
+      priceCents: 5000,
+      status: "pending",
+    };
+    expect((await run("GET", "/api/wallet/google/ticket/b1")).status).toBe(404);
+    fakes.docs["bookings/b1"] = {
+      customerUid: "u1",
+      paymentStatus: "refunded",
+      priceCents: 5000,
+      status: "refunded",
+    };
+    expect((await run("GET", "/api/wallet/google/ticket/b1")).status).toBe(404);
   });
 
   it("mints a profile card save link for a known handle", async () => {

@@ -276,6 +276,18 @@ describe("booking engine", () => {
       valid: false,
       reason: "unpaid",
     });
+    expect(ticketAdmitCheck({ paymentStatus: "paid", priceCents: 8000, status: "unknown" })).toEqual({
+      valid: false,
+      reason: "unpaid",
+    });
+    expect(ticketAdmitCheck({ paymentStatus: "unpaid", status: "confirmed" })).toEqual({
+      valid: false,
+      reason: "unpaid",
+    });
+    expect(ticketAdmitCheck({ paymentStatus: "unpaid", priceCents: -1, status: "pending" })).toEqual({
+      valid: false,
+      reason: "unpaid",
+    });
     expect(ticketAdmitCheck({ paymentStatus: "paid", priceCents: 8000, status: "cancelled" })).toEqual({
       valid: false,
       reason: "cancelled",

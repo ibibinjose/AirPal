@@ -1,7 +1,7 @@
 import { PKPass } from "passkit-generator";
 import { defineSecret } from "firebase-functions/params";
 import { onRequest } from "firebase-functions/v2/https";
-import { ticketGateUrl } from "../../shared/booking";
+import { ticketAdmitCheck, ticketGateUrl } from "../../shared/booking";
 import { auth, db } from "./admin";
 import { cardFieldsFromProfile } from "./pass-profile";
 
@@ -229,7 +229,7 @@ async function guestNameFor(customerUid: string): Promise<string> {
 
 async function ticketPassBuffer(bookingId: string, cfg: SignerConfig): Promise<Buffer | null> {
   const booking = await getDocData("bookings", bookingId);
-  if (!booking) return null;
+  if (!booking || !ticketAdmitCheck(booking).valid) return null;
   let eventName = "";
   const eventId = str(booking.eventId);
   if (eventId) eventName = str((await getDocData("events", eventId))?.name);
@@ -268,7 +268,7 @@ async function ticketOwnerUid(req: {
 
 async function ownsTicket(bookingId: string, uid: string): Promise<boolean> {
   const booking = await getDocData("bookings", bookingId);
-  return Boolean(booking && String(booking.customerUid || "") === uid);
+  return Boolean(booking && String(booking.customerUid || "") === uid && ticketAdmitCheck(booking).valid);
 }
 
 async function cardPassBuffer(handle: string, cfg: SignerConfig): Promise<Buffer | null> {
