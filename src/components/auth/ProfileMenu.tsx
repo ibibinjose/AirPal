@@ -8,6 +8,7 @@ import {
   Building2,
   Cake,
   CalendarDays,
+  CalendarPlus,
   ChevronRight,
   Headphones,
   HeartHandshake,
@@ -16,8 +17,9 @@ import {
   LogIn,
   LogOut,
   MapPin,
+  MessagesSquare,
   PencilLine,
-  QrCode,
+  ScanLine,
   Settings,
   ShieldCheck,
   Sparkles,
@@ -25,6 +27,7 @@ import {
   Ticket,
   UserRound,
   Users,
+  Wallet,
   X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,6 +52,7 @@ function Row({
   danger = false,
   badge,
   badgeColor,
+  active = false,
   onClick,
 }: {
   icon: typeof UserRound;
@@ -58,12 +62,14 @@ function Row({
   danger?: boolean;
   badge?: string;
   badgeColor?: string;
+  active?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       role="menuitem"
+      aria-current={active ? "page" : undefined}
       onClick={() => {
         void triggerHaptic("light");
         onClick();
@@ -74,7 +80,9 @@ function Row({
           ? "bg-brand/10 text-brand-ink dark:text-accent hover:bg-brand/15 font-semibold"
           : danger
             ? "text-red-600 hover:bg-red-500/10 dark:text-red-400 font-medium"
-            : "text-ink hover:bg-paper/80 font-medium",
+            : active
+              ? "bg-paper text-ink font-semibold ring-1 ring-line/80 hover:bg-card"
+              : "text-ink hover:bg-paper/80 font-medium",
       )}
     >
       <span
@@ -84,7 +92,9 @@ function Row({
             ? "bg-brand text-white ring-brand/30 shadow-2xs"
             : danger
               ? "bg-red-500/10 text-red-600 ring-red-500/25 dark:text-red-400"
-              : "bg-paper text-ink ring-line/80 group-hover:bg-card group-hover:text-accent",
+              : active
+                ? "bg-brand/10 text-accent ring-brand/25"
+                : "bg-paper text-ink ring-line/80 group-hover:bg-card group-hover:text-accent",
         )}
       >
         <Icon size={16} strokeWidth={1.9} />
@@ -120,9 +130,16 @@ function Row({
 
       <ChevronRight
         size={14}
+        aria-hidden="true"
         className={cn(
-          "shrink-0 opacity-55 transition-all duration-150 group-hover:opacity-100 group-hover:translate-x-0.5",
-          highlight ? "text-brand-ink dark:text-accent" : danger ? "text-red-500" : "text-ink/50 group-hover:text-ink",
+          "shrink-0 transition-all duration-150 group-hover:translate-x-0.5",
+          highlight
+            ? "text-brand-ink dark:text-accent opacity-100"
+            : active
+              ? "text-accent opacity-100"
+              : danger
+                ? "text-red-500 opacity-55 group-hover:opacity-100"
+                : "text-ink/50 opacity-55 group-hover:text-ink group-hover:opacity-100",
         )}
       />
     </button>
@@ -141,6 +158,8 @@ export function ProfileMenu() {
   const [editText, setEditText] = useState("");
   const [editEmoji, setEditEmoji] = useState("☕");
   const [statusSaving, setStatusSaving] = useState(false);
+  const [signoutArmed, setSignoutArmed] = useState(false);
+  const signoutTimer = useRef<number | undefined>(undefined);
   const statusGuard = useRef(createSubmitGuard());
   const box = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -156,7 +175,21 @@ export function ProfileMenu() {
   useEffect(() => {
     setOpen(false);
     setStatusEditing(false);
+    setSignoutArmed(false);
   }, [path]);
+
+  useEffect(() => {
+    if (!open) setSignoutArmed(false);
+  }, [open]);
+
+  useEffect(
+    () => () => {
+      if (signoutTimer.current) window.clearTimeout(signoutTimer.current);
+    },
+    [],
+  );
+
+  const partnerPath = partnerAccountPath({ signedIn: !!user, hasPlace: !!business });
 
   useEffect(() => {
     if (!open) return;
@@ -267,6 +300,7 @@ export function ProfileMenu() {
           <div className="relative shrink-0">
             <AvatarFace className="h-12 w-12 text-base transition-transform group-hover/card:scale-105" showRing />
             <span
+              aria-hidden="true"
               className={cn(
                 "absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full ring-2 ring-card shadow-xs",
                 currentStatusKey === "available"
@@ -278,7 +312,7 @@ export function ProfileMenu() {
               title={statusInfo.label}
             >
               {currentStatusKey === "available" && (
-                <span className="absolute h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                <span className="absolute h-full w-full rounded-full bg-emerald-400 opacity-75 motion-safe:animate-ping" />
               )}
             </span>
           </div>
@@ -318,6 +352,7 @@ export function ProfileMenu() {
             <button
               type="button"
               aria-expanded={statusEditing}
+              aria-controls="profile-status-editor"
               onClick={() => (statusEditing ? setStatusEditing(false) : openStatusEditor())}
               className={cn(
                 "w-full flex items-center justify-between gap-1.5 rounded-xl border px-2.5 py-1.5 text-left transition-all duration-150 hover:brightness-95 active:scale-[0.98] shadow-2xs",
@@ -359,6 +394,7 @@ export function ProfileMenu() {
         {/* Inline Status Editor */}
         {statusEditing && mine && (
           <div
+            id="profile-status-editor"
             className="mt-2.5 rounded-2xl bg-card p-3 ring-1 ring-line/80 shadow-xs animate-in fade-in zoom-in-95 duration-150"
             onKeyDown={(e) => e.stopPropagation()}
           >
@@ -463,6 +499,7 @@ export function ProfileMenu() {
           hint="Agenda, appointments & wallet"
           badge="Me"
           highlight
+          active={path === "/me"}
           onClick={() => go("/me")}
         />
         {mine ? (
@@ -470,6 +507,7 @@ export function ProfileMenu() {
             icon={Sparkles}
             label={`@${mine.handle}`}
             hint="Your public bio link"
+            active={path === `/@${mine.handle}`}
             onClick={() => go(`/@${mine.handle}`)}
           />
         ) : biosReady ? (
@@ -478,30 +516,57 @@ export function ProfileMenu() {
             label="Claim @handle"
             hint="Reserve your unique AirPal handle"
             highlight
+            active={path === "/bio/setup"}
             onClick={() => go("/bio/setup")}
           />
         ) : (
-          <Row icon={Sparkles} label="Your @handle" hint="Loading your profile…" onClick={() => go("/me")} />
+          <Row
+            icon={Sparkles}
+            label="Your @handle"
+            hint="Loading your profile…"
+            active={path === "/me"}
+            onClick={() => go("/me")}
+          />
         )}
         {mine && (
-          <Row icon={PencilLine} label="Edit Bio" hint="Profile, links, shop & share" onClick={() => go("/bio/edit")} />
+          <Row
+            icon={PencilLine}
+            label="Edit Bio"
+            hint="Profile, links, shop & share"
+            active={path === "/bio/edit"}
+            onClick={() => go("/bio/edit")}
+          />
         )}
         <Row
           icon={HeartHandshake}
           label="Friends & Mutuals"
           hint="Social radar & invites"
+          active={path === "/friends"}
           onClick={() => go("/friends")}
         />
-        <Row icon={Users} label="Networking Circle" hint="Live presence & check-ins" onClick={() => go("/circle")} />
+        <Row
+          icon={Users}
+          label="Networking Circle"
+          hint="Live presence & check-ins"
+          active={path === "/circle"}
+          onClick={() => go("/circle")}
+        />
         <Row
           icon={Cake}
           label="Birthday Freebies"
           hint="Annual treats & birthday perks"
           badge="GIFT"
           badgeColor="bg-rose-500/15 text-rose-600 dark:text-rose-400"
+          active={path === "/birthday-freebies"}
           onClick={() => go("/birthday-freebies")}
         />
-        <Row icon={Images} label="Memory Wall" hint="Keepsakes & moments" onClick={() => go("/me/memories")} />
+        <Row
+          icon={Images}
+          label="Memory Wall"
+          hint="Keepsakes & moments"
+          active={path === "/me/memories"}
+          onClick={() => go("/me/memories")}
+        />
       </div>
 
       {/* AirPal Pass */}
@@ -516,24 +581,57 @@ export function ProfileMenu() {
           hint="Concerts, cultural festivals & gigs"
           badge="Pass"
           badgeColor="bg-amber-500/15 text-amber-600 dark:text-amber-400"
+          active={path === "/pass"}
           onClick={() => go("/pass")}
         />
         <Row
           icon={CalendarDays}
           label="Events & Concerts"
           hint="Discover live happenings"
+          active={path === "/events"}
           onClick={() => go("/events")}
         />
-        <Row icon={MapPin} label="Places & Venues" hint="Curated local spots" onClick={() => go("/places")} />
-        <Row icon={Users} label="Communities" hint="Clubs, groups & follows" onClick={() => go("/communities")} />
-        <Row icon={BadgePercent} label="Offers & Deals" hint="Exclusive member perks" onClick={() => go("/deals")} />
-        <Row icon={Ticket} label="My Tickets" hint="Passes & reservations" onClick={() => go("/me/tickets")} />
-        <Row icon={QrCode} label="Door Scanner" hint="Scan tickets & guest entry" onClick={() => go("/scan")} />
+        <Row
+          icon={MapPin}
+          label="Places & Venues"
+          hint="Curated local spots"
+          active={path === "/places"}
+          onClick={() => go("/places")}
+        />
+        <Row
+          icon={MessagesSquare}
+          label="Communities"
+          hint="Clubs, groups & follows"
+          active={path === "/communities"}
+          onClick={() => go("/communities")}
+        />
+        <Row
+          icon={BadgePercent}
+          label="Offers & Deals"
+          hint="Exclusive member perks"
+          active={path === "/deals"}
+          onClick={() => go("/deals")}
+        />
+        <Row
+          icon={Wallet}
+          label="My Tickets"
+          hint="Passes & reservations"
+          active={path === "/me/tickets"}
+          onClick={() => go("/me/tickets")}
+        />
+        <Row
+          icon={ScanLine}
+          label="Door Scanner"
+          hint="Scan tickets & guest entry"
+          active={path === "/scan"}
+          onClick={() => go("/scan")}
+        />
 
         <Row
-          icon={CalendarDays}
+          icon={CalendarPlus}
           label={myEvent ? "Event Manager" : "Run an Event"}
           hint={myEvent ? myEvent.name : "Market, festival, expo"}
+          active={path === "/event"}
           onClick={() => go("/event")}
         />
 
@@ -541,6 +639,7 @@ export function ProfileMenu() {
           icon={Building2}
           label={isHost ? "Host Workspace" : "Become a Host"}
           hint="Venues & event spaces"
+          active={path === (isHost ? "/event" : "/business")}
           onClick={() => go(isHost ? "/event" : "/business")}
         />
 
@@ -549,6 +648,7 @@ export function ProfileMenu() {
             icon={Store}
             label="Your Place"
             hint={`AirPal.Me/@${business.handle} · Listing, hours & promotions`}
+            active={path === "/business"}
             onClick={() => go("/business")}
           />
         ) : (
@@ -556,7 +656,8 @@ export function ProfileMenu() {
             icon={Store}
             label={NAMES.partnerAccount}
             hint="Listing, promotions & guest discovery"
-            onClick={() => go(partnerAccountPath({ signedIn: true, hasPlace: false }))}
+            active={path === partnerPath}
+            onClick={() => go(partnerPath)}
           />
         )}
 
@@ -566,6 +667,7 @@ export function ProfileMenu() {
           hint="Instant venue feedback & QR codes"
           badge="NEW"
           badgeColor="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+          active={path === "/pulse"}
           onClick={() => go("/pulse")}
         />
 
@@ -575,6 +677,7 @@ export function ProfileMenu() {
           hint="Help centre & event support"
           badge="LIVE"
           badgeColor="bg-brand/15 text-accent"
+          active={path === "/helpdesk"}
           onClick={() => go("/helpdesk")}
         />
       </div>
@@ -582,18 +685,49 @@ export function ProfileMenu() {
       {/* Settings & Admin */}
       <div className="my-1.5 h-px bg-line/80" />
       <div className="space-y-0.5">
-        <Row icon={Settings} label="Settings" hint="Account, notifications & privacy" onClick={() => go("/settings")} />
-        <Row icon={Info} label="About AirPal" hint="Life Made Easy" onClick={() => go("/about")} />
+        <Row
+          icon={Settings}
+          label="Settings"
+          hint="Account, notifications & privacy"
+          active={path === "/settings"}
+          onClick={() => go("/settings")}
+        />
+        <Row
+          icon={Info}
+          label="About AirPal"
+          hint="Life Made Easy"
+          active={path === "/about"}
+          onClick={() => go("/about")}
+        />
         {isAdmin && (
-          <Row icon={ShieldCheck} label="Admin Portal" hint="Platform controls" onClick={() => go("/admin")} />
+          <Row
+            icon={ShieldCheck}
+            label="Admin Portal"
+            hint="Platform controls"
+            active={path === "/admin"}
+            onClick={() => go("/admin")}
+          />
         )}
         <Row
           icon={LogOut}
-          label="Sign out"
+          label={signoutArmed ? "Confirm Sign Out" : "Sign out"}
+          hint={signoutArmed ? "Tap again to sign out on this device" : undefined}
           danger
           onClick={() => {
-            setOpen(false);
-            void logout().then(() => nav("/"));
+            if (!signoutArmed) {
+              setSignoutArmed(true);
+              if (signoutTimer.current) window.clearTimeout(signoutTimer.current);
+              signoutTimer.current = window.setTimeout(() => setSignoutArmed(false), 4000);
+              return;
+            }
+            setSignoutArmed(false);
+            void logout().then(
+              () => {
+                setOpen(false);
+                nav("/");
+              },
+              () => toast.error("Couldn't sign out — try again."),
+            );
           }}
         />
       </div>
@@ -614,6 +748,7 @@ export function ProfileMenu() {
           label="Sign in / Create account"
           hint="Email & password or mobile SMS"
           highlight
+          active={path === "/start"}
           onClick={() => go("/start")}
         />
       </div>
@@ -628,6 +763,7 @@ export function ProfileMenu() {
           icon={Sparkles}
           label="Claim @handle"
           hint="Reserve your unique AirPal handle"
+          active={path === "/bio/setup"}
           onClick={() => go("/bio/setup")}
         />
         <Row
@@ -636,9 +772,16 @@ export function ProfileMenu() {
           hint="Annual treats & birthday passes"
           badge="FREE"
           badgeColor="bg-rose-500/15 text-rose-600 dark:text-rose-400"
+          active={path === "/birthday-freebies"}
           onClick={() => go("/birthday-freebies")}
         />
-        <Row icon={Users} label="Networking Circle" hint="Connect with locals nearby" onClick={() => go("/circle")} />
+        <Row
+          icon={Users}
+          label="Networking Circle"
+          hint="Connect with locals nearby"
+          active={path === "/circle"}
+          onClick={() => go("/circle")}
+        />
       </div>
 
       {/* Guest: AirPal Pass */}
@@ -651,39 +794,79 @@ export function ProfileMenu() {
           icon={Ticket}
           label="AirPal Pass Hub"
           hint="Concerts, cultural festivals & dining perks"
+          active={path === "/pass"}
           onClick={() => go("/pass")}
         />
         <Row
           icon={CalendarDays}
           label="Events & Concerts"
           hint="Discover live happenings"
+          active={path === "/events"}
           onClick={() => go("/events")}
         />
-        <Row icon={MapPin} label="Places & Venues" hint="Curated local spots" onClick={() => go("/places")} />
-        <Row icon={Users} label="Communities" hint="Clubs, groups & follows" onClick={() => go("/communities")} />
-        <Row icon={BadgePercent} label="Offers & Deals" hint="Exclusive member perks" onClick={() => go("/deals")} />
-        <Row icon={QrCode} label="Scan QR Pass" hint="Scan marks & tickets" onClick={() => go("/scan")} />
+        <Row
+          icon={MapPin}
+          label="Places & Venues"
+          hint="Curated local spots"
+          active={path === "/places"}
+          onClick={() => go("/places")}
+        />
+        <Row
+          icon={MessagesSquare}
+          label="Communities"
+          hint="Clubs, groups & follows"
+          active={path === "/communities"}
+          onClick={() => go("/communities")}
+        />
+        <Row
+          icon={BadgePercent}
+          label="Offers & Deals"
+          hint="Exclusive member perks"
+          active={path === "/deals"}
+          onClick={() => go("/deals")}
+        />
+        <Row
+          icon={ScanLine}
+          label="Scan QR Pass"
+          hint="Scan marks & tickets"
+          active={path === "/scan"}
+          onClick={() => go("/scan")}
+        />
         <Row
           icon={Store}
           label={NAMES.partnerAccount}
           hint="Same login. Guests find your place"
-          onClick={() => go(partnerAccountPath({ signedIn: false, hasPlace: false }))}
+          active={path === partnerPath}
+          onClick={() => go(partnerPath)}
         />
-        <Row icon={Building2} label="Become a Host" hint="Venues & event spaces" onClick={() => go("/business")} />
-        <Row icon={CalendarDays} label="Organise an Event" hint="Market, expo, festival" onClick={() => go("/event")} />
+        <Row
+          icon={Building2}
+          label="Become a Host"
+          hint="Venues & event spaces"
+          active={path === "/business"}
+          onClick={() => go("/business")}
+        />
+        <Row
+          icon={CalendarPlus}
+          label="Organise an Event"
+          hint="Market, expo, festival"
+          active={path === "/event"}
+          onClick={() => go("/event")}
+        />
         <Row
           icon={Activity}
           label="AirPal Pulse"
           hint="Fast real-time guest/customer feedback"
           badge="NEW"
           badgeColor="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+          active={path === "/pulse"}
           onClick={() => go("/pulse")}
         />
       </div>
 
       <div className="my-1.5 h-px bg-line/80" />
-      <Row icon={Settings} label="Settings" onClick={() => go("/settings")} />
-      <Row icon={Info} label="About AirPal" onClick={() => go("/about")} />
+      <Row icon={Settings} label="Settings" active={path === "/settings"} onClick={() => go("/settings")} />
+      <Row icon={Info} label="About AirPal" active={path === "/about"} onClick={() => go("/about")} />
     </>
   );
 
@@ -712,6 +895,7 @@ export function ProfileMenu() {
         <AvatarFace className="h-8.5 w-8.5 sm:h-9 sm:w-9 text-xs" />
         {user && (
           <span
+            aria-hidden="true"
             className={cn(
               "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full ring-2 ring-card shadow-2xs",
               currentStatusKey === "available"
@@ -770,7 +954,11 @@ export function ProfileMenu() {
                   </div>
 
                   {/* Scrollable Drawer Content */}
-                  <div className="flex-1 overflow-y-auto overscroll-contain p-3.5 space-y-1 pb-[max(2.5rem,env(safe-area-inset-bottom,16px))] no-scrollbar">
+                  <div
+                    role="menu"
+                    aria-label={user ? "Account menu" : "Sign in menu"}
+                    className="flex-1 overflow-y-auto overscroll-contain p-3.5 space-y-1 pb-[max(2.5rem,env(safe-area-inset-bottom,16px))] no-scrollbar"
+                  >
                     {items}
                   </div>
                 </div>
