@@ -130,6 +130,9 @@ describe("MePage", () => {
     expect(markup).toContain("Test User");
     expect(markup).toContain("@testmate");
 
+    expect(markup).toContain("grid grid-cols-2 gap-2 pt-4 mt-2 border-t border-line/60 sm:grid-cols-3 sm:gap-2.5");
+    expect(markup).toContain("col-span-2 flex min-h-[68px]");
+
     // Today's Agenda
     expect(markup).toContain("Today&#x27;s Agenda");
     expect(markup).toContain("Sarah M");

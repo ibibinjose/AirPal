@@ -368,18 +368,18 @@ export function MePage() {
           </div>
 
           {/* Quick Metrics Strip */}
-          <div className="grid grid-cols-1 min-[420px]:grid-cols-3 gap-2.5 pt-4 mt-2 border-t border-line/60">
+          <div className="grid grid-cols-2 gap-2 pt-4 mt-2 border-t border-line/60 sm:grid-cols-3 sm:gap-2.5">
             <button
               type="button"
               onClick={() => handleTabChange("today")}
               className={cn(
-                "group flex items-center gap-3 rounded-2xl p-3 text-left transition cursor-pointer ring-1",
+                "group col-span-2 flex min-h-[68px] items-center gap-2.5 rounded-2xl p-3 text-left transition cursor-pointer ring-1 sm:col-span-1 sm:gap-3",
                 activeTab === "today"
                   ? "bg-brand/10 ring-brand/40 shadow-xs"
                   : "bg-paper/60 ring-line/60 hover:bg-paper hover:ring-line",
               )}
             >
-              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand/10 text-accent group-hover:scale-105 transition shrink-0">
+              <span className="grid h-9 w-9 place-items-center rounded-2xl bg-brand/10 text-accent group-hover:scale-105 transition shrink-0 sm:h-10 sm:w-10">
                 <Sun size={17} />
               </span>
               <div className="min-w-0">
@@ -396,17 +396,17 @@ export function MePage() {
               type="button"
               onClick={() => handleTabChange("appointments")}
               className={cn(
-                "group flex items-center gap-3 rounded-2xl p-3 text-left transition cursor-pointer ring-1",
+                "group flex min-h-[68px] min-w-0 items-center gap-2 rounded-2xl p-2.5 text-left transition cursor-pointer ring-1 sm:gap-3 sm:p-3",
                 activeTab === "appointments"
                   ? "bg-sky-500/10 ring-sky-500/40 shadow-xs"
                   : "bg-paper/60 ring-line/60 hover:bg-paper hover:ring-line",
               )}
             >
-              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-sky-500/10 text-sky-600 group-hover:scale-105 transition shrink-0">
+              <span className="grid h-9 w-9 place-items-center rounded-2xl bg-sky-500/10 text-sky-600 group-hover:scale-105 transition shrink-0 sm:h-10 sm:w-10">
                 <Coffee size={17} />
               </span>
               <div className="min-w-0">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-mute block leading-tight">
+                <span className="block text-[10px] font-bold uppercase tracking-wide text-mute leading-tight sm:text-[11px] sm:tracking-wider">
                   Catch-ups
                 </span>
                 <span className="font-display text-base font-black text-ink tabular-nums leading-tight">
@@ -419,13 +419,13 @@ export function MePage() {
               type="button"
               onClick={() => handleTabChange("tickets")}
               className={cn(
-                "group flex items-center gap-3 rounded-2xl p-3 text-left transition cursor-pointer ring-1",
+                "group flex min-h-[68px] min-w-0 items-center gap-2 rounded-2xl p-2.5 text-left transition cursor-pointer ring-1 sm:gap-3 sm:p-3",
                 activeTab === "tickets"
                   ? "bg-amber-500/10 ring-amber-500/40 shadow-xs"
                   : "bg-paper/60 ring-line/60 hover:bg-paper hover:ring-line",
               )}
             >
-              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 group-hover:scale-105 transition shrink-0">
+              <span className="grid h-9 w-9 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 group-hover:scale-105 transition shrink-0 sm:h-10 sm:w-10">
                 <Ticket size={17} />
               </span>
               <div className="min-w-0">
