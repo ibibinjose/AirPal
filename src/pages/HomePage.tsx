@@ -341,7 +341,7 @@ export function HomePage() {
                       </div>
                       <h4 className="font-display text-sm font-bold text-ink">5. Digital Bio &amp; Pass</h4>
                       <p className="mt-1 text-xs text-mute leading-relaxed">
-                        Claim your unique @handle, vCard 3.0 contact, and NFC pass.
+                        Claim your unique @handle, share a vCard 3.0 contact, and save your QR profile to Wallet.
                       </p>
                     </div>
                     <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-accent">

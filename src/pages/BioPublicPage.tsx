@@ -1153,7 +1153,7 @@ export function BioPublicPage() {
             </div>
           )}
 
-          {/* AirPal Pass (Owner-only: save to Apple & Google Wallet for device NFC card & in-person scanning) */}
+          {/* AirPal Pass (owner-only: save the profile QR card to Apple or Google Wallet) */}
           {isOwner && (
             <div className="human-card mt-6 p-5 sm:p-6 relative overflow-hidden ring-1 ring-brand/30 shadow-xs">
               <div className="flex items-center justify-between gap-2 mb-4">
@@ -1191,8 +1191,8 @@ export function BioPublicPage() {
 
                 <div className="flex-1 min-w-0 w-full space-y-3">
                   <p className="text-sm text-mute leading-relaxed text-center sm:text-left">
-                    Add this pass to Apple Wallet &amp; Google Wallet on your device to use as a digital NFC card and
-                    scan for instant in-person networking.
+                    Add this QR-backed profile card to Apple Wallet or Google Wallet, then let people scan it to connect
+                    with you in person.
                   </p>
 
                   <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">

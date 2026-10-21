@@ -74,10 +74,20 @@ function normalizeWalletUrl(url: string): string {
  */
 export async function openGoogleWalletPass(url: string): Promise<boolean> {
   if (typeof window === "undefined") return false;
+  let walletWindow: Window | null = null;
   try {
+    walletWindow = window.open("about:blank", "_blank");
+    if (!walletWindow) {
+      toast.error("Allow pop-ups to continue to Google Wallet.");
+      return false;
+    }
+    const popup = walletWindow;
+    popup.opener = null;
+
     const targetUrl = normalizeWalletUrl(url);
     const res = await fetch(targetUrl, { headers: await walletAuthHeaders() });
     if (!res.ok) {
+      popup.close();
       toast.error(
         res.status === 501
           ? "Google Wallet isn't set up yet — ask your host for another ticket option."
@@ -89,12 +99,20 @@ export async function openGoogleWalletPass(url: string): Promise<boolean> {
     }
     const { saveUrl } = (await res.json()) as { saveUrl?: string };
     if (!saveUrl) {
+      popup.close();
       toast.error("Couldn't load the Wallet pass — try again.");
       return false;
     }
-    window.open(saveUrl, "_blank", "noopener,noreferrer");
+    const destination = new URL(saveUrl);
+    if (destination.origin !== "https://pay.google.com" || !destination.pathname.startsWith("/gp/v/save/")) {
+      popup.close();
+      toast.error("Couldn't load the Wallet pass — try again.");
+      return false;
+    }
+    popup.location.replace(destination.href);
     return true;
   } catch (err) {
+    walletWindow?.close();
     console.error("Failed to open Google Wallet pass:", err);
     toast.error("Couldn't load the Wallet pass — try again.");
     return false;

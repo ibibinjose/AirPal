@@ -60,7 +60,7 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
     <footer
       role="contentinfo"
       className={cn(
-        "mt-16 rounded-t-[28px] bg-[#221b15] text-white",
+        "mt-16 rounded-t-[28px] bg-[#2a1a12] text-white",
         "border-t border-white/10",
         hasTabBar
           ? "pb-[calc(6rem+env(safe-area-inset-bottom,0px))] lg:pb-8"

@@ -13,7 +13,7 @@ export function getThemePreference(): ThemeMode {
 }
 
 const META_THEMES: Record<"light" | "dark", string> = {
-  light: "#f4f2e9",
+  light: "#ffffff",
   dark: "#000000",
 };
 

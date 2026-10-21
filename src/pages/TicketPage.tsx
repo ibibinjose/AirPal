@@ -23,6 +23,7 @@ import { cn } from "@/lib/cn";
 export function TicketPage() {
   const [, params] = useRoute("/ticket/:id");
   const { user, authReady, isAdmin } = useAuth();
+  const userId = user?.uid;
   const id = params?.id || "";
 
   const { bookings } = useMyBookings();
@@ -46,6 +47,12 @@ export function TicketPage() {
       return;
     }
 
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     // Fallback to Firestore read
     const db = getFirebaseDb();
     if (!db) {
@@ -69,7 +76,7 @@ export function TicketPage() {
     return () => {
       alive = false;
     };
-  }, [id, bookings]);
+  }, [id, bookings, userId]);
 
   // Screen brightness boost & wake-lock effect for dark gate/entrance scanning
   useEffect(() => {

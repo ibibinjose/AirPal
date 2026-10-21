@@ -94,6 +94,19 @@ test.describe("Global Navigation & Profile Flow", () => {
     await expect(page).toHaveURL(/localhost:3000\/$/);
   });
 
+  test("mobile location picker meets touch-target size and opens", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await page.waitForLoadState("domcontentloaded");
+
+    const locationButton = page.getByRole("button", { name: /Current location: .*Tap to select location/i });
+    const bounds = await locationButton.boundingBox();
+
+    expect(bounds?.height).toBeGreaterThanOrEqual(44);
+    await locationButton.click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+  });
+
   test("universal quick search command palette opens and navigates to explore shortcuts", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");

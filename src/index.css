@@ -176,12 +176,12 @@
   }
 }
 
-/* Day scheme for OS followers: bone canvas, brand-blue action colour. */
+/* Day scheme for OS followers: pure-white canvas, brand-blue action colour. */
 @media (prefers-color-scheme: light) {
   :root {
     color-scheme: light;
-    --color-paper: #f4f2e9;
-    --color-card: #fbf9f2;
+    --color-paper: #ffffff;
+    --color-card: #ffffff;
     --color-ink: #16170f;
     --color-mute: #3f2a2f;
     --color-secondary: #3f2a2f;
@@ -1381,8 +1381,8 @@ body.keyboard-open .keyboard-hide {
 .light,
 [data-theme="light"] {
   color-scheme: light;
-  --color-paper: #f4f2e9;
-  --color-card: #fbf9f2;
+  --color-paper: #ffffff;
+  --color-card: #ffffff;
   --color-ink: #16170f;
   --color-mute: #3f2a2f;
   --color-secondary: #3f2a2f;
