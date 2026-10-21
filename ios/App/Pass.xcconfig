@@ -4,7 +4,5 @@
 PRODUCT_BUNDLE_IDENTIFIER = me.airpal.pass
 APP_DISPLAY_NAME = AirPal Pass
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon-Pass
-// AppIcon-Pass is a scaffold placeholder (amber-tinted AirPal mark) so the two
-// shells are visually distinct. Replace with final Pass icon art before store
-// submission. Follow-ups (Phase B/C): per-flavor GoogleService-Info.plist
-// handling and push entitlements.
+GOOGLE_CLIENT_ID = 265455282950-roc3e5tnh9gb3rsik0lpdfguhj3btij6.apps.googleusercontent.com
+GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.265455282950-roc3e5tnh9gb3rsik0lpdfguhj3btij6

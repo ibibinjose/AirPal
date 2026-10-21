@@ -18,6 +18,7 @@
 		7A3F9C1D2B4E48A0B5C6D7E9 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7A3F9C1D2B4E48A0B5C6D7E8 /* PrivacyInfo.xcprivacy */; };
 		9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9582B6822FE993A50072D4E8 /* SceneDelegate.swift */; };
 		A8F3C1B12FE9A10000CACC87 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A8F3C1B02FE9A10000CACC87 /* GoogleService-Info.plist */; };
+		D2305A220001000000000001 /* GoogleService-Info-Pass.plist in Resources */ = {isa = PBXBuildFile; fileRef = D2305A220001000000000002 /* GoogleService-Info-Pass.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		9582B6822FE993A50072D4E8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
 		A8F3C1B02FE9A10000CACC87 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D2305A220001000000000002 /* GoogleService-Info-Pass.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Pass.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +81,7 @@
 				50B271D01FEDC1A000F3C39B /* public */,
 				7A3F9C1D2B4E48A0B5C6D7E8 /* PrivacyInfo.xcprivacy */,
 				A8F3C1B02FE9A10000CACC87 /* GoogleService-Info.plist */,
+				D2305A220001000000000002 /* GoogleService-Info-Pass.plist */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -156,6 +159,7 @@
 				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
 				7A3F9C1D2B4E48A0B5C6D7E9 /* PrivacyInfo.xcprivacy in Resources */,
 				A8F3C1B12FE9A10000CACC87 /* GoogleService-Info.plist in Resources */,
+				D2305A220001000000000001 /* GoogleService-Info-Pass.plist in Resources */,
 				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

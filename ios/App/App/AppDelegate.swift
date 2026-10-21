@@ -8,8 +8,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
-        FirebaseApp.configure()
+        if Bundle.main.bundleIdentifier == "me.airpal.pass" {
+            guard
+                let optionsPath = Bundle.main.path(forResource: "GoogleService-Info-Pass", ofType: "plist"),
+                let options = FirebaseOptions(contentsOfFile: optionsPath)
+            else {
+                fatalError("Missing Firebase configuration for AirPal Pass.")
+            }
+            FirebaseApp.configure(options: options)
+        } else {
+            FirebaseApp.configure()
+        }
         return true
     }
 
