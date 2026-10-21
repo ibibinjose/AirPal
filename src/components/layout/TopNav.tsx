@@ -34,13 +34,13 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
         }}
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "flex h-8 sm:h-8.5 min-h-[32px] sm:min-h-[34px] shrink-0 whitespace-nowrap touch-manipulation items-center gap-1.5 rounded-full px-3 text-xs sm:text-[13px] font-semibold transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
+          "flex min-h-0 shrink-0 whitespace-nowrap touch-manipulation items-center gap-1 rounded-full px-2.5 py-0 text-[11px] font-bold uppercase tracking-[0.08em] leading-none transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
           isActive
-            ? "bg-white text-brand shadow-[0_4px_12px_-4px_rgba(0,0,0,0.35)]"
+            ? "bg-white text-brand shadow-[2px_2px_0_rgba(0,25,90,0.45)]"
             : "text-white hover:bg-white/15 hover:text-white",
         )}
       >
-        <Icon size={14} className={isActive ? "text-brand" : "text-white"} />
+        <Icon size={12} strokeWidth={2.4} className={isActive ? "text-brand" : "text-white"} />
         <span>{pillar.label}</span>
       </button>
     );
@@ -48,12 +48,12 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
 
   return (
     <motion.header
-      className="hidden bg-brand border-b border-white/15 lg:block transition-[background-color,border-color] duration-300"
+      className="hidden bg-brand border-b border-black/25 lg:block shadow-[inset_0_1px_0_rgba(255,255,255,0.25),inset_0_-2px_0_rgba(0,0,0,0.25)] transition-[background-color,border-color] duration-300"
       initial={enter ? { opacity: 0, y: -12 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: enterEase, delay: 0.12 }}
     >
-      <div className="mx-auto flex h-12 max-w-7xl items-center justify-between gap-3 sm:gap-4 app-page-gutter md:px-6">
+      <div className="mx-auto flex h-11 max-w-7xl items-center justify-between gap-3 sm:gap-4 app-page-gutter md:px-6">
         <div className="flex flex-1 items-center justify-start min-w-[180px] shrink-0">
           <button
             onClick={() => {
@@ -99,7 +99,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
               void triggerHaptic("light");
               nav("/scan");
             }}
-            className="hidden xl:inline-flex h-8 sm:h-8.5 min-h-[32px] sm:min-h-[34px] shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-3 text-xs sm:text-[13px] font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
+            className="hidden xl:inline-flex min-h-0 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-2.5 py-0 text-[11px] font-bold uppercase tracking-[0.08em] leading-none text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
             title="Scan QR"
           >
             Scan
@@ -110,7 +110,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 void triggerHaptic("light");
                 nav("/event");
               }}
-              className="hidden xl:inline-flex h-8 sm:h-8.5 min-h-[32px] sm:min-h-[34px] shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-3 text-xs sm:text-[13px] font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
+              className="hidden xl:inline-flex min-h-0 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-2.5 py-0 text-[11px] font-bold uppercase tracking-[0.08em] leading-none text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
             >
               Host
             </button>
@@ -121,7 +121,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 nav(partnerAccountPath({ signedIn: Boolean(user), hasPlace: Boolean(business) }));
               }}
               aria-label={NAMES.partnerAccount}
-              className="hidden xl:inline-flex h-8 sm:h-8.5 min-h-[32px] sm:min-h-[34px] shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-3 text-xs sm:text-[13px] font-semibold text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
+              className="hidden xl:inline-flex min-h-0 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-2.5 py-0 text-[11px] font-bold uppercase tracking-[0.08em] leading-none text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
             >
               {NAMES.partnerAccount}
             </button>

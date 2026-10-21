@@ -46,7 +46,7 @@ export function LocalNowBar() {
   return (
     <div className="border-b border-black/10 dark:border-white/10 bg-[#f4efe4] dark:bg-[#0d0f12] text-[#3c362f] dark:text-[#a0a8b4] font-mono text-[10px] sm:text-[11px] leading-none select-none transition-colors">
       <LocationSheet open={picker} onClose={() => setPicker(false)} />
-      <div className="mx-auto flex h-11 max-w-6xl items-center gap-1.5 overflow-hidden px-2.5 sm:gap-2.5 sm:px-4 md:px-6 lg:h-6">
+      <div className="mx-auto flex h-[10px] max-w-6xl items-center gap-1.5 overflow-x-clip px-2.5 sm:h-[11px] sm:gap-2.5 sm:px-4 md:px-6">
         <span className="relative flex h-1.5 w-1.5 shrink-0" aria-hidden="true">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
@@ -58,7 +58,7 @@ export function LocalNowBar() {
             void trackFeatureEngagement("weather", "open_location_picker", { city });
             setPicker(true);
           }}
-          className="group relative flex min-h-[44px] min-w-0 max-w-[38%] items-center gap-1 font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink transition hover:text-brand-ink dark:hover:text-amber-300 active:scale-95 after:absolute after:-inset-2 after:content-[''] sm:max-w-none lg:min-h-0 cursor-pointer"
+          className="group relative flex min-h-0 min-w-0 max-w-[38%] items-center gap-1 font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink transition hover:text-brand-ink dark:hover:text-amber-300 active:scale-95 after:absolute after:-inset-x-2 after:-inset-y-[17px] after:content-[''] sm:max-w-none cursor-pointer"
           title="Select location & precinct"
           aria-label={`Current location: ${placeLabel}. Tap to select location`}
         >
@@ -126,7 +126,7 @@ export function LocalNowBar() {
             void trackFeatureEngagement("share", "share_current_location", { city });
             void shareCurrentLocation(city);
           }}
-          className="relative hidden min-h-[44px] shrink-0 items-center gap-1 font-mono text-[9.5px] uppercase tracking-wider text-mute hover:text-ink transition after:absolute after:-inset-2 after:content-[''] sm:flex lg:min-h-0 cursor-pointer"
+          className="relative hidden min-h-0 shrink-0 items-center gap-1 font-mono text-[9.5px] uppercase tracking-wider text-mute hover:text-ink transition after:absolute after:-inset-x-2 after:-inset-y-[17px] after:content-[''] sm:flex cursor-pointer"
           title={`Share ${city || "current location"} guide`}
           aria-label={`Share ${city || "current location"} guide`}
         >
@@ -139,7 +139,7 @@ export function LocalNowBar() {
             type="button"
             onClick={togglePowerSave}
             className={cn(
-              "flex min-h-[44px] shrink-0 items-center gap-0.5 rounded px-1 text-[9.5px] font-mono uppercase tracking-wider transition active:scale-95 lg:min-h-0",
+              "relative flex min-h-0 shrink-0 items-center gap-0.5 rounded px-1 text-[9.5px] font-mono uppercase tracking-wider transition active:scale-95 after:absolute after:-inset-x-2 after:-inset-y-[17px] after:content-['']",
               powerSaveActive
                 ? "bg-amber-500/20 text-amber-800 dark:text-amber-300 ring-1 ring-amber-500/40"
                 : "text-mute hover:text-ink",

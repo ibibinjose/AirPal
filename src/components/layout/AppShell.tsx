@@ -125,8 +125,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="fixed-element sticky top-0 z-40 bg-paper/95 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
             <LocalNowBar />
             {workspace ? (
-              <header className="overflow-visible border-b border-white/10 bg-brand">
-                <div className="mx-auto flex h-12 max-w-6xl items-center justify-between app-page-gutter md:px-6">
+              <header className="overflow-visible border-b border-black/25 bg-brand shadow-[inset_0_1px_0_rgba(255,255,255,0.25),inset_0_-2px_0_rgba(0,0,0,0.25)]">
+                <div className="mx-auto flex h-10 max-w-6xl items-center justify-between app-page-gutter md:px-6">
                   <div className="flex items-center gap-2 min-w-0 shrink-0">
                     <Link href={homePath} className="flex items-center min-w-0 py-1">
                       <BrandMark compact={false} invert />
@@ -149,7 +149,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       href="/"
                       aria-current={path === "/" ? "page" : undefined}
                       className={cn(
-                        "hidden md:inline-flex h-8 sm:h-8.5 min-h-[32px] sm:min-h-[34px] touch-manipulation items-center rounded-full px-3.5 text-xs sm:text-sm font-semibold",
+                        "hidden md:inline-flex min-h-0 touch-manipulation items-center rounded-full px-3.5 py-0 text-xs sm:text-sm font-semibold leading-none",
                         path === "/" ? "bg-white text-brand" : "text-white/80 hover:bg-white/15 hover:text-white",
                       )}
                     >
@@ -165,7 +165,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <TopNav path={path} enter={play} />
                 <motion.div
                   {...chrome}
-                  className="flex h-12 items-center justify-between bg-brand app-page-gutter lg:hidden transition-colors border-b border-white/10"
+                  className="flex h-11 items-center justify-between bg-brand app-page-gutter lg:hidden transition-colors border-b border-black/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),inset_0_-2px_0_rgba(0,0,0,0.25)]"
                 >
                   <div className="flex items-center gap-2 min-w-0 shrink-0">
                     <Link href={homePath} className="flex items-center min-w-0 py-1" aria-label="AirPal Home">
