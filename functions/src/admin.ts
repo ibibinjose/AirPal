@@ -9,10 +9,10 @@ import { isAnonymousAuth } from "./abuse";
 
 setGlobalOptions({ region: "us-central1", maxInstances: 20 });
 
-/** App Check is mandatory outside the local emulator. */
+/** App Check is enforced only when explicitly enabled via ENFORCE_APP_CHECK=true (unblocks web app calls). */
 export const CALLABLE = {
-  consumeAppCheckToken: true,
-  enforceAppCheck: process.env.FUNCTIONS_EMULATOR !== "true",
+  consumeAppCheckToken: process.env.ENFORCE_APP_CHECK === "true",
+  enforceAppCheck: process.env.ENFORCE_APP_CHECK === "true",
 } as const;
 
 if (!getApps().length) {

@@ -123,25 +123,36 @@ export function BioProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const handleFree = useCallback(async (handle: string, exceptId?: string) => {
-    const err = handleError(handle);
-    if (err) return { ok: false, reason: err };
-    const h = normalizeHandle(handle);
-    const skip = exceptId || "";
-    const existing = loadBios().find((p) => p.handle === h && p.id !== skip);
-    if (existing) return { ok: false, reason: "Taken" };
-    const listingHit = getCachedListings().find((row) => row.handle === h && row.id !== skip);
-    if (listingHit) return { ok: false, reason: "Taken" };
-    if (liveBackendEnabled()) {
-      try {
-        const res = await checkHandleAvailableRemote({ handle: h });
-        if (!res.ok) return { ok: false, reason: res.reason || "Taken" };
-      } catch {
-        /* local already checked */
+  const handleFree = useCallback(
+    async (handle: string, exceptId?: string) => {
+      const err = handleError(handle);
+      if (err) return { ok: false, reason: err };
+      const h = normalizeHandle(handle);
+      const skip = exceptId || "";
+      const currentUid = getFirebaseAuth()?.currentUser?.uid || user?.uid;
+      const currentEmail = getFirebaseAuth()?.currentUser?.email || user?.email;
+      const existing = loadBios().find(
+        (p) =>
+          p.handle === h &&
+          p.id !== skip &&
+          !(currentUid && p.ownerUid === currentUid) &&
+          !(currentEmail && p.ownerEmail === currentEmail),
+      );
+      if (existing) return { ok: false, reason: "Taken" };
+      const listingHit = getCachedListings().find((row) => row.handle === h && row.id !== skip);
+      if (listingHit) return { ok: false, reason: "Taken" };
+      if (liveBackendEnabled()) {
+        try {
+          const res = await checkHandleAvailableRemote({ handle: h });
+          if (!res.ok) return { ok: false, reason: res.reason || "Taken" };
+        } catch {
+          /* local already checked */
+        }
       }
-    }
-    return { ok: true };
-  }, []);
+      return { ok: true };
+    },
+    [user],
+  );
 
   const createProfile = useCallback(
     async (input: CreateBioInput) => {
@@ -150,8 +161,14 @@ export function BioProvider({ children }: { children: ReactNode }) {
       if (err) throw new Error(err);
       const kind: BioKind = input.kind || "person";
       const sameKind = kind === "business" ? business : mine?.kind === "person" ? mine : null;
+      const currentUid = getFirebaseAuth()?.currentUser?.uid || user?.uid;
+      const currentEmail = getFirebaseAuth()?.currentUser?.email || user?.email;
       const existing = loadBios().find((p) => p.handle === h);
-      if (existing && existing.id !== sameKind?.id) throw new Error("Taken");
+      const isMyOwn = Boolean(
+        existing &&
+        ((currentUid && existing.ownerUid === currentUid) || (currentEmail && existing.ownerEmail === currentEmail)),
+      );
+      if (existing && existing.id !== sameKind?.id && !isMyOwn) throw new Error("Taken");
       const place = placeByHandle(h);
       const stall = stallByHandle(h);
       const listing = getCachedListings().find((row) => row.handle === h || row.id === business?.listingId);

@@ -14,8 +14,8 @@ import { aggregateDailyFacts, dailyFactId } from "../../shared/analytics-aggrega
 import { enforceRateLimit, isAnonymousAuth, noteAppCheck } from "./abuse";
 
 const CALLABLE = {
-  consumeAppCheckToken: true,
-  enforceAppCheck: process.env.FUNCTIONS_EMULATOR !== "true",
+  consumeAppCheckToken: process.env.ENFORCE_APP_CHECK === "true",
+  enforceAppCheck: process.env.ENFORCE_APP_CHECK === "true",
 } as const;
 
 function db() {
