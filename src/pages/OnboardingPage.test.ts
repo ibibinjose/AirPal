@@ -3,9 +3,15 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { OnboardingPage } from "./OnboardingPage";
 
+let mockUser: { uid: string; displayName: string; email: string } | null = {
+  uid: "test-uid",
+  displayName: "Alex Rivera",
+  email: "alex@example.com",
+};
+
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({
-    user: { uid: "test-uid", displayName: "Alex Rivera", email: "alex@example.com" },
+    user: mockUser,
     authReady: true,
     biometricsSupported: true,
     biometricLabel: "Face ID",
@@ -42,11 +48,20 @@ vi.mock("@/lib/native", () => ({
 
 describe("OnboardingPage", () => {
   it("renders step 1 with wallet pass preview and identity inputs", () => {
+    mockUser = { uid: "test-uid", displayName: "Alex Rivera", email: "alex@example.com" };
     const html = renderToStaticMarkup(createElement(OnboardingPage));
     expect(html).toContain("Set Up Your Identity");
     expect(html).toContain("AirPal Universal Pass");
     expect(html).toContain("Claim your unique @handle");
     expect(html).toContain("Primary City");
     expect(html).toContain("Continue to Interests");
+  });
+
+  it("renders sign-up prompt when user is not authenticated", () => {
+    mockUser = null;
+    const html = renderToStaticMarkup(createElement(OnboardingPage));
+    expect(html).toContain("Welcome to AirPal");
+    expect(html).toContain("Create Free Account");
+    expect(html).toContain("Already have an account? Sign In");
   });
 });

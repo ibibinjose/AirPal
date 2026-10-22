@@ -23,6 +23,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
 import { useHandleStatus } from "@/hooks/useHandleStatus";
 import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
+import { friendlyFunctionError } from "@/lib/functions";
 import { cn } from "@/lib/cn";
 import { PageLoading } from "@/components/ui/PageLoading";
 
@@ -221,7 +222,19 @@ export function OnboardingPage() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       toast.success("Welcome aboard! Your AirPal Pass is ready.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to complete onboarding.");
+      const errCode = (err as { code?: string })?.code || "";
+      const errMsg = err instanceof Error ? err.message : String(err || "");
+      const isUnauth =
+        errCode === "functions/unauthenticated" || errCode === "unauthenticated" || /unauthenticated/i.test(errMsg);
+
+      if (isUnauth) {
+        toast.error("Your session has expired. Please sign in to complete your setup.");
+        nav(`/start?tab=signin&next=${encodeURIComponent("/onboarding")}`);
+        return;
+      }
+      toast.error(
+        friendlyFunctionError(err) || (err instanceof Error ? err.message : "Failed to complete onboarding."),
+      );
     } finally {
       setBusy(false);
     }
