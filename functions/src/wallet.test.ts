@@ -34,7 +34,7 @@ import { cardFieldsFromProfile } from "./pass-profile";
 import { cardPassJson, formatPassDate, formatPassTime, ticketPassJson, walletPass } from "./wallet";
 
 type Handler = (
-  req: { method: string; path: string; headers?: Record<string, string> },
+  req: { method: string; path: string; headers?: Record<string, string>; query?: Record<string, unknown> },
   res: {
     set: (k: string, v: string) => void;
     status: (c: number) => { send: (b: unknown) => void; json: (b: unknown) => void };
@@ -43,7 +43,13 @@ type Handler = (
 
 const handler = walletPass as unknown as Handler;
 
-function run(method: string, path: string) {
+function run(method: string, path: string, headers: Record<string, string> = { authorization: "Bearer token-u1" }) {
+  const [pathname, search] = path.split("?");
+  const query: Record<string, string> = {};
+  if (search) {
+    const params = new URLSearchParams(search);
+    for (const [k, v] of params.entries()) query[k] = v;
+  }
   const out: { status: number; body: unknown; headers: Record<string, string> } = {
     status: 0,
     body: undefined,
@@ -64,7 +70,7 @@ function run(method: string, path: string) {
       },
     }),
   };
-  return handler({ method, path, headers: { authorization: "Bearer token-u1" } }, res).then(() => out);
+  return handler({ method, path: pathname, headers, query }, res).then(() => out);
 }
 
 const ENV_KEYS = [
@@ -111,6 +117,27 @@ describe("pass content (Luma layout, AirPal Blue)", () => {
       { key: "guest", label: "GUEST", value: "Bibin" },
       { key: "host", label: "HOST", value: "AirPal Live" },
     ]);
+  });
+
+  it("includes ticket tier and multi-pass count when provided", () => {
+    const json = ticketPassJson({
+      bookingId: "b1",
+      title: "Diwali Night",
+      date: "2026-10-24",
+      time: "19:00",
+      suburb: "Olympic Park",
+      providerName: "Desi Sydney",
+      status: "confirmed",
+      guestName: "Aarav",
+      tier: "VIP Early Access",
+      spots: 2,
+    });
+    const ticket = json.eventTicket as Record<string, { key: string; label: string; value: string }[]>;
+    expect(ticket.secondaryFields).toContainEqual({ key: "tier", label: "TIER", value: "VIP Early Access" });
+    expect(ticket.auxiliaryFields).toContainEqual({ key: "spots", label: "PASSES", value: "2 Guests" });
+    const back = ticket.backFields as { key: string; label: string; value: string }[];
+    expect(back.some((f) => f.key === "tier" && f.value === "VIP Early Access")).toBe(true);
+    expect(back.some((f) => f.key === "spots" && f.value === "2")).toBe(true);
   });
 
   it("lays profile cards out on AirPal Blue with the handle front and center", () => {
@@ -170,6 +197,22 @@ describe("walletPass", () => {
     expect(out.status).toBe(501);
     expect(out.body).toEqual({ error: "wallet_not_configured" });
     expect(out.headers["Access-Control-Allow-Headers"]).toBe("Authorization, Content-Type");
+  });
+
+  it("authenticates ticket passes via query token without Authorization header", async () => {
+    fakes.docs["bookings/b1"] = {
+      title: "Show",
+      date: "2026-10-02",
+      time: "19:00",
+      customerUid: "u1",
+      paymentStatus: "paid",
+      priceCents: 5000,
+      status: "confirmed",
+    };
+    // No Authorization header, passing ?token=token-u1
+    const out = await run("GET", "/api/wallet/ticket/b1.pkpass?token=token-u1", {});
+    expect(out.status).toBe(501); // verified owner u1, then hit unconfigured signer
+    expect(out.body).toEqual({ error: "wallet_not_configured" });
   });
 
   it("rejects tickets that are unpaid, cancelled, refunded, or otherwise inadmissible", async () => {

@@ -491,3 +491,217 @@ export function welcomeAccountEmail(input: {
     site,
   });
 }
+
+/**
+ * 6. Email Address Verification Email (Firebase Auth / Universal Account)
+ */
+export function accountVerificationEmail(input: {
+  name?: string;
+  email?: string;
+  link: string;
+  site?: string;
+}): EmailRenderOutput {
+  const site = (input.site || EMAIL_BRAND.site).replace(/\/$/, "");
+  const first = greetingFirstName(input.name);
+  const heading = first ? `${first}, confirm your email` : "Confirm your email";
+  const subject = "Confirm your AirPal.me email";
+  const preheader = "One tap to confirm this address for your AirPal.me account.";
+  const paragraphs = [
+    first ? `Hi ${first},` : "Hi there,",
+    "Confirm this address so we know it is yours. Then you can sign in, keep a personal @handle, and reset the password if you need to.",
+  ];
+  if (input.email) {
+    paragraphs.push(`This email was sent to ${input.email}.`);
+  }
+  paragraphs.push("If you did not create an AirPal.me account, ignore this email.");
+
+  return wrapBrandEmail({
+    title: subject,
+    preheader,
+    lensBadge: "ACCOUNT",
+    kicker: "Account Verification",
+    heading,
+    paragraphs,
+    detailsCard: [
+      ...(input.email ? [{ label: "Email Address", value: input.email }] : []),
+      { label: "Account Scope", value: "Universal (AirPal.Me + Pass)" },
+      { label: "Protection", value: "Australian Privacy Act" },
+    ],
+    ctaLabel: "Confirm email",
+    ctaUrl: input.link,
+    finePrint: "AirPal.Me sends this only when you create an account, or when you ask us to resend it.",
+    site,
+  });
+}
+
+/**
+ * 7. Password Reset Email (Firebase Auth / Universal Account)
+ */
+export function passwordResetEmail(input: {
+  name?: string;
+  email?: string;
+  link: string;
+  site?: string;
+}): EmailRenderOutput {
+  const site = (input.site || EMAIL_BRAND.site).replace(/\/$/, "");
+  const first = greetingFirstName(input.name);
+  const heading = "Reset your password";
+  const subject = "Reset your AirPal.me password";
+  const preheader = "Use this link to choose a new password. It expires soon.";
+  const paragraphs = [
+    first ? `Hi ${first},` : "Hi there,",
+    "Someone asked to reset the password on this AirPal.me account. The link expires after a short time and can be used once.",
+  ];
+  if (input.email) {
+    paragraphs.push(`This email was sent to ${input.email}.`);
+  }
+  paragraphs.push("If you did not ask for a reset, you can ignore this email. Your password stays the same.");
+
+  return wrapBrandEmail({
+    title: subject,
+    preheader,
+    lensBadge: "SECURITY",
+    kicker: "Account Security",
+    heading,
+    paragraphs,
+    detailsCard: [
+      ...(input.email ? [{ label: "Account", value: input.email }] : []),
+      { label: "Security Notice", value: "One-time link · Expires in 1 hour" },
+      { label: "Status", value: "Password reset requested" },
+    ],
+    ctaLabel: "Choose a new password",
+    ctaUrl: input.link,
+    finePrint: "AirPal.Me sends this only when someone uses Forgot password on the sign-in page.",
+    site,
+  });
+}
+
+/**
+ * 8. Email Address Change Email (Firebase Auth / Universal Account)
+ */
+export function emailChangeEmail(input: {
+  name?: string;
+  email?: string;
+  newEmail: string;
+  link: string;
+  site?: string;
+}): EmailRenderOutput {
+  const site = (input.site || EMAIL_BRAND.site).replace(/\/$/, "");
+  const first = greetingFirstName(input.name);
+  const heading = "Confirm your new email address";
+  const subject = "Confirm your new AirPal email address";
+  const preheader = `A request was made to change your AirPal email address to ${input.newEmail}.`;
+  const paragraphs = [
+    first ? `Hi ${first},` : "Hi there,",
+    `A request was submitted to change the primary email address for your universal AirPal account to ${input.newEmail}.`,
+    "To finish updating your login credentials and ensure you keep receiving admission passes, receipts, and Circle updates, please confirm your new email address below.",
+    "Security Alert: If you did not make this change, please sign in to your AirPal account immediately or contact security@airpal.me to protect your account.",
+  ];
+
+  return wrapBrandEmail({
+    title: subject,
+    preheader,
+    lensBadge: "SECURITY",
+    kicker: "Account Security & Recovery",
+    heading,
+    paragraphs,
+    detailsCard: [
+      ...(input.email ? [{ label: "Current Email", value: input.email }] : []),
+      { label: "New Email Address", value: input.newEmail },
+      { label: "Scope", value: "Universal (AirPal.Me + AirPal Pass)" },
+      { label: "Action Required", value: "One-tap verification" },
+    ],
+    ctaLabel: "Confirm new email",
+    ctaUrl: input.link,
+    finePrint:
+      "Sent to verify your new email address. If you did not request this change, contact security@airpal.me immediately.",
+    site,
+  });
+}
+
+/**
+ * 9. Multi-Factor Enrolment Notification Email (Firebase Auth / Universal Account)
+ */
+export function mfaEnrolledEmail(input: {
+  name?: string;
+  email: string;
+  method?: string;
+  phoneNumber?: string;
+  site?: string;
+  manageUrl?: string;
+}): EmailRenderOutput {
+  const site = (input.site || EMAIL_BRAND.site).replace(/\/$/, "");
+  const first = greetingFirstName(input.name);
+  const manageUrl = input.manageUrl || `${site}/settings`;
+  const heading = "Multi-factor authentication active";
+  const subject = "🔒 Multi-factor authentication enrolled — AirPal";
+  const preheader = "Multi-factor authentication was successfully added to your universal AirPal account.";
+  const paragraphs = [
+    first ? `Hi ${first},` : "Hi there,",
+    "Multi-factor authentication (2FA) was successfully enrolled on your universal AirPal account.",
+    "Your account is now protected with a second layer of defense. Whenever you sign in from a new device, mobile browser, or untrusted network, an additional verification step will be required before access is granted.",
+    "This helps protect your personal link-in-bio @handle, booked concert tickets, Apple Wallet passes, and stored payment profiles.",
+  ];
+
+  return wrapBrandEmail({
+    title: subject,
+    preheader,
+    lensBadge: "SECURITY",
+    kicker: "Two-Factor Authentication",
+    heading,
+    paragraphs,
+    detailsCard: [
+      { label: "Protected Account", value: input.email },
+      { label: "Second Factor", value: input.method || "SMS Verification" },
+      ...(input.phoneNumber ? [{ label: "Enrolled Number", value: input.phoneNumber }] : []),
+      { label: "Protection Level", value: "Enhanced · 2FA Active" },
+    ],
+    ctaLabel: "Review Security Settings",
+    ctaUrl: manageUrl,
+    secondaryCtaLabel: "Contact Support",
+    secondaryCtaUrl: `${site}/contact`,
+    finePrint:
+      "If you did not enroll in multi-factor authentication, contact our trust & security team immediately at security@airpal.me.",
+    site,
+  });
+}
+
+/**
+ * Firebase Console Authentication → Templates (%LINK%, %DISPLAY_NAME%, %EMAIL%, %NEW_EMAIL%, %PHONE_NUMBER%).
+ */
+export function firebaseConsoleTemplate(
+  kind: "verify" | "reset" | "emailChange" | "mfaEnrolled",
+  site?: string,
+): { subject: string; html: string; text: string } {
+  switch (kind) {
+    case "verify":
+      return accountVerificationEmail({
+        name: "%DISPLAY_NAME%",
+        email: "%EMAIL%",
+        link: "%LINK%",
+        site,
+      });
+    case "reset":
+      return passwordResetEmail({
+        name: "%DISPLAY_NAME%",
+        email: "%EMAIL%",
+        link: "%LINK%",
+        site,
+      });
+    case "emailChange":
+      return emailChangeEmail({
+        name: "%DISPLAY_NAME%",
+        email: "%EMAIL%",
+        newEmail: "%NEW_EMAIL%",
+        link: "%LINK%",
+        site,
+      });
+    case "mfaEnrolled":
+      return mfaEnrolledEmail({
+        name: "%DISPLAY_NAME%",
+        email: "%EMAIL%",
+        phoneNumber: "%PHONE_NUMBER%",
+        site,
+      });
+  }
+}

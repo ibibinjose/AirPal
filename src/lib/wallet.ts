@@ -27,9 +27,10 @@ export function isApplePlatform(): boolean {
 /**
  * Returns the public URL for a ticket's Apple Wallet .pkpass bundle.
  */
-export function ticketWalletPassUrl(bookingId: string): string {
+export function ticketWalletPassUrl(bookingId: string, token?: string): string {
   const origin = publicSiteOrigin();
-  return origin + "/api/wallet/ticket/" + encodeURIComponent(bookingId) + ".pkpass";
+  const base = origin + "/api/wallet/ticket/" + encodeURIComponent(bookingId) + ".pkpass";
+  return token ? `${base}?token=${encodeURIComponent(token)}` : base;
 }
 
 /**
@@ -109,6 +110,11 @@ export async function openGoogleWalletPass(url: string): Promise<boolean> {
       toast.error("Couldn't load the Wallet pass — try again.");
       return false;
     }
+    if (getNativePlatform() === "android") {
+      popup.close();
+      window.open(destination.href, "_system");
+      return true;
+    }
     popup.location.replace(destination.href);
     return true;
   } catch (err) {
@@ -123,8 +129,7 @@ export async function openGoogleWalletPass(url: string): Promise<boolean> {
  * Opens or downloads the Apple Wallet pass.
  * On iOS/macOS Safari and native iOS Capacitor, navigating directly to a .pkpass
  * URL triggers the native PKAddPassesViewController dialog automatically.
- * Public card passes take that direct path; ticket passes keep the
- * authenticated download below because a navigation cannot carry headers.
+ * Public card passes and authenticated ticket passes (via token query param) both take this path.
  *
  * A HEAD preflight runs first so a missing pass or an unconfigured signer
  * shows an honest toast instead of downloading an error page as a "pass".
@@ -132,7 +137,14 @@ export async function openGoogleWalletPass(url: string): Promise<boolean> {
 export async function openAppleWalletPass(url: string, title?: string): Promise<boolean> {
   if (typeof window === "undefined") return false;
   try {
-    const targetUrl = normalizeWalletUrl(url);
+    const user = getFirebaseAuth()?.currentUser;
+    const token = user ? await user.getIdToken() : undefined;
+    let targetUrl = normalizeWalletUrl(url);
+    if (token && !targetUrl.includes("token=") && !targetUrl.includes("auth=")) {
+      const sep = targetUrl.includes("?") ? "&" : "?";
+      targetUrl = `${targetUrl}${sep}token=${encodeURIComponent(token)}`;
+    }
+
     const headers = await walletAuthHeaders();
     const head = await fetch(targetUrl, { method: "HEAD", headers });
     if (!head.ok) {
@@ -145,10 +157,9 @@ export async function openAppleWalletPass(url: string, title?: string): Promise<
       );
       return false;
     }
-    // Public card passes need no auth, so on Apple platforms hand the real
-    // .pkpass URL to the OS: only a top-level navigation opens Wallet — a
-    // blob download never triggers the Add sheet.
-    if (isApplePlatform() && targetUrl.includes("/wallet/card/")) {
+    // On Apple platforms (iOS, iPadOS, macOS Safari), navigating directly to the .pkpass URL
+    // triggers Apple's native PKAddPassesViewController dialog automatically.
+    if (isApplePlatform()) {
       if (getNativePlatform() === "ios") {
         // In iOS WKWebView / Capacitor, opening with target '_system' delegates
         // the .pkpass mime type to iOS Safari, which automatically displays
@@ -163,8 +174,6 @@ export async function openAppleWalletPass(url: string, title?: string): Promise<
     if (!pass.ok) throw new Error("Pass download failed");
     const blobUrl = URL.createObjectURL(await pass.blob());
     if (getNativePlatform() === "ios") {
-      // Authenticated ticket passes still download here: a navigation cannot
-      // carry the auth header, so blob delivery is the honest fallback.
       window.open(blobUrl, "_system");
       return true;
     }

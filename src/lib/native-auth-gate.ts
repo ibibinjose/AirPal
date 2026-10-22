@@ -2,6 +2,8 @@
 const PUBLIC_PREFIXES = [
   "/start",
   "/welcome",
+  "/onboarding",
+  "/onboard",
   "/privacy",
   "/terms",
   "/cookies",

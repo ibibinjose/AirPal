@@ -1,0 +1,398 @@
+<!-- Firebase Console → Authentication → Templates → Multi-factor enrolment notification.
+     Customize domain: email.airpal.me  (From: noreply@email.airpal.me)
+     Full steps: docs/email-setup.md -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="supported-color-schemes" content="light dark" />
+    <title>🔒 Multi-factor authentication enrolled — AirPal</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        supported-color-schemes: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        .email-bg {
+          background-color: #0e0f0c !important;
+        }
+        .email-card {
+          background-color: #161814 !important;
+          border-color: #2b2f23 !important;
+        }
+        .email-heading {
+          color: #f4f2e9 !important;
+        }
+        .email-text {
+          color: #f4f2e9 !important;
+        }
+        .email-mute {
+          color: #a3a698 !important;
+        }
+        .email-subcard {
+          background-color: #1f221c !important;
+          border-color: #2b2f23 !important;
+        }
+        .email-subcard td {
+          color: #f4f2e9 !important;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="email-bg"
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #faf8f5;
+      color: #111827;
+      -webkit-font-smoothing: antialiased;
+      word-spacing: normal;
+    "
+  >
+    <!-- Hidden preheader for email preview snippets -->
+    <div
+      style="
+        display: none;
+        font-size: 1px;
+        color: #fefefe;
+        line-height: 1px;
+        font-family: sans-serif;
+        max-height: 0px;
+        max-width: 0px;
+        opacity: 0;
+        overflow: hidden;
+        mso-hide: all;
+      "
+    >
+      Multi-factor authentication was successfully added to your universal AirPal account.
+    </div>
+
+    <table
+      role="presentation"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      class="email-bg"
+      style="background-color: #faf8f5; padding: 32px 14px 48px 14px; border-collapse: collapse"
+    >
+      <tr>
+        <td align="center">
+          <!-- Main Card Wrapper -->
+          <table
+            role="presentation"
+            width="580"
+            cellpadding="0"
+            cellspacing="0"
+            style="max-width: 580px; width: 100%; border-collapse: collapse"
+          >
+            <!-- Top Header Brand & Lens Bar -->
+            <tr>
+              <td style="padding: 0 8px 18px 8px">
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="border-collapse: collapse"
+                >
+                  <tr>
+                    <td
+                      align="left"
+                      style="
+                        font-family:
+                          -apple-system, BlinkMacSystemFont, &quot;SF Pro Display&quot;, &quot;Segoe UI&quot;, Roboto,
+                          sans-serif;
+                        font-size: 20px;
+                        font-weight: 800;
+                        letter-spacing: -0.03em;
+                        color: #111827;
+                      "
+                      class="email-heading"
+                    >
+                      AirPal<span style="color: #004eff">.me</span>
+                    </td>
+                    <td align="right">
+                      <span
+                        style="
+                          display: inline-block;
+                          padding: 3px 10px;
+                          background: rgba(0, 78, 255, 0.08);
+                          border: 1px solid rgba(0, 78, 255, 0.2);
+                          border-radius: 9999px;
+                          font-size: 10px;
+                          font-weight: 700;
+                          letter-spacing: 0.12em;
+                          text-transform: uppercase;
+                          color: #004eff;
+                          font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+                        "
+                      >
+                        AIRPAL TRUST &amp; SECURITY
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Main Content Box -->
+            <tr>
+              <td
+                class="email-card"
+                style="
+                  background-color: #ffffff;
+                  border: 1px solid #e5e7eb;
+                  border-radius: 28px;
+                  padding: 36px 32px 30px 32px;
+                  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.05);
+                  font-family:
+                    -apple-system, BlinkMacSystemFont, &quot;SF Pro Text&quot;, &quot;Segoe UI&quot;, Roboto, Helvetica,
+                    Arial, sans-serif;
+                "
+              >
+                <p
+                  style="
+                    margin: 0 0 8px 0;
+                    font-size: 11px;
+                    font-weight: 700;
+                    letter-spacing: 0.14em;
+                    text-transform: uppercase;
+                    color: #004eff;
+                  "
+                >
+                  Two-Factor Authentication
+                </p>
+                <h1
+                  class="email-heading"
+                  style="
+                    margin: 0 0 16px 0;
+                    font-size: 24px;
+                    font-weight: 800;
+                    line-height: 1.24;
+                    letter-spacing: -0.025em;
+                    color: #111827;
+                  "
+                >
+                  Multi-factor authentication active
+                </h1>
+
+                <p
+                  style="
+                    margin: 0 0 16px 0;
+                    font-size: 15px;
+                    line-height: 1.6;
+                    color: #111827;
+                    font-family:
+                      -apple-system, BlinkMacSystemFont, &quot;SF Pro Text&quot;, &quot;Segoe UI&quot;, Roboto,
+                      Helvetica, Arial, sans-serif;
+                  "
+                >
+                  Hi %DISPLAY_NAME%,
+                </p>
+                <p
+                  style="
+                    margin: 0 0 16px 0;
+                    font-size: 15px;
+                    line-height: 1.6;
+                    color: #111827;
+                    font-family:
+                      -apple-system, BlinkMacSystemFont, &quot;SF Pro Text&quot;, &quot;Segoe UI&quot;, Roboto,
+                      Helvetica, Arial, sans-serif;
+                  "
+                >
+                  Multi-factor authentication (2FA) was successfully enrolled on your universal AirPal account.
+                </p>
+                <p
+                  style="
+                    margin: 0 0 16px 0;
+                    font-size: 15px;
+                    line-height: 1.6;
+                    color: #111827;
+                    font-family:
+                      -apple-system, BlinkMacSystemFont, &quot;SF Pro Text&quot;, &quot;Segoe UI&quot;, Roboto,
+                      Helvetica, Arial, sans-serif;
+                  "
+                >
+                  Your account is now protected with a second layer of defense. Whenever you sign in from a new device,
+                  mobile browser, or untrusted network, an additional verification step will be required before access
+                  is granted.
+                </p>
+                <p
+                  style="
+                    margin: 0 0 16px 0;
+                    font-size: 15px;
+                    line-height: 1.6;
+                    color: #111827;
+                    font-family:
+                      -apple-system, BlinkMacSystemFont, &quot;SF Pro Text&quot;, &quot;Segoe UI&quot;, Roboto,
+                      Helvetica, Arial, sans-serif;
+                  "
+                >
+                  This helps protect your personal link-in-bio @handle, booked concert tickets, Apple Wallet passes, and
+                  stored payment profiles.
+                </p>
+
+                <div
+                  style="
+                    margin: 20px 0;
+                    padding: 16px 20px;
+                    background: #f9fafb;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 18px;
+                  "
+                >
+                  <table
+                    role="presentation"
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    style="border-collapse: collapse"
+                  >
+                    <tr>
+                      <td style="padding: 7px 0; font-size: 13px; color: #6b7280; font-weight: 500; width: 38%">
+                        Protected Account
+                      </td>
+                      <td style="padding: 7px 0; font-size: 14px; color: #111827; font-weight: 700; text-align: right">
+                        %EMAIL%
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 7px 0; font-size: 13px; color: #6b7280; font-weight: 500; width: 38%">
+                        Second Factor
+                      </td>
+                      <td style="padding: 7px 0; font-size: 14px; color: #111827; font-weight: 700; text-align: right">
+                        SMS Verification
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 7px 0; font-size: 13px; color: #6b7280; font-weight: 500; width: 38%">
+                        Enrolled Number
+                      </td>
+                      <td style="padding: 7px 0; font-size: 14px; color: #111827; font-weight: 700; text-align: right">
+                        %PHONE_NUMBER%
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 7px 0; font-size: 13px; color: #6b7280; font-weight: 500; width: 38%">
+                        Protection Level
+                      </td>
+                      <td style="padding: 7px 0; font-size: 14px; color: #111827; font-weight: 700; text-align: right">
+                        Enhanced · 2FA Active
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+
+                <div style="margin: 26px 0 16px 0">
+                  <a
+                    href="https://airpal.me/settings"
+                    style="
+                      display: inline-block;
+                      background: #004eff;
+                      color: #ffffff;
+                      text-decoration: none;
+                      font-size: 15px;
+                      font-weight: 700;
+                      line-height: 1;
+                      padding: 15px 30px;
+                      border-radius: 9999px;
+                      box-shadow: 0 2px 6px rgba(0, 78, 255, 0.25);
+                    "
+                    >Review Security Settings</a
+                  >
+
+                  &nbsp;&nbsp;&nbsp;<a
+                    href="https://airpal.me/contact"
+                    style="
+                      display: inline-block;
+                      background: #ffffff;
+                      border: 1px solid #e5e7eb;
+                      color: #111827;
+                      text-decoration: none;
+                      font-size: 14px;
+                      font-weight: 600;
+                      line-height: 1;
+                      padding: 14px 22px;
+                      border-radius: 9999px;
+                    "
+                    >Contact Support</a
+                  >
+                </div>
+                <p style="margin: 16px 0 0 0; font-size: 12px; line-height: 1.5; color: #6b7280; word-break: break-all">
+                  If the button above does not work, copy and paste this link into your browser:<br /><a
+                    href="https://airpal.me/settings"
+                    style="color: #004eff; text-decoration: underline"
+                    >https://airpal.me/settings</a
+                  >
+                </p>
+              </td>
+            </tr>
+
+            <!-- Master Brand Footer -->
+            <tr>
+              <td
+                style="
+                  padding: 22px 12px 0 12px;
+                  font-family:
+                    -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Helvetica, Arial, sans-serif;
+                  font-size: 12px;
+                  line-height: 1.6;
+                  color: #6b7280;
+                "
+                class="email-mute"
+              >
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="border-collapse: collapse"
+                >
+                  <tr>
+                    <td style="padding-bottom: 12px">
+                      <strong style="color: #111827" class="email-heading">AirPal</strong> · Life Made Easy<br />
+                      If you did not enroll in multi-factor authentication, contact our trust &amp; security team
+                      immediately at security@airpal.me.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="border-top: 1px solid #e5e7eb; padding-top: 12px" class="email-mute">
+                      <a href="https://airpal.me/pass" style="color: #004eff; text-decoration: none; font-weight: 600"
+                        >Passbook</a
+                      >
+                      &nbsp;·&nbsp;
+                      <a href="https://airpal.me/events" style="color: #004eff; text-decoration: none; font-weight: 600"
+                        >Events</a
+                      >
+                      &nbsp;·&nbsp;
+                      <a href="https://airpal.me/circle" style="color: #004eff; text-decoration: none; font-weight: 600"
+                        >Circle</a
+                      >
+                      &nbsp;·&nbsp;
+                      <a
+                        href="https://airpal.me/settings"
+                        style="color: #004eff; text-decoration: none; font-weight: 600"
+                        >Settings</a
+                      >
+                      &nbsp;·&nbsp;
+                      <a href="https://airpal.me/settings" style="color: #6b7280; text-decoration: underline"
+                        >Unsubscribe / Preferences</a
+                      >
+                      <br />
+                      <span style="font-size: 11px; color: #6b7280"
+                        >Sydney, New South Wales, Australia · Single Universal Account Architecture</span
+                      >
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

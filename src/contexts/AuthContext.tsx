@@ -173,6 +173,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               phoneVerified: Boolean(fb.phoneNumber),
               photoURL: fb.photoURL || profile.photoURL,
             };
+          } else if (liveBackendEnabled()) {
+            try {
+              void ensureUserProfileRemote().catch(() => {});
+            } catch {
+              /* non-blocking */
+            }
           }
         } catch {
           /* ignore */
@@ -230,7 +236,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async login(email, password) {
         const auth = getFirebaseAuth();
         if (!auth) throw new Error("Sign-in needs Firebase.");
-        await withAuthUpgrade(() => signInWithEmailAndPassword(auth, normalizeEmail(email), password));
+        await withAuthUpgrade(async () => {
+          await signInWithEmailAndPassword(auth, normalizeEmail(email), password);
+          if (liveBackendEnabled()) {
+            try {
+              await ensureUserProfileRemote();
+            } catch {
+              /* non-blocking */
+            }
+          }
+        });
       },
       async loginWithPhonePassword(phone, password) {
         const auth = getFirebaseAuth();
@@ -366,10 +381,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const auth = getFirebaseAuth();
         if (!auth) throw new Error("Sign-up needs Firebase.");
         const cleanEmail = normalizeEmail(email);
-        const cred = await withAuthUpgrade(() =>
-          createUserWithEmailAndPassword(auth, cleanEmail, opts?.password || ""),
-        );
-        await setAuthDisplayName(cred.user, name);
+        const cred = await withAuthUpgrade(async () => {
+          const c = await createUserWithEmailAndPassword(auth, cleanEmail, opts?.password || "");
+          await setAuthDisplayName(c.user, name);
+          if (liveBackendEnabled()) {
+            try {
+              await ensureUserProfileRemote();
+            } catch {
+              /* non-blocking */
+            }
+          }
+          return c;
+        });
         try {
           await sendAccountVerificationEmail(cred.user);
         } catch {

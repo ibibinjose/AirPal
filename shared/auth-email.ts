@@ -1,3 +1,14 @@
+import {
+  accountVerificationEmail as brandAccountVerificationEmail,
+  passwordResetEmail as brandPasswordResetEmail,
+  emailChangeEmail as brandEmailChangeEmail,
+  mfaEnrolledEmail as brandMfaEnrolledEmail,
+  firebaseConsoleTemplate as brandFirebaseConsoleTemplate,
+  EMAIL_BRAND,
+} from "./email-templates";
+
+export { EMAIL_BRAND };
+
 /** Path Firebase Auth emails should open (set as the console action URL). */
 export const AUTH_ACTION_PATH = "/auth/action";
 
@@ -119,12 +130,14 @@ export function authErrorMessage(err: unknown, fallback = "Failed"): string {
   }
 }
 
-export type AuthEmailKind = "verify" | "reset";
+export type AuthEmailKind = "verify" | "reset" | "emailChange" | "mfaEnrolled";
 
 export type AuthEmailInput = {
   name?: string;
   email?: string;
-  link: string;
+  newEmail?: string;
+  phoneNumber?: string;
+  link?: string;
   site?: string;
   fromEmail?: string;
 };
@@ -137,188 +150,63 @@ export type AuthEmail = {
   text: string;
 };
 
-const BRAND = {
-  site: "https://airpal.me",
-  name: "AirPal.me",
-  ink: "#121614",
-  mute: "#6a726c",
-  paper: "#f3f0e8",
-  card: "#fffcf7",
-  brand: "#004eff",
-  gold: "#b8893a",
-  from: "noreply@email.airpal.me",
-} as const;
-
-function escapeHtml(raw: string) {
-  return raw.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
-
-function greetingName(name?: string) {
-  const trimmed = (name || "").trim();
-  if (!trimmed || trimmed.includes("@")) return "";
-  return trimmed.split(/\s+/)[0] || "";
-}
-
-function wrapEmail(input: {
-  title: string;
-  preheader: string;
-  kicker: string;
-  heading: string;
-  body: string[];
-  ctaLabel: string;
-  link: string;
-  fine: string;
-  site: string;
-}): string {
-  const link = input.link;
-  const site = input.site.replace(/\/$/, "");
-  const paragraphs = input.body
-    .map((p) => `<p style="margin:0 0 14px;font-size:16px;line-height:1.55;color:${BRAND.ink};">${p}</p>`)
-    .join("");
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${escapeHtml(input.title)}</title>
-</head>
-<body style="margin:0;padding:0;background:${BRAND.paper};color:${BRAND.ink};">
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(input.preheader)}</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BRAND.paper};padding:32px 16px;">
-    <tr>
-      <td align="center">
-        <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
-          <tr>
-            <td style="padding:0 8px 20px;font-family:Georgia, 'Times New Roman', serif;font-size:22px;font-weight:700;letter-spacing:-0.03em;color:${BRAND.ink};">
-              AirPal<span style="color:${BRAND.brand};">.me</span>
-            </td>
-          </tr>
-          <tr>
-            <td style="background:${BRAND.card};border:1px solid #e4e0d6;border-radius:24px;padding:28px 28px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-              <p style="margin:0 0 8px;font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:${BRAND.gold};">${escapeHtml(input.kicker)}</p>
-              <h1 style="margin:0 0 16px;font-size:26px;line-height:1.2;letter-spacing:-0.03em;color:${BRAND.ink};">${escapeHtml(input.heading)}</h1>
-              ${paragraphs}
-              <p style="margin:24px 0;">
-                <a href="${escapeHtml(link)}" style="display:inline-block;background:${BRAND.brand};color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;line-height:1;padding:14px 22px;border-radius:999px;">${escapeHtml(input.ctaLabel)}</a>
-              </p>
-              <p style="margin:0;font-size:13px;line-height:1.5;color:${BRAND.mute};word-break:break-all;">If the button does not work, paste this link:<br /><a href="${escapeHtml(link)}" style="color:${BRAND.brand};">${escapeHtml(link)}</a></p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:18px 8px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:${BRAND.mute};">
-              ${escapeHtml(input.fine)}<br />
-              <a href="${escapeHtml(site)}" style="color:${BRAND.brand};">${escapeHtml(site.replace(/^https?:\/\//, ""))}</a>
-              · New South Wales, Australia
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
-}
-
 export function accountVerificationEmail(input: AuthEmailInput): AuthEmail {
-  const site = input.site || BRAND.site;
-  const first = greetingName(input.name);
-  const heading = first ? `${first}, confirm your email` : "Confirm your email";
-  const subject = "Confirm your AirPal.me email";
-  const preheader = "One tap to confirm this address for your AirPal.me account.";
-  const body = [
-    first ? `Hi ${escapeHtml(first)},` : "Hi,",
-    "Confirm this address so we know it is yours. Then you can sign in, keep a personal @handle, and reset the password if you need to.",
-    input.email
-      ? `This email was sent to ${escapeHtml(input.email)}.`
-      : "If you did not create an AirPal.me account, ignore this email.",
-  ];
-  if (input.email) body.push("If you did not create an AirPal.me account, ignore this email.");
-  const html = wrapEmail({
-    title: subject,
-    preheader,
-    kicker: "Account",
-    heading,
-    body,
-    ctaLabel: "Confirm email",
-    link: input.link,
-    fine: "AirPal.me sends this only when you create an account, or when you ask us to resend it.",
-    site,
+  const rendered = brandAccountVerificationEmail({
+    name: input.name,
+    email: input.email,
+    link: input.link || "%LINK%",
+    site: input.site,
   });
-  const text = [
-    heading,
-    "",
-    first ? `Hi ${first},` : "Hi,",
-    "Confirm this address so we know it is yours.",
-    "",
-    `Confirm email: ${input.link}`,
-    "",
-    input.email ? `Sent to ${input.email}.` : "",
-    "If you did not create an AirPal.me account, ignore this email.",
-    "",
-    site,
-  ]
-    .filter((line) => line !== "")
-    .join("\n");
-  return { kind: "verify", subject, preheader, html, text };
+  return {
+    kind: "verify",
+    ...rendered,
+  };
 }
 
 export function passwordResetEmail(input: AuthEmailInput): AuthEmail {
-  const site = input.site || BRAND.site;
-  const first = greetingName(input.name);
-  const heading = "Reset your password";
-  const subject = "Reset your AirPal.me password";
-  const preheader = "Use this link to choose a new password. It expires soon.";
-  const body = [
-    first ? `Hi ${escapeHtml(first)},` : "Hi,",
-    "Someone asked to reset the password on this AirPal.me account. The link expires after a short time and can be used once.",
-    input.email
-      ? `This email was sent to ${escapeHtml(input.email)}.`
-      : "If you did not ask for a reset, you can ignore this email. Your password stays the same.",
-  ];
-  if (input.email)
-    body.push("If you did not ask for a reset, you can ignore this email. Your password stays the same.");
-  const html = wrapEmail({
-    title: subject,
-    preheader,
-    kicker: "Password",
-    heading,
-    body,
-    ctaLabel: "Choose a new password",
-    link: input.link,
-    fine: "AirPal.me sends this only when someone uses Forgot password on the sign-in page.",
-    site,
+  const rendered = brandPasswordResetEmail({
+    name: input.name,
+    email: input.email,
+    link: input.link || "%LINK%",
+    site: input.site,
   });
-  const text = [
-    heading,
-    "",
-    first ? `Hi ${first},` : "Hi,",
-    "Someone asked to reset the password on this AirPal.me account.",
-    "",
-    `Choose a new password: ${input.link}`,
-    "",
-    input.email ? `Sent to ${input.email}.` : "",
-    "If you did not ask for a reset, ignore this email. Your password stays the same.",
-    "",
-    site,
-  ]
-    .filter((line) => line !== "")
-    .join("\n");
-  return { kind: "reset", subject, preheader, html, text };
+  return {
+    kind: "reset",
+    ...rendered,
+  };
 }
 
-/** Inner HTML for Firebase Console Authentication → Templates (%LINK%, %DISPLAY_NAME%, %EMAIL%). */
-export function firebaseConsoleTemplate(kind: AuthEmailKind): { subject: string; html: string; text: string } {
-  const email =
-    kind === "verify"
-      ? accountVerificationEmail({
-          name: "%DISPLAY_NAME%",
-          email: "%EMAIL%",
-          link: "%LINK%",
-        })
-      : passwordResetEmail({
-          name: "%DISPLAY_NAME%",
-          email: "%EMAIL%",
-          link: "%LINK%",
-        });
-  return { subject: email.subject, html: email.html, text: email.text };
+export function emailChangeEmail(input: AuthEmailInput & { newEmail: string }): AuthEmail {
+  const rendered = brandEmailChangeEmail({
+    name: input.name,
+    email: input.email,
+    newEmail: input.newEmail,
+    link: input.link || "%LINK%",
+    site: input.site,
+  });
+  return {
+    kind: "emailChange",
+    ...rendered,
+  };
+}
+
+export function mfaEnrolledEmail(input: AuthEmailInput & { email: string }): AuthEmail {
+  const rendered = brandMfaEnrolledEmail({
+    name: input.name,
+    email: input.email,
+    phoneNumber: input.phoneNumber,
+    site: input.site,
+  });
+  return {
+    kind: "mfaEnrolled",
+    ...rendered,
+  };
+}
+
+/** Inner HTML for Firebase Console Authentication → Templates (%LINK%, %DISPLAY_NAME%, %EMAIL%, %NEW_EMAIL%, %PHONE_NUMBER%). */
+export function firebaseConsoleTemplate(
+  kind: AuthEmailKind,
+  site?: string,
+): { subject: string; html: string; text: string } {
+  return brandFirebaseConsoleTemplate(kind, site);
 }

@@ -185,7 +185,8 @@ export function StartPage() {
 
   function afterInPath(): string {
     const dest = next.trim();
-    if (dest.startsWith("/") && !dest.startsWith("//") && !dest.startsWith("/start")) return dest;
+    if (dest.startsWith("/") && !dest.startsWith("//") && !dest.startsWith("/start") && !dest.startsWith("/onboard"))
+      return dest;
     if (roleParam === "host") return "/host";
     if (roleParam === "business" || business) return "/business";
     if (roleParam === "event") return "/event";
@@ -194,11 +195,16 @@ export function StartPage() {
 
   useEffect(() => {
     if (!user || phoneSignup) return;
-    if (pendingGo || (next && !next.startsWith("/start"))) {
+    if (pendingGo || (next && !next.startsWith("/start") && !next.startsWith("/onboard"))) {
       setPendingGo(false);
-      nav(afterInPath());
+      const dest = afterInPath();
+      if (!mine?.handle) {
+        nav(`/onboarding?next=${encodeURIComponent(dest)}`);
+      } else {
+        nav(dest);
+      }
     }
-  }, [user, pendingGo, next, nav, phoneSignup, roleParam, business]);
+  }, [user, pendingGo, next, nav, phoneSignup, roleParam, business, mine?.handle]);
 
   function switchMode(newMode: AuthMode) {
     void triggerHapticSelection();
@@ -299,7 +305,15 @@ export function StartPage() {
               <span>@{mine.handle}</span>
               <ArrowUpRight size={13} />
             </Link>
-          ) : null}
+          ) : (
+            <Link
+              href={`/onboarding?next=${encodeURIComponent(afterInPath())}`}
+              className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition cursor-pointer"
+            >
+              <Sparkles size={13} />
+              <span>Complete Your Onboarding</span>
+            </Link>
+          )}
           <p className="text-xs sm:text-sm text-mute mt-1.5">{user.email || user.phone || "Active Session"}</p>
 
           {/* Pending Destination Continuation */}
@@ -808,15 +822,29 @@ export function StartPage() {
                           </button>
                         )}
                         {(inlineError.code === "auth/wrong-password" ||
-                          inlineError.code === "auth/invalid-credential") && (
-                          <button
-                            type="button"
-                            onClick={() => switchMode("reset")}
-                            className="mt-1 font-bold text-accent underline inline-flex min-h-[44px] items-center gap-1 cursor-pointer"
-                          >
-                            Forgot your password? Reset it here
-                            <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
-                          </button>
+                          inlineError.code === "auth/invalid-credential" ||
+                          inlineError.code === "auth/user-not-found") && (
+                          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setResetEmail(loginEmail);
+                                switchMode("reset");
+                              }}
+                              className="font-bold text-accent underline inline-flex min-h-[36px] items-center gap-1 cursor-pointer"
+                            >
+                              Forgot your password? Reset it here
+                              <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
+                            </button>
+                            <span className="text-mute">·</span>
+                            <button
+                              type="button"
+                              onClick={() => switchMode("signup")}
+                              className="font-bold text-accent underline inline-flex min-h-[36px] items-center gap-1 cursor-pointer"
+                            >
+                              Create new account
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -827,10 +855,16 @@ export function StartPage() {
                 {mode === "signup" ? (
                   <div className="mt-2">
                     <SignupFlow
+                      initialEmail={loginEmail}
+                      onSwitchToSignIn={(email) => {
+                        if (email) setLoginEmail(email);
+                        switchMode("signin");
+                      }}
                       onPhoneConfirm={() => setPhoneSignup(true)}
                       onDone={() => {
                         setPhoneSignup(false);
-                        setPendingGo(true);
+                        const dest = afterInPath();
+                        nav(`/onboarding?next=${encodeURIComponent(dest)}`);
                       }}
                     />
                   </div>

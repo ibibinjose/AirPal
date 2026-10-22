@@ -5,6 +5,11 @@ import {
   catchUpProposalEmail,
   broadcastAnnouncementEmail,
   welcomeAccountEmail,
+  accountVerificationEmail,
+  passwordResetEmail,
+  emailChangeEmail,
+  mfaEnrolledEmail,
+  firebaseConsoleTemplate,
   wrapBrandEmail,
   EMAIL_BRAND,
 } from "./email-templates";
@@ -133,5 +138,74 @@ describe("shared/email-templates", () => {
     expect(email.html).toContain("AirPal.Me");
     expect(email.html).toContain("@rohan");
     expect(email.text).toContain("Account Email: rohan@example.com");
+  });
+
+  it("builds account verification email with universal account scope", () => {
+    const email = accountVerificationEmail({
+      name: "Priya Nair",
+      email: "priya@example.com",
+      link: "https://airpal.me/auth/action?mode=verifyEmail&oobCode=123",
+    });
+
+    expect(email.subject).toBe("Confirm your AirPal.me email");
+    expect(email.html).toContain("Confirm email");
+    expect(email.html).toContain("priya@example.com");
+    expect(email.html).toContain("Account Verification");
+    expect(email.text).toContain("Confirm email: https://airpal.me/auth/action?mode=verifyEmail&oobCode=123");
+  });
+
+  it("builds password reset email with security warnings", () => {
+    const email = passwordResetEmail({
+      name: "Aarav",
+      email: "aarav@example.com",
+      link: "https://airpal.me/auth/action?mode=resetPassword&oobCode=456",
+    });
+
+    expect(email.subject).toBe("Reset your AirPal.me password");
+    expect(email.html).toContain("Choose a new password");
+    expect(email.html).toContain("One-time link · Expires in 1 hour");
+    expect(email.text).toContain("Choose a new password: https://airpal.me/auth/action?mode=resetPassword&oobCode=456");
+  });
+
+  it("builds email change confirmation email", () => {
+    const email = emailChangeEmail({
+      name: "Kavita",
+      email: "kavita.old@example.com",
+      newEmail: "kavita.new@example.com",
+      link: "https://airpal.me/auth/action?mode=verifyAndChangeEmail&oobCode=789",
+    });
+
+    expect(email.subject).toBe("Confirm your new AirPal email address");
+    expect(email.html).toContain("Confirm your new email address");
+    expect(email.html).toContain("kavita.new@example.com");
+    expect(email.html).toContain("Confirm new email");
+    expect(email.text).toContain("New Email Address: kavita.new@example.com");
+  });
+
+  it("builds MFA enrolled security notification email", () => {
+    const email = mfaEnrolledEmail({
+      name: "Dev Sharma",
+      email: "dev@example.com",
+      phoneNumber: "+61 411 222 333",
+    });
+
+    expect(email.subject).toContain("Multi-factor authentication enrolled");
+    expect(email.html).toContain("Multi-factor authentication active");
+    expect(email.html).toContain("+61 411 222 333");
+    expect(email.html).toContain("Review Security Settings");
+    expect(email.text).toContain("Protected Account: dev@example.com");
+  });
+
+  it("generates console templates with valid Firebase variables", () => {
+    const v = firebaseConsoleTemplate("verify");
+    const r = firebaseConsoleTemplate("reset");
+    const c = firebaseConsoleTemplate("emailChange");
+    const m = firebaseConsoleTemplate("mfaEnrolled");
+
+    expect(v.html).toContain("%LINK%");
+    expect(v.html).toContain("%DISPLAY_NAME%");
+    expect(r.html).toContain("%LINK%");
+    expect(c.html).toContain("%NEW_EMAIL%");
+    expect(m.html).toContain("%PHONE_NUMBER%");
   });
 });

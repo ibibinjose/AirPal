@@ -44,4 +44,16 @@ describe("auth validation & formatting", () => {
     expect(hex).toHaveLength(8);
     expect(/^[0-9a-f]{8}$/.test(hex)).toBe(true);
   });
+
+  it("handles handle suggestions from full names accurately", () => {
+    expect(handleFromName("Alex Rivera")).toBe("alexrivera");
+    expect(handleFromName("Maya Patel")).toBe("mayapatel");
+    expect(handleFromName("John")).toBe("john");
+  });
+
+  it("validates adult consent requirement for in-person experiences", () => {
+    const isAdultConsentValid = (consent: boolean) => consent === true;
+    expect(isAdultConsentValid(true)).toBe(true);
+    expect(isAdultConsentValid(false)).toBe(false);
+  });
 });

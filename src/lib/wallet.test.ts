@@ -22,9 +22,11 @@ afterEach(() => {
 });
 
 describe("wallet helper", () => {
-  it("formats ticket wallet pass URL with booking id", () => {
+  it("formats ticket wallet pass URL with booking id and optional token", () => {
     const url = ticketWalletPassUrl("booking-12345");
     expect(url).toContain("/api/wallet/ticket/booking-12345.pkpass");
+    const tokenUrl = ticketWalletPassUrl("booking-12345", "token-xyz");
+    expect(tokenUrl).toContain("/api/wallet/ticket/booking-12345.pkpass?token=token-xyz");
   });
 
   it("formats business card wallet pass URL with handle", () => {
@@ -78,6 +80,31 @@ describe("wallet helper", () => {
     await expect(result).resolves.toBe(true);
     expect(walletWindow.location.replace).toHaveBeenCalledWith(saveUrl);
   });
+
+  it("delegates to system browser / intent on native Android shell", async () => {
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("android");
+    const walletWindow = {
+      opener: {} as Window | null,
+      close: vi.fn(),
+      location: { replace: vi.fn() },
+    };
+    const open = vi.fn(() => walletWindow);
+    vi.stubGlobal("window", { location: { hostname: "airpal.me" }, open });
+    const saveUrl = "https://pay.google.com/gp/v/save/android-token";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({ saveUrl }),
+      })),
+    );
+
+    const result = await openGoogleWalletPass("/api/wallet/google/ticket/b1");
+    expect(result).toBe(true);
+    expect(walletWindow.close).toHaveBeenCalled();
+    expect(open).toHaveBeenCalledWith(saveUrl, "_system");
+  });
 });
 
 describe("openAppleWalletPass handoff", () => {
@@ -118,6 +145,19 @@ describe("openAppleWalletPass handoff", () => {
       expect.objectContaining({ method: "HEAD" }),
     );
     expect(assign).toHaveBeenCalledWith(expect.stringContaining("/api/wallet/card/bibinjose.pkpass"));
+    expect(open).not.toHaveBeenCalled();
+  });
+
+  it("navigates directly to ticket passes on Apple platforms", async () => {
+    vi.stubGlobal("navigator", { userAgent: iPhoneUA });
+    const { open, assign } = stubWindow();
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(openAppleWalletPass(ticketWalletPassUrl("b1"), "My Ticket")).resolves.toBe(true);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(assign).toHaveBeenCalledWith(expect.stringContaining("/api/wallet/ticket/b1.pkpass"));
     expect(open).not.toHaveBeenCalled();
   });
 

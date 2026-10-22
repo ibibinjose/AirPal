@@ -85,6 +85,8 @@ export interface TicketObjectInput {
   time: string;
   venue: string;
   guestName: string;
+  hostName?: string;
+  tier?: string;
   gateUrl: string;
   spots?: number;
 }
@@ -93,6 +95,18 @@ export function ticketSavePayload(input: TicketObjectInput): Record<string, unkn
   const classSuffix = input.eventId ? sanitizeObjectId(input.eventId) : `event_${sanitizeObjectId(input.bookingId)}`;
   const classId = `${input.issuerId}.${classSuffix}`;
   const time = parseTime(input.time);
+  const textModulesData: Array<{ header: string; body: string; id: string }> = [];
+
+  if (input.spots && input.spots > 1) {
+    textModulesData.push({ header: "TICKETS", body: String(input.spots), id: "spots" });
+  }
+  if (input.tier) {
+    textModulesData.push({ header: "TIER", body: input.tier, id: "tier" });
+  }
+  if (input.hostName) {
+    textModulesData.push({ header: "ORGANISER", body: input.hostName, id: "host" });
+  }
+
   return {
     eventTicketClasses: [
       {
@@ -100,6 +114,11 @@ export function ticketSavePayload(input: TicketObjectInput): Record<string, unkn
         issuerName: "AirPal",
         reviewStatus: "UNDER_REVIEW",
         eventName: text(input.title),
+        logo: {
+          sourceUri: { uri: "https://airpal.me/logo-mark.png" },
+          contentDescription: text("AirPal"),
+        },
+        homepageUri: { uri: "https://airpal.me/pass", description: "AirPal Pass" },
       },
     ],
     eventTicketObjects: [
@@ -108,6 +127,7 @@ export function ticketSavePayload(input: TicketObjectInput): Record<string, unkn
         classId,
         state: "ACTIVE",
         eventName: text(input.title),
+        ...(input.tier ? { ticketType: text(input.tier) } : {}),
         dateTime: {
           start: {
             date: input.date || undefined,
@@ -117,10 +137,16 @@ export function ticketSavePayload(input: TicketObjectInput): Record<string, unkn
         venue: { name: text(input.venue), address: text(input.venue) },
         ticketHolder: { name: text(input.guestName) },
         ticketNumber: input.bookingId,
-        ...(input.spots && input.spots > 1
-          ? { textModulesData: [{ header: "TICKETS", body: String(input.spots), id: "spots" }] }
-          : {}),
+        ...(textModulesData.length > 0 ? { textModulesData } : {}),
         barcode: { type: "QR_CODE", value: input.gateUrl, alternateText: input.bookingId },
+        linksModuleData: {
+          uris: [
+            { uri: `https://airpal.me/ticket/${input.bookingId}`, description: "View ticket on AirPal", id: "ticket" },
+            ...(input.eventId
+              ? [{ uri: `https://airpal.me/e/${input.eventId}`, description: "Event details", id: "event" }]
+              : []),
+          ],
+        },
         hexBackgroundColor: "#004eff",
       },
     ],
@@ -184,10 +210,16 @@ async function guestNameFor(customerUid: string): Promise<string> {
 
 async function ticketOwnerUid(req: {
   headers?: Record<string, string | string[] | undefined>;
+  query?: Record<string, unknown>;
 }): Promise<string | null> {
   const value = req.headers?.authorization || req.headers?.Authorization;
   const header = Array.isArray(value) ? value[0] : value;
-  const token = /^Bearer\s+(.+)$/i.exec(String(header || ""))?.[1];
+  let token = /^Bearer\s+(.+)$/i.exec(String(header || ""))?.[1];
+  if (!token && req.query) {
+    const raw = req.query.token || req.query.auth;
+    if (typeof raw === "string") token = raw;
+    else if (Array.isArray(raw) && typeof raw[0] === "string") token = raw[0];
+  }
   if (!token) return null;
   try {
     return (await auth.verifyIdToken(token)).uid;
@@ -236,8 +268,20 @@ export const googleWalletPass = onRequest(
           return;
         }
         let eventName = "";
+        let tierName = "";
         const eventId = str(booking.eventId);
-        if (eventId) eventName = str((await getDocData("events", eventId))?.name);
+        if (eventId) {
+          const event = await getDocData("events", eventId);
+          eventName = str(event?.name);
+          if (booking.tierId && Array.isArray(event?.ticketTiers)) {
+            const foundTier = (event.ticketTiers as Array<{ id?: unknown; name?: unknown }>).find(
+              (t) => t && String(t.id) === String(booking.tierId),
+            );
+            if (foundTier && typeof foundTier.name === "string") {
+              tierName = foundTier.name;
+            }
+          }
+        }
         const spots = Number(booking.spots);
         const title = eventName || str(booking.title) || "AirPal booking";
         payload = ticketSavePayload({
@@ -249,6 +293,8 @@ export const googleWalletPass = onRequest(
           time: str(booking.time),
           venue: str(booking.suburb) || str(booking.providerName) || "AirPal",
           guestName: await guestNameFor(str(booking.customerUid)),
+          hostName: str(booking.providerName) || undefined,
+          tier: tierName || undefined,
           gateUrl: ticketGateUrl({
             id: key,
             eventId: eventId || undefined,

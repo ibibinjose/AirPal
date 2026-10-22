@@ -35,7 +35,7 @@ vi.mock("firebase-functions/params", () => ({
 import { cardSavePayload, googleWalletPass, sanitizeObjectId, ticketSavePayload } from "./google-wallet";
 
 type Handler = (
-  req: { method: string; path: string; headers?: Record<string, string> },
+  req: { method: string; path: string; headers?: Record<string, string>; query?: Record<string, unknown> },
   res: {
     set?: (k: string, v: string) => void;
     status: (c: number) => { send: (b: unknown) => void; json: (b: unknown) => void };
@@ -44,7 +44,13 @@ type Handler = (
 
 const handler = googleWalletPass as unknown as Handler;
 
-function run(method: string, path: string) {
+function run(method: string, path: string, headers: Record<string, string> = { authorization: "Bearer token-u1" }) {
+  const [pathname, search] = path.split("?");
+  const query: Record<string, string> = {};
+  if (search) {
+    const params = new URLSearchParams(search);
+    for (const [k, v] of params.entries()) query[k] = v;
+  }
   const out: { status: number; body: unknown; headers: Record<string, string> } = {
     status: 0,
     body: undefined,
@@ -65,7 +71,7 @@ function run(method: string, path: string) {
       },
     }),
   };
-  return handler({ method, path, headers: { authorization: "Bearer token-u1" } }, res).then(() => out);
+  return handler({ method, path: pathname, headers, query }, res).then(() => out);
 }
 
 afterEach(() => {
@@ -159,6 +165,23 @@ describe("googleWalletPass", () => {
     });
   });
 
+  it("authenticates ticket passes via query token without Authorization header", async () => {
+    configure();
+    fakes.docs["bookings/b1"] = {
+      title: "Show",
+      date: "2026-10-02",
+      time: "19:00",
+      customerUid: "u1",
+      paymentStatus: "paid",
+      priceCents: 5000,
+      status: "confirmed",
+    };
+    const out = await run("GET", "/api/wallet/google/ticket/b1?token=token-u1", {});
+    expect(out.status).toBe(200);
+    const saveUrl = (out.body as { saveUrl: string }).saveUrl;
+    expect(saveUrl).toContain("https://pay.google.com/gp/v/save/");
+  });
+
   it("rejects unpaid and refunded bookings from Google Wallet", async () => {
     configure();
     fakes.docs["bookings/b1"] = {
@@ -225,6 +248,29 @@ describe("wallet payload builders", () => {
     expect(obj.dateTime).toEqual({
       start: { date: "2026-10-02", time: { hours: 19, minutes: 0 }, timeZone: { id: "Australia/Sydney" } },
     });
+  });
+
+  it("builds ticket payloads with ticket tier, organiser, and multi-spots", () => {
+    const payload = ticketSavePayload({
+      issuerId: "3388000000012345678",
+      bookingId: "b1",
+      title: "Diwali Night",
+      date: "2026-10-24",
+      time: "19:00",
+      venue: "Olympic Park",
+      guestName: "Aarav",
+      hostName: "Desi Sydney",
+      tier: "VIP Early Access",
+      spots: 2,
+      gateUrl: "https://airpal.me/e/diwali?ticket=b1",
+      eventId: "diwali",
+    });
+    const obj = (payload.eventTicketObjects as Record<string, unknown>[])[0] as Record<string, unknown>;
+    expect(obj.ticketType).toEqual({ defaultValue: { language: "en", value: "VIP Early Access" } });
+    const textModules = obj.textModulesData as Array<{ header: string; body: string }>;
+    expect(textModules).toContainEqual({ header: "TIER", body: "VIP Early Access", id: "tier" });
+    expect(textModules).toContainEqual({ header: "TICKETS", body: "2", id: "spots" });
+    expect(textModules).toContainEqual({ header: "ORGANISER", body: "Desi Sydney", id: "host" });
   });
 
   it("builds profile card payloads with a profile link", () => {

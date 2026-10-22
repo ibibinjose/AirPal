@@ -179,6 +179,11 @@ Under no circumstances should a second user database, partition, or duplicate au
   - `catchUpProposalEmail`: Personal networking invitation with suggested meeting slots.
   - `broadcastAnnouncementEmail`: Organiser updates to circle followers.
   - `welcomeAccountEmail`: Dual-lens welcome orientation.
+  - `accountVerificationEmail`: Universal account email address verification.
+  - `passwordResetEmail`: Time-sensitive password reset with security alerts.
+  - `emailChangeEmail`: Primary email update verification with warning rails.
+  - `mfaEnrolledEmail`: Multi-factor authentication enrolment alert.
+  - `firebaseConsoleTemplate`: Paste-ready Firebase Console Authentication templates (`emails/*.html`).
 
 ### Notifications CRUD (`src/lib/notifications.ts` & `functions/src/email.ts`)
 

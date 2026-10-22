@@ -106,6 +106,7 @@ export interface TicketPassInput {
   providerName: string;
   status: string;
   guestName: string;
+  tier?: string;
   spots?: number;
 }
 
@@ -139,6 +140,21 @@ export function formatPassTime(time: string): string {
 
 export function ticketPassJson(input: TicketPassInput): Record<string, unknown> {
   const when = [formatPassDate(input.date), formatPassTime(input.time)].filter(Boolean).join(" · ");
+  const secondaryFields = [
+    { key: "location", label: "LOCATION", value: input.suburb || input.providerName || "AirPal" },
+  ];
+  if (input.tier) {
+    secondaryFields.push({ key: "tier", label: "TIER", value: input.tier });
+  }
+
+  const auxiliaryFields: Array<{ key: string; label: string; value: string }> = [
+    { key: "guest", label: "GUEST", value: input.guestName || "Guest" },
+    { key: "host", label: "HOST", value: input.providerName || "AirPal" },
+  ];
+  if (input.spots && input.spots > 1) {
+    auxiliaryFields.push({ key: "spots", label: "PASSES", value: `${input.spots} Guests` });
+  }
+
   return {
     formatVersion: 1,
     organizationName: "AirPal.me",
@@ -150,15 +166,19 @@ export function ticketPassJson(input: TicketPassInput): Record<string, unknown> 
     eventTicket: {
       headerFields: [{ key: "when", label: "", value: when || "See booking" }],
       primaryFields: [{ key: "event", label: "", value: input.title }],
-      secondaryFields: [{ key: "location", label: "LOCATION", value: input.suburb || input.providerName || "AirPal" }],
-      auxiliaryFields: [
-        { key: "guest", label: "GUEST", value: input.guestName || "Guest" },
-        { key: "host", label: "HOST", value: input.providerName || "AirPal" },
-      ],
+      secondaryFields,
+      auxiliaryFields,
       backFields: [
-        { key: "booking", label: "Booking", value: input.bookingId },
-        { key: "status", label: "Status", value: input.status || "booked" },
-        ...(input.spots && input.spots > 1 ? [{ key: "spots", label: "Tickets", value: String(input.spots) }] : []),
+        { key: "booking", label: "Booking ID", value: input.bookingId },
+        { key: "status", label: "Status", value: input.status || "confirmed" },
+        ...(input.tier ? [{ key: "tier", label: "Ticket Tier", value: input.tier }] : []),
+        ...(input.spots && input.spots > 1 ? [{ key: "spots", label: "Admit Count", value: String(input.spots) }] : []),
+        {
+          key: "entry",
+          label: "Door Admission",
+          value: "Present this pass at the gate. Staff will scan your QR code for rapid entry.",
+        },
+        { key: "app", label: "AirPal Pass", value: "Live concerts, festivals & experiences · Life Made Easy" },
       ],
     },
   };
@@ -199,7 +219,13 @@ async function buildPassBuffer(
     teamIdentifier: cfg.teamIdentifier,
   };
   const pass = new PKPass(
-    { "pass.json": Buffer.from(JSON.stringify(fullJson)), "icon.png": icon, "icon@2x.png": icon },
+    {
+      "pass.json": Buffer.from(JSON.stringify(fullJson)),
+      "icon.png": icon,
+      "icon@2x.png": icon,
+      "logo.png": icon,
+      "logo@2x.png": icon,
+    },
     {
       wwdr: WWDR_G4_PEM,
       signerCert: cfg.signerCert,
@@ -231,8 +257,20 @@ async function ticketPassBuffer(bookingId: string, cfg: SignerConfig): Promise<B
   const booking = await getDocData("bookings", bookingId);
   if (!booking || !ticketAdmitCheck(booking).valid) return null;
   let eventName = "";
+  let tierName = "";
   const eventId = str(booking.eventId);
-  if (eventId) eventName = str((await getDocData("events", eventId))?.name);
+  if (eventId) {
+    const event = await getDocData("events", eventId);
+    eventName = str(event?.name);
+    if (booking.tierId && Array.isArray(event?.ticketTiers)) {
+      const foundTier = (event.ticketTiers as Array<{ id?: unknown; name?: unknown }>).find(
+        (t) => t && String(t.id) === String(booking.tierId),
+      );
+      if (foundTier && typeof foundTier.name === "string") {
+        tierName = foundTier.name;
+      }
+    }
+  }
   const spots = Number(booking.spots);
   const passJson = ticketPassJson({
     bookingId,
@@ -243,6 +281,7 @@ async function ticketPassBuffer(bookingId: string, cfg: SignerConfig): Promise<B
     providerName: str(booking.providerName),
     status: str(booking.status),
     guestName: await guestNameFor(str(booking.customerUid)),
+    tier: tierName || undefined,
     spots: Number.isFinite(spots) && spots > 1 ? spots : undefined,
   });
   const gateUrl = ticketGateUrl({
@@ -254,10 +293,16 @@ async function ticketPassBuffer(bookingId: string, cfg: SignerConfig): Promise<B
 
 async function ticketOwnerUid(req: {
   headers?: Record<string, string | string[] | undefined>;
+  query?: Record<string, unknown>;
 }): Promise<string | null> {
   const value = req.headers?.authorization || req.headers?.Authorization;
   const header = Array.isArray(value) ? value[0] : value;
-  const token = /^Bearer\s+(.+)$/i.exec(String(header || ""))?.[1];
+  let token = /^Bearer\s+(.+)$/i.exec(String(header || ""))?.[1];
+  if (!token && req.query) {
+    const raw = req.query.token || req.query.auth;
+    if (typeof raw === "string") token = raw;
+    else if (Array.isArray(raw) && typeof raw[0] === "string") token = raw[0];
+  }
   if (!token) return null;
   try {
     return (await auth.verifyIdToken(token)).uid;

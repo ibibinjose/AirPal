@@ -60,6 +60,8 @@ const requiredProdSecrets = [
   { key: "WALLET_TEAM_ID", desc: "Apple Developer Team ID" },
   { key: "WALLET_SIGNER_CERT", desc: "Apple Pass Signer Certificate (.pem)" },
   { key: "WALLET_SIGNER_KEY", desc: "Apple Pass Signer Private Key (.pem)" },
+  { key: "GOOGLE_WALLET_ISSUER_ID", desc: "Google Wallet Issuer ID (digits from Pay & Wallet Console)" },
+  { key: "GOOGLE_WALLET_SA_JSON", desc: "Google Cloud Service Account JSON credentials with private key" },
 ];
 
 console.log("📋 Production Cloud Secrets Manifest:");

@@ -110,6 +110,9 @@ export const CANONICAL_ROUTES: CanonicalRoute[] = [
   { pattern: "/admin/promotions/:id", section: "admin", label: "Admin promotion detail" },
   { pattern: "/admin/notifications", section: "admin", label: "Admin notifications" },
   // System
+  { pattern: "/welcome", section: "system", label: "Welcome" },
+  { pattern: "/onboarding", section: "system", label: "Onboarding" },
+  { pattern: "/onboard", section: "system", label: "Onboarding (alias)" },
   { pattern: "/start", section: "system", label: "Sign-in" },
   { pattern: "/auth/action", section: "system", label: "Auth action" },
   { pattern: "/settings", section: "system", label: "Settings" },

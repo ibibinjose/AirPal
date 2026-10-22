@@ -123,6 +123,11 @@ const ROUTE_META: Array<{ match: RegExp; title: string; description: string }> =
     description: "Leave the AirPal Guestlist in one tap.",
   },
   {
+    match: /^\/onboard(ing)?(\/|$)/,
+    title: "Welcome to AirPal · Get Started",
+    description: "Claim your personal @handle, set up your universal passbook, and discover live experiences.",
+  },
+  {
     match: /^\/(getAirPalApp|getAirPal)(\/|$)/,
     title: "Get the AirPal app",
     description: "Take AirPal.Me anywhere — get the app for iOS and Android.",

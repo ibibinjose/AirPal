@@ -3,13 +3,15 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   accountVerificationEmail,
+  passwordResetEmail,
+  emailChangeEmail,
+  mfaEnrolledEmail,
   authActionContinueUrl,
   authActionHandlerUrl,
   authErrorCode,
   authErrorMessage,
   firebaseConsoleTemplate,
   parseAuthActionSearch,
-  passwordResetEmail,
   safeContinuePath,
 } from "./auth-email";
 
@@ -95,22 +97,67 @@ describe("account emails", () => {
     expect(mail.text).toContain("Choose a new password:");
   });
 
-  it("uses Firebase Console placeholders", () => {
+  it("builds an email change confirmation email", () => {
+    const mail = emailChangeEmail({
+      name: "Bibin Jose",
+      email: "bibin@example.com",
+      newEmail: "bibin.new@example.com",
+      link: "https://airpal.me/auth/action?mode=verifyAndChangeEmail&oobCode=test",
+    });
+    expect(mail.subject).toBe("Confirm your new AirPal email address");
+    expect(mail.html).toContain("Confirm new email");
+    expect(mail.html).toContain("bibin.new@example.com");
+    expect(mail.html).toContain("https://airpal.me/auth/action?mode=verifyAndChangeEmail&amp;oobCode=test");
+    expect(mail.text).toContain("Confirm new email:");
+    expect(mail.text).toContain("bibin.new@example.com");
+  });
+
+  it("builds an MFA enrolment notification email", () => {
+    const mail = mfaEnrolledEmail({
+      name: "Bibin Jose",
+      email: "bibin@example.com",
+      phoneNumber: "+61 400 123 456",
+    });
+    expect(mail.subject).toContain("Multi-factor authentication enrolled");
+    expect(mail.html).toContain("Multi-factor authentication active");
+    expect(mail.html).toContain("+61 400 123 456");
+    expect(mail.html).toContain("SMS Verification");
+    expect(mail.text).toContain("Protected Account: bibin@example.com");
+    expect(mail.text).toContain("Enrolled Number: +61 400 123 456");
+  });
+
+  it("uses Firebase Console placeholders for all 4 templates", () => {
     const verify = firebaseConsoleTemplate("verify");
     const reset = firebaseConsoleTemplate("reset");
+    const emailChange = firebaseConsoleTemplate("emailChange");
+    const mfa = firebaseConsoleTemplate("mfaEnrolled");
+
     expect(verify.html).toContain("%LINK%");
     expect(verify.html).toContain("%DISPLAY_NAME%");
     expect(reset.html).toContain("%LINK%");
     expect(reset.text).toContain("%LINK%");
+    expect(emailChange.html).toContain("%LINK%");
+    expect(emailChange.html).toContain("%NEW_EMAIL%");
+    expect(mfa.html).toContain("%PHONE_NUMBER%");
+    expect(mfa.html).toContain("Multi-factor authentication active");
   });
 
   it("keeps paste-ready HTML templates in emails/", () => {
     const dir = path.resolve(import.meta.dirname, "../emails");
     const verify = readFileSync(path.join(dir, "verify-account.html"), "utf8");
     const reset = readFileSync(path.join(dir, "reset-password.html"), "utf8");
+    const emailChange = readFileSync(path.join(dir, "email-change.html"), "utf8");
+    const mfa = readFileSync(path.join(dir, "mfa-enrolled.html"), "utf8");
+
     expect(verify).toContain("%LINK%");
     expect(verify).toContain("Confirm email");
+    expect(verify).toContain("AirPal");
     expect(reset).toContain("%LINK%");
     expect(reset).toContain("Choose a new password");
+    expect(emailChange).toContain("%LINK%");
+    expect(emailChange).toContain("%NEW_EMAIL%");
+    expect(emailChange).toContain("Confirm new email");
+    expect(mfa).toContain("%PHONE_NUMBER%");
+    expect(mfa).toContain("Multi-factor authentication active");
   });
 });
