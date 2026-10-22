@@ -159,9 +159,9 @@ export function PrivacyPage() {
       </ul>
       <p>
         We do not sell your personal information. We do not run advertising networks or marketing pixels on AirPal.Me
-        today. If you join AirPal Club or a venue guest list, your name and email stay on this device so a host can open
-        their own mail app with the list on BCC. We do not send bulk mail from our servers yet. You can leave AirPal
-        Club anytime via <Link href="/contact">Contact</Link>.
+        today. Guestlist signups and business guest lists are stored on Firebase with access restricted to the relevant
+        AirPal admin or account owner. The Business guest-list panel opens your mail app only when you choose to prepare
+        an invite; AirPal does not send bulk mail from that panel.
       </p>
       <h3>Legal bases (EEA / UK)</h3>
       <p>

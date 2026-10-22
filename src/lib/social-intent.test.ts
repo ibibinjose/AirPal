@@ -22,7 +22,7 @@ if (typeof globalThis.sessionStorage === "undefined" || !globalThis.sessionStora
   (globalThis as Record<string, unknown>).sessionStorage = memoryStorage();
 }
 import { clearPendingIntent, peekPendingIntent, savePendingIntent } from "./pending-intent";
-import { loadSocialSet, persistSocialSet, toggleSocialId } from "./social-store";
+import { toggleSocialId } from "./social-store";
 
 describe("pending-intent", () => {
   it("round-trips a valid intent and clears it", () => {
@@ -50,12 +50,5 @@ describe("social-store", () => {
     const back = toggleSocialId(next, "b");
     expect(back.added).toBe(false);
     expect(back.next.has("b")).toBe(false);
-  });
-
-  it("persists and reloads sets, ignoring junk", () => {
-    persistSocialSet("follow", new Set(["cafe-sydney", "bar-1"]));
-    expect(loadSocialSet("follow").has("cafe-sydney")).toBe(true);
-    localStorage.setItem("airpal:social:like:v1", '[1,null,"ok"]');
-    expect(loadSocialSet("like")).toEqual(new Set(["ok"]));
   });
 });

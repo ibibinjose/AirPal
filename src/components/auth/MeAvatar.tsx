@@ -23,7 +23,7 @@ export function AvatarFace({
   const { mine } = useBio();
   const [imgError, setImgError] = useState(false);
   const raw = customSrc || mine?.avatar || user?.photoURL;
-  const src = useMediaSrc(raw) || (raw && !raw.startsWith("idb:") ? raw : undefined);
+  const src = useMediaSrc(raw) || (raw && !raw.startsWith("idb:") && !raw.startsWith("storage://") ? raw : undefined);
   const nameStr = String(mine?.name || user?.displayName || user?.email || "M");
   const letter = (nameStr.trim().charAt(0) || "M").toUpperCase();
 

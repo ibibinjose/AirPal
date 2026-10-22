@@ -13,7 +13,17 @@ export type PersonMet = {
   metAt: string;
 };
 
-const KEY = "airpal:people:v1";
+const KEY = "airpal:people:v2";
+let accountUid: string | null = null;
+let persistHook: ((people: PersonMet[]) => Promise<void>) | null = null;
+
+function storageKey(): string {
+  return `${KEY}:${accountUid || "guest"}`;
+}
+
+export function setPeopleAccount(uid: string | null): void {
+  accountUid = uid;
+}
 
 function clean(row: unknown): PersonMet | null {
   if (!row || typeof row !== "object") return null;
@@ -32,7 +42,7 @@ function clean(row: unknown): PersonMet | null {
 
 export function listPeople(): PersonMet[] {
   try {
-    const raw = safeLocalStorage()?.getItem(KEY);
+    const raw = safeLocalStorage()?.getItem(storageKey());
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -42,20 +52,21 @@ export function listPeople(): PersonMet[] {
   }
 }
 
-let persistHook: (() => void) | null = null;
-
-/** Called after every local write (used to mirror to Firebase when signed in). */
-export function setPeoplePersistHook(fn: (() => void) | null): void {
+/** Installs the authenticated server writer used by user-initiated changes. */
+export function setPeoplePersistHook(fn: ((people: PersonMet[]) => Promise<void>) | null): void {
   persistHook = fn;
 }
 
-function persist(people: PersonMet[]): void {
+async function persist(people: PersonMet[]): Promise<void> {
+  if (!accountUid || !persistHook) throw new Error("Sign in to save people to your AirPal account.");
+  const rows = people.map((person) => (person.photo?.startsWith("idb:") ? { ...person, photo: undefined } : person));
+  await persistHook(rows);
   try {
-    safeLocalStorage()?.setItem(KEY, JSON.stringify(people));
+    safeLocalStorage()?.setItem(storageKey(), JSON.stringify(rows));
   } catch {
-    /* private mode: best-effort */
+    // The server write is authoritative; this is only a device cache.
   }
-  persistHook?.();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("airpal:device-data-updated"));
 }
 
 function newPersonId(): string {
@@ -67,7 +78,9 @@ function newPersonId(): string {
 }
 
 /** Insert or merge by handle (fallback: id). Returns the saved row. */
-export function upsertPerson(input: Omit<PersonMet, "id" | "metAt"> & { id?: string; metAt?: string }): PersonMet {
+export async function upsertPerson(
+  input: Omit<PersonMet, "id" | "metAt"> & { id?: string; metAt?: string },
+): Promise<PersonMet> {
   const people = listPeople();
   const handle = input.handle?.trim().replace(/^@/, "").toLowerCase() || undefined;
   const idx = people.findIndex((p) => (handle ? p.handle === handle : input.id != null && p.id === input.id));
@@ -80,8 +93,8 @@ export function upsertPerson(input: Omit<PersonMet, "id" | "metAt"> & { id?: str
       whereMet: input.whereMet ?? people[idx].whereMet,
     };
     people[idx] = next;
-    persist(people);
-    return next;
+    await persist(people);
+    return people[idx]!;
   }
   const row: PersonMet = {
     id: input.id || newPersonId(),
@@ -91,22 +104,26 @@ export function upsertPerson(input: Omit<PersonMet, "id" | "metAt"> & { id?: str
     whereMet: input.whereMet?.trim() || undefined,
     metAt: input.metAt || new Date().toISOString(),
   };
-  persist([row, ...people]);
-  return row;
+  await persist([row, ...people]);
+  return listPeople()[0]!;
 }
 
-/** Replace the whole list (used when merging the Firebase mirror on login). */
+/** Replace the cache from the authenticated Firebase mirror. */
 export function replacePeople(rows: PersonMet[]): void {
-  persist(
-    rows
-      .map(clean)
-      .filter((r): r is PersonMet => r !== null)
-      .filter((r, i, all) => all.findIndex((o) => o.id === r.id) === i),
-  );
+  const people = rows
+    .map(clean)
+    .filter((r): r is PersonMet => r !== null)
+    .filter((r, i, all) => all.findIndex((o) => o.id === r.id) === i);
+  try {
+    safeLocalStorage()?.setItem(storageKey(), JSON.stringify(people));
+  } catch {
+    // The cache is optional.
+  }
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("airpal:device-data-updated"));
 }
 
-export function removePerson(id: string): void {
-  persist(listPeople().filter((p) => p.id !== id));
+export async function removePerson(id: string): Promise<void> {
+  await persist(listPeople().filter((p) => p.id !== id));
 }
 
 export type VCardInput = {

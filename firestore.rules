@@ -128,6 +128,10 @@ service cloud.firestore {
         allow read, write: if signedIn() && request.auth.uid == userId;
       }
 
+      match /savedBirthdayOffers/{offerId} {
+        allow read, write: if signedIn() && request.auth.uid == userId;
+      }
+
       match /savedStalls/{stallId} {
         allow read, write: if signedIn() && request.auth.uid == userId;
       }
@@ -142,6 +146,24 @@ service cloud.firestore {
 
       match /device/{docId} {
         allow read, write: if signedIn() && request.auth.uid == userId;
+      }
+
+      match /businessGuestlists/{businessId}/guests/{guestId} {
+        allow read: if signedIn() && request.auth.uid == userId;
+        allow create: if signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly(['id', 'email', 'name', 'note', 'source', 'addedAt'])
+          && request.resource.data.id == guestId
+          && request.resource.data.email is string
+          && request.resource.data.email.size() <= 254
+          && request.resource.data.name is string
+          && request.resource.data.name.size() <= 80
+          && request.resource.data.note is string
+          && request.resource.data.note.size() <= 240
+          && request.resource.data.source == 'manual'
+          && request.resource.data.addedAt is string;
+        allow update: if false;
+        allow delete: if signedIn() && request.auth.uid == userId;
       }
 
       match /follows/{handle} {

@@ -1,15 +1,11 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getFirebaseDb } from "./firebase";
-import { listMemories, replaceMemories, setMemoriesPersistHook, type Memory } from "./memories";
-import { listPeople, replacePeople, setPeoplePersistHook, type PersonMet } from "./people";
+import { replaceMemories, setMemoriesAccount, setMemoriesPersistHook, type Memory } from "./memories";
+import { replacePeople, setPeopleAccount, setPeoplePersistHook, type PersonMet } from "./people";
 
 /**
- * Firebase mirror for device-local lists (people + memories).
- *
- * Photos already upload to Firebase Storage when signed in (see storeMedia),
- * so authed rows carry https URLs that roam. Rows created offline keep
- * `idb:` blob srcs that only resolve on this device — mirrored anyway as
- * metadata backup.
+ * Firebase source of truth for the private people and memories lists.
+ * LocalStorage is an account-scoped read cache; writes wait for Firestore.
  */
 
 type MirrorDoc = {
@@ -18,18 +14,12 @@ type MirrorDoc = {
   updatedAt?: string;
 };
 
-/** Union by id, remote wins ties. Pure: unit tested. */
-export function unionById<T extends { id: string }>(local: T[], remote: T[]): T[] {
-  const ids = new Set(local.map((r) => r.id));
-  return [...local, ...remote.filter((r) => r.id && !ids.has(r.id))];
-}
+let activeUid: string | null = null;
+let readyUid: string | null = null;
+let readiness: { uid: string; promise: Promise<void>; resolve: () => void } | null = null;
 
-function sanitize<T>(rows: T[]): T[] {
-  try {
-    return JSON.parse(JSON.stringify(rows)) as T[];
-  } catch {
-    return [];
-  }
+function sanitize<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
 }
 
 function mirrorRef(uid: string) {
@@ -38,59 +28,54 @@ function mirrorRef(uid: string) {
   return doc(db, "users", uid, "device", "mirror");
 }
 
-/**
- * Mirror every local write while signed in. Call on login, clear on logout.
- * Guards re-entry: pull → replace → persist would otherwise recurse.
- */
-let autoUid: string | null = null;
-let pushing = false;
-
 export function wireAutoPush(uid: string | null): void {
-  autoUid = uid;
-  const push = () => {
-    if (autoUid && !pushing) {
-      pushing = true;
-      void pushDeviceMirror(autoUid).finally(() => {
-        pushing = false;
-      });
-    }
-  };
-  setPeoplePersistHook(uid ? push : null);
-  setMemoriesPersistHook(uid ? push : null);
-}
-
-/** Push this device's lists to the account mirror. Best-effort. */
-export async function pushDeviceMirror(uid: string): Promise<void> {
-  try {
-    await setDoc(
-      mirrorRef(uid),
-      {
-        people: sanitize(listPeople()),
-        memories: sanitize(listMemories()),
-        updatedAt: new Date().toISOString(),
-      } satisfies MirrorDoc,
-      { merge: true },
-    );
-  } catch {
-    /* offline: local remains source of truth */
+  readiness?.resolve();
+  activeUid = uid;
+  readyUid = null;
+  if (uid) {
+    let resolveReady!: () => void;
+    const promise = new Promise<void>((resolve) => {
+      resolveReady = resolve;
+    });
+    readiness = { uid, promise, resolve: resolveReady };
+  } else {
+    readiness = null;
   }
+  setPeopleAccount(uid);
+  setMemoriesAccount(uid);
+  const persist = async (patch: Pick<MirrorDoc, "people" | "memories">) => {
+    const currentReadiness = readiness;
+    if (currentReadiness?.uid === uid) await currentReadiness.promise;
+    if (uid && activeUid === uid && readyUid !== uid) {
+      await pullDeviceMirror(uid);
+    }
+    if (!uid || activeUid !== uid || readyUid !== uid) {
+      throw new Error("Your saved people and memories are still loading. Try again shortly.");
+    }
+    await pushDeviceMirror(uid, patch);
+  };
+  setPeoplePersistHook(uid ? (people) => persist({ people }) : null);
+  setMemoriesPersistHook(uid ? (memories) => persist({ memories }) : null);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("airpal:device-data-updated"));
 }
 
-/**
- * Adopt-then-merge on login: push local rows first (so pre-login device data
- * survives), union with the remote mirror, then persist + push the union.
- */
+/** Persist an account-owned list; callers only update their cache after this succeeds. */
+export async function pushDeviceMirror(uid: string, patch: Pick<MirrorDoc, "people" | "memories">): Promise<void> {
+  await setDoc(mirrorRef(uid), sanitize({ ...patch, updatedAt: new Date().toISOString() }), { merge: true });
+}
+
+/** Load the authenticated account data without uploading unscoped device-local records. */
 export async function pullDeviceMirror(uid: string): Promise<void> {
   try {
-    await pushDeviceMirror(uid);
     const snap = await getDoc(mirrorRef(uid));
+    if (activeUid !== uid) return;
     const remote = (snap.exists() ? (snap.data() as MirrorDoc) : {}) || {};
-    const people = unionById(listPeople(), Array.isArray(remote.people) ? remote.people : []);
-    const memories = unionById(listMemories(), Array.isArray(remote.memories) ? remote.memories : []);
-    replacePeople(people);
-    replaceMemories(memories);
-    await pushDeviceMirror(uid);
-  } catch {
-    /* offline: keep local */
+    replacePeople(Array.isArray(remote.people) ? remote.people : []);
+    replaceMemories(Array.isArray(remote.memories) ? remote.memories : []);
+    readyUid = uid;
+  } finally {
+    if (readiness?.uid === uid) {
+      readiness.resolve();
+    }
   }
 }

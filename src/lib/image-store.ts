@@ -1,4 +1,4 @@
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getBlob, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { outputSize, sourceRect, type CropView } from "@shared/image-crop";
 import { getFirebaseAuth, getFirebaseStorage } from "@/lib/firebase";
 
@@ -17,19 +17,6 @@ function openDb(): Promise<IDBDatabase> {
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error || new Error("Media store failed"));
   });
-}
-
-async function saveLocalImage(blob: Blob): Promise<string> {
-  const id = `idb:${crypto.randomUUID()}`;
-  const db = await openDb();
-  await new Promise<void>((resolve, reject) => {
-    const tx = db.transaction(STORE, "readwrite");
-    tx.objectStore(STORE).put(blob, id);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error || new Error("Could not keep photo"));
-  });
-  db.close();
-  return id;
 }
 
 const urlCache = new Map<string, string>();
@@ -72,16 +59,36 @@ export async function storeMedia(blob: Blob, dest: { folder: MediaFolder; kind: 
   if (blob.size > 5 * 1024 * 1024) throw new Error("Under 5 MB");
   const auth = getFirebaseAuth()?.currentUser;
   const storage = getFirebaseStorage();
-  if (storage && auth && !auth.isAnonymous) {
-    const path = `${dest.folder}/${auth.uid}/${dest.kind}-${Date.now()}.jpg`;
-    const fileRef = ref(storage, path);
-    await uploadBytes(fileRef, blob, {
-      contentType: "image/jpeg",
-      cacheControl: "public,max-age=31536000,immutable",
-    });
-    return getDownloadURL(fileRef);
+  if (!storage || !auth || auth.isAnonymous) {
+    throw new Error("Sign in to save photos securely to your AirPal account.");
   }
-  return saveLocalImage(blob);
+  const path = `${dest.folder}/${auth.uid}/${dest.kind}-${crypto.randomUUID()}.jpg`;
+  const fileRef = ref(storage, path);
+  const isPrivate = dest.folder === "memories";
+  await uploadBytes(fileRef, blob, {
+    contentType: "image/jpeg",
+    cacheControl: isPrivate ? "private,no-store" : "public,max-age=31536000,immutable",
+  });
+  return isPrivate ? `storage://${path}` : await getDownloadURL(fileRef);
+}
+
+export async function privateStorageImageUrl(src: string): Promise<string | undefined> {
+  if (!src.startsWith("storage://")) return undefined;
+  const path = src.slice("storage://".length);
+  if (!path.startsWith("memories/")) throw new Error("Unsupported private image path.");
+  const storage = getFirebaseStorage();
+  if (!storage) throw new Error("Firebase Storage is not configured.");
+  const blob = await getBlob(ref(storage, path));
+  return URL.createObjectURL(blob);
+}
+
+export async function deletePrivateMemoryImage(src: string): Promise<void> {
+  if (!src.startsWith("storage://")) return;
+  const path = src.slice("storage://".length);
+  if (!/^memories\/[^/]+\/[^/]+$/.test(path)) throw new Error("Unsupported private image path.");
+  const storage = getFirebaseStorage();
+  if (!storage) throw new Error("Firebase Storage is not configured.");
+  await deleteObject(ref(storage, path));
 }
 
 export function readFileAsImage(file: File): Promise<{ image: HTMLImageElement; url: string }> {

@@ -80,11 +80,12 @@ service firebase.storage {
 
     match /memories/{uid}/{allPaths=**} {
       allow read: if signedIn() && request.auth.uid == uid;
-      allow write: if signedIn()
+      allow create, update: if signedIn()
         && !isAnonymous()
         && request.auth.uid == uid
         && request.resource.size < 5 * 1024 * 1024
         && isRasterImage();
+      allow delete: if signedIn() && !isAnonymous() && request.auth.uid == uid;
     }
   }
 }

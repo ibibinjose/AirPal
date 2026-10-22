@@ -2,7 +2,7 @@ import { safeLocalStorage } from "./safe-storage";
 
 export type Memory = {
   id: string;
-  /** Photo src: `idb:` local blob id or a remote https URL. */
+  /** Photo src: authenticated Firebase Storage path or a legacy device-cache id. */
   src: string;
   caption?: string;
   /** Free-text names / @handles of people in the shot. */
@@ -11,7 +11,17 @@ export type Memory = {
   takenAt: string;
 };
 
-const KEY = "airpal:memories:v1";
+const KEY = "airpal:memories:v2";
+let accountUid: string | null = null;
+let persistHook: ((memories: Memory[]) => Promise<void>) | null = null;
+
+function storageKey(): string {
+  return `${KEY}:${accountUid || "guest"}`;
+}
+
+export function setMemoriesAccount(uid: string | null): void {
+  accountUid = uid;
+}
 
 function clean(row: unknown): Memory | null {
   if (!row || typeof row !== "object") return null;
@@ -32,7 +42,7 @@ function clean(row: unknown): Memory | null {
 
 export function listMemories(): Memory[] {
   try {
-    const raw = safeLocalStorage()?.getItem(KEY);
+    const raw = safeLocalStorage()?.getItem(storageKey());
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -42,20 +52,23 @@ export function listMemories(): Memory[] {
   }
 }
 
-let persistHook: (() => void) | null = null;
-
-/** Called after every local write (used to mirror to Firebase when signed in). */
-export function setMemoriesPersistHook(fn: (() => void) | null): void {
+/** Installs the authenticated server writer used by user-initiated changes. */
+export function setMemoriesPersistHook(fn: ((memories: Memory[]) => Promise<void>) | null): void {
   persistHook = fn;
 }
 
-function persist(memories: Memory[]): void {
-  try {
-    safeLocalStorage()?.setItem(KEY, JSON.stringify(memories));
-  } catch {
-    /* private mode or quota: metadata is best-effort, blobs live in IndexedDB */
+async function persist(memories: Memory[]): Promise<void> {
+  if (!accountUid || !persistHook) throw new Error("Sign in to save memories to your AirPal account.");
+  if (memories.some((memory) => memory.src.startsWith("idb:"))) {
+    throw new Error("This photo is only on this device. Upload it again to save it to your account.");
   }
-  persistHook?.();
+  await persistHook(memories);
+  try {
+    safeLocalStorage()?.setItem(storageKey(), JSON.stringify(memories));
+  } catch {
+    // The server write is authoritative; this is only a device cache.
+  }
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("airpal:device-data-updated"));
 }
 
 function newMemoryId(): string {
@@ -66,7 +79,7 @@ function newMemoryId(): string {
   }
 }
 
-export function addMemory(input: Omit<Memory, "id" | "takenAt"> & { takenAt?: string }): Memory {
+export async function addMemory(input: Omit<Memory, "id" | "takenAt"> & { takenAt?: string }): Promise<Memory> {
   const row: Memory = {
     id: newMemoryId(),
     src: input.src,
@@ -75,11 +88,14 @@ export function addMemory(input: Omit<Memory, "id" | "takenAt"> & { takenAt?: st
     place: input.place?.trim() || undefined,
     takenAt: input.takenAt || new Date().toISOString(),
   };
-  persist([row, ...listMemories()]);
+  await persist([row, ...listMemories()]);
   return row;
 }
 
-export function updateMemory(id: string, patch: Partial<Pick<Memory, "caption" | "people" | "place">>): Memory | null {
+export async function updateMemory(
+  id: string,
+  patch: Partial<Pick<Memory, "caption" | "people" | "place">>,
+): Promise<Memory | null> {
   const memories = listMemories();
   const idx = memories.findIndex((m) => m.id === id);
   if (idx < 0) return null;
@@ -90,22 +106,26 @@ export function updateMemory(id: string, patch: Partial<Pick<Memory, "caption" |
     place: patch.place !== undefined ? patch.place.trim() || undefined : memories[idx].place,
   };
   memories[idx] = next;
-  persist(memories);
+  await persist(memories);
   return next;
 }
 
-/** Replace the whole list (used when merging the Firebase mirror on login). */
+/** Replace the cache from the authenticated Firebase mirror. */
 export function replaceMemories(rows: Memory[]): void {
-  persist(
-    rows
-      .map(clean)
-      .filter((r): r is Memory => r !== null)
-      .filter((r, i, all) => all.findIndex((o) => o.id === r.id) === i),
-  );
+  const memories = rows
+    .map(clean)
+    .filter((r): r is Memory => r !== null)
+    .filter((r, i, all) => all.findIndex((o) => o.id === r.id) === i);
+  try {
+    safeLocalStorage()?.setItem(storageKey(), JSON.stringify(memories));
+  } catch {
+    // The cache is optional.
+  }
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("airpal:device-data-updated"));
 }
 
-export function removeMemory(id: string): void {
-  persist(listMemories().filter((m) => m.id !== id));
+export async function removeMemory(id: string): Promise<void> {
+  await persist(listMemories().filter((m) => m.id !== id));
 }
 
 function personKey(value: string): string {

@@ -79,6 +79,11 @@ export function CirclePage() {
 
   // Met people from direct in-person connections (reactive when user logs a new person met)
   const [metList, setMetList] = useState<PersonMet[]>(() => listPeople());
+  useEffect(() => {
+    const refreshPeople = () => setMetList(listPeople());
+    window.addEventListener("airpal:device-data-updated", refreshPeople);
+    return () => window.removeEventListener("airpal:device-data-updated", refreshPeople);
+  }, []);
   const [logMetOpen, setLogMetOpen] = useState(false);
   const [metName, setMetName] = useState("");
   const [metHandle, setMetHandle] = useState("");
@@ -348,28 +353,32 @@ export function CirclePage() {
     toggleFollow(handle, name);
   };
 
-  const handleSaveMetPerson = () => {
+  const handleSaveMetPerson = async () => {
     const cleanName = metName.trim();
     if (cleanName.length < 2) {
       toast.message("Enter the name of the person you met.");
       return;
     }
     const cleanHandle = metHandle.trim().replace(/^@+/, "").toLowerCase();
-    const saved = upsertPerson({
-      name: cleanName,
-      handle: cleanHandle || undefined,
-      whereMet: metWhere.trim() || undefined,
-    });
-    setMetList(listPeople());
-    if (cleanHandle && metAlsoFollow && !followedHandles.has(cleanHandle)) {
-      toggleFollow(cleanHandle, saved.name);
+    try {
+      const saved = await upsertPerson({
+        name: cleanName,
+        handle: cleanHandle || undefined,
+        whereMet: metWhere.trim() || undefined,
+      });
+      setMetList(listPeople());
+      if (cleanHandle && metAlsoFollow && !followedHandles.has(cleanHandle)) {
+        toggleFollow(cleanHandle, saved.name);
+      }
+      void triggerHaptic("success");
+      toast.success(`Added ${saved.name} to your Circle`);
+      setMetName("");
+      setMetHandle("");
+      setMetWhere("");
+      setLogMetOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not save this person to your account.");
     }
-    void triggerHaptic("success");
-    toast.success(`Added ${saved.name} to your Circle`);
-    setMetName("");
-    setMetHandle("");
-    setMetWhere("");
-    setLogMetOpen(false);
   };
 
   const handleSaveVCard = (contact: CircleContact) => {

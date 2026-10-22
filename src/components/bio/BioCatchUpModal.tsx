@@ -33,10 +33,9 @@ import { useBio } from "@/contexts/BioContext";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { AddToCalendarMenu } from "@/components/calendar/AddToCalendarMenu";
 import {
-  persistCatchUp,
   recordCatchUpInterest,
   toggleCatchUpReminder,
-  hasCatchUpReminder,
+  listCatchUpsForHandle,
   checkTimeConflict,
   subscribeMyCatchUps,
   formatCatchUpTimeRange,
@@ -116,8 +115,8 @@ export function BioCatchUpModal({
   const [venue, setVenue] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRemembered, setIsRemembered] = useState(() => hasCatchUpReminder(handle));
   const [myCatchups, setMyCatchups] = useState<CatchUpItem[]>([]);
+  const [myCatchupsLoaded, setMyCatchupsLoaded] = useState(false);
   const [copiedInvite, setCopiedInvite] = useState(false);
   const [submittedSummary, setSubmittedSummary] = useState<{
     typeLabel: string;
@@ -139,10 +138,22 @@ export function BioCatchUpModal({
   useEffect(() => {
     if (!user?.uid) {
       setMyCatchups([]);
+      setMyCatchupsLoaded(true);
       return;
     }
-    return subscribeMyCatchUps(user.uid, setMyCatchups);
-  }, [user?.uid]);
+    setMyCatchupsLoaded(false);
+    return subscribeMyCatchUps(
+      user.uid,
+      (rows) => {
+        setMyCatchups(rows);
+        setMyCatchupsLoaded(true);
+      },
+      () => {
+        setMyCatchupsLoaded(false);
+        toast.error("Could not load your catch-ups from the server.");
+      },
+    );
+  }, [user?.uid, handle]);
 
   useEffect(() => {
     if (!open) return;
@@ -164,7 +175,6 @@ export function BioCatchUpModal({
     setTime(initialType === "meeting" ? "10:00" : initialType === "nightout" ? "18:30" : "14:00");
     setVenue(city ? `${city}` : "");
     setNotes("");
-    setIsRemembered(hasCatchUpReminder(handle));
     setSubmittedSummary(null);
 
     function handleKeyDown(e: KeyboardEvent) {
@@ -212,16 +222,36 @@ export function BioCatchUpModal({
 
   // Double-booking collision detection against user's catch-ups factoring in duration
   const conflict = checkTimeConflict(date, time, [], myCatchups, durationMinutes);
+  const isRemembered = myCatchups.some(
+    (item) =>
+      item.isReminderOnly &&
+      item.status !== "dismissed" &&
+      item.targetHandle.trim().replace(/^@/, "").toLowerCase() === handle.trim().replace(/^@/, "").toLowerCase(),
+  );
 
   if (!open) return null;
 
-  const handleToggleReminder = () => {
+  const handleToggleReminder = async () => {
+    if (myCatchupsLoaded === false && user?.uid) return;
+    if (!requireUser("Sign in to save catch-up reminders.")) return;
     void triggerHaptic("light");
-    const nextState = toggleCatchUpReminder({ handle, name, photo: avatar, city, requesterUid: user?.uid });
-    setIsRemembered(nextState);
-    toast[nextState ? "success" : "info"](
-      nextState ? `Saved a reminder to catch up with ${name}` : `Removed reminder for ${name}`,
-    );
+    try {
+      const nextState = await toggleCatchUpReminder({
+        handle,
+        name,
+        photo: avatar,
+        city,
+        requesterUid: user!.uid,
+      });
+      setMyCatchups(
+        listCatchUpsForHandle(handle).filter((item) => item.requesterUid === user!.uid && item.status !== "dismissed"),
+      );
+      toast[nextState ? "success" : "info"](
+        nextState ? `Saved a reminder to catch up with ${name}` : `Removed reminder for ${name}`,
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Couldn't save the reminder.");
+    }
   };
 
   const handleLaunch = async () => {
@@ -254,7 +284,7 @@ export function BioCatchUpModal({
     setIsSubmitting(true);
     try {
       void triggerHaptic("success");
-      const interest = recordCatchUpInterest({
+      const interest = await recordCatchUpInterest({
         targetHandle: handle,
         targetOwnerUid: ownerUid,
         requesterUid: user?.uid,
@@ -272,10 +302,10 @@ export function BioCatchUpModal({
         notes: notes.trim(),
       });
       try {
-        await persistCatchUp(interest);
         await scheduleCatchUpRemote({ catchupId: interest.id, action: "open" });
-      } catch {
-        /* The catch-up row still exists locally. */
+      } catch (error) {
+        console.error("Catch-up was saved, but its notification could not be scheduled.", error);
+        toast.error("Catch-up saved, but the notification couldn't be sent.");
       }
 
       toast.success(`Proposed ${currentOption.label} with ${name}`);
@@ -893,6 +923,7 @@ export function BioCatchUpModal({
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <button
                   type="button"
+                  disabled={Boolean(user?.uid) && !myCatchupsLoaded}
                   onClick={handleToggleReminder}
                   className={cn(
                     "inline-flex min-h-[44px] whitespace-nowrap items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",

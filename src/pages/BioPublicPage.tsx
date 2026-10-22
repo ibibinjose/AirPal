@@ -59,8 +59,8 @@ import { makeQrDataUrl } from "@/lib/qr";
 import {
   listCatchUpsForHandle,
   subscribeCatchUpsForOwner,
+  subscribeMyCatchUps,
   updateCatchUpStatus,
-  hasCatchUpReminder,
   toggleCatchUpReminder,
   type CatchUpItem,
   type CatchUpType,
@@ -77,8 +77,7 @@ import { useEvents } from "@/contexts/EventsContext";
 import { fetchPublicBio } from "@/lib/bio-store";
 import { TradingHoursScheduleView } from "@/components/discovery/TradingHoursScheduleView";
 import { resolvePublicBio } from "@/lib/bio-handle";
-import { claimCode, loadClaim, saveClaim } from "@/lib/bio-claims";
-import { liveBackendEnabled, claimBioOfferRemote, joinGuestlistSignupRemote } from "@/lib/functions";
+import { claimBioOfferRemote, joinGuestlistSignupRemote } from "@/lib/functions";
 import { CITY_OPTIONS } from "@/lib/cities";
 import { ensureAnonymousSession } from "@/lib/firebase";
 import {
@@ -106,7 +105,6 @@ import { mapsPlaceIdUrl, mapsPlaceUrl } from "@/lib/maps";
 import { toPublicUrl } from "@/lib/public-origin";
 import { NotFoundPage } from "./NotFoundPage";
 import { cn } from "@/lib/cn";
-import { useClub } from "@/contexts/ClubContext";
 import { PingButton } from "@/components/social/PingButton";
 import { BizCircle } from "@/components/bio/BizCircle";
 import { triggerHaptic } from "@/lib/native";
@@ -137,7 +135,6 @@ export function BioPublicPage() {
   const handle = normalizeHandle(params?.handle || params?.[0] || parseAtHandle(path) || "");
   const { user, requireUser } = useAuth();
   const { byHandle, recordTap, mine, updateProfile } = useBio();
-  const { addGuest, joinClub } = useClub();
   const [listEmail, setListEmail] = useState("");
   const [listName, setListName] = useState("");
   const [listCity, setListCity] = useState("");
@@ -153,9 +150,9 @@ export function BioPublicPage() {
   const [copiedCode, setCopiedCode] = useState(false);
   const [visibilitySaving, setVisibilitySaving] = useState(false);
   const [activeVisibility, setActiveVisibility] = useState<"public" | "private" | null>(null);
-  const [catchUpReminderActive, setCatchUpReminderActive] = useState(() =>
-    handle ? hasCatchUpReminder(handle) : false,
-  );
+  const [requesterCatchUps, setRequesterCatchUps] = useState<CatchUpItem[]>([]);
+  const [requesterCatchUpsLoaded, setRequesterCatchUpsLoaded] = useState(false);
+  const [reminderSaving, setReminderSaving] = useState(false);
   const { stalls, getEvent } = useEvents();
   const { isFollowing, followerHandles } = useSocial();
   const local = resolvePublicBio(handle, byHandle);
@@ -165,10 +162,24 @@ export function BioPublicPage() {
   const viewed = useRef("");
 
   useEffect(() => {
-    if (handle) {
-      setCatchUpReminderActive(hasCatchUpReminder(handle));
+    if (!user?.uid) {
+      setRequesterCatchUps([]);
+      setRequesterCatchUpsLoaded(true);
+      return;
     }
-  }, [handle]);
+    setRequesterCatchUpsLoaded(false);
+    return subscribeMyCatchUps(
+      user.uid,
+      (rows) => {
+        setRequesterCatchUps(rows);
+        setRequesterCatchUpsLoaded(true);
+      },
+      () => {
+        setRequesterCatchUpsLoaded(false);
+        toast.error("Could not load your catch-up reminders from the server.");
+      },
+    );
+  }, [user?.uid]);
 
   useEffect(() => {
     const p = remote || local;
@@ -219,6 +230,16 @@ export function BioPublicPage() {
 
   const profile = remote || local;
   const [bioQrUrl, setBioQrUrl] = useState<string>("");
+  const catchUpReminderActive = Boolean(
+    user?.uid &&
+    requesterCatchUps.some(
+      (item) =>
+        item.requesterUid === user.uid &&
+        item.isReminderOnly &&
+        item.status !== "dismissed" &&
+        normalizeHandle(item.targetHandle) === normalizeHandle(profile?.handle || handle),
+    ),
+  );
 
   useEffect(() => {
     if (!profile?.handle) return;
@@ -229,12 +250,6 @@ export function BioPublicPage() {
     return () => {
       live = false;
     };
-  }, [profile?.handle]);
-
-  useEffect(() => {
-    if (profile?.handle) {
-      setCatchUpReminderActive(hasCatchUpReminder(profile.handle));
-    }
   }, [profile?.handle]);
 
   const loadFailed = useRef("");
@@ -414,43 +429,18 @@ export function BioPublicPage() {
 
   async function onClaimDeal(item: BioCatalogItem) {
     recordTap(bio.handle, "deal");
-    const existing = loadClaim(bio.handle, item.id);
-    if (existing) {
-      setClaim(existing);
-      return;
-    }
     try {
-      if (liveBackendEnabled()) {
-        const row = await claimBioOfferRemote({ handle: bio.handle, dealId: item.id });
-        const saved = saveClaim({ handle: bio.handle, dealId: item.id, ...row });
-        setClaim(saved);
-        void track("offer_claim", {
-          offerId: item.id,
-          partnerId: bio.handle,
-          claimId: `${bio.handle}_${item.id}`,
-          contextId: bio.handle,
-        });
-        return;
-      }
-    } catch {
-      /* local code */
+      const saved = await claimBioOfferRemote({ handle: bio.handle, dealId: item.id });
+      setClaim(saved);
+      void track("offer_claim", {
+        offerId: item.id,
+        partnerId: bio.handle,
+        claimId: `${bio.handle}_${item.id}`,
+        contextId: bio.handle,
+      });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not save this offer claim. Please try again.");
     }
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    const saved = saveClaim({
-      handle: bio.handle,
-      dealId: item.id,
-      code: claimCode(),
-      badge: item.badge || item.title,
-      detail: item.detail,
-      expiresAt,
-    });
-    setClaim(saved);
-    void track("offer_claim", {
-      offerId: item.id,
-      partnerId: bio.handle,
-      claimId: `${bio.handle}_${item.id}`,
-      contextId: bio.handle,
-    });
   }
 
   // Public view: scheduled, archived, and ordering rules apply to every surface.
@@ -744,13 +734,16 @@ export function BioPublicPage() {
                     onClick={() => {
                       void triggerHaptic("light");
                       if (!requireUser("Sign in to keep the people you meet in one place.")) return;
-                      upsertPerson({
+                      void upsertPerson({
                         handle: bio.handle,
                         name: bio.name,
                         photo: avatar,
                         whereMet: bio.city || undefined,
-                      });
-                      toast.success(`${bio.name} saved to people you met`);
+                      })
+                        .then(() => toast.success(`${bio.name} saved to people you met`))
+                        .catch((err: unknown) =>
+                          toast.error(err instanceof Error ? err.message : "Could not save this person."),
+                        );
                     }}
                   >
                     <UserPlus size={14} />
@@ -965,20 +958,34 @@ export function BioPublicPage() {
                   </span>
                   <button
                     type="button"
-                    onClick={() => {
+                    disabled={reminderSaving || (Boolean(user?.uid) && !requesterCatchUpsLoaded)}
+                    onClick={async () => {
+                      if (reminderSaving || (user?.uid && !requesterCatchUpsLoaded)) return;
+                      if (!user?.uid || !requireUser("Sign in to save catch-up reminders.")) return;
                       void triggerHaptic("light");
-                      const next = toggleCatchUpReminder({
-                        handle: bio.handle,
-                        name: bio.name,
-                        photo: avatar,
-                        city: bio.city,
-                        requesterUid: user?.uid,
-                      });
-                      setCatchUpReminderActive(next);
-                      toast[next ? "success" : "info"](
-                        next ? `Saved a reminder to catch up with ${bio.name}` : `Removed reminder for ${bio.name}`,
-                      );
-                      setCatchUpsList(listCatchUpsForHandle(bio.handle));
+                      setReminderSaving(true);
+                      try {
+                        const next = await toggleCatchUpReminder({
+                          handle: bio.handle,
+                          name: bio.name,
+                          photo: avatar,
+                          city: bio.city,
+                          requesterUid: user.uid,
+                        });
+                        setRequesterCatchUps(
+                          listCatchUpsForHandle(bio.handle).filter(
+                            (item) => item.requesterUid === user.uid && item.status !== "dismissed",
+                          ),
+                        );
+                        toast[next ? "success" : "info"](
+                          next ? `Saved a reminder to catch up with ${bio.name}` : `Removed reminder for ${bio.name}`,
+                        );
+                        setCatchUpsList(listCatchUpsForHandle(bio.handle));
+                      } catch (error) {
+                        toast.error(error instanceof Error ? error.message : "Couldn't save the reminder.");
+                      } finally {
+                        setReminderSaving(false);
+                      }
                     }}
                     className={cn(
                       "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
@@ -1587,11 +1594,15 @@ export function BioPublicPage() {
                               size="sm"
                               variant="ghost"
                               className="h-11 w-11 min-h-[44px] min-w-[44px] p-0 rounded-full text-mute hover:text-ink hover:bg-black/5"
-                              onClick={() => {
+                              onClick={async () => {
                                 void triggerHaptic("light");
-                                updateCatchUpStatus(item.id, "dismissed");
-                                setCatchUpsList((prev) => prev.filter((i) => i.id !== item.id));
-                                toast.info("Request dismissed");
+                                try {
+                                  await updateCatchUpStatus(item.id, "dismissed");
+                                  setCatchUpsList((prev) => prev.filter((i) => i.id !== item.id));
+                                  toast.info("Request dismissed");
+                                } catch (error) {
+                                  toast.error(error instanceof Error ? error.message : "Couldn't dismiss request.");
+                                }
                               }}
                             >
                               <X size={15} />
@@ -1839,10 +1850,7 @@ export function BioPublicPage() {
             </div>
           )}
 
-          {/* Guestlist sign up: Name, City, Email + interest opt-ins.
-              Persists server-side (callable) so invites can actually be sent;
-              the local club copy stays for on-device perks. Personal profiles
-              get the same list with subscriber-friendly copy. */}
+          {/* Guestlist signups are stored by the authenticated server callable. */}
           <form
             className="mt-8 rounded-[28px] sm:rounded-[32px] bg-paper/60 p-5 sm:p-6 ring-1 ring-line/80 shadow-2xs space-y-3"
             onSubmit={(e) => {
@@ -1874,14 +1882,6 @@ export function BioPublicPage() {
                     email: listEmail.trim(),
                     interests: listInterests,
                     source: bio.handle,
-                  });
-                  addGuest(bio.handle, { email: listEmail, name: listName, source: "bio" });
-                  joinClub({
-                    email: listEmail,
-                    name: listName || bio.name,
-                    city: cityLabel,
-                    invites: true,
-                    offers: true,
                   });
                   toast.success(isBizBio ? "You're on the AirPal Guestlist" : "You're subscribed");
                   setListEmail("");
@@ -2288,9 +2288,6 @@ export function BioPublicPage() {
         open={catchUpModalOpen}
         onClose={() => {
           setCatchUpModalOpen(false);
-          if (bio.handle) {
-            setCatchUpReminderActive(hasCatchUpReminder(bio.handle));
-          }
         }}
         handle={bio.handle}
         name={bio.name}

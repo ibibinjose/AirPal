@@ -747,9 +747,13 @@ export function MePage() {
                         <Button
                           size="sm"
                           className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full bg-emerald-600 px-3.5 text-xs font-bold text-white hover:bg-emerald-700 active:scale-95"
-                          onClick={() => {
-                            void updateCatchUpStatus(item.id, "accepted");
-                            toast.success(`Accepted catch up with ${item.requesterName}!`);
+                          onClick={async () => {
+                            try {
+                              await updateCatchUpStatus(item.id, "accepted");
+                              toast.success(`Accepted catch up with ${item.requesterName}!`);
+                            } catch (error) {
+                              toast.error(error instanceof Error ? error.message : "Couldn't accept this request.");
+                            }
                           }}
                         >
                           <Check size={13} className="mr-1 shrink-0" />
@@ -759,9 +763,13 @@ export function MePage() {
                           size="sm"
                           variant="ghost"
                           className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full border border-line px-3 text-xs font-medium text-mute hover:text-ink"
-                          onClick={() => {
-                            void updateCatchUpStatus(item.id, "dismissed");
-                            toast.info("Request dismissed");
+                          onClick={async () => {
+                            try {
+                              await updateCatchUpStatus(item.id, "dismissed");
+                              toast.info("Request dismissed");
+                            } catch (error) {
+                              toast.error(error instanceof Error ? error.message : "Couldn't dismiss request.");
+                            }
                           }}
                         >
                           Dismiss
@@ -827,11 +835,15 @@ export function MePage() {
                           </Button>
                           <button
                             type="button"
-                            onClick={() => {
+                            onClick={async () => {
                               void triggerHaptic("light");
-                              updateCatchUpStatus(item.id, "dismissed");
-                              setMyReminders((prev) => prev.filter((r) => r.id !== item.id));
-                              toast.info(`Removed reminder for ${displayName}`);
+                              try {
+                                await updateCatchUpStatus(item.id, "dismissed");
+                                setMyReminders((prev) => prev.filter((r) => r.id !== item.id));
+                                toast.info(`Removed reminder for ${displayName}`);
+                              } catch (error) {
+                                toast.error(error instanceof Error ? error.message : "Couldn't remove reminder.");
+                              }
                             }}
                             className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute ring-1 ring-line transition hover:text-ink hover:bg-black/5 active:scale-95 cursor-pointer touch-manipulation"
                             aria-label={`Remove reminder for ${displayName}`}

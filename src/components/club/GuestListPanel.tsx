@@ -1,115 +1,162 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { collection, deleteDoc, doc, getDocs, onSnapshot, query, setDoc, where } from "firebase/firestore";
 import { toast } from "sonner";
+import { inviteMailto, isEmail, normalizeEmail, type GuestEntry } from "@shared/club";
+import { useAuth } from "@/contexts/AuthContext";
+import { getFirebaseDb } from "@/lib/firebase";
 import { Button } from "@/components/ui/Button";
-import { AIRPAL_CLUB_ID, useClub } from "@/contexts/ClubContext";
 import { fieldInput, fieldTextarea } from "@/components/forms/ValidField";
 
 export function GuestListPanel({ clubId, clubName }: { clubId: string; clubName: string }) {
-  const { guests, addGuest, removeGuest, importClubToList, sendInvite, members } = useClub();
-  const rows = guests(clubId);
+  const { user } = useAuth();
+  const [rows, setRows] = useState<GuestEntry[]>([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState(`${clubName} — you're on the list`);
   const [body, setBody] = useState(`Hi,\n\nYou're invited. Show this mail at the door.\n\n${clubName}\nvia AirPal.Me`);
-  const airpal = clubId === AIRPAL_CLUB_ID;
+  const [saving, setSaving] = useState(false);
 
-  function onAdd(e: FormEvent) {
+  useEffect(() => {
+    setRows([]);
+    if (!user) return;
+    const db = getFirebaseDb();
+    if (!db) {
+      toast.error("Guest lists need a server connection.");
+      return;
+    }
+    return onSnapshot(
+      collection(db, "users", user.uid, "businessGuestlists", clubId, "guests"),
+      (snapshot) =>
+        setRows(
+          snapshot.docs
+            .map((row) => ({ ...(row.data() as Omit<GuestEntry, "id">), id: row.id }))
+            .sort((a, b) => b.addedAt.localeCompare(a.addedAt)),
+        ),
+      () => toast.error("Could not load this guest list from the server."),
+    );
+  }, [clubId, user?.uid]);
+
+  async function onAdd(e: FormEvent) {
     e.preventDefault();
+    if (saving) return;
+    if (!user) {
+      toast.error("Sign in to save guests to your account.");
+      return;
+    }
+    if (!isEmail(email)) {
+      toast.error("Enter a valid email address.");
+      return;
+    }
+    const db = getFirebaseDb();
+    if (!db) {
+      toast.error("Guest lists need a server connection.");
+      return;
+    }
+    setSaving(true);
     try {
-      addGuest(clubId, { name, email, source: "manual" });
+      const guests = collection(db, "users", user.uid, "businessGuestlists", clubId, "guests");
+      const normalized = normalizeEmail(email);
+      const existing = await getDocs(query(guests, where("email", "==", normalized)));
+      if (!existing.empty) {
+        toast.message("This guest is already on the list.");
+        return;
+      }
+      const guestRef = doc(guests);
+      await setDoc(guestRef, {
+        id: guestRef.id,
+        email: normalized,
+        name: name.trim().slice(0, 80),
+        note: "",
+        source: "manual",
+        addedAt: new Date().toISOString(),
+      } satisfies Omit<GuestEntry, "id"> & { id: string });
       setName("");
       setEmail("");
-      toast.success("On the list");
+      toast.success("Guest saved to your account.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+      toast.error(err instanceof Error ? err.message : "Could not save this guest to the server.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function onRemove(id: string) {
+    if (!user) return;
+    const db = getFirebaseDb();
+    if (!db) {
+      toast.error("Guest lists need a server connection.");
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, "users", user.uid, "businessGuestlists", clubId, "guests", id));
+      toast.success("Guest removed.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not remove this guest from the server.");
     }
   }
 
   function onSend() {
-    try {
-      const emails = airpal ? members.filter((m) => m.invites).map((m) => m.email) : rows.map((r) => r.email);
-      const { href, copied } = sendInvite(clubId, subject, body, emails);
-      void navigator.clipboard.writeText(copied).then(
-        () => toast.success(`${emails.length} copied. Mail app opening.`),
-        () => toast.message(`${emails.length} ready`),
-      );
-      window.location.href = href;
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed");
+    if (!rows.length) {
+      toast.message("Add a guest before preparing an invite.");
+      return;
     }
+    const href = inviteMailto(
+      rows.map((row) => row.email),
+      subject,
+      body,
+    );
+    window.location.href = href;
   }
 
   return (
     <div className="mt-5 space-y-5">
       <div className="rounded-3xl bg-card p-5 ring-1 ring-line">
-        <p className="font-display text-4xl">{airpal ? members.filter((m) => m.invites).length : rows.length}</p>
-        <p className="text-sm text-mute">{airpal ? "AirPal Club, invites on" : "On the guest list"}</p>
+        <p className="font-display text-4xl">{rows.length}</p>
+        <p className="text-sm text-mute">On the guest list · synced to your account</p>
       </div>
 
-      {!airpal && (
-        <form className="space-y-2" onSubmit={onAdd}>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              autoComplete="name"
-              autoCapitalize="words"
-              placeholder="Name"
-              aria-label="Guest name"
-              className="h-11 min-w-0 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/60"
-            />
-            <input
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              autoCapitalize="none"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              aria-label="Guest email"
-              className="h-11 min-w-0 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/60"
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button type="submit" size="sm" className="h-11">
-              Add
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-11"
-              onClick={() => {
-                const n = importClubToList(clubId);
-                toast.message(n ? `${n} from AirPal Club` : "Already imported");
-              }}
-            >
-              From AirPal Club
-            </Button>
-          </div>
-        </form>
-      )}
+      <form className="space-y-2" onSubmit={(e) => void onAdd(e)}>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoComplete="name"
+            autoCapitalize="words"
+            placeholder="Name"
+            aria-label="Guest name"
+            className="h-11 min-w-0 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/60"
+          />
+          <input
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            autoCapitalize="none"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            aria-label="Guest email"
+            className="h-11 min-w-0 flex-1 rounded-full bg-card px-4 border border-line outline-none focus:border-brand focus-visible:ring-2 focus-visible:ring-brand/60"
+          />
+        </div>
+        <Button type="submit" size="sm" className="h-11" disabled={saving}>
+          {saving ? "Saving…" : "Add guest"}
+        </Button>
+      </form>
 
       <ul className="space-y-2">
-        {(airpal ? members.filter((m) => m.invites) : rows).map((row) => (
+        {rows.map((row) => (
           <li key={row.id} className="flex items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
             <span>
               <span className="block font-medium">{row.name || row.email}</span>
               <span className="text-[12px] text-mute">{row.email}</span>
             </span>
-            {!airpal && (
-              <button type="button" className="text-sm text-mute" onClick={() => removeGuest(clubId, row.email)}>
-                Remove
-              </button>
-            )}
+            <button type="button" className="text-sm text-mute" onClick={() => void onRemove(row.id)}>
+              Remove
+            </button>
           </li>
         ))}
-        {(airpal ? members.filter((m) => m.invites) : rows).length === 0 && (
-          <p className="text-sm text-mute">
-            {airpal ? "Nobody in AirPal Club yet." : "Add a name, or import AirPal Club."}
-          </p>
-        )}
+        {rows.length === 0 && <p className="text-sm text-mute">No guests saved yet.</p>}
       </ul>
 
       <div className="space-y-2">
@@ -120,7 +167,7 @@ export function GuestListPanel({ clubId, clubName }: { clubId: string; clubName:
           Open mail app
         </Button>
         <p className="text-[12px] text-mute">
-          Opens your mail app with the list on BCC. We do not send bulk mail from our servers yet.
+          Opens your mail app with the server-synced list on BCC. AirPal does not send bulk mail from this panel.
         </p>
       </div>
     </div>

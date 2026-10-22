@@ -1,6 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { addMemory, listMemories, memoriesWithPerson, removeMemory, updateMemory } from "./memories";
-import { buildVCard, listPeople, removePerson, saveBioContact, upsertPerson } from "./people";
+import {
+  addMemory,
+  listMemories,
+  memoriesWithPerson,
+  removeMemory,
+  setMemoriesAccount,
+  setMemoriesPersistHook,
+  updateMemory,
+} from "./memories";
+import {
+  buildVCard,
+  listPeople,
+  removePerson,
+  saveBioContact,
+  setPeopleAccount,
+  setPeoplePersistHook,
+  upsertPerson,
+} from "./people";
 
 function memoryStorage() {
   const map = new Map<string, string>();
@@ -21,15 +37,25 @@ if (typeof globalThis.localStorage === "undefined" || !globalThis.localStorage.g
 }
 
 describe("people", () => {
-  it("upserts by handle and merges repeats", () => {
+  it("requires server persistence before saving", async () => {
+    setPeopleAccount(null);
+    setPeoplePersistHook(null);
+    await expect(upsertPerson({ handle: "@Maya", name: "Maya" })).rejects.toThrow(
+      "Sign in to save people to your AirPal account.",
+    );
+  });
+
+  it("upserts by handle and merges repeats after server persistence", async () => {
     localStorage.clear();
-    const first = upsertPerson({ handle: "@Maya", name: "Maya", whereMet: "Bondi" });
-    const second = upsertPerson({ handle: "maya", name: "Maya R.", photo: "idb:x" });
+    setPeopleAccount("test-user");
+    setPeoplePersistHook(async () => undefined);
+    const first = await upsertPerson({ handle: "@Maya", name: "Maya", whereMet: "Bondi" });
+    const second = await upsertPerson({ handle: "maya", name: "Maya R.", photo: "https://airpal.me/photo.jpg" });
     expect(second.id).toBe(first.id);
     expect(listPeople()).toHaveLength(1);
     expect(listPeople()[0].name).toBe("Maya R.");
     expect(listPeople()[0].whereMet).toBe("Bondi");
-    removePerson(first.id);
+    await removePerson(first.id);
     expect(listPeople()).toHaveLength(0);
   });
 
@@ -72,15 +98,30 @@ describe("people", () => {
 });
 
 describe("memories", () => {
-  it("adds, updates, filters by person, and removes", () => {
+  it("requires server persistence before saving", async () => {
+    setMemoriesAccount(null);
+    setMemoriesPersistHook(null);
+    await expect(addMemory({ src: "https://airpal.me/photo.jpg", people: [] })).rejects.toThrow(
+      "Sign in to save memories to your AirPal account.",
+    );
+  });
+
+  it("adds, updates, filters by person, and removes after server persistence", async () => {
     localStorage.clear();
-    const a = addMemory({ src: "idb:1", caption: "Sunset", people: ["@maya", "Leo"], place: "Bondi" });
-    addMemory({ src: "idb:2", people: [] });
+    setMemoriesAccount("test-user");
+    setMemoriesPersistHook(async () => undefined);
+    const a = await addMemory({
+      src: "storage://memories/test-user/1.jpg",
+      caption: "Sunset",
+      people: ["@maya", "Leo"],
+      place: "Bondi",
+    });
+    await addMemory({ src: "storage://memories/test-user/2.jpg", people: [] });
     expect(listMemories()).toHaveLength(2);
     expect(memoriesWithPerson(listMemories(), "maya")).toHaveLength(1);
-    const updated = updateMemory(a.id, { caption: "Sunset swim" });
+    const updated = await updateMemory(a.id, { caption: "Sunset swim" });
     expect(updated?.caption).toBe("Sunset swim");
-    removeMemory(a.id);
+    await removeMemory(a.id);
     expect(listMemories()).toHaveLength(1);
   });
 });

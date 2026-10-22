@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { addMemory, listMemories, removeMemory, type Memory } from "@/lib/memories";
 import { listPeople } from "@/lib/people";
-import { readFileAsImage, storeMedia } from "@/lib/image-store";
+import { deletePrivateMemoryImage, readFileAsImage, storeMedia } from "@/lib/image-store";
 import { bioPath } from "@shared/bio";
 import { dismissKeyboard } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
@@ -70,7 +70,10 @@ export function MemoryWallPage() {
   }, []);
 
   useEffect(() => {
-    setMemories(listMemories());
+    const refresh = () => setMemories(listMemories());
+    refresh();
+    window.addEventListener("airpal:device-data-updated", refresh);
+    return () => window.removeEventListener("airpal:device-data-updated", refresh);
   }, []);
 
   useScrollLock(composerOpen || Boolean(lightbox));
@@ -102,7 +105,7 @@ export function MemoryWallPage() {
         next="/me/memories"
         kicker="Memory Wall"
         title="Your memory wall"
-        lede="Sign in to keep a Memory Wall of the people and places from your days out. Photos stay on this device until you back them up, and sync when you're signed in."
+        lede="Sign in to save your Memory Wall to your AirPal account. Photos and captions are uploaded securely and sync across your devices."
       />
     );
   }
@@ -145,28 +148,49 @@ export function MemoryWallPage() {
   async function onSave() {
     if (!draftBlob || saving) return;
     setSaving(true);
+    let uploadedSrc: string | undefined;
     try {
       const src = await storeMedia(draftBlob, { folder: "memories", kind: "memory" });
+      uploadedSrc = src;
       const people = withPeople
         .split(",")
         .map((p) => p.trim())
         .filter(Boolean);
-      const row = addMemory({ src, caption, people, place });
+      const row = await addMemory({ src, caption, people, place });
+      uploadedSrc = undefined;
       setMemories([row, ...listMemories().filter((m) => m.id !== row.id)]);
-      toast.success(src.startsWith("http") ? "Saved to your Memory Wall · backed up" : "Saved to your Memory Wall");
+      toast.success("Saved to your Memory Wall · backed up");
       closeComposer();
     } catch (err) {
+      if (uploadedSrc) {
+        try {
+          await deletePrivateMemoryImage(uploadedSrc);
+        } catch (cleanupError) {
+          console.error("Could not clean up an unreferenced Memory Wall upload.", cleanupError);
+        }
+      }
       toast.error(err instanceof Error ? err.message : "Could not save");
     } finally {
       setSaving(false);
     }
   }
 
-  function onDelete(id: string) {
-    removeMemory(id);
-    setMemories(listMemories());
-    setLightbox(null);
-    toast.success("Memory removed");
+  async function onDelete(id: string) {
+    const memory = memories.find((item) => item.id === id);
+    try {
+      await removeMemory(id);
+      setMemories(listMemories());
+      setLightbox(null);
+      try {
+        if (memory) await deletePrivateMemoryImage(memory.src);
+        toast.success("Memory removed");
+      } catch (err) {
+        console.error("Memory metadata was removed, but its private photo could not be deleted.", err);
+        toast.error("Memory removed, but its photo could not be deleted. Try again later.");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not remove memory from the server.");
+    }
   }
 
   return (

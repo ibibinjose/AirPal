@@ -165,6 +165,45 @@ describe.skipIf(!process.env.FIRESTORE_EMULATOR_HOST)("firestore rules", () => {
     });
   });
 
+  describe("saved account data", () => {
+    it("restricts birthday offer saves to their account owner", async () => {
+      const owner = authed("alice");
+      const stranger = authed("mallory");
+      const path = "users/alice/savedBirthdayOffers/offer-1";
+      await assertSucceeds(setDoc(doc(owner, path), { offerId: "offer-1", savedAt: "2026-01-01" }));
+      await assertSucceeds(getDoc(doc(owner, path)));
+      await assertFails(getDoc(doc(stranger, path)));
+      await assertFails(setDoc(doc(stranger, path), { offerId: "offer-2", savedAt: "2026-01-01" }));
+    });
+
+    it("restricts business guest records to the account owner and validates their shape", async () => {
+      const owner = authed("alice");
+      const stranger = authed("mallory");
+      const path = "users/alice/businessGuestlists/biz-1/guests/guest-1";
+      const guest = {
+        id: "guest-1",
+        email: "guest@example.com",
+        name: "Guest",
+        note: "",
+        source: "manual",
+        addedAt: "2026-01-01T00:00:00.000Z",
+      };
+      await assertSucceeds(setDoc(doc(owner, path), guest));
+      await assertSucceeds(getDoc(doc(owner, path)));
+      await assertFails(getDoc(doc(stranger, path)));
+      await assertFails(setDoc(doc(stranger, path), guest));
+      await assertFails(updateDoc(doc(owner, path), { name: "Changed" }));
+      await assertFails(
+        setDoc(doc(owner, "users/alice/businessGuestlists/biz-1/guests/guest-2"), {
+          ...guest,
+          id: "guest-2",
+          source: "external",
+        }),
+      );
+      await assertSucceeds(deleteDoc(doc(owner, path)));
+    });
+  });
+
   describe("properties secrets", () => {
     it("rejects secret-bearing keys on the public doc", async () => {
       await seed("properties/p1", { ownerId: "p1", members: [], capacity: 50 });

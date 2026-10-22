@@ -15,7 +15,6 @@ import { wqgaFromEvents } from "@shared/analytics";
 import { tapCount } from "@/lib/bio-store";
 import { bioPath } from "@shared/bio";
 import { isFirebaseConfigured } from "@/lib/firebase";
-import { GuestListPanel } from "@/components/club/GuestListPanel";
 import { CompanionAdmin } from "@/components/admin/CompanionAdmin";
 import { MateRequestsAdmin } from "@/components/admin/MateRequestsAdmin";
 import { PartnerLeadsAdmin } from "@/components/admin/PartnerLeadsAdmin";
@@ -28,7 +27,6 @@ import { GuestlistSignupsAdmin } from "@/components/admin/GuestlistSignupsAdmin"
 import { ClaimReviewQueue } from "@/components/claim/ClaimReviewQueue";
 import { SearchQueriesDashboardTab } from "@/components/admin/SearchQueriesDashboardTab";
 import { ADMIN_TABS, AdminOverview, type AdminTab } from "@/components/admin/AdminOverview";
-import { AIRPAL_CLUB_ID } from "@/contexts/ClubContext";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -460,15 +458,6 @@ export function AdminPage() {
             {filteredRows.length === 0 && (
               <p className="mt-4 text-center text-xs text-mute py-4">No matching handles found.</p>
             )}
-          </section>
-
-          {/* AirPal Club Guest List */}
-          <section className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">VIP Access Control</p>
-            <h2 className="font-display mt-0.5 text-lg font-bold text-ink">AirPal Club Members</h2>
-            <div className="mt-3">
-              <GuestListPanel clubId={AIRPAL_CLUB_ID} clubName="AirPal Club" />
-            </div>
           </section>
         </div>
       )}

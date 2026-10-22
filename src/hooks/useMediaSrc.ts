@@ -1,25 +1,37 @@
 import { useEffect, useState } from "react";
-import { localImageUrl } from "@/lib/image-store";
+import { localImageUrl, privateStorageImageUrl } from "@/lib/image-store";
 
 export function useMediaSrc(src?: string) {
-  const remote = src && !src.startsWith("idb:") ? src : undefined;
+  const local = src?.startsWith("idb:");
+  const privateRemote = src?.startsWith("storage://");
+  const remote = src && !local && !privateRemote ? src : undefined;
   const [url, setUrl] = useState(remote);
 
   useEffect(() => {
+    let objectUrl: string | undefined;
     if (!src) {
       setUrl(undefined);
       return;
     }
-    if (!src.startsWith("idb:")) {
+    if (!src.startsWith("idb:") && !src.startsWith("storage://")) {
       setUrl(src);
       return;
     }
     let live = true;
-    void localImageUrl(src).then((next) => {
-      if (live) setUrl(next);
-    });
+    const load = src.startsWith("idb:") ? localImageUrl(src) : privateStorageImageUrl(src);
+    void load
+      .then((next) => {
+        if (live) {
+          objectUrl = next;
+          setUrl(next);
+        }
+      })
+      .catch(() => {
+        if (live) setUrl(undefined);
+      });
     return () => {
       live = false;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [src]);
 

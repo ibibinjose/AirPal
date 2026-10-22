@@ -34,9 +34,11 @@ export interface CatchUpItem {
 const LEGACY_STORAGE_KEY = "airpal:catchups:v1";
 const MIGRATED_FLAG_KEY = "airpal:catchups:migrated:v2";
 
-/** In-memory mirror of remote (and offline fallback when Firebase is off). */
+/** In-memory view of remote rows; durable writes always go to Firestore first. */
 let memory: CatchUpItem[] = [];
 const migratedUids = new Set<string>();
+let persistHook: ((item: CatchUpItem) => Promise<void>) | null = null;
+let deleteHook: ((id: string) => Promise<void>) | null = null;
 
 function omitUndefined<T extends Record<string, unknown>>(row: T): T {
   return Object.fromEntries(Object.entries(row).filter(([, v]) => v !== undefined)) as T;
@@ -57,11 +59,12 @@ function readLegacyLocal(): CatchUpItem[] {
   }
 }
 
-function clearLegacyLocal(): void {
+function writeLegacyLocal(rows: CatchUpItem[]): void {
   try {
-    safeLocalStorage()?.removeItem(LEGACY_STORAGE_KEY);
+    if (rows.length === 0) safeLocalStorage()?.removeItem(LEGACY_STORAGE_KEY);
+    else safeLocalStorage()?.setItem(LEGACY_STORAGE_KEY, JSON.stringify(rows));
   } catch {
-    /* private browsing */
+    // Legacy browser data is retained if storage is unavailable.
   }
 }
 
@@ -87,58 +90,61 @@ function mergeRemoteForOwner(ownerUid: string, rows: CatchUpItem[]): void {
 }
 
 export async function persistCatchUp(item: CatchUpItem): Promise<void> {
-  if (!isFirebaseConfigured || !item.requesterUid) return;
+  if (!item.requesterUid) throw new Error("Sign in to save catch-ups to your AirPal account.");
+  if (persistHook) {
+    await persistHook(item);
+    return;
+  }
+  if (!isFirebaseConfigured) throw new Error("Catch-ups can't be saved while AirPal is offline.");
   const db = getFirebaseDb();
-  if (!db) return;
+  if (!db) throw new Error("Catch-ups can't be saved while AirPal is offline.");
   await setDoc(doc(db, "catchups", item.id), omitUndefined(item as unknown as Record<string, unknown>), {
     merge: true,
   });
 }
 
-function syncRemote(item: CatchUpItem): void {
-  void persistCatchUp(item).catch(() => undefined);
+export function setCatchUpPersistHook(fn: ((item: CatchUpItem) => Promise<void>) | null): void {
+  persistHook = fn;
 }
 
-/**
- * One-shot: push legacy localStorage rows that belong to this uid into Firestore,
- * then drop the device-local store so conflict checks are no longer per-browser.
- */
-function migrateLegacyForUid(uid: string): void {
+export function setCatchUpDeleteHook(fn: ((id: string) => Promise<void>) | null): void {
+  deleteHook = fn;
+}
+
+async function deleteCatchUpRemote(id: string): Promise<void> {
+  if (deleteHook) {
+    await deleteHook(id);
+    return;
+  }
+  if (!isFirebaseConfigured) throw new Error("Catch-up reminders can't be changed while AirPal is offline.");
+  const db = getFirebaseDb();
+  if (!db) throw new Error("Catch-up reminders can't be changed while AirPal is offline.");
+  await deleteDoc(doc(db, "catchups", id));
+}
+
+/** Move only provably account-owned legacy rows; keep data until each remote write succeeds. */
+async function migrateLegacyForUid(uid: string): Promise<void> {
   if (!uid || migratedUids.has(uid)) return;
   migratedUids.add(uid);
   try {
     if (safeLocalStorage()?.getItem(`${MIGRATED_FLAG_KEY}:${uid}`) === "1") return;
-  } catch {
-    /* continue */
-  }
-
-  const legacy = readLegacyLocal();
-  if (legacy.length === 0) {
-    try {
+    const legacy = readLegacyLocal();
+    if (legacy.length === 0) {
       safeLocalStorage()?.setItem(`${MIGRATED_FLAG_KEY}:${uid}`, "1");
-    } catch {
-      /* ignore */
+      return;
     }
-    return;
-  }
 
-  for (const row of legacy) {
-    const belongs = row.requesterUid === uid || (!row.requesterUid && Boolean(row.isReminderOnly));
-    if (!belongs) continue;
-    const item: CatchUpItem = {
-      ...row,
-      requesterUid: row.requesterUid || uid,
-      targetHandle: normalizeHandle(row.targetHandle),
-    };
-    upsertMemory(item);
-    syncRemote(item);
-  }
+    const owned = legacy.filter((row) => row.requesterUid === uid);
+    for (const row of owned) {
+      await persistCatchUp({ ...row, targetHandle: normalizeHandle(row.targetHandle) });
+    }
 
-  clearLegacyLocal();
-  try {
+    writeLegacyLocal(legacy.filter((row) => row.requesterUid !== uid));
     safeLocalStorage()?.setItem(`${MIGRATED_FLAG_KEY}:${uid}`, "1");
-  } catch {
-    /* ignore */
+    for (const row of owned) upsertMemory({ ...row, targetHandle: normalizeHandle(row.targetHandle) });
+  } catch (error) {
+    migratedUids.delete(uid);
+    console.error("Failed to migrate legacy catch-ups to the AirPal account.", error);
   }
 }
 
@@ -161,14 +167,14 @@ export function hasCatchUpReminder(targetHandle: string): boolean {
   );
 }
 
-export function toggleCatchUpReminder(target: {
+export async function toggleCatchUpReminder(target: {
   handle: string;
   name: string;
   photo?: string;
   city?: string;
-  /** Required for Firestore create rules; memory-only when omitted (tests / offline). */
-  requesterUid?: string;
-}): boolean {
+  requesterUid: string;
+}): Promise<boolean> {
+  if (!target.requesterUid) throw new Error("Sign in to save catch-up reminders to your AirPal account.");
   const items = listCatchUps();
   const norm = normalizeHandle(target.handle);
   const existingIdx = items.findIndex(
@@ -176,16 +182,13 @@ export function toggleCatchUpReminder(target: {
       normalizeHandle(i.targetHandle) === norm &&
       Boolean(i.isReminderOnly) &&
       i.status !== "dismissed" &&
-      (!target.requesterUid || !i.requesterUid || i.requesterUid === target.requesterUid),
+      i.requesterUid === target.requesterUid,
   );
 
   if (existingIdx >= 0) {
     const existing = items[existingIdx]!;
+    await deleteCatchUpRemote(existing.id);
     removeFromMemory(existing.id);
-    if (isFirebaseConfigured && existing.requesterUid) {
-      const db = getFirebaseDb();
-      if (db) void deleteDoc(doc(db, "catchups", existing.id)).catch(() => undefined);
-    }
     return false;
   }
 
@@ -202,12 +205,12 @@ export function toggleCatchUpReminder(target: {
     status: "pending",
   };
 
+  await persistCatchUp(newItem);
   upsertMemory(newItem);
-  syncRemote(newItem);
   return true;
 }
 
-export function recordCatchUpInterest(input: {
+export async function recordCatchUpInterest(input: {
   targetHandle: string;
   targetOwnerUid?: string;
   requesterUid?: string;
@@ -223,7 +226,8 @@ export function recordCatchUpInterest(input: {
   meetingLink?: string;
   meetingPlatform?: "in_person" | "google_meet" | "facetime" | "zoom";
   notes?: string;
-}): CatchUpItem {
+}): Promise<CatchUpItem> {
+  if (!input.requesterUid) throw new Error("Sign in to propose a catch-up.");
   const norm = normalizeHandle(input.targetHandle);
 
   const item: CatchUpItem = {
@@ -248,19 +252,23 @@ export function recordCatchUpInterest(input: {
     status: "pending",
   };
 
+  await persistCatchUp(item);
   upsertMemory(item);
-  syncRemote(item);
   return item;
 }
 
 /** Live proposals where this account is the requester (for conflict checks + reminders). */
-export function subscribeMyCatchUps(uid: string, onRows: (rows: CatchUpItem[]) => void): () => void {
+export function subscribeMyCatchUps(
+  uid: string,
+  onRows: (rows: CatchUpItem[]) => void,
+  onError?: (error: Error) => void,
+): () => void {
   if (!uid) {
     onRows([]);
     return () => undefined;
   }
 
-  migrateLegacyForUid(uid);
+  void migrateLegacyForUid(uid);
 
   if (!isFirebaseConfigured) {
     onRows(listCatchUps().filter((i) => i.requesterUid === uid && i.status !== "dismissed"));
@@ -284,8 +292,9 @@ export function subscribeMyCatchUps(uid: string, onRows: (rows: CatchUpItem[]) =
       mergeRemoteForRequester(uid, rows);
       onRows(rows.filter((i) => i.status !== "dismissed"));
     },
-    () => {
-      onRows(listCatchUps().filter((i) => i.requesterUid === uid && i.status !== "dismissed"));
+    (error) => {
+      if (onError) onError(error);
+      else onRows(listCatchUps().filter((i) => i.requesterUid === uid && i.status !== "dismissed"));
     },
   );
 }
@@ -322,30 +331,23 @@ export function subscribeCatchUpsForOwner(ownerUid: string, onRows: (rows: Catch
   );
 }
 
-export function updateCatchUpStatus(id: string, status: "pending" | "accepted" | "scheduled" | "dismissed"): void {
+export async function updateCatchUpStatus(
+  id: string,
+  status: "pending" | "accepted" | "scheduled" | "dismissed",
+): Promise<void> {
+  if (!isFirebaseConfigured) throw new Error("Catch-ups can't be updated while AirPal is offline.");
+  const db = getFirebaseDb();
+  if (!db) throw new Error("Catch-ups can't be updated while AirPal is offline.");
+  await updateDoc(doc(db, "catchups", id), { status });
   const existing = listCatchUps().find((item) => item.id === id);
   const next = existing ? { ...existing, status } : undefined;
   if (next) upsertMemory(next);
-  else {
-    memory = listCatchUps().map((item) => (item.id === id ? { ...item, status } : item));
-  }
-  if (!isFirebaseConfigured) return;
-  const db = getFirebaseDb();
-  if (!db) return;
-  void updateDoc(doc(db, "catchups", id), { status }).catch(() => undefined);
 }
 
 /** Permanently delete or withdraw a catch-up proposal */
 export async function deleteCatchUp(id: string): Promise<void> {
+  await deleteCatchUpRemote(id);
   removeFromMemory(id);
-  if (!isFirebaseConfigured) return;
-  const db = getFirebaseDb();
-  if (!db) return;
-  try {
-    await deleteDoc(doc(db, "catchups", id));
-  } catch {
-    /* offline or denied */
-  }
 }
 
 export interface TimeConflict {
@@ -442,4 +444,6 @@ export function formatCatchUpTimeRange(time?: string, durationMinutes = 45): str
 export function __resetCatchUpMemoryForTests(): void {
   memory = [];
   migratedUids.clear();
+  persistHook = null;
+  deleteHook = null;
 }

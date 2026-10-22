@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Check, HeartHandshake, Plus, Ticket, Users } from "lucide-react";
 import { useBio } from "@/contexts/BioContext";
@@ -22,9 +22,16 @@ interface Friend {
  * is only ever claimed from your own wallet bookings.
  */
 export function FriendsPage() {
+  const [peopleRevision, setPeopleRevision] = useState(0);
   const { mine, profiles } = useBio();
   const { followedHandles, followerHandles, toggleFollow } = useSocial();
   const { upcomingBookings } = useMyBookings();
+
+  useEffect(() => {
+    const refreshPeople = () => setPeopleRevision((revision) => revision + 1);
+    window.addEventListener("airpal:device-data-updated", refreshPeople);
+    return () => window.removeEventListener("airpal:device-data-updated", refreshPeople);
+  }, []);
 
   const friends = useMemo<Friend[]>(() => {
     const myHandle = (mine?.handle || "").toLowerCase();
@@ -51,7 +58,7 @@ export function FriendsPage() {
       const rank = (f: Friend) => (f.following && f.follower ? 0 : f.follower ? 1 : 2);
       return rank(a) - rank(b) || a.name.localeCompare(b.name);
     });
-  }, [mine?.handle, profiles, followedHandles, followerHandles]);
+  }, [mine?.handle, profiles, followedHandles, followerHandles, peopleRevision]);
 
   const mutuals = friends.filter((f) => f.following && f.follower).length;
 

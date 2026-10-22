@@ -3,18 +3,23 @@ import {
   __resetCatchUpMemoryForTests,
   checkTimeConflict,
   hasCatchUpReminder,
+  listCatchUps,
   listCatchUpsForHandle,
   recordCatchUpInterest,
+  setCatchUpDeleteHook,
+  setCatchUpPersistHook,
   toggleCatchUpReminder,
 } from "./catchup";
 
 describe("catch-up proposals", () => {
   beforeEach(() => {
     __resetCatchUpMemoryForTests();
+    setCatchUpPersistHook(async () => undefined);
+    setCatchUpDeleteHook(async () => undefined);
   });
 
-  it("records a 1-on-1 coffee against a handle", () => {
-    const item = recordCatchUpInterest({
+  it("records a 1-on-1 coffee against a handle after server persistence", async () => {
+    const item = await recordCatchUpInterest({
       targetHandle: "xyz",
       requesterName: "Sam",
       requesterUid: "u1",
@@ -30,11 +35,33 @@ describe("catch-up proposals", () => {
     expect(hasCatchUpReminder("xyz")).toBe(false);
   });
 
-  it("toggles a reminder for a handle", () => {
-    const on = toggleCatchUpReminder({ handle: "xyz-rem", name: "Xyz", requesterUid: "u1" });
+  it("does not expose a proposal when its server write fails", async () => {
+    setCatchUpPersistHook(async () => {
+      throw new Error("offline");
+    });
+    await expect(
+      recordCatchUpInterest({ targetHandle: "xyz", requesterName: "Sam", requesterUid: "u1" }),
+    ).rejects.toThrow("offline");
+    expect(listCatchUpsForHandle("xyz")).toEqual([]);
+    expect(listCatchUps()).toEqual([]);
+  });
+
+  it("keeps a reminder visible when its server deletion fails", async () => {
+    await toggleCatchUpReminder({ handle: "xyz-rem", name: "Xyz", requesterUid: "u1" });
+    setCatchUpDeleteHook(async () => {
+      throw new Error("offline");
+    });
+    await expect(toggleCatchUpReminder({ handle: "xyz-rem", name: "Xyz", requesterUid: "u1" })).rejects.toThrow(
+      "offline",
+    );
+    expect(hasCatchUpReminder("xyz-rem")).toBe(true);
+  });
+
+  it("toggles a server-persisted reminder for a handle", async () => {
+    const on = await toggleCatchUpReminder({ handle: "xyz-rem", name: "Xyz", requesterUid: "u1" });
     expect(on).toBe(true);
     expect(hasCatchUpReminder("xyz-rem")).toBe(true);
-    const off = toggleCatchUpReminder({ handle: "xyz-rem", name: "Xyz", requesterUid: "u1" });
+    const off = await toggleCatchUpReminder({ handle: "xyz-rem", name: "Xyz", requesterUid: "u1" });
     expect(off).toBe(false);
     expect(hasCatchUpReminder("xyz-rem")).toBe(false);
   });

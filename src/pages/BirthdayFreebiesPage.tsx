@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useParams } from "wouter";
+import { collection, deleteDoc, doc, onSnapshot, setDoc } from "firebase/firestore";
 import {
   AlertTriangle,
   ArrowRight,
@@ -40,6 +41,7 @@ import { triggerHaptic } from "@/lib/native";
 import { friendlyBirthdayError, setBirthdayAlertPrefsRemote } from "@/lib/birthday-freebies";
 import { cn } from "@/lib/cn";
 import { CURATED_BIRTHDAY_OFFERS, type CuratedBirthdayOffer, type FreebieCategory } from "@/lib/birthdayFreebiesData";
+import { getFirebaseDb } from "@/lib/firebase";
 
 const CATEGORIES: Array<{ id: FreebieCategory; label: string; icon: LucideIcon }> = [
   { id: "all", label: "All Treats", icon: Sparkles },
@@ -106,22 +108,13 @@ export function BirthdayFreebiesPage() {
   const region = raw && isBirthdayRegionCode(raw) ? raw : null;
   const active = BIRTHDAY_REGIONS.find((r) => r.code === region) ?? null;
 
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, requireUser } = useAuth();
   const currentCalendarMonth = useMemo(() => new Date().getMonth() + 1, []);
 
-  // Persistent birthday month for this user / device
+  // The account profile is authoritative; this state is only a view of it.
   const [myBirthdayMonth, setMyBirthdayMonth] = useState<number | null>(() => {
     if (user?.birthdayMonth && user.birthdayMonth >= 1 && user.birthdayMonth <= 12) {
       return user.birthdayMonth;
-    }
-    try {
-      const stored = localStorage.getItem("airpal_user_birthday_month");
-      if (stored) {
-        const val = parseInt(stored, 10);
-        if (val >= 1 && val <= 12) return val;
-      }
-    } catch {
-      /* ignore */
     }
     return null;
   });
@@ -129,29 +122,15 @@ export function BirthdayFreebiesPage() {
   const [isSavingMonth, setIsSavingMonth] = useState(false);
 
   useEffect(() => {
-    if (user?.birthdayMonth && user.birthdayMonth >= 1 && user.birthdayMonth <= 12) {
-      setMyBirthdayMonth(user.birthdayMonth);
-      try {
-        localStorage.setItem("airpal_user_birthday_month", String(user.birthdayMonth));
-      } catch {
-        /* ignore */
-      }
-    }
-  }, [user?.birthdayMonth]);
+    setMyBirthdayMonth(
+      user?.birthdayMonth && user.birthdayMonth >= 1 && user.birthdayMonth <= 12 ? user.birthdayMonth : null,
+    );
+  }, [user?.uid, user?.birthdayMonth]);
 
   // Filter states: default to user's birthday month if set, otherwise current calendar month
   const [selectedMonth, setSelectedMonth] = useState<number | null>(() => {
     if (user?.birthdayMonth && user.birthdayMonth >= 1 && user.birthdayMonth <= 12) {
       return user.birthdayMonth;
-    }
-    try {
-      const stored = localStorage.getItem("airpal_user_birthday_month");
-      if (stored) {
-        const val = parseInt(stored, 10);
-        if (val >= 1 && val <= 12) return val;
-      }
-    } catch {
-      /* ignore */
     }
     return currentCalendarMonth;
   });
@@ -163,76 +142,80 @@ export function BirthdayFreebiesPage() {
   const [confettiKey, setConfettiKey] = useState(0);
 
   const handleSetBirthdayMonth = async (month: number | null) => {
+    if (!requireUser("Sign in to save your birthday month to your AirPal account.")) return;
+    if (isSavingMonth) return;
     void triggerHaptic("medium");
-    setMyBirthdayMonth(month);
-    if (month !== null) {
-      setSelectedMonth(month);
-      try {
-        localStorage.setItem("airpal_user_birthday_month", String(month));
-      } catch {
-        /* storage safe */
-      }
-      setConfettiKey((k) => k + 1);
-    } else {
-      try {
-        localStorage.removeItem("airpal_user_birthday_month");
-      } catch {
-        /* storage safe */
-      }
-    }
-
     const monthLabel = month ? BIRTHDAY_MONTHS.find((m) => m.value === month)?.label : null;
-
-    if (user) {
-      setIsSavingMonth(true);
-      try {
-        await setBirthdayAlertPrefsRemote({
-          birthdayMonth: month,
-          birthdayAlertsEnabled: true,
-        });
-        await refreshUser?.();
-        toast.success(monthLabel ? `Birthday month set to ${monthLabel}! 🎂` : "Birthday month cleared.");
-      } catch (err) {
-        toast.error(friendlyBirthdayError(err));
-      } finally {
-        setIsSavingMonth(false);
+    setIsSavingMonth(true);
+    try {
+      await setBirthdayAlertPrefsRemote({
+        birthdayMonth: month,
+        birthdayAlertsEnabled: true,
+      });
+      setMyBirthdayMonth(month);
+      if (month !== null) {
+        setSelectedMonth(month);
+        setConfettiKey((k) => k + 1);
       }
-    } else {
-      toast.success(
-        monthLabel
-          ? `Birthday month set to ${monthLabel}! 🎂 Sign in to sync across devices.`
-          : "Birthday month cleared.",
-      );
+      await refreshUser?.();
+      toast.success(monthLabel ? `Birthday month set to ${monthLabel}! 🎂` : "Birthday month cleared.");
+    } catch (err) {
+      toast.error(friendlyBirthdayError(err));
+    } finally {
+      setIsSavingMonth(false);
     }
   };
 
   // Claim steps modal
   const [claimModalOffer, setClaimModalOffer] = useState<CuratedBirthdayOffer | null>(null);
 
-  // Wishlist in localStorage
-  const [wishlist, setWishlist] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem("airpal_birthday_wishlist");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [savingWishlist, setSavingWishlist] = useState<Set<string>>(() => new Set());
+
+  useEffect(() => {
+    setWishlist([]);
+    if (!user) return;
+    const db = getFirebaseDb();
+    if (!db) {
+      toast.error("Birthday wishlist needs a server connection.");
+      return;
     }
-  });
+    return onSnapshot(
+      collection(db, "users", user.uid, "savedBirthdayOffers"),
+      (snapshot) => setWishlist(snapshot.docs.map((item) => item.id)),
+      () => toast.error("Could not load your saved birthday offers."),
+    );
+  }, [user?.uid]);
 
   const [alertsEnabled, setAlertsEnabled] = useState(true);
   const [isSavingAlerts, setIsSavingAlerts] = useState(false);
 
-  const toggleWishlist = (id: string) => {
+  const toggleWishlist = async (id: string) => {
+    if (!user) {
+      requireUser("Sign in to save birthday offers to your AirPal account.");
+      return;
+    }
+    if (savingWishlist.has(id)) return;
+    const db = getFirebaseDb();
+    if (!db) {
+      toast.error("Birthday wishlist needs a server connection.");
+      return;
+    }
     void triggerHaptic("medium");
-    setWishlist((cur) => {
-      const next = cur.includes(id) ? cur.filter((item) => item !== id) : [...cur, id];
-      try {
-        localStorage.setItem("airpal_birthday_wishlist", JSON.stringify(next));
-      } catch {
-        /* storage safe */
-      }
-      return next;
-    });
+    setSavingWishlist((current) => new Set(current).add(id));
+    try {
+      const savedRef = doc(db, "users", user.uid, "savedBirthdayOffers", id);
+      if (wishlist.includes(id)) await deleteDoc(savedRef);
+      else await setDoc(savedRef, { offerId: id, savedAt: new Date().toISOString() });
+    } catch {
+      toast.error("Could not save this offer. Check your connection and try again.");
+    } finally {
+      setSavingWishlist((current) => {
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
+    }
   };
 
   const handleCelebrate = () => {
@@ -652,8 +635,9 @@ export function BirthdayFreebiesPage() {
                       <button
                         type="button"
                         onClick={() => toggleWishlist(offer.id)}
+                        disabled={savingWishlist.has(offer.id)}
                         aria-label={isSaved ? "Remove from wishlist" : "Save to wishlist"}
-                        className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition active:scale-90 cursor-pointer"
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition active:scale-90 cursor-pointer disabled:cursor-wait disabled:opacity-60"
                       >
                         {isSaved ? (
                           <BookmarkCheck size={16} className="text-yellow-300 fill-yellow-300" />

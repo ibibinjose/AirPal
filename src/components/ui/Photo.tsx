@@ -23,7 +23,7 @@ export function Photo({
   sizes?: string;
 }) {
   const resolved = useMediaSrc(src);
-  const current = resolved || (src && !src.startsWith("idb:") ? src : undefined);
+  const current = resolved || (src && !src.startsWith("idb:") && !src.startsWith("storage://") ? src : undefined);
   const display = thumb ? sizedImageUrl(current, 600) : current;
   if (!display) return <div className={className} />;
   return (

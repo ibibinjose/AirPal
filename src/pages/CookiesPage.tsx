@@ -63,16 +63,13 @@ export function CookiesPage() {
             <td>Session (about 15 minutes of usefulness)</td>
           </tr>
           <tr>
-            <td>airpal.listings.v1 / airpal.bios.v1 / event keys</td>
+            <td>Firebase Firestore local cache</td>
             <td>Functional</td>
-            <td>Draft listings, bios, events, and saved stalls on this browser (including demo mode).</td>
-            <td>Until you clear storage</td>
-          </tr>
-          <tr>
-            <td>airpal.bio-claims.v1</td>
-            <td>Functional</td>
-            <td>Remember a till code you already claimed.</td>
-            <td>Until expiry (~24 hours of usefulness) or you clear storage</td>
+            <td>
+              Read-through cache of server records for offline viewing. The server remains authoritative; durable saves
+              require a successful Firebase write.
+            </td>
+            <td>Until cleared by the browser or you sign out and clear site data</td>
           </tr>
           <tr>
             <td>airpal.bio-taps.v1 / airpal.ratings.v1 / checklist keys</td>
