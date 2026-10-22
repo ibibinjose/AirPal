@@ -57,6 +57,7 @@ export const CALLABLES = {
   createManagedCheckoutSession: "createManagedCheckoutSession",
   scheduleCatchUp: "scheduleCatchUp",
   completeAccountSignup: "completeAccountSignup",
+  confirmAdultSignup: "confirmAdultSignup",
   ensureUserProfile: "ensureUserProfile",
   loginWithPhonePassword: "loginWithPhonePassword",
   shareHere: "shareHere",
@@ -230,6 +231,13 @@ export type CompleteAccountSignupRequest = {
   /** YYYY-MM-DD birth date. Server verifies 18+; stores birthdayMonth only (not full DOB). */
   birthDate: string;
   /** Explicit Adult 18+ checkbox consent. Required. */
+  adultConsent: boolean;
+};
+
+export type ConfirmAdultSignupRequest = {
+  /** YYYY-MM-DD birth date. Server verifies 18+; stores birthdayMonth only. */
+  birthDate: string;
+  /** Explicit Adult 18+ consent. Required. */
   adultConsent: boolean;
 };
 

@@ -45,6 +45,7 @@ function nudgeIntoView(e: React.FocusEvent<HTMLElement>) {
 
 export function SignupFlow({
   onDone,
+  onProgress,
   onPhoneConfirm,
   initialPhone = "",
   initialEmail = "",
@@ -52,6 +53,7 @@ export function SignupFlow({
   onSwitchToSignIn,
 }: {
   onDone: () => void;
+  onProgress?: (inProgress: boolean) => void;
   onPhoneConfirm?: () => void;
   initialPhone?: string;
   initialEmail?: string;
@@ -64,11 +66,12 @@ export function SignupFlow({
     confirmPhoneCode,
     linkEmailPassword,
     completeAccount,
-    sendVerificationEmail,
+    confirmAdultAccount,
     biometricsSupported,
     enrollUserBiometrics,
+    logout,
   } = useAuth();
-  const { createProfile, updateProfile, mine } = useBio();
+  const { createProfile, mine } = useBio();
 
   const [method, setMethod] = useState<SignupMethod>("email");
   const [phoneStep, setPhoneStep] = useState<PhoneStep>("handle");
@@ -80,8 +83,9 @@ export function SignupFlow({
   const [showPassword, setShowPassword] = useState(false);
   const [handle, setHandle] = useState(initialHandle || mine?.handle || "");
   const [handleCustomized, setHandleCustomized] = useState(Boolean(initialHandle));
-  const [adultConsent, setAdultConsent] = useState(true);
+  const [adultConsent, setAdultConsent] = useState(false);
   const [birthDate, setBirthDate] = useState("");
+  const [emailAccountCreated, setEmailAccountCreated] = useState(false);
   const enableBiometrics = true;
 
   // Phone SMS Specific Fields
@@ -153,6 +157,10 @@ export function SignupFlow({
       setInlineError({ message: "Password must be at least 8 characters with letters and numbers." });
       return;
     }
+    if (!adultOk) {
+      setInlineError({ message: "Enter a valid date of birth showing you are at least 18." });
+      return;
+    }
     if (cleanHandle && !handleOk) {
       setInlineError({ message: handleStatus.reason || "That @handle is already taken. Try another." });
       return;
@@ -162,7 +170,9 @@ export function SignupFlow({
       return;
     }
 
+    onProgress?.(true);
     setBusy(true);
+    let accountCreated = emailAccountCreated;
     try {
       try {
         localStorage.setItem("airpal.last_signin_email", cleanEmail);
@@ -170,10 +180,15 @@ export function SignupFlow({
         /* storage may be restricted */
       }
 
-      await register(cleanEmail, cleanName, {
-        password,
-        city: "Sydney",
-      });
+      if (!emailAccountCreated) {
+        await register(cleanEmail, cleanName, {
+          password,
+          city: "Sydney",
+        });
+        accountCreated = true;
+        setEmailAccountCreated(true);
+      }
+      await confirmAdultAccount({ birthDate: birthDate.trim(), adultConsent });
 
       // Claim chosen handle profile if specified
       if (cleanHandle && handleOk) {
@@ -196,11 +211,15 @@ export function SignupFlow({
     } catch (err: unknown) {
       const errObj = err as { code?: string; message?: string };
       const code = errObj?.code || "";
-      const msg = authErrorMessage(err, "Could not create account. Please try again.");
+      const message = authErrorMessage(err, "Could not create account. Please try again.");
+      const msg = accountCreated
+        ? `Your account was created, but setup could not be verified. ${message} Try again to finish safely.`
+        : message;
       setInlineError({ message: msg, code });
       toast.error(msg);
     } finally {
       setBusy(false);
+      onProgress?.(false);
     }
   }
 
@@ -239,24 +258,12 @@ export function SignupFlow({
       toast.error("Enter the 6-digit code");
       return;
     }
-    onPhoneConfirm?.();
     setBusy(true);
     setInlineError(null);
     try {
       await confirmPhoneCode(normalizeOtp(code));
       resetPhoneLogin();
-      try {
-        await createProfile({
-          handle: normalizeHandle(handle),
-          name: name.trim() || normalizeHandle(handle),
-          city: "Sydney",
-          shortWhy: "On AirPal",
-          kind: "person",
-          phone,
-        });
-      } catch {
-        /* handle may already exist */
-      }
+      onPhoneConfirm?.();
       setPhoneStep("account");
       void triggerHaptic("medium");
       toast.success("Mobile number confirmed");
@@ -278,6 +285,10 @@ export function SignupFlow({
       toast.error("Confirm you are 18 years of age or older");
       return;
     }
+    if (!handleOk || handleStatus.checking) {
+      toast.error(handleStatus.reason || "Choose an available @handle");
+      return;
+    }
     if (!nameOk || !emailOk || !passOk) {
       toast.error("Add your name, a valid email address, and a strong password");
       return;
@@ -293,40 +304,27 @@ export function SignupFlow({
       }
       await linkEmailPassword(cleanEmail, password);
       const h = normalizeHandle(handle);
-      if (mine?.handle) {
-        await updateProfile({ handle: mine.handle, name: name.trim(), phone });
-      } else {
-        await createProfile({
-          handle: h,
-          name: name.trim(),
-          city: "Sydney",
-          shortWhy: "On AirPal",
-          kind: "person",
-          phone,
-        });
-      }
-      try {
-        await completeAccount({
-          handle: h,
-          name: name.trim(),
-          email: cleanEmail,
-          birthDate: birthDate.trim(),
-          adultConsent: true,
-        });
-      } catch {
-        /* profile already saved */
-      }
+      await createProfile({
+        handle: h,
+        name: name.trim(),
+        city: "Sydney",
+        shortWhy: "On AirPal",
+        kind: "person",
+        phone,
+      });
+      await completeAccount({
+        handle: h,
+        name: name.trim(),
+        email: cleanEmail,
+        birthDate: birthDate.trim(),
+        adultConsent,
+      });
       if (enableBiometrics && biometricsSupported) {
         try {
           await enrollUserBiometrics();
         } catch {
           /* can be enrolled later */
         }
-      }
-      try {
-        await sendVerificationEmail();
-      } catch {
-        /* non-blocking */
       }
       void triggerHaptic("success");
       toast.success("Account created successfully!");
@@ -343,8 +341,31 @@ export function SignupFlow({
   const phoneSteps: Array<{ id: PhoneStep; label: string; icon: typeof Phone }> = [
     { id: "handle", label: "Mobile & Handle", icon: AtSign },
     { id: "code", label: "SMS Verify", icon: KeyRound },
-    { id: "account", label: "Password", icon: User },
+    { id: "account", label: "Account Details", icon: User },
   ];
+
+  function returnToPhoneDetails() {
+    resetPhoneLogin();
+    setCode("");
+    setWait(0);
+    setPhoneStep("handle");
+    setInlineError(null);
+  }
+
+  async function changeConfirmedMobile() {
+    setBusy(true);
+    setInlineError(null);
+    try {
+      await logout({ reload: false });
+      returnToPhoneDetails();
+    } catch (err) {
+      const msg = authErrorMessage(err, "Could not restart mobile verification.");
+      setInlineError({ message: msg });
+      toast.error(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -354,8 +375,9 @@ export function SignupFlow({
           type="button"
           onClick={() => switchMethod("email")}
           aria-pressed={method === "email"}
+          disabled={busy || emailAccountCreated || (method === "phone" && phoneStep === "account")}
           className={cn(
-            "flex-1 rounded-full min-h-[38px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5",
+            "flex-1 rounded-full min-h-[44px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-60",
             method === "email"
               ? "bg-brand text-white shadow-xs"
               : "text-mute hover:text-ink hover:bg-black/5 dark:hover:bg-white/5",
@@ -368,8 +390,9 @@ export function SignupFlow({
           type="button"
           onClick={() => switchMethod("phone")}
           aria-pressed={method === "phone"}
+          disabled={busy || emailAccountCreated || (method === "phone" && phoneStep === "account")}
           className={cn(
-            "flex-1 rounded-full min-h-[38px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5",
+            "flex-1 rounded-full min-h-[44px] text-center text-xs font-bold transition active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-60",
             method === "phone"
               ? "bg-brand text-white shadow-xs"
               : "text-mute hover:text-ink hover:bg-black/5 dark:hover:bg-white/5",
@@ -382,7 +405,11 @@ export function SignupFlow({
 
       {/* Inline Error Alert */}
       {inlineError && (
-        <div className="rounded-2xl bg-red-500/10 p-3.5 text-xs text-red-600 dark:text-red-400 ring-1 ring-red-500/25">
+        <div
+          role="alert"
+          aria-live="polite"
+          className="rounded-2xl bg-red-500/10 p-3.5 text-xs text-red-600 dark:text-red-400 ring-1 ring-red-500/25"
+        >
           <div className="flex items-start gap-2.5">
             <AlertCircle size={16} className="shrink-0 mt-0.5" />
             <div className="flex-1">
@@ -419,6 +446,7 @@ export function SignupFlow({
                 onFocus={nudgeIntoView}
                 placeholder="Alex Rivera"
                 className={cn(fieldInput, "pl-10", KEYBOARD_SAFE_INPUT)}
+                disabled={emailAccountCreated}
                 required
               />
             </div>
@@ -443,6 +471,7 @@ export function SignupFlow({
                 onFocus={nudgeIntoView}
                 placeholder="alex@domain.com"
                 className={cn(fieldInput, "pl-10", KEYBOARD_SAFE_INPUT)}
+                disabled={emailAccountCreated}
                 required
               />
             </div>
@@ -460,6 +489,7 @@ export function SignupFlow({
                 onFocus={nudgeIntoView}
                 placeholder="••••••••"
                 className={cn(fieldInput, "pl-10 pr-10", KEYBOARD_SAFE_INPUT)}
+                disabled={emailAccountCreated}
                 required
               />
               <button
@@ -546,6 +576,27 @@ export function SignupFlow({
             </div>
           </ValidField>
 
+          <ValidField
+            label="Date of birth"
+            ok={adultOk}
+            error={birthDate && !adultOk ? "You must be 18 or older" : null}
+            hint="AirPal accounts are for adults 18 and over. Your full date is not stored."
+          >
+            <div className="relative">
+              <Cake size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
+              <input
+                type="date"
+                value={birthDate}
+                max={sydneyToday()}
+                onChange={(e) => setBirthDate(e.target.value)}
+                onFocus={nudgeIntoView}
+                aria-label="Date of birth"
+                className={cn(fieldInput, "pl-10", KEYBOARD_SAFE_INPUT)}
+                required
+              />
+            </div>
+          </ValidField>
+
           {/* Age Gate & Legal Confirmation */}
           <label className="flex items-start gap-2.5 rounded-2xl bg-paper p-3 ring-1 ring-line cursor-pointer">
             <input
@@ -567,10 +618,18 @@ export function SignupFlow({
           <Button
             type="submit"
             className="w-full min-h-[48px] text-sm font-bold shadow-xs cursor-pointer"
-            disabled={busy || !nameOk || !emailOk || !passOk || !consentOk}
+            disabled={
+              busy ||
+              !nameOk ||
+              !emailOk ||
+              !passOk ||
+              !adultOk ||
+              !consentOk ||
+              Boolean(handle && (!handleOk || handleStatus.checking))
+            }
             loading={busy}
           >
-            {busy ? "Creating your account…" : "Create Free Account"}
+            {busy ? "Creating your account…" : emailAccountCreated ? "Finish account setup" : "Create Free Account"}
           </Button>
         </form>
       )}
@@ -606,6 +665,7 @@ export function SignupFlow({
                       "text-[11px] sm:text-xs font-medium",
                       isCurrent ? "text-ink font-semibold" : "text-mute",
                     )}
+                    aria-current={isCurrent ? "step" : undefined}
                   >
                     {s.label}
                   </span>
@@ -632,7 +692,10 @@ export function SignupFlow({
               >
                 <input
                   value={handle}
-                  onChange={(e) => setHandle(e.target.value)}
+                  onChange={(e) => {
+                    setHandleCustomized(true);
+                    setHandle(e.target.value);
+                  }}
                   onFocus={nudgeIntoView}
                   placeholder="maya"
                   autoComplete="username"
@@ -660,6 +723,15 @@ export function SignupFlow({
               className="space-y-3.5"
             >
               <p className="text-xs leading-relaxed text-mute">Enter the 6-digit code we sent to {phone}.</p>
+              <button
+                type="button"
+                className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-accent"
+                disabled={busy}
+                onClick={returnToPhoneDetails}
+              >
+                <ArrowRight size={14} className="rotate-180" />
+                Change mobile number or @handle
+              </button>
               <ValidField label="SMS code" ok={codeOk}>
                 <input
                   value={code}
@@ -686,7 +758,7 @@ export function SignupFlow({
               </Button>
               <button
                 type="button"
-                className="w-full text-center text-xs font-medium text-accent disabled:text-mute cursor-pointer"
+                className="w-full min-h-[44px] text-center text-xs font-medium text-accent disabled:text-mute cursor-pointer"
                 disabled={wait > 0 || busy}
                 onClick={() => void sendCode()}
               >
@@ -703,6 +775,36 @@ export function SignupFlow({
               }}
               className="space-y-3.5"
             >
+              <button
+                type="button"
+                className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-accent disabled:text-mute"
+                disabled={busy}
+                onClick={() => void changeConfirmedMobile()}
+              >
+                <ArrowRight size={14} className="rotate-180" />
+                Change mobile number
+              </button>
+              <ValidField
+                label="AirPal Me @handle"
+                ok={Boolean(handle && handleOk)}
+                error={handle && !handleStatus.checking && !handleOk ? handleStatus.reason || "Taken" : null}
+                hint={handleStatus.checking ? "Checking availability…" : "Your unique identity across AirPal"}
+              >
+                <div className="relative">
+                  <AtSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
+                  <input
+                    value={handle}
+                    onChange={(e) => {
+                      setHandleCustomized(true);
+                      setHandle(e.target.value);
+                    }}
+                    onFocus={nudgeIntoView}
+                    placeholder="maya"
+                    autoComplete="username"
+                    className={cn(fieldInput, "pl-10", KEYBOARD_SAFE_INPUT)}
+                  />
+                </div>
+              </ValidField>
               <ValidField label="Your name" ok={nameOk} error={name && !nameOk ? "At least 2 characters" : null}>
                 <div className="relative">
                   <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
@@ -763,7 +865,7 @@ export function SignupFlow({
                 label="Date of birth"
                 ok={adultOk}
                 error={birthDate && !adultOk ? "You must be 18 or older" : null}
-                hint="AirPal involves meeting people in person — accounts are 18+"
+                hint="AirPal accounts are 18+. Your full date is not stored."
               >
                 <div className="relative">
                   <Cake size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
@@ -796,7 +898,9 @@ export function SignupFlow({
               <Button
                 type="submit"
                 className="w-full min-h-[48px] text-sm font-bold shadow-xs cursor-pointer"
-                disabled={busy || !nameOk || !emailOk || !passOk || !adultOk || !consentOk}
+                disabled={
+                  busy || !nameOk || !emailOk || !passOk || !adultOk || !consentOk || !handleOk || handleStatus.checking
+                }
                 loading={busy}
               >
                 {busy ? "Creating account…" : "Create account"}

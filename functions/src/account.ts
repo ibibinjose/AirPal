@@ -13,6 +13,45 @@ function phoneLoginId(raw: string): string {
   return e164;
 }
 
+function adultSignupData(requestData: unknown): number {
+  const payload = (requestData || {}) as { birthDate?: string; adultConsent?: boolean };
+  const birthDate = String(payload.birthDate || "").trim();
+  if (payload.adultConsent !== true) {
+    throw new HttpsError("failed-precondition", "Confirm you are 18 years of age or older.");
+  }
+  if (!isAdultBirthDate(birthDate, sydneyToday())) {
+    throw new HttpsError("failed-precondition", "AirPal accounts are for people 18 or older.");
+  }
+  const birthdayMonth = monthFromBirthDate(birthDate);
+  if (!birthdayMonth) {
+    throw new HttpsError("invalid-argument", "Enter a valid date of birth.");
+  }
+  return birthdayMonth;
+}
+
+function adultSignupPatch(birthdayMonth: number) {
+  return {
+    adultConfirmed: true,
+    adultConfirmedAt: FieldValue.serverTimestamp(),
+    adultConsent: true,
+    adultConsentAt: new Date().toISOString(),
+    birthdayMonth,
+    birthdayAlertsEnabled: true,
+    birthdayAlertsRegion: "au",
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+}
+
+/** Server-verifies an adult signup for email and social accounts. Full DOB is never stored. */
+export const confirmAdultSignup = onCall(CALLABLE, async (request) => {
+  await noteAppCheck(request, "confirmAdultSignup");
+  const uid = requireAccount(request, "Create an account first.");
+  await enforceRateLimit(uid, "enter", false);
+  const birthdayMonth = adultSignupData(request.data);
+  await db.collection("users").doc(uid).set(adultSignupPatch(birthdayMonth), { merge: true });
+  return { ok: true as const, birthdayMonth };
+});
+
 /** After SMS + email/password link: store the phone so they can sign in with mobile + password. */
 export const completeAccountSignup = onCall(CALLABLE, async (request) => {
   await noteAppCheck(request, "completeAccountSignup");
@@ -29,26 +68,21 @@ export const completeAccountSignup = onCall(CALLABLE, async (request) => {
   if (!handle || name.length < 2 || !email.includes("@")) {
     throw new HttpsError("invalid-argument", "Handle, name, and email are required.");
   }
-  // Age gate: accounts are 18+. Full DOB is not stored — only birthdayMonth
-  // (1–12) for freebies, plus adultConsent / adultConfirmed flags.
-  const payload = request.data as { birthDate?: string; adultConsent?: boolean };
-  const birthDate = String(payload?.birthDate || "").trim();
-  const adultConsent = payload?.adultConsent === true;
-  if (!adultConsent) {
-    throw new HttpsError("failed-precondition", "Confirm you are 18 years of age or older.");
-  }
-  if (!isAdultBirthDate(birthDate, sydneyToday())) {
-    throw new HttpsError("failed-precondition", "AirPal accounts are for people 18 or older.");
-  }
-  const birthdayMonth = monthFromBirthDate(birthDate);
-  if (!birthdayMonth) {
-    throw new HttpsError("invalid-argument", "Enter a valid date of birth.");
-  }
-  const consentAt = new Date().toISOString();
-  await db
-    .collection("users")
-    .doc(uid)
-    .set(
+  const birthdayMonth = adultSignupData(request.data);
+  const handles = db.collection("handles");
+  const handleRef = handles.doc(handle);
+  const profiles = db.collection("profiles");
+  await db.runTransaction(async (transaction) => {
+    const existingHandle = await transaction.get(handleRef);
+    if (existingHandle.exists && String(existingHandle.data()?.ownerUid) !== uid) {
+      throw new HttpsError("already-exists", "That @handle is already taken. Choose another.");
+    }
+    const owned = await transaction.get(profiles.where("ownerUid", "==", uid));
+    const person = owned.docs.find((row) => String(row.data()?.kind || "person") === "person");
+    const existingProfileId = String(existingHandle.data()?.profileId || "");
+    const profileId = existingProfileId || person?.id || `bio-${uid.slice(0, 8)}`;
+    transaction.set(
+      db.collection("users").doc(uid),
       {
         uid,
         email: record.email || email,
@@ -58,30 +92,17 @@ export const completeAccountSignup = onCall(CALLABLE, async (request) => {
         role: "guest",
         emailVerified: Boolean(record.emailVerified),
         phoneVerified: true,
-        adultConfirmed: true,
-        adultConfirmedAt: FieldValue.serverTimestamp(),
-        adultConsent: true,
-        adultConsentAt: consentAt,
-        birthdayMonth,
-        birthdayAlertsEnabled: true,
-        birthdayAlertsRegion: "au",
-        updatedAt: FieldValue.serverTimestamp(),
+        ...adultSignupPatch(birthdayMonth),
       },
       { merge: true },
     );
-  await db.collection("phone_logins").doc(phone).set({
-    uid,
-    updatedAt: FieldValue.serverTimestamp(),
-  });
-  const existingHandle = await db.collection("handles").doc(handle).get();
-  if (!existingHandle.exists || String(existingHandle.data()?.ownerUid) === uid) {
-    const owned = await db.collection("profiles").where("ownerUid", "==", uid).get();
-    const person = owned.docs.find((row) => String(row.data()?.kind || "person") === "person");
-    const profileId = existingHandle.exists
-      ? String(existingHandle.data()?.profileId)
-      : person?.id || `bio-${uid.slice(0, 8)}`;
-    await db.collection("handles").doc(handle).set({ handle, profileId, ownerUid: uid }, { merge: true });
-    await db.collection("profiles").doc(profileId).set(
+    transaction.set(db.collection("phone_logins").doc(phone), {
+      uid,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    transaction.set(handleRef, { handle, profileId, ownerUid: uid }, { merge: true });
+    transaction.set(
+      profiles.doc(profileId),
       {
         id: profileId,
         handle,
@@ -97,8 +118,8 @@ export const completeAccountSignup = onCall(CALLABLE, async (request) => {
       },
       { merge: true },
     );
-  }
-  return { ok: true as const, phone };
+  });
+  return { ok: true as const, phone, birthdayMonth };
 });
 
 /** First Google / Apple sign-in: create the users doc (clients cannot create it). */

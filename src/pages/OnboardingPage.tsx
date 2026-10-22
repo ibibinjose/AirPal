@@ -6,6 +6,7 @@ import {
   ArrowRight,
   AtSign,
   Building2,
+  Cake,
   CalendarDays,
   Check,
   Fingerprint,
@@ -17,6 +18,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import { handleFromName, normalizeHandle } from "@shared/bio";
+import { isAdultBirthDate, sydneyToday } from "@shared/validate";
 import { Button } from "@/components/ui/Button";
 import { ValidField, fieldInput } from "@/components/forms/ValidField";
 import { useAuth } from "@/contexts/AuthContext";
@@ -120,14 +122,23 @@ export function OnboardingPage() {
   const next = params.get("next") || "";
   const initialHandleParam = params.get("handle") || "";
 
-  const { user, authReady, biometricsSupported, biometricLabel, hasEnrolledBiometrics, enrollUserBiometrics } =
-    useAuth();
+  const {
+    user,
+    authReady,
+    biometricsSupported,
+    biometricLabel,
+    hasEnrolledBiometrics,
+    enrollUserBiometrics,
+    confirmAdultAccount,
+  } = useAuth();
   const { mine, createProfile } = useBio();
 
   const [step, setStep] = useState<OnboardingStep>(1);
   const [name, setName] = useState(() => mine?.name || user?.displayName || "");
   const [handle, setHandle] = useState(() => initialHandleParam || mine?.handle || "");
   const [city, setCity] = useState(() => mine?.city || "Sydney");
+  const [birthDate, setBirthDate] = useState("");
+  const [adultConsent, setAdultConsent] = useState(false);
   const [avatarTheme, setAvatarTheme] = useState("azure");
   const [selectedInterests, setSelectedInterests] = useState<string[]>(["events", "dining"]);
   const [busy, setBusy] = useState(false);
@@ -159,6 +170,9 @@ export function OnboardingPage() {
 
   const handleOk = handleStatus.ok;
   const nameOk = name.trim().length >= 2;
+  const needsAdultConfirmation = !user?.adultConfirmed;
+  const adultOk = !needsAdultConfirmation || isAdultBirthDate(birthDate.trim());
+  const consentOk = !needsAdultConfirmation || adultConsent;
 
   const currentGradient = useMemo(() => {
     return AVATAR_GRADIENTS.find((g) => g.id === avatarTheme) || AVATAR_GRADIENTS[0];
@@ -193,6 +207,10 @@ export function OnboardingPage() {
       toast.error(handleStatus.reason || "Please choose an available @handle");
       return;
     }
+    if (!adultOk || !consentOk) {
+      toast.error("Confirm your date of birth and that you are 18 or older to continue.");
+      return;
+    }
     void triggerHaptic("light");
     setStep(2);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -205,10 +223,18 @@ export function OnboardingPage() {
       setStep(1);
       return;
     }
+    if (!adultOk || !consentOk) {
+      toast.error("Confirm your date of birth and that you are 18 or older to continue.");
+      setStep(1);
+      return;
+    }
 
     setBusy(true);
     try {
       const cleanHandle = normalizeHandle(handle);
+      if (needsAdultConfirmation) {
+        await confirmAdultAccount({ birthDate: birthDate.trim(), adultConsent });
+      }
       await createProfile({
         handle: cleanHandle,
         name: name.trim(),
@@ -483,6 +509,45 @@ export function OnboardingPage() {
               </div>
             </div>
 
+            {needsAdultConfirmation && (
+              <div className="space-y-3">
+                <ValidField
+                  label="Date of birth"
+                  ok={isAdultBirthDate(birthDate.trim())}
+                  error={birthDate && !isAdultBirthDate(birthDate.trim()) ? "You must be 18 or older" : null}
+                  hint="AirPal accounts are for adults 18 and over. Your full date is not stored."
+                >
+                  <div className="relative">
+                    <Cake size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-mute" />
+                    <input
+                      type="date"
+                      value={birthDate}
+                      max={sydneyToday()}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      aria-label="Date of birth"
+                      className={cn(fieldInput, "pl-10 text-[16px] sm:text-sm")}
+                      required
+                    />
+                  </div>
+                </ValidField>
+                <label className="flex min-h-[44px] items-start gap-2.5 rounded-2xl bg-paper p-3 ring-1 ring-line cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={adultConsent}
+                    onChange={(e) => setAdultConsent(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded text-accent focus:ring-brand accent-[#1805db]"
+                    required
+                  />
+                  <span className="text-xs leading-relaxed text-ink">
+                    <span className="font-bold">I confirm I am 18 years of age or older</span>
+                    <span className="block text-[11px] text-mute mt-0.5">
+                      Required. Your full date of birth is used to verify eligibility and is not saved.
+                    </span>
+                  </span>
+                </label>
+              </div>
+            )}
+
             {/* Avatar Style Palette */}
             <div className="space-y-1.5 pt-1">
               <label className="text-xs font-semibold text-ink">Avatar Vibe</label>
@@ -514,7 +579,7 @@ export function OnboardingPage() {
             {/* Next Action */}
             <Button
               className="w-full min-h-[48px] text-sm font-bold shadow-xs cursor-pointer mt-4"
-              disabled={!nameOk || !handleOk}
+              disabled={!nameOk || !handleOk || !adultOk || !consentOk}
               onClick={handleGoToStep2}
             >
               <span>Continue to Interests</span>

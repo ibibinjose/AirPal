@@ -38,6 +38,7 @@ import { clearPendingIntent, savePendingIntent, type PendingIntent } from "@/lib
 import { clearDeviceCache } from "@/lib/device-cache";
 import {
   completeAccountSignupRemote,
+  confirmAdultSignupRemote,
   ensureUserProfileRemote,
   liveBackendEnabled,
   loginWithPhonePasswordRemote,
@@ -88,13 +89,14 @@ type AuthValue = {
     birthDate: string;
     adultConsent: boolean;
   }) => Promise<void>;
+  confirmAdultAccount: (input: { birthDate: string; adultConsent: boolean }) => Promise<void>;
   updateEmailAddress: (email: string) => Promise<void>;
   removeEmailAddress: () => Promise<void>;
   sendAccountPhoneCode: (phone: string) => Promise<void>;
   confirmAccountPhoneCode: (code: string) => Promise<void>;
   removePhoneNumber: () => Promise<void>;
   refreshUser: () => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (options?: { reload?: boolean }) => Promise<void>;
   /** In-app account deletion (App Store 5.1.1(v)). */
   deleteAccount: () => Promise<void>;
   sendVerificationEmail: () => Promise<void>;
@@ -321,15 +323,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       async completeAccount(input) {
         if (liveBackendEnabled()) {
-          await completeAccountSignupRemote({
+          const result = await completeAccountSignupRemote({
             handle: input.handle,
             name: input.name,
             email: normalizeEmail(input.email),
             birthDate: input.birthDate,
             adultConsent: input.adultConsent === true,
           });
+          setUser((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  adultConfirmed: true,
+                  adultConsent: true,
+                  birthdayMonth: result.birthdayMonth,
+                }
+              : prev,
+          );
         }
         await pullUser();
+      },
+      async confirmAdultAccount(input) {
+        if (liveBackendEnabled()) {
+          const result = await confirmAdultSignupRemote({
+            birthDate: input.birthDate,
+            adultConsent: input.adultConsent === true,
+          });
+          setUser((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  adultConfirmed: true,
+                  adultConsent: true,
+                  birthdayMonth: result.birthdayMonth,
+                }
+              : prev,
+          );
+        }
       },
       async sendPhoneCode(phone) {
         await sendSms(phone);
@@ -399,15 +429,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           /* account exists; they can resend from /me */
         }
       },
-      async logout() {
+      async logout(options) {
         resetPhoneLogin();
         const auth = getFirebaseAuth();
         if (auth) await signOut(auth);
-        // Never leak the previous account: wipe device user data, then reload
-        // to a truly fresh page (no stale name, avatar, or lists in memory).
+        // Never leak the previous account: wipe device user data and optionally
+        // reload to a truly fresh page (no stale name, avatar, or lists in memory).
         clearDeviceCache();
         setUser(null);
-        if (typeof window !== "undefined") window.location.assign("/");
+        if (options?.reload !== false && typeof window !== "undefined") window.location.assign("/");
       },
       async deleteAccount() {
         const auth = getFirebaseAuth();

@@ -1,6 +1,7 @@
 import { httpsCallable } from "firebase/functions";
 import {
   CALLABLES,
+  type ConfirmAdultSignupRequest,
   type CompleteAccountSignupRequest,
   type LoginWithPhonePasswordRequest,
   type LoginWithPhonePasswordResponse,
@@ -21,7 +22,17 @@ async function callFunction<Req, Res>(name: string, data: Req): Promise<Res> {
 }
 
 export function completeAccountSignupRemote(data: CompleteAccountSignupRequest) {
-  return callFunction<CompleteAccountSignupRequest, { ok: true; phone: string }>(CALLABLES.completeAccountSignup, data);
+  return callFunction<CompleteAccountSignupRequest, { ok: true; phone: string; birthdayMonth: number }>(
+    CALLABLES.completeAccountSignup,
+    data,
+  );
+}
+
+export function confirmAdultSignupRemote(data: ConfirmAdultSignupRequest) {
+  return callFunction<ConfirmAdultSignupRequest, { ok: true; birthdayMonth: number }>(
+    CALLABLES.confirmAdultSignup,
+    data,
+  );
 }
 
 export function loginWithPhonePasswordRemote(data: LoginWithPhonePasswordRequest) {

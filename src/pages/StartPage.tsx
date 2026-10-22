@@ -57,6 +57,7 @@ export function StartPage() {
   const { mine, business } = useBio();
   const { keyboardHeight, isKeyboardOpen } = useVirtualKeyboard();
   const [pendingGo, setPendingGo] = useState(false);
+  const [signupPending, setSignupPending] = useState(false);
 
   const LAST_EMAIL_KEY = "airpal.last_signin_email";
 
@@ -285,7 +286,7 @@ export function StartPage() {
   // ========================================================
   // ALREADY SIGNED IN VIEW: User & Identity Cockpit
   // ========================================================
-  if (user && !phoneSignup) {
+  if (user && !phoneSignup && !signupPending) {
     const isHostUser = user.role === "host_admin" || user.role === "super_admin";
     return (
       <div className="mx-auto max-w-xl px-4 py-8 md:py-12 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
@@ -787,11 +788,17 @@ export function StartPage() {
                     showBiometrics={false}
                     onSocial={async (provider) => {
                       setInlineError(null);
-                      await loginWithSocial(provider);
-                      setPhoneSignup(false);
-                      void triggerHaptic("medium");
-                      toast.success("Signed in successfully!");
-                      setPendingGo(true);
+                      setSignupPending(mode === "signup");
+                      try {
+                        await loginWithSocial(provider);
+                        setPhoneSignup(false);
+                        void triggerHaptic("medium");
+                        toast.success("Signed in successfully!");
+                        setPendingGo(true);
+                      } catch (err) {
+                        setSignupPending(false);
+                        throw err;
+                      }
                     }}
                   />
                   <SocialAuthDivider label="or continue with email" />
@@ -856,6 +863,7 @@ export function StartPage() {
                   <div className="mt-2">
                     <SignupFlow
                       initialEmail={loginEmail}
+                      onProgress={setSignupPending}
                       onSwitchToSignIn={(email) => {
                         if (email) setLoginEmail(email);
                         switchMode("signin");

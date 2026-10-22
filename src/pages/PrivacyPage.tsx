@@ -334,6 +334,10 @@ export function PrivacyPage() {
         knowingly collect personal information of anyone under 18. If you believe we have, write to us and we will
         delete it.
       </p>
+      <p>
+        When we verify eligibility, your date of birth is sent securely to our server for the age check and is not
+        stored. We retain only your birthday month for birthday-freebie reminders.
+      </p>
 
       <h2>12. Automated decisions</h2>
       <p>We do not make solely automated decisions that produce legal or similarly significant effects about you.</p>

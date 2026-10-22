@@ -20,6 +20,7 @@ test.describe("Authentication & Security Flow", () => {
 
   test("create account starts with mobile number and handle, followed by account info", async ({ page }) => {
     await page.getByRole("button", { name: "Create Account", exact: true }).click();
+    await page.getByRole("button", { name: "Mobile Number (SMS)" }).click();
 
     // Step 1: Mobile & Handle
     await expect(page.getByPlaceholder("412 345 678")).toBeVisible();
@@ -27,6 +28,21 @@ test.describe("Authentication & Security Flow", () => {
     await expect(page.getByRole("button", { name: "Send SMS code" })).toBeVisible();
   });
 
+  test("email signup requires a valid adult date of birth and explicit consent", async ({ page }) => {
+    await page.getByRole("button", { name: "Create Account", exact: true }).click();
+
+    await page.getByLabel("Full Name").fill("Alex Rivera");
+    await page.getByLabel("Email Address").fill("alex@example.com");
+    await page.getByLabel("Create Password").fill("StrongPass123");
+    await page.getByLabel("Date of birth").fill("1990-01-01");
+
+    const consent = page.getByLabel(/I confirm I am 18 years of age or older/);
+    await expect(consent).not.toBeChecked();
+    await expect(page.getByRole("button", { name: "Create Free Account" })).toBeDisabled();
+
+    await consent.check();
+    await expect(page.getByRole("button", { name: "Create Free Account" })).toBeEnabled();
+  });
   test("toggles password visibility with Eye icon", async ({ page }) => {
     const passwordInput = page.getByPlaceholder("••••••••");
     await expect(passwordInput).toHaveAttribute("type", "password");
