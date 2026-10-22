@@ -59,6 +59,7 @@ type EventsValue = {
   getEvent: (id: string) => EventRecord | undefined;
   /** Public curated/organiser events read from Firestore (`events`). Empty when offline/empty. */
   remoteNearby: NearbyEvent[];
+  remoteRecords: EventRecord[];
   remoteLoaded: boolean;
   refresh: () => void;
   fetchRemoteStalls: (eventId: string) => Promise<void>;
@@ -495,6 +496,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       myEvent,
       calendarEvents,
       remoteNearby,
+      remoteRecords,
       remoteLoaded,
       refresh,
       fetchRemoteStalls,
@@ -579,59 +581,68 @@ export function EventsProvider({ children }: { children: ReactNode }) {
             actorRole: "organiser",
           });
         }
-        await sync?.runJob({
-          id: `event-${stamped.id}`,
-          label: "Event",
-          remote:
-            liveBackendEnabled() && uidNow()
-              ? () =>
-                  upsertEventRemote({
-                    eventId: stamped.id,
-                    name: stamped.name,
-                    flavour: stamped.flavour,
-                    city: stamped.city,
-                    venue: stamped.venue,
-                    room: stamped.room,
-                    address: stamped.address,
-                    description: stamped.description,
-                    shortWhy: stamped.shortWhy,
-                    mapsPlaceId: stamped.mapsPlaceId,
-                    geo: stamped.geo,
-                    coverImage: stamped.coverImage,
-                    hostName: stamped.hostName,
-                    hostHandle: stamped.hostHandle,
-                    hostType: stamped.hostType,
-                    businessName: stamped.businessName,
-                    businessHandle: stamped.businessHandle,
-                    collaboratorHandles: stamped.collaboratorHandles,
-                    sponsorHandles: stamped.sponsorHandles,
-                    startsAt: stamped.startsAt,
-                    endsAt: stamped.endsAt,
-                    status: stamped.status,
-                    categoryChips: stamped.categoryChips,
-                    ticketPriceCents: stamped.ticketPriceCents,
-                    ticketTiers: stamped.ticketTiers,
-                    seriesId: stamped.seriesId,
-                    recurrenceIndex: stamped.recurrenceIndex,
-                    recurrenceCount: stamped.recurrenceCount,
-                    capacity: stamped.capacity,
-                    locationType: stamped.locationType,
-                    virtualUrl: stamped.virtualUrl,
-                    requireApproval: stamped.requireApproval,
-                    themeColor: stamped.themeColor,
-                    agenda: stamped.agenda,
-                    refundPolicy: stamped.refundPolicy,
-                    directions: stamped.directions,
-                    registrationClosed: stamped.registrationClosed,
-                    festivalSlug: stamped.festivalSlug || "",
-                    track: stamped.track,
-                    registrationUrl: stamped.registrationUrl,
-                    registrationNote: stamped.registrationNote,
-                    speakers: stamped.speakers,
-                    demo: stamped.demo,
-                  })
-              : undefined,
-        });
+        if (liveBackendEnabled()) {
+          const uid = uidNow() || user?.uid;
+          if (!uid) {
+            throw new Error("Please sign in with an organiser account to publish this event live on AirPal.");
+          }
+          const remotePayload = {
+            eventId: stamped.id,
+            name: stamped.name,
+            flavour: stamped.flavour,
+            city: stamped.city,
+            venue: stamped.venue,
+            room: stamped.room,
+            address: stamped.address,
+            description: stamped.description,
+            shortWhy: stamped.shortWhy,
+            mapsPlaceId: stamped.mapsPlaceId,
+            geo: stamped.geo,
+            coverImage: stamped.coverImage,
+            hostName: stamped.hostName,
+            hostHandle: stamped.hostHandle,
+            hostType: stamped.hostType,
+            businessName: stamped.businessName,
+            businessHandle: stamped.businessHandle,
+            collaboratorHandles: stamped.collaboratorHandles,
+            sponsorHandles: stamped.sponsorHandles,
+            startsAt: stamped.startsAt,
+            endsAt: stamped.endsAt,
+            status: stamped.status,
+            categoryChips: stamped.categoryChips,
+            ticketPriceCents: stamped.ticketPriceCents,
+            ticketTiers: stamped.ticketTiers,
+            seriesId: stamped.seriesId,
+            recurrenceIndex: stamped.recurrenceIndex,
+            recurrenceCount: stamped.recurrenceCount,
+            capacity: stamped.capacity,
+            locationType: stamped.locationType,
+            virtualUrl: stamped.virtualUrl,
+            requireApproval: stamped.requireApproval,
+            themeColor: stamped.themeColor,
+            agenda: stamped.agenda,
+            refundPolicy: stamped.refundPolicy,
+            directions: stamped.directions,
+            registrationClosed: stamped.registrationClosed,
+            festivalSlug: stamped.festivalSlug || "",
+            track: stamped.track,
+            registrationUrl: stamped.registrationUrl,
+            registrationNote: stamped.registrationNote,
+            speakers: stamped.speakers,
+            demo: stamped.demo,
+          };
+          try {
+            await upsertEventRemote(remotePayload);
+            setRemoteRecords((prev) => [stamped, ...prev.filter((e) => e.id !== stamped.id)]);
+          } catch (err) {
+            void sync?.runJob({
+              id: `event-${stamped.id}`,
+              label: "Event",
+              remote: () => upsertEventRemote(remotePayload),
+            });
+            throw err;
+          }
+        }
         return stamped;
       },
       async confirmEventSchedule() {
@@ -806,6 +817,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       user,
       calendarEvents,
       remoteNearby,
+      remoteRecords,
       remoteLoaded,
       fetchRemoteStalls,
       fetchRemoteEvent,

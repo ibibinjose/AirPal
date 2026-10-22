@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import { motion, useReducedMotion } from "framer-motion";
 import {
+  AlertTriangle,
   ArrowLeft,
   ArrowRight,
   Building2,
@@ -59,6 +60,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEvents } from "@/contexts/EventsContext";
 import { useBio } from "@/contexts/BioContext";
 import { makeQrDataUrl } from "@/lib/qr";
+import { friendlyFunctionError } from "@/lib/functions";
 
 import { cn } from "@/lib/cn";
 import { HostFreshnessBanner } from "@/components/host/HostFreshnessBanner";
@@ -106,6 +108,8 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
     getEvent,
     calendarEvents,
     remoteNearby,
+    remoteRecords,
+    remoteLoaded,
     fetchRemoteEvent,
   } = useEvents();
 
@@ -244,6 +248,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
   const [qr, setQr] = useState("");
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const [mobilePreview, setMobilePreview] = useState(false);
   const [celebrationEventId, setCelebrationEventId] = useState<string | null>(null);
   const [celebrationEventName, setCelebrationEventName] = useState<string>("");
@@ -414,6 +419,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
       return;
     }
     setCreating(true);
+    let first: { id: string; name: string } | null = null;
     try {
       const cleanHostHandle = hostHandle.trim().replace(/^@+/, "").toLowerCase() || undefined;
       const baseStarts = startsAt || new Date().toISOString();
@@ -421,7 +427,6 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
       const instances = expandWeeklyRecurrence(baseStarts, baseEnds, repeatCount);
       const seriesId =
         instances.length > 1 ? `ser-${Date.now().toString(36)}${Math.floor(Math.random() * 1e4)}` : undefined;
-      let first: { id: string; name: string } | null = null;
       for (let i = 0; i < instances.length; i++) {
         const inst = instances[i]!;
         const created = await upsertEvent({
@@ -476,7 +481,15 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
       );
       setTab(flavour === "market" || flavour === "expo" ? "stalls" : "today");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn’t create event");
+      const msg = friendlyFunctionError(err) || (err instanceof Error ? err.message : "Couldn’t publish event");
+      if (first) {
+        setCreatingNew(false);
+        setSelectedEventId(first.id);
+        setTab("settings");
+        toast.error(`Saved on device, but could not publish live: ${msg}`);
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setCreating(false);
     }
@@ -590,11 +603,36 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
         registrationNote: festivalFields.registrationNote.trim() || undefined,
         speakers: festivalFields.speakers.length > 0 ? festivalFields.speakers : [],
       });
-      toast.success("Event details and Google place saved");
+      toast.success("Event details and Google place saved live on AirPal");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Couldn’t save event details");
+      const msg = friendlyFunctionError(err) || (err instanceof Error ? err.message : "Couldn’t save event details");
+      toast.error(msg);
     } finally {
       setSaving(false);
+    }
+  }
+
+  const isLocalOnly = Boolean(
+    activeEvent &&
+    remoteLoaded &&
+    !remoteRecords.some((r) => r.id === activeEvent.id) &&
+    !remoteNearby.some((r) => r.id === activeEvent.id),
+  );
+
+  async function handlePublishLive() {
+    if (!activeEvent) return;
+    setPublishing(true);
+    try {
+      await upsertEvent({
+        ...activeEvent,
+        id: activeEvent.id,
+      });
+      toast.success("Event is now officially live on AirPal! Visitors can now open the public link.");
+    } catch (err) {
+      const msg = friendlyFunctionError(err) || (err instanceof Error ? err.message : "Failed to publish live");
+      toast.error(`Could not publish live: ${msg}`);
+    } finally {
+      setPublishing(false);
     }
   }
 
@@ -1330,6 +1368,31 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
               </span>
             )}
           </div>
+
+          {isLocalOnly && (
+            <div className="mt-4 rounded-2xl bg-amber-500/10 p-4 ring-1 ring-amber-500/30 flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2.5">
+                <AlertTriangle className="text-amber-500 shrink-0" size={18} />
+                <div>
+                  <p className="text-xs font-bold text-amber-900 dark:text-amber-200">
+                    Not Published Live on AirPal Cloud
+                  </p>
+                  <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                    This event is only saved in this browser. Anyone opening the link on another device will see a 404
+                    Not Found error.
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                className="min-h-[38px] text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs"
+                loading={publishing}
+                onClick={handlePublishLive}
+              >
+                Publish to AirPal Live
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Tab Navigation Pill Bar — sticky & horizontally scrollable on mobile so 5 tabs never crush */}

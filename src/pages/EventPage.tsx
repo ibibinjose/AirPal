@@ -100,6 +100,7 @@ export function EventPage() {
   const mappedExpo = expo
     ? ({ ...recordToCalendarBase(expo), isGoing: false, isInterested: false, isLiked: false } as CalendarEvent)
     : null;
+  const isLocalOnly = Boolean(expo && !near && !directEv && !calEv);
   const targetCalEv = calEv || mappedExpo || directEv;
   const body = targetCalEv ? (
     <CalendarEventDetailView event={targetCalEv} />
@@ -110,6 +111,26 @@ export function EventPage() {
   );
   return (
     <>
+      {isLocalOnly && (
+        <div className="mx-auto max-w-4xl px-4 pt-3">
+          <div className="rounded-2xl bg-amber-500/15 p-3.5 ring-1 ring-amber-500/30 text-xs flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-amber-800 dark:text-amber-200">⚠️ Local Device Preview:</span>
+              <span className="text-amber-700 dark:text-amber-300">
+                This event is only saved in this browser and has not synced to Firestore. Other visitors will see 404
+                Not Found until published.
+              </span>
+            </div>
+            <Link
+              href={`/e/${id}/manage`}
+              className="font-bold text-accent hover:underline inline-flex items-center gap-1 shrink-0"
+            >
+              <span>Open Studio to Publish</span>
+              <ArrowLeft className="rotate-180" size={13} />
+            </Link>
+          </div>
+        </div>
+      )}
       {ticketId && (
         <div className="mx-auto max-w-lg px-4 pt-4">
           <TicketGatePanel ticketId={ticketId} />
