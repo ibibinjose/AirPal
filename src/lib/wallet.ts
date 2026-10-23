@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { publicSiteOrigin } from "./public-origin";
-import { getNativePlatform, isNativeApp } from "./platform";
+import { getNativePlatform } from "./platform";
 import { getFirebaseAuth } from "./firebase";
 
 async function walletAuthHeaders(): Promise<HeadersInit> {
