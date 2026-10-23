@@ -123,7 +123,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<!-- NO so the Capacitor StatusBar plugin (syncNativeChrome) can theme the bar. -->
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>

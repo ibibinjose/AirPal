@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Check, Contact, Copy, Download, QrCode, Share2, X } from "lucide-react";
+import { Contact, Download, Share2, X } from "lucide-react";
 import { toast } from "sonner";
 import { makeQrDataUrl } from "@/lib/qr";
 import { saveBioContact } from "@/lib/people";
 import { shareBioPass } from "@/lib/share";
 import { useScrollLock } from "@/hooks/useScrollLock";
-import { BrandMark } from "@/components/brand/BrandMark";
+import { BioPassVisual } from "@/components/bio/BioPassVisual";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
 import {
@@ -39,7 +39,7 @@ export function BioShareModal({
   avatar,
   city,
   headline,
-  kind: _kind,
+  kind,
   phone,
 }: BioShareModalProps) {
   useScrollLock(open);
@@ -150,89 +150,19 @@ export function BioShareModal({
           </button>
         </div>
 
-        {/* ============================================================== */}
-        {/* LONGER APPLE WALLET CARD / TICKET IN BRAND BLUE */}
-        {/* ============================================================== */}
-        <div className="relative mt-1 overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0055ff] via-[#0047eb] to-[#002f9e] p-6 text-white shadow-[0_20px_45px_-10px_rgba(0,78,255,0.45),inset_0_1px_1.5px_rgba(255,255,255,0.45)] ring-1 ring-white/20 select-none">
-          {/* Subtle Specular Highlights */}
-          <div className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-
-          {/* Card Top Brand Row - Centered & Clean */}
-          <div className="relative z-10 flex items-center justify-center">
-            <div className="flex items-center gap-1.5">
-              <BrandMark compact invert className="h-5 w-auto" />
-              <div className="flex items-baseline gap-1">
-                <span className="font-display text-sm font-black uppercase tracking-wider text-white">
-                  airpal<span className="opacity-90">.me</span>
-                </span>
-                <span className="text-[10px] font-bold tracking-widest uppercase text-white/70">PASS</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Member Identity - Symmetrical Upper Ticket Body */}
-          <div className="relative z-10 mt-5 text-center">
-            <div className="mx-auto relative h-14 w-14 overflow-hidden rounded-full ring-2 ring-white/90 shadow-md bg-white/10">
-              {avatar ? (
-                <img src={avatar} alt={name} className="h-full w-full rounded-full object-cover" />
-              ) : (
-                <div className="grid h-full w-full place-items-center rounded-full bg-white/15 font-display text-lg font-black text-white">
-                  {name[0]?.toUpperCase() || cleanHandle[0]?.toUpperCase() || "A"}
-                </div>
-              )}
-            </div>
-
-            <h3 className="mt-2.5 truncate font-display text-lg font-bold tracking-tight text-white leading-tight">
-              {name || `@${cleanHandle}`}
-            </h3>
-            <p className="mt-0.5 truncate font-mono text-xs font-semibold text-white/85">@{cleanHandle}</p>
-          </div>
-
-          {/* Authentic Apple Wallet Ticket Notches & Perforated Tear Line */}
-          <div className="relative my-5 flex items-center -mx-6">
-            <div className="h-6 w-3 rounded-r-full bg-paper shadow-inner shrink-0" />
-            <div className="flex-1 border-b border-dashed border-white/30 mx-2" />
-            <div className="h-6 w-3 rounded-l-full bg-paper shadow-inner shrink-0" />
-          </div>
-
-          {/* Lower Ticket Scanner Section - Elongated & Centered */}
-          <div className="relative z-10 flex flex-col items-center">
-            <div className="rounded-2xl bg-white p-4 shadow-sm w-full max-w-[210px] aspect-square flex items-center justify-center">
-              {qrData ? (
-                <img
-                  src={qrData}
-                  alt={`QR Code for @${cleanHandle}`}
-                  width={210}
-                  height={210}
-                  className="h-full w-full object-contain"
-                />
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-xs text-neutral-400 animate-pulse">
-                  <QrCode size={36} className="text-neutral-300" />
-                  <span>Loading QR…</span>
-                </div>
-              )}
-            </div>
-
-            {/* Clean 1-Tap Copy Link Button */}
-            <button
-              type="button"
-              onClick={() => void handleCopy()}
-              className="mt-3.5 flex w-full max-w-[210px] items-center justify-center gap-1.5 rounded-xl bg-white/15 hover:bg-white/25 px-3 py-2 text-center font-mono text-xs font-semibold text-white transition active:scale-[0.98] cursor-pointer ring-1 ring-white/20 backdrop-blur-md"
-              title="Tap to copy link"
-            >
-              <span className="truncate">airpal.me/@{cleanHandle}</span>
-              {copied ? (
-                <span className="ml-1 inline-flex items-center gap-0.5 font-sans text-[10px] font-bold text-emerald-300">
-                  <Check size={12} /> Copied
-                </span>
-              ) : (
-                <Copy size={12} className="text-white/70 shrink-0 ml-0.5" />
-              )}
-            </button>
-          </div>
-        </div>
+        {/* Bio Pass — same designed visual as everywhere else, per-user details */}
+        <BioPassVisual
+          handle={cleanHandle}
+          name={name}
+          kind={kind === "business" ? "business" : "person"}
+          avatar={avatar}
+          city={city}
+          qrSrc={qrData}
+          url={url}
+          copied={copied}
+          onCopyLink={() => void handleCopy()}
+          className="mt-1"
+        />
 
         {/* ============================================================== */}
         {/* CLEAN QUICK ACTION BUTTONS */}

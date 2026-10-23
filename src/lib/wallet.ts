@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { publicSiteOrigin } from "./public-origin";
-import { getNativePlatform } from "./native";
+import { getNativePlatform, isNativeApp } from "./platform";
 import { getFirebaseAuth } from "./firebase";
 
 async function walletAuthHeaders(): Promise<HeadersInit> {
@@ -85,8 +85,10 @@ export async function openGoogleWalletPass(url: string): Promise<boolean> {
     const popup = walletWindow;
     popup.opener = null;
 
+    const isTicket = url.includes("/wallet/google/ticket/");
     const targetUrl = normalizeWalletUrl(url);
-    const res = await fetch(targetUrl, { headers: await walletAuthHeaders() });
+    const headers = isTicket ? await walletAuthHeaders() : {};
+    const res = await fetch(targetUrl, { headers });
     if (!res.ok) {
       popup.close();
       toast.error(
@@ -110,7 +112,8 @@ export async function openGoogleWalletPass(url: string): Promise<boolean> {
       toast.error("Couldn't load the Wallet pass — try again.");
       return false;
     }
-    if (getNativePlatform() === "android") {
+    const platform = getNativePlatform();
+    if (platform === "android" || platform === "ios") {
       popup.close();
       window.open(destination.href, "_system");
       return true;
@@ -137,7 +140,8 @@ export async function openGoogleWalletPass(url: string): Promise<boolean> {
 export async function openAppleWalletPass(url: string, title?: string): Promise<boolean> {
   if (typeof window === "undefined") return false;
   try {
-    const user = getFirebaseAuth()?.currentUser;
+    const isTicket = url.includes("/wallet/ticket/");
+    const user = isTicket ? getFirebaseAuth()?.currentUser : undefined;
     const token = user ? await user.getIdToken() : undefined;
     let targetUrl = normalizeWalletUrl(url);
     if (token && !targetUrl.includes("token=") && !targetUrl.includes("auth=")) {
@@ -145,18 +149,30 @@ export async function openAppleWalletPass(url: string, title?: string): Promise<
       targetUrl = `${targetUrl}${sep}token=${encodeURIComponent(token)}`;
     }
 
-    const headers = await walletAuthHeaders();
-    const head = await fetch(targetUrl, { method: "HEAD", headers });
-    if (!head.ok) {
+    const headers = isTicket ? await walletAuthHeaders() : {};
+    let check: Response;
+    try {
+      check = await fetch(targetUrl, { method: "HEAD", headers });
+      if (check.status === 405) {
+        check = await fetch(targetUrl, { headers });
+      }
+    } catch {
+      // WebKit / CFNetwork on iOS can drop HTTP/2 HEAD responses with non-zero Content-Length
+      // ("transfer closed with ... bytes remaining"). Fall back to GET.
+      check = await fetch(targetUrl, { headers });
+    }
+
+    if (!check.ok) {
       toast.error(
-        head.status === 501
+        check.status === 501
           ? "Apple Wallet isn't set up yet — ask your host for another ticket option."
-          : head.status === 404
+          : check.status === 404
             ? "This pass is not yet available in your account."
             : "Couldn't load the Wallet pass — try again.",
       );
       return false;
     }
+
     // On Apple platforms (iOS, iPadOS, macOS Safari), navigating directly to the .pkpass URL
     // triggers Apple's native PKAddPassesViewController dialog automatically.
     if (isApplePlatform()) {
@@ -170,6 +186,7 @@ export async function openAppleWalletPass(url: string, title?: string): Promise<
       }
       return true;
     }
+
     const pass = await fetch(targetUrl, { headers });
     if (!pass.ok) throw new Error("Pass download failed");
     const blobUrl = URL.createObjectURL(await pass.blob());

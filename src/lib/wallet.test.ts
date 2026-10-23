@@ -207,4 +207,70 @@ describe("openAppleWalletPass handoff", () => {
     expect(appended).toContain(anchor);
     expect(removed).toContain(anchor);
   });
+  it("delegates to system browser / intent on native iOS shell for Google Wallet", async () => {
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("ios");
+    const walletWindow = {
+      opener: {} as Window | null,
+      close: vi.fn(),
+      location: { replace: vi.fn() },
+    };
+    const open = vi.fn(() => walletWindow);
+    vi.stubGlobal("window", { location: { hostname: "airpal.me" }, open });
+    const saveUrl = "https://pay.google.com/gp/v/save/ios-token";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({ saveUrl }),
+      })),
+    );
+
+    const result = await openGoogleWalletPass("/api/wallet/google/card/bibinjose");
+    expect(result).toBe(true);
+    expect(walletWindow.close).toHaveBeenCalled();
+    expect(open).toHaveBeenCalledWith(saveUrl, "_system");
+  });
+
+  it("falls back to GET if HEAD preflight rejects (iOS WebKit / CFNetwork stream close bug)", async () => {
+    vi.stubGlobal("navigator", { userAgent: iPhoneUA });
+    const { open, assign } = stubWindow();
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("Load failed"))
+      .mockResolvedValueOnce({ ok: true, status: 200 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(openAppleWalletPass(businessCardWalletPassUrl("bibinjose"))).resolves.toBe(true);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("/api/wallet/card/bibinjose.pkpass"),
+      expect.objectContaining({ method: "HEAD" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/wallet/card/bibinjose.pkpass"),
+      expect.not.objectContaining({ method: "HEAD" }),
+    );
+    expect(assign).toHaveBeenCalledWith(expect.stringContaining("/api/wallet/card/bibinjose.pkpass"));
+    expect(open).not.toHaveBeenCalled();
+  });
+
+  it("does not attach auth headers or token query params for public card passes", async () => {
+    vi.stubGlobal("navigator", { userAgent: iPhoneUA });
+    const { assign } = stubWindow();
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(openAppleWalletPass(businessCardWalletPassUrl("bibinjose"))).resolves.toBe(true);
+
+    const calledUrl = fetchMock.mock.calls[0][0] as string;
+    const calledOptions = fetchMock.mock.calls[0][1] as { headers?: Record<string, string> };
+
+    expect(calledUrl).not.toContain("token=");
+    expect(calledOptions.headers).toEqual({});
+    expect(assign).toHaveBeenCalled();
+  });
 });

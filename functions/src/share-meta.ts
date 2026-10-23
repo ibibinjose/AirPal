@@ -95,9 +95,9 @@ async function resolveBioCard(handle: string, origin: string): Promise<ShareCard
   const normalized = handle.trim().toLowerCase();
   if (!normalized) return genericCard(origin);
   const link = await getDocData("handles", normalized);
-  const profileId = str(link?.profileId);
+  const profileId = str(link?.profileId) || str(link?.ownerUid);
   if (!profileId) return genericCard(origin);
-  const profile = await getDocData("profiles", profileId);
+  const profile = (await getDocData("profiles", profileId)) || (await getDocData("users", profileId));
   if (!profile) return genericCard(origin);
   return shareCardFor("bio", { ...profile, handle: normalized }, origin);
 }

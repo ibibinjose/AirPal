@@ -261,4 +261,17 @@ describe("walletPass", () => {
     // Unknown doc: same 404 contract as GET, so the client preflight is truthful.
     expect((await run("HEAD", "/api/wallet/ticket/nope.pkpass")).status).toBe(404);
   });
+  it("resolves handles using ownerUid and users collection fallback", async () => {
+    process.env.WALLET_PASS_TYPE_ID = "pass.me.airpal.test";
+    process.env.WALLET_TEAM_ID = "TEAMID1234";
+    process.env.WALLET_SIGNER_CERT = "-----BEGIN CERTIFICATE-----\nfake\n-----END CERTIFICATE-----";
+    process.env.WALLET_SIGNER_KEY = "-----BEGIN PRIVATE KEY-----\nexample-invalid-key\n-----END PRIVATE KEY-----";
+    fakes.docs["handles/bibinjose"] = { ownerUid: "uid-bibin", active: true };
+    fakes.docs["users/uid-bibin"] = { displayName: "Bibin Jose", handle: "bibinjose" };
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    // Attempts to sign (500) rather than 404ing on profile_not_found!
+    const out = await run("GET", "/api/wallet/card/bibinjose.pkpass");
+    expect(out.status).toBe(500);
+    expect(out.body).toEqual({ error: "wallet_sign_failed" });
+  });
 });

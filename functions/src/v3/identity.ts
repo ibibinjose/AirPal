@@ -100,7 +100,7 @@ export const v3ClaimHandle = onCall(CALLABLE, async (request) => {
     }
     tx.set(
       handleRef,
-      { handle, ownerUid: uid, active: true, updatedAt: FieldValue.serverTimestamp() },
+      { handle, ownerUid: uid, profileId: uid, active: true, updatedAt: FieldValue.serverTimestamp() },
       { merge: true },
     );
     const userPatch: Record<string, unknown> = {

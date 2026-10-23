@@ -319,9 +319,10 @@ async function ownsTicket(bookingId: string, uid: string): Promise<boolean> {
 async function cardPassBuffer(handle: string, cfg: SignerConfig): Promise<Buffer | null> {
   const normalized = handle.trim().replace(/^@+/, "").toLowerCase();
   if (!normalized) return null;
-  const profileId = str((await getDocData("handles", normalized))?.profileId);
+  const handleDoc = await getDocData("handles", normalized);
+  const profileId = str(handleDoc?.profileId) || str(handleDoc?.ownerUid);
   if (!profileId) return null;
-  const profile = await getDocData("profiles", profileId);
+  const profile = (await getDocData("profiles", profileId)) || (await getDocData("users", profileId));
   if (!profile) return null;
   const fields = cardFieldsFromProfile(profile, normalized);
   const passJson = cardPassJson({
@@ -388,7 +389,7 @@ export const walletPass = onRequest(
       res.set("Cache-Control", "private, max-age=300");
       if (req.method === "HEAD") {
         res.set("Content-Length", String(buffer.length));
-        res.status(200).send("");
+        res.status(200).end();
         return;
       }
       res.status(200).send(buffer);
