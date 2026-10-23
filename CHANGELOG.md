@@ -4,6 +4,14 @@ All major structural, architectural, and security changes made during the Rebuil
 
 ---
 
+## Unreleased — bio themes, studio polish & native chrome (2.0.1 build 18 / versionCode 10)
+
+- **Public bio themes (`shared/bio.ts`):** ten pastel presets consolidated to six high-contrast ones — AirPal, Midnight (pure black), Mono (pure white), Ember red, Fluro pink, Volt lime — every preset holding 4.5:1 text contrast in both schemes; retired ids remap to their closest survivor instead of collapsing.
+- **Bio edit studio (`src/pages/BioEditPage.tsx`):** mobile Edit/Preview switcher with inline bare-screen mirror (modal drawer removed), sticky desktop tabs, slim identity strip, header avatar with unsaved-changes dot, one shared section shell documented in-code.
+- **Public bio page (`src/pages/BioPublicPage.tsx`):** theme-aware avatar rings, accent-tinted cover texture, gloss finish on planner tiles and ghost actions, single fade-in entrance.
+- **Business studio:** amber Menu pills, layered catalog surfaces, 44px labelled delete targets, Google import card on the section shell; dead personal-listing hint removed.
+- **Native shells:** theme-aware iOS/Android status bar with live OS-scheme re-sync (`UIViewControllerBasedStatusBarAppearance` corrected so iOS honors it).
+
 ## Unreleased — robots, SEO metadata & security headers
 
 - **robots.txt rewrite:** dropped the deprecated `Host:` directive; fixed the stale `/event/*/guestlist` rule (real paths are `/e/:id/guests` + `/e/:id/manage`); added auth-gated/token/studio surface (`/bio`, `/friends`, `/event/manage`, `/events/new`, `/business/*` studio paths, `/join`, `/arrival`, `/pulse`, `/start`, `/welcome`, `/unsubscribe`, `/api/`).
@@ -20,7 +28,7 @@ All major structural, architectural, and security changes made during the Rebuil
 
 ---
 
-## Release 2.1.1 — 2026-10-20 (Trust Rails, Inventory & Verified Vouchers)
+## Release 2.0.1 — 2026-10-20 (Trust Rails, Inventory & Verified Vouchers)
 
 - **Server price authority (`functions/src/stripe.ts`):** `authoritativeEventTotal()` prices named tiers from the live event row and legacy `standard` / `vip` (1.5x) / `group` (4-pass bundle) multipliers; the client always sends the tier it displayed. No-tier bookings can no longer be charged a bare 1x unit.
 - **Transactional booking + capacity enforcement (`functions/src/stripe.ts`, `functions/src/guestlist.ts`):** `createEventBooking` runs in one transaction (live event read, pricing, headroom gate over guestlist heads plus unpaid pending holds); `createBookingCheckoutSession` re-checks headroom; free RSVPs gate inside the row-write trigger. `refreshGuestCounts` maintains server-authoritative `bookedHeads`; rules pin it client-immutable and forbid lowering `capacity` below seated heads. `checkout.session.expired` auto-cancels stale pending bookings. New composite index `bookings(eventId, paymentStatus)`.

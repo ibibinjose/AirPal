@@ -6,14 +6,14 @@ describe("build-info", () => {
     const info = getBuildInfo();
     expect(info).toBeDefined();
     expect(info.versionName).toBe("2.0.1");
-    expect(info.versionCode).toBe("9");
+    expect(info.versionCode).toBe("10");
     expect(["ios", "android", "web"]).toContain(info.platform);
   });
 
   it("gathers runtime diagnostics", () => {
     const diag = getRuntimeDiagnostics();
     expect(diag.versionName).toBe("2.0.1");
-    expect(diag.versionCode).toBe("9");
+    expect(diag.versionCode).toBe("10");
     expect(typeof diag.online).toBe("boolean");
     expect(typeof diag.storageKeysCount).toBe("number");
   });
@@ -26,6 +26,6 @@ describe("build-info", () => {
     expect(report).toContain("Version Name (build.gradle)");
     expect(report).toContain("2.0.1");
     expect(report).toContain("Version Code");
-    expect(report).toContain("9");
+    expect(report).toContain("10");
   });
 });

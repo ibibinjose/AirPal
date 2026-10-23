@@ -133,6 +133,10 @@ export function GooglePlaceImportCard({
   const cover = photoSrc(preview?.photoNames[0], 900);
   const already = Boolean(importedPlaceId && preview && importedPlaceId === preview.placeId);
   const open = hits.length > 0;
+  // Card variant sits on a card section, so inner surfaces step down to paper;
+  // field variant (Register) keeps its card surfaces.
+  const innerSurface = variant === "card" ? "bg-paper" : "bg-card";
+  const innerHover = variant === "card" ? "hover:bg-black/5" : "hover:bg-paper";
 
   const searchField = (
     <label className={cn("relative block", variant === "card" && "mt-3")}>
@@ -155,13 +159,13 @@ export function GooglePlaceImportCard({
           aria-controls={listId}
           aria-autocomplete="list"
           aria-activedescendant={open && hits[active] ? `${listId}-${hits[active]!.placeId}` : undefined}
-          className="w-full rounded-xl border border-line bg-card py-3 pl-9 pr-14 text-sm outline-none placeholder:text-mute focus:border-brand focus:ring-2 focus:ring-brand/20"
+          className={`w-full rounded-xl border border-line ${innerSurface} py-3 pl-9 pr-14 text-sm outline-none placeholder:text-mute focus:border-brand focus:ring-2 focus:ring-brand/20`}
         />
         {query && (
           <button
             type="button"
             onClick={clear}
-            className="absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-mute hover:bg-paper"
+            className={`absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-mute ${innerHover}`}
             aria-label="Clear"
           >
             <X size={14} />
@@ -183,7 +187,7 @@ export function GooglePlaceImportCard({
         <ul
           id={listId}
           role="listbox"
-          className="mt-2 divide-y divide-line overflow-hidden rounded-xl ring-1 ring-line bg-card"
+          className={`mt-2 divide-y divide-line overflow-hidden rounded-xl ring-1 ring-line ${innerSurface}`}
         >
           {hits.map((hit, i) => (
             <li key={hit.placeId} role="presentation">
@@ -197,7 +201,7 @@ export function GooglePlaceImportCard({
                 disabled={loadingId === hit.placeId}
                 className={cn(
                   "flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm",
-                  i === active ? "bg-brand/10" : "hover:bg-paper",
+                  i === active ? "bg-brand/10" : innerHover,
                 )}
               >
                 <span className="min-w-0 flex-1">
@@ -214,7 +218,13 @@ export function GooglePlaceImportCard({
   );
 
   const previewCard = preview ? (
-    <div className={cn("overflow-hidden rounded-2xl ring-1 ring-line bg-card", variant === "field" ? "mt-2" : "mt-3")}>
+    <div
+      className={cn(
+        "overflow-hidden rounded-2xl ring-1 ring-line",
+        innerSurface,
+        variant === "field" ? "mt-2" : "mt-3",
+      )}
+    >
       {cover && <img src={cover} alt="" className="h-28 w-full object-cover" />}
       <div className="flex gap-3 p-3">
         {logo && <img src={logo} alt="" className="h-14 w-14 shrink-0 rounded-full object-cover ring-1 ring-line" />}
@@ -272,7 +282,7 @@ export function GooglePlaceImportCard({
   }
 
   return (
-    <div className="rounded-2xl ring-1 ring-line bg-paper p-4">
+    <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay">
       <p className="text-[11px] font-bold uppercase tracking-wider text-accent">
         {fromGoogle ? "From Google" : "Public listing"}
       </p>
@@ -285,29 +295,6 @@ export function GooglePlaceImportCard({
       {searchField}
       {results}
       {previewCard}
-    </div>
-  );
-}
-
-/** Shown on a personal @handle so Google listings are not pasted onto the person. */
-export function PersonalProfileListingHint({
-  hasBusiness,
-  onOpenBusiness,
-}: {
-  hasBusiness: boolean;
-  onOpenBusiness: () => void;
-}) {
-  return (
-    <div data-testid="personal-listing-hint" className="rounded-2xl bg-paper p-4 ring-1 ring-line">
-      <p className="text-[11px] font-bold uppercase tracking-wider text-accent">Your place</p>
-      <h3 className="font-display mt-1 text-lg font-bold">Import the listing on the business profile</h3>
-      <p className="mt-1 text-[13px] leading-relaxed text-mute">
-        This page is you. Google and directory listings belong on the business profile, so a café or shop does not
-        overwrite your personal @handle.
-      </p>
-      <Button type="button" className="mt-3 w-full" onClick={onOpenBusiness}>
-        {hasBusiness ? "Open your place" : "Register the business"}
-      </Button>
     </div>
   );
 }

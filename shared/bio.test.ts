@@ -191,24 +191,43 @@ describe("profile kind identifier", () => {
 describe("bio themes", () => {
   it("accepts known presets and collapses the default", () => {
     expect(normalizeBioTheme("midnight")).toBe("midnight");
-    expect(normalizeBioTheme("reef")).toBe("reef");
-    expect(normalizeBioTheme("wattle")).toBe("wattle");
+    expect(normalizeBioTheme("mono")).toBe("mono");
+    expect(normalizeBioTheme("ember")).toBe("ember");
+    expect(normalizeBioTheme("fluro")).toBe("fluro");
+    expect(normalizeBioTheme("volt")).toBe("volt");
     expect(normalizeBioTheme("AirPal")).toBeUndefined();
     expect(normalizeBioTheme(undefined)).toBeUndefined();
     expect(normalizeBioTheme("evil-theme")).toBeUndefined();
   });
 
+  it("remaps retired presets to their closest surviving theme", () => {
+    expect(normalizeBioTheme("forest")).toBe("volt");
+    expect(normalizeBioTheme("eucalypt")).toBe("volt");
+    expect(normalizeBioTheme("reef")).toBe("volt");
+    expect(normalizeBioTheme("sunset")).toBe("ember");
+    expect(normalizeBioTheme("blush")).toBe("fluro");
+    expect(normalizeBioTheme("wattle")).toBe("midnight");
+    // Pale Ocean stays light: it collapses to the AirPal default.
+    expect(normalizeBioTheme("ocean")).toBeUndefined();
+    expect(resolveBioTheme("forest").id).toBe("volt");
+    expect(resolveBioTheme("sunset").id).toBe("ember");
+    expect(resolveBioTheme("blush").id).toBe("fluro");
+    expect(resolveBioTheme("wattle").id).toBe("midnight");
+    expect(resolveBioTheme("ocean").id).toBe("airpal");
+  });
+
   it("resolves unknown values to the default preset", () => {
     expect(resolveBioTheme("midnight").id).toBe("midnight");
-    expect(resolveBioTheme("blush").id).toBe("blush");
+    expect(resolveBioTheme("volt").id).toBe("volt");
     expect(resolveBioTheme("nope").id).toBe("airpal");
     expect(resolveBioTheme(undefined).id).toBe("airpal");
   });
 
-  it("ships unique presets with picker copy", () => {
+  it("ships six unique presets with picker copy", () => {
     const ids = new Set(BIO_THEMES.map((theme) => theme.id));
     expect(ids.size).toBe(BIO_THEMES.length);
-    expect(BIO_THEMES.length).toBeGreaterThanOrEqual(10);
+    expect(BIO_THEMES.length).toBe(6);
+    expect([...ids].sort()).toEqual(["airpal", "ember", "fluro", "midnight", "mono", "volt"]);
     for (const theme of BIO_THEMES) {
       expect(theme.name.trim().length).toBeGreaterThan(0);
       expect(theme.blurb.trim().length).toBeGreaterThan(0);
@@ -222,11 +241,26 @@ describe("bio themes", () => {
       expect(contrastRatio(theme.buttonText, theme.buttonBg)).toBeGreaterThanOrEqual(4.5);
       expect(contrastRatio(theme.darkInk, theme.darkPageBg)).toBeGreaterThanOrEqual(4.5);
       expect(contrastRatio(theme.darkMuted, theme.darkPageBg)).toBeGreaterThanOrEqual(4.5);
+      // Card surfaces carry the same text, so they must pass too.
+      expect(contrastRatio(theme.ink, theme.surface)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(theme.muted, theme.surface)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(theme.darkInk, theme.darkSurface)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(theme.darkMuted, theme.darkSurface)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("never paints text and buttons in the same colour as the page", () => {
+    for (const theme of BIO_THEMES) {
+      // Button fills must stand apart from the page so CTAs never blend in.
+      expect(contrastRatio(theme.buttonBg, theme.pageBg)).toBeGreaterThan(1.5);
+      // Accent highlights must never match the page (Mono intentionally
+      // pairs a black accent with black buttons on white).
+      expect(theme.accent.toLowerCase()).not.toBe(theme.pageBg.toLowerCase());
     }
   });
 
   it("emits every CSS var the public page and preview consume", () => {
-    const vars = bioThemeCssVars(resolveBioTheme("reef"));
+    const vars = bioThemeCssVars(resolveBioTheme("volt"));
     for (const key of [
       "--bio-bg",
       "--bio-surface",
@@ -247,7 +281,7 @@ describe("bio themes", () => {
       expect(vars[key]).toBeTruthy();
     }
     expect(vars["--bio-radius"]).toMatch(/^\d+px$/);
-    expect(vars["--bio-bg"]).toBe(resolveBioTheme("reef").pageBg);
+    expect(vars["--bio-bg"]).toBe(resolveBioTheme("volt").pageBg);
   });
 });
 

@@ -567,7 +567,10 @@ export function BioPublicPage() {
       data-bio-theme={themed ? theme.id : undefined}
     >
       {/* A solid content card keeps the profile readable; glass is reserved for navigation. */}
-      <main className="bio-page-card overflow-hidden ring-1 ring-line/80" aria-label={`${bio.name}'s AirPal bio`}>
+      <main
+        className="bio-page-card overflow-hidden ring-1 ring-line/80 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-500"
+        aria-label={`${bio.name}'s AirPal bio`}
+      >
         {/* Cover Hero Header with Cinematic Vignette */}
         <div className="relative overflow-hidden">
           {bio.cover ? (
@@ -583,7 +586,7 @@ export function BioPublicPage() {
                   : "bio-hero relative w-full overflow-hidden bg-gradient-to-br from-[#0c1024] via-[#141b38] to-[#0a0d1e]"
               }
             >
-              <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#2563eb_1.5px,transparent_1.5px)] [background-size:22px_22px]" />
+              <div className="absolute inset-0 text-accent opacity-25 bg-[radial-gradient(color-mix(in_srgb,currentColor_45%,transparent)_1.5px,transparent_1.5px)] [background-size:22px_22px]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
             </div>
           )}
@@ -699,7 +702,7 @@ export function BioPublicPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="gap-1.5 rounded-full border border-line bg-card/90 px-3.5 sm:px-4 min-h-[44px] text-xs font-semibold text-ink shadow-2xs hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
+                    className="bio-theme-btn gap-1.5 rounded-full border border-line bg-card/90 px-3.5 sm:px-4 min-h-[44px] text-xs font-semibold text-ink shadow-2xs hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
                     onClick={() => {
                       void triggerHaptic("light");
                       nav("/bio/edit");
@@ -755,7 +758,7 @@ export function BioPublicPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="gap-1.5 rounded-full border border-line bg-card/90 px-3 sm:px-4 min-h-[44px] text-xs font-semibold text-ink shadow-2xs hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
+                    className="bio-theme-btn gap-1.5 rounded-full border border-line bg-card/90 px-3 sm:px-4 min-h-[44px] text-xs font-semibold text-ink shadow-2xs hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
                     aria-label={`Save ${bio.name} to phone contacts`}
                     title="Save contact to phone (.vcf)"
                     onClick={() => {
@@ -777,7 +780,7 @@ export function BioPublicPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="gap-1.5 rounded-full border border-line bg-card/90 px-3.5 sm:px-4 min-h-[44px] text-xs font-semibold text-ink shadow-2xs hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
+                  className="bio-theme-btn gap-1.5 rounded-full border border-line bg-card/90 px-3.5 sm:px-4 min-h-[44px] text-xs font-semibold text-ink shadow-2xs hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
                   aria-label={`Save ${bio.name} to phone contacts`}
                   title="Save contact to phone (.vcf)"
                   onClick={() => {
@@ -1058,7 +1061,7 @@ export function BioPublicPage() {
                         setCatchUpInitialType(opt.type);
                         setCatchUpModalOpen(true);
                       }}
-                      className="group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[68px] sm:min-h-[104px] rounded-[24px] bg-card/90 p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:ring-brand/40 hover:shadow-md active:scale-[0.98] cursor-pointer touch-manipulation"
+                      className="bio-theme-btn group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[68px] sm:min-h-[104px] rounded-[24px] bg-card/90 p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:ring-brand/40 hover:shadow-md active:scale-[0.98] cursor-pointer touch-manipulation"
                     >
                       <span
                         className={cn(

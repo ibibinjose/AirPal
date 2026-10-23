@@ -37,7 +37,6 @@ import {
   UserCheck,
   UserRound,
   Video,
-  X,
 } from "lucide-react";
 import {
   AVAILABILITY_STATUSES,
@@ -71,7 +70,7 @@ import { cn } from "@/lib/cn";
 import { PhoneField } from "@/components/forms/PhoneField";
 import { isValidPhone } from "@shared/geo-address";
 import { fieldInput } from "@/components/forms/ValidField";
-import { GooglePlaceImportCard, PersonalProfileListingHint } from "@/components/business/GooglePlaceImport";
+import { GooglePlaceImportCard } from "@/components/business/GooglePlaceImport";
 import { bioLinksFromGooglePlace, mergeBioLinks } from "@shared/google-place";
 import { Photo } from "@/components/ui/Photo";
 import { BioHandleButton } from "@/components/bio/BioHandleButton";
@@ -149,8 +148,9 @@ export function BioEditPage() {
     "in_person" | "google_meet" | "facetime" | "zoom"
   >("in_person");
 
-  // Mobile Live Preview Modal Sheet State
-  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  // Mobile edit / preview switcher: below lg the live mirror renders inline
+  // in the right column (bare screen, no device chrome) instead of a modal.
+  const [mobileView, setMobileView] = useState<"edit" | "preview">("edit");
   const [previewThemeMode, setPreviewThemeMode] = useState<"dark" | "light">("dark");
 
   // Synchronize form states when active target profile changes
@@ -385,8 +385,9 @@ export function BioEditPage() {
 
   const statusInfo = AVAILABILITY_STATUSES[availabilityStatus] || AVAILABILITY_STATUSES.available;
 
-  // Live Phone Screen Mockup Preview (iPhone 16 Pro Max Authentic Hardware & Screen Mirror)
-  const renderLivePhoneMockup = () => {
+  // Live preview mirror. Full device chrome on desktop; `bare` renders just
+  // the live screen in a slim frame for the inline mobile preview.
+  const renderLivePhoneMockup = (bare = false) => {
     const activeTheme = resolveBioTheme(activeProfile.theme);
     const isDarkPreview = previewThemeMode === "dark";
     // Same tokens as the public page (`bioThemeCssVars`): the mirror can
@@ -399,84 +400,102 @@ export function BioEditPage() {
 
     return (
       <div className="relative mx-auto w-full max-w-[340px] select-none pt-2 pb-4">
-        {/* Hardware Buttons Silhouettes (Titanium frame edges) */}
-        {/* Left: Action Button, Volume Up, Volume Down */}
-        <div
-          className="absolute -left-[3px] top-[108px] h-7 w-[4px] rounded-l-[3px] bg-neutral-600/80 shadow-2xs"
-          title="Action Button"
-        />
-        <div
-          className="absolute -left-[3px] top-[148px] h-12 w-[4px] rounded-l-[3px] bg-neutral-600/80 shadow-2xs"
-          title="Volume Up"
-        />
-        <div
-          className="absolute -left-[3px] top-[208px] h-12 w-[4px] rounded-l-[3px] bg-neutral-600/80 shadow-2xs"
-          title="Volume Down"
-        />
-        {/* Right: Side Power Button & Camera Control */}
-        <div
-          className="absolute -right-[3px] top-[160px] h-16 w-[4px] rounded-r-[3px] bg-neutral-600/80 shadow-2xs"
-          title="Side Button"
-        />
-        <div
-          className="absolute -right-[2.5px] bottom-[160px] h-12 w-[3.5px] rounded-r-[2px] bg-neutral-500/70 shadow-2xs"
-          title="Camera Control"
-        />
-
-        {/* iPhone 16 Pro Max Titanium Chassis */}
-        <div className="relative overflow-hidden rounded-[50px] border-[9px] border-[#18181b] dark:border-[#101012] bg-[#000000] shadow-[0_25px_65px_-12px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.12),inset_0_0_0_1px_rgba(255,255,255,0.08)] ring-1 ring-black/50">
-          {/* Dynamic Island */}
-          <div className="absolute left-1/2 top-2.5 z-40 -translate-x-1/2">
+        {!bare && (
+          <>
+            {/* Hardware Buttons Silhouettes (Titanium frame edges) */}
+            {/* Left: Action Button, Volume Up, Volume Down */}
             <div
-              className="group flex h-[27px] w-[105px] items-center justify-between rounded-full bg-black px-2.5 shadow-md ring-1 ring-white/10 transition-all duration-300 hover:w-[155px]"
-              title="iPhone Dynamic Island"
-            >
-              {/* Sensor */}
-              <div className="h-2.5 w-2.5 rounded-full bg-[#030308] ring-1 ring-white/5" />
+              className="absolute -left-[3px] top-[108px] h-7 w-[4px] rounded-l-[3px] bg-neutral-600/80 shadow-2xs"
+              title="Action Button"
+            />
+            <div
+              className="absolute -left-[3px] top-[148px] h-12 w-[4px] rounded-l-[3px] bg-neutral-600/80 shadow-2xs"
+              title="Volume Up"
+            />
+            <div
+              className="absolute -left-[3px] top-[208px] h-12 w-[4px] rounded-l-[3px] bg-neutral-600/80 shadow-2xs"
+              title="Volume Down"
+            />
+            {/* Right: Side Power Button & Camera Control */}
+            <div
+              className="absolute -right-[3px] top-[160px] h-16 w-[4px] rounded-r-[3px] bg-neutral-600/80 shadow-2xs"
+              title="Side Button"
+            />
+            <div
+              className="absolute -right-[2.5px] bottom-[160px] h-12 w-[3.5px] rounded-r-[2px] bg-neutral-500/70 shadow-2xs"
+              title="Camera Control"
+            />
+          </>
+        )}
 
-              {/* Center text on expand */}
-              <span className="hidden text-[9px] font-bold text-white group-hover:inline-block tracking-wider uppercase">
-                AirPal Live
-              </span>
+        {/* Device frame: full titanium chassis on desktop, slim ring frame when bare */}
+        <div
+          className={cn(
+            "relative overflow-hidden bg-[#000000]",
+            bare
+              ? "rounded-[28px] ring-1 ring-line shadow-clay"
+              : "rounded-[50px] border-[9px] border-[#18181b] dark:border-[#101012] shadow-[0_25px_65px_-12px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.12),inset_0_0_0_1px_rgba(255,255,255,0.08)] ring-1 ring-black/50",
+          )}
+        >
+          {!bare && (
+            <>
+              {/* Dynamic Island */}
+              <div className="absolute left-1/2 top-2.5 z-40 -translate-x-1/2">
+                <div
+                  className="group flex h-[27px] w-[105px] items-center justify-between rounded-full bg-black px-2.5 shadow-md ring-1 ring-white/10 transition-all duration-300 hover:w-[155px]"
+                  title="iPhone Dynamic Island"
+                >
+                  {/* Sensor */}
+                  <div className="h-2.5 w-2.5 rounded-full bg-[#030308] ring-1 ring-white/5" />
 
-              {/* TrueDepth Camera */}
-              <div className="relative h-3 w-3 rounded-full bg-[#0a0d18] ring-1 ring-white/10">
-                <span className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-sky-900/60 to-slate-900/60 opacity-80" />
-              </div>
-            </div>
-          </div>
+                  {/* Center text on expand */}
+                  <span className="hidden text-[9px] font-bold text-white group-hover:inline-block tracking-wider uppercase">
+                    AirPal Live
+                  </span>
 
-          {/* iOS 18 Top Status Bar */}
-          <div className="relative z-30 flex h-11 w-full items-center justify-between px-6 pt-1 text-[11px] font-semibold text-white select-none">
-            <span className="font-sans font-semibold tracking-tight text-white/95">9:41</span>
-            <div className="flex items-center gap-1.5 text-white/95">
-              <div className="flex items-end gap-[1.5px] h-2.5">
-                <span className="w-[2.5px] h-1 bg-current rounded-xs" />
-                <span className="w-[2.5px] h-1.5 bg-current rounded-xs" />
-                <span className="w-[2.5px] h-2 bg-current rounded-xs" />
-                <span className="w-[2.5px] h-2.5 bg-current rounded-xs" />
+                  {/* TrueDepth Camera */}
+                  <div className="relative h-3 w-3 rounded-full bg-[#0a0d18] ring-1 ring-white/10">
+                    <span className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-sky-900/60 to-slate-900/60 opacity-80" />
+                  </div>
+                </div>
               </div>
-              <span className="text-[10px] font-bold">5G</span>
-              <div className="h-3 w-5 rounded-[4px] border border-current p-[1.5px] flex items-center">
-                <div className="h-full w-full bg-current rounded-[1px]" />
-              </div>
-            </div>
-          </div>
 
-          {/* Mini Safari Address Bar */}
-          <div className="relative z-20 px-5 pb-1">
-            <div className="flex h-7 items-center justify-between rounded-full bg-white/10 dark:bg-white/10 backdrop-blur-md px-3 text-[10px] text-white/80 ring-1 ring-white/10">
-              <div className="flex items-center gap-1.5 truncate">
-                <Lock size={10} className="text-emerald-400 shrink-0" />
-                <span className="font-mono truncate">airpal.me/@{activeProfile.handle}</span>
+              {/* iOS 18 Top Status Bar */}
+              <div className="relative z-30 flex h-11 w-full items-center justify-between px-6 pt-1 text-[11px] font-semibold text-white select-none">
+                <span className="font-sans font-semibold tracking-tight text-white/95">9:41</span>
+                <div className="flex items-center gap-1.5 text-white/95">
+                  <div className="flex items-end gap-[1.5px] h-2.5">
+                    <span className="w-[2.5px] h-1 bg-current rounded-xs" />
+                    <span className="w-[2.5px] h-1.5 bg-current rounded-xs" />
+                    <span className="w-[2.5px] h-2 bg-current rounded-xs" />
+                    <span className="w-[2.5px] h-2.5 bg-current rounded-xs" />
+                  </div>
+                  <span className="text-[10px] font-bold">5G</span>
+                  <div className="h-3 w-5 rounded-[4px] border border-current p-[1.5px] flex items-center">
+                    <div className="h-full w-full bg-current rounded-[1px]" />
+                  </div>
+                </div>
               </div>
-              <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold shrink-0">Live</span>
-            </div>
-          </div>
+
+              {/* Mini Safari Address Bar */}
+              <div className="relative z-20 px-5 pb-1">
+                <div className="flex h-7 items-center justify-between rounded-full bg-white/10 dark:bg-white/10 backdrop-blur-md px-3 text-[10px] text-white/80 ring-1 ring-white/10">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <Lock size={10} className="text-emerald-400 shrink-0" />
+                    <span className="font-mono truncate">airpal.me/@{activeProfile.handle}</span>
+                  </div>
+                  <span className="text-[9px] uppercase tracking-wider text-white/50 font-semibold shrink-0">Live</span>
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Screen Inner Viewport (Real-Time Live Bio Mirror) */}
           <div
-            className="relative max-h-[570px] overflow-y-auto rounded-b-[40px] pb-6 scrollbar-none transition-colors duration-300"
+            className={cn(
+              "relative pb-6 scrollbar-none transition-colors duration-300",
+              bare ? "rounded-[27px]" : "max-h-[570px] overflow-y-auto rounded-b-[40px]",
+            )}
             style={{
               backgroundColor: screenBg,
               color: screenInk,
@@ -669,6 +688,9 @@ export function BioEditPage() {
                     backgroundColor: activeTheme.buttonBg,
                     color: activeTheme.buttonText,
                     borderRadius: activeTheme.buttonRadius,
+                    backgroundImage: "linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0) 45%)",
+                    boxShadow:
+                      "inset 0 1px 1.5px rgba(255,255,255,0.5), inset 0 -1px 1px rgba(0,0,0,0.14), 0 10px 22px -14px rgba(0,0,0,0.5)",
                   }}
                   className="flex h-10 w-full items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-wider shadow-sm transition active:scale-98"
                 >
@@ -750,10 +772,12 @@ export function BioEditPage() {
                 </div>
               )}
 
-              {/* iOS Home Indicator Bar */}
-              <div className="pt-4 pb-1">
-                <div className="h-[4px] w-28 rounded-full bg-neutral-400/80 dark:bg-neutral-600/80 mx-auto" />
-              </div>
+              {/* iOS Home Indicator Bar (device chrome only) */}
+              {!bare && (
+                <div className="pt-4 pb-1">
+                  <div className="h-[4px] w-28 rounded-full bg-neutral-400/80 dark:bg-neutral-600/80 mx-auto" />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -786,6 +810,23 @@ export function BioEditPage() {
             >
               <ArrowLeft size={18} />
             </button>
+
+            {/* Live avatar thumb with unsaved-changes dot */}
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-2xl bg-brand/10 ring-1 ring-line shadow-xs">
+              {avatar ? (
+                <Photo src={avatar} thumb className="h-full w-full object-cover" alt="" />
+              ) : (
+                <span className="grid h-full w-full place-items-center text-sm font-bold text-accent">
+                  {(name || activeProfile.handle || "A")[0]?.toUpperCase()}
+                </span>
+              )}
+              {isDirty && (
+                <span
+                  className="absolute right-1 top-1 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-card"
+                  title="Unsaved changes"
+                />
+              )}
+            </div>
 
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -829,22 +870,6 @@ export function BioEditPage() {
               </Button>
             </div>
 
-            {/* Mobile Live Preview Trigger Button */}
-            <div className="lg:hidden">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-1 rounded-full border border-line bg-card px-2.5 sm:px-3 text-xs font-semibold text-ink shadow-xs hover:bg-paper cursor-pointer"
-                onClick={() => {
-                  void triggerHaptic("medium");
-                  setMobilePreviewOpen(true);
-                }}
-              >
-                <Eye size={14} className="text-accent" />
-                <span className="hidden min-[380px]:inline">Preview</span>
-              </Button>
-            </div>
-
             {/* Save Button */}
             <Button
               size="sm"
@@ -872,118 +897,161 @@ export function BioEditPage() {
 
       {/* Main Page Content */}
       <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-5">
-        {/* 2. Identity Switcher & Profile Distinction Card */}
-        <div className="rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line shadow-clay border border-line/40">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3.5">
-            {/* Identity Info */}
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div
-                className={cn(
-                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-xs ring-1",
-                  isBusiness
-                    ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 ring-amber-500/20"
-                    : "bg-brand/10 text-accent ring-brand/20",
-                )}
+        {/* 2. Identity Switcher Strip */}
+        <div className="flex items-center justify-between gap-2 rounded-2xl bg-card px-3 py-2.5 ring-1 ring-line shadow-xs border border-line/40">
+          {/* Identity Info */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl shadow-xs ring-1",
+                isBusiness
+                  ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 ring-amber-500/20"
+                  : "bg-brand/10 text-accent ring-brand/20",
+              )}
+            >
+              {isBusiness ? <Store size={17} /> : <UserRound size={17} />}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-bold text-ink">
+                {isBusiness ? "Place Profile" : "Personal Bio"} · @{activeProfile.handle}
+              </p>
+              <p className="truncate text-[11px] text-mute">
+                {isBusiness ? "AirPal Pass storefront" : "AirPal Me life handle"}
+              </p>
+            </div>
+          </div>
+
+          {/* Profile Switcher or Creation CTAs */}
+          <div className="flex items-center gap-2 shrink-0 max-w-full">
+            {mine && business && (
+              <div className="inline-flex max-w-full rounded-full bg-paper p-1 ring-1 ring-line">
+                <button
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("selection");
+                    nav("/bio/edit?kind=person");
+                  }}
+                  className={cn(
+                    "inline-flex min-w-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
+                    !isBusiness ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
+                  )}
+                >
+                  <UserRound size={13} className="shrink-0" />
+                  <span className="truncate max-w-[130px] sm:max-w-[200px]">@{mine.handle}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("selection");
+                    nav("/bio/edit?kind=business");
+                  }}
+                  className={cn(
+                    "inline-flex min-w-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
+                    isBusiness ? "bg-amber-600 text-white shadow-xs" : "text-mute hover:text-ink",
+                  )}
+                >
+                  <Store size={13} className="shrink-0" />
+                  <span className="truncate max-w-[130px] sm:max-w-[200px]">@{business.handle}</span>
+                </button>
+              </div>
+            )}
+
+            {mine && !business && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold text-ink hover:bg-card shadow-xs cursor-pointer"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav("/bio/setup?kind=business");
+                }}
               >
-                {isBusiness ? <Store size={22} /> : <UserRound size={22} />}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-bold uppercase tracking-wider text-ink">
-                    {isBusiness ? "AirPal Pass Place Profile" : "AirPal Me Personal Bio"}
-                  </span>
-                  <span
-                    className={cn(
-                      "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase",
-                      isBusiness ? "bg-amber-500/10 text-amber-800 dark:text-amber-300" : "bg-brand/10 text-accent",
-                    )}
-                  >
-                    Active Profile
-                  </span>
-                </div>
-                <p className="text-xs text-mute mt-0.5 leading-relaxed truncate">
-                  {isBusiness
-                    ? "Storefront hours, Google Place sync, menus, products, and direct booking links."
-                    : "Your personal life handle for catch-ups, friend hangouts, and networking wallet passes."}
-                </p>
-              </div>
-            </div>
+                <Plus size={13} className="text-accent" />
+                <span>Add Business Place</span>
+              </Button>
+            )}
 
-            {/* Profile Switcher or Creation CTAs */}
-            <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-line/60 max-w-full">
-              {mine && business && (
-                <div className="inline-flex max-w-full rounded-full bg-paper p-1 ring-1 ring-line">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void triggerHaptic("selection");
-                      nav("/bio/edit?kind=person");
-                    }}
-                    className={cn(
-                      "inline-flex min-w-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
-                      !isBusiness ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
-                    )}
-                  >
-                    <UserRound size={13} className="shrink-0" />
-                    <span className="truncate max-w-[130px] sm:max-w-[200px]">@{mine.handle}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void triggerHaptic("selection");
-                      nav("/bio/edit?kind=business");
-                    }}
-                    className={cn(
-                      "inline-flex min-w-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
-                      isBusiness ? "bg-amber-600 text-white shadow-xs" : "text-mute hover:text-ink",
-                    )}
-                  >
-                    <Store size={13} className="shrink-0" />
-                    <span className="truncate max-w-[130px] sm:max-w-[200px]">@{business.handle}</span>
-                  </button>
-                </div>
-              )}
-
-              {mine && !business && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold text-ink hover:bg-card shadow-xs cursor-pointer"
-                  onClick={() => {
-                    void triggerHaptic("light");
-                    nav("/bio/setup?kind=business");
-                  }}
-                >
-                  <Plus size={13} className="text-accent" />
-                  <span>Add Business Place</span>
-                </Button>
-              )}
-
-              {!mine && business && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold text-ink hover:bg-card shadow-xs cursor-pointer"
-                  onClick={() => {
-                    void triggerHaptic("light");
-                    nav("/bio/setup");
-                  }}
-                >
-                  <Plus size={13} className="text-accent" />
-                  <span>Claim Personal @handle</span>
-                </Button>
-              )}
-            </div>
+            {!mine && business && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold text-ink hover:bg-card shadow-xs cursor-pointer"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav("/bio/setup");
+                }}
+              >
+                <Plus size={13} className="text-accent" />
+                <span>Claim Personal @handle</span>
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* 3. Two-Column Layout: Left Editor Tabs + Right Sticky Phone Mockup */}
-        <div className="mt-6 lg:grid lg:grid-cols-12 lg:gap-8">
+        {/* Mobile Edit / Preview switcher */}
+        <div className="lg:hidden sticky top-[68px] z-20 mt-4">
+          <div className="flex items-center gap-1.5 rounded-2xl bg-paper/95 p-1.5 ring-1 ring-line shadow-xs backdrop-blur-md">
+            <div
+              className="grid flex-1 grid-cols-2 gap-1 rounded-xl bg-card/60 p-1 ring-1 ring-line/60"
+              role="tablist"
+              aria-label="Editor view"
+            >
+              {[
+                { id: "edit" as const, label: "Edit", icon: Edit3 },
+                { id: "preview" as const, label: "Preview", icon: Eye },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={mobileView === item.id}
+                  onClick={() => {
+                    void triggerHaptic("selection");
+                    setMobileView(item.id);
+                  }}
+                  className={cn(
+                    "flex h-10 items-center justify-center gap-1.5 rounded-lg text-xs font-bold transition active:scale-95 cursor-pointer",
+                    mobileView === item.id
+                      ? isBusiness
+                        ? "bg-amber-600 text-white shadow-xs"
+                        : "bg-brand text-white shadow-xs"
+                      : "text-mute hover:text-ink",
+                  )}
+                >
+                  <item.icon size={14} className="shrink-0" />
+                  <span>{item.label}</span>
+                  {item.id === "preview" && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
+                  )}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("selection");
+                setPreviewThemeMode((m) => (m === "dark" ? "light" : "dark"));
+              }}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line bg-card text-ink transition active:scale-95 cursor-pointer shadow-xs"
+              title={`Switch preview to ${previewThemeMode === "dark" ? "light" : "dark"} mode`}
+              aria-label={`Switch preview to ${previewThemeMode === "dark" ? "light" : "dark"} mode`}
+            >
+              {previewThemeMode === "dark" ? (
+                <Sun size={15} className="text-amber-500" />
+              ) : (
+                <Moon size={15} className="text-brand" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* 3. Two-Column Layout: Left Editor Tabs + Right Sticky Live Mirror */}
+        <div className="mt-4 lg:mt-6 lg:grid lg:grid-cols-12 lg:gap-8">
           {/* Left Column: Segmented Tabs & Editors */}
-          <div className="lg:col-span-7">
+          <div className={cn("lg:col-span-7", mobileView === "preview" && "hidden lg:block")}>
             {/* Apple HIG Segmented Navigation Tabs */}
             <div
-              className="flex gap-1 overflow-x-auto no-scrollbar rounded-2xl bg-paper p-1.5 ring-1 ring-line shadow-xs"
+              className="flex gap-1 overflow-x-auto no-scrollbar rounded-2xl bg-paper p-1.5 ring-1 ring-line shadow-xs lg:sticky lg:top-[76px] lg:z-20"
               role="tablist"
               aria-label="Profile sections"
             >
@@ -1035,6 +1103,14 @@ export function BioEditPage() {
               ))}
             </div>
 
+            {/* Edit-section system: profile, links, shop, and handle cards share
+                one shell (`rounded-3xl border border-line bg-card p-5 sm:p-6
+                shadow-clay`) and one rhythm (`space-y-5` bodies, `space-y-1.5`
+                fields, uppercase-mute field labels). Section headers use the
+                eyebrow row; visibility and handle keep bespoke interiors
+                inside the same shell. The owner pass card and insights panels
+                are intentionally bespoke. Keep new sections on this system so
+                tabs align. */}
             {/* TAB 1: PROFILE EDITOR */}
             {tab === "profile" && (
               <form className="mt-6 space-y-6" onSubmit={(e) => void handleSaveAll(e)}>
@@ -1054,7 +1130,7 @@ export function BioEditPage() {
                     {/* Cover Banner */}
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-semibold text-ink">
+                        <label className="text-xs font-semibold uppercase tracking-wider text-mute">
                           {isBusiness ? "Storefront Hero Banner" : "Cover Banner Photo"}
                         </label>
                         <span className="text-[11px] text-mute">16:9 ratio recommended</span>
@@ -1065,7 +1141,7 @@ export function BioEditPage() {
                     {/* Avatar */}
                     <div className="pt-2 border-t border-line/60">
                       <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-semibold text-ink">
+                        <label className="text-xs font-semibold uppercase tracking-wider text-mute">
                           {isBusiness ? "Business Logo / Mark" : "Profile Avatar Picture"}
                         </label>
                         <span className="text-[11px] text-mute">Square portrait photo</span>
@@ -1081,7 +1157,9 @@ export function BioEditPage() {
                     {/* Page Theme */}
                     <div className="pt-2 border-t border-line/60">
                       <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-semibold text-ink">Public Page Theme</label>
+                        <label className="text-xs font-semibold uppercase tracking-wider text-mute">
+                          Public Page Theme
+                        </label>
                         <span className="text-[11px] text-mute">Recolours your public bio instantly</span>
                       </div>
                       <BioThemePicker value={activeProfile.theme} onSelect={(id) => void onSelectTheme(id)} />
@@ -1444,7 +1522,7 @@ export function BioEditPage() {
                 {/* 1.6 Profile Visibility (Personal only) */}
                 {!isBusiness && (
                   <section
-                    className="rounded-[28px] border border-line bg-card p-5 shadow-clay sm:p-6"
+                    className="rounded-3xl border border-line bg-card p-5 shadow-clay sm:p-6"
                     aria-labelledby="visibility-title"
                   >
                     <div className="flex items-start gap-3">
@@ -1511,8 +1589,8 @@ export function BioEditPage() {
                   </section>
                 )}
 
-                {/* 1.7 Business-Only Google Place Import Card vs Personal Hint */}
-                {isBusiness ? (
+                {/* 1.7 Business-only Google Place import */}
+                {isBusiness && (
                   <GooglePlaceImportCard
                     importedPlaceId={mapsPlaceId}
                     onImport={(place) => {
@@ -1528,14 +1606,6 @@ export function BioEditPage() {
                       setLinks((prev) => mergeBioLinks(prev, bioLinksFromGooglePlace(place)));
                       void triggerHaptic("success");
                       toast.success("Imported from Google — save to keep changes");
-                    }}
-                  />
-                ) : (
-                  <PersonalProfileListingHint
-                    hasBusiness={Boolean(business)}
-                    onOpenBusiness={() => {
-                      void triggerHaptic("light");
-                      nav(business ? "/bio/edit?kind=business" : "/bio/setup?kind=business");
                     }}
                   />
                 )}
@@ -1893,7 +1963,13 @@ export function BioEditPage() {
                       : "Add recommendations, affiliate perks, or services you offer."}
                   </p>
                 </div>
-                <BioCatalogEditor products={products} services={services} deals={deals} onChange={saveCatalog} />
+                <BioCatalogEditor
+                  products={products}
+                  services={services}
+                  deals={deals}
+                  onChange={saveCatalog}
+                  tone={isBusiness ? "amber" : "brand"}
+                />
               </div>
             )}
 
@@ -1929,7 +2005,7 @@ export function BioEditPage() {
                 </DigitalBioPassCard>
 
                 {/* Handle Configuration */}
-                <div className="rounded-3xl border border-line bg-card p-6 sm:p-7 shadow-clay">
+                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay">
                   <ChangeHandleForm current={activeProfile.handle} profileId={activeProfile.id} />
                 </div>
               </div>
@@ -1944,10 +2020,10 @@ export function BioEditPage() {
             )}
           </div>
 
-          {/* Right Column: Sticky Realistic Phone Mockup (Desktop / Tablet lg+) */}
-          <div className="hidden lg:block lg:col-span-5">
-            <div className="sticky top-20">
-              <div className="flex items-center justify-between mb-3 px-1">
+          {/* Right Column: Sticky Live Mirror (device chrome on desktop, bare inline preview on mobile) */}
+          <div className={cn("lg:col-span-5", mobileView === "preview" ? "mt-4 block" : "hidden lg:block")}>
+            <div className="lg:sticky lg:top-20">
+              <div className="hidden lg:flex items-center justify-between mb-3 px-1">
                 <div className="flex items-center gap-1.5">
                   <p className="text-xs font-bold uppercase tracking-wider text-mute flex items-center gap-1.5">
                     <Smartphone size={14} className="text-accent" />
@@ -1985,72 +2061,11 @@ export function BioEditPage() {
                   </span>
                 </div>
               </div>
-              {renderLivePhoneMockup()}
+              {renderLivePhoneMockup(mobileView === "preview")}
             </div>
           </div>
         </div>
       </main>
-
-      {/* Mobile Live Preview Drawer Sheet Modal (< lg screen) */}
-      {mobilePreviewOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Live Profile Preview"
-          className="visual-viewport-modal z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs lg:hidden animate-in fade-in duration-200"
-        >
-          <div className="relative max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] overflow-y-auto rounded-t-[36px] bg-paper p-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
-            {/* Sheet Handle */}
-            <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-line/80" />
-
-            <div className="flex items-center justify-between pb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
-                  <Eye size={14} /> iPhone 16 Pro Max Mirror
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void triggerHaptic("selection");
-                    setPreviewThemeMode((m) => (m === "dark" ? "light" : "dark"));
-                  }}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border border-line bg-card hover:bg-paper text-ink transition active:scale-95 cursor-pointer shadow-xs"
-                  title={`Switch mirror to ${previewThemeMode === "dark" ? "light" : "dark"} mode`}
-                >
-                  {previewThemeMode === "dark" ? (
-                    <>
-                      <Sun size={10} className="text-amber-500" />
-                      <span>Light</span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon size={10} className="text-brand" />
-                      <span>Dark</span>
-                    </>
-                  )}
-                </button>
-              </div>
-              <button
-                type="button"
-                className="rounded-full p-2 text-mute hover:bg-card hover:text-ink cursor-pointer"
-                onClick={() => setMobilePreviewOpen(false)}
-                aria-label="Close Preview"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="py-2">{renderLivePhoneMockup()}</div>
-
-            <Button
-              className="mt-4 w-full h-12 font-semibold rounded-2xl cursor-pointer"
-              onClick={() => setMobilePreviewOpen(false)}
-            >
-              Done Previewing
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Floating Unsaved Changes Pill / Island */}
       {isDirty && (

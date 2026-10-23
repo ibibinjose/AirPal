@@ -11,11 +11,14 @@ export function BioCatalogEditor({
   services,
   deals,
   onChange,
+  tone = "brand",
 }: {
   products: BioCatalogItem[];
   services: BioCatalogItem[];
   deals: BioCatalogItem[];
   onChange: (kind: BioCatalogKind, rows: BioCatalogItem[]) => void;
+  /** `amber` matches the business studio surfaces; default is brand blue. */
+  tone?: "brand" | "amber";
 }) {
   const [kind, setKind] = useState<BioCatalogKind>("deal");
   const [title, setTitle] = useState("");
@@ -71,18 +74,20 @@ export function BioCatalogEditor({
               type="button"
               onClick={() => setKind(k.id)}
               className={cn(
-                "inline-flex min-h-[44px] whitespace-nowrap items-center gap-2 rounded-full px-4 text-xs font-semibold transition active:scale-95",
+                "inline-flex min-h-[44px] whitespace-nowrap items-center gap-2 rounded-full px-4 text-xs font-semibold transition active:scale-95 cursor-pointer",
                 kind === k.id
-                  ? "bg-brand text-white shadow-sm ring-1 ring-brand"
-                  : "bg-card text-ink ring-1 ring-line hover:bg-paper",
+                  ? tone === "amber"
+                    ? "bg-amber-600 text-white shadow-sm ring-1 ring-amber-600"
+                    : "bg-brand text-white shadow-sm ring-1 ring-brand"
+                  : "bg-paper text-ink ring-1 ring-line hover:bg-card",
               )}
             >
               {kindIcon(k.id)}
               <span>{k.label}</span>
               <span
                 className={cn(
-                  "ml-1 rounded-full px-2 py-0.5 text-[10px]",
-                  kind === k.id ? "bg-white/20 text-white" : "bg-paper text-mute",
+                  "ml-1 rounded-full px-2 py-0.5 text-[10px] tabular-nums",
+                  kind === k.id ? "bg-white/20 text-white" : "bg-card text-mute ring-1 ring-line",
                 )}
               >
                 {(k.id === "deal" ? deals : k.id === "product" ? products : services).length}/{BIO_CATALOG_MAX}
@@ -93,7 +98,7 @@ export function BioCatalogEditor({
       </div>
 
       {/* Item creation form */}
-      <form className="space-y-3 rounded-2xl border border-line bg-card p-4 shadow-sm" onSubmit={add}>
+      <form className="space-y-3 rounded-2xl border border-line bg-paper p-4 shadow-sm" onSubmit={add}>
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-wider text-mute flex items-center gap-1.5">
             {kindIcon(kind)}
@@ -189,7 +194,7 @@ export function BioCatalogEditor({
             {rows.map((row) => (
               <li
                 key={row.id}
-                className="flex items-start justify-between gap-3 rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs transition hover:ring-ink/20"
+                className="flex items-start justify-between gap-3 rounded-2xl bg-paper p-4 ring-1 ring-line shadow-xs transition hover:ring-ink/20"
               >
                 <div className="min-w-0 flex-1 space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -201,7 +206,9 @@ export function BioCatalogEditor({
                     )}
                     <span className="font-semibold text-sm text-ink">{row.title}</span>
                     {row.price && (
-                      <span className="rounded-md bg-paper px-2 py-0.5 text-xs font-bold text-accent">{row.price}</span>
+                      <span className="rounded-md bg-card px-2 py-0.5 text-xs font-bold text-accent ring-1 ring-line">
+                        {row.price}
+                      </span>
                     )}
                   </div>
                   {row.detail && <p className="text-xs text-mute leading-relaxed">{row.detail}</p>}
@@ -220,8 +227,9 @@ export function BioCatalogEditor({
 
                 <button
                   type="button"
-                  className="rounded-full p-2 text-mute transition hover:bg-rose-50 hover:text-rose-600 shrink-0"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-mute transition hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
                   title={`Remove ${row.title}`}
+                  aria-label={`Remove ${row.title}`}
                   onClick={() =>
                     onChange(
                       kind,

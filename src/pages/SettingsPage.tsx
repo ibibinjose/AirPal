@@ -49,7 +49,7 @@ import { ChangeHandleForm } from "@/components/bio/ChangeHandleForm";
 import { partnerAccountPath } from "@/lib/partner-account";
 import { friendlyBirthdayError, setBirthdayAlertPrefsRemote } from "@/lib/birthday-freebies";
 import { NAMES } from "@shared/names";
-import { triggerHaptic } from "@/lib/native";
+import { syncNativeChrome, triggerHaptic } from "@/lib/native";
 import { getThemePreference, setThemePreference, type ThemeMode } from "@/lib/theme";
 import { CITY_OPTIONS } from "@/lib/cities";
 import { cn } from "@/lib/cn";
@@ -142,6 +142,7 @@ export function SettingsPage() {
     void triggerHaptic("light");
     setTheme(mode);
     setThemePreference(mode);
+    void syncNativeChrome();
     toast.success(
       `Theme set to ${mode === "dark" ? "Night (OLED Black)" : mode === "light" ? "Day (Parchment)" : "System"}`,
     );

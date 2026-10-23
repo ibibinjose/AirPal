@@ -5,6 +5,7 @@ import { Share } from "@capacitor/share";
 import { App } from "@capacitor/app";
 import { registerNativePush } from "./notifications";
 import { toPublicUrl } from "./public-origin";
+import { getThemePreference } from "./theme";
 
 /** Re-exported from platform.ts so existing importers keep working. */
 import { getNativePlatform, isNativeApp } from "./platform";
@@ -73,9 +74,6 @@ export async function triggerHapticSelection(): Promise<void> {
 }
 
 /**
-import { toPublicUrl } from "./public-origin";
-
-/**
  * Universal share function. Uses native iOS/Android system share sheet on native,
  * and navigator.share or clipboard fallback on web. Always normalizes URL to https://airpal.me/...
  */
@@ -116,6 +114,44 @@ export async function shareNative(options: {
   return false;
 }
 
+/** Native status-bar chrome per scheme: parchment bar in day, OLED black in night. */
+const NATIVE_LIGHT_BAR = "#eef1f6";
+const NATIVE_DARK_BAR = "#000000";
+
+function resolveNativeDark(): boolean {
+  const mode = getThemePreference();
+  if (mode === "dark") return true;
+  if (mode === "light") return false;
+  if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+    try {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * Sync the native status bar with the app theme, so the OS chrome never
+ * fights the page (white text on parchment, or dark text on OLED black).
+ * No-op on web; requires `UIViewControllerBasedStatusBarAppearance = false`
+ * in Info.plist for iOS to honor it.
+ */
+export async function syncNativeChrome(): Promise<void> {
+  if (!isNativeApp()) return;
+  try {
+    const dark = resolveNativeDark();
+    // NB: Style.Light = light bar content for dark backgrounds.
+    await StatusBar.setStyle({ style: dark ? Style.Light : Style.Dark });
+    if (getNativePlatform() === "android") {
+      await StatusBar.setBackgroundColor({ color: dark ? NATIVE_DARK_BAR : NATIVE_LIGHT_BAR });
+    }
+  } catch {
+    /* web session continues without native plugins */
+  }
+}
+
 /**
  * Hide native splash screen with a branded fade-out transition.
  * Sets the fadeOutDuration on Capacitor's SplashScreen plugin.
@@ -143,11 +179,21 @@ export async function initNativeApp(
   if (!isNativeApp()) return;
 
   try {
-    // Light chrome to match the paper app theme (no dark flash on launch).
-    await StatusBar.setStyle({ style: Style.Light });
+    // Native chrome follows the app theme (OLED black bar in night mode,
+    // parchment bar in day mode) instead of a fixed light style.
+    await syncNativeChrome();
     if (getNativePlatform() === "android") {
-      await StatusBar.setBackgroundColor({ color: "#eef1f6" });
       await StatusBar.setOverlaysWebView({ overlay: false });
+    }
+    // Re-sync when the OS scheme flips while the app is open.
+    try {
+      const scheme = window.matchMedia("(prefers-color-scheme: dark)");
+      const resync = () => {
+        void syncNativeChrome();
+      };
+      if (typeof scheme.addEventListener === "function") scheme.addEventListener("change", resync);
+    } catch {
+      /* older engines keep the launch-time chrome */
     }
 
     // Hide splash screen after initialization unless deferred for branded transition

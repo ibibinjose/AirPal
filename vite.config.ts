@@ -12,10 +12,10 @@ function getGradleVersion(): { versionName: string; versionCode: string } {
     const codeMatch = content.match(/versionCode\s+(\d+)/);
     return {
       versionName: nameMatch ? nameMatch[1] : "2.0.1",
-      versionCode: codeMatch ? codeMatch[1] : "9",
+      versionCode: codeMatch ? codeMatch[1] : "10",
     };
   } catch {
-    return { versionName: "2.0.1", versionCode: "9" };
+    return { versionName: "2.0.1", versionCode: "10" };
   }
 }
 

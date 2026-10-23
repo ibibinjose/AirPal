@@ -3,7 +3,8 @@ import { Capacitor } from "@capacitor/core";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { StatusBar } from "@capacitor/status-bar";
 import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
-import { hideNativeSplash, initNativeApp, triggerHaptic, triggerHapticSelection } from "./native";
+import { hideNativeSplash, initNativeApp, syncNativeChrome, triggerHaptic, triggerHapticSelection } from "./native";
+import { setThemePreference } from "./theme";
 
 vi.mock("@capacitor/core", () => ({
   Capacitor: {
@@ -100,6 +101,57 @@ describe("native splash screen logic", () => {
     await initNativeApp();
 
     expect(SplashScreen.hide).toHaveBeenCalledWith({ fadeOutDuration: 350 });
+  });
+});
+
+describe("native status bar chrome", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setThemePreference("system");
+    vi.unstubAllGlobals();
+  });
+
+  it("does nothing on web", async () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+
+    await syncNativeChrome();
+
+    expect(StatusBar.setStyle).not.toHaveBeenCalled();
+    expect(StatusBar.setBackgroundColor).not.toHaveBeenCalled();
+  });
+
+  it("uses light bar content with no fill on dark theme (iOS)", async () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("ios");
+    setThemePreference("dark");
+
+    await syncNativeChrome();
+
+    expect(StatusBar.setStyle).toHaveBeenCalledWith({ style: "LIGHT" });
+    expect(StatusBar.setBackgroundColor).not.toHaveBeenCalled();
+  });
+
+  it("uses dark bar content with parchment fill on light theme (android)", async () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("android");
+    setThemePreference("light");
+
+    await syncNativeChrome();
+
+    expect(StatusBar.setStyle).toHaveBeenCalledWith({ style: "DARK" });
+    expect(StatusBar.setBackgroundColor).toHaveBeenCalledWith({ color: "#eef1f6" });
+  });
+
+  it("follows the OS scheme when the preference is system", async () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue("android");
+    setThemePreference("system");
+    vi.stubGlobal("window", { matchMedia: () => ({ matches: true }) });
+
+    await syncNativeChrome();
+
+    expect(StatusBar.setStyle).toHaveBeenCalledWith({ style: "LIGHT" });
+    expect(StatusBar.setBackgroundColor).toHaveBeenCalledWith({ color: "#000000" });
   });
 });
 

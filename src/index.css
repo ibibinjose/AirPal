@@ -648,8 +648,11 @@ body.keyboard-open .keyboard-hide {
 }
 
 /* Bio themes: an owner-selected preset recolours the full public bio page.
- * All rules are scoped under `.bio-themed`, so the default AirPal look is
- * untouched. Unlayered author CSS beats Tailwind utilities, so the theme
+ * Colour rules are scoped under `.bio-themed`, so the default AirPal look is
+ * untouched. The gloss finish (specular highlights, layered shadows, sheen)
+ * is intentionally unscoped and colour-agnostic white-on-top, so every
+ * theme — including the default look — gets the same polished finish.
+ * Unlayered author CSS beats Tailwind utilities, so the theme
  * wins without per-component `dark:` overrides. Substring class matches
  * cover opacity variants (`bg-card/90`, `text-ink/75`) too. */
 .bio-themed.bio-page-shell::before {
@@ -679,7 +682,29 @@ body.keyboard-open .keyboard-hide {
   color: var(--bio-accent);
 }
 
-/* List-row links: solid surface rows in theme ink; radius follows the theme. */
+/* Avatar and status rings use the card tone by default; on themed pages they
+ * blend into the page background instead, so the portrait sits in the theme. */
+.bio-themed .bio-page-card [class*="ring-card"] {
+  --tw-ring-color: var(--bio-bg);
+}
+
+/* List-row links: solid surface rows in theme ink; radius follows the theme.
+ * Content layer stays solid (never blurred glass): the sleek finish comes
+ * from a specular top-light gradient, a crisp inner highlight, and a soft
+ * rest shadow that deepens on hover. */
+.bio-theme-btn {
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 55%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 1px 2px rgba(18, 22, 20, 0.06);
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    scale 150ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 150ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
 .bio-themed .bio-theme-btn {
   background-color: var(--bio-surface);
   border-color: var(--bio-border);
@@ -691,7 +716,50 @@ body.keyboard-open .keyboard-hide {
   border-color: var(--bio-accent);
 }
 
-/* Primary CTAs: solid theme button fill with readable button text. */
+.bio-theme-btn:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 10px 22px -12px rgba(18, 22, 20, 0.3);
+}
+
+/* Primary CTAs: solid theme button fill with readable button text, finished
+ * with a liquid-glass specular highlight (top light plus inner depth) and a
+ * soft drop shadow. A light sheen sweeps across on hover; reduced motion
+ * disables it. Highlights live on edges and the top fade, never behind the
+ * label, so text contrast is untouched. */
+.bio-theme-primary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 42%);
+  box-shadow:
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.5),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.14),
+    0 12px 26px -14px rgba(18, 22, 20, 0.55);
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    filter 200ms ease,
+    box-shadow 200ms ease,
+    scale 150ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 150ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.bio-theme-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.38) 50%, transparent 58%);
+  transform: translateX(-130%);
+  transition: transform 550ms ease;
+  pointer-events: none;
+}
+
+.bio-theme-primary:hover::after {
+  transform: translateX(130%);
+}
+
 .bio-themed .bio-theme-primary {
   background-color: var(--bio-btn);
   border-color: transparent;
@@ -708,7 +776,15 @@ body.keyboard-open .keyboard-hide {
   outline-offset: 2px;
 }
 
-/* Guestlist form fields sit on the theme surface with an accent focus ring. */
+/* Guestlist form fields sit on the theme surface with an accent focus ring,
+ * plus a faint inner top shadow so inputs read as inset against the cards. */
+.bio-theme-field {
+  box-shadow: inset 0 1px 2px rgba(18, 22, 20, 0.07);
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
 .bio-themed .bio-theme-field {
   background-color: var(--bio-surface);
   border-color: var(--bio-border);
@@ -724,9 +800,34 @@ body.keyboard-open .keyboard-hide {
   border-color: var(--bio-accent);
 }
 
-/* Cover fallback when a bio has no cover photo: deep theme gradient. */
+/* Cover fallback when a bio has no cover photo: deep theme gradient with a
+ * top-light gloss, so the empty cover still feels finished. */
 .bio-themed .bio-hero-fallback {
-  background: linear-gradient(135deg, var(--bio-hero-from), var(--bio-hero-to));
+  background:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 38%),
+    linear-gradient(135deg, var(--bio-hero-from), var(--bio-hero-to));
+}
+
+/* Silky theme switching: the page and card cross-fade their theme colours
+ * when the owner picks a new preset. */
+.bio-themed.bio-page-shell::before,
+.bio-themed .bio-page-card {
+  transition:
+    background-color 250ms ease,
+    border-color 250ms ease,
+    color 250ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bio-theme-btn,
+  .bio-theme-primary,
+  .bio-themed.bio-page-shell::before,
+  .bio-themed .bio-page-card {
+    transition: none;
+  }
+  .bio-theme-primary::after {
+    display: none;
+  }
 }
 
 @media (min-width: 640px) {
@@ -744,8 +845,8 @@ body.keyboard-open .keyboard-hide {
 
 /* OLED true black for the default (unthemed) bio look in dark mode.
  * Themed pages keep their identity: the four core vars remap to the
- * preset's explicit dark variants (authored contrast-checked), so a
- * forest/ocean/reef page stays forest/ocean/reef after dark. `!important`
+ * preset's explicit dark variants (authored contrast-checked), so an
+ * ember/fluro/volt page stays ember/fluro/volt after dark. `!important`
  * wins over the inline light vars set from `bioThemeCssVars`. */
 @media (prefers-color-scheme: dark) {
   :root:not(.light) .bio-themed {
