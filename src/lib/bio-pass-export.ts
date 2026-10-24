@@ -53,8 +53,8 @@ export async function exportBioPassPng(options: ExportBioPassOptions): Promise<b
 
   // 1. Draw Template Background
   try {
-    const templateImg = await loadImage(`${origin}/brand/bio-pass-template.png`).catch(() =>
-      loadImage("/brand/bio-pass-template.png"),
+    const templateImg = await loadImage(`${origin}/brand/bio-pass-template.webp`).catch(() =>
+      loadImage("/brand/bio-pass-template.webp"),
     );
     ctx.drawImage(templateImg, 0, 0, width, height);
   } catch {

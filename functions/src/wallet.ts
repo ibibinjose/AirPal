@@ -189,12 +189,12 @@ export function cardPassJson(input: CardPassInput): Record<string, unknown> {
   return {
     formatVersion: 1,
     organizationName: "AirPal.me",
-    description: input.kind === "business" ? `${input.name} — AirPal business card` : `${input.name} on AirPal`,
+    description: input.kind === "business" ? `${input.name} — AirPal Business Card` : `${input.name} on AirPal`,
     serialNumber: `card-${input.handle}`,
     backgroundColor: "rgb(0,78,255)",
     foregroundColor: "rgb(255,255,255)",
     labelColor: "rgb(225,225,235)",
-    generic: {
+    storeCard: {
       primaryFields: [{ key: "name", label: "AIRPAL", value: input.name }],
       secondaryFields: [{ key: "handle", label: "HANDLE", value: `@${input.handle}` }],
       auxiliaryFields: input.city ? [{ key: "city", label: "CITY", value: input.city }] : [],
@@ -385,7 +385,11 @@ export const walletPass = onRequest(
         return;
       }
       res.set("Content-Type", "application/vnd.apple.pkpass");
-      res.set("Content-Disposition", `attachment; filename="${kind}-${encodeURIComponent(key)}.pkpass"`);
+      const downloadName =
+        kind === "card"
+          ? `@${encodeURIComponent(key)}-AirPal-Pass.pkpass`
+          : `${kind}-${encodeURIComponent(key)}.pkpass`;
+      res.set("Content-Disposition", `attachment; filename="${downloadName}"`);
       res.set("Cache-Control", "private, max-age=300");
       if (req.method === "HEAD") {
         res.set("Content-Length", String(buffer.length));

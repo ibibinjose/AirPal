@@ -11,6 +11,13 @@ const FULL_WIDTHS: Record<string, number> = {
   walk: 1400,
 };
 
+/**
+ * Shared fallback for event cards with no hero image. Must stay a bundled
+ * `/media/*.jpg` file with `-800.webp` / `-full.webp` siblings so cards keep
+ * responsive variants (guarded by `bundled image literals` tests).
+ */
+export const FALLBACK_EVENT_IMAGE = "/media/laneway.jpg";
+
 export function mediaSrcSet(src: string | undefined): string | undefined {
   const name = src?.match(/^\/media\/([a-z-]+)\.jpg$/)?.[1];
   const full = name ? FULL_WIDTHS[name] : undefined;

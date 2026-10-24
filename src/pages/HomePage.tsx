@@ -19,7 +19,7 @@ import { useEvents } from "@/contexts/EventsContext";
 import { useLocalNow } from "@/contexts/LocalNowContext";
 import { getFirebaseDb } from "@/lib/firebase";
 import { Photo } from "@/components/ui/Photo";
-import { mediaSrcSet } from "@/lib/media-srcset";
+import { FALLBACK_EVENT_IMAGE, mediaSrcSet } from "@/lib/media-srcset";
 import { EventLiveAttendeePreview } from "@/components/event/EventLiveAttendeePreview";
 import { CategoryFilters, type CategoryType } from "@/components/airpal/CategoryFilters";
 import { type Promotion } from "@shared/promotions";
@@ -93,9 +93,12 @@ export function HomePage() {
         <div className="absolute inset-0" aria-hidden="true">
           <img
             src="/media/harbour.jpg"
+            srcSet={mediaSrcSet("/media/harbour.jpg")}
+            sizes="100vw"
             alt=""
             loading="eager"
             decoding="async"
+            fetchPriority="high"
             className="h-full w-full object-cover object-center opacity-70"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/30" />
@@ -180,7 +183,7 @@ export function HomePage() {
             {filteredEvents.length > 0 ? (
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
                 {filteredEvents.slice(0, 6).map((event) => {
-                  const eventImg = event.heroImage || "/media/live-music.jpg";
+                  const eventImg = event.heroImage || FALLBACK_EVENT_IMAGE;
                   const priceLabel =
                     event.ticketPrice ||
                     (event.ticketPriceCents ? `$${Math.round(event.ticketPriceCents / 100)}` : "Free Pass");
@@ -421,7 +424,7 @@ export function HomePage() {
             {upcomingEvents.length > 0 ? (
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
                 {upcomingEvents.map((event) => {
-                  const eventImg = event.heroImage || "/media/live-music.jpg";
+                  const eventImg = event.heroImage || FALLBACK_EVENT_IMAGE;
                   const priceLabel =
                     event.ticketPrice ||
                     (event.ticketPriceCents ? `$${Math.round(event.ticketPriceCents / 100)}` : "Free Pass");

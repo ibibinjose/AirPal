@@ -309,7 +309,9 @@ export const googleWalletPass = onRequest(
         const normalized = key.trim().replace(/^@+/, "").toLowerCase();
         const handleDoc = await getDocData("handles", normalized);
         const profileId = str(handleDoc?.profileId) || str(handleDoc?.ownerUid);
-        const profile = profileId ? ((await getDocData("profiles", profileId)) || (await getDocData("users", profileId))) : null;
+        const profile = profileId
+          ? (await getDocData("profiles", profileId)) || (await getDocData("users", profileId))
+          : null;
         if (!profile) {
           res.status(404).json({ error: "profile_not_found" });
           return;

@@ -28,7 +28,7 @@ import { EcosystemSwitcher } from "@/components/brand/EcosystemSwitcher";
 import { useMyBookings } from "@/hooks/useMyBookings";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { Photo } from "@/components/ui/Photo";
-import { mediaSrcSet } from "@/lib/media-srcset";
+import { FALLBACK_EVENT_IMAGE, mediaSrcSet } from "@/lib/media-srcset";
 import { type Promotion } from "@shared/promotions";
 import { promoArtFor } from "@/lib/promotions";
 import { EventLiveAttendeePreview } from "@/components/event/EventLiveAttendeePreview";
@@ -93,7 +93,7 @@ export function PassPage() {
         time: e.timeLabel,
         venue: e.venue || e.city || "Sydney",
         category: e.category || "community",
-        image: e.heroImage || "/media/live-music.jpg",
+        image: e.heroImage || FALLBACK_EVENT_IMAGE,
         priceLabel: e.ticketPrice || (e.ticketPriceCents ? `$${Math.round(e.ticketPriceCents / 100)}` : "Free Pass"),
         isFree: !e.ticketPriceCents || (e.ticketPrice ? e.ticketPrice.toLowerCase().includes("free") : false),
         guestCounts: e.guestCounts,
@@ -116,7 +116,7 @@ export function PassPage() {
         time: base.timeLabel,
         venue: base.venue || base.city || "Sydney",
         category: base.category || "community",
-        image: base.heroImage || "/media/live-music.jpg",
+        image: base.heroImage || FALLBACK_EVENT_IMAGE,
         priceLabel:
           base.ticketPrice || (base.ticketPriceCents ? `$${Math.round(base.ticketPriceCents / 100)}` : "Free Pass"),
         isFree: !base.ticketPriceCents || (base.ticketPrice ? base.ticketPrice.toLowerCase().includes("free") : false),

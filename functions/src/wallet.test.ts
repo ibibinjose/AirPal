@@ -144,9 +144,9 @@ describe("pass content (Luma layout, AirPal Blue)", () => {
     const json = cardPassJson({ handle: "bibin", name: "Bibin", bio: "Host" });
     expect(json.organizationName).toBe("AirPal.me");
     expect(json.backgroundColor).toBe("rgb(0,78,255)");
-    const generic = json.generic as Record<string, { label: string; value: string }[]>;
-    expect(generic.primaryFields[0]?.value).toBe("Bibin");
-    expect(generic.secondaryFields[0]?.value).toBe("@bibin");
+    const storeCard = json.storeCard as Record<string, { label: string; value: string }[]>;
+    expect(storeCard.primaryFields[0]?.value).toBe("Bibin");
+    expect(storeCard.secondaryFields[0]?.value).toBe("@bibin");
   });
 
   it("reads business-card identity from profile name and shortWhy", () => {
@@ -155,11 +155,11 @@ describe("pass content (Luma layout, AirPal Blue)", () => {
       "harbour",
     );
     const json = cardPassJson({ handle: "harbour", ...fields });
-    expect(json.description).toBe("Harbour Hotel — AirPal business card");
-    const generic = json.generic as Record<string, { value: string }[]>;
-    expect(generic.primaryFields[0]?.value).toBe("Harbour Hotel");
-    expect(generic.auxiliaryFields[0]?.value).toBe("Sydney");
-    const back = generic.backFields as { value: string }[];
+    expect(json.description).toBe("Harbour Hotel — AirPal Business Card");
+    const storeCard = json.storeCard as Record<string, { value: string }[]>;
+    expect(storeCard.primaryFields[0]?.value).toBe("Harbour Hotel");
+    expect(storeCard.auxiliaryFields[0]?.value).toBe("Sydney");
+    const back = storeCard.backFields as { value: string }[];
     expect(back.some((field) => field.value === "Rooms on the quay")).toBe(true);
   });
 });
