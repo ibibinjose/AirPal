@@ -6,6 +6,7 @@ import { makeQrDataUrl } from "@/lib/qr";
 import { saveBioContact } from "@/lib/people";
 import { shareBioPass } from "@/lib/share";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { exportBioPassPng } from "@/lib/bio-pass-export";
 import { BioPassVisual } from "@/components/bio/BioPassVisual";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
@@ -79,6 +80,26 @@ export function BioShareModal({
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.message(url);
+    }
+  }
+
+  const [exportingPass, setExportingPass] = useState(false);
+
+  async function handleDownloadFullPass() {
+    if (exportingPass) return;
+    setExportingPass(true);
+    try {
+      await exportBioPassPng({
+        handle: cleanHandle,
+        name,
+        kind,
+        avatar,
+        city,
+        qrDataUrl: qrData,
+        url,
+      });
+    } finally {
+      setExportingPass(false);
     }
   }
 
@@ -167,7 +188,7 @@ export function BioShareModal({
         {/* ============================================================== */}
         {/* CLEAN QUICK ACTION BUTTONS */}
         {/* ============================================================== */}
-        <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
           <button
             type="button"
             onClick={() => void handleNativeShare()}
@@ -183,6 +204,15 @@ export function BioShareModal({
           >
             <Contact size={16} className="text-brand" />
             <span>Save Contact</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleDownloadFullPass()}
+            disabled={exportingPass}
+            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-brand/10 p-2 text-xs font-semibold text-accent ring-1 ring-brand/20 hover:bg-brand/15 active:scale-95 transition cursor-pointer disabled:opacity-40"
+          >
+            <Download size={16} className="text-accent" />
+            <span>{exportingPass ? "Saving…" : "Save Card"}</span>
           </button>
           <button
             type="button"

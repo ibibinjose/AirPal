@@ -12,6 +12,7 @@ import { makeQrDataUrl } from "@/lib/qr";
 import { saveBioContact } from "@/lib/people";
 import { shareBioPass } from "@/lib/share";
 import { publicSiteOrigin } from "@/lib/public-origin";
+import { exportBioPassPng } from "@/lib/bio-pass-export";
 import {
   businessCardWalletPassUrl,
   googleWalletCardUrl,
@@ -119,6 +120,26 @@ export function DigitalBioPassCard({
     });
   };
 
+  const [exportingPass, setExportingPass] = useState(false);
+
+  const handleDownloadFullPass = async () => {
+    if (exportingPass) return;
+    setExportingPass(true);
+    try {
+      await exportBioPassPng({
+        handle: cleanHandle,
+        name,
+        kind,
+        avatar,
+        city,
+        qrDataUrl: qrSrc,
+        url: profileUrl,
+      });
+    } finally {
+      setExportingPass(false);
+    }
+  };
+
   const handleDownloadQr = () => {
     if (!qrSrc) return;
     void triggerHaptic("light");
@@ -215,6 +236,17 @@ export function DigitalBioPassCard({
         >
           <Contact size={14} className="shrink-0 text-emerald-600" aria-hidden="true" />
           <span>Save Contact</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => void handleDownloadFullPass()}
+          disabled={exportingPass}
+          className="inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-brand/10 text-accent font-bold px-3.5 text-xs ring-1 ring-brand/20 hover:bg-brand/15 transition active:scale-95 cursor-pointer shadow-2xs disabled:opacity-50"
+          aria-label="Download Full Pass Card PNG"
+        >
+          <Download size={14} className="shrink-0 text-accent" aria-hidden="true" />
+          <span>{exportingPass ? "Generating…" : "Pass Card PNG"}</span>
         </button>
 
         {qrSrc && (

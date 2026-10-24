@@ -175,8 +175,12 @@ export function cardSavePayload(input: CardObjectInput): Record<string, unknown>
         header: text(`@${input.handle}`),
         ...(input.city ? { subheader: text(input.city) } : {}),
         logo: {
-          sourceUri: { uri: "https://airpal.me/logo-mark.png" },
+          sourceUri: { uri: "https://airpal.me/brand/airpal-mark-white.png" },
           contentDescription: text("AirPal"),
+        },
+        heroImage: {
+          sourceUri: { uri: "https://airpal.me/brand/bio-pass-banner.png" },
+          contentDescription: text("AirPal Bio Pass"),
         },
         ...(input.bio ? { textModulesData: [{ header: "ABOUT", body: input.bio.slice(0, 200), id: "about" }] } : {}),
         barcode: { type: "QR_CODE", value: url, alternateText: `@${input.handle}` },
