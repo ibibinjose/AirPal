@@ -9,6 +9,7 @@ import { BioShareModal } from "@/components/bio/BioShareModal";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
 import { makeQrDataUrl } from "@/lib/qr";
+import { cleanHandle as safeHandle } from "@/lib/profile-text";
 import { saveBioContact } from "@/lib/people";
 import { shareBioPass } from "@/lib/share";
 import { publicSiteOrigin } from "@/lib/public-origin";
@@ -59,7 +60,7 @@ export function DigitalBioPassCard({
   className,
   children,
 }: DigitalBioPassCardProps) {
-  const cleanHandle = handle.trim().replace(/^@+/, "").toLowerCase();
+  const cleanHandle = safeHandle(handle);
   const [internalQr, setInternalQr] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);

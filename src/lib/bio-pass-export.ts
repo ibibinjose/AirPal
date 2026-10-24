@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { triggerHaptic } from "./native";
+import { cleanHandle as safeHandle } from "./profile-text";
 import { publicSiteOrigin } from "./public-origin";
 import type { BioKind } from "@shared/bio";
 
@@ -35,7 +36,7 @@ export async function exportBioPassPng(options: ExportBioPassOptions): Promise<b
   if (typeof document === "undefined") return false;
 
   void triggerHaptic("medium");
-  const cleanHandle = options.handle.trim().replace(/^@+/, "").toLowerCase();
+  const cleanHandle = safeHandle(options.handle);
   const isBusiness = options.kind === "business";
   const displayUrl = options.url.replace(/^https?:\/\//, "");
   const origin = publicSiteOrigin();
@@ -136,7 +137,7 @@ export async function exportBioPassPng(options: ExportBioPassOptions): Promise<b
 
   function drawAvatarInitial() {
     if (!ctx) return;
-    const initial = (options.name.trim().charAt(0) || cleanHandle.charAt(0) || "A").toUpperCase();
+    const initial = ((options.name ?? "").trim().charAt(0) || cleanHandle.charAt(0) || "A").toUpperCase();
     ctx.save();
     ctx.beginPath();
     ctx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);

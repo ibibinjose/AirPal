@@ -1,6 +1,7 @@
 import { Check, Copy, Link2, MapPin, QrCode, Send } from "lucide-react";
 import type { BioKind } from "@shared/bio";
 import { cn } from "@/lib/cn";
+import { cleanHandle as safeHandle } from "@/lib/profile-text";
 
 export interface BioPassVisualProps {
   handle: string;
@@ -40,10 +41,10 @@ export function BioPassVisual({
   onQrTap,
   className,
 }: BioPassVisualProps) {
-  const cleanHandle = handle.trim().replace(/^@+/, "").toLowerCase();
+  const cleanHandle = safeHandle(handle);
   const isBusiness = kind === "business";
-  const displayUrl = url.replace(/^https?:\/\//, "");
-  const initial = (name.trim().charAt(0) || cleanHandle.charAt(0) || "A").toUpperCase();
+  const displayUrl = (url ?? "").replace(/^https?:\/\//, "");
+  const initial = ((name ?? "").trim().charAt(0) || cleanHandle.charAt(0) || "A").toUpperCase();
 
   const qrCard = (
     <>

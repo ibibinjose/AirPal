@@ -87,6 +87,7 @@ import {
   type GuestlistInterest,
 } from "@shared/airpal-guestlist";
 import { track, trackMapClick } from "@/lib/analytics";
+import { firstNameOf, initialsOf } from "@/lib/profile-text";
 import { setShareMeta } from "@/lib/share-meta";
 import {
   AVAILABILITY_STATUSES,
@@ -108,13 +109,6 @@ import { cn } from "@/lib/cn";
 import { PingButton } from "@/components/social/PingButton";
 import { BizCircle } from "@/components/bio/BizCircle";
 import { triggerHaptic } from "@/lib/native";
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "AP";
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
-  return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
-}
 
 function getInternalPath(href: string): string | null {
   if (href.startsWith("/")) return href;
@@ -667,7 +661,7 @@ export function BioPublicPage() {
                   <Photo src={avatar} className="h-full w-full object-cover rounded-full" />
                 ) : (
                   <span className="grid h-full w-full place-items-center bg-gradient-to-br from-[#1805db] via-[#100399] to-[#090259] font-display text-2xl sm:text-3xl font-extrabold text-white tracking-wider shadow-inner ring-2 ring-white/20">
-                    {getInitials(bio.name)}
+                    {initialsOf(bio.name)}
                   </span>
                 )}
               </div>
@@ -2027,7 +2021,7 @@ export function BioPublicPage() {
             <div className="mt-8 rounded-[28px] bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 p-5 ring-1 ring-amber-500/25 shadow-xs">
               <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-accent">
                 <Ticket size={14} className="text-amber-500" aria-hidden />
-                <span>{isOwner ? "Your invite code" : `Join with ${bio.name.split(" ")[0]}'s code`}</span>
+                <span>{isOwner ? "Your invite code" : `Join with ${firstNameOf(bio.name)}'s code`}</span>
               </p>
               <div className="mt-3 flex flex-wrap sm:flex-nowrap items-center gap-2">
                 <code className="min-w-0 w-full sm:w-auto sm:flex-1 truncate rounded-2xl bg-card px-4 py-2.5 text-sm font-bold text-ink ring-1 ring-line/80 shadow-2xs font-mono">
@@ -2205,7 +2199,7 @@ export function BioPublicPage() {
             setShareModalOpen(true);
           }}
           aria-label={`Open QR code for @${bio.handle}`}
-          title={isOwner ? "My QR code" : `${bio.name.split(" ")[0]}'s Pass QR`}
+          title={isOwner ? "My QR code" : `${firstNameOf(bio.name)}'s Pass QR`}
           className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+1.25rem)] left-4 z-40 flex cursor-pointer touch-manipulation flex-col items-center gap-1 rounded-[22px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:bottom-6 sm:left-6"
         >
           <span className="relative grid h-16 w-16 place-items-center rounded-[22px] bg-white p-1.5 shadow-lg ring-2 ring-brand/70 transition-transform duration-150 active:scale-95">

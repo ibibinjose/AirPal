@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Contact, Download, Share2, X } from "lucide-react";
 import { toast } from "sonner";
 import { makeQrDataUrl } from "@/lib/qr";
+import { cleanHandle as safeHandle } from "@/lib/profile-text";
 import { saveBioContact } from "@/lib/people";
 import { shareBioPass } from "@/lib/share";
 import { useScrollLock } from "@/hooks/useScrollLock";
@@ -45,7 +46,7 @@ export function BioShareModal({
 }: BioShareModalProps) {
   useScrollLock(open);
 
-  const cleanHandle = handle.trim().replace(/^@+/, "").toLowerCase();
+  const cleanHandle = safeHandle(handle);
   const [qrData, setQrData] = useState<string>("");
   const [copied, setCopied] = useState(false);
 

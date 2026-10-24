@@ -43,6 +43,7 @@ import {
   type CatchUpType,
 } from "@/lib/catchup";
 import { toZonedDateStr } from "@/lib/local-time";
+import { cleanHandle as safeHandle } from "@/lib/profile-text";
 import { triggerHaptic } from "@/lib/native";
 import { toast } from "sonner";
 import { scheduleCatchUpRemote } from "@/lib/functions";
@@ -224,9 +225,7 @@ export function BioCatchUpModal({
   const conflict = checkTimeConflict(date, time, [], myCatchups, durationMinutes);
   const isRemembered = myCatchups.some(
     (item) =>
-      item.isReminderOnly &&
-      item.status !== "dismissed" &&
-      item.targetHandle.trim().replace(/^@/, "").toLowerCase() === handle.trim().replace(/^@/, "").toLowerCase(),
+      item.isReminderOnly && item.status !== "dismissed" && safeHandle(item.targetHandle) === safeHandle(handle),
   );
 
   if (!open) return null;
