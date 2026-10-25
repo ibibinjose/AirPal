@@ -42,6 +42,119 @@ export interface DigitalBioPassCardProps {
   children?: ReactNode;
 }
 
+/** Shared pill-button shell: one class source so all pass actions align. */
+const ACTION_CORE =
+  "inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs";
+const ACTION_ACCENT =
+  "inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-brand/10 text-accent font-bold px-3.5 text-xs ring-1 ring-brand/20 hover:bg-brand/15 transition-[background-color,transform] active:scale-95 shadow-2xs";
+
+function PassActionButton({
+  icon,
+  label,
+  onClick,
+  disabled,
+  accent,
+  title,
+  ariaLabel,
+}: {
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  accent?: boolean;
+  title?: string;
+  ariaLabel?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      aria-label={ariaLabel}
+      className={cn(accent ? ACTION_ACCENT : ACTION_CORE, "cursor-pointer", accent && "disabled:opacity-50")}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function PassActionLink({ children, href }: { children: ReactNode; href: string }) {
+  return (
+    <Link href={href} className={ACTION_CORE}>
+      {children}
+    </Link>
+  );
+}
+
+function PassHeader({
+  title,
+  subtitle,
+  kind,
+  cleanHandle,
+  tapsTodayCount,
+}: {
+  title: string;
+  subtitle: string;
+  kind: BioKind | null;
+  cleanHandle: string;
+  tapsTodayCount?: number;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+      <div className="flex items-center gap-3 min-w-0">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent">
+          <QrCode size={18} aria-hidden="true" />
+        </span>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="font-display text-lg sm:text-xl font-black text-ink truncate">{title}</h2>
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+              <ShieldCheck size={11} aria-hidden="true" />
+              <span>Verified ID</span>
+            </span>
+          </div>
+          <p className="text-xs text-mute font-medium truncate">{subtitle}</p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        {typeof tapsTodayCount === "number" && (
+          <span className="whitespace-nowrap rounded-full bg-brand/10 px-2.5 py-1 text-[11px] font-bold text-accent tabular-nums">
+            {tapsTodayCount} {tapsTodayCount === 1 ? "tap" : "taps"} today
+          </span>
+        )}
+        <BioKindBadge kind={kind} />
+        <span className="truncate max-w-[160px] sm:max-w-none text-xs font-mono font-bold text-ink bg-paper px-3 py-1 rounded-full ring-1 ring-line/80">
+          @{cleanHandle}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function PassWallets({ cleanHandle }: { cleanHandle: string }) {
+  return (
+    <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-2.5 pt-5 border-t border-line/60">
+      <AppleWalletButton
+        className="w-full justify-center min-h-[44px]"
+        onClick={() => {
+          const passUrl = businessCardWalletPassUrl(cleanHandle);
+          void openAppleWalletPass(passUrl, "@" + cleanHandle + "-AirPal-Pass");
+        }}
+      />
+      <GoogleWalletButton
+        className="w-full justify-center min-h-[44px]"
+        onClick={() => {
+          const gUrl = googleWalletCardUrl(cleanHandle);
+          void openGoogleWalletPass(gUrl);
+        }}
+      />
+    </div>
+  );
+}
+
 export function DigitalBioPassCard({
   handle,
   name,
@@ -154,39 +267,14 @@ export function DigitalBioPassCard({
   };
 
   return (
-    <section
-      className={cn("rounded-[32px] sm:rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay", className)}
-    >
-      {/* Top Header Strip */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
-            <QrCode size={19} aria-hidden="true" />
-          </span>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="font-display text-lg sm:text-xl font-black text-ink truncate">{title}</h2>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
-                <ShieldCheck size={11} aria-hidden="true" />
-                <span>Verified ID</span>
-              </span>
-            </div>
-            <p className="text-xs text-mute font-medium truncate">{subtitle}</p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {typeof tapsTodayCount === "number" && (
-            <span className="whitespace-nowrap rounded-full bg-brand/10 px-2.5 py-1 text-[11px] font-bold text-accent tabular-nums">
-              {tapsTodayCount} {tapsTodayCount === 1 ? "tap" : "taps"} today
-            </span>
-          )}
-          <BioKindBadge kind={kind} />
-          <span className="truncate max-w-[160px] sm:max-w-none text-xs font-mono font-bold text-ink bg-paper px-3 py-1 rounded-full ring-1 ring-line/80">
-            @{cleanHandle}
-          </span>
-        </div>
-      </div>
+    <section className={cn("rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay", className)}>
+      <PassHeader
+        title={title}
+        subtitle={subtitle}
+        kind={kind}
+        cleanHandle={cleanHandle}
+        tapsTodayCount={tapsTodayCount}
+      />
 
       {/* Bio Pass — renders exactly like the designed AirPal pass, per-user details */}
       <BioPassVisual
@@ -207,98 +295,65 @@ export function DigitalBioPassCard({
 
       {/* Action Buttons Row */}
       <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center sm:justify-start gap-2 mt-5">
-        <button
-          type="button"
+        <PassActionButton
+          icon={
+            copied ? (
+              <Check size={14} className="shrink-0 text-emerald-600" />
+            ) : (
+              <Copy size={14} className="shrink-0 text-accent" />
+            )
+          }
+          label={copied ? "Copied" : "Share Bio Link"}
           onClick={() => void handleCopyLink()}
-          className="inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95 cursor-pointer shadow-2xs"
-        >
-          {copied ? (
-            <Check size={14} className="shrink-0 text-emerald-600" />
-          ) : (
-            <Copy size={14} className="shrink-0 text-accent" />
-          )}
-          <span>{copied ? "Copied" : "Share Bio Link"}</span>
-        </button>
+        />
 
-        <button
-          type="button"
+        <PassActionButton
+          icon={<Share2 size={14} className="shrink-0 text-accent" aria-hidden="true" />}
+          label="Share Pass"
           onClick={() => void handleNativeShare()}
-          className="inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95 cursor-pointer shadow-2xs"
-        >
-          <Share2 size={14} className="shrink-0 text-accent" aria-hidden="true" />
-          <span>Share Pass</span>
-        </button>
+        />
 
-        <button
-          type="button"
+        <PassActionButton
+          icon={<Contact size={14} className="shrink-0 text-emerald-600" aria-hidden="true" />}
+          label="Save Contact"
           onClick={handleSaveVCard}
-          className="inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95 cursor-pointer shadow-2xs"
-          aria-label={`Save contact card for ${name}`}
-        >
-          <Contact size={14} className="shrink-0 text-emerald-600" aria-hidden="true" />
-          <span>Save Contact</span>
-        </button>
+          ariaLabel={`Save contact card for ${name}`}
+        />
 
-        <button
-          type="button"
+        <PassActionButton
+          icon={<Download size={14} className="shrink-0 text-accent" aria-hidden="true" />}
+          label={exportingPass ? "Generating…" : "Pass Card PNG"}
           onClick={() => void handleDownloadFullPass()}
           disabled={exportingPass}
-          className="inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-brand/10 text-accent font-bold px-3.5 text-xs ring-1 ring-brand/20 hover:bg-brand/15 transition active:scale-95 cursor-pointer shadow-2xs disabled:opacity-50"
-          aria-label="Download Full Pass Card PNG"
-        >
-          <Download size={14} className="shrink-0 text-accent" aria-hidden="true" />
-          <span>{exportingPass ? "Generating…" : "Pass Card PNG"}</span>
-        </button>
+          accent
+          ariaLabel="Download Full Pass Card PNG"
+        />
 
         {qrSrc && (
-          <button
-            type="button"
+          <PassActionButton
+            icon={<Download size={14} className="shrink-0 text-mute" aria-hidden="true" />}
+            label="QR PNG"
             onClick={handleDownloadQr}
-            className="inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95 cursor-pointer shadow-2xs"
-            aria-label="Download QR image"
-          >
-            <Download size={14} className="shrink-0 text-mute" aria-hidden="true" />
-            <span>QR PNG</span>
-          </button>
+            ariaLabel="Download QR image"
+          />
         )}
 
         {showViewBioLink && (
-          <Link
-            href={bioPath(cleanHandle)}
-            className="inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-2xs"
-          >
+          <PassActionLink href={bioPath(cleanHandle)}>
             <span>View Bio</span>
             <ArrowRight size={13} className="shrink-0 text-mute" aria-hidden="true" />
-          </Link>
+          </PassActionLink>
         )}
 
         {showEditBioLink && (
-          <Link
-            href="/bio/edit"
-            className="inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-2xs"
-          >
+          <PassActionLink href="/bio/edit">
             <PencilLine size={13} className="shrink-0 text-mute" aria-hidden="true" />
             <span>Edit Bio</span>
-          </Link>
+          </PassActionLink>
         )}
       </div>
 
-      {/* Apple & Google Wallet Pass Buttons */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 pt-3 border-t border-line/60">
-        <AppleWalletButton
-          className="w-full justify-center min-h-[44px]"
-          onClick={() => {
-            const passUrl = businessCardWalletPassUrl(cleanHandle);
-            void openAppleWalletPass(passUrl, "@" + cleanHandle + "-AirPal-Pass");
-          }}
-        />
-        <GoogleWalletButton
-          className="w-full justify-center min-h-[44px]"
-          onClick={() => {
-            void openGoogleWalletPass(googleWalletCardUrl(cleanHandle));
-          }}
-        />
-      </div>
+      <PassWallets cleanHandle={cleanHandle} />
 
       {children && <div className="mt-5 pt-5 border-t border-line/60">{children}</div>}
 

@@ -62,7 +62,7 @@ export function BioPassVisual({
           <span className="text-[3cqw]">Loading QR…</span>
         </div>
       )}
-      <p className="mt-[2.5cqw] text-center text-[3cqw] font-bold uppercase tracking-[0.3em] text-[#1a2560]">
+      <p className="mt-[2.5cqw] text-center text-[3cqw] font-bold uppercase tracking-[0.3em] indent-[0.3em] text-[#1a2560]">
         Scan to connect
       </p>
     </>
@@ -162,7 +162,7 @@ export function BioPassVisual({
               onClick={onQrTap}
               aria-label={`Enlarge QR code for @${cleanHandle}`}
               title="Tap to enlarge QR pass"
-              className="block w-[50cqw] rounded-[6cqw] bg-white p-[3.5cqw] shadow-lg ring-1 ring-black/5 transition active:scale-[0.98] cursor-pointer"
+              className="block w-[50cqw] rounded-[6cqw] bg-white p-[3.5cqw] shadow-lg ring-1 ring-black/5 transition-transform active:scale-[0.98] cursor-pointer"
             >
               {qrCard}
             </button>
@@ -178,7 +178,7 @@ export function BioPassVisual({
             onClick={onCopyLink}
             title="Tap to copy link"
             aria-label={copied ? "Link copied" : `Copy link ${displayUrl}`}
-            className="mt-[3.5cqw] flex min-h-[max(52px,12cqw)] w-full items-center gap-[2.5cqw] rounded-full bg-white/20 px-[4cqw] ring-1 ring-white/30 backdrop-blur-md transition hover:bg-white/25 active:scale-[0.99] cursor-pointer"
+            className="mt-[3.5cqw] flex min-h-[max(52px,12cqw)] w-full items-center gap-[2.5cqw] rounded-full bg-white/20 px-[4cqw] ring-1 ring-white/30 backdrop-blur-md transition-[background-color,transform] hover:bg-white/25 active:scale-[0.99] cursor-pointer"
           >
             {linkPillInner}
           </button>

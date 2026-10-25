@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -130,8 +132,8 @@ describe("MePage", () => {
     expect(markup).toContain("Test User");
     expect(markup).toContain("@testmate");
 
-    expect(markup).toContain("grid grid-cols-2 gap-2 pt-4 mt-2 border-t border-line/60 sm:grid-cols-3 sm:gap-2.5");
-    expect(markup).toContain("col-span-2 flex min-h-[68px]");
+    expect(markup).toContain("grid grid-cols-3 divide-x divide-line/60");
+    expect(markup).toContain("Jump to section");
 
     // Today's Agenda
     expect(markup).toContain("Today&#x27;s Agenda");
@@ -155,5 +157,18 @@ describe("MePage", () => {
     expect(markup).toContain("@bibinjose");
     expect(markup).toContain("Remove reminder for Bibin Jose");
     expect(markup).not.toContain("Requests awaiting your response");
+  });
+
+  it("keeps the stat strip uniform with explicit motion", () => {
+    const src = readFileSync(resolve(import.meta.dirname, "./MePage.tsx"), "utf8");
+    expect(src).toContain("grid grid-cols-3 divide-x");
+    expect(src).toContain('aria-label="Jump to section"');
+    expect(src).not.toContain("transition-all");
+    expect(src).not.toMatch(/[^a-z-:]transition[" ]/);
+  });
+
+  it("gives the avatar camera trigger an accessible name and full tap target", () => {
+    const markup = renderToStaticMarkup(createElement(MePage));
+    expect(markup).toContain('aria-label="Upload profile photo"');
   });
 });

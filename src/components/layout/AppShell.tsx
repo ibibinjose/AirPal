@@ -149,7 +149,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       href="/"
                       aria-current={path === "/" ? "page" : undefined}
                       className={cn(
-                        "hidden md:inline-flex min-h-0 touch-manipulation items-center rounded-full px-3.5 py-0 text-xs sm:text-sm font-semibold leading-none",
+                        "hidden md:inline-flex h-8.5 sm:h-9 min-h-[34px] touch-manipulation items-center rounded-full px-3.5 text-xs sm:text-sm font-semibold leading-none transition-colors duration-200",
                         path === "/" ? "bg-white text-brand" : "text-white/80 hover:bg-white/15 hover:text-white",
                       )}
                     >

@@ -34,7 +34,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
         }}
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "flex min-h-0 shrink-0 whitespace-nowrap touch-manipulation items-center gap-1 rounded-full px-2.5 py-0 text-[11px] font-bold uppercase tracking-[0.08em] leading-none transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
+          "flex h-8 sm:h-8.5 min-h-[32px] shrink-0 whitespace-nowrap touch-manipulation items-center gap-1 rounded-full px-3 text-[11px] font-bold uppercase tracking-[0.08em] leading-none transition-[background-color,color,box-shadow,transform] duration-200 cursor-pointer active:scale-[0.97]",
           isActive
             ? "bg-white text-brand shadow-[2px_2px_0_rgba(0,25,90,0.45)]"
             : "text-white hover:bg-white/15 hover:text-white",
@@ -99,7 +99,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
               void triggerHaptic("light");
               nav("/scan");
             }}
-            className="hidden xl:inline-flex min-h-0 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-2.5 py-0 text-[11px] font-bold uppercase tracking-[0.08em] leading-none text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
+            className="hidden xl:inline-flex h-8.5 sm:h-9 min-h-[34px] shrink-0 whitespace-nowrap touch-manipulation items-center rounded-full bg-white/15 px-3 text-[11px] font-bold uppercase tracking-[0.08em] leading-none text-white ring-1 ring-white/35 hover:bg-white/25 transition-colors duration-200 active:scale-95 cursor-pointer"
             title="Scan QR"
           >
             Scan
@@ -110,7 +110,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 void triggerHaptic("light");
                 nav("/event");
               }}
-              className="hidden xl:inline-flex min-h-0 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-2.5 py-0 text-[11px] font-bold uppercase tracking-[0.08em] leading-none text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
+              className="hidden xl:inline-flex h-8.5 sm:h-9 min-h-[34px] shrink-0 whitespace-nowrap touch-manipulation items-center rounded-full bg-white/15 px-3 text-[11px] font-bold uppercase tracking-[0.08em] leading-none text-white ring-1 ring-white/35 hover:bg-white/25 transition-colors duration-200 active:scale-95 cursor-pointer"
             >
               Host
             </button>
@@ -121,7 +121,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
                 nav(partnerAccountPath({ signedIn: Boolean(user), hasPlace: Boolean(business) }));
               }}
               aria-label={NAMES.partnerAccount}
-              className="hidden xl:inline-flex min-h-0 shrink-0 whitespace-nowrap items-center rounded-full bg-white/15 px-2.5 py-0 text-[11px] font-bold uppercase tracking-[0.08em] leading-none text-white ring-1 ring-white/35 hover:bg-white/25 transition active:scale-95 cursor-pointer"
+              className="hidden xl:inline-flex h-8.5 sm:h-9 min-h-[34px] shrink-0 whitespace-nowrap touch-manipulation items-center rounded-full bg-white/15 px-3 text-[11px] font-bold uppercase tracking-[0.08em] leading-none text-white ring-1 ring-white/35 hover:bg-white/25 transition-colors duration-200 active:scale-95 cursor-pointer"
             >
               {NAMES.partnerAccount}
             </button>

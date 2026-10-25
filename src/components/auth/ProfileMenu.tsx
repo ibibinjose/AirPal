@@ -885,7 +885,7 @@ export function ProfileMenu() {
           setOpen((v) => !v);
         }}
         className={cn(
-          "relative grid h-8.5 w-8.5 sm:h-9 sm:w-9 min-h-[34px] min-w-[34px] shrink-0 touch-manipulation place-items-center overflow-visible rounded-full bg-paper transition-all duration-200 after:absolute after:-inset-1.5 after:content-['']",
+          "relative grid h-8.5 w-8.5 sm:h-9 sm:w-9 min-h-[34px] min-w-[34px] shrink-0 touch-manipulation place-items-center overflow-visible rounded-full bg-paper transition-[filter,box-shadow,transform] duration-200 after:absolute after:-inset-1.5 after:content-['']",
           "hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-paper active:scale-95",
           open && "ring-2 ring-brand ring-offset-2 ring-offset-paper shadow-sm",
           !open && user && cn(statusInfo.ringClass, "ring-2 ring-offset-2 ring-offset-paper shadow-none"),
