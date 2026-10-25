@@ -121,7 +121,7 @@ export function EventShareModal({ open, onClose, eventId, title, venue, date, he
             <button
               type="button"
               onClick={shareWhatsApp}
-              className="flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-2.5 py-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-emerald-50 hover:text-emerald-700 hover:ring-emerald-200 transition active:scale-95"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-2.5 py-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-emerald-50 hover:text-emerald-700 hover:ring-emerald-200 transition-[background-color,color,box-shadow,transform] active:scale-95"
             >
               <MessageCircle size={15} className="shrink-0 text-emerald-600" />
               <span>WhatsApp</span>
@@ -130,7 +130,7 @@ export function EventShareModal({ open, onClose, eventId, title, venue, date, he
             <button
               type="button"
               onClick={shareTwitter}
-              className="flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-2.5 py-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-sky-50 hover:text-sky-700 hover:ring-sky-200 transition active:scale-95"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-2.5 py-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-sky-50 hover:text-sky-700 hover:ring-sky-200 transition-[background-color,color,box-shadow,transform] active:scale-95"
             >
               <Twitter size={15} className="shrink-0 text-sky-500" />
               <span>X / Post</span>
@@ -139,7 +139,7 @@ export function EventShareModal({ open, onClose, eventId, title, venue, date, he
             <button
               type="button"
               onClick={shareSms}
-              className="flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-2.5 py-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-amber-50 hover:text-amber-800 hover:ring-amber-200 transition active:scale-95"
+              className="flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-2.5 py-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-amber-50 hover:text-amber-800 hover:ring-amber-200 transition-[background-color,color,box-shadow,transform] active:scale-95"
             >
               <Share2 size={15} className="shrink-0 text-amber-600" />
               <span>iMessage</span>
@@ -152,7 +152,7 @@ export function EventShareModal({ open, onClose, eventId, title, venue, date, he
           <button
             type="button"
             onClick={() => setShowQr((prev) => !prev)}
-            className="flex w-full items-center justify-between rounded-2xl bg-paper/60 px-3.5 py-2.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition"
+            className="flex w-full min-h-[44px] items-center justify-between rounded-2xl bg-paper/60 px-3.5 py-2.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition-[background-color,transform] active:scale-[0.99]"
           >
             <span className="flex items-center gap-2">
               <QrCode size={15} className="text-accent" />

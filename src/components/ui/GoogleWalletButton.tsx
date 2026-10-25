@@ -15,6 +15,7 @@ export function GoogleWalletButton({ className, variant = "standard", onClick, .
   return (
     <button
       type="button"
+      aria-label={props["aria-label"] || "Save to Google Wallet"}
       onClick={(e) => {
         void triggerHaptic("medium");
         onClick?.(e);

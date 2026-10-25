@@ -193,7 +193,7 @@ export function BioShareModal({
           <button
             type="button"
             onClick={() => void handleNativeShare()}
-            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer"
+            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition-[background-color,transform] cursor-pointer"
           >
             <Share2 size={16} className="text-brand" />
             <span>Share</span>
@@ -201,7 +201,7 @@ export function BioShareModal({
           <button
             type="button"
             onClick={handleSaveVCard}
-            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer"
+            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition-[background-color,transform] cursor-pointer"
           >
             <Contact size={16} className="text-brand" />
             <span>Save Contact</span>
@@ -210,7 +210,7 @@ export function BioShareModal({
             type="button"
             onClick={() => void handleDownloadFullPass()}
             disabled={exportingPass}
-            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-brand/10 p-2 text-xs font-semibold text-accent ring-1 ring-brand/20 hover:bg-brand/15 active:scale-95 transition cursor-pointer disabled:opacity-40"
+            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-brand/10 p-2 text-xs font-semibold text-accent ring-1 ring-brand/20 hover:bg-brand/15 active:scale-95 transition-[background-color,transform] cursor-pointer disabled:opacity-40"
           >
             <Download size={16} className="text-accent" />
             <span>{exportingPass ? "Saving…" : "Save Card"}</span>
@@ -219,7 +219,7 @@ export function BioShareModal({
             type="button"
             onClick={handleDownload}
             disabled={!qrData}
-            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer disabled:opacity-40"
+            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition-[background-color,transform] cursor-pointer disabled:opacity-40"
           >
             <Download size={16} className="text-brand" />
             <span>Save QR</span>

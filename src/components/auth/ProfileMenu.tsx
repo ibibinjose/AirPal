@@ -75,7 +75,7 @@ function Row({
         onClick();
       }}
       className={cn(
-        "group flex min-h-[46px] w-full touch-manipulation items-center gap-3 rounded-2xl px-3 py-2 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:scale-[0.98]",
+        "group flex min-h-[46px] w-full touch-manipulation items-center gap-3 rounded-2xl px-3 py-2 text-left transition-[background-color,color,box-shadow,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:scale-[0.98]",
         highlight
           ? "bg-brand/10 text-brand-ink dark:text-accent hover:bg-brand/15 font-semibold"
           : danger
@@ -132,7 +132,7 @@ function Row({
         size={14}
         aria-hidden="true"
         className={cn(
-          "shrink-0 transition-all duration-150 group-hover:translate-x-0.5",
+          "shrink-0 transition-[transform,opacity,color] duration-150 group-hover:translate-x-0.5",
           highlight
             ? "text-brand-ink dark:text-accent opacity-100"
             : active
@@ -355,7 +355,7 @@ export function ProfileMenu() {
               aria-controls="profile-status-editor"
               onClick={() => (statusEditing ? setStatusEditing(false) : openStatusEditor())}
               className={cn(
-                "w-full flex items-center justify-between gap-1.5 rounded-xl border px-2.5 py-1.5 text-left transition-all duration-150 hover:brightness-95 active:scale-[0.98] shadow-2xs",
+                "w-full flex items-center justify-between gap-1.5 rounded-xl border px-2.5 py-1.5 text-left transition-[filter,box-shadow,transform] duration-150 hover:brightness-95 active:scale-[0.98] shadow-2xs",
                 statusInfo.badgeBg,
                 statusInfo.textColor,
               )}

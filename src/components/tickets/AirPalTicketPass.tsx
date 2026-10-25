@@ -77,7 +77,7 @@ export function AirPalTicketPass({ booking, guestName, hostName, showActions = t
   };
 
   return (
-    <article className="ticket-pass overflow-hidden rounded-[28px] sm:rounded-3xl bg-brand text-white shadow-md ring-1 ring-white/15 transition-all">
+    <article className="ticket-pass overflow-hidden rounded-[28px] sm:rounded-3xl bg-brand text-white shadow-md ring-1 ring-white/15 transition-[box-shadow,transform]">
       {/* Top Banner & Date Header */}
       <div className="flex items-start justify-between px-5 pt-4">
         <div>
@@ -137,7 +137,7 @@ export function AirPalTicketPass({ booking, guestName, hostName, showActions = t
               src={qr}
               alt={`Ticket QR for ${booking.title}`}
               className={cn(
-                "h-44 w-44 rounded-2xl bg-white p-2.5 shadow-sm transition-all duration-200",
+                "h-44 w-44 rounded-2xl bg-white p-2.5 shadow-sm transition-[transform,box-shadow] duration-200",
                 highContrast ? "scale-105 shadow-xl ring-4 ring-black" : "",
               )}
             />
@@ -149,8 +149,9 @@ export function AirPalTicketPass({ booking, guestName, hostName, showActions = t
         <button
           type="button"
           onClick={toggleHighContrast}
+          aria-label={highContrast ? "Switch to normal contrast" : "Boost screen contrast for gate scanners"}
           className={cn(
-            "mt-2.5 inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3 text-[11px] font-bold transition active:scale-95 cursor-pointer touch-manipulation",
+            "mt-2.5 inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-xs font-bold transition-[background-color,transform] active:scale-95 cursor-pointer touch-manipulation",
             highContrast
               ? "bg-black text-white hover:bg-neutral-800"
               : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm",

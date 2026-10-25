@@ -14,7 +14,7 @@ function MenuLink({ link, active, onGo }: { link: BrowseLink; active: boolean; o
       aria-current={active ? "page" : undefined}
       onClick={() => onGo(link.href)}
       className={cn(
-        "group flex min-h-[42px] w-full touch-manipulation items-center gap-3 rounded-2xl px-3 py-2 text-left transition-all duration-150 cursor-pointer active:scale-[0.98]",
+        "group flex min-h-[44px] w-full touch-manipulation items-center gap-3 rounded-2xl px-3 py-2 text-left transition-[background-color,color,box-shadow,transform] duration-150 cursor-pointer active:scale-[0.98]",
         active ? "bg-brand text-white font-bold shadow-xs" : "text-ink hover:bg-paper/80 font-medium",
       )}
     >

@@ -78,11 +78,11 @@ export function Sheet({
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
         className={cn(
-          "scroll-container safe-bottom relative z-10 max-h-[min(88dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] w-full rounded-t-3xl bg-card p-5 shadow-2xl sm:max-w-md sm:rounded-3xl transition-all duration-200",
+          "scroll-container safe-bottom relative z-10 max-h-[min(88dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] w-full rounded-t-3xl bg-card p-5 shadow-2xl sm:max-w-md sm:rounded-3xl transition-[transform,opacity] duration-200",
           className,
         )}
       >
-        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-line sm:hidden" />
+        <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />
         {title && (
           <h2 id={titleId} className="font-display mb-4 text-xl font-semibold">
             {title}

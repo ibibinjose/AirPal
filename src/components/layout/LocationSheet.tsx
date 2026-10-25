@@ -124,7 +124,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
       aria-labelledby="location-picker-title"
     >
       <div
-        className="relative flex flex-col w-full max-w-lg max-h-[min(88vh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] rounded-t-[32px] sm:rounded-[32px] bg-card ring-1 ring-line shadow-2xl overflow-hidden animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-200 transition-all"
+        className="relative flex flex-col w-full max-w-lg max-h-[min(88vh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] rounded-t-[32px] sm:rounded-[32px] bg-card ring-1 ring-line shadow-2xl overflow-hidden animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Mobile Pull Tab */}
@@ -149,7 +149,7 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
           <button
             type="button"
             onClick={handleClose}
-            className="grid h-10 w-10 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-paper text-ink hover:bg-card ring-1 ring-line transition cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-paper text-ink hover:bg-card ring-1 ring-line transition-[background-color,color,transform] active:scale-95 cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Close"
           >
             <X size={18} />

@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { ticketQrHref } from "./AirPalTicketPass";
 import { isTicketId, ticketIdFromSearch, type Booking } from "@shared/booking";
 
@@ -39,5 +41,12 @@ describe("ticketQrHref", () => {
     const segment = gateHref.slice(gateHref.lastIndexOf("/") + 1);
     expect(segment).toBe("b3");
     expect(isTicketId(segment)).toBe(true);
+  });
+
+  it("conforms to touch ergonomics and explicit transitions", () => {
+    const src = readFileSync(resolve(import.meta.dirname, "./AirPalTicketPass.tsx"), "utf8");
+    expect(src).not.toContain("transition-all");
+    expect(src).toContain("min-h-[44px]");
+    expect(src).toContain("aria-label=");
   });
 });
