@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
 import { partnerAccountPath } from "@/lib/partner-account";
 import { BrowseMenu } from "@/components/layout/BrowseMenu";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { PILLARS, type PillarItem } from "@/lib/pillars";
 import { NAMES } from "@shared/names";
 
@@ -126,6 +127,7 @@ export function TopNav({ path, enter = false }: { path: string; enter?: boolean 
               {NAMES.partnerAccount}
             </button>
           )}
+          <ThemeToggle onBrand />
           <NotificationBell onBrand />
           <ProfileMenu />
         </div>

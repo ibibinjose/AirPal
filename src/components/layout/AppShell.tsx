@@ -6,6 +6,7 @@ import { TabBar } from "./TabBar";
 import { TopNav } from "./TopNav";
 import { isWorkspacePath } from "@/lib/workspace";
 import { LocalNowBar } from "./LocalNowBar";
+import { ThemeToggle } from "./ThemeToggle";
 import { NetworkStatusToast } from "./NetworkStatusToast";
 import { applyRouteMeta } from "@/lib/share-meta";
 import { isPassApp } from "@/lib/app-flavor";
@@ -155,6 +156,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     >
                       Home
                     </Link>
+                    <ThemeToggle onBrand />
                     <NotificationBell onBrand />
                     <ProfileMenu />
                   </div>

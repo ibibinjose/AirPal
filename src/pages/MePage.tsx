@@ -56,7 +56,7 @@ import { ChangeHandleForm } from "@/components/bio/ChangeHandleForm";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
 import { TabPills } from "@/components/ui/TabPills";
-import { MeEmpty, MeRow, MeSection, MeSectionHeader, RowActions, RowAvatar } from "@/components/me/MeSections";
+import { MeEmpty, MeRow, MeSection, MeSectionHeader, RowAvatar } from "@/components/me/MeSections";
 import { googleWalletTicketUrl, openAppleWalletPass, openGoogleWalletPass, ticketWalletPassUrl } from "@/lib/wallet";
 import { makeQrDataUrl } from "@/lib/qr";
 import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
@@ -644,35 +644,35 @@ export function MePage() {
                       actions={
                         <>
                           <Button
-                          size="sm"
-                          className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full bg-emerald-600 px-3.5 text-xs font-bold text-white hover:bg-emerald-700 active:scale-95"
-                          onClick={async () => {
-                            try {
-                              await updateCatchUpStatus(item.id, "accepted");
-                              toast.success(`Accepted catch up with ${item.requesterName}!`);
-                            } catch (error) {
-                              toast.error(error instanceof Error ? error.message : "Couldn't accept this request.");
-                            }
-                          }}
-                        >
-                          <Check size={13} className="mr-1 shrink-0" />
-                          Accept
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full border border-line px-3 text-xs font-medium text-mute hover:text-ink"
-                          onClick={async () => {
-                            try {
-                              await updateCatchUpStatus(item.id, "dismissed");
-                              toast.info("Request dismissed");
-                            } catch (error) {
-                              toast.error(error instanceof Error ? error.message : "Couldn't dismiss request.");
-                            }
-                          }}
-                        >
-                          Dismiss
-                        </Button>
+                            size="sm"
+                            className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full bg-emerald-600 px-3.5 text-xs font-bold text-white hover:bg-emerald-700 active:scale-95"
+                            onClick={async () => {
+                              try {
+                                await updateCatchUpStatus(item.id, "accepted");
+                                toast.success(`Accepted catch up with ${item.requesterName}!`);
+                              } catch (error) {
+                                toast.error(error instanceof Error ? error.message : "Couldn't accept this request.");
+                              }
+                            }}
+                          >
+                            <Check size={13} className="mr-1 shrink-0" />
+                            Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full border border-line px-3 text-xs font-medium text-mute hover:text-ink"
+                            onClick={async () => {
+                              try {
+                                await updateCatchUpStatus(item.id, "dismissed");
+                                toast.info("Request dismissed");
+                              } catch (error) {
+                                toast.error(error instanceof Error ? error.message : "Couldn't dismiss request.");
+                              }
+                            }}
+                          >
+                            Dismiss
+                          </Button>
                         </>
                       }
                     >
@@ -852,33 +852,27 @@ export function MePage() {
                 </button>
               </div>
             ) : null}
-          </section>
+          </MeSection>
         )}
 
         {/* SECTION: TICKETS & PASSES */}
         {showSection("tickets") && (
-          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay">
-            <div className="flex items-center justify-between gap-3 mb-5">
-              <div className="flex items-center gap-2.5">
-                <span className="grid h-9 w-9 place-items-center rounded-2xl bg-amber-500/10 text-amber-600">
-                  <Ticket size={18} />
-                </span>
-                <div>
-                  <h2 className="font-display text-lg sm:text-xl font-black text-ink">AirPal Pass · Digital Wallet</h2>
-                  <p className="text-xs text-mute font-medium">
-                    My Tickets &amp; Event Passes ({upcomingTickets.length})
-                  </p>
-                </div>
-              </div>
-
-              <Link
-                href="/me/tickets"
-                className="inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition-[background-color,transform] active:scale-95"
-              >
-                <span>Full Wallet</span>
-                <ChevronRight size={14} />
-              </Link>
-            </div>
+          <MeSection>
+            <MeSectionHeader
+              icon={<Ticket size={18} />}
+              tileClass="bg-amber-500/10 text-amber-600"
+              title="AirPal Pass · Digital Wallet"
+              sub={`My Tickets & Event Passes (${upcomingTickets.length})`}
+              right={
+                <Link
+                  href="/me/tickets"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-card transition-[background-color,transform] active:scale-95"
+                >
+                  <span>Full Wallet</span>
+                  <ChevronRight size={14} />
+                </Link>
+              }
+            />
 
             {upcomingTickets.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -943,42 +937,38 @@ export function MePage() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-3xl border border-dashed border-line/80 p-6 text-center bg-paper/40">
-                <Ticket size={28} className="mx-auto text-mute/80" />
-                <p className="font-display text-sm font-bold text-ink mt-2">No active tickets or passes</p>
-                <p className="text-xs text-mute mt-1 max-w-md mx-auto leading-relaxed">
-                  Festival access, concert passes, and member dining perks live in your AirPal Passbook.
-                </p>
+              <MeEmpty
+                icon={<Ticket size={28} className="mx-auto text-mute/80" />}
+                title="No active tickets or passes"
+                body="Festival access, concert passes, and member dining perks live in your AirPal Passbook."
+              >
                 <Button
                   size="sm"
-                  className="mt-4 rounded-full bg-brand px-5 text-xs font-bold text-white active:scale-95 shadow-xs transition-transform"
+                  className="rounded-full bg-brand px-5 text-xs font-bold text-white active:scale-95 shadow-xs transition-transform"
                   onClick={() => nav("/pass")}
                 >
                   Browse AirPal Pass
                   <ArrowRight size={13} className="shrink-0" aria-hidden="true" />
                 </Button>
-              </div>
+              </MeEmpty>
             )}
-          </section>
+          </MeSection>
         )}
 
         {/* SECTION: HOSTING — events I run */}
         {(activeTab === "all" || activeTab === "today") && myEvent && (
-          <section className="rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay">
-            <div className="flex items-center justify-between gap-3 mb-5">
-              <div className="flex items-center gap-2.5">
-                <span className="grid h-9 w-9 place-items-center rounded-2xl bg-brand/10 text-accent">
-                  <Calendar size={18} />
+          <MeSection>
+            <MeSectionHeader
+              icon={<Calendar size={18} />}
+              tileClass="bg-brand/10 text-accent"
+              title="Hosting"
+              sub="My event, live from the studio"
+              right={
+                <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 ring-1 ring-emerald-500/20">
+                  {myEvent.status}
                 </span>
-                <div>
-                  <h2 className="font-display text-lg sm:text-xl font-black text-ink">Hosting</h2>
-                  <p className="text-xs text-mute font-medium">My event, live from the studio</p>
-                </div>
-              </div>
-              <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 ring-1 ring-emerald-500/20">
-                {myEvent.status}
-              </span>
-            </div>
+              }
+            />
             <div className="rounded-3xl bg-paper/60 p-5 ring-1 ring-line/80">
               <h3 className="font-display font-bold text-base text-ink leading-snug">{myEvent.name}</h3>
               <p className="text-xs text-mute mt-1">{[myEvent.venue, myEvent.city].filter(Boolean).join(" · ")}</p>
@@ -1003,7 +993,7 @@ export function MePage() {
                 </Link>
               </div>
             </div>
-          </section>
+          </MeSection>
         )}
 
         {/* SECTION: DIGITAL BIO PASS & QR CARD */}

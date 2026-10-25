@@ -163,6 +163,7 @@ describe("MePage", () => {
     const src = readFileSync(resolve(import.meta.dirname, "./MePage.tsx"), "utf8");
     expect(src).toContain("grid grid-cols-3 divide-x");
     expect(src).toContain('aria-label="Jump to section"');
+    expect(src).not.toContain('<section className="rounded-[36px]');
     expect(src).not.toContain("transition-all");
     expect(src).not.toMatch(/[^a-z-:]transition[" ]/);
   });

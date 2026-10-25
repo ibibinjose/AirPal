@@ -28,4 +28,9 @@ describe("top bar alignment", () => {
     expect(read("./BrowseMenu.tsx")).not.toContain("font-semibold transition-all duration-200");
     expect(read("../auth/ProfileMenu.tsx")).not.toContain("bg-paper transition-all duration-200");
   });
+
+  it("embeds the brand theme toggle in the header controls", () => {
+    expect(read("./TopNav.tsx")).toContain("<ThemeToggle onBrand />");
+    expect(read("./AppShell.tsx")).toContain("<ThemeToggle onBrand />");
+  });
 });
