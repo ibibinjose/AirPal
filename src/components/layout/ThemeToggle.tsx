@@ -68,7 +68,7 @@ export function ThemeToggle({ onBrand = false, compact = false }: { onBrand?: bo
       aria-pressed={dark}
       className={
         compact
-          ? "relative flex min-h-0 shrink-0 touch-manipulation items-center text-ink transition-opacity hover:opacity-70 active:scale-95 cursor-pointer after:absolute after:-inset-x-2 after:-inset-y-[17px] after:content-['']"
+          ? "relative flex min-h-[44px] lg:min-h-0 shrink-0 touch-manipulation items-center text-ink transition-opacity hover:opacity-70 active:scale-95 cursor-pointer after:absolute after:-inset-x-2 after:content-['']"
           : cn(
               "relative grid h-8.5 w-8.5 sm:h-9 sm:w-9 min-h-[34px] min-w-[34px] shrink-0 touch-manipulation place-items-center rounded-full ring-1 transition-transform active:scale-95 cursor-pointer after:absolute after:-inset-1.5 after:content-['']",
               onBrand
