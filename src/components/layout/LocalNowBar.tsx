@@ -50,7 +50,7 @@ export function LocalNowBar() {
       className="border-b border-black/10 bg-white text-[#3c362f] font-mono text-[10px] sm:text-[11px] leading-none select-none transition-colors"
     >
       <LocationSheet open={picker} onClose={() => setPicker(false)} />
-      <div className="mx-auto flex h-11 max-w-6xl items-center gap-1.5 overflow-x-clip px-2.5 sm:gap-2.5 sm:px-4 md:px-6 lg:h-6">
+      <div className="mx-auto flex h-[18px] sm:h-5 max-w-6xl items-center gap-1.5 overflow-x-clip px-2 sm:gap-2 sm:px-4 md:px-6">
         <span className="relative flex h-1.5 w-1.5 shrink-0" aria-hidden="true">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-600" />
@@ -62,16 +62,16 @@ export function LocalNowBar() {
             void trackFeatureEngagement("weather", "open_location_picker", { city });
             setPicker(true);
           }}
-          className="group relative flex min-h-[44px] min-w-0 max-w-[38%] items-center gap-1 font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink transition hover:text-brand-ink active:scale-95 sm:max-w-none lg:min-h-0 cursor-pointer"
+          className="group relative flex h-full min-w-0 max-w-[38%] items-center gap-1 font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-ink transition hover:text-brand-ink active:scale-95 sm:max-w-none cursor-pointer after:absolute after:-inset-y-3 after:content-['']"
           title="Select location & precinct"
           aria-label={`Current location: ${placeLabel}. Tap to select location`}
         >
-          <MapPin size={10} className="shrink-0 text-accent opacity-90" />
+          <MapPin size={9} className="shrink-0 text-accent opacity-90" />
           <span className="truncate" title={source === "gps" ? t("nearYou") : placeLabel}>
             {placeLabel}
           </span>
           {shareLocation && (
-            <span className="hidden shrink-0 rounded bg-emerald-500/15 px-1 py-0.5 text-[9px] font-bold text-emerald-700 sm:inline">
+            <span className="hidden shrink-0 rounded bg-emerald-500/15 px-1 text-[8.5px] font-bold text-emerald-700 sm:inline leading-none">
               GPS
             </span>
           )}
@@ -128,11 +128,11 @@ export function LocalNowBar() {
             void trackFeatureEngagement("share", "share_current_location", { city });
             void shareCurrentLocation(city);
           }}
-          className="relative hidden min-h-[44px] shrink-0 items-center gap-1 font-mono text-[9.5px] uppercase tracking-wider text-mute hover:text-ink transition sm:flex lg:min-h-0 cursor-pointer"
+          className="relative hidden h-full shrink-0 items-center gap-1 font-mono text-[9px] uppercase tracking-wider text-mute hover:text-ink transition sm:flex cursor-pointer after:absolute after:-inset-y-3 after:content-['']"
           title={`Share ${city || "current location"} guide`}
           aria-label={`Share ${city || "current location"} guide`}
         >
-          <Share2 size={10} className="text-accent" />
+          <Share2 size={9} className="text-accent" />
           <span>Share</span>
         </button>
 
@@ -141,13 +141,13 @@ export function LocalNowBar() {
             type="button"
             onClick={togglePowerSave}
             className={cn(
-              "relative flex min-h-[44px] shrink-0 items-center gap-0.5 rounded px-1 text-[9.5px] font-mono uppercase tracking-wider transition active:scale-95 lg:min-h-0",
+              "relative flex h-full shrink-0 items-center gap-0.5 rounded px-1 text-[9px] font-mono uppercase tracking-wider transition active:scale-95 after:absolute after:-inset-y-3 after:content-['']",
               powerSaveActive ? "bg-amber-500/20 text-amber-800 ring-1 ring-amber-500/40" : "text-mute hover:text-ink",
             )}
             title={`Battery ${percentageText} · Power Saver ${powerSaveActive ? "active" : "off"} · Tap to toggle`}
             aria-label={`Battery ${percentageText}. Power Saver is ${powerSaveActive ? "active" : "off"}`}
           >
-            <BatteryLow size={10} className={powerSaveActive ? "text-amber-600" : "text-mute"} />
+            <BatteryLow size={9} className={powerSaveActive ? "text-amber-600" : "text-mute"} />
             <span className="tabular-nums">{percentageText !== "—%" ? percentageText : "Saver"}</span>
           </button>
         )}
