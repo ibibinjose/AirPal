@@ -219,260 +219,297 @@ export function MePage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] pt-[max(1rem,env(safe-area-inset-top,0px))]">
-      {/* 🌟 1. APPLE HIG NATIVE HERO PROFILE CARD */}
-      <div className="relative overflow-hidden rounded-[36px] bg-card ring-1 ring-line/80 shadow-clay mb-6">
-        {/* Ambient Top Glow & Pattern */}
-        <div className="relative h-28 sm:h-32 bg-gradient-to-r from-brand-ink via-[#0d173f] to-[#0a0d1e] overflow-hidden">
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1.2px,transparent_1.2px)] [background-size:18px_18px]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
+      {/* 🧭 1. TOP OF PAGE NAVIGATION TABS */}
+      <div className="sticky top-2 z-30 mb-6">
+        <TabPills
+          layout="contained"
+          ariaLabel="Me sections"
+          items={[
+            { id: "all" as const, label: "All", icon: Sparkles },
+            {
+              id: "today" as const,
+              label: "Today",
+              icon: Sun,
+              badge: todayTotalCount > 0 ? String(todayTotalCount) : undefined,
+            },
+            {
+              id: "appointments" as const,
+              label: "Catch-ups",
+              icon: Coffee,
+              badge:
+                upcomingScheduledAppointments.length + pendingAppointments.length > 0
+                  ? String(upcomingScheduledAppointments.length + pendingAppointments.length)
+                  : undefined,
+            },
+            {
+              id: "tickets" as const,
+              label: "Tickets",
+              icon: Ticket,
+              badge: upcomingTickets.length > 0 ? String(upcomingTickets.length) : undefined,
+            },
+            { id: "pass" as const, label: "Bio & QR Pass", icon: QrCode },
+          ]}
+          active={activeTab}
+          onChange={handleTabChange}
+        />
+      </div>
 
-          {/* Top Quick Utility Deck */}
-          <div className="absolute top-3.5 inset-x-3.5 sm:top-4 sm:inset-x-6 flex items-center justify-between gap-2 z-10">
-            {/* Master Brand & Presence Pill */}
-            <div className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-black/40 px-3.5 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl">
-              <Sparkles size={13} className="text-accent" />
-              <span>AirPal Me</span>
-              {city && <span className="opacity-75 font-normal hidden min-[400px]:inline">· {city}</span>}
-              {weather && <span className="opacity-75 font-normal">· {weather.temp}°C</span>}
+      {/* 🌟 2. APPLE HIG NATIVE HERO PROFILE CARD */}
+      {activeTab === "all" && (
+        <div className="relative overflow-hidden rounded-[36px] bg-card ring-1 ring-line/80 shadow-clay mb-6">
+          {/* Ambient Top Glow & Pattern */}
+          <div className="relative h-28 sm:h-32 bg-gradient-to-r from-brand-ink via-[#0d173f] to-[#0a0d1e] overflow-hidden">
+            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1.2px,transparent_1.2px)] [background-size:18px_18px]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
+
+            {/* Top Quick Utility Deck */}
+            <div className="absolute top-3.5 inset-x-3.5 sm:top-4 sm:inset-x-6 flex items-center justify-between gap-2 z-10">
+              {/* Master Brand & Presence Pill */}
+              <div className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-black/40 px-3.5 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl">
+                <Sparkles size={13} className="text-accent" />
+                <span>AirPal Me</span>
+                {city && <span className="opacity-75 font-normal hidden min-[400px]:inline">· {city}</span>}
+                {weather && <span className="opacity-75 font-normal">· {weather.temp}°C</span>}
+              </div>
+
+              {/* Quick Utility Actions */}
+              <div className="flex items-center gap-2">
+                {mine && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void triggerHaptic("light");
+                      setShowShareModal(true);
+                    }}
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-black/40 px-3 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95 cursor-pointer"
+                    title="Show QR Pass"
+                  >
+                    <QrCode size={13} className="text-sky-300" />
+                    <span className="hidden min-[480px]:inline">Pass QR</span>
+                  </button>
+                )}
+
+                <Link
+                  href="/pass"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-black/40 px-3 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95"
+                  title="AirPal Passbook"
+                >
+                  <Ticket size={13} className="text-amber-400" />
+                  <span className="hidden min-[520px]:inline">AirPal Pass</span>
+                  {upcomingTickets.length > 0 && (
+                    <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-black text-black">
+                      {upcomingTickets.length}
+                    </span>
+                  )}
+                </Link>
+
+                <Link
+                  href="/settings"
+                  className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-black/40 text-white ring-1 ring-white/20 backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95"
+                  title="Settings"
+                  aria-label="Settings"
+                >
+                  <Settings size={14} />
+                </Link>
+              </div>
             </div>
+          </div>
 
-            {/* Quick Utility Actions */}
-            <div className="flex items-center gap-2">
-              {mine && (
-                <button
-                  type="button"
+          {/* Profile Info & Action Controls */}
+          <div className="px-5 sm:px-7 pb-6 pt-0">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-10 sm:-mt-12 mb-4">
+              {/* Avatar & Identifiers Row */}
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4 min-w-0">
+                {/* Perfectly Centered Circular Profile Avatar with Camera Trigger */}
+                <div className="relative group shrink-0 self-start sm:self-auto">
+                  <div className="relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-full bg-paper ring-4 ring-card shadow-xl">
+                    {mine?.avatar ? (
+                      <Photo src={mine.avatar} className="h-full w-full object-cover rounded-full" />
+                    ) : (
+                      <span className="grid h-full w-full place-items-center bg-gradient-to-br from-neutral-900 to-neutral-800 font-display text-3xl sm:text-4xl font-extrabold text-white select-none">
+                        {(user.displayName || mine?.name || "U")[0].toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Upload Photo Trigger Button */}
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="absolute bottom-0 right-0 z-20 grid h-8 w-8 place-items-center rounded-full bg-brand text-white shadow-md ring-2 ring-card hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer after:absolute after:-inset-2 after:content-['']"
+                    title="Upload profile photo"
+                    aria-label="Upload profile photo"
+                  >
+                    <Camera size={14} />
+                  </button>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarFile}
+                  />
+
+                  {/* Profile Kind indicator icon */}
+                  {mine && (
+                    <span className="absolute top-0 right-0 z-20">
+                      <BioKindIcon kind={mine.kind} />
+                    </span>
+                  )}
+                </div>
+
+                {/* Name, Handle & Status */}
+                <div className="min-w-0 pb-1 flex-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-accent bg-brand/10 ring-1 ring-brand/20 rounded-full px-2.5 py-0.5">
+                      <Sparkles size={11} aria-hidden="true" />
+                      <span>Me</span>
+                    </span>
+                    {mine && <BioKindBadge kind={mine.kind} />}
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-500/15 rounded-full px-2.5 py-0.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Active
+                    </span>
+                  </div>
+
+                  <h1 className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink leading-tight truncate">
+                    {user.displayName || mine?.name || "AirPal Member"}
+                  </h1>
+
+                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={handleCopyBioLink}
+                      className="group inline-flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-ink ring-1 ring-line/80 hover:ring-brand/50 transition-[box-shadow,transform] cursor-pointer active:scale-95"
+                    >
+                      <span className="text-accent group-hover:underline">
+                        {mine ? `@${mine.handle}` : "Claim your @handle"}
+                      </span>
+                      {copiedBioLink ? (
+                        <Check size={12} className="text-emerald-600" />
+                      ) : (
+                        <Copy size={11} className="text-mute group-hover:text-ink" />
+                      )}
+                    </button>
+                    {mine?.shortWhy && (
+                      <span className="text-xs text-mute truncate max-w-xs hidden md:inline">· {mine.shortWhy}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Header Action Buttons */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 items-center gap-2 w-full sm:w-auto shrink-0 mt-3 sm:mt-0">
+                <Button
+                  variant="primary"
+                  className="min-h-[44px] justify-center rounded-full bg-brand px-3.5 sm:px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95"
+                  onClick={() => nav(mine ? bioPath(mine.handle) : "/bio/setup")}
+                >
+                  <UserRound size={14} className="mr-1.5 shrink-0" />
+                  <span className="truncate">{mine ? `@${mine.handle} Bio` : "Claim @handle"}</span>
+                  <ExternalLink size={12} className="ml-1 shrink-0 opacity-70" />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-bold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs"
                   onClick={() => {
                     void triggerHaptic("light");
                     setShowShareModal(true);
                   }}
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-black/40 px-3 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95 cursor-pointer"
-                  title="Show QR Pass"
                 >
-                  <QrCode size={13} className="text-sky-300" />
-                  <span className="hidden min-[480px]:inline">Pass QR</span>
-                </button>
-              )}
+                  <Share2 size={14} className="text-accent mr-1.5 shrink-0" />
+                  <span>Share Pass</span>
+                </Button>
 
-              <Link
-                href="/pass"
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-black/40 px-3 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95"
-                title="AirPal Passbook"
-              >
-                <Ticket size={13} className="text-amber-400" />
-                <span className="hidden min-[520px]:inline">AirPal Pass</span>
-                {upcomingTickets.length > 0 && (
-                  <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-black text-black">
-                    {upcomingTickets.length}
-                  </span>
-                )}
-              </Link>
-
-              <Link
-                href="/settings"
-                className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-black/40 text-white ring-1 ring-white/20 backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95"
-                title="Settings"
-                aria-label="Settings"
-              >
-                <Settings size={14} />
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Profile Info & Action Controls */}
-        <div className="px-5 sm:px-7 pb-6 pt-0">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-10 sm:-mt-12 mb-4">
-            {/* Avatar & Identifiers Row */}
-            <div className="flex flex-col sm:flex-row sm:items-end gap-4 min-w-0">
-              {/* Perfectly Centered Circular Profile Avatar with Camera Trigger */}
-              <div className="relative group shrink-0 self-start sm:self-auto">
-                <div className="relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-full bg-paper ring-4 ring-card shadow-xl">
-                  {mine?.avatar ? (
-                    <Photo src={mine.avatar} className="h-full w-full object-cover rounded-full" />
-                  ) : (
-                    <span className="grid h-full w-full place-items-center bg-gradient-to-br from-neutral-900 to-neutral-800 font-display text-3xl sm:text-4xl font-extrabold text-white select-none">
-                      {(user.displayName || mine?.name || "U")[0].toUpperCase()}
-                    </span>
-                  )}
-                </div>
-
-                {/* Upload Photo Trigger Button */}
-                <button
-                  type="button"
-                  onClick={() => avatarInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 z-20 grid h-8 w-8 place-items-center rounded-full bg-brand text-white shadow-md ring-2 ring-card hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer after:absolute after:-inset-2 after:content-['']"
-                  title="Upload profile photo"
-                  aria-label="Upload profile photo"
+                <Button
+                  variant="ghost"
+                  className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-bold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs"
+                  onClick={() => nav("/circle")}
                 >
-                  <Camera size={14} />
-                </button>
-                <input
-                  ref={avatarInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarFile}
-                />
+                  <Users size={14} className="text-accent mr-1.5 shrink-0" />
+                  <span>My Circle</span>
+                </Button>
 
-                {/* Profile Kind indicator icon */}
-                {mine && (
-                  <span className="absolute top-0 right-0 z-20">
-                    <BioKindIcon kind={mine.kind} />
-                  </span>
-                )}
+                <Button
+                  variant="ghost"
+                  className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-semibold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs"
+                  onClick={() => nav(mine ? "/bio/edit" : "/bio/setup")}
+                  title="Edit Bio"
+                >
+                  <Edit3 size={13} className="text-mute mr-1 shrink-0" />
+                  <span>Edit Bio</span>
+                </Button>
               </div>
+            </div>
 
-              {/* Name, Handle & Status */}
-              <div className="min-w-0 pb-1 flex-1">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-accent bg-brand/10 ring-1 ring-brand/20 rounded-full px-2.5 py-0.5">
-                    <Sparkles size={11} aria-hidden="true" />
-                    <span>Me</span>
-                  </span>
-                  {mine && <BioKindBadge kind={mine.kind} />}
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-500/15 rounded-full px-2.5 py-0.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Active
-                  </span>
-                </div>
-
-                <h1 className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink leading-tight truncate">
-                  {user.displayName || mine?.name || "AirPal Member"}
-                </h1>
-
-                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            {/* Stat Strip — jumps to each tab */}
+            <div
+              role="group"
+              aria-label="Jump to section"
+              className="grid grid-cols-3 divide-x divide-line/60 rounded-2xl bg-paper/60 ring-1 ring-line/60 mt-4 overflow-hidden"
+            >
+              {[
+                {
+                  id: "today" as const,
+                  label: "Today",
+                  sublabel: todayTotalCount > 0 ? `${todayTotalCount} scheduled` : "Clear day",
+                  value: todayTotalCount > 0 ? `${todayTotalCount}` : "Open",
+                  icon: Sun,
+                  iconClass: "text-amber-500",
+                },
+                {
+                  id: "appointments" as const,
+                  label: "Catch-ups",
+                  sublabel: pendingAppointments.length > 0 ? `${pendingAppointments.length} pending` : "1-on-1 syncs",
+                  value: `${upcomingScheduledAppointments.length + pendingAppointments.length}`,
+                  icon: Coffee,
+                  iconClass: "text-sky-500",
+                },
+                {
+                  id: "tickets" as const,
+                  label: "Tickets",
+                  sublabel: upcomingTickets.length > 0 ? `${upcomingTickets.length} active` : "Passbook",
+                  value: `${upcomingTickets.length}`,
+                  icon: Ticket,
+                  iconClass: "text-brand",
+                },
+              ].map((stat) => {
+                const selected = (activeTab as MeTab) === stat.id;
+                const IconComp = stat.icon;
+                return (
                   <button
+                    key={stat.id}
                     type="button"
-                    onClick={handleCopyBioLink}
-                    className="group inline-flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-ink ring-1 ring-line/80 hover:ring-brand/50 transition-[box-shadow,transform] cursor-pointer active:scale-95"
-                  >
-                    <span className="text-accent group-hover:underline">
-                      {mine ? `@${mine.handle}` : "Claim your @handle"}
-                    </span>
-                    {copiedBioLink ? (
-                      <Check size={12} className="text-emerald-600" />
-                    ) : (
-                      <Copy size={11} className="text-mute group-hover:text-ink" />
+                    onClick={() => handleTabChange(stat.id)}
+                    aria-current={selected ? "true" : undefined}
+                    className={cn(
+                      "flex min-h-[64px] flex-col items-center justify-center gap-0.5 px-2 py-2.5 text-center transition-[background-color,transform] cursor-pointer active:scale-[0.98]",
+                      selected ? "bg-brand/10 font-bold" : "hover:bg-paper",
                     )}
-                  </button>
-                  {mine?.shortWhy && (
-                    <span className="text-xs text-mute truncate max-w-xs hidden md:inline">· {mine.shortWhy}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Header Action Buttons */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 items-center gap-2 w-full sm:w-auto shrink-0 mt-3 sm:mt-0">
-              <Button
-                variant="primary"
-                className="min-h-[44px] justify-center rounded-full bg-brand px-3.5 sm:px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95"
-                onClick={() => nav(mine ? bioPath(mine.handle) : "/bio/setup")}
-              >
-                <UserRound size={14} className="mr-1.5 shrink-0" />
-                <span className="truncate">{mine ? `@${mine.handle} Bio` : "Claim @handle"}</span>
-                <ExternalLink size={12} className="ml-1 shrink-0 opacity-70" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-bold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs"
-                onClick={() => {
-                  void triggerHaptic("light");
-                  setShowShareModal(true);
-                }}
-              >
-                <Share2 size={14} className="text-accent mr-1.5 shrink-0" />
-                <span>Share Pass</span>
-              </Button>
-
-              <Button
-                variant="ghost"
-                className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-bold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs"
-                onClick={() => nav("/circle")}
-              >
-                <Users size={14} className="text-accent mr-1.5 shrink-0" />
-                <span>My Circle</span>
-              </Button>
-
-              <Button
-                variant="ghost"
-                className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-semibold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs"
-                onClick={() => nav(mine ? "/bio/edit" : "/bio/setup")}
-                title="Edit Bio"
-              >
-                <Edit3 size={13} className="text-mute mr-1 shrink-0" />
-                <span>Edit Bio</span>
-              </Button>
-            </div>
-          </div>
-
-          {/* Stat Strip — jumps to each tab */}
-          <div
-            role="group"
-            aria-label="Jump to section"
-            className="grid grid-cols-3 divide-x divide-line/60 rounded-2xl bg-paper/60 ring-1 ring-line/60 mt-4 overflow-hidden"
-          >
-            {[
-              {
-                id: "today" as const,
-                label: "Today",
-                sublabel: todayTotalCount > 0 ? `${todayTotalCount} scheduled` : "Clear day",
-                value: todayTotalCount > 0 ? `${todayTotalCount}` : "Open",
-                icon: Sun,
-                iconClass: "text-amber-500",
-              },
-              {
-                id: "appointments" as const,
-                label: "Catch-ups",
-                sublabel: pendingAppointments.length > 0 ? `${pendingAppointments.length} pending` : "1-on-1 syncs",
-                value: `${upcomingScheduledAppointments.length + pendingAppointments.length}`,
-                icon: Coffee,
-                iconClass: "text-sky-500",
-              },
-              {
-                id: "tickets" as const,
-                label: "Tickets",
-                sublabel: upcomingTickets.length > 0 ? `${upcomingTickets.length} active` : "Passbook",
-                value: `${upcomingTickets.length}`,
-                icon: Ticket,
-                iconClass: "text-brand",
-              },
-            ].map((stat) => {
-              const selected = activeTab === stat.id;
-              const IconComp = stat.icon;
-              return (
-                <button
-                  key={stat.id}
-                  type="button"
-                  onClick={() => handleTabChange(stat.id)}
-                  aria-current={selected ? "true" : undefined}
-                  className={cn(
-                    "flex min-h-[64px] flex-col items-center justify-center gap-0.5 px-2 py-2.5 text-center transition-[background-color,transform] cursor-pointer active:scale-[0.98]",
-                    selected ? "bg-brand/10 font-bold" : "hover:bg-paper",
-                  )}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <IconComp size={13} className={stat.iconClass} />
-                    <span className="font-display text-lg font-black text-ink tabular-nums leading-none">
-                      {stat.value}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <IconComp size={13} className={stat.iconClass} />
+                      <span className="font-display text-lg font-black text-ink tabular-nums leading-none">
+                        {stat.value}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-mute leading-none mt-0.5">
+                      {stat.label}
                     </span>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-mute leading-none mt-0.5">
-                    {stat.label}
-                  </span>
-                  <span className="text-[9px] text-mute/80 hidden sm:inline leading-none mt-0.5 font-medium">
-                    {stat.sublabel}
-                  </span>
-                </button>
-              );
-            })}
+                    <span className="text-[9px] text-mute/80 hidden sm:inline leading-none mt-0.5 font-medium">
+                      {stat.sublabel}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 🔔 PRIORITY ACTION BANNER: PENDING CATCH-UP PROPOSALS */}
-      {pendingAppointments.length > 0 && (
+      {(activeTab === "all" || activeTab === "appointments") && pendingAppointments.length > 0 && (
         <div className="mb-6 rounded-[28px] bg-amber-500/10 p-4 sm:p-5 ring-1 ring-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
           <div className="flex items-center gap-3.5 min-w-0">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-300 shrink-0">
@@ -520,41 +557,6 @@ export function MePage() {
           </div>
         </div>
       )}
-
-      {/* 🧭 2. APPLE-INSPIRED SEGMENTED TAB BAR */}
-      <div className="sticky top-2 z-20 mb-6">
-        <TabPills
-          layout="contained"
-          ariaLabel="Me sections"
-          items={[
-            { id: "all" as const, label: "All", icon: Sparkles },
-            {
-              id: "today" as const,
-              label: "Today",
-              icon: Sun,
-              badge: todayTotalCount > 0 ? String(todayTotalCount) : undefined,
-            },
-            {
-              id: "appointments" as const,
-              label: "Catch-ups",
-              icon: Coffee,
-              badge:
-                upcomingScheduledAppointments.length + pendingAppointments.length > 0
-                  ? String(upcomingScheduledAppointments.length + pendingAppointments.length)
-                  : undefined,
-            },
-            {
-              id: "tickets" as const,
-              label: "Tickets",
-              icon: Ticket,
-              badge: upcomingTickets.length > 0 ? String(upcomingTickets.length) : undefined,
-            },
-            { id: "pass" as const, label: "Bio & QR Pass", icon: QrCode },
-          ]}
-          active={activeTab}
-          onChange={handleTabChange}
-        />
-      </div>
 
       {/* 🌟 3. MAIN ME SECTIONS */}
       <div className="space-y-6">
