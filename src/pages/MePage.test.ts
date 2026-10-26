@@ -126,7 +126,7 @@ vi.mock("@/lib/catchup", async (importOriginal) => {
 
 describe("MePage", () => {
   it("renders Me with today's agenda, appointments, tickets and catch-ups", () => {
-    const markup = renderToStaticMarkup(createElement(MePage));
+    const markup = renderToStaticMarkup(createElement(MePage, { defaultTab: "all" }));
 
     // Identity and handle
     expect(markup).toContain("Test User");
@@ -159,6 +159,16 @@ describe("MePage", () => {
     expect(markup).not.toContain("Requests awaiting your response");
   });
 
+  it("renders Today as the first tab and all as ME/All", () => {
+    const markup = renderToStaticMarkup(createElement(MePage));
+    expect(markup).toContain("Today&#x27;s Agenda");
+    expect(markup).toContain("Today");
+    expect(markup).toContain("ME/All");
+    expect(markup).toContain("Catch-ups");
+    expect(markup).toContain("Tickets");
+    expect(markup).toContain("Bio &amp; QR Pass");
+  });
+
   it("keeps the stat strip uniform with explicit motion", () => {
     const src = readFileSync(resolve(import.meta.dirname, "./MePage.tsx"), "utf8");
     expect(src).toContain("grid grid-cols-3 divide-x");
@@ -169,7 +179,7 @@ describe("MePage", () => {
   });
 
   it("gives the avatar camera trigger an accessible name and full tap target", () => {
-    const markup = renderToStaticMarkup(createElement(MePage));
+    const markup = renderToStaticMarkup(createElement(MePage, { defaultTab: "all" }));
     expect(markup).toContain('aria-label="Upload profile photo"');
   });
 });

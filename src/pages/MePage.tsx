@@ -76,9 +76,15 @@ import {
   upcomingTickets as selectUpcomingTickets,
 } from "@/lib/me-day";
 
-type MeTab = "all" | "today" | "appointments" | "tickets" | "pass";
+import type { RouteComponentProps } from "wouter";
 
-export function MePage() {
+type MeTab = "today" | "all" | "appointments" | "tickets" | "pass";
+
+export interface MePageProps extends Partial<RouteComponentProps> {
+  defaultTab?: MeTab;
+}
+
+export function MePage({ defaultTab }: MePageProps = {}) {
   const [, nav] = useLocation();
   const { user, logout, sendVerificationEmail, isHost } = useAuth();
   const { mine, business, biosReady, updateProfile } = useBio();
@@ -92,7 +98,17 @@ export function MePage() {
   );
   const [bioQrData, setBioQrData] = useState<string>("");
   const [copiedBioLink, setCopiedBioLink] = useState(false);
-  const [activeTab, setActiveTab] = useState<MeTab>("all");
+  const [activeTab, setActiveTab] = useState<MeTab>(() => {
+    if (defaultTab) return defaultTab;
+    if (typeof window !== "undefined" && window.location?.search) {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab") as MeTab | null;
+      if (tabParam && ["today", "all", "appointments", "tickets", "pass"].includes(tabParam)) {
+        return tabParam;
+      }
+    }
+    return "today";
+  });
   const [showShareModal, setShowShareModal] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
@@ -244,13 +260,13 @@ export function MePage() {
           layout="contained"
           ariaLabel="Me sections"
           items={[
-            { id: "all" as const, label: "All", icon: Sparkles },
             {
               id: "today" as const,
               label: "Today",
               icon: Sun,
               badge: todayTotalCount > 0 ? String(todayTotalCount) : undefined,
             },
+            { id: "all" as const, label: "ME/All", icon: Sparkles },
             {
               id: "appointments" as const,
               label: "Catch-ups",
