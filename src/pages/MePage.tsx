@@ -132,6 +132,25 @@ export function MePage() {
     return getDailyOutfitRecommendation(weather.temp, weather.code, weather.isDay);
   }, [weather]);
 
+  const formattedToday = useMemo(() => {
+    try {
+      const parts = today.split("-");
+      if (parts.length === 3) {
+        const [y, m, d] = parts.map(Number);
+        const dt = new Date(y, m - 1, d);
+        return dt.toLocaleDateString(undefined, {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+      }
+    } catch {
+      // fallback
+    }
+    return day || today;
+  }, [today, day]);
+
   // TODAY'S ITEMS
   const todayAppointments = useMemo(() => selectTodayAppointments(catchUpsList, today), [catchUpsList, today]);
 
@@ -567,17 +586,23 @@ export function MePage() {
               icon={<Sun size={18} />}
               tileClass="bg-brand/10 text-accent"
               title="Today's Agenda"
-              sub={`${day}, ${today} · ${city || "Sydney"}`}
+              sub={`${formattedToday} · ${city || "Sydney"}`}
               right={
                 <span
                   className={cn(
-                    "text-[10px] font-bold rounded-full px-3 py-1 ring-1 whitespace-nowrap",
+                    "inline-flex items-center gap-1.5 text-[10px] font-bold rounded-full px-3 py-1 ring-1 whitespace-nowrap",
                     todayTotalCount > 0
                       ? "bg-brand text-white ring-brand"
                       : "bg-emerald-500/15 text-emerald-600 ring-emerald-500/30",
                   )}
                 >
-                  {todayTotalCount > 0 ? `${todayTotalCount} scheduled today` : "Clear schedule"}
+                  <span
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      todayTotalCount > 0 ? "bg-amber-400" : "bg-emerald-500 animate-pulse",
+                    )}
+                  />
+                  <span>{todayTotalCount > 0 ? `${todayTotalCount} scheduled today` : "Clear schedule"}</span>
                 </span>
               }
             />
@@ -689,31 +714,107 @@ export function MePage() {
                 ))}
               </div>
             ) : (
-              <MeEmpty
-                icon={<Sun size={26} className="mx-auto text-mute/80 mb-2" aria-hidden="true" />}
-                title="Your day is open"
-                body="No appointments or tickets scheduled for today. Turn free time into an experience!"
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    void triggerHaptic("light");
-                    nav("/circle");
-                  }}
-                  className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
-                >
-                  <Users size={14} />
-                  <span>Meet people</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => nav("/pass")}
-                  className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-amber-500/10 px-4 text-xs font-bold text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/20 hover:bg-amber-500/20 transition-[background-color,transform] active:scale-95 cursor-pointer"
-                >
-                  <Ticket size={14} />
-                  <span>Discover Passes</span>
-                </button>
-              </MeEmpty>
+              <div className="rounded-3xl border border-dashed border-line/80 p-5 sm:p-7 text-center bg-paper/40">
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 mx-auto mb-3 ring-1 ring-amber-500/20">
+                  <Sun size={24} />
+                </span>
+                <h3 className="font-display text-base sm:text-lg font-bold text-ink">Your day is open</h3>
+                <p className="text-xs text-mute mt-1 max-w-md mx-auto leading-relaxed">
+                  No appointments or tickets scheduled for today. Turn free time into an experience!
+                </p>
+
+                {/* 🌟 Rich Full Journey Cards */}
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+                  {/* Card 1: Meet People */}
+                  <div className="flex flex-col justify-between rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-2xs hover:ring-brand/40 transition-[box-shadow,transform]">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand/10 text-accent">
+                          <Users size={15} />
+                        </span>
+                        <h4 className="font-display text-xs font-bold text-ink">Meet People</h4>
+                      </div>
+                      <p className="text-[11px] text-mute leading-relaxed">
+                        Catch up with mutuals or check in at a nearby venue in Circle.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void triggerHaptic("light");
+                        nav("/circle");
+                      }}
+                      className="mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-3.5 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
+                    >
+                      <Users size={13} />
+                      <span>Meet people</span>
+                    </button>
+                  </div>
+
+                  {/* Card 2: Discover Passes */}
+                  <div className="flex flex-col justify-between rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-2xs hover:ring-amber-500/40 transition-[box-shadow,transform]">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="grid h-8 w-8 place-items-center rounded-xl bg-amber-500/15 text-amber-600">
+                          <Ticket size={15} />
+                        </span>
+                        <h4 className="font-display text-xs font-bold text-ink">Events &amp; Deals</h4>
+                      </div>
+                      <p className="text-[11px] text-mute leading-relaxed">
+                        Live concerts, cultural festivals, and member perks active today.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => nav("/pass")}
+                      className="mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-amber-500/15 px-3.5 text-xs font-bold text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/30 hover:bg-amber-500/25 transition-[background-color,transform] active:scale-95 cursor-pointer"
+                    >
+                      <Ticket size={13} />
+                      <span>Discover Passes</span>
+                    </button>
+                  </div>
+
+                  {/* Card 3: Curated Places */}
+                  <div className="flex flex-col justify-between rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-2xs hover:ring-sky-500/40 transition-[box-shadow,transform]">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="grid h-8 w-8 place-items-center rounded-xl bg-sky-500/10 text-sky-600">
+                          <MapPin size={15} />
+                        </span>
+                        <h4 className="font-display text-xs font-bold text-ink">Curated Places</h4>
+                      </div>
+                      <p className="text-[11px] text-mute leading-relaxed">
+                        Handpicked cafes, scenic spots, and local hubs in {city || "Sydney"}.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => nav("/places")}
+                      className="mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full border border-line bg-card px-3.5 text-xs font-bold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 cursor-pointer shadow-2xs"
+                    >
+                      <MapPin size={13} className="text-sky-600" />
+                      <span>Explore Places</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Footer Planning Bridge */}
+                <div className="mt-5 pt-3.5 border-t border-line/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-mute">
+                  <span>Planning ahead for the rest of the week?</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void triggerHaptic("light");
+                      nav("/calendar");
+                    }}
+                    className="inline-flex min-h-[44px] items-center gap-1.5 font-bold text-accent hover:text-brand transition-colors cursor-pointer"
+                  >
+                    <Calendar size={13} />
+                    <span>Open Personal Calendar</span>
+                    <ArrowRight size={12} className="shrink-0" />
+                  </button>
+                </div>
+              </div>
             )}
           </MeSection>
         )}
