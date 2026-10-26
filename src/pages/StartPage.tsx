@@ -71,7 +71,7 @@ export function StartPage() {
   const [resetEmail, setResetEmail] = useState(() => emailParam || safeGetItem(LAST_EMAIL_KEY) || "");
   const [resetSent, setResetSent] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [phoneSignup, setPhoneSignup] = useState(false);
+
   const [inlineError, setInlineError] = useState<{ message: string; code?: string } | null>(null);
 
   // Invite Attribution
@@ -203,7 +203,7 @@ export function StartPage() {
   }
 
   useEffect(() => {
-    if (!user || phoneSignup) return;
+    if (!user) return;
     if (pendingGo || (next && !next.startsWith("/start") && !next.startsWith("/onboard"))) {
       setPendingGo(false);
       const dest = afterInPath();
@@ -213,12 +213,11 @@ export function StartPage() {
         nav(dest);
       }
     }
-  }, [user, pendingGo, next, nav, phoneSignup, roleParam, business, mine?.handle]);
+  }, [user, pendingGo, next, nav, roleParam, business, mine?.handle]);
 
   function switchMode(newMode: AuthMode) {
     void triggerHapticSelection();
     setMode(newMode);
-    if (newMode !== "signup") setPhoneSignup(false);
     setInlineError(null);
     const p = new URLSearchParams(search);
     p.set("tab", newMode === "signup" ? "signup" : newMode === "reset" ? "reset" : "signin");
@@ -294,7 +293,7 @@ export function StartPage() {
   // ========================================================
   // ALREADY SIGNED IN VIEW: User & Identity Cockpit
   // ========================================================
-  if (user && !phoneSignup && !signupPending) {
+  if (user && !signupPending) {
     const isHostUser = user.role === "host_admin" || user.role === "super_admin";
     return (
       <div className="mx-auto max-w-xl px-4 py-8 md:py-12 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
@@ -708,7 +707,6 @@ export function StartPage() {
                       setSignupPending(mode === "signup");
                       try {
                         await loginWithSocial(provider);
-                        setPhoneSignup(false);
                         void triggerHaptic("medium");
                         toast.success("Signed in successfully!");
                         setPendingGo(true);
@@ -785,9 +783,7 @@ export function StartPage() {
                         if (email) setLoginEmail(email);
                         switchMode("signin");
                       }}
-                      onPhoneConfirm={() => setPhoneSignup(true)}
                       onDone={() => {
-                        setPhoneSignup(false);
                         const dest = afterInPath();
                         nav(`/onboarding?next=${encodeURIComponent(dest)}`);
                       }}
