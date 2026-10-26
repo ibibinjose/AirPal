@@ -169,6 +169,17 @@ describe("MePage", () => {
     expect(markup).toContain("Bio &amp; QR Pass");
   });
 
+  it("renders dedicated Bio & QR Pass tab with passbook showcase and capabilities", () => {
+    const markup = renderToStaticMarkup(createElement(MePage, { defaultTab: "pass" }));
+    expect(markup).toContain("AirPal Passbook &amp; Identity Pass");
+    expect(markup).toContain("Universal Digital Pass");
+    expect(markup).toContain("NFC &amp; Wallet Ready");
+    expect(markup).toContain("My Digital Bio Pass");
+    expect(markup).toContain("Apple &amp; Google Wallet");
+    expect(markup).toContain("Scannable Anywhere");
+    expect(markup).toContain("Instant vCard Contacts");
+  });
+
   it("keeps the stat strip uniform with explicit motion", () => {
     const src = readFileSync(resolve(import.meta.dirname, "./MePage.tsx"), "utf8");
     expect(src).toContain("grid grid-cols-3 divide-x");

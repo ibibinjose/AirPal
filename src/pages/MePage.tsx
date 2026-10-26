@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Clock,
   Coffee,
+  Contact,
   Copy,
   Edit3,
   ExternalLink,
@@ -23,6 +24,7 @@ import {
   QrCode,
   Settings,
   Share2,
+  ShieldCheck,
   Shirt,
   Sparkles,
   Store,
@@ -30,6 +32,7 @@ import {
   Ticket,
   UserRound,
   Users,
+  Wallet,
   X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -1232,25 +1235,141 @@ export function MePage({ defaultTab }: MePageProps = {}) {
         )}
 
         {/* SECTION: DIGITAL BIO PASS & QR CARD */}
-        {showSection("pass") && mine && (
-          <DigitalBioPassCard
-            handle={mine.handle}
-            name={mine.name || user.displayName || `@${mine.handle}`}
-            kind={mine.kind}
-            avatar={mine.avatar}
-            city={mine.city || city}
-            headline={mine.shortWhy}
-            phone={mine.phone}
-            email={user.email || undefined}
-            qrDataUrl={bioQrData || undefined}
-            title="My Digital Bio Pass"
-            subtitle="Universal Contact Pass · Apple & Google Wallet"
-            showViewBioLink
-            showEditBioLink
-          >
-            <ChangeHandleForm current={mine.handle} profileId={mine.id} />
-          </DigitalBioPassCard>
-        )}
+        {showSection("pass") &&
+          (mine ? (
+            <div className="space-y-6">
+              {/* Elevated Passbook Showcase Header on dedicated pass tab */}
+              {activeTab === "pass" && (
+                <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-brand/10 via-card to-paper p-5 sm:p-7 ring-1 ring-line/80 shadow-clay">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/15 px-3 py-1 text-xs font-bold text-accent ring-1 ring-brand/25">
+                          <Sparkles size={12} aria-hidden="true" />
+                          <span>Universal Digital Pass</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+                          <ShieldCheck size={12} aria-hidden="true" />
+                          <span>NFC &amp; Wallet Ready</span>
+                        </span>
+                      </div>
+                      <h2 className="font-display text-xl sm:text-2xl font-black text-ink tracking-tight">
+                        AirPal Passbook &amp; Identity Pass
+                      </h2>
+                      <p className="text-xs sm:text-sm text-mute max-w-xl leading-relaxed font-medium">
+                        Your universal credential for 1-tap contact exchange, Apple &amp; Google Wallet passes, door
+                        check-ins, and networking across the AirPal ecosystem.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-start md:self-center shrink-0">
+                      <Button
+                        variant="primary"
+                        className="min-h-[44px] rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95"
+                        onClick={() => {
+                          void triggerHaptic("light");
+                          setShowShareModal(true);
+                        }}
+                      >
+                        <Share2 size={14} className="mr-1.5" />
+                        <span>Share Pass</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="min-h-[44px] rounded-full border border-line bg-card px-4 text-xs font-bold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs"
+                        onClick={() => nav(bioPath(mine.handle))}
+                      >
+                        <ExternalLink size={14} className="mr-1.5 text-mute" />
+                        <span>View Bio</span>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* The Master Pass Card */}
+              <DigitalBioPassCard
+                handle={mine.handle}
+                name={mine.name || user.displayName || `@${mine.handle}`}
+                kind={mine.kind}
+                avatar={mine.avatar}
+                city={mine.city || city}
+                headline={mine.shortWhy}
+                phone={mine.phone}
+                email={user.email || undefined}
+                qrDataUrl={bioQrData || undefined}
+                title="My Digital Bio Pass"
+                subtitle="Universal Contact Pass · Apple & Google Wallet"
+                showViewBioLink
+                showEditBioLink
+              >
+                <ChangeHandleForm current={mine.handle} profileId={mine.id} />
+              </DigitalBioPassCard>
+
+              {/* Features Deck on dedicated Pass tab */}
+              {activeTab === "pass" && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  <div className="rounded-3xl bg-card p-5 ring-1 ring-line/80 shadow-clay flex flex-col justify-between">
+                    <div>
+                      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-sky-500/10 text-sky-600 mb-3 ring-1 ring-sky-500/20">
+                        <Wallet size={18} />
+                      </span>
+                      <h4 className="font-display font-bold text-sm text-ink">Apple &amp; Google Wallet</h4>
+                      <p className="text-xs text-mute mt-1 leading-relaxed">
+                        Store in your device wallet for lockscreen access and contactless NFC pass taps.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl bg-card p-5 ring-1 ring-line/80 shadow-clay flex flex-col justify-between">
+                    <div>
+                      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 mb-3 ring-1 ring-emerald-500/20">
+                        <QrCode size={18} />
+                      </span>
+                      <h4 className="font-display font-bold text-sm text-ink">Scannable Anywhere</h4>
+                      <p className="text-xs text-mute mt-1 leading-relaxed">
+                        100% offline scannable with standard cameras. No third-party app or account required to scan.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl bg-card p-5 ring-1 ring-line/80 shadow-clay flex flex-col justify-between">
+                    <div>
+                      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-purple-500/10 text-purple-600 mb-3 ring-1 ring-purple-500/20">
+                        <Contact size={18} />
+                      </span>
+                      <h4 className="font-display font-bold text-sm text-ink">Instant vCard Contacts</h4>
+                      <p className="text-xs text-mute mt-1 leading-relaxed">
+                        Saves full contact cards with phone, email, avatar, and social links straight into phone
+                        contacts.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="rounded-[36px] bg-card p-6 sm:p-8 ring-1 ring-line/80 shadow-clay text-center max-w-xl mx-auto">
+              <span className="grid h-16 w-16 place-items-center rounded-3xl bg-brand/10 text-accent mx-auto mb-4 ring-1 ring-brand/20">
+                <QrCode size={32} />
+              </span>
+              <h3 className="font-display text-xl font-bold text-ink">Claim your Digital Pass</h3>
+              <p className="text-xs sm:text-sm text-mute mt-2 leading-relaxed">
+                Choose your unique @handle to generate your universal digital contact pass, Apple Wallet pass, and
+                personal Bio page.
+              </p>
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Button
+                  variant="primary"
+                  className="min-h-[44px] w-full sm:w-auto rounded-full bg-brand px-6 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95"
+                  onClick={() => nav("/bio/setup")}
+                >
+                  <Sparkles size={14} className="mr-1.5" />
+                  <span>Claim @handle &amp; Activate Pass</span>
+                </Button>
+              </div>
+            </div>
+          ))}
 
         {/* 🛠 4. TOOLS, WORKSPACES & ECOSYSTEM SHORTCUTS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
