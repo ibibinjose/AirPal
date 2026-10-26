@@ -85,6 +85,26 @@ describe("people", () => {
     expect(empty).not.toContain("PHOTO");
   });
 
+  it("keeps URLs and photo URIs clickable (no ; or , escaping)", () => {
+    const vcf = buildVCard({
+      name: "Maya Rao",
+      url: "https://maps.example.com/?q=Sydney,NSW;venue=hall",
+      photoUrl: "https://cdn.airpal.me/maya.jpg?x=1,2;v=3",
+    });
+    expect(vcf).toContain("URL:https://maps.example.com/?q=Sydney,NSW;venue=hall");
+    expect(vcf).toContain("PHOTO;VALUE=URI:https://cdn.airpal.me/maya.jpg?x=1,2;v=3");
+  });
+
+  it("folds long lines at 75 bytes per RFC 2426", () => {
+    const note = `AirPal Digital Bio Pass (@maya) · ${"Very long headline ".repeat(10)}· Sydney`;
+    const vcf = buildVCard({ name: "Maya Rao", note });
+    const encoder = new TextEncoder();
+    for (const line of vcf.split("\r\n")) {
+      expect(encoder.encode(line).length).toBeLessThanOrEqual(75);
+    }
+    expect(vcf.replace(/\r\n /g, "")).toContain(`NOTE:${note}`);
+  });
+
   it("saves bio contact with clean handle and formatted note", async () => {
     const res = await saveBioContact({
       name: "Maya Rao",

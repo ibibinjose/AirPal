@@ -146,6 +146,33 @@ function escapeVCard(value: string): string {
     .replace(/,/g, "\\,");
 }
 
+function escapeVCardUri(value: string): string {
+  // URIs must stay clickable: strip raw newlines but keep ; , ? & = intact.
+  return value.replace(/\r\n/g, "").replace(/[\r\n]/g, "");
+}
+
+function foldVCardLine(line: string): string {
+  // RFC 2426 §5.8: fold content lines longer than 75 bytes with CRLF + space.
+  const encoder = new TextEncoder();
+  if (encoder.encode(line).length <= 75) return line;
+  const chunks: string[] = [];
+  let current = "";
+  let currentBytes = 0;
+  for (const ch of line) {
+    const size = encoder.encode(ch).length;
+    const limit = chunks.length === 0 ? 75 : 74;
+    if (current && currentBytes + size > limit) {
+      chunks.push(current);
+      current = "";
+      currentBytes = 0;
+    }
+    current += ch;
+    currentBytes += size;
+  }
+  if (current) chunks.push(current);
+  return chunks.join("\r\n ");
+}
+
 /** Secure RFC 6350 vCard 3.0 — opens directly in iOS/Android Contacts. */
 export function buildVCard(input: VCardInput): string {
   const lines = ["BEGIN:VCARD", "VERSION:3.0"];
@@ -157,14 +184,14 @@ export function buildVCard(input: VCardInput): string {
   lines.push(`FN:${escapeVCard(name)}`);
   if (input.phone?.trim()) lines.push(`TEL;TYPE=CELL:${escapeVCard(input.phone.trim())}`);
   if (input.email?.trim()) lines.push(`EMAIL:${escapeVCard(input.email.trim())}`);
-  if (input.url?.trim()) lines.push(`URL:${escapeVCard(input.url.trim())}`);
+  if (input.url?.trim()) lines.push(`URL:${escapeVCardUri(input.url.trim())}`);
   // vCard 3.0 photo by reference — remote portraits only, never data blobs.
   if (input.photoUrl?.trim() && /^https?:\/\//i.test(input.photoUrl.trim())) {
-    lines.push(`PHOTO;VALUE=URI:${escapeVCard(input.photoUrl.trim())}`);
+    lines.push(`PHOTO;VALUE=URI:${escapeVCardUri(input.photoUrl.trim())}`);
   }
   if (input.note?.trim()) lines.push(`NOTE:${escapeVCard(input.note.trim())}`);
   lines.push("END:VCARD");
-  return lines.join("\r\n");
+  return lines.map(foldVCardLine).join("\r\n");
 }
 
 function downloadVCard(input: VCardInput): void {
