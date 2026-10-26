@@ -12,7 +12,7 @@ import { makeQrDataUrl } from "@/lib/qr";
 import { cleanHandle as safeHandle } from "@/lib/profile-text";
 import { saveBioContact } from "@/lib/people";
 import { shareBioPass } from "@/lib/share";
-import { publicSiteOrigin } from "@/lib/public-origin";
+import { toPublicUrl } from "@/lib/public-origin";
 import { exportBioPassPng } from "@/lib/bio-pass-export";
 import {
   businessCardWalletPassUrl,
@@ -180,11 +180,7 @@ export function DigitalBioPassCard({
   const [copied, setCopied] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
-  const profileUrl = useMemo(() => {
-    const origin =
-      typeof window !== "undefined" && window.location?.origin ? window.location.origin : publicSiteOrigin();
-    return `${origin}${bioPath(cleanHandle)}`;
-  }, [cleanHandle]);
+  const profileUrl = useMemo(() => toPublicUrl(bioPath(cleanHandle)), [cleanHandle]);
 
   const qrSrc = externalQr || internalQr;
 

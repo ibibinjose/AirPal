@@ -55,9 +55,7 @@ export function NotificationRow({
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-accent">
-              {presentation.label}
-            </span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-accent">{presentation.label}</span>
             {when ? (
               <span className="shrink-0 text-[11px] text-ink/65 dark:text-ink/60 font-medium">{when}</span>
             ) : null}
@@ -70,9 +68,7 @@ export function NotificationRow({
           >
             {n.title}
           </p>
-          <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-ink/70 dark:text-ink/65">
-            {n.body}
-          </p>
+          <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-ink/70 dark:text-ink/65">{n.body}</p>
         </div>
       </Link>
       <button

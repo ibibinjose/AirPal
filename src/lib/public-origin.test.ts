@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { publicSiteOrigin, toPublicUrl } from "./public-origin";
+import { publicSiteOrigin, shareableOrigin, toPublicUrl } from "./public-origin";
 
 describe("toPublicUrl", () => {
   it("uses the live https origin", () => {
@@ -24,5 +24,11 @@ describe("toPublicUrl", () => {
 
   it("builds from a path", () => {
     expect(toPublicUrl("/start?tab=signup&ref=leo")).toBe("https://airpal.me/start?tab=signup&ref=leo");
+  });
+});
+
+describe("shareableOrigin", () => {
+  it("falls back to the public site outside a browser", () => {
+    expect(shareableOrigin()).toBe("https://airpal.me");
   });
 });

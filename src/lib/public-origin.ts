@@ -15,6 +15,19 @@ function isAirpalHost(host: string): boolean {
 }
 
 /**
+ * Same-device origin for flows that stay on this phone (email links).
+ * Native shells report capacitor:// — unusable anywhere else — so those
+ * fall back to the public site. Localhost dev keeps working untouched.
+ */
+export function shareableOrigin(): string {
+  if (typeof window !== "undefined") {
+    if (window.location.protocol === "capacitor:") return publicSiteOrigin();
+    if (window.location.origin) return window.location.origin;
+  }
+  return publicSiteOrigin();
+}
+
+/**
  * Turn a Capacitor / relative / localhost href into https://airpal.me/…
  * External https URLs (maps, WhatsApp) are left alone.
  */

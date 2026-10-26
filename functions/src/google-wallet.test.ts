@@ -211,7 +211,11 @@ describe("googleWalletPass", () => {
       payload: { genericObjects: Record<string, unknown>[] };
     };
     const obj = decoded.payload.genericObjects[0] as Record<string, unknown>;
-    expect(obj.hexBackgroundColor).toBe("#004eff");
+    expect(obj.hexBackgroundColor).toBe("#0840E8");
+    expect(obj.heroImage).toEqual({
+      sourceUri: { uri: "https://airpal.me/brand/bio-pass-template.png" },
+      contentDescription: { defaultValue: { language: "en", value: "AirPal Bio Pass" } },
+    });
     expect(obj.cardTitle).toEqual({ defaultValue: { language: "en", value: "Bibin" } });
     expect(obj.subheader).toEqual({ defaultValue: { language: "en", value: "Sydney" } });
     expect(obj.barcode).toEqual({
@@ -274,11 +278,18 @@ describe("wallet payload builders", () => {
   });
 
   it("builds profile card payloads with a profile link", () => {
-    const payload = cardSavePayload({ issuerId: "3388000000012345678", handle: "bibin", name: "Bibin", bio: "" });
+    const payload = cardSavePayload({
+      issuerId: "3388000000012345678",
+      handle: "bibin",
+      name: "Bibin",
+      bio: "",
+      kind: "business",
+    });
     const obj = (payload.genericObjects as Record<string, unknown>[])[0] as Record<string, unknown>;
     expect(obj.id).toBe("3388000000012345678.bibin");
     expect(obj.linksModuleData).toEqual({
       uris: [{ uri: "https://airpal.me/@bibin", description: "View profile", id: "profile" }],
     });
+    expect(obj.textModulesData).toEqual([{ header: "ACCOUNT", body: "Business", id: "kind" }]);
   });
 });

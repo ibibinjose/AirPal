@@ -50,24 +50,25 @@ export function NativeSplashTransition({ holdDuration = 250, fadeDuration = 350 
       aria-hidden="true"
       id="native-splash-transition"
       data-testid="native-splash-transition"
-      className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#FAF8F5] pointer-events-none select-none transition-opacity ease-out"
+      className="fixed inset-0 z-[99999] bg-white pointer-events-none select-none transition-opacity ease-out"
       style={{
         opacity: fading ? 0 : 1,
         transitionDuration: `${fadeDuration}ms`,
       }}
     >
-      <div className="flex flex-col items-center justify-center text-center px-6">
-        <div className="relative mb-3.5">
-          <img
-            src="/logo-mark.png"
-            alt="AirPal"
-            className="h-16 w-16 rounded-2xl bg-white shadow-md object-contain p-1.5 ring-1 ring-black/5"
-          />
+      {/* Same size + position as the native launch image, so handoff has no jump. */}
+      <img
+        src="/logo-mark.png"
+        alt="AirPal"
+        draggable={false}
+        className="absolute left-1/2 top-1/2 w-[30vmin] -translate-x-1/2 -translate-y-1/2 object-contain"
+      />
+      <div className="absolute inset-x-0 top-[calc(50%+19vmin)] px-6 text-center">
+        <div className="font-display text-2xl font-bold tracking-tight text-[#0b1220]">
+          AirPal
+          {isPass ? <span className="text-[#004eff]"> Pass</span> : <span className="text-[#004eff]">.me</span>}
         </div>
-        <div className="font-display text-2xl font-bold tracking-tight text-ink">
-          AirPal{isPass ? <span className="text-accent"> Pass</span> : <span className="text-accent">.me</span>}
-        </div>
-        <div className="text-[11px] font-semibold tracking-widest uppercase text-accent mt-1.5">{BRAND_TAGLINE}</div>
+        <div className="mt-1.5 text-[11px] font-semibold uppercase tracking-widest text-[#004eff]">{BRAND_TAGLINE}</div>
       </div>
     </div>
   );

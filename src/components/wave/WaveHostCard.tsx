@@ -31,8 +31,7 @@ export function WaveHostCard({
       setQr("");
       return;
     }
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://airpal.me";
-    void makeQrDataUrl(waveUrl(code, origin), 280).then(setQr);
+    void makeQrDataUrl(waveUrl(code), 280).then(setQr);
     return listenWaveByCode(code, (session) => {
       if (!session) {
         setCode(null);
@@ -61,7 +60,7 @@ export function WaveHostCard({
       toast.success("Waving — AirPals here can see you");
       if (canNfcWave()) {
         try {
-          await writeWaveNfc(waveUrl(res.code, window.location.origin));
+          await writeWaveNfc(waveUrl(res.code));
           toast.message("Hold phones together to NFC wave");
         } catch {
           /* QR still works */

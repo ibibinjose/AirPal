@@ -11,6 +11,7 @@ import { activePlaces } from "@/lib/catalog";
 import { useEvents } from "@/contexts/EventsContext";
 import { listBioDirectoryRemote, liveBackendEnabled, runAnalyticsAggregationRemote } from "@/lib/functions";
 import { loadAnalyticsBuffer } from "@/lib/analytics";
+import { toPublicUrl } from "@/lib/public-origin";
 import { wqgaFromEvents } from "@shared/analytics";
 import { tapCount } from "@/lib/bio-store";
 import { bioPath } from "@shared/bio";
@@ -124,7 +125,7 @@ export function AdminPage() {
   }
 
   function copyHandleLink(handle: string) {
-    const url = `${window.location.origin}${bioPath(handle)}`;
+    const url = toPublicUrl(bioPath(handle));
     navigator.clipboard.writeText(url).then(() => {
       setCopiedHandle(handle);
       toast.success(`Copied @${handle} link`);

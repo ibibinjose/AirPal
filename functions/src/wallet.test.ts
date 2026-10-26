@@ -141,12 +141,15 @@ describe("pass content (Luma layout, AirPal Blue)", () => {
   });
 
   it("lays profile cards out on AirPal Blue with the handle front and center", () => {
-    const json = cardPassJson({ handle: "bibin", name: "Bibin", bio: "Host" });
+    const json = cardPassJson({ handle: "bibin", name: "Bibin", bio: "Host", city: "Sydney", kind: "person" });
     expect(json.organizationName).toBe("AirPal.me");
-    expect(json.backgroundColor).toBe("rgb(0,78,255)");
+    expect(json.backgroundColor).toBe("rgb(8, 64, 232)");
     const storeCard = json.storeCard as Record<string, { label: string; value: string }[]>;
     expect(storeCard.primaryFields[0]?.value).toBe("Bibin");
     expect(storeCard.secondaryFields[0]?.value).toBe("@bibin");
+    const back = storeCard.backFields as { label: string; value: string }[];
+    expect(back.some((field) => field.label === "City" && field.value === "Sydney")).toBe(true);
+    expect(back.some((field) => field.label === "Account" && field.value === "Individual")).toBe(true);
   });
 
   it("reads business-card identity from profile name and shortWhy", () => {
@@ -159,8 +162,9 @@ describe("pass content (Luma layout, AirPal Blue)", () => {
     const storeCard = json.storeCard as Record<string, { value: string }[]>;
     expect(storeCard.primaryFields[0]?.value).toBe("Harbour Hotel");
     expect(storeCard.auxiliaryFields[0]?.value).toBe("Sydney");
-    const back = storeCard.backFields as { value: string }[];
+    const back = storeCard.backFields as { label: string; value: string }[];
     expect(back.some((field) => field.value === "Rooms on the quay")).toBe(true);
+    expect(back.some((field) => field.label === "Account" && field.value === "Business")).toBe(true);
   });
 });
 

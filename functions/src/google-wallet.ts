@@ -159,11 +159,21 @@ export interface CardObjectInput {
   name: string;
   bio: string;
   city?: string;
+  kind?: string;
 }
 
 export function cardSavePayload(input: CardObjectInput): Record<string, unknown> {
   const classId = `${input.issuerId}.airpal_profile_card`;
   const url = `https://airpal.me/@${input.handle}`;
+  const textModulesData: Array<{ header: string; body: string; id: string }> = [];
+  if (input.bio) textModulesData.push({ header: "ABOUT", body: input.bio.slice(0, 200), id: "about" });
+  if (input.kind) {
+    textModulesData.push({
+      header: "ACCOUNT",
+      body: input.kind === "business" ? "Business" : "Individual",
+      id: "kind",
+    });
+  }
   return {
     genericClasses: [{ id: classId, issuerName: "AirPal", reviewStatus: "UNDER_REVIEW" }],
     genericObjects: [
@@ -179,13 +189,13 @@ export function cardSavePayload(input: CardObjectInput): Record<string, unknown>
           contentDescription: text("AirPal"),
         },
         heroImage: {
-          sourceUri: { uri: "https://airpal.me/brand/bio-pass-banner.png" },
+          sourceUri: { uri: "https://airpal.me/brand/bio-pass-template.png" },
           contentDescription: text("AirPal Bio Pass"),
         },
-        ...(input.bio ? { textModulesData: [{ header: "ABOUT", body: input.bio.slice(0, 200), id: "about" }] } : {}),
+        ...(textModulesData.length > 0 ? { textModulesData } : {}),
         barcode: { type: "QR_CODE", value: url, alternateText: `@${input.handle}` },
         linksModuleData: { uris: [{ uri: url, description: "View profile", id: "profile" }] },
-        hexBackgroundColor: "#004eff",
+        hexBackgroundColor: "#0840E8",
       },
     ],
   };
@@ -323,6 +333,7 @@ export const googleWalletPass = onRequest(
           name: fields.name,
           bio: fields.bio,
           city: fields.city,
+          kind: fields.kind || undefined,
         });
       }
       const saveUrl = `https://pay.google.com/gp/v/save/${mintSaveJwt(cfg, payload)}`;

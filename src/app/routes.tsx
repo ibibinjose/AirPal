@@ -3,6 +3,7 @@ import { Redirect, Route, Switch, useLocation } from "wouter";
 import { BIO_PUBLIC_PATH } from "@shared/bio";
 import { isPassApp } from "@/lib/app-flavor";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 import { STATIC_ALIASES } from "@/app/airpal-app";
 
 // Eager load the landing page for instant first paint; every other route splits out.
@@ -85,16 +86,7 @@ const WelcomePage = lazy(() => import("@/pages/WelcomePage").then((m) => ({ defa
 const OnboardingPage = lazy(() => import("@/pages/OnboardingPage").then((m) => ({ default: m.OnboardingPage })));
 
 function RouteFallback() {
-  return (
-    <div
-      className="flex min-h-[100dvh] flex-col items-center justify-center gap-3 p-8"
-      role="status"
-      aria-live="polite"
-    >
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-      <p className="text-sm text-mute">Loading…</p>
-    </div>
-  );
+  return <BrandLoader className="min-h-[100dvh] p-8" />;
 }
 
 export function AppRoutes() {

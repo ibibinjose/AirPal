@@ -1842,3 +1842,53 @@ body.keyboard-open .keyboard-hide {
     print-color-adjust: exact;
   }
 }
+
+/* Brand loader + launch overlay (BrandLoader, NativeSplashTransition). */
+.brand-loader-mark {
+  animation: brand-loader-breathe 1.8s ease-in-out infinite;
+}
+.brand-loader-bar {
+  position: relative;
+  display: block;
+  height: 3px;
+  width: 72px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgba(0, 78, 255, 0.14);
+}
+.brand-loader-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--color-brand);
+  animation: brand-loader-sweep 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes brand-loader-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+@keyframes brand-loader-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-loader-mark {
+    animation: none;
+  }
+  .brand-loader-bar::after {
+    animation: none;
+    width: 100%;
+    opacity: 0.5;
+  }
+}

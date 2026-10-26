@@ -52,7 +52,7 @@ const config: CapacitorConfig = {
       launchShowDuration: 1500,
       launchAutoHide: true,
       launchFadeOutDuration: 350,
-      backgroundColor: "#EEF1F6",
+      backgroundColor: "#FFFFFF",
       showSpinner: false,
       androidScaleType: "CENTER_CROP",
       iosSpinnerStyle: "small",

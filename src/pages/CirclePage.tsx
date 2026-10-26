@@ -44,6 +44,7 @@ import {
 } from "@/lib/circle";
 import { listPeople, saveBioContact, upsertPerson, type PersonMet } from "@/lib/people";
 import { triggerHaptic } from "@/lib/native";
+import { toPublicUrl } from "@/lib/public-origin";
 import { toast } from "sonner";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { cn } from "@/lib/cn";
@@ -93,10 +94,10 @@ export function CirclePage() {
   // In-person QR Circle Pass sheet
   const [qrOpen, setQrOpen] = useState(false);
 
-  const circleInviteUrl = useMemo(() => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://airpal.me";
-    return mine?.handle ? `${origin}/@${mine.handle}` : `${origin}/start`;
-  }, [mine?.handle]);
+  const circleInviteUrl = useMemo(
+    () => (mine?.handle ? toPublicUrl(`/@${mine.handle}`) : toPublicUrl("/start")),
+    [mine?.handle],
+  );
 
   // Organisers running upcoming events, keyed by handle — the Communities bucket source.
   const organisers = useMemo(() => {
@@ -383,11 +384,10 @@ export function CirclePage() {
 
   const handleSaveVCard = (contact: CircleContact) => {
     void triggerHaptic("light");
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://airpal.me";
     void saveBioContact({
       name: contact.name,
       handle: contact.handle,
-      url: `${origin}/@${contact.handle}`,
+      url: toPublicUrl(`/@${contact.handle}`),
       headline: contact.whereMet ? `Met at ${contact.whereMet}` : undefined,
     });
   };

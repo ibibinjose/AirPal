@@ -47,14 +47,16 @@ vi.mock("@/lib/native", () => ({
 }));
 
 describe("OnboardingPage", () => {
-  it("renders step 1 with wallet pass preview and identity inputs", () => {
+  it("renders step 1 with name, handle and city only", () => {
     mockUser = { uid: "test-uid", displayName: "Alex Rivera", email: "alex@example.com" };
     const html = renderToStaticMarkup(createElement(OnboardingPage));
-    expect(html).toContain("Set Up Your Identity");
-    expect(html).toContain("AirPal Universal Pass");
-    expect(html).toContain("Claim your unique @handle");
-    expect(html).toContain("Primary City");
-    expect(html).toContain("Continue to Interests");
+    expect(html).toContain("Who are you?");
+    expect(html).toContain("Your @handle");
+    expect(html).toContain("City");
+    expect(html).toContain("Continue");
+    expect(html.match(/<h1/g)?.length).toBe(1);
+    expect(html).not.toContain("Interests");
+    expect(html).not.toContain("Avatar");
   });
 
   it("renders sign-up prompt when user is not authenticated", () => {

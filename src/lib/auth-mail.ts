@@ -15,12 +15,11 @@ import {
 } from "firebase/auth";
 import { authActionContinueUrl } from "@shared/auth-email";
 import { getFirebaseAuth } from "@/lib/firebase";
-import { LEGAL } from "@/lib/legal";
+import { shareableOrigin } from "@/lib/public-origin";
 
 function emailActionSettings(): ActionCodeSettings {
-  const origin = typeof window !== "undefined" ? window.location.origin : LEGAL.site;
   return {
-    url: authActionContinueUrl(origin),
+    url: authActionContinueUrl(shareableOrigin()),
     handleCodeInApp: false,
   };
 }
