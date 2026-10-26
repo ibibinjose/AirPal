@@ -13,7 +13,12 @@ describe("pillars model", () => {
     expect(comm.match("/events")).toBe(true);
     expect(comm.match("/pass")).toBe(true);
     expect(comm.match("/circle")).toBe(true);
-    expect(comm.match("/event")).toBe(true);
+    // Studio tools never light the Explore pillar.
+    expect(comm.match("/event")).toBe(false);
+    expect(comm.match("/business")).toBe(false);
+    expect(comm.match("/host")).toBe(false);
+    expect(comm.match("/pulse")).toBe(false);
+    expect(comm.match("/join/abc")).toBe(false);
     expect(comm.match("/e/concert-123")).toBe(true);
     expect(getActivePillar("/events")?.id).toBe("communities");
   });

@@ -283,7 +283,7 @@ export function PassPartnerApplyPage() {
           {submitting ? <Loader2 size={16} className="animate-spin" aria-hidden /> : <Send size={16} aria-hidden />}
           Submit application
         </Button>
-        <p className="text-center text-xs text-mute">
+        <p className="text-left text-xs text-mute">
           No real-brand claims needed — just tell us what you run. Reviews usually take a few days.
         </p>
       </form>

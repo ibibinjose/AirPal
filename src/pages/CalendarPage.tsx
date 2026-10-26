@@ -374,13 +374,6 @@ function CalendarPageContent() {
             <Plus size={13} className="shrink-0" />
             <span>Add to Schedule</span>
           </button>
-          <Link
-            href="/event"
-            className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs whitespace-nowrap"
-          >
-            <Plus size={12} className="shrink-0" />
-            <span>Host Event</span>
-          </Link>
         </div>
 
         {/* View Switcher & Action Tools */}

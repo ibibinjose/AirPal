@@ -158,11 +158,6 @@ export function TicketPage() {
             <span>Passbook Wallet</span>
           </Link>
 
-          <div className="hidden min-[400px]:inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-amber-400/30 whitespace-nowrap">
-            <Ticket size={13} className="shrink-0" aria-hidden="true" />
-            <span>AirPal Pass</span>
-          </div>
-
           <Link
             href="/pass"
             className="inline-flex min-h-[44px] shrink-0 items-center gap-1 text-xs sm:text-sm font-semibold text-accent hover:underline cursor-pointer touch-manipulation whitespace-nowrap"

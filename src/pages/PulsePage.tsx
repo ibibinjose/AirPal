@@ -11,7 +11,7 @@ export function PulsePage() {
   const token = params.publicToken?.trim();
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-24 pt-6 sm:px-6 space-y-6">
+    <div className="page-wrap-narrow pt-6 space-y-6">
       <div className="flex flex-wrap items-center gap-2">
         <Link
           href="/business"
@@ -61,7 +61,7 @@ export function PulsePage() {
               <Lock size={20} />
             </span>
             <div>
-              <h2 className="human-section-title text-base">Shared report ({token})</h2>
+              <h2 className="human-section-title text-base">Shared report</h2>
               <p className="mt-0.5 text-sm text-mute">
                 Reports open inside the organiser studio, signed in as the host or a steward — shared links never expose
                 guest identities.

@@ -39,7 +39,10 @@ function ExperienceDetailView({ itemId }: { itemId: string }) {
   };
 
   const handleDownloadIcs = () => {
-    const start = item.starts_at ? new Date(item.starts_at) : new Date();
+    // The date picker above chooses the day; the curated start time (or 10:00)
+    // supplies the time of day.
+    const timePart = item.starts_at?.split("T")[1] || "10:00:00";
+    const start = new Date(`${selectedDate}T${timePart}`);
     const end = new Date(start.getTime() + 7200000);
     const dateToCal = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
     const escapeCal = (s: string) => s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/[,;]/g, "\\$&");

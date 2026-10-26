@@ -200,7 +200,7 @@ export function GooglePlaceImportCard({
                 onClick={() => void pick(hit.placeId)}
                 disabled={loadingId === hit.placeId}
                 className={cn(
-                  "flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm",
+                  "flex min-h-[44px] w-full items-center gap-2 px-3 py-2.5 text-left text-sm",
                   i === active ? "bg-brand/10" : innerHover,
                 )}
               >

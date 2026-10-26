@@ -28,8 +28,8 @@ import { passTabFromPath, tabFromPath, type GuestTab, type PassTab } from "@/lib
 /** Shipped companion dock: Home / Place / Community / Friends / Me. */
 const TABS: { href: string; id: GuestTab; label: string; icon: typeof Home }[] = [
   { href: "/", id: "home", label: "Home", icon: Home },
-  { href: "/places", id: "places", label: "Place", icon: MapPin },
-  { href: "/communities", id: "communities", label: "Community", icon: Users },
+  { href: "/places", id: "places", label: "Places", icon: MapPin },
+  { href: "/communities", id: "communities", label: "Communities", icon: Users },
   { href: "/friends", id: "friends", label: "Friends", icon: HeartHandshake },
   { href: "/me", id: "me", label: "Me", icon: UserRound },
 ];

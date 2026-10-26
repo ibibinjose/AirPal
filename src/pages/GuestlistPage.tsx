@@ -621,7 +621,7 @@ export function GuestlistPage() {
         {teamLoading ? (
           <p className="mt-3 text-sm text-mute">Loading team…</p>
         ) : team.length > 0 ? (
-          <ul className="mt-3 divide-y divide-line overflow-hidden rounded-xl ring-1 ring-line">
+          <ul className="mt-3 divide-y divide-line overflow-hidden rounded-xl">
             {team.map((m) => (
               <li key={m.uid} className="flex items-center gap-3 bg-paper px-4 py-2.5">
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-card text-xs font-bold uppercase ring-1 ring-line">

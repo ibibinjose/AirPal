@@ -145,7 +145,7 @@ export function PromotionsStudioPage({
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-24 pt-6 sm:px-6 space-y-6">
+    <div className="page-wrap-narrow pt-6 space-y-6">
       {/* Top Navigation Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">

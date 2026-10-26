@@ -197,7 +197,7 @@ export function StartPage() {
     const dest = next.trim();
     if (dest.startsWith("/") && !dest.startsWith("//") && !dest.startsWith("/start") && !dest.startsWith("/onboard"))
       return dest;
-    if (roleParam === "host") return "/host";
+    if (roleParam === "host") return "/event";
     if (roleParam === "business" || business) return "/business";
     if (roleParam === "event") return "/event";
     return "/";

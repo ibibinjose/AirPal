@@ -132,7 +132,8 @@ export function AppRoutes() {
           <Route path="/circle" component={CirclePage} />
           <Route path="/friends" component={FriendsPage} />
           <Route path="/me" component={MePage} />
-          <Route path="/bio" component={MePage} />
+          {/* /bio opens the cockpit on the Bio & QR Pass tab, matching the nav label. */}
+          <Route path="/bio">{() => <MePage defaultTab="pass" />}</Route>
           <Route path="/bio/setup" component={BioSetupPage} />
           <Route path="/bio/edit" component={BioEditPage} />
           <Route path="/bio/recover" component={BioRecoverPage} />

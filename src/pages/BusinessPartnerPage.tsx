@@ -29,7 +29,7 @@ const LABEL_CLASS = "mb-1 block text-sm font-semibold text-ink";
 
 export function BusinessPartnerEmpty() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6 md:py-10 pb-32">
+    <div className="page-wrap-narrow pt-6 md:pt-10">
       <EmptyState
         icon={<Handshake size={32} className="text-accent" aria-hidden />}
         kicker="Pass partner dashboard"
@@ -370,7 +370,7 @@ export function BusinessPartnerPage() {
   if (!partner && applications.length === 0) return <BusinessPartnerEmpty />;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 md:py-10 pb-32">
+    <div className="page-wrap-narrow pt-6 md:pt-10">
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <Link
           href="/business"

@@ -27,6 +27,8 @@ export const PILLARS: PillarItem[] = [
     icon: Users,
     kicker: "Social & Belonging",
     subLabel: "Live Concerts, Pass & Networking Circle",
+    // Discovery surfaces only: tools (host studio, business hub, pulse),
+    // transient flows (join, arrival) and account pages never light Explore.
     match: (p: string) =>
       p.startsWith("/events") ||
       p.startsWith("/pass") ||
@@ -34,18 +36,11 @@ export const PILLARS: PillarItem[] = [
       p.startsWith("/communities") ||
       p.startsWith("/friends") ||
       p.startsWith("/circle") ||
-      p.startsWith("/event") ||
-      p.startsWith("/e/") ||
-      p.startsWith("/join") ||
-      p.startsWith("/arrival") ||
-      p.startsWith("/host") ||
-      p.startsWith("/pulse") ||
+      p.startsWith("/calendar") ||
       p.startsWith("/deals") ||
       p.startsWith("/giveaways") ||
       p.startsWith("/birthday-freebies") ||
-      p.startsWith("/business") ||
-      p.startsWith("/claim") ||
-      p.startsWith("/calendar"),
+      p.startsWith("/e/"),
     subLinks: [
       { href: "/events", label: "Events" },
       { href: "/pass", label: "AirPal Pass" },
@@ -54,9 +49,9 @@ export const PILLARS: PillarItem[] = [
       { href: "/friends", label: "Friends" },
       { href: "/circle", label: "Circle" },
       { href: "/deals", label: "Deals" },
+      { href: "/calendar", label: "Calendar" },
       { href: "/event", label: "Host" },
       { href: "/business", label: "Business" },
-      { href: "/calendar", label: "Calendar" },
     ],
   },
   {

@@ -804,7 +804,7 @@ export function BioEditPage() {
                 void triggerHaptic("light");
                 nav(bioPath(activeProfile.handle));
               }}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-card border border-line text-ink transition hover:bg-paper active:scale-95 shadow-xs cursor-pointer"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-card border border-line text-ink transition hover:bg-paper active:scale-95 shadow-xs cursor-pointer"
               aria-label="Back to public bio"
               title="Back to public bio"
             >
@@ -991,11 +991,7 @@ export function BioEditPage() {
         {/* Mobile Edit / Preview switcher */}
         <div className="lg:hidden sticky top-[68px] z-20 mt-4">
           <div className="flex items-center gap-1.5 rounded-2xl bg-paper/95 p-1.5 ring-1 ring-line shadow-xs backdrop-blur-md">
-            <div
-              className="grid flex-1 grid-cols-2 gap-1 rounded-xl bg-card/60 p-1 ring-1 ring-line/60"
-              role="tablist"
-              aria-label="Editor view"
-            >
+            <div className="grid flex-1 grid-cols-2 gap-1" role="tablist" aria-label="Editor view">
               {[
                 { id: "edit" as const, label: "Edit", icon: Edit3 },
                 { id: "preview" as const, label: "Preview", icon: Eye },
@@ -1010,7 +1006,7 @@ export function BioEditPage() {
                     setMobileView(item.id);
                   }}
                   className={cn(
-                    "flex h-10 items-center justify-center gap-1.5 rounded-lg text-xs font-bold transition active:scale-95 cursor-pointer",
+                    "flex min-h-[44px] items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-bold transition active:scale-95 cursor-pointer",
                     mobileView === item.id
                       ? isBusiness
                         ? "bg-amber-600 text-white shadow-xs"
@@ -1032,7 +1028,7 @@ export function BioEditPage() {
                 void triggerHaptic("selection");
                 setPreviewThemeMode((m) => (m === "dark" ? "light" : "dark"));
               }}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line bg-card text-ink transition active:scale-95 cursor-pointer shadow-xs"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line bg-card text-ink transition active:scale-95 cursor-pointer shadow-xs"
               title={`Switch preview to ${previewThemeMode === "dark" ? "light" : "dark"} mode`}
               aria-label={`Switch preview to ${previewThemeMode === "dark" ? "light" : "dark"} mode`}
             >

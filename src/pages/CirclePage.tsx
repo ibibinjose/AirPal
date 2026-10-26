@@ -397,7 +397,8 @@ export function CirclePage() {
       .slice(0, 3)
       .map((p) => p.name);
     if (fromCatalog.length > 0) return fromCatalog;
-    return ["The Rocks Market", "The Glenmore Hotel", mine?.city || "Sydney"];
+    // No invented venues: fall back to the user's own city, or no chips.
+    return mine?.city ? [mine.city] : [];
   }, [mine?.city]);
 
   return (
@@ -991,7 +992,7 @@ export function CirclePage() {
               <input
                 value={metWhere}
                 onChange={(e) => setMetWhere(e.target.value.slice(0, 80))}
-                placeholder="The Rocks Market"
+                placeholder="Café, market, gig…"
                 className={`${fieldInput} pl-10`}
               />
             </div>

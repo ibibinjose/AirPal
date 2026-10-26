@@ -1385,7 +1385,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
               </div>
               <Button
                 size="sm"
-                className="min-h-[38px] text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs"
+                className="min-h-[44px] text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs"
                 loading={publishing}
                 onClick={handlePublishLive}
               >

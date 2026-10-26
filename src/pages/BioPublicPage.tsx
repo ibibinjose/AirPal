@@ -945,7 +945,7 @@ export function BioPublicPage() {
           {/* Connect: one card for formats + direct reach. Replaces the old
               quick-action deck and the visitor planner deck — same actions,
               same conditions, single composition in the shared design language. */}
-          <div className="mt-3 rounded-[28px] bg-card p-4 sm:p-5 ring-1 ring-line/80 shadow-2xs">
+          <div className="mt-3 px-1 pt-1">
             {showPlanner ? (
               <>
                 <div className="flex items-center justify-between gap-2">
@@ -1224,7 +1224,7 @@ export function BioPublicPage() {
                         void triggerHaptic("light");
                         setShareModalOpen(true);
                       }}
-                      className="inline-flex min-h-[36px] items-center gap-1.5 text-xs font-semibold text-accent hover:text-brand-ink transition cursor-pointer"
+                      className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-accent hover:text-brand-ink transition cursor-pointer"
                     >
                       <Share2 size={13} />
                       <span>View Branded Pass Card &amp; Share Sheet &rarr;</span>
@@ -2141,7 +2141,7 @@ export function BioPublicPage() {
         <button
           type="button"
           onClick={handleQuickCopy}
-          className="group inline-flex min-h-[40px] items-center gap-2 rounded-full bg-paper/80 dark:bg-card/70 px-4 py-1.5 text-xs font-mono text-mute ring-1 ring-line/70 transition hover:text-ink hover:ring-brand/40 active:scale-95 cursor-pointer touch-manipulation select-none"
+          className="group inline-flex min-h-[44px] items-center gap-2 rounded-full bg-paper/80 dark:bg-card/70 px-4 py-1.5 text-xs font-mono text-mute ring-1 ring-line/70 transition hover:text-ink hover:ring-brand/40 active:scale-95 cursor-pointer touch-manipulation select-none"
           title="Copy profile link"
           aria-label="Copy profile link"
         >

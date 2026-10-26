@@ -308,10 +308,7 @@ export function PassPage() {
               <span className="text-xs font-bold uppercase tracking-wider text-accent">Upcoming Scannable Passes</span>
               <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {myUpcomingBookings.slice(0, 2).map((b) => (
-                  <div
-                    key={b.id}
-                    className="flex items-center justify-between gap-3 rounded-2xl bg-card p-3 ring-1 ring-line/70"
-                  >
+                  <div key={b.id} className="flex items-center justify-between gap-3 rounded-2xl bg-paper p-3">
                     <div className="min-w-0">
                       <p className="font-display text-sm font-bold text-ink truncate">{b.title}</p>
                       <p className="text-xs text-mute truncate mt-0.5">
@@ -502,7 +499,7 @@ export function PassPage() {
 
       {/* Venue, Event & Stay Services */}
       <section aria-label="Venue, Event and Stay Services" className="mt-12">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-3 mb-5">
           <div>
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">

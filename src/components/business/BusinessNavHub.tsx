@@ -23,7 +23,6 @@ interface BusinessNavHubProps {
   dealLive: boolean;
   campaignCount: number;
   bookingCount: number;
-  businessName: string;
 }
 
 export function BusinessNavHub({
@@ -33,7 +32,6 @@ export function BusinessNavHub({
   dealLive,
   campaignCount,
   bookingCount,
-  businessName,
 }: BusinessNavHubProps) {
   return (
     <div className="space-y-4">
@@ -42,9 +40,7 @@ export function BusinessNavHub({
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
           <div className="min-w-0 flex-1">
             <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Your place</span>
-            <h2 className="font-display mt-0.5 truncate text-lg font-semibold text-ink">
-              {businessName || "Your place"}
-            </h2>
+            <p className="mt-0.5 truncate text-sm text-mute">Workspace & live status</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link

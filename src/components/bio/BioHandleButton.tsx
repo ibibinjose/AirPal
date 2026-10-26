@@ -17,11 +17,11 @@ export function BioHandleButton({ handle, className }: { handle?: string; onHero
         nav(bioPath(h));
       }}
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white dark:bg-black dark:ring-1 dark:ring-white/20 shadow-sm",
+        "inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white dark:bg-black dark:ring-1 dark:ring-white/20 shadow-sm",
         className,
       )}
     >
-      <img src="/logo-mark.png" alt="" className="h-5 w-5 object-contain" />
+      <img src="/logo-mark.png" alt="" className="h-6 w-6 object-contain" />
     </button>
   );
 }

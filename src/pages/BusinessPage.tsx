@@ -272,7 +272,7 @@ export function BusinessPage() {
                 <span>Host an event</span>
               </Button>
             </div>
-            <p className="text-center text-sm text-mute">
+            <p className="text-left text-sm text-mute">
               Prefer a public profile first?{" "}
               <Link
                 href="/bio/setup?kind=business"
@@ -573,7 +573,6 @@ export function BusinessPage() {
             dealLive={Boolean(mine.deal)}
             campaignCount={stats.campaigns}
             bookingCount={stats.rsvps}
-            businessName={mine.name}
           />
 
           {/* TAB 1: VENUE PROFILE & DETAILS */}
@@ -932,7 +931,7 @@ export function BusinessPage() {
             <p className="text-xs text-mute mb-3">
               This is how your place card renders in search results and on your public bio:
             </p>
-            <div className="mx-auto max-w-sm overflow-hidden rounded-2xl ring-1 ring-line shadow-2xs">
+            <div className="mx-auto max-w-sm overflow-hidden rounded-2xl shadow-2xs">
               <PlaceCard place={preview} walk={preview.walk} />
             </div>
             <div className="mt-4 flex items-center justify-between border-t border-line/60 pt-3 text-xs">
