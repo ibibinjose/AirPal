@@ -449,7 +449,6 @@ export function StartPage() {
   }
 
   const RoleIcon = roleContext.icon;
-  const RoleHeading = isGuestStart ? "h2" : "h1";
 
   // ========================================================
   // UNAUTHENTICATED AUTHENTICATION & ONBOARDING GATEWAY
@@ -466,10 +465,10 @@ export function StartPage() {
               <Sparkles size={13} />
               <span>LIFE MADE EASY</span>
             </div>
-            <h1 className="human-title mt-3 text-4xl xl:text-5xl text-balance">
+            <p className="human-title mt-3 text-4xl xl:text-5xl text-balance" role="heading" aria-level={1}>
               Find your place. <br />
               <span className="font-serif italic font-normal text-accent">Meet your people.</span>
-            </h1>
+            </p>
             <p className="human-lede mt-3 text-sm sm:text-base max-w-xl">
               AirPal connects live events, merchant perks, and your digital identity into one seamless ecosystem with a
               single universal account.
@@ -543,120 +542,49 @@ export function StartPage() {
               <span>Privacy Act Compliant</span>
             </div>
           </div>
-
-          {/* Direct Browse & Partner Links */}
-          <div className="pt-1 flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => {
-                void triggerHaptic("light");
-                nav("/");
-              }}
-              className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-accent hover:underline cursor-pointer"
-            >
-              <span>Browse first, join later</span>
-              <ArrowRight size={14} />
-            </button>
-            <span className="text-line">|</span>
-            <Link
-              href="/business"
-              className="inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold text-mute hover:text-ink"
-            >
-              Become a Host, Business or Organiser
-              <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
-            </Link>
-          </div>
         </div>
 
         {/* ======================================================== */}
         {/* RIGHT COLUMN: Mobile Header + Role Banner + Auth Card */}
         {/* ======================================================== */}
         <div className="lg:col-span-6 xl:col-span-5 w-full max-w-lg mx-auto lg:max-w-none">
-          {/* Mobile Welcome Header (collapses smoothly when keyboard appears) */}
-          {isGuestStart && (
-            <div
-              className={cn(
-                "transition-[max-height,opacity,margin] duration-300 ease-in-out lg:hidden text-center",
-                isKeyboardOpen || keyboardHeight > 0
-                  ? "max-h-0 opacity-0 overflow-hidden mb-0"
-                  : "max-h-96 opacity-100 mb-6",
+          {/* Brand header: one promise, one context line, one way to browse (KISS) */}
+          <div
+            className={cn(
+              "mb-6 text-center transition-[max-height,opacity,margin] duration-300 ease-in-out lg:text-left",
+              isKeyboardOpen || keyboardHeight > 0 ? "max-h-0 opacity-0 overflow-hidden mb-0" : "max-h-96 opacity-100",
+            )}
+          >
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-accent">
+              {isGuestStart ? <Sparkles size={13} /> : <RoleIcon size={13} />}
+              <span>{isGuestStart ? "LIFE MADE EASY" : roleContext.kicker}</span>
+            </div>
+            <h1 className="human-title mt-2 text-2xl sm:text-3xl text-balance">
+              {isGuestStart ? (
+                <>
+                  Find your place. <br />
+                  <span className="font-serif italic font-normal text-accent">Meet your people.</span>
+                </>
+              ) : mode === "reset" ? (
+                "Reset your password"
+              ) : mode === "signup" ? (
+                roleContext.signupTitle
+              ) : (
+                roleContext.title
               )}
+            </h1>
+            <p className="mx-auto mt-1.5 max-w-sm text-sm text-mute leading-relaxed lg:mx-0">{roleContext.desc}</p>
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("light");
+                nav("/");
+              }}
+              className="mt-2.5 inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
             >
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-accent">
-                <Sparkles size={13} />
-                <span>LIFE MADE EASY</span>
-              </div>
-              <h1 className="human-title mt-2 text-2xl sm:text-3xl text-balance">
-                Find your place. <br />
-                <span className="font-serif italic font-normal text-accent">Meet your people.</span>
-              </h1>
-              <p className="mx-auto mt-1.5 max-w-sm text-sm text-mute leading-relaxed">
-                One universal account across Communities, Friends, and Me.
-              </p>
-
-              {/* Pillars Mini-Badges */}
-              <div className="mt-3.5 grid grid-cols-2 gap-2 text-center">
-                {PILLARS.map((p) => {
-                  const Icon = p.icon;
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => {
-                        void triggerHapticSelection();
-                        nav(p.href);
-                      }}
-                      className="flex flex-col items-center justify-center rounded-2xl bg-card p-2 ring-1 ring-line/80 hover:bg-paper transition cursor-pointer active:scale-95"
-                    >
-                      <span className="grid h-7 w-7 place-items-center rounded-xl bg-brand/10 text-accent mb-1">
-                        <Icon size={14} />
-                      </span>
-                      <span className="text-[10px] font-bold text-ink">{p.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  void triggerHaptic("light");
-                  nav("/");
-                }}
-                className="mt-2.5 inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
-              >
-                <span>Browse first, join later</span>
-                <ArrowRight size={13} />
-              </button>
-            </div>
-          )}
-
-          {/* Role / Context Banner */}
-          <div className="mb-6 rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line shadow-clay">
-            <div className="flex items-center gap-3.5">
-              <span
-                className={cn(
-                  "grid h-11 w-11 shrink-0 place-items-center rounded-2xl",
-                  roleContext.bg,
-                  roleContext.color,
-                )}
-              >
-                <RoleIcon size={22} strokeWidth={2} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className={cn("text-[10px] font-bold uppercase tracking-widest", roleContext.color)}>
-                  {roleContext.kicker}
-                </p>
-                <RoleHeading className="font-display text-lg sm:text-xl font-bold leading-tight text-ink mt-0.5">
-                  {mode === "reset"
-                    ? "Reset your password"
-                    : mode === "signup"
-                      ? roleContext.signupTitle
-                      : roleContext.title}
-                </RoleHeading>
-              </div>
-            </div>
-            <p className="mt-2.5 text-xs text-mute leading-relaxed">{roleContext.desc}</p>
+              <span>Browse first, join later</span>
+              <ArrowRight size={13} />
+            </button>
           </div>
 
           {/* Referral Banner */}

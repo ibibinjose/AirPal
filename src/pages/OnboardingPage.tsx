@@ -271,7 +271,7 @@ export function OnboardingPage() {
                     setCity(c);
                   }}
                   className={cn(
-                    "relative min-h-[36px] cursor-pointer rounded-full px-3.5 text-xs font-semibold transition active:scale-95 after:absolute after:-inset-1 after:content-['']",
+                    "relative min-h-[44px] cursor-pointer rounded-full px-3.5 text-xs font-semibold transition active:scale-95",
                     city === c ? "bg-brand text-white" : "bg-paper text-mute ring-1 ring-line hover:text-ink",
                   )}
                 >

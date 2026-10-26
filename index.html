@@ -199,6 +199,64 @@
       </div>
       <!--prerender:noscript-end-->
     </noscript>
+    <div
+      id="airpal-boot"
+      aria-hidden="true"
+      style="
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: linear-gradient(135deg, #004eff 0%, #0037b3 60%, #002a8a 100%);
+        color: #fff;
+        font-family:
+          system-ui,
+          -apple-system,
+          &quot;Segoe UI&quot;,
+          sans-serif;
+        transition: opacity 0.3s ease;
+      "
+    >
+      <div style="font-size: 30px; font-weight: 800; letter-spacing: -0.02em; line-height: 1">AirPal</div>
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.24em; opacity: 0.85">LIFE MADE EASY</div>
+      <div
+        style="
+          width: 34px;
+          height: 34px;
+          margin-top: 6px;
+          border-radius: 50%;
+          border: 3px solid rgba(255, 255, 255, 0.3);
+          border-top-color: #fff;
+          animation: airpal-boot-spin 0.9s linear infinite;
+        "
+      ></div>
+      <style>
+        @keyframes airpal-boot-spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      </style>
+    </div>
+    <script>
+      window.__airpalHideBoot = function () {
+        var b = document.getElementById("airpal-boot");
+        if (!b || b.dataset.done) return;
+        b.dataset.done = "1";
+        b.style.opacity = "0";
+        setTimeout(function () {
+          b.remove();
+        }, 350);
+      };
+      // Never trap anyone on the boot screen if the bundle fails to start.
+      setTimeout(function () {
+        window.__airpalHideBoot();
+      }, 6000);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

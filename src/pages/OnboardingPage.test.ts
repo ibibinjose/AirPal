@@ -54,6 +54,7 @@ describe("OnboardingPage", () => {
     expect(html).toContain("Your @handle");
     expect(html).toContain("City");
     expect(html).toContain("Continue");
+    expect(html).toContain("min-h-[44px]");
     expect(html.match(/<h1/g)?.length).toBe(1);
     expect(html).not.toContain("Interests");
     expect(html).not.toContain("Avatar");

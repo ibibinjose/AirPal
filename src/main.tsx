@@ -18,10 +18,22 @@ if (import.meta.env.PROD && !isNativeApp() && "serviceWorker" in navigator) {
 
 // Resolve the native shell (AirPal vs AirPal Pass) before first render so the
 // start route, dock, and switcher scope correctly. No-op cost on web.
+declare global {
+  interface Window {
+    __airpalHideBoot?: () => void;
+  }
+}
+
 void initAppFlavor().then(() => {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <App />
     </StrictMode>,
   );
+  // Fade the brand boot splash once React has committed its first paint.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.__airpalHideBoot?.();
+    });
+  });
 });
