@@ -73,6 +73,18 @@ describe("me day filters", () => {
     expect(upcomingTickets(undefined, TODAY)).toEqual([]);
   });
 
+  it("excludes cancelled and refunded tickets from today and upcoming", () => {
+    const tickets = [
+      ticket({ id: "live", status: "confirmed" }),
+      ticket({ id: "cancelled", status: "cancelled" }),
+      ticket({ id: "refunded", status: "refunded" }),
+      ticket({ id: "future-cancelled", date: "2026-09-16", status: "cancelled" }),
+      ticket({ id: "future-live", date: "2026-09-16", status: "confirmed" }),
+    ];
+    expect(todayTickets(tickets, TODAY).map((t) => t.id)).toEqual(["live"]);
+    expect(upcomingTickets(tickets, TODAY).map((t) => t.id)).toEqual(["live", "future-live"]);
+  });
+
   it("keeps reminder-only bookmarks out of every appointment list", () => {
     const items = [
       catchUp({ id: "rem", status: "pending", isReminderOnly: true }),

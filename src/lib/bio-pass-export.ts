@@ -14,6 +14,15 @@ export interface ExportBioPassOptions {
   url: string;
 }
 
+const FONT_STACK = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif";
+const MONO_STACK = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace";
+
+/** Overlay zones measured from the card art (874×1409), never eyeballed. */
+const ART_W = 874;
+const ART_H = 1409;
+const AVATAR = { x: 312, y: 191, s: 247 };
+const QR = { x: 217, y: 747, s: 442 };
+
 /**
  * Loads an image from a URL or data URL and returns an HTMLImageElement.
  */
@@ -27,10 +36,32 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
+function fitText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  const ellipsis = "…";
+  let end = text.length;
+  while (end > 0 && ctx.measureText(text.slice(0, end) + ellipsis).width > maxWidth) end -= 1;
+  return text.slice(0, end) + ellipsis;
+}
+
+/** Draws img cover-cropped into the square (x, y, s). */
+function drawCover(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  x: number,
+  y: number,
+  s: number,
+): void {
+  const scale = Math.max(s / img.naturalWidth, s / img.naturalHeight);
+  const dw = img.naturalWidth * scale;
+  const dh = img.naturalHeight * scale;
+  ctx.drawImage(img, x + (s - dw) / 2, y + (s - dh) / 2, dw, dh);
+}
+
 /**
- * Exports the complete AirPal Bio Pass card as a high-resolution PNG image.
- * Uses the exact blue card artwork template and renders user avatar, name,
- * handle, city, scannable QR, and link pill.
+ * Exports the AirPal Bio Pass on its exact card artwork as a
+ * high-resolution PNG: identity over the baked disc and blue band, QR in
+ * the baked QR box, profile link on the baked pill.
  */
 export async function exportBioPassPng(options: ExportBioPassOptions): Promise<boolean> {
   if (typeof document === "undefined") return false;
@@ -41,48 +72,29 @@ export async function exportBioPassPng(options: ExportBioPassOptions): Promise<b
   const displayUrl = options.url.replace(/^https?:\/\//, "");
   const origin = publicSiteOrigin();
 
-  const width = 682;
-  const height = 1024;
   const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = ART_W;
+  canvas.height = ART_H;
   const ctx = canvas.getContext("2d");
   if (!ctx) {
     toast.error("Unable to generate pass image");
     return false;
   }
 
-  // 1. Draw Template Background
+  // 1. Card art (opaque white base; the art carries its own rounded corners).
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, ART_W, ART_H);
   try {
-    const templateImg = await loadImage(`${origin}/brand/bio-pass-template.webp`).catch(() =>
-      loadImage("/brand/bio-pass-template.webp"),
+    const art = await loadImage(`${origin}/brand/bio-pass-template.png`).catch(() =>
+      loadImage("/brand/bio-pass-template.png"),
     );
-    ctx.drawImage(templateImg, 0, 0, width, height);
+    ctx.drawImage(art, 0, 0, ART_W, ART_H);
   } catch {
-    // Fallback: draw vector gradient and card elements if static image is unavailable
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, "#3d8bff");
-    gradient.addColorStop(0.25, "#1a56f0");
-    gradient.addColorStop(0.5, "#0e38d8");
-    gradient.addColorStop(0.75, "#0a28b4");
-    gradient.addColorStop(1, "#0a229c");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
-
-    // QR container box
-    ctx.fillStyle = "#ffffff";
-    ctx.beginPath();
-    ctx.roundRect(140, 520, 402, 330, 24);
-    ctx.fill();
-
-    // Link pill
-    ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-    ctx.beginPath();
-    ctx.roundRect(110, 870, 462, 54, 27);
-    ctx.fill();
+    toast.error("Pass artwork unavailable — try again.");
+    return false;
   }
 
-  // 2. Draw Top Wordmark Logo
+  // 2. Wordmark.
   const logoSrc = isBusiness
     ? `${origin}/brand/airpal-pass-logo-white.png`
     : `${origin}/brand/airpal-me-logo-white.png`;
@@ -90,121 +102,91 @@ export async function exportBioPassPng(options: ExportBioPassOptions): Promise<b
     const logoImg = await loadImage(logoSrc).catch(() =>
       loadImage(isBusiness ? "/brand/airpal-pass-logo-white.png" : "/brand/airpal-me-logo-white.png"),
     );
-    const logoWidth = 280;
-    const logoHeight = (logoImg.naturalHeight / logoImg.naturalWidth) * logoWidth;
-    ctx.drawImage(logoImg, (width - logoWidth) / 2, 85, logoWidth, logoHeight);
+    const logoH = 80;
+    const logoW = (logoImg.naturalWidth / logoImg.naturalHeight) * logoH;
+    ctx.drawImage(logoImg, (ART_W - logoW) / 2, 90, logoW, logoH);
   } catch {
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 34px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    ctx.font = `800 34px ${FONT_STACK}`;
     ctx.textAlign = "center";
-    ctx.fillText(isBusiness ? "AirPal Pass" : "AirPal Me", width / 2, 120);
+    ctx.fillText(isBusiness ? "AirPal Pass" : "AirPal Me", ART_W / 2, 148);
   }
 
-  // 3. Draw Avatar
-  const avatarCenterX = 341;
-  const avatarCenterY = 240;
-  const avatarRadius = 76;
-
+  // 3. Avatar over the baked disc.
+  const cx = AVATAR.x + AVATAR.s / 2;
+  const cy = AVATAR.y + AVATAR.s / 2;
+  const cr = AVATAR.s / 2 - 1;
+  let drewAvatar = false;
   if (options.avatar) {
     try {
       const avatarImg = await loadImage(options.avatar);
       ctx.save();
       ctx.beginPath();
-      ctx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);
-      ctx.closePath();
+      ctx.arc(cx, cy, cr, 0, Math.PI * 2);
       ctx.clip();
-      ctx.drawImage(
-        avatarImg,
-        avatarCenterX - avatarRadius,
-        avatarCenterY - avatarRadius,
-        avatarRadius * 2,
-        avatarRadius * 2,
-      );
+      drawCover(ctx, avatarImg, AVATAR.x, AVATAR.y, AVATAR.s);
       ctx.restore();
-
-      // Outer white ring
-      ctx.beginPath();
-      ctx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 4;
-      ctx.stroke();
+      drewAvatar = true;
     } catch {
-      drawAvatarInitial();
+      drewAvatar = false;
     }
-  } else {
-    drawAvatarInitial();
   }
-
-  function drawAvatarInitial() {
-    if (!ctx) return;
+  if (!drewAvatar) {
     const initial = ((options.name ?? "").trim().charAt(0) || cleanHandle.charAt(0) || "A").toUpperCase();
     ctx.save();
-    ctx.beginPath();
-    ctx.arc(avatarCenterX, avatarCenterY, avatarRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#0e38d8";
-    ctx.fill();
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "900 60px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    ctx.fillStyle = "#14215E";
+    ctx.font = `900 88px ${FONT_STACK}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(initial, avatarCenterX, avatarCenterY + 4);
+    ctx.fillText(initial, cx, cy + 4);
     ctx.restore();
   }
+  ctx.save();
+  ctx.strokeStyle = "rgba(255,255,255,0.9)";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
 
-  // 4. Draw Identity Text (Name, Handle, City)
+  // 4. Identity on the open blue band.
   ctx.save();
   ctx.textAlign = "center";
-
-  // Name
   ctx.fillStyle = "#ffffff";
-  ctx.font = "900 32px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-  const displayName = options.name || `@${cleanHandle}`;
-  ctx.fillText(displayName.slice(0, 28), width / 2, 375);
-
-  // Handle
-  ctx.fillStyle = "#c3d4ff";
-  ctx.font = "600 20px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-  ctx.fillText(`@${cleanHandle}`, width / 2, 412);
-
-  // City
-  if (options.city) {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.font = "700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-    ctx.fillText(`📍 ${options.city.toUpperCase()}`, width / 2, 448);
+  ctx.font = `900 56px ${FONT_STACK}`;
+  ctx.fillText(fitText(ctx, options.name || `@${cleanHandle}`, 740), ART_W / 2, 535);
+  ctx.fillStyle = "#C9D6FF";
+  ctx.font = `700 30px ${MONO_STACK}`;
+  ctx.fillText(fitText(ctx, `@${cleanHandle}`, 560), ART_W / 2, 580);
+  const metaLine = [(isBusiness ? "Business" : "Individual"), options.city]
+    .filter(Boolean)
+    .join(" · ")
+    .toUpperCase();
+  if (metaLine) {
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.font = `800 24px ${FONT_STACK}`;
+    ctx.fillText(fitText(ctx, metaLine, 640), ART_W / 2, 640);
   }
   ctx.restore();
 
-  // 5. Draw QR Code and "SCAN TO CONNECT"
+  // 5. QR in the baked QR box.
   if (options.qrDataUrl) {
     try {
       const qrImg = await loadImage(options.qrDataUrl);
-      const qrSize = 210;
-      ctx.drawImage(qrImg, width / 2 - qrSize / 2, 545, qrSize, qrSize);
+      ctx.drawImage(qrImg, QR.x, QR.y, QR.s, QR.s);
     } catch {
-      // ignore
+      // leave the baked box empty rather than failing the export
     }
   }
-
-  ctx.save();
-  ctx.fillStyle = "#1a2560";
-  ctx.font = "800 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("SCAN TO CONNECT", width / 2, 808);
-  ctx.restore();
-
-  // 6. Draw Link Text inside bottom pill
+  // 6. Profile link on the baked pill.
   ctx.save();
   ctx.fillStyle = "#ffffff";
-  ctx.font = "600 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  ctx.font = `600 27px ${FONT_STACK}`;
   ctx.textAlign = "center";
-  ctx.fillText(`🔗 ${displayUrl}`, width / 2, 902);
+  ctx.fillText(fitText(ctx, displayUrl, 600), ART_W / 2, 1310);
   ctx.restore();
 
-  // 7. Trigger PNG Download
+  // 7. Trigger PNG download.
   return new Promise<boolean>((resolve) => {
     canvas.toBlob((blob) => {
       if (!blob) {

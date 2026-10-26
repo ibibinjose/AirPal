@@ -175,6 +175,8 @@ export function DigitalBioPassCard({
 }: DigitalBioPassCardProps) {
   const cleanHandle = safeHandle(handle);
   const [internalQr, setInternalQr] = useState<string>("");
+  const [qrFailed, setQrFailed] = useState(false);
+  const [qrAttempt, setQrAttempt] = useState(0);
   const [copied, setCopied] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
@@ -189,15 +191,18 @@ export function DigitalBioPassCard({
   useEffect(() => {
     if (externalQr || !cleanHandle) return;
     let active = true;
+    setQrFailed(false);
     void makeQrDataUrl(profileUrl, 320)
       .then((url) => {
         if (active) setInternalQr(url);
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (active) setQrFailed(true);
+      });
     return () => {
       active = false;
     };
-  }, [externalQr, cleanHandle, profileUrl]);
+  }, [externalQr, cleanHandle, profileUrl, qrAttempt]);
 
   const handleCopyLink = async () => {
     void triggerHaptic("light");
@@ -284,10 +289,16 @@ export function DigitalBioPassCard({
         avatar={avatar}
         city={city}
         qrSrc={qrSrc}
+        qrFailed={qrFailed && !qrSrc}
         url={profileUrl}
         copied={copied}
         onCopyLink={() => void handleCopyLink()}
         onQrTap={() => {
+          if (qrFailed && !qrSrc) {
+            setQrFailed(false);
+            setQrAttempt((attempt) => attempt + 1);
+            return;
+          }
           void triggerHaptic("light");
           setShareModalOpen(true);
         }}
