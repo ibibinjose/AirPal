@@ -26,6 +26,7 @@ import { VerifyEmailBanner } from "@/components/auth/VerifyEmailBanner";
 import { AccountContacts } from "@/components/auth/AccountContacts";
 import { SignupFlow } from "@/components/auth/SignupFlow";
 import { SocialAuthButtons, SocialAuthDivider } from "@/components/auth/SocialAuthButtons";
+import type { SocialProvider } from "@/lib/social-auth";
 import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { KEYBOARD_SAFE_INPUT, nudgeIntoView } from "@/components/auth/auth-field";
 import { safeGetItem } from "@/lib/safe-storage";
@@ -222,6 +223,20 @@ export function StartPage() {
     const p = new URLSearchParams(search);
     p.set("tab", newMode === "signup" ? "signup" : newMode === "reset" ? "reset" : "signin");
     nav(`/start?${p.toString()}`);
+  }
+
+  async function handleSocial(provider: SocialProvider) {
+    setInlineError(null);
+    setSignupPending(mode === "signup");
+    try {
+      await loginWithSocial(provider);
+      void triggerHaptic("medium");
+      toast.success("Signed in successfully!");
+      setPendingGo(true);
+    } catch (err) {
+      setSignupPending(false);
+      throw err;
+    }
   }
 
   async function onSubmit(e: FormEvent) {
@@ -697,27 +712,14 @@ export function StartPage() {
                   </button>
                 </div>
 
-                {/* Apple & Google 1-Tap Social Auth */}
-                <div className="mt-4">
-                  <SocialAuthButtons
-                    busy={busy}
-                    showBiometrics={false}
-                    onSocial={async (provider) => {
-                      setInlineError(null);
-                      setSignupPending(mode === "signup");
-                      try {
-                        await loginWithSocial(provider);
-                        void triggerHaptic("medium");
-                        toast.success("Signed in successfully!");
-                        setPendingGo(true);
-                      } catch (err) {
-                        setSignupPending(false);
-                        throw err;
-                      }
-                    }}
-                  />
-                  <SocialAuthDivider label="or continue with email" />
-                </div>
+                {/* Apple & Google 1-Tap Social Auth (sign-in mode only;
+                    sign-up shows social at the bottom instead) */}
+                {mode === "signin" && (
+                  <div className="mt-4">
+                    <SocialAuthButtons busy={busy} showBiometrics={false} onSocial={handleSocial} />
+                    <SocialAuthDivider label="or continue with email" />
+                  </div>
+                )}
 
                 {/* Passkey / Biometric Login on Supported Devices */}
                 {mode === "signin" && hasEnrolledBiometrics && (
@@ -775,20 +777,30 @@ export function StartPage() {
 
                 {/* Mode Content: Sign Up Flow vs Sign In Flow */}
                 {mode === "signup" ? (
-                  <div className="mt-2">
-                    <SignupFlow
-                      initialEmail={loginEmail}
-                      onProgress={setSignupPending}
-                      onSwitchToSignIn={(email) => {
-                        if (email) setLoginEmail(email);
-                        switchMode("signin");
-                      }}
-                      onDone={() => {
-                        const dest = afterInPath();
-                        nav(`/onboarding?next=${encodeURIComponent(dest)}`);
-                      }}
-                    />
-                  </div>
+                  <>
+                    <div className="mt-2">
+                      <SignupFlow
+                        initialEmail={loginEmail}
+                        onProgress={setSignupPending}
+                        onSwitchToSignIn={(email) => {
+                          if (email) setLoginEmail(email);
+                          switchMode("signin");
+                        }}
+                        onDone={() => {
+                          const dest = afterInPath();
+                          nav(`/onboarding?next=${encodeURIComponent(dest)}`);
+                        }}
+                      />
+                    </div>
+
+                    {/* Social sign-up at the bottom */}
+                    <div className="mt-5">
+                      <SocialAuthDivider label="or sign up with" />
+                      <div className="mt-3">
+                        <SocialAuthButtons busy={busy} showBiometrics={false} onSocial={handleSocial} />
+                      </div>
+                    </div>
+                  </>
                 ) : (
                   <div className="mt-2">
                     <form onSubmit={onSubmit} className="space-y-3.5">
