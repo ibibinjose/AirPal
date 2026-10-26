@@ -29,6 +29,7 @@ export const ECOSYSTEM = {
     name: "AirPal.Me",
     shortName: "Me",
     coreJob: "Discover what's on. Catch up. Share with your Circle and pals.",
+    coreJobLines: ["Discover what's on. Catch up.", "Share with your Circle and pals."],
     tagline: "My life, organised by AirPal.",
     path: "/",
   },

@@ -45,7 +45,16 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
           {isPass ? <span className="text-accent"> Pass</span> : <span className="text-accent">.me</span>}
         </h1>
         <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-accent">{BRAND_TAGLINE}</p>
-        <p className="mt-5 max-w-[19rem] text-[15px] leading-relaxed text-mute">{product.coreJob}</p>
+        <p className="mt-5 max-w-[19rem] text-center text-[15px] leading-relaxed text-mute">
+          {"coreJobLines" in product ? (
+            <>
+              <span className="block">{product.coreJobLines[0]}</span>
+              <span className="block">{product.coreJobLines[1]}</span>
+            </>
+          ) : (
+            product.coreJob
+          )}
+        </p>
       </main>
 
       <footer className="mx-auto w-full max-w-sm space-y-2">

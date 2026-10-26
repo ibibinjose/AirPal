@@ -49,7 +49,8 @@ describe("NativeOpenScreen", () => {
   it("shows Me copy for the AirPal shell", () => {
     const html = renderToStaticMarkup(createElement(NativeOpenScreen, { defaultFlavor: "me" }));
     expect(html).toContain(".me");
-    expect(html).toContain("Discover what&#x27;s on. Catch up. Share with your Circle and pals.");
+    expect(html).toContain("Discover what&#x27;s on. Catch up.</span>");
+    expect(html).toContain("Share with your Circle and pals.");
   });
 
   it("shows the branded loader instead of actions until auth is ready", () => {
