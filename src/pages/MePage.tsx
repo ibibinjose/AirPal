@@ -485,7 +485,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
             <div
               role="group"
               aria-label="Jump to section"
-              className="grid grid-cols-3 divide-x divide-line/60 rounded-2xl bg-paper/60 ring-1 ring-line/60 mt-4 overflow-hidden"
+              className="grid grid-cols-3 divide-x divide-line/60 rounded-2xl bg-paper/60 mt-4 overflow-hidden"
             >
               {[
                 {
@@ -733,7 +733,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                 ))}
               </div>
             ) : (
-              <div className="rounded-3xl border border-dashed border-line/80 p-5 sm:p-7 text-center bg-paper/40">
+              <div className="px-1 py-2 text-center">
                 <span className="grid h-12 w-12 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 mx-auto mb-3 ring-1 ring-amber-500/20">
                   <Sun size={24} />
                 </span>
@@ -1207,7 +1207,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                 </span>
               }
             />
-            <div className="rounded-3xl bg-paper/60 p-5 ring-1 ring-line/80">
+            <div className="px-1 pt-1">
               <h3 className="font-display font-bold text-base text-ink leading-snug">{myEvent.name}</h3>
               <p className="text-xs text-mute mt-1">{[myEvent.venue, myEvent.city].filter(Boolean).join(" · ")}</p>
               <div className="mt-4 grid gap-2 sm:grid-cols-3">
