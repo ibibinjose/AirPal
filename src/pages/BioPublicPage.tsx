@@ -2115,7 +2115,8 @@ export function BioPublicPage() {
         ) : (
           <div className="flex flex-col items-center gap-3 max-w-md w-full">
             <p className="text-xs text-mute leading-relaxed max-w-sm">
-              See what&apos;s on, catch up with mates &amp; share who you are with your personal digital pass.
+              Discover what&apos;s on, catch up with mates &amp; share with your Circle and pals — all from your
+              personal digital pass.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <Link

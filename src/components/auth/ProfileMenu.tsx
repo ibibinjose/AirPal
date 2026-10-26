@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "wouter";
 import { useScrollLock } from "@/hooks/useScrollLock";
@@ -152,6 +152,9 @@ export function ProfileMenu() {
   const { mine, business, biosReady, updateProfile } = useBio();
   const { myEvent } = useEvents();
   const [open, setOpen] = useState(false);
+  // Two headers (mobile bar + desktop header) mount this menu at once, so a
+  // static id would appear twice in the DOM. Scope it per instance.
+  const triggerId = useId();
   // Inline status editor lives inside the dropdown / drawer.
   const [statusEditing, setStatusEditing] = useState(false);
   const [editStatus, setEditStatus] = useState<AvailabilityStatus>("available");
@@ -280,21 +283,10 @@ export function ProfileMenu() {
     <>
       {/* Identity Card Header */}
       <div className="rounded-2xl bg-paper/70 p-3 ring-1 ring-line/80 shadow-2xs">
-        <div
+        <button
+          type="button"
           onClick={() => (mine ? go(`/@${mine.handle}`) : go("/me"))}
-          className="group/card flex items-center gap-3 cursor-pointer rounded-xl p-1 -m-1 transition hover:bg-card/70"
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              if (mine) {
-                go(`/@${mine.handle}`);
-              } else {
-                go("/me");
-              }
-            }
-          }}
+          className="group/card flex w-full items-center gap-3 rounded-xl p-1 -m-1 text-left transition hover:bg-card/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:scale-[0.99] cursor-pointer"
           aria-label={mine ? `View @${mine.handle} profile` : "View your profile"}
         >
           <div className="relative shrink-0">
@@ -344,7 +336,7 @@ export function ProfileMenu() {
               </p>
             )}
           </div>
-        </div>
+        </button>
 
         {/* Availability Status Pill */}
         <div className="mt-2.5">
@@ -875,7 +867,7 @@ export function ProfileMenu() {
       <button
         ref={triggerRef}
         type="button"
-        id="profile-menu-button"
+        id={triggerId}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={user ? `Account menu, ${statusInfo.label}` : "Menu and sign in"}
@@ -885,14 +877,14 @@ export function ProfileMenu() {
           setOpen((v) => !v);
         }}
         className={cn(
-          "relative grid h-8.5 w-8.5 sm:h-9 sm:w-9 min-h-[34px] min-w-[34px] shrink-0 touch-manipulation place-items-center overflow-visible rounded-full bg-paper transition-[filter,box-shadow,transform] duration-200 after:absolute after:-inset-1.5 after:content-['']",
+          "relative grid h-10 w-10 min-h-[40px] min-w-[40px] shrink-0 touch-manipulation place-items-center overflow-visible rounded-full bg-paper transition-[filter,box-shadow,transform] duration-200 after:absolute after:-inset-1.5 after:content-['']",
           "hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-paper active:scale-95",
           open && "ring-2 ring-brand ring-offset-2 ring-offset-paper shadow-sm",
           !open && user && cn(statusInfo.ringClass, "ring-2 ring-offset-2 ring-offset-paper shadow-none"),
           !open && !user && "ring-1 ring-white/40 hover:ring-white",
         )}
       >
-        <AvatarFace className="h-8.5 w-8.5 sm:h-9 sm:w-9 text-xs" />
+        <AvatarFace className="h-10 w-10 text-xs" />
         {user && (
           <span
             aria-hidden="true"

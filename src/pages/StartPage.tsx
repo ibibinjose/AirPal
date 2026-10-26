@@ -27,7 +27,6 @@ import { AccountContacts } from "@/components/auth/AccountContacts";
 import { SignupFlow } from "@/components/auth/SignupFlow";
 import { SocialAuthButtons, SocialAuthDivider } from "@/components/auth/SocialAuthButtons";
 import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
-import { useVirtualKeyboard } from "@/lib/keyboard";
 import { KEYBOARD_SAFE_INPUT, nudgeIntoView } from "@/components/auth/auth-field";
 import { safeGetItem } from "@/lib/safe-storage";
 import { MeAvatar } from "@/components/auth/MeAvatar";
@@ -55,7 +54,6 @@ export function StartPage() {
   const { login, loginWithSocial, user, sendVerificationEmail, requestPasswordReset, logout, hasEnrolledBiometrics } =
     useAuth();
   const { mine, business } = useBio();
-  const { keyboardHeight, isKeyboardOpen } = useVirtualKeyboard();
   const [pendingGo, setPendingGo] = useState(false);
   const [signupPending, setSignupPending] = useState(false);
 
@@ -183,6 +181,16 @@ export function StartPage() {
       bg: "bg-brand/10",
     };
   }, [roleParam, next]);
+
+  // One context line for guest sign-up, derived from where the user is headed.
+  function guestContextLine(dest: string): string {
+    const target = dest.toLowerCase();
+    if (target.startsWith("/me")) return "Your agenda, tickets, and bio pass live here.";
+    if (target.startsWith("/circle")) return "Meet people nearby and check in with live presence.";
+    if (target.startsWith("/pass") || target.startsWith("/events")) return "Get tickets and wallet passes.";
+    if (target.startsWith("/friends")) return "Find your people and catch up.";
+    return "One account for events, circle, and bio.";
+  }
 
   function afterInPath(): string {
     const dest = next.trim();
@@ -460,21 +468,6 @@ export function StartPage() {
         {/* DESKTOP PRODUCT SHOWCASE (Left Column on lg:) */}
         {/* ======================================================== */}
         <div className="hidden lg:block lg:col-span-6 xl:col-span-7 space-y-6 lg:sticky lg:top-24">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 border border-brand/20 px-3.5 py-1 text-xs font-bold text-accent">
-              <Sparkles size={13} />
-              <span>LIFE MADE EASY</span>
-            </div>
-            <p className="human-title mt-3 text-4xl xl:text-5xl text-balance" role="heading" aria-level={1}>
-              Find your place. <br />
-              <span className="font-serif italic font-normal text-accent">Meet your people.</span>
-            </p>
-            <p className="human-lede mt-3 text-sm sm:text-base max-w-xl">
-              AirPal connects live events, merchant perks, and your digital identity into one seamless ecosystem with a
-              single universal account.
-            </p>
-          </div>
-
           {/* Core Pillars Showcase */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
             {/* 1. Events & Access */}
@@ -548,44 +541,40 @@ export function StartPage() {
         {/* RIGHT COLUMN: Mobile Header + Role Banner + Auth Card */}
         {/* ======================================================== */}
         <div className="lg:col-span-6 xl:col-span-5 w-full max-w-lg mx-auto lg:max-w-none">
-          {/* Brand header: one promise, one context line, one way to browse (KISS) */}
-          <div
-            className={cn(
-              "mb-6 text-center transition-[max-height,opacity,margin] duration-300 ease-in-out lg:text-left",
-              isKeyboardOpen || keyboardHeight > 0 ? "max-h-0 opacity-0 overflow-hidden mb-0" : "max-h-96 opacity-100",
-            )}
-          >
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-accent">
-              {isGuestStart ? <Sparkles size={13} /> : <RoleIcon size={13} />}
-              <span>{isGuestStart ? "LIFE MADE EASY" : roleContext.kicker}</span>
+          {/* Role context header: only for host / business / event / club intents.
+              Guest sign-in and sign-up go straight to the auth card. */}
+          {!isGuestStart && (
+            <div className="mb-6 text-center lg:text-left">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-bold text-accent">
+                <RoleIcon size={13} />
+                <span>{roleContext.kicker}</span>
+              </div>
+              <h1 className="human-title mt-2 text-2xl sm:text-3xl text-balance">
+                {mode === "reset"
+                  ? "Reset your password"
+                  : mode === "signup"
+                    ? roleContext.signupTitle
+                    : roleContext.title}
+              </h1>
+              <p className="mx-auto mt-1.5 max-w-sm text-sm text-mute leading-relaxed lg:mx-0">{roleContext.desc}</p>
             </div>
-            <h1 className="human-title mt-2 text-2xl sm:text-3xl text-balance">
-              {isGuestStart ? (
-                <>
-                  Find your place. <br />
-                  <span className="font-serif italic font-normal text-accent">Meet your people.</span>
-                </>
-              ) : mode === "reset" ? (
-                "Reset your password"
-              ) : mode === "signup" ? (
-                roleContext.signupTitle
-              ) : (
-                roleContext.title
-              )}
-            </h1>
-            <p className="mx-auto mt-1.5 max-w-sm text-sm text-mute leading-relaxed lg:mx-0">{roleContext.desc}</p>
-            <button
-              type="button"
-              onClick={() => {
-                void triggerHaptic("light");
-                nav("/");
-              }}
-              className="mt-2.5 inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold text-accent hover:underline cursor-pointer"
-            >
-              <span>Browse first, join later</span>
-              <ArrowRight size={13} />
-            </button>
-          </div>
+          )}
+
+          {/* Guest brand header: logo, intent-aware title, one context line. */}
+          {isGuestStart && (
+            <div className="mb-5 text-center">
+              <img
+                src="/logo-mark.png"
+                alt="AirPal"
+                draggable={false}
+                className="mx-auto h-11 w-11 rounded-xl bg-white object-contain ring-1 ring-line/60 select-none"
+              />
+              <h1 className="human-title mt-2.5 text-2xl sm:text-3xl text-balance">
+                {mode === "signup" ? "Create your account" : "Welcome back"}
+              </h1>
+              {mode === "signup" && <p className="mt-1 text-sm text-mute">{guestContextLine(next)}</p>}
+            </div>
+          )}
 
           {/* Referral Banner */}
           {mode === "signup" && inviterHandle && (
