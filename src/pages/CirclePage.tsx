@@ -590,7 +590,7 @@ export function CirclePage() {
                 setRelationshipFilter((prev) => (prev === "incoming" ? "all" : "incoming"));
               }}
               className={cn(
-                "inline-flex min-h-[44px] items-center gap-1.5 self-start sm:self-auto rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer",
+                "inline-flex min-h-[44px] items-center gap-1.5 self-start sm:self-auto rounded-full px-3 py-1 text-xs font-bold transition-[background-color,color] cursor-pointer",
                 relationshipFilter === "incoming"
                   ? "bg-brand text-white"
                   : "bg-brand/10 text-accent ring-1 ring-brand/25 hover:bg-brand/15",
@@ -673,7 +673,7 @@ export function CirclePage() {
                       setRelationshipFilter((prev) => (prev === pill.id && pill.id !== "all" ? "all" : pill.id));
                     }}
                     className={cn(
-                      "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition cursor-pointer",
+                      "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-[background-color,color,box-shadow] cursor-pointer",
                       active ? "bg-ink text-card shadow-2xs" : "bg-paper text-mute ring-1 ring-line hover:text-ink",
                     )}
                   >
@@ -867,7 +867,7 @@ export function CirclePage() {
                     <button
                       type="button"
                       onClick={() => handleSaveVCard(contact)}
-                      className="inline-flex min-h-[44px] min-w-[44px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-paper px-2.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-card hover:text-ink active:scale-95"
+                      className="inline-flex min-h-[44px] min-w-[44px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-paper px-2.5 text-xs font-semibold text-mute ring-1 ring-line transition-[background-color,color,transform] hover:bg-card hover:text-ink active:scale-95"
                       aria-label={`Save contact card for ${contact.name}`}
                       title="Save to phone contacts"
                     >
@@ -903,7 +903,7 @@ export function CirclePage() {
                   {contact.category === "places" ? (
                     <Link
                       href={`/@${contact.handle}`}
-                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
+                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition-[background-color,transform]"
                       aria-label={`View place ${contact.name}`}
                     >
                       View
@@ -911,7 +911,7 @@ export function CirclePage() {
                   ) : contact.category === "communities" ? (
                     <Link
                       href="/events"
-                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1 whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
+                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1 whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition-[background-color,transform]"
                       aria-label={`Find events near ${contact.name}`}
                     >
                       Events
@@ -921,7 +921,7 @@ export function CirclePage() {
                     <button
                       type="button"
                       onClick={() => setCatchUpContact({ handle: contact.handle, name: contact.name })}
-                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
+                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition-[background-color,transform]"
                       aria-label={`Propose a catch-up with ${contact.name}`}
                     >
                       <CalendarDays size={13} className="shrink-0" />

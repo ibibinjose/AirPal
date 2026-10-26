@@ -49,14 +49,14 @@ export function BusinessNavHub({
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/claim"
-              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-paper px-3.5 py-2 text-xs font-semibold text-ink hover:bg-card transition shadow-2xs active:scale-95"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-paper px-3.5 py-2 text-xs font-semibold text-ink hover:bg-card transition-[background-color,transform] shadow-2xs active:scale-95"
             >
               <ShieldCheck size={14} className="shrink-0 text-accent" />
               <span>Claim Venue</span>
             </Link>
             <Link
               href="/business/onboard"
-              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-paper px-3.5 py-2 text-xs font-semibold text-ink hover:bg-card transition shadow-2xs active:scale-95"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-paper px-3.5 py-2 text-xs font-semibold text-ink hover:bg-card transition-[background-color,transform] shadow-2xs active:scale-95"
             >
               <PlusCircle size={14} className="shrink-0 text-accent" />
               <span>Add Venue</span>
@@ -89,14 +89,14 @@ export function BusinessNavHub({
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/business/setup"
-              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-paper px-3 text-accent ring-1 ring-line hover:bg-card transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-accent ring-1 ring-line hover:bg-card transition-[background-color,color]"
             >
               <Settings2 size={13} />
               <span>Setup Checklist</span>
             </Link>
             <Link
               href="/business/helpdesk"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3 text-ink/80 ring-1 ring-line hover:text-ink hover:bg-card transition"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-ink/80 ring-1 ring-line hover:text-ink hover:bg-card transition-[background-color,color]"
             >
               <Headphones size={13} aria-hidden />
               <span>Help Desk</span>
@@ -104,7 +104,7 @@ export function BusinessNavHub({
           </div>
           <Link
             href="/business/promotions"
-            className="inline-flex min-h-[40px] items-center gap-1.5 rounded-full bg-paper px-3 text-ink/80 ring-1 ring-line hover:text-accent hover:bg-card transition"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-ink/80 ring-1 ring-line hover:text-accent hover:bg-card transition-[background-color,color]"
           >
             <Gift size={13} className="text-accent" />
             <span>Promotions Studio</span>

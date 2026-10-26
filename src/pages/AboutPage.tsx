@@ -236,14 +236,14 @@ export function AboutPage() {
             <Link
               href="/event"
               onClick={() => void triggerHaptic("light")}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-ink transition hover:bg-white/90 active:scale-[0.98]"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-ink transition-[background-color,transform] hover:bg-white/90 active:scale-[0.98]"
             >
               Host an Event <ArrowRight size={16} />
             </Link>
             <Link
               href="/business"
               onClick={() => void triggerHaptic("light")}
-              className="inline-flex min-h-[44px] items-center rounded-full px-6 text-sm font-bold text-white ring-1 ring-white/30 transition hover:bg-white/10 active:scale-[0.98]"
+              className="inline-flex min-h-[44px] items-center rounded-full px-6 text-sm font-bold text-white ring-1 ring-white/30 transition-[background-color,transform] hover:bg-white/10 active:scale-[0.98]"
             >
               List Your Venue
             </Link>
@@ -299,7 +299,7 @@ export function AboutPage() {
             <Link
               href="/contact"
               onClick={() => void triggerHaptic("light")}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-md hover:bg-brand-ink transition active:scale-95"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-md hover:bg-brand-ink transition-[background-color,transform] active:scale-95"
             >
               <Mail size={15} />
               <span>Contact Us</span>
@@ -307,7 +307,7 @@ export function AboutPage() {
             <Link
               href="/privacy"
               onClick={() => void triggerHaptic("light")}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-paper px-5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-paper px-5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition-[background-color,transform] active:scale-95"
             >
               <span>Privacy & Legal</span>
             </Link>

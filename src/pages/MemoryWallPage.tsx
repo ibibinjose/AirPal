@@ -276,7 +276,7 @@ export function MemoryWallPage() {
             onClick={closeComposer}
           >
             <div
-              className="w-full max-w-sm max-h-[min(90dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] overflow-y-auto rounded-[28px] bg-paper p-5 shadow-2xl ring-1 ring-line motion-safe:animate-[sheet-up_0.22s_ease-out] transition-all duration-200"
+              className="w-full max-w-sm max-h-[min(90dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] overflow-y-auto rounded-[28px] bg-paper p-5 shadow-2xl ring-1 ring-line motion-safe:animate-[sheet-up_0.22s_ease-out] transition-[transform,opacity] duration-200"
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"

@@ -61,7 +61,7 @@ export function CalendarAgendaView({ events, onSelectEvent, onResetFilters, onSe
           <section
             key={group.dateStr}
             className={cn(
-              "relative rounded-3xl transition-all duration-200 p-2 sm:p-3 -m-2 sm:-m-3",
+              "relative rounded-3xl transition-[background-color,box-shadow,ring-color] duration-200 p-2 sm:p-3 -m-2 sm:-m-3",
               isOver &&
                 (hasConflict
                   ? "bg-amber-500/10 ring-2 ring-amber-500 shadow-md"

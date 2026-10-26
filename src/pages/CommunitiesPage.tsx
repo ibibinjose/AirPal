@@ -100,7 +100,7 @@ export function CommunitiesPage() {
                       onClick={() => toggleFollow(c.handle, c.name)}
                       aria-pressed={following}
                       className={cn(
-                        "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 text-sm font-semibold transition active:scale-95",
+                        "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 text-sm font-semibold transition-[background-color,color,transform] active:scale-95",
                         following
                           ? "bg-paper text-ink ring-1 ring-line hover:bg-card"
                           : "bg-brand text-white hover:bg-brand-ink",
@@ -112,7 +112,7 @@ export function CommunitiesPage() {
                   ) : null}
                   <Link
                     href="/events"
-                    className="inline-flex min-h-[44px] items-center justify-center gap-1 whitespace-nowrap rounded-full px-4 text-sm font-semibold text-accent ring-1 ring-line transition hover:bg-card active:scale-95"
+                    className="inline-flex min-h-[44px] items-center justify-center gap-1 whitespace-nowrap rounded-full px-4 text-sm font-semibold text-accent ring-1 ring-line transition-[background-color,transform] hover:bg-card active:scale-95"
                   >
                     <CalendarDays size={15} className="shrink-0" />
                     <span>Events</span>
@@ -136,14 +136,14 @@ export function CommunitiesPage() {
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="inline-flex min-h-[44px] items-center rounded-full bg-brand px-5 text-sm font-semibold text-white transition hover:bg-brand-ink active:scale-95"
+                className="inline-flex min-h-[44px] items-center rounded-full bg-brand px-5 text-sm font-semibold text-white transition-[background-color,transform] hover:bg-brand-ink active:scale-95"
               >
                 Clear search
               </button>
             ) : (
               <Link
                 href="/events"
-                className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-brand px-5 text-sm font-semibold text-white transition hover:bg-brand-ink active:scale-95"
+                className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-brand px-5 text-sm font-semibold text-white transition-[background-color,transform] hover:bg-brand-ink active:scale-95"
               >
                 <span>Browse events</span>
                 <ArrowRight size={14} />

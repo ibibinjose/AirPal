@@ -207,7 +207,7 @@ export function ScanPage() {
       <div className="flex items-center justify-between gap-1.5 sm:gap-2 py-1 mb-2">
         <Link
           href="/pass"
-          className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 sm:px-3.5 text-xs sm:text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+          className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 sm:px-3.5 text-xs sm:text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition-[background-color,color] whitespace-nowrap"
         >
           <ArrowLeft size={13} className="shrink-0" aria-hidden="true" />
           <span>AirPal Pass</span>
@@ -219,7 +219,7 @@ export function ScanPage() {
         </div>
         <Link
           href="/me/tickets"
-          className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 text-xs sm:text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+          className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3 text-xs sm:text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition-[background-color,color] whitespace-nowrap"
         >
           <Ticket size={13} className="shrink-0 text-amber-500" aria-hidden="true" />
           <span>Passes</span>
@@ -252,14 +252,14 @@ export function ScanPage() {
                       setDenied(false);
                       setCameraAttempt((n) => n + 1);
                     }}
-                    className="min-h-[44px] rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 transition hover:bg-white/25 active:scale-95 whitespace-nowrap"
+                    className="min-h-[44px] rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold text-white ring-1 ring-white/30 transition-[background-color,transform] hover:bg-white/25 active:scale-95 whitespace-nowrap"
                   >
                     Try Camera
                   </button>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:brightness-110 active:scale-95 whitespace-nowrap"
+                    className="flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-[filter,transform] hover:brightness-110 active:scale-95 whitespace-nowrap"
                   >
                     <Upload size={13} className="shrink-0" />
                     <span>Upload QR Image</span>
@@ -282,7 +282,7 @@ export function ScanPage() {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-black/60 px-3.5 py-2 text-xs font-semibold text-white shadow-md backdrop-blur-md hover:bg-black/80 transition active:scale-95 border border-white/20 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-black/60 px-3.5 py-2 text-xs font-semibold text-white shadow-md backdrop-blur-md hover:bg-black/80 transition-[background-color,transform] active:scale-95 border border-white/20 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
             <ImageIcon size={14} className="text-accent" />
             <span>{uploading ? "Scanning Photo…" : "Scan Photo"}</span>
@@ -330,7 +330,7 @@ export function ScanPage() {
         />
         <button
           type="submit"
-          className="min-h-[44px] h-11 rounded-2xl bg-brand px-4 text-xs md:text-sm font-semibold text-white shadow-sm hover:bg-brand-ink transition active:scale-95 shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="min-h-[44px] h-11 rounded-2xl bg-brand px-4 text-xs md:text-sm font-semibold text-white shadow-sm hover:bg-brand-ink transition-[background-color,transform] active:scale-95 shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           Open
         </button>

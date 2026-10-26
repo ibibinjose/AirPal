@@ -576,7 +576,7 @@ export function StartPage() {
           {isGuestStart && (
             <div
               className={cn(
-                "transition-all duration-300 ease-in-out lg:hidden text-center",
+                "transition-[max-height,opacity,margin] duration-300 ease-in-out lg:hidden text-center",
                 isKeyboardOpen || keyboardHeight > 0
                   ? "max-h-0 opacity-0 overflow-hidden mb-0"
                   : "max-h-96 opacity-100 mb-6",

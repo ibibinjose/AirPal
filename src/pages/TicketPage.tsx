@@ -143,7 +143,7 @@ export function TicketPage() {
   return (
     <div
       className={cn(
-        "min-h-screen transition-all duration-300 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]",
+        "min-h-screen transition-[background-color,color,filter] duration-300 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]",
         brightnessBoost ? "bg-white text-black brightness-110 contrast-105" : "",
       )}
     >
@@ -152,7 +152,7 @@ export function TicketPage() {
         <div className="flex items-center justify-between gap-2 mb-4">
           <Link
             href="/me/tickets"
-            className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 text-xs sm:text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer touch-manipulation whitespace-nowrap"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 text-xs sm:text-sm font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition-[background-color,color] cursor-pointer touch-manipulation whitespace-nowrap"
           >
             <ArrowLeft size={14} className="shrink-0" aria-hidden="true" />
             <span>Passbook Wallet</span>
@@ -179,7 +179,7 @@ export function TicketPage() {
             onClick={toggleBrightness}
             aria-pressed={brightnessBoost}
             className={cn(
-              "w-full flex min-h-[48px] items-center justify-between gap-3 rounded-2xl p-3.5 transition active:scale-[0.99] cursor-pointer ring-1 shadow-xs touch-manipulation",
+              "w-full flex min-h-[48px] items-center justify-between gap-3 rounded-2xl p-3.5 transition-[background-color,color,box-shadow,transform] active:scale-[0.99] cursor-pointer ring-1 shadow-xs touch-manipulation",
               brightnessBoost
                 ? "bg-amber-400 text-neutral-950 ring-amber-500 font-bold shadow-md animate-pulse"
                 : "bg-card text-ink ring-line hover:bg-paper",

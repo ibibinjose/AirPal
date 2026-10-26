@@ -393,7 +393,7 @@ export function BioCatchUpModal({
           <button
             type="button"
             onClick={handleClose}
-            className="absolute right-4 top-4 grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-card text-mute ring-1 ring-line hover:text-ink transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            className="absolute right-4 top-4 grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-card text-mute ring-1 ring-line hover:text-ink transition-[background-color,color] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Close dialog"
           >
             <X size={18} />
@@ -530,7 +530,7 @@ export function BioCatchUpModal({
                           setTime(altTime);
                         }}
                         className={cn(
-                          "inline-flex min-h-[44px] items-center rounded-lg px-3 text-[10px] font-bold transition cursor-pointer",
+                          "inline-flex min-h-[44px] items-center rounded-lg px-3 text-[10px] font-bold transition-[background-color,color] cursor-pointer",
                           time === altTime
                             ? "bg-amber-600 text-white"
                             : "bg-amber-500/20 text-amber-900 dark:text-amber-200 hover:bg-amber-500/30",
@@ -560,7 +560,7 @@ export function BioCatchUpModal({
                           if (opt.type === "nightout" && durationMinutes < 60) setDurationMinutes(120);
                         }}
                         className={cn(
-                          "flex flex-col items-center rounded-2xl p-3 text-center ring-1 transition cursor-pointer active:scale-95",
+                          "flex flex-col items-center rounded-2xl p-3 text-center ring-1 transition-[background-color,box-shadow,transform] cursor-pointer active:scale-95",
                           isSelected ? "bg-card ring-brand shadow-xs" : "bg-card/60 ring-line hover:bg-card",
                         )}
                       >
@@ -591,7 +591,7 @@ export function BioCatchUpModal({
                           setSelectedVibe(selectedVibe === vibe.label ? "" : vibe.label);
                         }}
                         className={cn(
-                          "inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
+                          "inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold ring-1 transition-[background-color,color,transform] cursor-pointer active:scale-95 touch-manipulation",
                           selectedVibe === vibe.label
                             ? "bg-rose-500/15 text-rose-700 dark:text-rose-300 ring-rose-500/30 font-bold"
                             : "bg-paper text-mute ring-line hover:text-ink hover:bg-card",
@@ -618,7 +618,7 @@ export function BioCatchUpModal({
                         setDurationMinutes(d.mins);
                       }}
                       className={cn(
-                        "flex flex-col items-center justify-center min-h-[48px] rounded-xl px-1 py-1.5 text-center ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
+                        "flex flex-col items-center justify-center min-h-[48px] rounded-xl px-1 py-1.5 text-center ring-1 transition-[background-color,color,transform] cursor-pointer active:scale-95 touch-manipulation",
                         durationMinutes === d.mins
                           ? "bg-brand text-white ring-brand shadow-xs font-bold"
                           : "bg-card text-ink ring-line hover:bg-paper",

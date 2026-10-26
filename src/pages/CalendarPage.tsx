@@ -335,14 +335,14 @@ function CalendarPageContent() {
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href="/event"
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-3.5 py-1 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95 whitespace-nowrap"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-3.5 py-1 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition-[background-color,transform] active:scale-95 whitespace-nowrap"
               >
                 <Plus size={13} className="shrink-0" />
                 <span>Host Event</span>
               </Link>
               <Link
                 href="/pass"
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1 text-xs sm:text-sm font-bold text-white ring-1 ring-white/25 backdrop-blur-md hover:bg-white/25 transition active:scale-95 whitespace-nowrap"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1 text-xs sm:text-sm font-bold text-white ring-1 ring-white/25 backdrop-blur-md hover:bg-white/25 transition-[background-color,transform] active:scale-95 whitespace-nowrap"
               >
                 <Ticket size={13} className="shrink-0 text-amber-400" aria-hidden="true" />
                 <span>AirPal Pass</span>
@@ -369,14 +369,14 @@ function CalendarPageContent() {
               void triggerHaptic("light");
               setQuickScheduleOpen(true);
             }}
-            className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-brand px-3 text-xs font-bold text-white hover:bg-brand-ink transition active:scale-95 shadow-2xs whitespace-nowrap cursor-pointer"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-brand px-3 text-xs font-bold text-white hover:bg-brand-ink transition-[background-color,transform] active:scale-95 shadow-2xs whitespace-nowrap cursor-pointer"
           >
             <Plus size={13} className="shrink-0" />
             <span>Add to Schedule</span>
           </button>
           <Link
             href="/event"
-            className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-2xs whitespace-nowrap"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs whitespace-nowrap"
           >
             <Plus size={12} className="shrink-0" />
             <span>Host Event</span>
@@ -394,7 +394,7 @@ function CalendarPageContent() {
             }}
             title={isSidebarOpen ? "Collapse search sidebar" : "Expand search sidebar"}
             className={cn(
-              "hidden lg:inline-flex min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition shadow-xs active:scale-95 cursor-pointer whitespace-nowrap",
+              "hidden lg:inline-flex min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition-[background-color,color,transform] shadow-xs active:scale-95 cursor-pointer whitespace-nowrap",
               isSidebarOpen
                 ? "bg-card text-ink ring-1 ring-line/80 hover:bg-paper"
                 : "bg-paper text-ink ring-1 ring-line hover:bg-line",
@@ -432,7 +432,7 @@ function CalendarPageContent() {
               setIsMobileDrawerOpen(true);
             }}
             title="Open search and filters"
-            className="inline-flex lg:hidden flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-medium text-ink ring-1 ring-line/80 hover:bg-paper transition shadow-xs active:scale-95 cursor-pointer whitespace-nowrap"
+            className="inline-flex lg:hidden flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-medium text-ink ring-1 ring-line/80 hover:bg-paper transition-[background-color,transform] shadow-xs active:scale-95 cursor-pointer whitespace-nowrap"
           >
             <SlidersHorizontal size={13} className="shrink-0 text-accent" />
             <span>Filters</span>
@@ -452,7 +452,7 @@ function CalendarPageContent() {
             }}
             title="Export your saved RSVP events to Apple, Outlook, or Google Calendar"
             className={cn(
-              "inline-flex flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition shadow-xs active:scale-95 cursor-pointer whitespace-nowrap",
+              "inline-flex flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition-[background-color,color,box-shadow,transform] shadow-xs active:scale-95 cursor-pointer whitespace-nowrap",
               savedItineraryCount > 0
                 ? "bg-brand text-white hover:bg-brand-ink shadow-sm"
                 : "bg-card text-ink ring-1 ring-line/80 hover:bg-paper",
@@ -510,7 +510,7 @@ function CalendarPageContent() {
                     <button
                       type="button"
                       onClick={() => setFilter("all")}
-                      className="grid h-7 w-7 -m-2 p-2 place-items-center rounded-full hover:bg-line/60 hover:text-ink/60 cursor-pointer"
+                      className="relative grid h-7 w-7 -m-1 place-items-center rounded-full hover:bg-line/60 hover:text-ink/60 cursor-pointer touch-manipulation after:absolute after:-inset-2.5 after:content-['']"
                       aria-label="Remove status filter"
                     >
                       <X size={12} />
@@ -523,7 +523,7 @@ function CalendarPageContent() {
                     <button
                       type="button"
                       onClick={() => setCategory("all")}
-                      className="grid h-7 w-7 -m-2 p-2 place-items-center rounded-full hover:bg-line/60 hover:text-ink/60 cursor-pointer"
+                      className="relative grid h-7 w-7 -m-1 place-items-center rounded-full hover:bg-line/60 hover:text-ink/60 cursor-pointer touch-manipulation after:absolute after:-inset-2.5 after:content-['']"
                       aria-label="Remove category filter"
                     >
                       <X size={12} />
@@ -537,7 +537,7 @@ function CalendarPageContent() {
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
-                      className="grid h-7 w-7 -m-2 p-2 place-items-center rounded-full hover:bg-brand/15 hover:text-brand-ink cursor-pointer"
+                      className="relative grid h-7 w-7 -m-1 place-items-center rounded-full hover:bg-brand/15 hover:text-brand-ink cursor-pointer touch-manipulation after:absolute after:-inset-2.5 after:content-['']"
                       aria-label="Clear search text"
                     >
                       <X size={12} />

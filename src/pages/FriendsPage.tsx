@@ -98,7 +98,7 @@ export function FriendsPage() {
               </div>
               <Link
                 href={bioPath(f.handle)}
-                className="inline-flex min-h-[44px] shrink-0 items-center whitespace-nowrap rounded-full px-3 text-xs font-semibold text-accent ring-1 ring-line transition hover:bg-card active:scale-95"
+                className="inline-flex min-h-[44px] shrink-0 items-center whitespace-nowrap rounded-full px-3 text-xs font-semibold text-accent ring-1 ring-line transition-[background-color,transform] hover:bg-card active:scale-95"
               >
                 Bio
               </Link>
@@ -107,7 +107,7 @@ export function FriendsPage() {
                 onClick={() => toggleFollow(f.handle, f.name)}
                 aria-pressed={f.following}
                 className={cn(
-                  "inline-flex min-h-[44px] shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-3.5 text-xs font-bold transition active:scale-95",
+                  "inline-flex min-h-[44px] shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-3.5 text-xs font-bold transition-[background-color,color,transform] active:scale-95",
                   f.following
                     ? "bg-paper text-ink ring-1 ring-line hover:bg-card"
                     : "bg-brand text-white hover:bg-brand-ink",
@@ -127,14 +127,14 @@ export function FriendsPage() {
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <Link
               href="/communities"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 text-sm font-semibold text-white transition hover:bg-brand-ink active:scale-95"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 text-sm font-semibold text-white transition-[background-color,transform] hover:bg-brand-ink active:scale-95"
             >
               <Users size={15} />
               <span>Find communities</span>
             </Link>
             <Link
               href="/circle"
-              className="inline-flex min-h-[44px] items-center rounded-full px-5 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card active:scale-95"
+              className="inline-flex min-h-[44px] items-center rounded-full px-5 text-sm font-semibold text-ink ring-1 ring-line transition-[background-color,transform] hover:bg-card active:scale-95"
             >
               Open full Circle
             </Link>
@@ -151,7 +151,7 @@ export function FriendsPage() {
               <Link
                 key={b.id}
                 href={`/ticket/${b.id}`}
-                className="human-card group flex items-center gap-3 p-3.5 transition hover:shadow-clay-hover"
+                className="human-card group flex items-center gap-3 p-3.5 transition-[box-shadow] hover:shadow-clay-hover"
               >
                 <span
                   className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary-container text-on-primary-container"
@@ -168,7 +168,7 @@ export function FriendsPage() {
                 </span>
                 <ArrowRight
                   size={15}
-                  className="shrink-0 text-mute transition group-hover:translate-x-0.5 group-hover:text-ink"
+                  className="shrink-0 text-mute transition-[transform,color] group-hover:translate-x-0.5 group-hover:text-ink"
                   aria-hidden="true"
                 />
               </Link>

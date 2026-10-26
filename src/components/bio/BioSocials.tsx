@@ -260,7 +260,7 @@ export function BioSocials({
             }}
             aria-label={`${title} (${cfg.action})`}
             className={cn(
-              "group flex w-full items-center justify-between rounded-2xl sm:rounded-[22px] bg-card p-3.5 sm:p-4 text-left ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:shadow-xs active:scale-[0.99] touch-manipulation cursor-pointer",
+              "group flex w-full items-center justify-between rounded-2xl sm:rounded-[22px] bg-card p-3.5 sm:p-4 text-left ring-1 ring-line/80 shadow-2xs transition-[box-shadow,transform,border-color] duration-200 hover:shadow-xs active:scale-[0.99] touch-manipulation cursor-pointer",
               cfg.hoverBorder,
             )}
           >
@@ -297,7 +297,7 @@ export function BioSocials({
 
             {/* Right: Action Chevron */}
             <div className="flex items-center gap-1 shrink-0 ml-2">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-paper/80 text-mute transition-all duration-200 group-hover:bg-brand group-hover:text-white group-hover:translate-x-0.5 shadow-2xs">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-paper/80 text-mute transition-[background-color,color,transform] duration-200 group-hover:bg-brand group-hover:text-white group-hover:translate-x-0.5 shadow-2xs">
                 <ChevronRight size={15} />
               </span>
             </div>

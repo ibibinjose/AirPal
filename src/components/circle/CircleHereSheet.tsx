@@ -121,7 +121,7 @@ export function CircleHereSheet({
               type="button"
               onClick={() => setPlaceName(spot)}
               className={cn(
-                "min-h-[44px] rounded-full px-3 py-1 text-xs font-medium ring-1 ring-line transition cursor-pointer",
+                "min-h-[44px] rounded-full px-3 py-1 text-xs font-medium ring-1 ring-line transition-[background-color,color] cursor-pointer",
                 placeName === spot ? "bg-brand/10 text-accent ring-brand/30" : "bg-paper text-mute hover:text-ink",
               )}
             >
@@ -144,7 +144,7 @@ export function CircleHereSheet({
             type="button"
             onClick={() => setAudience(id)}
             className={cn(
-              "min-h-[44px] rounded-full text-[14px] font-semibold transition cursor-pointer",
+              "min-h-[44px] rounded-full text-[14px] font-semibold transition-[background-color,color] cursor-pointer",
               audience === id ? "bg-brand text-white" : "bg-paper text-ink ring-1 ring-line/60",
             )}
           >
@@ -188,7 +188,7 @@ export function CircleHereSheet({
             type="button"
             onClick={() => setHours(h)}
             className={cn(
-              "min-h-[44px] flex-1 whitespace-nowrap rounded-full px-2 text-[12px] font-semibold transition cursor-pointer",
+              "min-h-[44px] flex-1 whitespace-nowrap rounded-full px-2 text-[12px] font-semibold transition-[background-color,color] cursor-pointer",
               hours === h ? "bg-brand text-white" : "bg-paper text-ink ring-1 ring-line/60",
             )}
           >

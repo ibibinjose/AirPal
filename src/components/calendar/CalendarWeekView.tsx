@@ -231,7 +231,7 @@ export function CalendarWeekView({
                   await dropOnDate(day.dateStr);
                 }}
                 className={cn(
-                  "group relative flex flex-col rounded-2xl p-2.5 transition-all duration-150 min-h-[180px]",
+                  "group relative flex flex-col rounded-2xl p-2.5 transition-[background-color,box-shadow,transform] duration-150 min-h-[180px]",
                   day.isToday ? "bg-amber-50/50 ring-1.5 ring-amber-300" : "bg-paper/80 ring-1 ring-line/60",
                   isSelected && "ring-2 ring-brand bg-card shadow-xs",
                   isOver &&
@@ -291,7 +291,7 @@ export function CalendarWeekView({
                           if (onSelectEvent) onSelectEvent(ev);
                         }}
                         className={cn(
-                          "group/card relative rounded-xl p-2 text-left transition-all duration-150 cursor-pointer select-none",
+                          "group/card relative rounded-xl p-2 text-left transition-[box-shadow,transform,opacity] duration-150 cursor-pointer select-none",
                           tagTheme.tagClass,
                           isDraggingThis ? "opacity-30 scale-95" : "hover:shadow-xs hover:scale-[1.02]",
                         )}

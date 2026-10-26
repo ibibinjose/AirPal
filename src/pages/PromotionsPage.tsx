@@ -89,14 +89,14 @@ export function PromotionsPage() {
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/pass"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition-[background-color,color] whitespace-nowrap"
           >
             <ArrowLeft size={14} className="shrink-0" />
             <span>AirPal Pass</span>
           </Link>
           <Link
             href="/me/tickets"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition-[background-color,color] whitespace-nowrap"
           >
             <Ticket size={14} className="shrink-0 text-amber-500" />
             <span>My Passbook Wallet</span>
@@ -107,7 +107,7 @@ export function PromotionsPage() {
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/business/promotions/new"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95 whitespace-nowrap"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition-[background-color,transform] active:scale-95 whitespace-nowrap"
           >
             <Plus size={14} className="shrink-0" />
             <span>Post a Deal</span>
@@ -116,7 +116,7 @@ export function PromotionsPage() {
           {user && (
             <Link
               href="/business/promotions"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition-[background-color,color] whitespace-nowrap"
             >
               <Store size={14} className="shrink-0 text-accent" />
               <span>My Deals</span>
@@ -126,7 +126,7 @@ export function PromotionsPage() {
           {isAdmin && (
             <Link
               href="/admin/promotions"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-gold/15 px-3.5 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-gold/30 hover:bg-gold/25 transition whitespace-nowrap"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-gold/15 px-3.5 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-gold/30 hover:bg-gold/25 transition-[background-color,color] whitespace-nowrap"
             >
               <ShieldCheck size={14} className="shrink-0" />
               <span>Admin Queue</span>
@@ -297,7 +297,7 @@ export function PromotionsPage() {
                     {isOwner || isAdmin ? (
                       <Link
                         href={isAdmin ? `/admin/promotions/${p.id}` : `/business/promotions/${p.id}`}
-                        className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-line/50 transition whitespace-nowrap"
+                        className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-line/50 transition-[background-color] whitespace-nowrap"
                       >
                         <Pencil size={12} className="shrink-0" />
                         <span>Edit</span>
@@ -308,7 +308,7 @@ export function PromotionsPage() {
 
                     <Link
                       href={`/deals/${p.id}`}
-                      className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95 whitespace-nowrap"
+                      className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition-[background-color,transform] active:scale-95 whitespace-nowrap"
                     >
                       <Ticket size={13} className="shrink-0" />
                       <span>Claim Deal</span>

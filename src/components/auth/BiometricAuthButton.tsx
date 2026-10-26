@@ -54,7 +54,7 @@ export function BiometricAuthButton({
         onClick={() => void handleBiometricAuth()}
         disabled={scanning}
         className={cn(
-          "group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-brand/10 p-3.5 text-ink ring-1 ring-brand/30 transition-all hover:bg-brand/15 hover:ring-brand/50 active:scale-[0.99] disabled:opacity-60 shadow-xs",
+          "group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-brand/10 p-3.5 text-ink ring-1 ring-brand/30 transition-[background-color,box-shadow,transform] hover:bg-brand/15 hover:ring-brand/50 active:scale-[0.99] disabled:opacity-60 shadow-xs",
           className,
         )}
       >
@@ -92,7 +92,7 @@ export function BiometricAuthButton({
         disabled={scanning}
         onClick={() => void handleBiometricAuth()}
         className={cn(
-          "flex h-12 w-full items-center justify-center gap-2.5 rounded-full bg-card text-sm font-semibold text-ink ring-1 ring-brand/40 transition hover:bg-paper hover:ring-brand active:scale-[0.99] disabled:opacity-60 shadow-2xs",
+          "flex h-12 w-full items-center justify-center gap-2.5 rounded-full bg-card text-sm font-semibold text-ink ring-1 ring-brand/40 transition-[background-color,border-color,transform] hover:bg-paper hover:ring-brand active:scale-[0.99] disabled:opacity-60 shadow-2xs",
           className,
         )}
       >
@@ -108,7 +108,7 @@ export function BiometricAuthButton({
       disabled={scanning}
       onClick={() => void handleBiometricAuth()}
       className={cn(
-        "inline-flex items-center gap-2 rounded-full bg-brand/10 px-3.5 py-1.5 text-xs font-semibold text-accent ring-1 ring-brand/30 transition hover:bg-brand/15 active:scale-95",
+        "inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand/10 px-3.5 py-1.5 text-xs font-semibold text-accent ring-1 ring-brand/30 transition-[background-color,transform] hover:bg-brand/15 active:scale-95",
         className,
       )}
     >

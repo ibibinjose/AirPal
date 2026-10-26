@@ -211,7 +211,7 @@ export function CreateFab({ showFab = true }: { showFab?: boolean } = {}) {
                                 key={opt.id}
                                 type="button"
                                 onClick={() => handleSelect(opt.href)}
-                                className="group flex w-full items-center gap-3.5 rounded-2xl bg-paper/60 p-3.5 text-left ring-1 ring-line/70 transition-all duration-150 hover:bg-card hover:ring-brand/40 hover:shadow-xs active:scale-[0.99] cursor-pointer"
+                                className="group flex w-full items-center gap-3.5 rounded-2xl bg-paper/60 p-3.5 text-left ring-1 ring-line/70 transition-[background-color,border-color,box-shadow,transform] duration-150 hover:bg-card hover:ring-brand/40 hover:shadow-xs active:scale-[0.99] cursor-pointer"
                               >
                                 <span
                                   className={cn(
@@ -234,7 +234,7 @@ export function CreateFab({ showFab = true }: { showFab?: boolean } = {}) {
                                 </div>
                                 <ChevronRight
                                   size={16}
-                                  className="text-mute/60 group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0"
+                                  className="text-mute/60 group-hover:text-accent group-hover:translate-x-0.5 transition-[color,transform] shrink-0"
                                 />
                               </button>
                             );

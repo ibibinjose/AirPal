@@ -57,7 +57,7 @@ export function PlacesPage() {
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="inline-flex min-h-[44px] items-center rounded-full bg-brand px-5 text-sm font-semibold text-white transition hover:bg-brand-ink active:scale-95"
+                className="inline-flex min-h-[44px] items-center rounded-full bg-brand px-5 text-sm font-semibold text-white transition-[background-color,transform] hover:bg-brand-ink active:scale-95"
               >
                 Clear search
               </button>
@@ -65,14 +65,14 @@ export function PlacesPage() {
               <>
                 <Link
                   href="/business"
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 text-sm font-semibold text-white transition hover:bg-brand-ink active:scale-95"
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 text-sm font-semibold text-white transition-[background-color,transform] hover:bg-brand-ink active:scale-95"
                 >
                   <Store size={15} />
                   <span>List your venue</span>
                 </Link>
                 <Link
                   href="/events"
-                  className="inline-flex min-h-[44px] items-center gap-1 rounded-full px-5 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card active:scale-95"
+                  className="inline-flex min-h-[44px] items-center gap-1 rounded-full px-5 text-sm font-semibold text-ink ring-1 ring-line transition-[background-color,transform] hover:bg-card active:scale-95"
                 >
                   <span>What&apos;s on instead</span>
                   <ArrowRight size={14} />

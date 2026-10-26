@@ -81,7 +81,7 @@ export function HereCheckIn({
     <div>
       <div
         className={cn(
-          "flex w-full items-center gap-3 rounded-[20px] px-4 py-3.5 text-left ring-1 shadow-2xs transition",
+          "flex w-full items-center gap-3 rounded-[20px] px-4 py-3.5 text-left ring-1 shadow-2xs transition-[background-color,ring-color]",
           hereNow ? "bg-emerald-500/5 ring-emerald-500/30" : "bg-paper ring-line/80 hover:bg-card",
         )}
       >
@@ -122,14 +122,14 @@ export function HereCheckIn({
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="inline-flex min-h-[44px] items-center whitespace-nowrap rounded-full bg-card px-3 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-paper cursor-pointer"
+              className="inline-flex min-h-[44px] items-center whitespace-nowrap rounded-full bg-card px-3 text-xs font-semibold text-ink ring-1 ring-line transition-[background-color] hover:bg-paper cursor-pointer"
             >
               Update
             </button>
             <button
               type="button"
               onClick={() => void stop()}
-              className="inline-flex min-h-[44px] items-center whitespace-nowrap rounded-full bg-emerald-500/15 px-3.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition hover:bg-emerald-500/25 cursor-pointer"
+              className="inline-flex min-h-[44px] items-center whitespace-nowrap rounded-full bg-emerald-500/15 px-3.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-[background-color] hover:bg-emerald-500/25 cursor-pointer"
             >
               Stop
             </button>
@@ -138,7 +138,7 @@ export function HereCheckIn({
           <button
             type="button"
             onClick={() => (mine?.handle ? setOpen(true) : nav("/bio/setup"))}
-            className="inline-flex min-h-[44px] shrink-0 items-center whitespace-nowrap rounded-full bg-brand/10 px-4 text-xs font-bold text-accent transition hover:bg-brand/15 cursor-pointer"
+            className="inline-flex min-h-[44px] shrink-0 items-center whitespace-nowrap rounded-full bg-brand/10 px-4 text-xs font-bold text-accent transition-[background-color] hover:bg-brand/15 cursor-pointer"
           >
             Share
           </button>

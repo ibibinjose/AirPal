@@ -880,7 +880,7 @@ export function BioPublicPage() {
                   }
                 }}
                 className={cn(
-                  "inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-xs font-semibold ring-1 ring-line/80 bg-paper/70 text-ink transition-all duration-200 shadow-2xs",
+                  "inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-xs font-semibold ring-1 ring-line/80 bg-paper/70 text-ink transition-[background-color,transform] duration-200 shadow-2xs",
                   isOwner ? "cursor-pointer hover:bg-paper active:scale-95" : "cursor-default",
                 )}
                 title={isOwner ? "Click to change status" : statusInfo.description}
@@ -1055,7 +1055,7 @@ export function BioPublicPage() {
                         setCatchUpInitialType(opt.type);
                         setCatchUpModalOpen(true);
                       }}
-                      className="bio-theme-btn group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[68px] sm:min-h-[104px] rounded-[24px] bg-card/90 p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:ring-brand/40 hover:shadow-md active:scale-[0.98] cursor-pointer touch-manipulation"
+                      className="bio-theme-btn group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[68px] sm:min-h-[104px] rounded-[24px] bg-card/90 p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-[box-shadow,ring-color,transform] duration-200 hover:ring-brand/40 hover:shadow-md active:scale-[0.98] cursor-pointer touch-manipulation"
                     >
                       <span
                         className={cn(
@@ -1097,7 +1097,7 @@ export function BioPublicPage() {
                     void triggerHaptic("light");
                     recordTap(bio.handle, "whatsapp");
                   }}
-                  className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-white ring-1 ring-emerald-500/30 transition-all duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
+                  className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-white ring-1 ring-emerald-500/30 transition-[background-color,color,transform] duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
                 >
                   <MessageCircle
                     size={16}
@@ -1114,7 +1114,7 @@ export function BioPublicPage() {
                     void triggerHaptic("light");
                     recordTap(bio.handle, "call");
                   }}
-                  className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-white ring-1 ring-amber-500/30 transition-all duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
+                  className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-white ring-1 ring-amber-500/30 transition-[background-color,color,transform] duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
                 >
                   <Phone
                     size={16}
@@ -1137,7 +1137,7 @@ export function BioPublicPage() {
                     note: `AirPal bio · AirPal.Me/@${bio.handle}`,
                   });
                 }}
-                className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper/80 dark:bg-card/70 px-3 text-xs font-semibold text-ink ring-1 ring-line/80 transition-all duration-200 hover:bg-paper hover:ring-brand/40 active:scale-95 shadow-2xs cursor-pointer touch-manipulation"
+                className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper/80 dark:bg-card/70 px-3 text-xs font-semibold text-ink ring-1 ring-line/80 transition-[background-color,ring-color,transform] duration-200 hover:bg-paper hover:ring-brand/40 active:scale-95 shadow-2xs cursor-pointer touch-manipulation"
                 title={`Save ${bio.name} to phone contacts (.vcf)`}
               >
                 <ContactRound size={16} className="text-accent group-hover:scale-110 transition-transform shrink-0" />
@@ -1177,7 +1177,7 @@ export function BioPublicPage() {
                     void triggerHaptic("medium");
                     setShareModalOpen(true);
                   }}
-                  className="relative group cursor-pointer shrink-0 grid place-items-center h-36 w-36 rounded-[22px] bg-white p-2.5 shadow-inner ring-1 ring-black/10 hover:ring-brand/50 transition-all duration-200 active:scale-95"
+                  className="relative group cursor-pointer shrink-0 grid place-items-center h-36 w-36 rounded-[22px] bg-white p-2.5 shadow-inner ring-1 ring-black/10 hover:ring-brand/50 transition-[box-shadow,ring-color,transform] duration-200 active:scale-95"
                   title="Tap to preview or share Pass QR"
                   aria-label="Enlarge QR Code"
                 >
@@ -1456,7 +1456,7 @@ export function BioPublicPage() {
                       setCatchUpInitialType(opt.type);
                       setCatchUpModalOpen(true);
                     }}
-                    className="group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[64px] sm:min-h-[96px] rounded-[22px] bg-card p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-all duration-200 hover:ring-brand/40 hover:shadow-xs active:scale-[0.98] cursor-pointer touch-manipulation"
+                    className="group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[64px] sm:min-h-[96px] rounded-[22px] bg-card p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-[box-shadow,ring-color,transform] duration-200 hover:ring-brand/40 hover:shadow-xs active:scale-[0.98] cursor-pointer touch-manipulation"
                   >
                     <span
                       className={cn(
@@ -1773,7 +1773,7 @@ export function BioPublicPage() {
                             void triggerHaptic("light");
                             recordTap(bio.handle, link.type, link.id);
                           }}
-                          className="bio-theme-btn group flex min-h-[56px] sm:min-h-[60px] items-center justify-between rounded-[22px] bg-card/90 dark:bg-card/75 p-3.5 sm:px-4 sm:py-3 ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition-all duration-200 hover:bg-card hover:ring-brand/40 hover:shadow-xs active:scale-[0.99] touch-manipulation cursor-pointer"
+                          className="bio-theme-btn group flex min-h-[56px] sm:min-h-[60px] items-center justify-between rounded-[22px] bg-card/90 dark:bg-card/75 p-3.5 sm:px-4 sm:py-3 ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition-[background-color,ring-color,box-shadow,transform] duration-200 hover:bg-card hover:ring-brand/40 hover:shadow-xs active:scale-[0.99] touch-manipulation cursor-pointer"
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-paper dark:bg-paper/50 text-ink ring-1 ring-line/60 group-hover:bg-brand/10 group-hover:text-brand transition-colors">

@@ -413,7 +413,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
                   void triggerHaptic("light");
                   toast.success("Voucher code copied to clipboard");
                 }}
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-card ring-1 ring-line text-mute hover:text-ink active:scale-95 transition cursor-pointer"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-card ring-1 ring-line text-mute hover:text-ink active:scale-95 transition-[background-color,color,transform] cursor-pointer"
                 title="Copy code"
                 aria-label="Copy code"
               >
@@ -443,7 +443,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
               <Link
                 key={r.id}
                 href={`/deals/${r.id}`}
-                className="flex items-center gap-3 rounded-2xl ring-1 ring-line bg-card p-3 transition hover:bg-paper active:scale-[0.99]"
+                className="flex items-center gap-3 rounded-2xl ring-1 ring-line bg-card p-3 transition-[background-color,transform] hover:bg-paper active:scale-[0.99]"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-bold">{r.title}</span>

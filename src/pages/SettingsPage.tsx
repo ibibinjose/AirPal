@@ -345,7 +345,7 @@ export function SettingsPage() {
                 type="button"
                 onClick={() => handleThemeChange(opt.id)}
                 className={cn(
-                  "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl p-3 text-center transition-all duration-200 active:scale-95 cursor-pointer ring-1",
+                  "flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl p-3 text-center transition-[background-color,color,box-shadow,transform] duration-200 active:scale-95 cursor-pointer ring-1",
                   active
                     ? "bg-brand text-white ring-brand shadow-clay"
                     : "bg-card text-ink ring-line hover:bg-paper hover:ring-line/90 shadow-2xs",
@@ -447,13 +447,13 @@ export function SettingsPage() {
                   disabled={alertsBusy}
                   onClick={() => void saveAlertPrefs({ enabled: !alertsEnabled })}
                   className={cn(
-                    "relative h-7 w-12 shrink-0 rounded-full transition cursor-pointer disabled:opacity-50",
+                    "relative h-7 w-12 shrink-0 rounded-full transition-[background-color] cursor-pointer disabled:opacity-50",
                     alertsEnabled ? "bg-brand" : "bg-line",
                   )}
                 >
                   <span
                     className={cn(
-                      "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all",
+                      "absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-[left,transform]",
                       alertsEnabled ? "left-[22px]" : "left-0.5",
                     )}
                   />

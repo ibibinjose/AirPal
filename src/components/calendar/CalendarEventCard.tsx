@@ -184,7 +184,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
         endDrag();
       }}
       className={cn(
-        "cv-auto group relative flex flex-col rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay transition-all duration-200 hover:shadow-clay-hover hover:ring-brand/30 active:scale-[0.99] md:p-5 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2",
+        "cv-auto group relative flex flex-col rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay transition-[box-shadow,ring-color,transform,background-color] duration-200 hover:shadow-clay-hover hover:ring-brand/30 active:scale-[0.99] md:p-5 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2",
         onSelect && "cursor-pointer",
         event.isGoing && "ring-emerald-500/50 bg-gradient-to-b from-emerald-500/5 via-card to-card",
         isCurrentlyDragged && "opacity-40 ring-2 ring-brand ring-dashed scale-[0.99]",
@@ -459,7 +459,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               aria-pressed={event.isGoing}
               title={event.isGoing ? "You are going" : "Mark as Going"}
               className={cn(
-                "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition active:scale-95",
+                "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition-[background-color,color,box-shadow,transform] active:scale-95",
                 event.isGoing
                   ? "bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-700 font-semibold"
                   : "bg-paper text-ink/80 hover:bg-emerald-50 hover:text-emerald-800 ring-1 ring-line/80",
@@ -476,7 +476,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               aria-pressed={event.isInterested}
               title={event.isInterested ? "You are interested" : "Mark as Interested"}
               className={cn(
-                "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition active:scale-95",
+                "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition-[background-color,color,box-shadow,transform] active:scale-95",
                 event.isInterested
                   ? "bg-amber-500 text-white shadow-sm ring-1 ring-amber-600 font-semibold"
                   : "bg-paper text-ink/80 hover:bg-amber-50 hover:text-amber-800 ring-1 ring-line/80",
@@ -497,7 +497,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               aria-pressed={event.isLiked}
               title={event.isLiked ? "Liked" : "Like event"}
               className={cn(
-                "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition active:scale-95",
+                "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-[background-color,color,box-shadow,transform] active:scale-95",
                 event.isLiked
                   ? "bg-rose-500 text-white shadow-sm ring-1 ring-rose-600"
                   : "bg-paper text-ink/70 hover:bg-rose-50 hover:text-rose-600 ring-1 ring-line/80",
@@ -519,7 +519,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                 }}
                 title="Add to calendar"
                 aria-label="Add to calendar"
-                className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full text-mute hover:bg-paper hover:text-ink transition cursor-pointer"
+                className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full text-mute hover:bg-paper hover:text-ink transition-[background-color,color] cursor-pointer"
               >
                 <CalendarPlus size={15} />
               </button>
@@ -624,7 +624,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               }}
               title="Reschedule event"
               aria-label="Reschedule event"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:bg-amber-50 hover:text-amber-800 transition"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:bg-amber-50 hover:text-amber-800 transition-[background-color,color]"
             >
               <Clock size={14} />
             </button>
@@ -640,7 +640,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                 endDrag();
               }}
               title="Drag and drop to reschedule this event"
-              className="hidden sm:inline-flex h-9 w-8 items-center justify-center rounded-full text-mute/50 hover:text-accent hover:bg-paper cursor-grab active:cursor-grabbing transition"
+              className="hidden sm:inline-flex h-9 w-8 items-center justify-center rounded-full text-mute/50 hover:text-accent hover:bg-paper cursor-grab active:cursor-grabbing transition-[background-color,color]"
             >
               <GripVertical size={14} />
             </div>
@@ -650,7 +650,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               type="button"
               onClick={handleShare}
               title="Share event"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:bg-paper hover:text-ink transition"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:bg-paper hover:text-ink transition-[background-color,color]"
             >
               <Share2 size={14} />
             </button>
@@ -664,7 +664,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                   nav(event.gatePath!);
                 }}
                 title="View market stalls & expo directory"
-                className="inline-flex min-h-[44px] items-center gap-1 whitespace-nowrap rounded-full bg-brand px-3 text-xs font-medium text-white hover:bg-brand-ink transition shadow-xs"
+                className="inline-flex min-h-[44px] items-center gap-1 whitespace-nowrap rounded-full bg-brand px-3 text-xs font-medium text-white hover:bg-brand-ink transition-[background-color,box-shadow] shadow-xs"
               >
                 <span>Stalls</span>
                 <ExternalLink size={11} className="shrink-0" />

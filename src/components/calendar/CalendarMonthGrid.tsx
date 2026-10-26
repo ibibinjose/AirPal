@@ -396,7 +396,7 @@ export function CalendarMonthGrid({
               aria-current={cell.isToday ? "date" : undefined}
               tabIndex={isSelected || (!selectedDate && cell.isToday) ? 0 : -1}
               className={cn(
-                "group relative flex min-h-[68px] sm:min-h-[84px] md:min-h-[102px] lg:min-h-[112px] flex-col justify-between rounded-2xl p-1.5 sm:p-2 transition-all text-xs select-none active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-1 text-left",
+                "group relative flex min-h-[68px] sm:min-h-[84px] md:min-h-[102px] lg:min-h-[112px] flex-col justify-between rounded-2xl p-1.5 sm:p-2 transition-[background-color,color,box-shadow,transform,opacity] text-xs select-none active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-1 text-left",
                 // Non-current month
                 !cell.isCurrentMonth && "opacity-35 hover:opacity-60 bg-paper/20 ring-1 ring-line/40",
                 // Current month default state
