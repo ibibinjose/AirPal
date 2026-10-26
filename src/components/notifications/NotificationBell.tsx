@@ -20,6 +20,75 @@ import { notificationPresentation } from "@shared/notifications";
 import { relativeAgo } from "@shared/time-ago";
 
 /**
+ * One inbox row. The dismiss control is a sibling of the note link — never
+ * nested inside it — so keyboard and assistive tech see two clean targets.
+ */
+export function NotificationRow({
+  note: n,
+  onOpen,
+  onDismiss,
+}: {
+  note: PromotionNotification;
+  onOpen: (id: string, read: boolean) => void;
+  onDismiss: (id: string) => void;
+}) {
+  const presentation = notificationPresentation(n.kind);
+  const when = relativeAgo(n.at);
+  return (
+    <div
+      className={cn(
+        "group relative flex items-start gap-2.5 border-t border-line/50 px-4 py-3 transition-colors hover:bg-paper/60",
+        !n.read && "bg-brand/[0.02]",
+      )}
+    >
+      <Link
+        href={n.href || "/me/inbox"}
+        onClick={() => onOpen(n.id, n.read)}
+        className="flex min-w-0 flex-1 items-start gap-2.5"
+      >
+        <span
+          className={cn(
+            "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+            n.read ? "bg-transparent" : "bg-brand ring-2 ring-card",
+          )}
+          aria-hidden
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-accent">
+              {presentation.label}
+            </span>
+            {when ? (
+              <span className="shrink-0 text-[11px] text-ink/65 dark:text-ink/60 font-medium">{when}</span>
+            ) : null}
+          </div>
+          <p
+            className={cn(
+              "mt-0.5 truncate text-[14px] leading-5",
+              n.read ? "font-normal text-ink" : "font-semibold text-ink",
+            )}
+          >
+            {n.title}
+          </p>
+          <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-ink/70 dark:text-ink/65">
+            {n.body}
+          </p>
+        </div>
+      </Link>
+      <button
+        type="button"
+        onClick={() => onDismiss(n.id)}
+        title="Dismiss"
+        aria-label="Dismiss notification"
+        className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/60 transition-opacity hover:bg-paper hover:text-ink hover:opacity-100"
+      >
+        <X size={14} />
+      </button>
+    </div>
+  );
+}
+
+/**
  * The one header bell: live inbox notifications for everyone.
  */
 export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
@@ -119,9 +188,7 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
     }
   }
 
-  async function dismissNote(e: React.MouseEvent, id: string) {
-    e.preventDefault();
-    e.stopPropagation();
+  async function dismissNote(id: string) {
     void triggerHaptic("selection");
     setNotes((cur) => cur.filter((n) => n.id !== id));
     try {
@@ -203,62 +270,17 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
               <p className="mt-2 text-[13px] font-medium text-ink/70">No notifications right now.</p>
             </div>
           ) : (
-            notes.map((n) => {
-              const presentation = notificationPresentation(n.kind);
-              const when = relativeAgo(n.at);
-              return (
-                <Link
-                  key={n.id}
-                  href={n.href || "/me/inbox"}
-                  onClick={() => {
-                    if (!n.read) void markNotificationRead(n.id);
-                    setOpen(false);
-                  }}
-                  className={cn(
-                    "group relative flex items-start gap-2.5 border-t border-line/50 px-4 py-3 transition-colors hover:bg-paper/60",
-                    !n.read && "bg-brand/[0.02]",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-                      n.read ? "bg-transparent" : "bg-brand ring-2 ring-card",
-                    )}
-                    aria-hidden
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-accent">
-                        {presentation.label}
-                      </span>
-                      {when ? (
-                        <span className="shrink-0 text-[11px] text-ink/65 dark:text-ink/60 font-medium">{when}</span>
-                      ) : null}
-                    </div>
-                    <p
-                      className={cn(
-                        "mt-0.5 truncate text-[14px] leading-5",
-                        n.read ? "font-normal text-ink" : "font-semibold text-ink",
-                      )}
-                    >
-                      {n.title}
-                    </p>
-                    <p className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-ink/70 dark:text-ink/65">
-                      {n.body}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={(e) => void dismissNote(e, n.id)}
-                    title="Dismiss"
-                    aria-label="Dismiss notification"
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-ink/60 transition-opacity hover:bg-paper hover:text-ink hover:opacity-100"
-                  >
-                    <X size={14} />
-                  </button>
-                </Link>
-              );
-            })
+            notes.map((n) => (
+              <NotificationRow
+                key={n.id}
+                note={n}
+                onOpen={(id, read) => {
+                  if (!read) void markNotificationRead(id);
+                  setOpen(false);
+                }}
+                onDismiss={(id) => void dismissNote(id)}
+              />
+            ))
           )}
 
           {!pushPrefEnabled() && (

@@ -418,7 +418,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                     <button
                       type="button"
                       onClick={handleCopyBioLink}
-                      className="group inline-flex items-center gap-1.5 rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-ink ring-1 ring-line/80 hover:ring-brand/50 transition-[box-shadow,transform] cursor-pointer active:scale-95"
+                      className="group inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-ink ring-1 ring-line/80 hover:ring-brand/50 transition-[box-shadow,transform] cursor-pointer active:scale-95"
                     >
                       <span className="text-accent group-hover:underline">
                         {mine ? `@${mine.handle}` : "Claim your @handle"}
@@ -1396,28 +1396,28 @@ export function MePage({ defaultTab }: MePageProps = {}) {
               <div className="grid grid-cols-2 gap-2.5">
                 <Link
                   href="/me/inbox"
-                  className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
+                  className="flex min-h-[44px] items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
                 >
                   <MessageSquare size={15} className="text-accent" />
                   <span>Inbox</span>
                 </Link>
                 <Link
                   href="/calendar"
-                  className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
+                  className="flex min-h-[44px] items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
                 >
                   <Calendar size={15} className="text-sky-600" />
                   <span>Calendar</span>
                 </Link>
                 <Link
                   href="/me/memories"
-                  className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
+                  className="flex min-h-[44px] items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
                 >
                   <Images size={15} className="text-accent" />
                   <span>Memories</span>
                 </Link>
                 <Link
                   href="/settings"
-                  className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
+                  className="flex min-h-[44px] items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
                 >
                   <Settings size={15} className="text-mute" />
                   <span>Settings</span>
@@ -1425,7 +1425,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                 {isHost ? (
                   <Link
                     href="/event"
-                    className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
+                    className="flex min-h-[44px] items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
                   >
                     <Building2 size={15} className="text-emerald-600" />
                     <span>Host Tools</span>
@@ -1433,7 +1433,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                 ) : (
                   <Link
                     href="/business"
-                    className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
+                    className="flex min-h-[44px] items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
                   >
                     <Building2 size={15} className="text-emerald-600" />
                     <span>Business Hub</span>
@@ -1442,7 +1442,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                 {business ? (
                   <Link
                     href="/business"
-                    className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
+                    className="flex min-h-[44px] items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
                   >
                     <Store size={15} className="text-amber-600" />
                     <span>Business Place</span>
@@ -1450,7 +1450,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                 ) : (
                   <Link
                     href={partnerAccountPath({ signedIn: true, hasPlace: false })}
-                    className="flex items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
+                    className="flex min-h-[44px] items-center gap-2.5 p-3 rounded-2xl bg-paper/60 ring-1 ring-line/60 hover:bg-paper hover:ring-line transition-[background-color,box-shadow,transform] text-xs font-bold text-ink active:scale-95"
                   >
                     <Store size={15} className="text-amber-600" />
                     <span>{NAMES.partnerAccount}</span>
@@ -1466,7 +1466,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
               <button
                 type="button"
                 onClick={() => void logout().then(() => nav("/"))}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700 transition-colors cursor-pointer active:scale-95"
+                className="inline-flex min-h-[44px] items-center gap-1.5 px-2 text-xs font-bold text-red-600 hover:text-red-700 transition-colors cursor-pointer active:scale-95"
               >
                 <LogOut size={13} />
                 <span>Sign out</span>

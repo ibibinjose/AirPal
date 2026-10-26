@@ -45,13 +45,7 @@ function fitText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number):
 }
 
 /** Draws img cover-cropped into the square (x, y, s). */
-function drawCover(
-  ctx: CanvasRenderingContext2D,
-  img: HTMLImageElement,
-  x: number,
-  y: number,
-  s: number,
-): void {
+function drawCover(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, s: number): void {
   const scale = Math.max(s / img.naturalWidth, s / img.naturalHeight);
   const dw = img.naturalWidth * scale;
   const dh = img.naturalHeight * scale;
@@ -158,10 +152,7 @@ export async function exportBioPassPng(options: ExportBioPassOptions): Promise<b
   ctx.fillStyle = "#C9D6FF";
   ctx.font = `700 30px ${MONO_STACK}`;
   ctx.fillText(fitText(ctx, `@${cleanHandle}`, 560), ART_W / 2, 580);
-  const metaLine = [(isBusiness ? "Business" : "Individual"), options.city]
-    .filter(Boolean)
-    .join(" · ")
-    .toUpperCase();
+  const metaLine = [isBusiness ? "Business" : "Individual", options.city].filter(Boolean).join(" · ").toUpperCase();
   if (metaLine) {
     ctx.fillStyle = "rgba(255,255,255,0.85)";
     ctx.font = `800 24px ${FONT_STACK}`;

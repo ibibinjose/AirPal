@@ -495,6 +495,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               type="button"
               onClick={handleLiked}
               aria-pressed={event.isLiked}
+              aria-label={event.isLiked ? "Unlike event" : "Like event"}
               title={event.isLiked ? "Liked" : "Like event"}
               className={cn(
                 "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-[background-color,color,box-shadow,transform] active:scale-95",
@@ -649,6 +650,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
             <button
               type="button"
               onClick={handleShare}
+              aria-label="Share event"
               title="Share event"
               className="inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:bg-paper hover:text-ink transition-[background-color,color]"
             >

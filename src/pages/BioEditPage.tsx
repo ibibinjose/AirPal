@@ -680,10 +680,10 @@ export function BioEditPage() {
                 )}
               </div>
 
-              {/* Primary Action Button styled with active theme */}
+              {/* Primary Action Button styled with active theme (visual mirror only — not interactive) */}
               <div className="mt-3">
-                <button
-                  type="button"
+                <div
+                  aria-hidden="true"
                   style={{
                     backgroundColor: activeTheme.buttonBg,
                     color: activeTheme.buttonText,
@@ -696,7 +696,7 @@ export function BioEditPage() {
                 >
                   {isBusiness ? <Building2 size={13} /> : <HeartHandshake size={13} />}
                   <span className="truncate">{primaryCta || (isBusiness ? "Order Online" : "Catch Up")}</span>
-                </button>
+                </div>
               </div>
 
               {/* Quick Action Row */}
@@ -1850,6 +1850,7 @@ export function BioEditPage() {
                                     <button
                                       type="button"
                                       className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-card hover:text-ink cursor-pointer"
+                                      aria-label="Copy link"
                                       title="Copy link"
                                       onClick={() => {
                                         void navigator.clipboard.writeText(l.href);
@@ -1866,6 +1867,7 @@ export function BioEditPage() {
                                           ? "inline-flex h-10 w-10 items-center justify-center rounded-full text-amber-600 cursor-pointer"
                                           : "inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:text-amber-600 cursor-pointer"
                                       }
+                                      aria-label={l.featured ? "Unpin featured" : "Pin to top"}
                                       title={l.featured ? "Unpin featured" : "Pin to top"}
                                       onClick={() => saveLink({ featured: l.featured ? undefined : true })}
                                     >
@@ -1874,6 +1876,7 @@ export function BioEditPage() {
                                     <button
                                       type="button"
                                       className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-card hover:text-ink cursor-pointer"
+                                      aria-label={l.archived ? "Restore link" : "Archive link"}
                                       title={l.archived ? "Restore link" : "Archive link"}
                                       onClick={() => {
                                         saveLink({ archived: l.archived ? undefined : true });
@@ -1885,6 +1888,7 @@ export function BioEditPage() {
                                     <button
                                       type="button"
                                       className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                                      aria-label="Remove link"
                                       title="Remove link"
                                       onClick={() => {
                                         const next = links.filter((x) => x.id !== l.id);
