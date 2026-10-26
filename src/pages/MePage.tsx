@@ -51,6 +51,7 @@ import { Button } from "@/components/ui/Button";
 import { Photo } from "@/components/ui/Photo";
 import { BioKindBadge, BioKindIcon } from "@/components/bio/BioKindBadge";
 import { DigitalBioPassCard } from "@/components/bio/DigitalBioPassCard";
+import { BioShareModal } from "@/components/bio/BioShareModal";
 import { InvitePanel } from "@/components/invite/InvitePanel";
 import { ChangeHandleForm } from "@/components/bio/ChangeHandleForm";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
@@ -92,6 +93,7 @@ export function MePage() {
   const [bioQrData, setBioQrData] = useState<string>("");
   const [copiedBioLink, setCopiedBioLink] = useState(false);
   const [activeTab, setActiveTab] = useState<MeTab>("all");
+  const [showShareModal, setShowShareModal] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   // Subscribe to live catch-up proposals & appointments
@@ -220,24 +222,60 @@ export function MePage() {
       {/* 🌟 1. APPLE HIG NATIVE HERO PROFILE CARD */}
       <div className="relative overflow-hidden rounded-[36px] bg-card ring-1 ring-line/80 shadow-clay mb-6">
         {/* Ambient Top Glow & Pattern */}
-        <div className="relative h-20 sm:h-24 bg-gradient-to-r from-brand-ink via-[#0d173f] to-[#0a0d1e] overflow-hidden">
-          <div className="absolute inset-0 opacity-25 bg-[radial-gradient(#ffffff_1.2px,transparent_1.2px)] [background-size:18px_18px]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+        <div className="relative h-28 sm:h-32 bg-gradient-to-r from-brand-ink via-[#0d173f] to-[#0a0d1e] overflow-hidden">
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1.2px,transparent_1.2px)] [background-size:18px_18px]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
 
-          {/* Top Quick Status Pill */}
-          <div className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 flex items-center gap-2">
-            <Link
-              href="/pass"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-black/40 px-3.5 py-1.5 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95"
-            >
-              <Ticket size={13} className="text-amber-400" />
-              <span>AirPal Pass</span>
-              {upcomingTickets.length > 0 && (
-                <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-black text-black">
-                  {upcomingTickets.length}
-                </span>
+          {/* Top Quick Utility Deck */}
+          <div className="absolute top-3.5 inset-x-3.5 sm:top-4 sm:inset-x-6 flex items-center justify-between gap-2 z-10">
+            {/* Master Brand & Presence Pill */}
+            <div className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-black/40 px-3.5 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl">
+              <Sparkles size={13} className="text-accent" />
+              <span>AirPal Me</span>
+              {city && <span className="opacity-75 font-normal hidden min-[400px]:inline">· {city}</span>}
+              {weather && <span className="opacity-75 font-normal">· {weather.temp}°C</span>}
+            </div>
+
+            {/* Quick Utility Actions */}
+            <div className="flex items-center gap-2">
+              {mine && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("light");
+                    setShowShareModal(true);
+                  }}
+                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-black/40 px-3 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95 cursor-pointer"
+                  title="Show QR Pass"
+                >
+                  <QrCode size={13} className="text-sky-300" />
+                  <span className="hidden min-[480px]:inline">Pass QR</span>
+                </button>
               )}
-            </Link>
+
+              <Link
+                href="/pass"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-black/40 px-3 text-xs font-bold text-white ring-1 ring-white/20 backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95"
+                title="AirPal Passbook"
+              >
+                <Ticket size={13} className="text-amber-400" />
+                <span className="hidden min-[520px]:inline">AirPal Pass</span>
+                {upcomingTickets.length > 0 && (
+                  <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-black text-black">
+                    {upcomingTickets.length}
+                  </span>
+                )}
+              </Link>
+
+              <Link
+                href="/settings"
+                className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-black/40 text-white ring-1 ring-white/20 backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95"
+                title="Settings"
+                aria-label="Settings"
+              >
+                <Settings size={14} />
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -286,15 +324,19 @@ export function MePage() {
 
               {/* Name, Handle & Status */}
               <div className="min-w-0 pb-1 flex-1">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-accent bg-brand/10 ring-1 ring-brand/20 rounded-full px-2.5 py-0.5">
                     <Sparkles size={11} aria-hidden="true" />
                     <span>Me</span>
                   </span>
                   {mine && <BioKindBadge kind={mine.kind} />}
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-500/15 rounded-full px-2.5 py-0.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Active
+                  </span>
                 </div>
 
-                <h1 className="font-display text-lg sm:text-xl font-black tracking-tight text-ink leading-tight truncate">
+                <h1 className="font-display text-xl sm:text-2xl font-black tracking-tight text-ink leading-tight truncate">
                   {user.displayName || mine?.name || "AirPal Member"}
                 </h1>
 
@@ -313,11 +355,9 @@ export function MePage() {
                       <Copy size={11} className="text-mute group-hover:text-ink" />
                     )}
                   </button>
-
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-500/15 rounded-full px-2.5 py-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Active
-                  </span>
+                  {mine?.shortWhy && (
+                    <span className="text-xs text-mute truncate max-w-xs hidden md:inline">· {mine.shortWhy}</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -326,7 +366,7 @@ export function MePage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 items-center gap-2 w-full sm:w-auto shrink-0 mt-3 sm:mt-0">
               <Button
                 variant="primary"
-                className="min-h-[44px] justify-center rounded-full bg-brand px-3.5 sm:px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink active:scale-95"
+                className="min-h-[44px] justify-center rounded-full bg-brand px-3.5 sm:px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95"
                 onClick={() => nav(mine ? bioPath(mine.handle) : "/bio/setup")}
               >
                 <UserRound size={14} className="mr-1.5 shrink-0" />
@@ -336,7 +376,19 @@ export function MePage() {
 
               <Button
                 variant="ghost"
-                className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-bold text-ink hover:bg-paper active:scale-95 shadow-2xs"
+                className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-bold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  setShowShareModal(true);
+                }}
+              >
+                <Share2 size={14} className="text-accent mr-1.5 shrink-0" />
+                <span>Share Pass</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-bold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs"
                 onClick={() => nav("/circle")}
               >
                 <Users size={14} className="text-accent mr-1.5 shrink-0" />
@@ -345,22 +397,12 @@ export function MePage() {
 
               <Button
                 variant="ghost"
-                className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-semibold text-ink hover:bg-paper active:scale-95 shadow-2xs"
+                className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-semibold text-ink hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs"
                 onClick={() => nav(mine ? "/bio/edit" : "/bio/setup")}
                 title="Edit Bio"
               >
                 <Edit3 size={13} className="text-mute mr-1 shrink-0" />
                 <span>Edit Bio</span>
-              </Button>
-
-              <Button
-                variant="ghost"
-                className="min-h-[44px] justify-center rounded-full border border-line bg-card px-3.5 text-xs font-semibold text-ink hover:bg-paper active:scale-95 shadow-2xs"
-                onClick={() => nav("/settings")}
-                title="Settings"
-              >
-                <Settings size={14} className="text-mute mr-1 shrink-0" />
-                <span>Settings</span>
               </Button>
             </div>
           </div>
@@ -372,15 +414,33 @@ export function MePage() {
             className="grid grid-cols-3 divide-x divide-line/60 rounded-2xl bg-paper/60 ring-1 ring-line/60 mt-4 overflow-hidden"
           >
             {[
-              { id: "today" as const, label: "Today", value: todayTotalCount > 0 ? `${todayTotalCount}` : "Open" },
+              {
+                id: "today" as const,
+                label: "Today",
+                sublabel: todayTotalCount > 0 ? `${todayTotalCount} scheduled` : "Clear day",
+                value: todayTotalCount > 0 ? `${todayTotalCount}` : "Open",
+                icon: Sun,
+                iconClass: "text-amber-500",
+              },
               {
                 id: "appointments" as const,
                 label: "Catch-ups",
+                sublabel: pendingAppointments.length > 0 ? `${pendingAppointments.length} pending` : "1-on-1 syncs",
                 value: `${upcomingScheduledAppointments.length + pendingAppointments.length}`,
+                icon: Coffee,
+                iconClass: "text-sky-500",
               },
-              { id: "tickets" as const, label: "Tickets", value: `${upcomingTickets.length}` },
+              {
+                id: "tickets" as const,
+                label: "Tickets",
+                sublabel: upcomingTickets.length > 0 ? `${upcomingTickets.length} active` : "Passbook",
+                value: `${upcomingTickets.length}`,
+                icon: Ticket,
+                iconClass: "text-brand",
+              },
             ].map((stat) => {
               const selected = activeTab === stat.id;
+              const IconComp = stat.icon;
               return (
                 <button
                   key={stat.id}
@@ -388,15 +448,21 @@ export function MePage() {
                   onClick={() => handleTabChange(stat.id)}
                   aria-current={selected ? "true" : undefined}
                   className={cn(
-                    "flex min-h-[60px] flex-col items-center justify-center gap-0.5 px-2 py-2.5 text-center transition-[background-color,transform] cursor-pointer active:scale-[0.98]",
-                    selected ? "bg-brand/10" : "hover:bg-paper",
+                    "flex min-h-[64px] flex-col items-center justify-center gap-0.5 px-2 py-2.5 text-center transition-[background-color,transform] cursor-pointer active:scale-[0.98]",
+                    selected ? "bg-brand/10 font-bold" : "hover:bg-paper",
                   )}
                 >
-                  <span className="font-display text-lg font-black text-ink tabular-nums leading-none">
-                    {stat.value}
-                  </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-mute leading-none">
+                  <div className="flex items-center gap-1.5">
+                    <IconComp size={13} className={stat.iconClass} />
+                    <span className="font-display text-lg font-black text-ink tabular-nums leading-none">
+                      {stat.value}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-mute leading-none mt-0.5">
                     {stat.label}
+                  </span>
+                  <span className="text-[9px] text-mute/80 hidden sm:inline leading-none mt-0.5 font-medium">
+                    {stat.sublabel}
                   </span>
                 </button>
               );
@@ -404,6 +470,56 @@ export function MePage() {
           </div>
         </div>
       </div>
+
+      {/* 🔔 PRIORITY ACTION BANNER: PENDING CATCH-UP PROPOSALS */}
+      {pendingAppointments.length > 0 && (
+        <div className="mb-6 rounded-[28px] bg-amber-500/10 p-4 sm:p-5 ring-1 ring-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-300 shrink-0">
+              <HeartHandshake size={20} />
+            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-black uppercase tracking-wider text-amber-800 dark:text-amber-200">
+                  Catch-up Proposal ({pendingAppointments.length})
+                </span>
+                <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+              </div>
+              <p className="text-sm font-bold text-ink truncate mt-0.5">
+                {pendingAppointments[0].requesterName} wants to connect
+                {pendingAppointments[0].date && ` · ${pendingAppointments[0].date}`}
+                {pendingAppointments[0].time && ` @ ${pendingAppointments[0].time}`}
+                {pendingAppointments[0].venue && ` · ${pendingAppointments[0].venue}`}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+            <Button
+              size="sm"
+              className="min-h-[44px] rounded-full bg-emerald-600 px-4 text-xs font-bold text-white hover:bg-emerald-700 transition-[background-color,transform] active:scale-95 shadow-xs"
+              onClick={async () => {
+                try {
+                  await updateCatchUpStatus(pendingAppointments[0].id, "accepted");
+                  toast.success(`Accepted catch up with ${pendingAppointments[0].requesterName}!`);
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : "Couldn't accept this request.");
+                }
+              }}
+            >
+              <Check size={13} className="mr-1 shrink-0" />
+              Accept
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="min-h-[44px] rounded-full border border-line bg-card/60 px-3.5 text-xs font-semibold text-ink hover:bg-card transition-[background-color,transform] active:scale-95"
+              onClick={() => handleTabChange("appointments")}
+            >
+              View Proposals
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* 🧭 2. APPLE-INSPIRED SEGMENTED TAB BAR */}
       <div className="sticky top-2 z-20 mb-6">
@@ -1125,6 +1241,22 @@ export function MePage() {
           <VerifyEmailBanner email={user.email} onSend={sendVerificationEmail} />
         )}
       </div>
+
+      {/* 📱 DIGITAL BIO PASS & QR CODE MODAL */}
+      {mine && (
+        <BioShareModal
+          open={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          handle={mine.handle}
+          name={mine.name || user.displayName || `@${mine.handle}`}
+          url={toPublicUrl(bioPath(mine.handle))}
+          avatar={mine.avatar}
+          city={mine.city || city}
+          headline={mine.shortWhy}
+          kind={mine.kind}
+          phone={mine.phone}
+        />
+      )}
     </div>
   );
 }
