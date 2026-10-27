@@ -25,4 +25,9 @@ describe("BusinessPage hooks order (Bug 2 guard)", () => {
     const beforeGuards = src.slice(0, src.indexOf("if (!authReady)"));
     expect(beforeGuards).not.toContain("mine!");
   });
+
+  it("keeps the tab in the URL so ?tab= links survive", () => {
+    expect(src).toContain("onTabChange={handleTabChange}");
+    expect(src).toContain("nav(`/business?${params.toString()}`, { replace: true })");
+  });
 });

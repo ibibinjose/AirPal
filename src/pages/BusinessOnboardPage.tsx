@@ -21,6 +21,7 @@ import {
   Users,
 } from "lucide-react";
 import { BUSINESS_CATEGORIES, type BusinessCategoryId } from "@shared/business";
+import { formatAddressOneLine } from "@shared/geo-address";
 import type { GooglePlaceImport } from "@shared/google-place";
 import { GooglePlaceImportCard } from "@/components/business/GooglePlaceImport";
 import { AuthGate } from "@/components/auth/AuthGate";
@@ -186,7 +187,9 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
     {
       id: "venue",
       title: "1. Venue profile & address",
-      detail: mine ? `${mine.name} · ${mine.address}` : "Import from Google Maps or create your venue listing.",
+      detail: mine
+        ? `${mine.name} · ${formatAddressOneLine(mine.address)}`
+        : "Import from Google Maps or create your venue listing.",
       done: Boolean(mine?.name && mine?.address),
       href: mine ? "/business?tab=place" : "/business/onboard",
       cta: mine ? "Edit Venue" : "Add Venue",
@@ -367,7 +370,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
                       <Check size={14} strokeWidth={3} /> Active Venue Connected
                     </span>
                     <h2 className="font-display text-lg font-bold text-ink">{mine.name}</h2>
-                    <p className="text-xs text-mute">{mine.address}</p>
+                    <p className="text-xs text-mute">{formatAddressOneLine(mine.address)}</p>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Link

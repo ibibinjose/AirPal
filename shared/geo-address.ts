@@ -248,6 +248,12 @@ export function formatAddress(parts: AddressParts) {
   return [parts.line1.trim(), parts.line2.trim(), locality, country].filter(Boolean).join("\n");
 }
 
+/** Single-line display form: de-duplicates legacy locality repeats first. */
+export function formatAddressOneLine(raw: string | null | undefined, countryCode = "AU"): string {
+  if (!String(raw || "").trim()) return "";
+  return formatAddress(parseAddress(raw, countryCode)).replace(/\n/g, ", ");
+}
+
 const AU_STATE_CODES = new Map<string, string>([
   ["nsw", "NSW"],
   ["vic", "VIC"],

@@ -17,6 +17,7 @@ export type VenueBioInput = {
   name: string;
   city: string;
   shortWhy: string;
+  aboutText?: string;
   category: BusinessCategoryId;
   kind: BioKind;
   phone?: string;
@@ -33,6 +34,7 @@ export function venueBioInput(listing: BusinessListing): VenueBioInput | null {
     name: listing.name,
     city: parseAddress(listing.address).city || "Sydney",
     shortWhy: listing.shortWhy,
+    aboutText: listing.description?.trim() || undefined,
     category: listing.category,
     kind: "business",
     phone: listing.phone,

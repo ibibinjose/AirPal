@@ -25,6 +25,7 @@ import {
   countryByCode,
   emptyAddress,
   formatAddress,
+  formatAddressOneLine,
   formatGps,
   isValidPhone,
   parseAddress,
@@ -100,6 +101,17 @@ export function BusinessPage() {
       setTab(t);
     }
   }, [search]);
+
+  // Pills write the tab back to the URL (replace, no history spam) so
+  // ?tab= links, bookmarks and refreshes always land on the right tab.
+  const handleTabChange = (next: BusinessNavTab) => {
+    setTab(next);
+    const params = new URLSearchParams(search);
+    if (params.get("tab") !== next) {
+      params.set("tab", next);
+      nav(`/business?${params.toString()}`, { replace: true });
+    }
+  };
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState<AddressParts>(emptyAddress("AU"));
@@ -425,7 +437,7 @@ export function BusinessPage() {
               >
                 {myListings.map((l) => (
                   <option key={l.id} value={l.id}>
-                    {l.name} ({l.address.split(",")[0] || "Sydney"})
+                    {l.name} ({formatAddressOneLine(l.address).split(",")[0] || "Sydney"})
                   </option>
                 ))}
               </select>
@@ -608,7 +620,7 @@ export function BusinessPage() {
           {/* Navigation Hub & Tab Selector */}
           <BusinessNavHub
             activeTab={tab}
-            onTabChange={setTab}
+            onTabChange={handleTabChange}
             listingActive={mine.status === "active"}
             dealLive={Boolean(mine.deal)}
             campaignCount={stats.campaigns}

@@ -13,7 +13,9 @@
 //
 // Second pass: stamps kind == "business" onto existing profiles that have a
 // listingId or placeId but no kind (created before the kind field existed).
+// Third pass fills an empty About from the listing description.
 //
+
 // Requires GOOGLE_APPLICATION_CREDENTIALS (or gcloud ADC) for project
 // airpalme-app. Take a Firestore export / point-in-time snapshot before
 // --apply. Run only after the Bug 3 hotfix is live.
@@ -136,8 +138,25 @@ async function main() {
     }
   }
 
+  // Third pass: business bios with an empty About get the listing's
+  // description (one-click creation fills this for new bios; this covers
+  // bios created before that fix). Never overwrites a bio that has text.
+  const bizAll = await db.collection("profiles").where("kind", "==", "business").get();
+  let aboutFilled = 0;
+  for (const doc of bizAll.docs) {
+    const p = doc.data();
+    if (!p || (p.aboutText && String(p.aboutText).trim()) || !p.listingId) continue;
+    const listing = await db.collection("listings").doc(p.listingId).get();
+    const description = listing.exists ? String(listing.data()?.description || "").trim() : "";
+    if (!description) continue;
+    row(apply ? "fill-about" : "would-fill-about", p.handle, doc.id);
+    if (!apply) continue;
+    await db.collection("profiles").doc(doc.id).set({ aboutText: description }, { merge: true });
+    aboutFilled += 1;
+  }
+
   console.log(
-    `summary,created=${created.length},skipped=${skipped.length},conflicts=${conflicts.length},stamped=${stamped}`,
+    `summary,created=${created.length},skipped=${skipped.length},conflicts=${conflicts.length},stamped=${stamped},aboutFilled=${aboutFilled}`,
   );
   for (const [id, reason] of skipped) console.log(`skipped,${id},${reason}`);
   for (const [id, handle] of conflicts) console.log(`CONFLICT,${id},${handle},needs-human`);

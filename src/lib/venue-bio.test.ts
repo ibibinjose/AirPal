@@ -10,6 +10,7 @@ function qaListing() {
     placeCategory: "eat",
     address: "1 Test St\nSydney NSW 2000\nAustralia",
     shortWhy: "QA venue",
+    description: "Waterfront dining with live music.",
     ownerUid: "u123",
     ownerEmail: "owner@example.com",
   });
@@ -30,6 +31,11 @@ describe("venue bio one-click input", () => {
     expect(input?.placeId).toBe("pl-5pi1fc5j");
     expect(input?.kind).toBe("business");
     expect(input?.city).toBe("Sydney");
+  });
+
+  it("carries the listing description as the bio about text", () => {
+    expect(venueBioInput(qaListing())?.aboutText).toBe("Waterfront dining with live music.");
+    expect(venueBioInput({ ...qaListing(), description: undefined })?.aboutText).toBeUndefined();
   });
 
   it("returns null when no handle can be derived", () => {

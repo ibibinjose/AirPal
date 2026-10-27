@@ -7,6 +7,7 @@ import {
   countryFlag,
   countryFromPhone,
   formatAddress,
+  formatAddressOneLine,
   formatGps,
   isValidPhone,
   locationFromNominatim,
@@ -173,6 +174,12 @@ describe("parseAddress", () => {
   it("round-trips the de-duplicated address without change", () => {
     const once = formatAddress(parseAddress("Sydney NSW 2000\nSydney NSW 2000\nAustralia"));
     expect(formatAddress(parseAddress(once))).toBe(once);
+  });
+
+  it("formats a single display line without duplicated locality", () => {
+    expect(formatAddressOneLine("Sydney NSW 2000\nSydney NSW 2000\nAustralia")).toBe("Sydney NSW 2000, Australia");
+    expect(formatAddressOneLine("1 Test St\nSydney NSW 2000\nAustralia")).toBe("1 Test St, Sydney NSW 2000, Australia");
+    expect(formatAddressOneLine("")).toBe("");
   });
 
   it("returns an empty address for blank input", () => {

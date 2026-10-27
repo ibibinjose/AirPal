@@ -24,7 +24,7 @@ import { placeByHandle } from "@/lib/catalog";
 import { resolvePublicBio, stallByHandle } from "@/lib/bio-handle";
 import { getCachedListings } from "@/lib/listings";
 
-type CreateBioInput = Pick<BioProfile, "handle" | "name" | "city" | "shortWhy"> & {
+type CreateBioInput = Pick<BioProfile, "handle" | "name" | "city" | "shortWhy" | "aboutText"> & {
   category?: BioProfile["category"];
   kind?: BioKind;
   registeredName?: string;
@@ -222,6 +222,7 @@ export function BioProvider({ children }: { children: ReactNode }) {
         ownerEmail: getFirebaseAuth()?.currentUser?.email || user?.email,
         name: input.name.trim(),
         shortWhy: input.shortWhy.trim(),
+        aboutText: input.aboutText?.trim() || keep?.aboutText || undefined,
         city: input.city.trim() || "Sydney",
         category: input.category || keep?.category || (kind === "person" ? "services" : "eat"),
         hours: keep?.hours || place?.hours || (kind === "person" ? "" : stall ? "Market hours" : "See bio"),
