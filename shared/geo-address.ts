@@ -248,6 +248,117 @@ export function formatAddress(parts: AddressParts) {
   return [parts.line1.trim(), parts.line2.trim(), locality, country].filter(Boolean).join("\n");
 }
 
+const AU_STATE_CODES = new Map<string, string>([
+  ["nsw", "NSW"],
+  ["vic", "VIC"],
+  ["qld", "QLD"],
+  ["sa", "SA"],
+  ["wa", "WA"],
+  ["tas", "TAS"],
+  ["nt", "NT"],
+  ["act", "ACT"],
+  ["new south wales", "NSW"],
+  ["victoria", "VIC"],
+  ["queensland", "QLD"],
+  ["south australia", "SA"],
+  ["western australia", "WA"],
+  ["tasmania", "TAS"],
+  ["northern territory", "NT"],
+  ["australian capital territory", "ACT"],
+]);
+
+const AU_SPACED_STATE_NAMES = [
+  "new south wales",
+  "victoria",
+  "queensland",
+  "south australia",
+  "western australia",
+  "tasmania",
+  "northern territory",
+  "australian capital territory",
+];
+
+function splitLocalityTail(text: string): { head: string; region: string; postal: string } {
+  let rest = text.trim().replace(/[.]+$/, "");
+  let postal = "";
+  const post = rest.match(/(\d{3,6}(?:\s*-\s*\d{3,6})?)\s*$/);
+  if (post?.[1]) {
+    postal = post[1].replace(/\s+/g, "");
+    rest = rest.slice(0, post.index ?? rest.length).trim().replace(/[,;\s]+$/, "");
+  }
+  let region = "";
+  const tailWord = rest.match(/([A-Za-z]{2,})$/)?.[1];
+  const code = tailWord ? AU_STATE_CODES.get(tailWord.toLowerCase()) : undefined;
+  if (code && tailWord) {
+    region = code;
+    rest = rest.slice(0, rest.length - tailWord.length).trim().replace(/[,;\s]+$/, "");
+  } else {
+    const lower = rest.toLowerCase();
+    const full = AU_SPACED_STATE_NAMES.find(
+      (name) =>
+        name.includes(" ") &&
+        lower.endsWith(name) &&
+        (lower.length === name.length || /[,\s]/.test(lower[lower.length - name.length - 1] ?? "")),
+    );
+    if (full) {
+      region = AU_STATE_CODES.get(full) ?? "";
+      rest = rest.slice(0, rest.length - full.length).trim().replace(/[,;\s]+$/, "");
+    }
+  }
+  return { head: rest, region, postal };
+}
+
+/**
+ * Inverse of formatAddress. A single "Sydney NSW 2000" line splits into
+ * city/region/postal instead of landing whole in the street field, and a
+ * "61 Albion St, Surry Hills NSW 2010" line keeps its street part. A lone
+ * line with no locality markers is still treated as street.
+ */
+export function parseAddress(raw: string | null | undefined, countryCode = "AU"): AddressParts {
+  const lines = String(raw ?? "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (!lines.length) return emptyAddress(countryCode);
+  let cc = countryCode;
+  let body = lines;
+  if (lines.length > 1) {
+    const maybeCountry = lines[lines.length - 1];
+    const countryHit = HOST_COUNTRIES.find((c) => c.name.toLowerCase() === maybeCountry.toLowerCase());
+    if (countryHit) {
+      cc = countryHit.code;
+      body = lines.slice(0, -1);
+    }
+  }
+  if (!body.length) return emptyAddress(cc);
+  const localityRaw = body[body.length - 1];
+  const streetLines = body.slice(0, -1);
+  const { head, region, postal } = splitLocalityTail(localityRaw);
+  let line1 = "";
+  let line2 = "";
+  let city = "";
+  if (streetLines.length > 0) {
+    // Genuine street lines exist: the last line is the locality.
+    line1 = streetLines[0];
+    line2 = streetLines.slice(1).join(", ");
+    city = head;
+  } else if (region || postal) {
+    const bits = head
+      .split(",")
+      .map((b) => b.trim())
+      .filter(Boolean);
+    if (bits.length > 1) {
+      city = bits[bits.length - 1];
+      line1 = bits.slice(0, -1).join(", ");
+    } else {
+      city = head;
+    }
+  } else {
+    line1 = head;
+  }
+  return { line1, line2, city, region, postal, countryCode: cc };
+}
+
 export function addressOk(parts: AddressParts) {
   return Boolean(parts.line1.trim() && parts.city.trim() && parts.countryCode);
 }
@@ -284,6 +395,7 @@ export type HostLocationFields = {
   countryCode: string;
   state: string;
   city: string;
+  postcode: string;
   address: string;
   phoneCountryCode: string;
   geo?: { lat: number; lng: number };
@@ -307,6 +419,7 @@ export function locationFromNominatim(payload: {
     countryCode: known?.code || code,
     state,
     city,
+    postcode: a.postcode || a.postal_code || a.zipcode || "",
     address: line || a.display_name || "",
     phoneCountryCode: known?.dial || "",
     geo: Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : undefined,

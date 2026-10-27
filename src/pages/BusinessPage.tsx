@@ -26,6 +26,7 @@ import {
   formatAddress,
   formatGps,
   isValidPhone,
+  parseAddress,
   type AddressParts,
 } from "@shared/geo-address";
 import { locateBusiness } from "@/lib/locate";
@@ -117,12 +118,7 @@ export function BusinessPage() {
   useEffect(() => {
     if (!mine) return;
     setName(mine.name);
-    const lines = (mine.address || "").split("\n");
-    setAddress({
-      ...emptyAddress("AU"),
-      line1: lines[0] || mine.address || "",
-      city: lines[1]?.split(" ")[0] || "",
-    });
+    setAddress(parseAddress(mine.address));
     setHours(mine.hours);
     setShortWhy(mine.shortWhy);
     setDescription(mine.description || "");
@@ -307,9 +303,13 @@ export function BusinessPage() {
         handle: mine!.handle,
         heroImage: hero,
       });
-      if (bio?.handle && (bio.aboutText !== description || bio.shortWhy !== shortWhy || bio.name !== name)) {
+      // Sync the VENUE bio only — never the owner's personal profile.
+      if (
+        business?.handle &&
+        (business.aboutText !== description || business.shortWhy !== shortWhy || business.name !== name)
+      ) {
         await updateProfile({
-          handle: bio.handle,
+          handle: business.handle,
           name,
           shortWhy,
           aboutText: description,
@@ -522,10 +522,10 @@ export function BusinessPage() {
             </Link>
           </div>
           <Link
-            href="/bio/edit"
+            href="/bio/edit?kind=business"
             className="inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-card px-3.5 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap"
           >
-            <span>Edit Link-in-Bio</span>
+            <span>Edit Venue Bio &amp; Links</span>
             <ArrowRight className="h-3 w-3 shrink-0" />
           </Link>
         </div>
@@ -597,12 +597,8 @@ export function BusinessPage() {
                     setCategory(place.category);
                     if (place.geo) setGeo(place.geo);
                     if (place.photoNames[0]) setHero(place.photoNames[0]);
-                    const parts = place.address.split(",").map((p) => p.trim());
-                    setAddress({
-                      ...emptyAddress("AU"),
-                      line1: parts[0] || place.address,
-                      city: place.city || parts[1] || "",
-                    });
+                    const parsed = parseAddress(place.address);
+                    setAddress({ ...parsed, city: place.city || parsed.city });
                     void savePlace({
                       name: place.name,
                       category: place.category,
@@ -617,19 +613,20 @@ export function BusinessPage() {
                       mapsPlaceId: place.placeId,
                       website: place.website,
                     }).then(() => toast.success("Imported and saved from Google Places"));
-                    if (bio?.handle) {
+                    // Sync the VENUE bio only — never the owner's personal profile.
+                    if (business?.handle) {
                       void updateProfile({
-                        handle: bio.handle,
+                        handle: business.handle,
                         name: place.name,
-                        shortWhy: place.shortWhy || bio.shortWhy,
-                        aboutText: description || bio.aboutText,
-                        hours: place.hours || bio.hours,
-                        phone: place.phone || bio.phone,
-                        city: place.city || bio.city,
-                        avatar: place.photoNames[1] || place.photoNames[0] || bio.avatar,
-                        cover: place.photoNames[0] || bio.cover,
+                        shortWhy: place.shortWhy || business.shortWhy,
+                        aboutText: description || business.aboutText,
+                        hours: place.hours || business.hours,
+                        phone: place.phone || business.phone,
+                        city: place.city || business.city,
+                        avatar: place.photoNames[1] || place.photoNames[0] || business.avatar,
+                        cover: place.photoNames[0] || business.cover,
                         mapsPlaceId: place.placeId,
-                        links: mergeBioLinks(bio.links, bioLinksFromGooglePlace(place)),
+                        links: mergeBioLinks(business.links, bioLinksFromGooglePlace(place)),
                       });
                     }
                   }}
@@ -748,6 +745,7 @@ export function BusinessPage() {
                                 line1: found.fields?.address || a.line1,
                                 city: found.fields?.city || a.city,
                                 region: found.fields?.state || a.region,
+                                postal: found.fields?.postcode || a.postal,
                               }));
                               const dial = countryByCode(code)?.dial;
                               if (dial && !isValidPhone(phone)) setPhone(dial + " ");

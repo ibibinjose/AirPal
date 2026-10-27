@@ -139,7 +139,15 @@ export function BioProvider({ children }: { children: ReactNode }) {
           !(currentEmail && p.ownerEmail === currentEmail),
       );
       if (existing) return { ok: false, reason: "Taken" };
-      const listingHit = getCachedListings().find((row) => row.handle === h && row.id !== skip);
+      // A listing only blocks a handle when someone else owns it — your own
+      // venue's listing must NOT block your venue bio from using its handle.
+      const listingHit = getCachedListings().find(
+        (row) =>
+          row.handle === h &&
+          row.id !== skip &&
+          !(currentUid && row.ownerUid === currentUid) &&
+          !(currentEmail && row.ownerEmail === currentEmail),
+      );
       if (listingHit) return { ok: false, reason: "Taken" };
       if (liveBackendEnabled()) {
         try {
@@ -168,7 +176,19 @@ export function BioProvider({ children }: { children: ReactNode }) {
         existing &&
         ((currentUid && existing.ownerUid === currentUid) || (currentEmail && existing.ownerEmail === currentEmail)),
       );
-      if (existing && existing.id !== sameKind?.id && !isMyOwn) throw new Error("Taken");
+      if (existing && existing.id !== sameKind?.id) {
+        // Never convert a profile from one kind to another in place — that is
+        // how launching a venue destroys the owner's personal profile.
+        // (Kind-less legacy bios predate venues, so they count as personal.)
+        if ((existing.kind || "person") !== kind) {
+          throw new Error(
+            (existing.kind || "person") === "person"
+              ? "That handle is your personal profile — pick a different venue handle."
+              : "That handle is already a venue profile — pick a different handle.",
+          );
+        }
+        if (!isMyOwn) throw new Error("Taken");
+      }
       const place = placeByHandle(h);
       const stall = stallByHandle(h);
       const listing = getCachedListings().find((row) => row.handle === h || row.id === business?.listingId);
@@ -208,7 +228,9 @@ export function BioProvider({ children }: { children: ReactNode }) {
         registrationNumber: input.registrationNumber?.trim() || keep?.registrationNumber,
         domain: input.domain?.trim() || keep?.domain,
         trademark: input.trademark?.trim() || keep?.trademark,
-        visibility: kind === "person" ? "public" : undefined,
+        // Venues are public storefronts: an undefined visibility falls back to
+        // friends-only gating elsewhere, which locks the owner out too.
+        visibility: "public",
       };
       persistBios([
         profile,

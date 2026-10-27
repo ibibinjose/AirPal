@@ -59,28 +59,32 @@ export function SocialAuthButtons({
     <div className="space-y-2">
       {showBio && <BiometricAuthButton variant="social" />}
       {SHOW_SOCIAL_AUTH && (
-        <>
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             disabled={locked}
             onClick={() => void go("google")}
+            aria-label={pending === "google" ? "Continuing with Google" : "Continue with Google"}
+            title="Continue with Google"
             className={cn(
-              "flex h-12 w-full items-center justify-center gap-2 rounded-full bg-card text-sm font-semibold ring-1 ring-line transition hover:bg-paper active:scale-[0.99] disabled:opacity-60 shadow-2xs cursor-pointer",
+              "flex h-11 min-h-[44px] w-full min-w-0 items-center justify-center gap-1.5 rounded-full bg-card px-3 text-sm font-semibold ring-1 ring-line transition hover:bg-paper active:scale-[0.99] disabled:opacity-60 shadow-2xs cursor-pointer",
             )}
           >
             <GoogleMark />
-            {pending === "google" ? "Continuing with Google…" : "Continue with Google"}
+            <span className="truncate">{pending === "google" ? "Connecting…" : "Google"}</span>
           </button>
           <button
             type="button"
             disabled={locked}
             onClick={() => void go("apple")}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-neutral-900 text-sm font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.99] disabled:opacity-60 shadow-2xs cursor-pointer"
+            aria-label={pending === "apple" ? "Continuing with Apple" : "Continue with Apple"}
+            title="Continue with Apple"
+            className="flex h-11 min-h-[44px] w-full min-w-0 items-center justify-center gap-1.5 rounded-full bg-neutral-900 px-3 text-sm font-semibold text-white transition hover:bg-neutral-800 active:scale-[0.99] disabled:opacity-60 shadow-2xs cursor-pointer"
           >
             <AppleMark />
-            {pending === "apple" ? "Continuing with Apple…" : "Continue with Apple"}
+            <span className="truncate">{pending === "apple" ? "Connecting…" : "Apple"}</span>
           </button>
-        </>
+        </div>
       )}
     </div>
   );

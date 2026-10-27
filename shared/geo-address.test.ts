@@ -10,6 +10,7 @@ import {
   formatGps,
   isValidPhone,
   locationFromNominatim,
+  parseAddress,
   splitPhone,
 } from "./geo-address";
 
@@ -91,5 +92,56 @@ describe("host location", () => {
     expect(countryFromPhone("+34912345678")?.code).toBe("ES");
     expect(countryFromPhone("+390612345678")?.code).toBe("IT");
     expect(countryFromPhone("+5511999999999")?.code).toBe("BR");
+  });
+});
+
+describe("parseAddress", () => {
+  it("splits a lone locality line into city, state and postcode", () => {
+    expect(parseAddress("Sydney NSW 2000")).toMatchObject({
+      line1: "",
+      city: "Sydney",
+      region: "NSW",
+      postal: "2000",
+    });
+  });
+
+  it("keeps the street part of a comma-joined locality line", () => {
+    expect(parseAddress("61 Albion St, Surry Hills NSW 2010")).toMatchObject({
+      line1: "61 Albion St",
+      city: "Surry Hills",
+      region: "NSW",
+      postal: "2010",
+    });
+  });
+
+  it("round-trips a stored multi-line address", () => {
+    const stored = formatAddress({
+      line1: "61 Albion St",
+      line2: "",
+      city: "Surry Hills",
+      region: "NSW",
+      postal: "2010",
+      countryCode: "AU",
+    });
+    expect(parseAddress(stored)).toMatchObject({
+      line1: "61 Albion St",
+      city: "Surry Hills",
+      region: "NSW",
+      postal: "2010",
+    });
+  });
+
+  it("treats a plain street line with no locality markers as street", () => {
+    expect(parseAddress("61 Albion Street")).toMatchObject({
+      line1: "61 Albion Street",
+      city: "",
+      region: "",
+      postal: "",
+    });
+  });
+
+  it("returns an empty address for blank input", () => {
+    expect(parseAddress("")).toMatchObject({ line1: "", city: "", region: "", postal: "" });
+    expect(parseAddress(null)).toMatchObject({ line1: "", city: "", region: "", postal: "" });
   });
 });

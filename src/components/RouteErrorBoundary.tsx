@@ -55,6 +55,17 @@ export class RouteErrorBoundary extends React.Component<
                 ? "This page didn't load — the app may have updated. Reload to get the latest version."
                 : "Try again — the rest of the app is fine. If it keeps happening, reload."}
             </p>
+            {import.meta.env.DEV && (
+              <details className="mt-4 text-left">
+                <summary className="cursor-pointer text-xs font-semibold text-mute">
+                  Error details (dev only)
+                </summary>
+                <pre className="mt-2 max-h-48 overflow-auto rounded-xl bg-paper p-3 text-[11px] text-mute">
+                  {message}
+                  {this.state.err.stack ? `\n${this.state.err.stack}` : ""}
+                </pre>
+              </details>
+            )}
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               {isChunkError ? (
                 <button

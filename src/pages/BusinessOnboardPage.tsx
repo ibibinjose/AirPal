@@ -204,13 +204,15 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
     {
       id: "bio",
       title: "4. Public Business Bio (@handle)",
-      detail:
-        business?.handle || mine?.handle
-          ? `Live at /@${business?.handle || mine?.handle}`
-          : "Claim your @handle so guests can follow your venue and share your card.",
-      done: Boolean(business?.handle || mine?.handle),
-      href: business?.handle || mine?.handle ? `/@${business?.handle || mine?.handle}` : "/bio/setup?kind=business",
-      cta: business?.handle || mine?.handle ? "View Public Bio" : "Setup Business Bio",
+      // Only the venue BIO counts as live — the listing handle alone is not a page.
+      detail: business?.handle
+        ? `Live at /@${business.handle}`
+        : "Claim your @handle so guests can follow your venue and share your card.",
+      done: Boolean(business?.handle),
+      href: business?.handle
+        ? `/@${business.handle}`
+        : `/bio/setup?kind=business${mine?.handle ? `&handle=${encodeURIComponent(mine.handle)}` : ""}`,
+      cta: business?.handle ? "View Public Bio" : "Setup Business Bio",
     },
     {
       id: "events",

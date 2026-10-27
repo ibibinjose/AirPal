@@ -47,6 +47,19 @@ describe("canViewProfile", () => {
     expect(canViewProfile(null, bio, social)).toBe(true);
   });
 
+  it("keeps business storefronts public when visibility was never set", () => {
+    const bio = makeBio({ kind: "business", visibility: undefined });
+    expect(canViewProfile(null, bio, social)).toBe(true);
+    expect(canViewProfile({ uid: "stranger" }, bio, social)).toBe(true);
+  });
+
+  it("recognises the venue owner by email or handle when the uid is missing", () => {
+    const bio = makeBio({ kind: "business", ownerEmail: "owner@example.com" });
+    expect(canViewProfile({ email: "owner@example.com" }, bio, social)).toBe(true);
+    expect(canViewProfile({ handle: "@alex" }, bio, social)).toBe(true);
+    expect(canViewProfile({ uid: "stranger" }, bio, social)).toBe(true);
+  });
+
   it("opens public person profiles to signed-out guests", () => {
     const bio = makeBio({ kind: "person", visibility: "public" });
     expect(canViewProfile(null, bio, social)).toBe(true);

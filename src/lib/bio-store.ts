@@ -220,7 +220,14 @@ async function fetchOwnedBios(uid: string): Promise<{ rows: BioProfile[]; needsB
   if (!handle) return { rows: [], needsBackfill: false };
   const pub = await fetchPublicBio(handle);
   if (pub && (!pub.ownerUid || pub.ownerUid === uid)) {
-    return { rows: [{ ...pub, ownerUid: uid, kind: pub.kind || "person" }], needsBackfill: false };
+    // Never downgrade a remote kind to person: a business bio whose doc
+    // predates the kind field must stay a business (otherwise its public
+    // page gates behind "follow to view", even for the owner).
+    const localSame = loadBios().find((row) => row.handle === pub.handle || (row.id && row.id === pub.id));
+    return {
+      rows: [{ ...pub, ownerUid: uid, kind: pub.kind || localSame?.kind || "person" }],
+      needsBackfill: false,
+    };
   }
   if (pub) return { rows: [], needsBackfill: false };
   const name = String(userSnap.data()?.displayName || handle);
