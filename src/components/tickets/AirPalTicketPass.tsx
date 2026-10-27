@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/Button";
 import { AppleWalletButton } from "@/components/ui/AppleWalletButton";
 import { GoogleWalletButton } from "@/components/ui/GoogleWalletButton";
 import { AddToCalendarMenu } from "@/components/calendar/AddToCalendarMenu";
+import { ArrivalAssistantCard } from "@/components/arrival/ArrivalAssistantCard";
+import { resolvePrecinctGeo } from "@/lib/arrival";
 import { googleWalletTicketUrl, openAppleWalletPass, openGoogleWalletPass, ticketWalletPassUrl } from "@/lib/wallet";
 import { makeQrDataUrl } from "@/lib/qr";
 import { publicSiteOrigin } from "@/lib/public-origin";
@@ -205,6 +207,14 @@ export function AirPalTicketPass({ booking, guestName, hostName, showActions = t
             />
           </div>
 
+          {/* Possie-inspired Arrival & Last-Mile Parking / Transit Assistant */}
+          <ArrivalAssistantCard
+            destination={resolvePrecinctGeo(booking.suburb || booking.title)}
+            destinationName={booking.title}
+            address={booking.suburb}
+            initialExpanded={isToday}
+          />
+
           <AddToCalendarMenu
             event={{
               id: booking.id,
@@ -217,13 +227,13 @@ export function AirPalTicketPass({ booking, guestName, hostName, showActions = t
                 : new Date().toISOString(),
             }}
             label="1-Tap Add to Calendar"
-            buttonClassName="w-full justify-center rounded-2xl bg-paper px-4 py-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition min-h-[44px]"
+            buttonClassName="w-full justify-center rounded-2xl bg-paper px-4 py-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition-[background-color,transform] min-h-[44px]"
           />
 
           <div className="flex gap-2">
             <Link
               href={`/ticket/${booking.id}`}
-              className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-3 text-xs font-semibold text-accent ring-1 ring-line hover:bg-card transition"
+              className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-paper px-3 text-xs font-semibold text-accent ring-1 ring-line hover:bg-card transition-[background-color,transform]"
             >
               <Ticket size={13} className="shrink-0" /> Full Pass
             </Link>

@@ -47,6 +47,32 @@ function webCurrentPosition(highAccuracy: boolean): Promise<Geo | null> {
   });
 }
 
+export type GeoPermissionState = "granted" | "denied" | "prompt" | "unknown";
+
+/**
+ * Permissions API state for geolocation. Never triggers a prompt itself, so
+ * it is safe to call on load, refocus, or before requesting a fix. Guards
+ * against repeat-prompting a user who already denied — Chrome auto-blocks
+ * geolocation after repeated dismissals, recoverable only via the site
+ * (tune-icon) settings.
+ */
+export async function queryGeoPermission(): Promise<GeoPermissionState> {
+  try {
+    const perms = (
+      navigator as Navigator & {
+        permissions?: { query: (desc: { name: string }) => Promise<{ state: string }> };
+      }
+    ).permissions;
+    const status = await perms?.query({ name: "geolocation" });
+    if (status?.state === "granted" || status?.state === "denied" || status?.state === "prompt") {
+      return status.state;
+    }
+  } catch {
+    /* Permissions API unavailable (older browsers, some WebViews) */
+  }
+  return "unknown";
+}
+
 /** GPS on web, iOS, and Android. Native uses Capacitor Geolocation, then the WebView API. */
 export async function requestDeviceGeo(opts?: { highAccuracy?: boolean }): Promise<Geo | null> {
   const highAccuracy = Boolean(opts?.highAccuracy) || isNativeApp();

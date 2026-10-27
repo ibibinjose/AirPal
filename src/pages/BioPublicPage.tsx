@@ -76,6 +76,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEvents } from "@/contexts/EventsContext";
 import { fetchPublicBio } from "@/lib/bio-store";
 import { TradingHoursScheduleView } from "@/components/discovery/TradingHoursScheduleView";
+import { ArrivalAssistantCard } from "@/components/arrival/ArrivalAssistantCard";
 import { resolvePublicBio } from "@/lib/bio-handle";
 import { claimBioOfferRemote, joinGuestlistSignupRemote } from "@/lib/functions";
 import { CITY_OPTIONS } from "@/lib/cities";
@@ -1367,7 +1368,7 @@ export function BioPublicPage() {
                         void triggerHaptic("light");
                         if (maps) recordTap(bio.handle, "maps");
                       }}
-                      className="flex min-h-[52px] items-center gap-3 p-4 transition hover:bg-paper active:scale-[0.99] touch-manipulation cursor-pointer"
+                      className="flex min-h-[52px] items-center gap-3 p-4 transition-[background-color,transform] hover:bg-paper active:scale-[0.99] touch-manipulation cursor-pointer"
                     >
                       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent">
                         <MapPin size={18} />
@@ -1388,7 +1389,7 @@ export function BioPublicPage() {
                         void triggerHaptic("light");
                         recordTap(bio.handle, "call");
                       }}
-                      className="flex min-h-[52px] items-center gap-3 p-4 transition hover:bg-paper active:scale-[0.99] touch-manipulation cursor-pointer"
+                      className="flex min-h-[52px] items-center gap-3 p-4 transition-[background-color,transform] hover:bg-paper active:scale-[0.99] touch-manipulation cursor-pointer"
                     >
                       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent">
                         <Phone size={18} />
@@ -1397,6 +1398,17 @@ export function BioPublicPage() {
                       <ChevronRight size={18} className="shrink-0 text-mute" />
                     </a>
                   )}
+                </div>
+              )}
+              {Boolean(bio.geo || bio.city) && (
+                <div className="mt-4">
+                  <ArrivalAssistantCard
+                    destination={bio.geo}
+                    destinationName={bio.name || bio.handle}
+                    address={bio.city}
+                    city={bio.city}
+                    compact
+                  />
                 </div>
               )}
             </div>

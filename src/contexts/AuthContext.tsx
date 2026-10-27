@@ -7,7 +7,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import type { UserProfile, UserRole } from "@shared/airpal-data";
 import {
   attachEmailToAccount,
@@ -35,6 +35,7 @@ import {
   withAuthUpgrade,
 } from "@/lib/firebase";
 import { clearPendingIntent, savePendingIntent, type PendingIntent } from "@/lib/pending-intent";
+import { ensureAccountDeletionMarker } from "@/lib/account-deletion";
 import { clearDeviceCache } from "@/lib/device-cache";
 import {
   completeAccountSignupRemote,
@@ -445,12 +446,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!fb || fb.isAnonymous) throw new Error("Sign in first.");
         const db = getFirebaseDb();
         if (db) {
-          await setDoc(doc(db, "account_deletions", fb.uid), {
-            uid: fb.uid,
+          await ensureAccountDeletionMarker(db, fb.uid, {
             email: fb.email || "",
             phone: fb.phoneNumber || "",
-            requestedAt: new Date().toISOString(),
-            status: "requested",
           });
         }
         try {

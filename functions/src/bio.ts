@@ -58,9 +58,25 @@ export const createBusinessProfile = onCall(CALLABLE, async (request) => {
       : sameKind?.id || legacySolo?.id || `bio-${randomBytes(4).toString("hex")}`;
   const previous = await db.collection("handles").where("ownerUid", "==", uid).get();
   const stale = previous.docs.filter((row) => row.id !== handle && String(row.data()?.profileId || "") === profileId);
+  const previousProfile = await db.collection("profiles").doc(profileId).get();
+  // A handle identifies exactly one profile: never repurpose a profile of the
+  // other kind. A venue handle colliding with your personal bio (or vice
+  // versa) must fail loudly — a silent merge-write flips kind and overwrites
+  // the original name/about. Clients check their local cache first, but it
+  // can be cold, so the server enforces it.
+  if (previousProfile.exists) {
+    const prevKind = String(previousProfile.data()?.kind || "") || "person";
+    if (prevKind !== kind) {
+      throw new HttpsError(
+        "already-exists",
+        prevKind === "person"
+          ? "That handle is your personal profile — pick a different venue handle."
+          : "That handle is already a venue profile — pick a different handle.",
+      );
+    }
+  }
   await db.collection("handles").doc(handle).set({ handle, profileId, ownerUid: uid });
   await Promise.all(stale.map((row) => row.ref.delete()));
-  const previousProfile = await db.collection("profiles").doc(profileId).get();
   const payload: Record<string, unknown> = {
     id: profileId,
     handle,

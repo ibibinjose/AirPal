@@ -11,6 +11,7 @@ import { SearchBar } from "@/components/search/SearchBar";
 import { PossieTicket, stubCode } from "@/components/pass/PossieTicket";
 import { PlanBeforeYouGo } from "@/components/pass/PlanBeforeYouGo";
 import { DirectionsHandoff } from "@/components/pass/DirectionsHandoff";
+import { ArrivalAssistantCard } from "@/components/arrival/ArrivalAssistantCard";
 
 /**
  * /places — discover local venues and partner spots.
@@ -25,6 +26,7 @@ export function PlacesPage() {
   const [closestFirst, setClosestFirst] = useState(true);
   const local = useOptionalLocalNow();
   const origin = local && local.usingGps ? local.here : undefined;
+  const geoBlocked = local?.geoBlocked ?? false;
 
   const places = useMemo(() => activePlaces(), []);
 
@@ -107,12 +109,22 @@ export function PlacesPage() {
           </button>
         </div>
         {!origin && (
-          <p className="px-1 pb-2 text-xs text-mute">Turn on location to see walk times and sort by closest first.</p>
+          <p className="px-1 pb-2 text-xs text-mute">
+            {geoBlocked
+              ? "Location is blocked in this browser — tap the tune icon by the address bar, allow Location, then reload."
+              : "Turn on location to see walk times and sort by closest first."}
+          </p>
         )}
 
         {single && (
-          <div className="px-1 pb-3">
+          <div className="px-1 pb-3 space-y-3">
             <DirectionsHandoff geo={single.geo} label={single.name} address={single.address} />
+            <ArrivalAssistantCard
+              destination={single.geo}
+              destinationName={single.name}
+              address={single.address}
+              city={single.precinctId}
+            />
           </div>
         )}
 

@@ -61,7 +61,7 @@ export function SettingsPage() {
   const [, nav] = useLocation();
   const { user, logout, deleteAccount, sendVerificationEmail, requestPasswordReset, refreshUser } = useAuth();
   const { mine, business } = useBio();
-  const { city, usingGps, chooseLocation, shareLocation, setShareLocation } = useLocalNow();
+  const { city, usingGps, geoBlocked, chooseLocation, shareLocation, setShareLocation } = useLocalNow();
   const buildInfo = getBuildInfo();
 
   const [resetBusy, setResetBusy] = useState(false);
@@ -582,6 +582,12 @@ export function SettingsPage() {
                 </option>
               ))}
             </select>
+            {geoBlocked && (
+              <p className="mt-2 text-xs text-mute">
+                Location is blocked in this browser, so GPS can&apos;t engage. Tap the tune icon by the address bar,
+                allow Location, then reload.
+              </p>
+            )}
           </div>
 
           <div className="flex min-h-[56px] items-center justify-between p-4 sm:p-5">

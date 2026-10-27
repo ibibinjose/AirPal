@@ -20,7 +20,7 @@ export function DirectionsHandoff({ geo, label, address }: { geo?: Geo; label: s
   const googleUrl = geo ? mapsPlaceUrl(geo, destination) : mapsSearchUrl(destination, undefined);
 
   const linkCls =
-    "inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition cursor-pointer touch-manipulation";
+    "inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition-[background-color,transform] cursor-pointer touch-manipulation";
 
   return (
     <div className="flex flex-wrap items-center gap-2">

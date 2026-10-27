@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Check, Copy, ExternalLink, Globe, Lock, MapPin, Navigation, ShieldCheck, Video } from "lucide-react";
 import { toast } from "sonner";
+import { ArrivalAssistantCard } from "@/components/arrival/ArrivalAssistantCard";
+import { resolvePrecinctGeo } from "@/lib/arrival";
 import { cn } from "@/lib/cn";
 import type { EventLocationType } from "@shared/event";
 
@@ -181,7 +183,7 @@ export function EventLocationCard({
         <button
           type="button"
           onClick={copyAddress}
-          className="flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-3 text-sm font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition active:scale-95 cursor-pointer touch-manipulation"
+          className="flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-3 text-sm font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition-[background-color,box-shadow,transform] active:scale-95 cursor-pointer touch-manipulation"
         >
           {copied ? (
             <Check size={13} className="text-emerald-600" aria-hidden="true" />
@@ -195,12 +197,20 @@ export function EventLocationCard({
           href={directionsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-3 text-sm font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition active:scale-95 cursor-pointer touch-manipulation"
+          className="flex-1 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-3 text-sm font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/30 transition-[background-color,box-shadow,transform] active:scale-95 cursor-pointer touch-manipulation"
         >
           <Navigation size={13} className="text-accent" aria-hidden="true" />
           <span>Get Directions</span>
         </a>
       </div>
+
+      {/* Possie-inspired Arrival & Last-Mile Parking */}
+      <ArrivalAssistantCard
+        destination={geo || resolvePrecinctGeo(displayAddress)}
+        destinationName={venue || city}
+        address={displayAddress}
+        className="mt-2"
+      />
     </div>
   );
 }

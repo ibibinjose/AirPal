@@ -32,6 +32,7 @@ import {
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { dismissKeyboard } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
+import { ArrivalAssistantCard } from "@/components/arrival/ArrivalAssistantCard";
 
 interface CalendarEventModalProps {
   event: CalendarEvent | null;
@@ -205,6 +206,15 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
               </span>
             </div>
           )}
+
+          {/* Possie-inspired arrival & parking guidance */}
+          <ArrivalAssistantCard
+            destination={event.geo}
+            destinationName={event.venue}
+            address={`${event.venue}, ${event.city}`}
+            city={event.city}
+            compact
+          />
 
           {event.ticketPrice && (
             <div className="flex items-center justify-between rounded-xl bg-paper/80 px-3.5 py-2 text-xs font-medium text-ink ring-1 ring-line/60">

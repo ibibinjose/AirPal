@@ -3,7 +3,7 @@ import type { Geo } from "@shared/nearby";
 import { PRECINCT_META } from "@/lib/cities";
 import { DEFAULT_TZ, deviceTimeZone, formatLocalDay, formatLocalTime, toZonedDateStr } from "@/lib/local-time";
 import { loadLocalWeather, type LocalWeather, type WeatherOrigin } from "@/lib/weather";
-import { requestDeviceGeo, watchDeviceGeo } from "@/lib/geo-locate";
+import { queryGeoPermission, requestDeviceGeo, watchDeviceGeo } from "@/lib/geo-locate";
 import { geoDrifted } from "@/lib/weather";
 import {
   loadLastGps,
@@ -25,6 +25,8 @@ export type LocalNowValue = {
   city: string;
   /** True when here is the device GPS, not The Rocks / a chosen city. */
   usingGps: boolean;
+  /** True when the browser reports geolocation denied (auto-blocked or refused). */
+  geoBlocked: boolean;
   /** Physical / GPS-or-fallback point for weather, time, and Discover. */
   here: Geo;
   /** Physical anchor point for weather and Discover; same as here. */
@@ -47,6 +49,7 @@ export function LocalNowProvider({ children }: { children: ReactNode }) {
   const [shareLocation, setShareLocationState] = useState(() => loadShareLocation());
   const [now, setNow] = useState(() => new Date());
   const [deviceGeo, setDeviceGeo] = useState<Geo | null>(null);
+  const [geoBlocked, setGeoBlocked] = useState(false);
   const [weather, setWeather] = useState<LocalWeather | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -90,24 +93,35 @@ export function LocalNowProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (choice.mode === "city") return;
     let alive = true;
-    void requestDeviceGeo({ highAccuracy: choice.mode === "gps" }).then((geo) => {
-      if (!alive || !geo) return;
-      setDeviceGeo(geo);
-      saveLastGps(geo);
-      void load({ ...geo, source: "gps" });
-    });
-    const stop = watchDeviceGeo((geo) => {
+    let stop: (() => void) | undefined;
+    // Never re-prompt a denied permission: Chrome auto-blocks geolocation
+    // after repeated dismissals, recoverable only via site settings.
+    void queryGeoPermission().then((state) => {
       if (!alive) return;
-      setDeviceGeo((prev) => {
-        if (prev && !geoDrifted(prev, geo, 250)) return prev;
+      if (state === "denied") {
+        setGeoBlocked(true);
+        return;
+      }
+      setGeoBlocked(false);
+      void requestDeviceGeo({ highAccuracy: choice.mode === "gps" }).then((geo) => {
+        if (!alive || !geo) return;
+        setDeviceGeo(geo);
         saveLastGps(geo);
         void load({ ...geo, source: "gps" });
-        return geo;
+      });
+      stop = watchDeviceGeo((geo) => {
+        if (!alive) return;
+        setDeviceGeo((prev) => {
+          if (prev && !geoDrifted(prev, geo, 250)) return prev;
+          saveLastGps(geo);
+          void load({ ...geo, source: "gps" });
+          return geo;
+        });
       });
     });
     return () => {
       alive = false;
-      stop();
+      stop?.();
     };
   }, [choice.mode, load]);
 
@@ -116,11 +130,18 @@ export function LocalNowProvider({ children }: { children: ReactNode }) {
       saveLocationChoice(next);
       setChoice(next);
       if (next.mode === "gps" || next.mode === "auto") {
-        void requestDeviceGeo({ highAccuracy: true }).then((geo) => {
-          if (!geo) return;
-          setDeviceGeo(geo);
-          saveLastGps(geo);
-          void load({ ...geo, source: "gps" });
+        void queryGeoPermission().then((state) => {
+          if (state === "denied") {
+            setGeoBlocked(true);
+            return;
+          }
+          setGeoBlocked(false);
+          void requestDeviceGeo({ highAccuracy: true }).then((geo) => {
+            if (!geo) return;
+            setDeviceGeo(geo);
+            saveLastGps(geo);
+            void load({ ...geo, source: "gps" });
+          });
         });
       }
     },
@@ -135,10 +156,17 @@ export function LocalNowProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(() => {
     void load(preferred);
     if (choice.mode === "city") return;
-    void requestDeviceGeo({ highAccuracy: choice.mode === "gps" }).then((geo) => {
-      if (!geo) return;
-      setDeviceGeo(geo);
-      void load({ ...geo, source: "gps" });
+    void queryGeoPermission().then((state) => {
+      if (state === "denied") {
+        setGeoBlocked(true);
+        return;
+      }
+      setGeoBlocked(false);
+      void requestDeviceGeo({ highAccuracy: choice.mode === "gps" }).then((geo) => {
+        if (!geo) return;
+        setDeviceGeo(geo);
+        void load({ ...geo, source: "gps" });
+      });
     });
   }, [choice.mode, load, preferred]);
 
@@ -169,6 +197,7 @@ export function LocalNowProvider({ children }: { children: ReactNode }) {
       day: formatLocalDay(now, timeZone),
       city,
       usingGps,
+      geoBlocked,
       here,
       anchor,
       source: weather?.source || preferred.source,
@@ -186,6 +215,7 @@ export function LocalNowProvider({ children }: { children: ReactNode }) {
       timeZone,
       city,
       usingGps,
+      geoBlocked,
       here,
       anchor,
       weather,
