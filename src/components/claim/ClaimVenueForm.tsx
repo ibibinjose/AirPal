@@ -6,6 +6,7 @@ import type { GooglePlaceImport } from "@shared/google-place";
 import type { BusinessCategoryId } from "@shared/business";
 import { parseV3ContactEmail, requiredV3Text } from "@shared/v3-contract";
 import { AuthGate } from "@/components/auth/AuthGate";
+import { PageLoading } from "@/components/ui/PageLoading";
 import { GooglePlaceImportCard } from "@/components/business/GooglePlaceImport";
 import { Button } from "@/components/ui/Button";
 import { ValidField, fieldInput, fieldSelect, fieldTextarea } from "@/components/forms/ValidField";
@@ -50,7 +51,7 @@ export function ClaimVenueForm({
   onDone?: (placeId: string) => void;
   onStep?: (step: number) => void;
 }) {
-  const { user } = useAuth();
+  const { user, authReady } = useAuth();
   const { createPlace } = useListings();
   const [place, setPlace] = useState<GooglePlaceImport | null>(null);
   const [verified, setVerified] = useState<boolean | null>(null);
@@ -66,6 +67,10 @@ export function ClaimVenueForm({
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ placeId: string; created: boolean } | null>(null);
   const [copied, setCopied] = useState(false);
+
+  if (!authReady) {
+    return <PageLoading message="Checking your sign-in…" />;
+  }
 
   if (!user) {
     return (

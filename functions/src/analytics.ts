@@ -24,6 +24,26 @@ function db() {
 
 const BATCH_MAX = 20;
 
+/**
+ * Firestore rejects `undefined` field values, but validated events carry
+ * explicit undefined for missing optional fields. Strip them before every
+ * write so one missing optional field cannot 500 the whole batch. Only
+ * plain event data passes through here — server sentinels (FieldValue)
+ * are added after stripping.
+ */
+function stripUndefined<T>(value: T): T {
+  if (Array.isArray(value)) return value.map(stripUndefined) as T;
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [key, entry] of Object.entries(value)) {
+      if (entry === undefined) continue;
+      out[key] = stripUndefined(entry);
+    }
+    return out as T;
+  }
+  return value;
+}
+
 async function resolveContext(event: AnalyticsEvent): Promise<{ tenantId?: string; resolved: boolean }> {
   const id = event.contextId;
   if (!id) return { resolved: event.eventName === "session_started" || event.eventName === "host_activation" };
@@ -94,7 +114,7 @@ export async function writeAuthoritativeEvent(input: {
   const existing = await ref.get();
   if (existing.exists) return;
   await ref.set({
-    ...event,
+    ...stripUndefined(event),
     tenantId: event.tenantId || resolved.tenantId || null,
     contextResolved: resolved.resolved,
     dedupeKey: analyticsDedupeKey(event),
@@ -151,7 +171,7 @@ export const recordAnalyticsBatch = onCall(CALLABLE, async (request) => {
       continue;
     }
     await ref.set({
-      ...event,
+      ...stripUndefined(event),
       tenantId: event.tenantId || resolved.tenantId || null,
       contextResolved: resolved.resolved,
       dedupeKey,

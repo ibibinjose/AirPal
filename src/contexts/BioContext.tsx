@@ -1,6 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { nanoid } from "nanoid";
-import { handleError, normalizeHandle, type BioKind, type BioOffer, type BioProfile } from "@shared/bio";
+import {
+  handleError,
+  handleFromPlaceId,
+  normalizeHandle,
+  type BioKind,
+  type BioOffer,
+  type BioProfile,
+} from "@shared/bio";
 import { getFirebaseAuth } from "@/lib/firebase";
 import {
   liveBackendEnabled,
@@ -27,6 +34,9 @@ type CreateBioInput = Pick<BioProfile, "handle" | "name" | "city" | "shortWhy"> 
   phone?: string;
   geo?: BioProfile["geo"];
   propertyId?: string;
+  /** Real listing identifiers for venue bios — never derived from the handle. */
+  listingId?: string;
+  placeId?: string;
 };
 
 type BioValue = {
@@ -191,8 +201,18 @@ export function BioProvider({ children }: { children: ReactNode }) {
       }
       const place = placeByHandle(h);
       const stall = stallByHandle(h);
-      const listing = getCachedListings().find((row) => row.handle === h || row.id === business?.listingId);
-      const listingId = kind === "business" ? business?.listingId || listing?.id || `list-${h}` : business?.listingId;
+      // Match the caller's listing first: the cached listing may not carry a
+      // handle yet, so also match the handle derived from its place id.
+      const listing = getCachedListings().find(
+        (row) =>
+          (input.listingId && row.id === input.listingId) ||
+          (input.placeId && row.placeId === input.placeId) ||
+          row.handle === h ||
+          handleFromPlaceId(row.placeId) === h ||
+          row.id === business?.listingId,
+      );
+      const listingId =
+        kind === "business" ? input.listingId || business?.listingId || listing?.id : business?.listingId;
       const keep = kind === "business" ? business : sameKind;
       const profile: BioProfile = {
         id: keep?.id || existing?.id || `bio-${nanoid(8)}`,
@@ -218,7 +238,7 @@ export function BioProvider({ children }: { children: ReactNode }) {
         services: keep?.services || [],
         deals: keep?.deals || [],
         links: keep?.links || [],
-        placeId: keep?.placeId || place?.id,
+        placeId: input.placeId || keep?.placeId || place?.id,
         listingId,
         propertyId: input.propertyId || keep?.propertyId,
         stallId: keep?.stallId || stall?.id,

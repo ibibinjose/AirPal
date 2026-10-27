@@ -13,6 +13,7 @@ import { useListings } from "@/contexts/ListingsContext";
 import { useBio } from "@/contexts/BioContext";
 import { withWalk } from "@/lib/catalog";
 import { hrefForPlace } from "@/lib/bio-handle";
+import { venueBioInput } from "@/lib/venue-bio";
 import { partnerAccountPath } from "@/lib/partner-account";
 import { cn } from "@/lib/cn";
 import { GuestListPanel } from "@/components/club/GuestListPanel";
@@ -83,7 +84,8 @@ export function BusinessPage() {
   const { user, authReady } = useAuth();
   const { mine, myListings, setSelectedListingId, createPlace, savePlace, saveDeal, confirmHours, deleteListing } =
     useListings();
-  const { mine: bio, business, updateProfile } = useBio();
+  const { mine: bio, business, createProfile, updateProfile } = useBio();
+  const [bioBusy, setBioBusy] = useState(false);
   const [tab, setTab] = useState<BusinessNavTab>(() => {
     const params = new URLSearchParams(search);
     const t = params.get("tab");
@@ -153,6 +155,35 @@ export function BusinessPage() {
       }
     })();
   }, [user]);
+
+  // Every hook must run on every render, including the first loading render.
+  // These stay above the auth/listing early returns so a hard load never
+  // changes the hook order (Rules of Hooks).
+  const handle = mine?.handle || bio?.handle;
+  // Guest preview recomputes only when edited fields change — not on every keystroke render.
+  const preview = useMemo(
+    () =>
+      mine
+        ? withWalk(
+            listingToPlace({
+              ...mine,
+              name,
+              category,
+              placeCategory: mine.placeCategory,
+              address: formatAddress(address),
+              hours,
+              shortWhy,
+              description,
+              deal: badge ? { badge, detail } : mine.deal,
+              handle,
+              heroImage: hero || mine.heroImage,
+              geo: geo || mine.geo,
+              phone,
+            }),
+          )
+        : null,
+    [mine, name, category, address, hours, shortWhy, description, badge, detail, handle, hero, geo, phone],
+  );
 
   if (!authReady) {
     return <PageLoading />;
@@ -300,6 +331,7 @@ export function BusinessPage() {
         description,
         phone,
         geo,
+        // Runs only after the listing guard above, so mine is set here.
         handle: mine!.handle,
         heroImage: hero,
       });
@@ -334,12 +366,32 @@ export function BusinessPage() {
     }
     setBusy(true);
     try {
+      // Runs only after the listing guard above, so mine is set here.
       await saveDeal(mine!.id, { badge: badge.trim(), detail: detail.trim(), claimHint: "Show AirPal" });
       toast.success("Exclusive deal published to Deals");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to publish deal");
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function handleCreateVenueBio() {
+    if (!mine || bioBusy) return;
+    const input = venueBioInput(mine);
+    if (!input) {
+      toast.error("Could not derive a venue handle for this listing");
+      return;
+    }
+    setBioBusy(true);
+    try {
+      const created = await createProfile(input);
+      toast.success(`Venue bio created (@${created.handle})`);
+      nav(`/bio/edit?kind=business&handle=${encodeURIComponent(created.handle)}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not create venue bio");
+    } finally {
+      setBioBusy(false);
     }
   }
 
@@ -356,30 +408,6 @@ export function BusinessPage() {
       setDeleting(false);
     }
   }
-
-  const handle = mine.handle || bio?.handle;
-  // Guest preview recomputes only when edited fields change — not on every keystroke render.
-  const preview = useMemo(
-    () =>
-      withWalk(
-        listingToPlace({
-          ...mine,
-          name,
-          category,
-          placeCategory: mine.placeCategory,
-          address: formatAddress(address),
-          hours,
-          shortWhy,
-          description,
-          deal: badge ? { badge, detail } : mine.deal,
-          handle,
-          heroImage: hero || mine.heroImage,
-          geo: geo || mine.geo,
-          phone,
-        }),
-      ),
-    [mine, name, category, address, hours, shortWhy, description, badge, detail, handle, hero, geo, phone],
-  );
 
   return (
     <div className="page-wrap pt-4 sm:pt-6">
@@ -521,13 +549,25 @@ export function BusinessPage() {
               <span>Promotions Studio</span>
             </Link>
           </div>
-          <Link
-            href="/bio/edit?kind=business"
-            className="inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-card px-3.5 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap"
-          >
-            <span>Edit Venue Bio &amp; Links</span>
-            <ArrowRight className="h-3 w-3 shrink-0" />
-          </Link>
+          {business?.handle ? (
+            <Link
+              href="/bio/edit?kind=business"
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-card px-3.5 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap"
+            >
+              <span>Edit Venue Bio &amp; Links</span>
+              <ArrowRight className="h-3 w-3 shrink-0" />
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => void handleCreateVenueBio()}
+              disabled={bioBusy}
+              className="inline-flex min-h-[44px] shrink-0 cursor-pointer items-center gap-1 rounded-full bg-card px-3.5 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap disabled:opacity-60"
+            >
+              <span>{bioBusy ? "Creating venue bio…" : "Create venue bio"}</span>
+              <ArrowRight className="h-3 w-3 shrink-0" />
+            </button>
+          )}
         </div>
       </header>
 
@@ -762,6 +802,11 @@ export function BusinessPage() {
                     </Button>
                   </div>
                   <AddressFields value={address} onChange={setAddress} />
+                  {!address.line1.trim() && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      Add your street address — the suburb alone is not enough to save.
+                    </p>
+                  )}
                 </div>
 
                 {/* Hours & Freshness */}
@@ -930,7 +975,7 @@ export function BusinessPage() {
               This is how your place card renders in search results and on your public bio:
             </p>
             <div className="mx-auto max-w-sm overflow-hidden rounded-2xl shadow-2xs">
-              <PlaceCard place={preview} walk={preview.walk} />
+              {preview && <PlaceCard place={preview} walk={preview.walk} />}
             </div>
             <div className="mt-4 flex items-center justify-between border-t border-line/60 pt-3 text-xs">
               <span className="text-mute font-medium">Public URL:</span>

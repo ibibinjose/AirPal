@@ -140,6 +140,41 @@ describe("parseAddress", () => {
     });
   });
 
+  it("drops a duplicated locality line instead of treating it as street", () => {
+    expect(parseAddress("Sydney NSW 2000\nSydney NSW 2000\nAustralia")).toMatchObject({
+      line1: "",
+      city: "Sydney",
+      region: "NSW",
+      postal: "2000",
+    });
+    expect(formatAddress(parseAddress("Sydney NSW 2000\nSydney NSW 2000\nAustralia"))).toBe(
+      "Sydney NSW 2000\nAustralia",
+    );
+  });
+
+  it("keeps a real street line above the locality", () => {
+    expect(parseAddress("1 Test St\nSydney NSW 2000\nAustralia")).toMatchObject({
+      line1: "1 Test St",
+      city: "Sydney",
+      region: "NSW",
+      postal: "2000",
+    });
+  });
+
+  it("keeps a street name that starts with the city", () => {
+    expect(parseAddress("Sydney Opera House\nSydney NSW 2000\nAustralia")).toMatchObject({
+      line1: "Sydney Opera House",
+      city: "Sydney",
+      region: "NSW",
+      postal: "2000",
+    });
+  });
+
+  it("round-trips the de-duplicated address without change", () => {
+    const once = formatAddress(parseAddress("Sydney NSW 2000\nSydney NSW 2000\nAustralia"));
+    expect(formatAddress(parseAddress(once))).toBe(once);
+  });
+
   it("returns an empty address for blank input", () => {
     expect(parseAddress("")).toMatchObject({ line1: "", city: "", region: "", postal: "" });
     expect(parseAddress(null)).toMatchObject({ line1: "", city: "", region: "", postal: "" });

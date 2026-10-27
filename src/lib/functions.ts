@@ -59,6 +59,7 @@ export function upsertBusinessListingRemote(data: {
   lng?: number;
   precinctId?: string;
   heroImage?: string;
+  handle?: string;
   mapsPlaceId?: string;
   website?: string;
   plan?: string;

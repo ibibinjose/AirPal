@@ -223,6 +223,10 @@ export function BioPublicPage() {
   }, [claim]);
 
   const profile = remote || local;
+  // Hoisted above the early returns: hooks must run in the same order on
+  // every render. Empty while the profile is still resolving; only read
+  // after the guards below.
+  const publicLinks = useMemo(() => (profile ? visibleBioLinks(profile.links) : []), [profile]);
   const [bioQrUrl, setBioQrUrl] = useState<string>("");
   const catchUpReminderActive = Boolean(
     user?.uid &&
@@ -436,9 +440,6 @@ export function BioPublicPage() {
       toast.error(err instanceof Error ? err.message : "Could not save this offer claim. Please try again.");
     }
   }
-
-  // Public view: scheduled, archived, and ordering rules apply to every surface.
-  const publicLinks = useMemo(() => visibleBioLinks(bio.links), [bio.links]);
 
   // Website URL resolution
   const websiteLink = publicLinks.find(

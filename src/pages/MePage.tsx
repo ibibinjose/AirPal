@@ -53,6 +53,7 @@ import { AddToCalendarMenu } from "@/components/calendar/AddToCalendarMenu";
 import { CalendarRescheduleModal } from "@/components/calendar/CalendarRescheduleModal";
 import { PersonalScheduleModal } from "@/components/calendar/PersonalScheduleModal";
 import { AuthGate } from "@/components/auth/AuthGate";
+import { PageLoading } from "@/components/ui/PageLoading";
 import { VerifyEmailBanner } from "@/components/auth/VerifyEmailBanner";
 import { Button } from "@/components/ui/Button";
 import { Photo } from "@/components/ui/Photo";
@@ -98,7 +99,7 @@ export interface MePageProps extends Partial<RouteComponentProps> {
 
 export function MePage({ defaultTab }: MePageProps = {}) {
   const [, nav] = useLocation();
-  const { user, logout, sendVerificationEmail, isHost } = useAuth();
+  const { user, authReady, logout, sendVerificationEmail, isHost } = useAuth();
   const { mine, business, biosReady, updateProfile } = useBio();
   const { today, weather, city, day } = useLocalNow();
   const { upcomingBookings, loading: bookingsLoading } = useMyBookings();
@@ -322,6 +323,10 @@ export function MePage({ defaultTab }: MePageProps = {}) {
       toast.error(err instanceof Error ? err.message : "Failed to upload photo");
     }
   };
+
+  if (!authReady) {
+    return <PageLoading message="Loading your AirPal Me…" />;
+  }
 
   if (!user) {
     return (

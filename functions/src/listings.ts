@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { FieldValue, GeoPoint } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
+import { handleError, normalizeHandle } from "../../shared/bio";
 import { DEFAULT_PRECINCT_ID, isBusinessCategory, placeCategoryFor } from "../../shared/business";
 import { clampBusinessPlan } from "../../shared/business-onboarding";
 import { stampContentMeta } from "../../shared/content-meta";
@@ -46,6 +47,9 @@ export const upsertBusinessListing = onCall(CALLABLE, async (request) => {
   const existingListing = await db.collection("listings").doc(listingId).get();
   const previous = existingListing.exists ? existingListing.data() : undefined;
   const website = String(data.website || "").trim() || String(previous?.website || "");
+  const wantedHandle = normalizeHandle(String(data.handle || ""));
+  const previousHandle = typeof previous?.handle === "string" ? previous.handle : "";
+  const handle = wantedHandle && !handleError(wantedHandle) ? wantedHandle : previousHandle || null;
   const domainProof = emailMatchesWebsite(email, website);
   const abnProof = String(data.abnOrTaxId || "").replace(/\s/g, "").length >= 8 || Boolean(previous?.abnProof);
   const plan = clampBusinessPlan(String(data.plan || previous?.plan || "presence"), {
@@ -80,6 +84,7 @@ export const upsertBusinessListing = onCall(CALLABLE, async (request) => {
       data.description !== undefined ? String(data.description || "").trim() || null : previous?.description || null,
     heroImage: String(data.heroImage || "").trim() || null,
     phone: String(data.phone || "").trim(),
+    handle,
     status: "active" as const,
     precinctId,
     source: meta.source,

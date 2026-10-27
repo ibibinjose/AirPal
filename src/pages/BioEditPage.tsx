@@ -61,6 +61,10 @@ import { BioSubscribersPanel } from "@/components/bio/BioSubscribers";
 import { BioThemePicker } from "@/components/bio/BioThemePicker";
 import { DigitalBioPassCard } from "@/components/bio/DigitalBioPassCard";
 import { useBio } from "@/contexts/BioContext";
+import { useListings } from "@/contexts/ListingsContext";
+import { venueBioInput } from "@/lib/venue-bio";
+import { useAuth } from "@/contexts/AuthContext";
+import { PageLoading } from "@/components/ui/PageLoading";
 import { ImageField } from "@/components/media/ImageField";
 import { makeQrDataUrl } from "@/lib/qr";
 import { toPublicUrl } from "@/lib/public-origin";
@@ -95,18 +99,25 @@ export function BioEditPage() {
   const queryKind = params.get("kind");
   const queryHandle = params.get("handle");
 
-  const { mine, business, profiles, updateProfile, tapsToday } = useBio();
+  const { mine, business, profiles, biosReady, createProfile, updateProfile, tapsToday } = useBio();
+  const { mine: listing } = useListings();
+  const [creatingBio, setCreatingBio] = useState(false);
+  const { user } = useAuth();
 
-  // Active target profile resolution: personal (mine) or business or selected handle
+  // Active target profile resolution: personal (mine) or business or selected handle.
+  // An explicit kind never falls back to the other kind: ?kind=business with no
+  // venue bio resolves to null (venue empty state), never the personal profile.
   const activeProfile: BioProfile | null = useMemo(() => {
     if (queryHandle) {
       const hit = profiles.find((p) => p.handle === queryHandle);
-      if (hit) return hit;
+      if (hit && user && (hit.ownerUid === user.uid || (hit.ownerEmail && hit.ownerEmail === user.email))) {
+        return hit;
+      }
     }
-    if (queryKind === "business" && business) return business;
-    if (queryKind === "person" && mine) return mine;
-    return mine || business || profiles[0] || null;
-  }, [business, mine, profiles, queryHandle, queryKind]);
+    if (queryKind === "business") return business ?? null;
+    if (queryKind === "person") return mine && mine.kind === "person" ? mine : null;
+    return mine || business || null;
+  }, [business, mine, profiles, queryHandle, queryKind, user]);
 
   const isBusiness = isBusinessKind(activeProfile?.kind);
 
@@ -263,7 +274,40 @@ export function BioEditPage() {
     toast.info("Changes reset to saved profile");
   };
 
+  if (!biosReady) {
+    return <PageLoading message="Loading your bios…" />;
+  }
+
   if (!activeProfile) {
+    if (queryKind === "business") {
+      return (
+        <div className="grid min-h-[60vh] place-items-center px-6 text-center">
+          <div className="rounded-[32px] bg-card p-8 sm:p-10 shadow-clay ring-1 ring-line max-w-md w-full">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-amber-500/15 text-amber-700 dark:text-amber-300 mb-5 ring-1 ring-amber-500/20">
+              <Store size={32} />
+            </div>
+            <p className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">
+              Your venue has no public bio yet
+            </p>
+            <p className="mt-2.5 text-sm text-mute leading-relaxed">
+              Create a venue bio to publish your place profile, hours, and links. Saving here never touches your
+              personal profile.
+            </p>
+            <div className="mt-7 space-y-3">
+              <Button
+                className="w-full h-12 text-sm font-semibold shadow-md gap-2 rounded-2xl"
+                onClick={() => void handleCreateVenueBio()}
+                disabled={creatingBio}
+                loading={creatingBio}
+              >
+                <Store size={16} />
+                {creatingBio ? "Creating venue bio…" : "Create venue bio"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="grid min-h-[60vh] place-items-center px-6 text-center">
         <div className="rounded-[32px] bg-card p-8 sm:p-10 shadow-clay ring-1 ring-line max-w-md w-full">
@@ -294,6 +338,28 @@ export function BioEditPage() {
         </div>
       </div>
     );
+  }
+
+  async function handleCreateVenueBio() {
+    if (creatingBio) return;
+    if (!listing) {
+      nav("/bio/setup?kind=business");
+      return;
+    }
+    const input = venueBioInput(listing);
+    if (!input) {
+      toast.error("Could not derive a venue handle for this listing");
+      return;
+    }
+    setCreatingBio(true);
+    try {
+      await createProfile(input);
+      toast.success("Venue bio created — editing your place profile now");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not create venue bio");
+    } finally {
+      setCreatingBio(false);
+    }
   }
 
   async function handleSaveAll(e?: FormEvent) {

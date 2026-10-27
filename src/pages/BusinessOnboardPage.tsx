@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useListings } from "@/contexts/ListingsContext";
 import { useBio } from "@/contexts/BioContext";
+import { venueBioHandle, venueBioInput } from "@/lib/venue-bio";
 import { cn } from "@/lib/cn";
 
 /**
@@ -39,7 +40,20 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
   const [, nav] = useLocation();
   const { user } = useAuth();
   const { mine, createPlace, confirmHours, saveDeal } = useListings();
-  const { business } = useBio();
+  const { business, createProfile } = useBio();
+
+  // Best-effort venue bio alongside the new listing, using the handle the
+  // user chose. A failure here is non-fatal: the checklist step below
+  // offers the same one-click creation.
+  async function ensureVenueBio(listing: Parameters<typeof venueBioInput>[0]) {
+    try {
+      const input = venueBioInput(listing);
+      if (!input) return;
+      await createProfile(input);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Venue saved — create the venue bio in Step 4.");
+    }
+  }
 
   const [name, setName] = useState(mine?.name || "");
   const [category, setCategory] = useState<BusinessCategoryId>(mine?.category || "eat");
@@ -86,7 +100,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, "")
           .slice(0, 24);
-      await createPlace({
+      const created = await createPlace({
         name: found.name,
         category: found.category || "eat",
         address: found.address || found.city || "Sydney",
@@ -99,6 +113,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
         geo: found.geo,
         handle: cleanHandle,
       });
+      await ensureVenueBio(created);
       toast.success(`${found.name} imported! Opening your setup checklist…`);
       nav("/business/setup");
     } catch (err) {
@@ -124,7 +139,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, "")
           .slice(0, 24);
-      await createPlace({
+      const created = await createPlace({
         name: trimmed,
         category,
         address: address.trim() || "Sydney NSW",
@@ -132,6 +147,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
         shortWhy: shortWhy.trim() || `Local ${category} partner on AirPal.`,
         handle: cleanHandle,
       });
+      await ensureVenueBio(created);
       toast.success(`${trimmed} created! Let's finish your readiness checklist.`);
       nav("/business/setup");
     } catch (err) {
@@ -211,8 +227,26 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
       done: Boolean(business?.handle),
       href: business?.handle
         ? `/@${business.handle}`
-        : `/bio/setup?kind=business${mine?.handle ? `&handle=${encodeURIComponent(mine.handle)}` : ""}`,
-      cta: business?.handle ? "View Public Bio" : "Setup Business Bio",
+        : `/bio/setup?kind=business${
+            mine && venueBioHandle(mine) ? `&handle=${encodeURIComponent(venueBioHandle(mine))}` : ""
+          }`,
+      cta: business?.handle ? "View Public Bio" : "Create Venue Bio",
+      action:
+        mine && !business?.handle
+          ? async () => {
+              const input = venueBioInput(mine);
+              if (!input) {
+                toast.error("Could not derive a venue handle for this listing");
+                return;
+              }
+              try {
+                const created = await createProfile(input);
+                toast.success(`Venue bio live at /@${created.handle}`);
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : "Could not create venue bio");
+              }
+            }
+          : undefined,
     },
     {
       id: "events",

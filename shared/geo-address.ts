@@ -284,14 +284,20 @@ function splitLocalityTail(text: string): { head: string; region: string; postal
   const post = rest.match(/(\d{3,6}(?:\s*-\s*\d{3,6})?)\s*$/);
   if (post?.[1]) {
     postal = post[1].replace(/\s+/g, "");
-    rest = rest.slice(0, post.index ?? rest.length).trim().replace(/[,;\s]+$/, "");
+    rest = rest
+      .slice(0, post.index ?? rest.length)
+      .trim()
+      .replace(/[,;\s]+$/, "");
   }
   let region = "";
   const tailWord = rest.match(/([A-Za-z]{2,})$/)?.[1];
   const code = tailWord ? AU_STATE_CODES.get(tailWord.toLowerCase()) : undefined;
   if (code && tailWord) {
     region = code;
-    rest = rest.slice(0, rest.length - tailWord.length).trim().replace(/[,;\s]+$/, "");
+    rest = rest
+      .slice(0, rest.length - tailWord.length)
+      .trim()
+      .replace(/[,;\s]+$/, "");
   } else {
     const lower = rest.toLowerCase();
     const full = AU_SPACED_STATE_NAMES.find(
@@ -302,7 +308,10 @@ function splitLocalityTail(text: string): { head: string; region: string; postal
     );
     if (full) {
       region = AU_STATE_CODES.get(full) ?? "";
-      rest = rest.slice(0, rest.length - full.length).trim().replace(/[,;\s]+$/, "");
+      rest = rest
+        .slice(0, rest.length - full.length)
+        .trim()
+        .replace(/[,;\s]+$/, "");
     }
   }
   return { head: rest, region, postal };
@@ -332,8 +341,18 @@ export function parseAddress(raw: string | null | undefined, countryCode = "AU")
   }
   if (!body.length) return emptyAddress(cc);
   const localityRaw = body[body.length - 1];
-  const streetLines = body.slice(0, -1);
   const { head, region, postal } = splitLocalityTail(localityRaw);
+  // Legacy stores sometimes duplicated the locality line ("Sydney NSW 2000"
+  // twice). Drop street lines that merely repeat the locality so they are
+  // not mistaken for a real street address.
+  const streetLines = body.slice(0, -1).filter((line) => {
+    if (line.toLowerCase() === localityRaw.toLowerCase()) return false;
+    const tail = splitLocalityTail(line);
+    const hasMarker = Boolean(tail.region || tail.postal);
+    const sameCity = tail.head.toLowerCase() === head.toLowerCase();
+    const sameTail = (!tail.region || tail.region === region) && (!tail.postal || tail.postal === postal);
+    return !(hasMarker && sameCity && sameTail);
+  });
   let line1 = "";
   let line2 = "";
   let city = "";

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { handleFromPlaceId } from "../../shared/bio";
-import { hrefForPlace, hrefForStall, placeAsBio, stallAsBio } from "./bio-handle";
+import { handleFromPlaceId, isClaimableBioProfile, type BioProfile } from "../../shared/bio";
+import { hrefForPlace, hrefForStall, placeAsBio, resolvePublicBio, stallAsBio } from "./bio-handle";
+import { listingDefaults, upsertCachedListing } from "./listings";
+import { canViewProfile } from "./profile-stats";
 import type { StallRecord } from "../../shared/event";
 
 const SALTED_CARAMEL_STALL: StallRecord = {
@@ -34,6 +36,67 @@ describe("bio handle joins", () => {
     expect(bio.id).toBe("stall-st-salt");
     expect(bio.deals[0]?.title).toBe("2 for $10");
     expect(bio.eventId).toBe(stall.eventId);
+  });
+
+  it("marks synthetic place and stall bios as public businesses", () => {
+    const placeBio = placeAsBio(
+      {
+        id: "pl-5pi1fc5j",
+        name: "AirPal QA Test Venue",
+        category: "eat",
+        shortWhy: "QA venue",
+        geo: { lat: 1, lng: 2 },
+        source: "partner",
+        status: "active",
+        precinctId: "sydney",
+      },
+      "pl5pi1fc5j",
+    );
+    expect(placeBio.kind).toBe("business");
+    expect(placeBio.visibility).toBe("public");
+    const stallBio = stallAsBio(SALTED_CARAMEL_STALL, "saltedcaramel");
+    expect(stallBio.kind).toBe("business");
+    expect(stallBio.visibility).toBe("public");
+  });
+
+  it("shows synthetic venue bios to signed-out viewers and strangers", () => {
+    const noSocial = { isFollowing: () => false, isFollower: () => false };
+    const placeBio = placeAsBio(
+      {
+        id: "pl-5pi1fc5j",
+        name: "AirPal QA Test Venue",
+        category: "eat",
+        shortWhy: "QA venue",
+        geo: { lat: 1, lng: 2 },
+        source: "partner",
+        status: "active",
+        precinctId: "sydney",
+      },
+      "pl5pi1fc5j",
+    );
+    expect(canViewProfile(null, placeBio, noSocial)).toBe(true);
+    expect(canViewProfile({ uid: "stranger", email: "s@example.com", handle: "stranger" }, placeBio, noSocial)).toBe(
+      true,
+    );
+  });
+
+  it("resolves an owned listing with the owner attached and no claim banner", () => {
+    upsertCachedListing(
+      listingDefaults({
+        id: "list-9pi1test",
+        name: "Claim Test Venue",
+        category: "eat",
+        placeCategory: "eat",
+        address: "1 Test St\nSydney NSW 2000\nAustralia",
+        shortWhy: "Claim test",
+        ownerUid: "u123",
+        ownerEmail: "owner@example.com",
+      }),
+    );
+    const bio = resolvePublicBio("pl9pi1test", () => undefined) as BioProfile;
+    expect(bio.kind).toBe("business");
+    expect(bio.ownerUid).toBe("u123");
+    expect(isClaimableBioProfile(bio, false)).toBe(false);
   });
 
   it("copies maps and phone onto a place bio", () => {

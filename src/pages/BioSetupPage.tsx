@@ -38,7 +38,7 @@ export function BioSetupPage() {
   const asBusiness = params.get("kind") === "business";
   const { user, authReady, register } = useAuth();
   const { mine, business, createProfile } = useBio();
-  const { savePlace } = useListings();
+  const { mine: existingListing, savePlace } = useListings();
   const wanted = params.get("handle") || "";
   const current = asBusiness ? business : mine;
   const [step, setStep] = useState(1);
@@ -143,7 +143,10 @@ export function BioSetupPage() {
         phone: asBusiness ? phone : undefined,
         geo: asBusiness ? geo : undefined,
       });
-      if (asBusiness) {
+      // A fresh setup creates the listing alongside the bio. When the user
+      // already has a venue, skip this: the setup form starts empty and
+      // would overwrite the real address and hours.
+      if (asBusiness && !existingListing) {
         await savePlace({
           name,
           category,

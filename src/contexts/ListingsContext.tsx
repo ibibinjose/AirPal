@@ -84,6 +84,7 @@ function fromFirestore(id: string, data: Record<string, unknown>): BusinessListi
     mapsPlaceId: data.mapsPlaceId ? String(data.mapsPlaceId) : undefined,
     website: data.website ? String(data.website) : undefined,
     deal: (data.deal as PlaceDeal | undefined) || undefined,
+    handle: typeof data.handle === "string" && data.handle ? data.handle : undefined,
     geo: {
       lat: Number(geo?.lat ?? geo?.latitude ?? DEFAULT_LISTING_GEO.lat),
       lng: Number(geo?.lng ?? geo?.longitude ?? DEFAULT_LISTING_GEO.lng),
@@ -255,6 +256,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
                     lng: listing.geo.lng,
                     precinctId: listing.precinctId,
                     heroImage: listing.heroImage,
+                    handle: input.handle || existing?.handle,
                     mapsPlaceId: listing.mapsPlaceId,
                     website: listing.website,
                   });
@@ -317,6 +319,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
                     lng: listing.geo.lng,
                     precinctId: listing.precinctId,
                     heroImage: listing.heroImage,
+                    handle: input.handle,
                     mapsPlaceId: listing.mapsPlaceId,
                     website: listing.website,
                   });

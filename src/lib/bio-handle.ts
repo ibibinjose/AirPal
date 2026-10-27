@@ -5,6 +5,7 @@ import type { NearbyPlace } from "@shared/nearby";
 import { loadBios } from "./bio-store";
 import { placeByHandle } from "./catalog";
 import { loadStalls } from "./events-store";
+import { getCachedListings } from "./listings";
 
 export function handleOfPlace(place: Pick<NearbyPlace, "id" | "handle">): string | undefined {
   if (place.handle) return normalizeHandle(place.handle);
@@ -43,6 +44,10 @@ export function placeAsBio(place: NearbyPlace, handle: string): BioProfile {
   return {
     id: `place-${place.id}`,
     handle: normalizeHandle(handle),
+    // Synthetic bios for listed places are business storefronts: public to
+    // everyone, never gated by the friends-only default in canViewProfile.
+    kind: "business",
+    visibility: "public",
     name: place.name,
     shortWhy: place.shortWhy,
     city: "Sydney",
@@ -71,6 +76,9 @@ export function stallAsBio(stall: StallRecord, handle: string): BioProfile {
   return {
     id: `stall-${stall.id}`,
     handle: normalizeHandle(handle),
+    // Stall storefronts are public for the same reason as place bios above.
+    kind: "business",
+    visibility: "public",
     name: stall.name,
     shortWhy: stall.shortWhy,
     city: "Sydney",
@@ -180,7 +188,17 @@ export function resolvePublicBio(
   if (owned) return owned;
   if (h === "bibinjose") return BIBIN_JOSE_PROFILE;
   const place = placeByHandle(h);
-  if (place) return placeAsBio(place, h);
+  if (place) {
+    const bio = placeAsBio(place, h);
+    // A place backed by an owned listing belongs to the listing owner: the
+    // owner sees the page as owner (no claim banner) instead of a visitor.
+    const listing = getCachedListings().find((row) => row.placeId === place.id);
+    if (listing?.ownerUid || listing?.ownerEmail) {
+      bio.ownerUid = listing.ownerUid;
+      bio.ownerEmail = listing.ownerEmail;
+    }
+    return bio;
+  }
   const stall = stallByHandle(h);
   return stall ? stallAsBio(stall, h) : undefined;
 }

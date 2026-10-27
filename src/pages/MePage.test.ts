@@ -14,6 +14,7 @@ vi.mock("wouter", () => ({
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({
     user: { uid: "u123", email: "test@example.com", displayName: "Test User", emailVerified: true },
+    authReady: true,
     logout: vi.fn(),
     sendVerificationEmail: vi.fn(),
     isHost: false,

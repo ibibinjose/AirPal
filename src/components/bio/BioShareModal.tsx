@@ -49,6 +49,7 @@ export function BioShareModal({
   const cleanHandle = safeHandle(handle);
   const [qrData, setQrData] = useState<string>("");
   const [copied, setCopied] = useState(false);
+  const [exportingPass, setExportingPass] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -83,8 +84,6 @@ export function BioShareModal({
       toast.message(url);
     }
   }
-
-  const [exportingPass, setExportingPass] = useState(false);
 
   async function handleDownloadFullPass() {
     if (exportingPass) return;
