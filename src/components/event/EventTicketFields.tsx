@@ -82,7 +82,7 @@ export function EventTicketFields({ values, onChange }: Props) {
   const input =
     "h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60";
   return (
-    <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4">
+    <div className="neu-section p-5 space-y-4">
       <p className="text-xs font-bold uppercase tracking-wider text-accent">Tickets</p>
       <div className="grid grid-cols-2 gap-2">
         {(
@@ -100,8 +100,8 @@ export function EventTicketFields({ values, onChange }: Props) {
               onClick={() => set({ paid: id })}
               className={
                 on
-                  ? "rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold ring-1 transition text-left bg-brand text-white ring-brand shadow-sm"
-                  : "rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold ring-1 transition text-left bg-paper text-mute ring-line hover:text-ink"
+                  ? "rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold transition text-left bg-brand text-white shadow-sm"
+                  : "neu-card px-4 py-3 text-xs sm:text-sm font-semibold transition text-left text-mute hover:text-ink"
               }
             >
               {label}

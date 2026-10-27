@@ -214,6 +214,13 @@ describe("shareMeta", () => {
     expect(bio.body).toContain("Ava (@ava)");
   });
 
+  it("serves bio cards for BioSite paths", async () => {
+    fakes.docs["handles/ava"] = { profileId: "prof-1" };
+    fakes.docs["profiles/prof-1"] = { name: "Ava", shortWhy: "Bondi local" };
+    const bio = await run("/bio/@ava", BOT_UA);
+    expect(bio.body).toContain("Ava (@ava)");
+  });
+
   it("serves property cards without host secrets", async () => {
     fakes.docs["properties/prop-7"] = {
       name: "Harbour Hotel",

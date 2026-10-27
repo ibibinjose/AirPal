@@ -662,7 +662,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
   // EVENT CREATION FLOW
   if (!activeEvent) {
     return (
-      <div className="relative isolate overflow-hidden min-h-[85vh]">
+      <div data-theme="light" className="relative isolate overflow-hidden min-h-[85vh] bg-paper">
         <motion.div
           className="relative mx-auto max-w-6xl px-4 py-8 pb-24"
           initial={reduce ? false : "hidden"}
@@ -674,27 +674,27 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
               <div className="flex items-center gap-2 flex-wrap">
                 <Link
                   href="/pass"
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                  className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute hover:text-ink transition"
                 >
                   <ArrowLeft size={13} />
                   <span>AirPal Pass</span>
                 </Link>
                 <Link
                   href="/events"
-                  className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                  className="neu-btn inline-flex min-h-[44px] items-center gap-1 px-3.5 text-xs font-semibold text-mute hover:text-ink transition"
                 >
                   <span>Browse Events</span>
                 </Link>
                 <Link
                   href="/scan"
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                  className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute hover:text-ink transition"
                 >
                   <QrCode size={13} className="text-amber-500" />
                   <span>Door Scanner</span>
                 </Link>
                 <Link
                   href="/business"
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition"
+                  className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute hover:text-ink transition"
                 >
                   <Building2 size={13} className="text-accent" />
                   <span>Business Hub</span>
@@ -732,7 +732,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
               </div>
 
               {/* Mobile View Toggle */}
-              <div className="flex w-full sm:w-auto lg:hidden items-center rounded-2xl bg-paper p-1 ring-1 ring-line shadow-xs">
+              <div className="flex w-full sm:w-auto lg:hidden items-center neu-inset p-1">
                 <button
                   type="button"
                   onClick={() => setMobilePreview(false)}
@@ -761,7 +761,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             {!mobilePreview && (
               <nav
                 aria-label="Event creation steps"
-                className="mt-4 flex overflow-x-auto no-scrollbar gap-1.5 rounded-2xl bg-card p-1.5 ring-1 ring-line shadow-xs"
+                className="mt-4 flex overflow-x-auto no-scrollbar gap-1.5 neu-inset p-1.5"
               >
                 {CREATE_SECTIONS.map((sec) => (
                   <a
@@ -781,18 +781,12 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             <div className={cn("lg:col-span-7", mobilePreview ? "hidden lg:block" : "block")}>
               <motion.form variants={landingItem} className="space-y-6" onSubmit={onCreate}>
                 {/* 1-Tap Quick-Start Templates */}
-                <div
-                  id="sec-templates"
-                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay"
-                >
+                <div id="sec-templates" className="scroll-mt-24 neu-section p-5">
                   <EventCreationTemplates onApplyTemplate={applyTemplate} />
                 </div>
 
                 {/* Flavour Card Selector */}
-                <div
-                  id="sec-format"
-                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3"
-                >
+                <div id="sec-format" className="scroll-mt-24 neu-section p-5 space-y-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-accent">1. What kind of event?</p>
                   <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
                     {EVENT_FLAVOURS.map((id) => {
@@ -806,10 +800,8 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                           aria-pressed={on}
                           onClick={() => setFlavour(id)}
                           className={cn(
-                            "rounded-2xl p-4 text-left ring-1 transition duration-200 active:scale-[0.98]",
-                            on
-                              ? "bg-brand text-white ring-brand shadow-md"
-                              : "bg-paper ring-line hover:ring-brand/30 hover:bg-card",
+                            "rounded-2xl p-4 text-left transition duration-200 active:scale-[0.98]",
+                            on ? "bg-brand text-white shadow-md" : "neu-card text-mute hover:text-ink",
                           )}
                         >
                           <span
@@ -833,10 +825,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 </div>
 
                 {/* Basic Info & Media */}
-                <div
-                  id="sec-banner"
-                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4"
-                >
+                <div id="sec-banner" className="scroll-mt-24 neu-section p-5 space-y-4">
                   <p className="text-xs font-bold uppercase tracking-wider text-accent">2. Name & Banner</p>
 
                   <EventNameMediaFields
@@ -855,10 +844,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
                 {/* Google Place & Location Pinning */}
                 {/* Venue & Location Mode Capsule */}
-                <div
-                  id="sec-venue"
-                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4"
-                >
+                <div id="sec-venue" className="scroll-mt-24 neu-section p-5 space-y-4">
                   <EventVenueFields
                     title="3. Venue & Location"
                     locationType={locationType}
@@ -898,10 +884,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 </div>
 
                 {/* Schedule & Timing */}
-                <div
-                  id="sec-schedule"
-                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4"
-                >
+                <div id="sec-schedule" className="scroll-mt-24 neu-section p-5 space-y-4">
                   <p className="text-xs font-bold uppercase tracking-wider text-accent">4. Date & Times</p>
 
                   <EventScheduleQuickPicks
@@ -952,7 +935,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                           className={
                             repeatCount === n
                               ? "min-h-[44px] rounded-full bg-brand px-4 py-2 text-xs font-bold text-white shadow-sm whitespace-nowrap"
-                              : "min-h-[44px] rounded-full bg-paper px-4 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink whitespace-nowrap"
+                              : "neu-btn min-h-[44px] px-4 py-2 text-xs font-semibold text-mute hover:text-ink whitespace-nowrap"
                           }
                         >
                           {n === 1 ? "Once" : `Weekly × ${n}`}
@@ -968,10 +951,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 </div>
 
                 {/* Host & Collaborators Section */}
-                <div
-                  id="sec-host"
-                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4"
-                >
+                <div id="sec-host" className="scroll-mt-24 neu-section p-5 space-y-4">
                   <EventHostFields
                     title="5. Host & Collaborators"
                     hostType={hostType}
@@ -994,10 +974,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 </div>
 
                 {/* Rich Description Option with Luma Starter Prompts */}
-                <div
-                  id="sec-story"
-                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3"
-                >
+                <div id="sec-story" className="scroll-mt-24 neu-section p-5 space-y-3">
                   <div className="flex justify-between items-center">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent">
                       6. Event Description & Story
@@ -1014,10 +991,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 </div>
 
                 {/* Publish Status */}
-                <div
-                  id="sec-status"
-                  className="scroll-mt-24 rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3"
-                >
+                <div id="sec-status" className="scroll-mt-24 neu-section p-5 space-y-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-accent">7. Status</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {(
@@ -1034,10 +1008,8 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                           aria-pressed={on}
                           onClick={() => setStatus(id)}
                           className={cn(
-                            "min-h-[44px] rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold ring-1 transition text-left",
-                            on
-                              ? "bg-brand text-white ring-brand shadow-sm"
-                              : "bg-paper text-mute ring-line hover:text-ink",
+                            "min-h-[44px] rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold transition text-left",
+                            on ? "bg-brand text-white shadow-sm" : "neu-btn text-mute hover:text-ink",
                           )}
                         >
                           {label}
@@ -1045,7 +1017,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                       );
                     })}
                   </div>
-                  <label className="flex items-start gap-3 rounded-2xl bg-paper p-3.5 border border-line/80 cursor-pointer hover:border-brand/40 transition">
+                  <label className="flex items-start gap-3 neu-card p-3.5 cursor-pointer transition-[box-shadow,transform]">
                     <input
                       type="checkbox"
                       checked={registrationClosed}
@@ -1065,7 +1037,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
                 <EventTicketFields values={ticketFields} onChange={setTicketFields} />
 
-                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
+                <div className="neu-section p-5 space-y-3">
                   <label
                     htmlFor="event-refund-policy"
                     className="text-xs font-bold uppercase tracking-wider text-accent block"
@@ -1084,7 +1056,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 </div>
 
                 {/* Guest Screening & Approval Mode (Luma-style) */}
-                <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
+                <div className="neu-section p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="grid h-8 w-8 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-400/20">
@@ -1097,7 +1069,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     </div>
                   </div>
 
-                  <label className="flex items-start gap-3 rounded-2xl bg-paper p-3.5 border border-line/80 cursor-pointer group hover:border-brand/40 transition">
+                  <label className="flex items-start gap-3 neu-card p-3.5 cursor-pointer group transition-[box-shadow,transform]">
                     <input
                       type="checkbox"
                       checked={requireApproval}
@@ -1170,7 +1142,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 <Button
                   type="button"
                   variant="ghost"
-                  className="w-full lg:hidden rounded-2xl h-11 text-xs font-bold border border-line"
+                  className="neu-btn w-full lg:hidden h-11 text-xs font-bold"
                   onClick={() => setMobilePreview(false)}
                 >
                   Back to Editing Form
@@ -1212,26 +1184,26 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
         className="pointer-events-none absolute -right-16 top-28 h-56 w-56 rounded-full bg-gold/15 blur-3xl"
       />
 
-      <div className="relative mx-auto max-w-4xl px-4 pb-24 pt-4">
+      <div data-theme="light" className="relative mx-auto max-w-4xl bg-paper px-4 pb-24 pt-4">
         {/* Breadcrumb Navigation Bar */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/pass"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute hover:text-ink transition whitespace-nowrap"
             >
               <ArrowLeft size={13} className="shrink-0" />
               <span>AirPal Pass</span>
             </Link>
             <Link
               href="/events"
-              className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-1 px-3.5 text-xs font-semibold text-mute hover:text-ink transition whitespace-nowrap"
             >
               <span>Browse Events</span>
             </Link>
             <Link
               href="/business"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute hover:text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute hover:text-ink transition whitespace-nowrap"
             >
               <Building2 size={13} className="shrink-0 text-accent" />
               <span>Business Hub</span>
@@ -1248,14 +1220,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </button>
             <Link
               href={`/e/${activeEvent.id}`}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-ink transition whitespace-nowrap"
             >
               <Eye size={13} className="shrink-0 text-accent" />
               <span>Public Page</span>
             </Link>
             <Link
               href={`/e/${activeEvent.id}/guests`}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-accent ring-1 ring-line hover:bg-paper transition whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-accent transition whitespace-nowrap"
             >
               <Users size={13} className="shrink-0" />
               <span>Door Guestlist</span>
@@ -1272,7 +1244,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
         {/* Multi-Event Switcher Strip when organiser has > 1 event */}
         {myEvents.length > 1 && (
-          <div className="mb-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar rounded-2xl bg-card p-2 ring-1 ring-line shadow-xs">
+          <div className="mb-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar neu-inset p-2">
             <span className="px-2 text-[11px] font-bold uppercase tracking-wider text-mute shrink-0">
               Your Events ({myEvents.length}):
             </span>
@@ -1288,7 +1260,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   }}
                   className={cn(
                     "min-h-[44px] shrink-0 rounded-xl px-3 text-xs font-semibold transition whitespace-nowrap",
-                    isCurrent ? "bg-brand text-white shadow-xs" : "bg-paper text-mute ring-1 ring-line hover:text-ink",
+                    isCurrent ? "bg-brand text-white shadow-xs" : "neu-chip text-mute hover:text-ink",
                   )}
                 >
                   {ev.name}
@@ -1300,7 +1272,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
         )}
 
         {/* Top Header Card */}
-        <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay overflow-hidden relative">
+        <div className="neu-section p-5 overflow-hidden relative">
           {activeEvent.coverImage && (
             <div className="h-32 -mx-5 -mt-5 mb-4 relative overflow-hidden">
               <Photo src={activeEvent.coverImage} className="w-full h-full object-cover" />
@@ -1316,18 +1288,18 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 </p>
                 <span
                   className={cn(
-                    "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1",
+                    "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
                     activeEvent.status === "live"
-                      ? "bg-emerald-500/10 text-emerald-700 ring-emerald-500/20"
+                      ? "bg-emerald-500/10 text-emerald-700"
                       : activeEvent.status === "draft"
-                        ? "bg-amber-500/10 text-amber-800 ring-amber-500/20"
-                        : "bg-paper text-mute ring-line",
+                        ? "bg-amber-500/10 text-amber-800"
+                        : "bg-paper text-mute",
                   )}
                 >
                   {activeEvent.status}
                 </span>
                 {activeEvent.mapsPlaceId && (
-                  <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-accent ring-1 ring-brand/25">
+                  <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-accent">
                     Google Place
                   </span>
                 )}
@@ -1345,7 +1317,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
               <Button
                 variant="ghost"
                 size="sm"
-                className="min-h-[44px] gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold shadow-xs hover:bg-card whitespace-nowrap"
+                className="neu-btn min-h-[44px] gap-1.5 text-xs font-semibold whitespace-nowrap"
                 onClick={() => nav(activeEvent.gatePath)}
               >
                 <ExternalLink size={13} className="shrink-0 text-accent" />
@@ -1354,7 +1326,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-mute border-t border-line/60 pt-3">
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-mute pt-3">
             {whenLabel && (
               <span className="inline-flex items-center gap-1.5 font-medium text-ink">
                 <CalendarDays size={14} className="text-accent" />
@@ -1396,7 +1368,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
         </div>
 
         {/* Tab Navigation Pill Bar — sticky & horizontally scrollable on mobile so 5 tabs never crush */}
-        <div className="sticky top-2 z-20 mt-5 flex overflow-x-auto no-scrollbar rounded-2xl bg-paper p-1.5 ring-1 ring-line shadow-xs gap-1">
+        <div className="sticky top-2 z-20 mt-5 flex overflow-x-auto no-scrollbar neu-inset p-1.5 gap-1">
           {(
             [
               { id: "today", label: "Overview", icon: LayoutGrid, count: undefined },
@@ -1426,7 +1398,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 <span
                   className={cn(
                     "ml-0.5 rounded-full px-1.5 py-0.2 text-[10px] font-bold",
-                    tab === item.id ? "bg-white/25 text-white" : "bg-card text-mute ring-1 ring-line",
+                    tab === item.id ? "bg-white/25 text-white" : "neu-chip text-mute",
                   )}
                 >
                   {item.count}
@@ -1449,7 +1421,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             />
 
             {/* Live Attendee Page Link Card */}
-            <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="neu-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-0.5 text-[11px] font-bold text-accent uppercase tracking-wider">
                   <Eye size={12} />
@@ -1472,7 +1444,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 <button
                   type="button"
                   onClick={() => setTab("manage")}
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition"
+                  className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-4 text-xs font-semibold text-ink transition"
                 >
                   <Users size={14} className="text-accent" />
                   <span>Day-of Ops</span>
@@ -1481,7 +1453,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
+              <div className="neu-card p-5 flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-mute">Directory Supply</p>
                   <p className="font-display text-3xl sm:text-4xl font-bold mt-1 text-ink">{stalls.length}</p>
@@ -1499,7 +1471,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 </Button>
               </div>
 
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
+              <div className="neu-card p-5 flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-mute">Entrance QR</p>
                   <p className="text-xs text-ink font-semibold mt-1 truncate">{activeEvent.gatePath}</p>
@@ -1510,7 +1482,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 </Button>
               </div>
 
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between">
+              <div className="neu-card p-5 flex flex-col justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-mute">Guestlist</p>
                   <p className="font-display text-3xl sm:text-4xl font-bold mt-1 text-ink">
@@ -1531,7 +1503,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
             {/* Description Preview Card */}
             {activeEvent.description && (
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay space-y-2">
+              <div className="neu-card p-5 space-y-2">
                 <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
                   <FileText size={14} /> Description & Guest Story
                 </p>
@@ -1564,18 +1536,10 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
               <Button className="h-12 font-semibold" onClick={() => nav(activeEvent.gatePath)}>
                 Open Live Guest Directory
               </Button>
-              <Button
-                variant="ghost"
-                className="h-12 font-semibold border border-line bg-card hover:bg-paper"
-                onClick={() => setTab("stalls")}
-              >
+              <Button variant="ghost" className="neu-btn h-12 font-semibold" onClick={() => setTab("stalls")}>
                 {stallFieldLabels(activeEvent.flavour).addTitle}
               </Button>
-              <Button
-                variant="ghost"
-                className="h-12 font-semibold border border-line bg-card hover:bg-paper"
-                onClick={() => setTab("settings")}
-              >
+              <Button variant="ghost" className="neu-btn h-12 font-semibold" onClick={() => setTab("settings")}>
                 Edit Event &amp; Tickets
               </Button>
             </div>
@@ -1589,10 +1553,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
               const labels = stallFieldLabels(activeEvent.flavour);
               return (
                 <>
-                  <form
-                    className="space-y-3 rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay"
-                    onSubmit={onAddStall}
-                  >
+                  <form className="space-y-3 neu-card p-5" onSubmit={onAddStall}>
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h2 className="font-display text-lg font-bold text-ink">
@@ -1605,7 +1566,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                       {editingStallId && (
                         <button
                           type="button"
-                          className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-3 py-1 text-xs font-bold text-rose-600 border border-line hover:bg-card"
+                          className="neu-btn inline-flex min-h-[44px] items-center px-3 py-1 text-xs font-bold text-rose-600"
                           onClick={resetStallForm}
                         >
                           Cancel Edit
@@ -1675,9 +1636,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                               onClick={() => setStallCategory(c.id)}
                               className={cn(
                                 "min-h-[44px] rounded-full px-3 text-xs font-semibold transition active:scale-95",
-                                on
-                                  ? "bg-brand text-white shadow-xs"
-                                  : "bg-paper text-mute border border-line hover:text-ink",
+                                on ? "bg-brand text-white shadow-xs" : "neu-btn text-mute hover:text-ink",
                               )}
                             >
                               {c.label}
@@ -1732,7 +1691,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     </label>
                     <Button
                       variant="ghost"
-                      className="flex-1 h-11 text-xs sm:text-sm font-semibold border border-line bg-card hover:bg-paper"
+                      className="neu-btn flex-1 h-11 text-xs sm:text-sm font-semibold"
                       type="button"
                       onClick={() => {
                         const blob = new Blob([stallCsvTemplate(activeEvent.flavour)], {
@@ -1752,9 +1711,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   </div>
 
                   {stalls.length === 0 ? (
-                    <div className="rounded-3xl bg-card px-4 py-8 text-center text-xs text-mute border border-dashed border-line">
-                      {labels.empty}
-                    </div>
+                    <div className="neu-inset px-4 py-8 text-center text-xs text-mute">{labels.empty}</div>
                   ) : (
                     <ul className="space-y-2">
                       {stalls.map((s) => (
@@ -1762,7 +1719,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                           <button
                             type="button"
                             onClick={() => editStall(s)}
-                            className="w-full rounded-2xl bg-card px-4 py-3.5 text-left border border-line/80 transition hover:border-brand/40 shadow-clay hover:shadow-clay-hover group"
+                            className="w-full neu-card px-4 py-3.5 text-left transition group"
                           >
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-mute font-medium">
@@ -1789,7 +1746,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
         {/* TAB 3: PRINT GATE QR */}
         {tab === "print" && (
-          <div className="mt-5 rounded-3xl bg-card p-6 text-center ring-1 ring-line shadow-clay space-y-4">
+          <div className="mt-5 neu-section p-6 text-center space-y-4">
             <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
               <QrCode size={26} />
             </span>
@@ -1833,7 +1790,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
               </Button>
               <Button
                 variant="ghost"
-                className="flex-1 h-11 font-semibold border border-line bg-paper hover:bg-card gap-1.5"
+                className="neu-btn flex-1 h-11 font-semibold gap-1.5"
                 onClick={() => {
                   void navigator.clipboard.writeText(`${publicSiteOrigin()}${activeEvent.gatePath}`).then(
                     () => toast.success("Gate directory link copied"),
@@ -1853,10 +1810,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
         {/* TAB 5: SETTINGS, LOCATION & DESCRIPTION */}
         {tab === "settings" && (
-          <form
-            className="mt-5 space-y-5 rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay"
-            onSubmit={onSaveSettings}
-          >
+          <form className="mt-5 space-y-5 neu-section p-5 sm:p-6" onSubmit={onSaveSettings}>
             <div>
               <h2 className="font-display text-xl font-bold text-ink">Event Details, Google Place & Description</h2>
               <p className="text-xs text-mute mt-0.5">
@@ -1865,7 +1819,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </div>
 
             {/* Event Name & Short Tagline */}
-            <div className="space-y-4 pt-2 border-t border-line/60">
+            <div className="space-y-4 pt-2">
               <EventNameMediaFields
                 name={name}
                 shortWhy={shortWhy}
@@ -1879,7 +1833,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </div>
 
             {/* Flavour Format */}
-            <div className="pt-2 border-t border-line/60">
+            <div className="pt-2">
               <p className="text-xs font-semibold uppercase tracking-wider text-mute mb-2">Event Format</p>
               <div className="flex flex-wrap gap-2">
                 {EVENT_FLAVOURS.map((id) => (
@@ -1889,9 +1843,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     onClick={() => setFlavour(id)}
                     className={cn(
                       "min-h-[44px] rounded-full px-4 text-xs font-semibold transition active:scale-95",
-                      flavour === id
-                        ? "bg-brand text-white shadow-xs"
-                        : "bg-paper text-mute border border-line hover:text-ink",
+                      flavour === id ? "bg-brand text-white shadow-xs" : "neu-btn text-mute hover:text-ink",
                     )}
                   >
                     {EVENT_FLAVOUR_LABELS[id]}
@@ -1901,7 +1853,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </div>
 
             {/* Venue & Location Mode Capsule in Settings */}
-            <div className="space-y-4 pt-2 border-t border-line/60">
+            <div className="space-y-4 pt-2">
               <EventVenueFields
                 title="Venue & Location Mode"
                 locationType={locationType}
@@ -1942,7 +1894,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </div>
 
             {/* Host & Collaborators Section */}
-            <div className="space-y-4 pt-2 border-t border-line/60">
+            <div className="space-y-4 pt-2">
               <EventHostFields
                 title="Host & Collaborators"
                 hostType={hostType}
@@ -1965,7 +1917,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </div>
 
             {/* Rich Description & Story Option with Luma Starters */}
-            <div className="space-y-3 pt-2 border-t border-line/60">
+            <div className="space-y-3 pt-2">
               <div className="flex justify-between items-center">
                 <p className="text-xs font-bold uppercase tracking-wider text-accent">Event Description & Details</p>
                 <span className="text-[11px] text-mute">{description.length}/1000</span>
@@ -1980,7 +1932,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </div>
 
             {/* Dates & Schedule */}
-            <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-line/60">
+            <div className="grid gap-3 sm:grid-cols-2 pt-2">
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
                   Starts At
@@ -2004,7 +1956,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </div>
 
             {/* Status */}
-            <div className="pt-2 border-t border-line/60">
+            <div className="pt-2">
               <p className="text-xs font-semibold uppercase tracking-wider text-mute mb-2">Publishing Status</p>
               <div className="grid grid-cols-3 gap-2">
                 {(["live", "draft", "ended"] as const).map((id) => {
@@ -2015,8 +1967,8 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                       type="button"
                       onClick={() => setStatus(id)}
                       className={cn(
-                        "min-h-[44px] rounded-2xl px-3 py-2.5 text-xs font-semibold capitalize ring-1 transition",
-                        on ? "bg-brand text-white ring-brand shadow-xs" : "bg-paper text-mute ring-line hover:text-ink",
+                        "min-h-[44px] rounded-2xl px-3 py-2.5 text-xs font-semibold capitalize transition",
+                        on ? "bg-brand text-white ring-brand shadow-xs" : "neu-btn text-mute hover:text-ink",
                       )}
                     >
                       {on && <Check size={12} className="mr-1 inline" />}
@@ -2025,7 +1977,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   );
                 })}
               </div>
-              <label className="mt-2 flex items-start gap-3 rounded-2xl bg-paper p-3 border border-line/60 cursor-pointer hover:border-brand/40 transition">
+              <label className="mt-2 flex items-start gap-3 neu-card p-3 cursor-pointer transition-[box-shadow,transform]">
                 <input
                   type="checkbox"
                   checked={registrationClosed}
@@ -2045,7 +1997,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
             <EventTicketFields values={ticketFields} onChange={setTicketFields} />
 
-            <div className="pt-2 border-t border-line/60">
+            <div className="pt-2">
               <label
                 htmlFor="event-refund-policy-edit"
                 className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
@@ -2066,7 +2018,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             {activeEvent && <EventCouponManager eventId={activeEvent.id} />}
 
             {/* Guest Screening & Approval Mode in Settings */}
-            <div className="rounded-[28px] bg-paper p-4 border border-line/80 space-y-2.5">
+            <div className="neu-card p-4 space-y-2.5">
               <div className="flex items-center gap-2">
                 <div className="grid h-7 w-7 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-400/20">
                   <ShieldCheck size={15} />
@@ -2077,7 +2029,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 </div>
               </div>
 
-              <label className="flex items-start gap-3 rounded-2xl bg-card p-3 border border-line/60 cursor-pointer group hover:border-brand/40 transition">
+              <label className="flex items-start gap-3 neu-card p-3 cursor-pointer group transition-[box-shadow,transform]">
                 <input
                   type="checkbox"
                   checked={requireApproval}

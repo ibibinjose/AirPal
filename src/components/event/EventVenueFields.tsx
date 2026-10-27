@@ -90,10 +90,8 @@ export function EventVenueFields({
                 type="button"
                 onClick={() => onLocationType(mode.id as EventLocationType)}
                 className={cn(
-                  "flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl px-2 py-2.5 text-xs font-bold transition active:scale-95 ring-1 cursor-pointer",
-                  on
-                    ? "bg-brand text-white ring-brand shadow-sm"
-                    : "bg-paper text-mute ring-line hover:text-ink hover:bg-card",
+                  "flex min-h-[44px] items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl px-2 py-2.5 text-xs font-bold transition active:scale-95 cursor-pointer",
+                  on ? "bg-brand text-white shadow-sm" : "neu-btn text-mute hover:text-ink",
                 )}
               >
                 <Icon size={14} className="shrink-0" />
@@ -166,7 +164,7 @@ export function EventVenueFields({
           )}
 
           {geo && (
-            <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-paper px-3 py-2 text-xs text-mute border border-line/70">
+            <div className="flex flex-wrap items-center justify-between gap-2 neu-inset px-3 py-2 text-xs text-mute">
               <span className="flex items-center gap-1.5 text-ink font-medium">
                 <Check size={14} className="shrink-0 text-emerald-600" />
                 GPS Pinned: {geo.lat.toFixed(4)}, {geo.lng.toFixed(4)}
@@ -211,7 +209,7 @@ export function EventVenueFields({
                 onClick={() => {
                   if (!virtualUrl.startsWith("http")) onVirtualUrl(p.prefix);
                 }}
-                className="rounded-full bg-paper px-2.5 py-1 text-[11px] font-semibold text-ink border border-line hover:border-brand hover:text-accent transition active:scale-95 shadow-2xs"
+                className="neu-chip px-2.5 py-1 text-[11px] font-semibold text-ink transition active:scale-95"
               >
                 {p.label}
               </button>

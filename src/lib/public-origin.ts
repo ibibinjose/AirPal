@@ -11,7 +11,9 @@ function isLocalHost(host: string): boolean {
 
 function isAirpalHost(host: string): boolean {
   const h = host.replace(/^www\./, "");
-  return h === "airpal.me" || h === "airpalme-app.web.app" || h === "airpalme-app.firebaseapp.com";
+  return (
+    h === "airpal.me" || h === "airpal.bio" || h === "airpalme-app.web.app" || h === "airpalme-app.firebaseapp.com"
+  );
 }
 
 /**

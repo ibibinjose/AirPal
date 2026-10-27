@@ -94,7 +94,7 @@ export function EventScheduleQuickPicks({ onSelect, className }: EventScheduleQu
             key={pick.id}
             type="button"
             onClick={() => onSelect(pick.getDates())}
-            className="flex flex-col items-start rounded-2xl bg-paper px-3 py-2 text-left ring-1 ring-line/80 transition-all hover:bg-card hover:ring-brand/30 hover:shadow-xs active:scale-95"
+            className="flex flex-col items-start neu-card px-3 py-2 text-left transition-[box-shadow,transform] active:scale-95"
           >
             <span className="text-xs font-bold text-ink leading-tight">{pick.label}</span>
             <span className="text-[10px] font-medium text-mute mt-0.5">{pick.sublabel}</span>

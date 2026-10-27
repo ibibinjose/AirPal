@@ -38,8 +38,31 @@ vi.mock("@/contexts/BioContext", () => ({
 
 vi.mock("@/contexts/EventsContext", () => ({
   useEvents: () => ({
-    calendarEvents: [],
+    myEvent: undefined,
+    calendarEvents: [
+      {
+        id: "plan-1",
+        title: "Morning Run",
+        description: "",
+        startsAt: "2026-10-10T07:00:00",
+        endsAt: "2026-10-10T08:00:00",
+        date: "2026-10-10",
+        timeLabel: "07:00",
+        city: "Sydney",
+        venue: "Park",
+        category: "food",
+        categoryLabel: "Food",
+        source: "user",
+        isLocal: true,
+        isGoing: true,
+        isInterested: false,
+        isLiked: false,
+        isRescheduled: false,
+      },
+    ],
     savedEvents: [],
+    upsertEvent: vi.fn(),
+    setEventStatus: vi.fn(),
   }),
 }));
 
@@ -125,31 +148,46 @@ vi.mock("@/lib/catchup", async (importOriginal) => {
 });
 
 describe("MePage", () => {
-  it("renders Me with today's agenda, appointments, tickets and catch-ups", () => {
+  it("renders the Overview dashboard on all without stacking full sections", () => {
     const markup = renderToStaticMarkup(createElement(MePage, { defaultTab: "all" }));
 
     // Identity and handle
     expect(markup).toContain("Test User");
     expect(markup).toContain("@testmate");
 
-    expect(markup).toContain("grid grid-cols-3 divide-x divide-line/60");
+    expect(markup).toContain("neu-inset");
+    expect(markup).toContain("neu-section");
     expect(markup).toContain("Jump to section");
 
-    // Today's Agenda
-    expect(markup).toContain("Today&#x27;s Agenda");
-    expect(markup).toContain("Sarah M");
-    expect(markup).toContain("Sydney Opera Live Concert");
+    // Dashboard order: glance, coming up, pass teaser
+    expect(markup).toContain("Today at a glance");
+    expect(markup).toContain("Coming up");
+    expect(markup).toContain("Your Pass");
+    expect(markup).toContain("Open Bio &amp; QR Pass");
 
-    // Appointments Section
+    // Condensed glance items from every source with kind chips
+    expect(markup).toContain("Sarah M");
+    expect(markup).toContain("Morning Run");
+    expect(markup).toContain("Sydney Opera Live Concert");
+    expect(markup).toContain("My plan");
+
+    // Synced data means no loading placeholders
+    expect(markup).not.toContain("Checking your day");
+    expect(markup).not.toContain("Loading your agenda");
+
+    // Full sections stay in their own tabs
+    expect(markup).not.toContain("Today&#x27;s Agenda");
+    expect(markup).not.toContain("Appointments &amp; Catch-ups");
+    expect(markup).not.toContain("AirPal Pass · Digital Wallet");
+    expect(markup).not.toContain("My Digital Bio Pass");
+    expect(markup).not.toContain("People to catch up with");
+  });
+
+  it("renders full catch-up management on the appointments tab", () => {
+    const markup = renderToStaticMarkup(createElement(MePage, { defaultTab: "appointments" }));
+
     expect(markup).toContain("Appointments &amp; Catch-ups");
     expect(markup).toContain("Surry Hills Cafe");
-
-    // Tickets Section
-    expect(markup).toContain("AirPal Pass · Digital Wallet");
-    expect(markup).toContain("Circular Quay");
-
-    // Digital Bio Pass card
-    expect(markup).toContain("My Digital Bio Pass");
 
     // Saved catch-up reminders surface on /me without leaking into the inbox
     expect(markup).toContain("People to catch up with (1)");
@@ -159,11 +197,32 @@ describe("MePage", () => {
     expect(markup).not.toContain("Requests awaiting your response");
   });
 
-  it("renders Today as the first tab and all as ME/All", () => {
+  it("renders the full wallet on the tickets tab", () => {
+    const markup = renderToStaticMarkup(createElement(MePage, { defaultTab: "tickets" }));
+
+    expect(markup).toContain("AirPal Pass · Digital Wallet");
+    expect(markup).toContain("Circular Quay");
+  });
+
+  it("renders personal plans in Today with CRUD entry points", () => {
+    const markup = renderToStaticMarkup(createElement(MePage));
+    // Personal plan row from the Going calendar commitment
+    expect(markup).toContain("Morning Run");
+    expect(markup).toContain("My plans today");
+    expect(markup).toContain("Catch-ups today");
+    expect(markup).toContain("Passes today");
+    expect(markup).toContain("Reschedule");
+    // Header add-plan entry point
+    expect(markup).toContain("Add a personal plan for today");
+    // Accepted catch-up from the owner inbox surfaces a two-tap cancel
+    expect(markup).toContain("Cancel catch-up with Sarah M");
+  });
+
+  it("renders Today as the first tab and all as Overview", () => {
     const markup = renderToStaticMarkup(createElement(MePage));
     expect(markup).toContain("Today&#x27;s Agenda");
     expect(markup).toContain("Today");
-    expect(markup).toContain("ME/All");
+    expect(markup).toContain("Overview");
     expect(markup).toContain("Catch-ups");
     expect(markup).toContain("Tickets");
     expect(markup).toContain("Bio &amp; QR Pass");
@@ -178,13 +237,23 @@ describe("MePage", () => {
     expect(markup).toContain("Apple &amp; Google Wallet");
     expect(markup).toContain("Scannable Anywhere");
     expect(markup).toContain("Instant vCard Contacts");
+    // BioSite preview entry point lives beside the pass actions
+    expect(markup).toContain("Preview site");
   });
 
   it("keeps the stat strip uniform with explicit motion", () => {
     const src = readFileSync(resolve(import.meta.dirname, "./MePage.tsx"), "utf8");
-    expect(src).toContain("grid grid-cols-3 divide-x");
+    expect(src).toContain('data-theme="light"');
+    expect(src).toContain("grid grid-cols-3 gap-1 neu-inset");
     expect(src).toContain('aria-label="Jump to section"');
-    expect(src).not.toContain('<section className="rounded-[36px]');
+    expect(src).not.toContain("ring-line");
+    expect(src).not.toContain("ring-white");
+    expect(src).not.toContain("ring-1 ring-");
+    expect(src).not.toContain("border-line");
+    expect(src).not.toContain("shadow-clay");
+    expect(src).not.toContain("divide-line");
+    expect(src).not.toContain("border-dashed");
+    expect(src).not.toContain("purple-");
     expect(src).not.toContain("transition-all");
     expect(src).not.toMatch(/[^a-z-:]transition[" ]/);
   });

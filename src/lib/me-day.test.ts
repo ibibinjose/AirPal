@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { BookingWithId } from "@/hooks/useMyBookings";
 import type { CatchUpItem } from "@/lib/catchup";
+import type { CalendarEvent } from "@shared/event";
 import {
   pendingAppointments,
   todayAppointments,
+  todayPersonalPlans,
   todayTickets,
   upcomingScheduledAppointments,
   upcomingTickets,
@@ -83,6 +85,36 @@ describe("me day filters", () => {
     ];
     expect(todayTickets(tickets, TODAY).map((t) => t.id)).toEqual(["live"]);
     expect(upcomingTickets(tickets, TODAY).map((t) => t.id)).toEqual(["live", "future-live"]);
+  });
+
+  it("today plans list only committed Going events for today, sorted by start", () => {
+    const plan = (partial: Partial<CalendarEvent> & { id: string }): CalendarEvent =>
+      ({
+        title: "Plan",
+        description: "",
+        startsAt: `${TODAY}T10:00:00`,
+        endsAt: `${TODAY}T11:00:00`,
+        date: TODAY,
+        timeLabel: "10:00",
+        city: "Ashfield",
+        venue: "Cafe",
+        category: "food",
+        categoryLabel: "Food",
+        source: "user",
+        isLocal: true,
+        isGoing: true,
+        isInterested: false,
+        isLiked: false,
+        ...partial,
+      }) as CalendarEvent;
+    const events = [
+      plan({ id: "late", startsAt: `${TODAY}T18:00:00` }),
+      plan({ id: "early", startsAt: `${TODAY}T08:00:00` }),
+      plan({ id: "interested-only", isGoing: false, isInterested: true }),
+      plan({ id: "tomorrow", date: "2026-09-16", startsAt: "2026-09-16T10:00:00" }),
+    ];
+    expect(todayPersonalPlans(events, TODAY).map((e) => e.id)).toEqual(["early", "late"]);
+    expect(todayPersonalPlans(undefined, TODAY)).toEqual([]);
   });
 
   it("keeps reminder-only bookmarks out of every appointment list", () => {

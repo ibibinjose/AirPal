@@ -64,10 +64,8 @@ export function EventHostFields({
             type="button"
             onClick={() => onHostType("business")}
             className={cn(
-              "flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold ring-1 transition",
-              hostType === "business"
-                ? "bg-brand text-white ring-brand shadow-sm"
-                : "bg-paper text-mute ring-line hover:text-ink hover:bg-card",
+              "flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold transition",
+              hostType === "business" ? "bg-brand text-white shadow-sm" : "neu-btn text-mute hover:text-ink",
             )}
           >
             <Building2 size={16} />
@@ -77,10 +75,8 @@ export function EventHostFields({
             type="button"
             onClick={() => onHostType("individual")}
             className={cn(
-              "flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold ring-1 transition",
-              hostType === "individual"
-                ? "bg-brand text-white ring-brand shadow-sm"
-                : "bg-paper text-mute ring-line hover:text-ink hover:bg-card",
+              "flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-xs sm:text-sm font-semibold transition",
+              hostType === "individual" ? "bg-brand text-white shadow-sm" : "neu-btn text-mute hover:text-ink",
             )}
           >
             <User size={16} />
@@ -130,7 +126,7 @@ export function EventHostFields({
                 onHostHandle(business.handle);
                 toast.success(`Filled business: ${business.name} (@${business.handle})`);
               }}
-              className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1 text-[11px] font-semibold text-ink border border-line hover:border-brand hover:text-accent transition shadow-xs"
+              className="neu-chip inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-ink transition"
             >
               <Building2 size={12} className="text-accent" />
               <span>Business (@{business.handle})</span>
@@ -145,7 +141,7 @@ export function EventHostFields({
                 onHostHandle(mine.handle);
                 toast.success(`Filled personal: ${mine.name} (@${mine.handle})`);
               }}
-              className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1 text-[11px] font-semibold text-ink border border-line hover:border-brand hover:text-accent transition shadow-xs"
+              className="neu-chip inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-ink transition"
             >
               <User size={12} className="text-accent" />
               <span>My Handle (@{mine.handle})</span>
@@ -154,7 +150,7 @@ export function EventHostFields({
         </div>
       )}
 
-      <div className="pt-3 border-t border-line/60 space-y-2.5">
+      <div className="pt-3 space-y-2.5">
         <div className="flex items-center justify-between">
           <label className="text-xs font-semibold uppercase tracking-wider text-mute block">
             Extra Hosts & Co-hosts
@@ -199,7 +195,7 @@ export function EventHostFields({
             {collaboratorHandles.map((handle) => (
               <div
                 key={handle}
-                className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1.5 text-xs font-semibold text-ink border border-line shadow-xs group"
+                className="neu-chip inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-ink group"
               >
                 <AtSign size={12} className="text-accent" />
                 <span>{handle}</span>
@@ -227,7 +223,7 @@ export function EventHostFields({
         )}
       </div>
 
-      <div className="pt-3 border-t border-line/60 space-y-2.5">
+      <div className="pt-3 space-y-2.5">
         <div className="flex items-center justify-between">
           <label className="text-xs font-semibold uppercase tracking-wider text-mute flex items-center gap-1.5">
             <Handshake size={13} className="text-amber-600 dark:text-amber-400" aria-hidden="true" />

@@ -31,7 +31,7 @@ export function EventFestivalFields({ values, onChange }: Props) {
     "h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60";
 
   return (
-    <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4">
+    <div className="neu-section p-5 space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-xs font-bold uppercase tracking-wider text-accent">Festival program (optional)</p>
         {slug && slugState === "ok" && (

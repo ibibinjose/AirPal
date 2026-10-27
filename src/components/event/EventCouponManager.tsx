@@ -86,7 +86,7 @@ export function EventCouponManager({ eventId }: { eventId: string }) {
   };
 
   return (
-    <div className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-4">
+    <div className="neu-section p-5 space-y-4">
       <div className="flex items-center gap-2.5">
         <span className="grid h-9 w-9 place-items-center rounded-2xl bg-brand/10 text-accent">
           <BadgePercent size={18} aria-hidden="true" />
@@ -100,10 +100,7 @@ export function EventCouponManager({ eventId }: { eventId: string }) {
       {loaded && coupons.length > 0 && (
         <ul className="space-y-2">
           {coupons.map((row) => (
-            <li
-              key={row.code}
-              className="flex flex-wrap items-center gap-3 rounded-2xl bg-paper px-3.5 py-2.5 ring-1 ring-line/70 sm:flex-nowrap"
-            >
+            <li key={row.code} className="flex flex-wrap items-center gap-3 neu-inset px-3.5 py-2.5 sm:flex-nowrap">
               <span className="font-mono text-sm font-bold tracking-widest text-ink">{row.code}</span>
               <span className="text-xs font-semibold text-emerald-700">{row.percentOff}% off</span>
               <span className="text-[11px] text-mute">
@@ -115,9 +112,7 @@ export function EventCouponManager({ eventId }: { eventId: string }) {
                 aria-pressed={row.active}
                 className={cn(
                   "ml-auto whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-bold transition active:scale-95",
-                  row.active
-                    ? "bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/30"
-                    : "bg-paper text-mute ring-1 ring-line",
+                  row.active ? "bg-emerald-500/10 text-emerald-700" : "neu-chip text-mute",
                 )}
               >
                 {row.active ? "Live" : "Off"}

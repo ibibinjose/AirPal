@@ -1,14 +1,38 @@
 import { useState, type FormEvent } from "react";
-import { X, Calendar, Clock, MapPin, AlignLeft, Sparkles } from "lucide-react";
+import {
+  X,
+  Calendar,
+  Clock,
+  MapPin,
+  AlignLeft,
+  Sparkles,
+  Coffee,
+  UtensilsCrossed,
+  Dumbbell,
+  Video,
+  PartyPopper,
+  type LucideIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
-import { triggerHaptic } from "@/lib/native";
+import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
+import { SCHEDULE_TEMPLATES, getScheduleTemplate, type ScheduleTemplate } from "@/lib/schedule-templates";
 import type { EventRecord } from "@shared/event";
+
+const TEMPLATE_ICONS: Record<ScheduleTemplate["id"], LucideIcon> = {
+  coffee: Coffee,
+  dinner: UtensilsCrossed,
+  workout: Dumbbell,
+  meeting: Video,
+  nightout: PartyPopper,
+};
 
 interface PersonalScheduleModalProps {
   open: boolean;
   onClose: () => void;
   defaultDate?: string;
+  /** Home city used for the plan's city + venue fallback (defaults to Sydney). */
+  city?: string;
   onCreated?: (event: EventRecord) => void;
   upsertEvent: (input: Partial<EventRecord> & Pick<EventRecord, "name" | "flavour">) => Promise<EventRecord>;
   setEventStatus: (eventId: string, status: "going" | "interested" | null) => Promise<void>;
@@ -18,6 +42,7 @@ export function PersonalScheduleModal({
   open,
   onClose,
   defaultDate,
+  city,
   onCreated,
   upsertEvent,
   setEventStatus,
@@ -26,11 +51,23 @@ export function PersonalScheduleModal({
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(defaultDate || todayStr);
   const [time, setTime] = useState("18:00");
+  const [durationMinutes, setDurationMinutes] = useState(60);
+  const [templateId, setTemplateId] = useState<string | null>(null);
   const [venue, setVenue] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const activeTemplate = templateId ? getScheduleTemplate(templateId) : undefined;
+
   if (!open) return null;
+
+  function applyTemplate(template: ScheduleTemplate) {
+    void triggerHapticSelection();
+    setTemplateId(template.id);
+    setTitle(template.title);
+    setTime(template.time);
+    setDurationMinutes(template.durationMinutes);
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -43,11 +80,12 @@ export function PersonalScheduleModal({
       const cleanDate = date || todayStr;
       const cleanTime = time || "12:00";
       const startsAt = `${cleanDate}T${cleanTime}:00`;
-      // Default 1 hour later with midnight/day rollover
+      // Template length (or the 60-minute default) with midnight/day rollover
+      const lengthMinutes = Math.min(480, Math.max(15, durationMinutes || 60));
       const startDate = new Date(`${cleanDate}T${cleanTime}:00`);
       const endDate = !isNaN(startDate.getTime())
-        ? new Date(startDate.getTime() + 60 * 60 * 1000)
-        : new Date(Date.now() + 60 * 60 * 1000);
+        ? new Date(startDate.getTime() + lengthMinutes * 60 * 1000)
+        : new Date(Date.now() + lengthMinutes * 60 * 1000);
       const endYear = endDate.getFullYear();
       const endMonth = String(endDate.getMonth() + 1).padStart(2, "0");
       const endDay = String(endDate.getDate()).padStart(2, "0");
@@ -55,11 +93,12 @@ export function PersonalScheduleModal({
       const endM = String(endDate.getMinutes()).padStart(2, "0");
       const endsAt = `${endYear}-${endMonth}-${endDay}T${endH}:${endM}:00`;
 
+      const planCity = city?.trim() || "Sydney";
       const created = await upsertEvent({
         name: title.trim(),
         flavour: "event_space",
-        venue: venue.trim() || "Sydney",
-        city: "Sydney",
+        venue: venue.trim() || planCity,
+        city: planCity,
         startsAt,
         endsAt,
         description: notes.trim() || undefined,
@@ -75,6 +114,8 @@ export function PersonalScheduleModal({
       setTitle("");
       setVenue("");
       setNotes("");
+      setTemplateId(null);
+      setDurationMinutes(60);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't save to schedule.");
     } finally {
@@ -121,6 +162,40 @@ export function PersonalScheduleModal({
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
+            <span id="sched-templates-label" className="block text-xs font-semibold text-ink">
+              Quick start
+            </span>
+            <div
+              role="group"
+              aria-labelledby="sched-templates-label"
+              className="no-scrollbar -mx-1 mt-1.5 flex gap-2 overflow-x-auto px-1 pb-1"
+            >
+              {SCHEDULE_TEMPLATES.map((template) => {
+                const Icon = TEMPLATE_ICONS[template.id];
+                const selected = templateId === template.id;
+                return (
+                  <button
+                    key={template.id}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => applyTemplate(template)}
+                    className={
+                      selected
+                        ? "inline-flex min-h-[44px] shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-brand px-3.5 text-xs font-bold text-white shadow-xs transition-[background-color,transform] active:scale-95"
+                        : "inline-flex min-h-[44px] shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-paper px-3.5 text-xs font-bold text-ink ring-1 ring-line transition-[background-color,transform] active:scale-95"
+                    }
+                  >
+                    <Icon size={14} className="shrink-0" aria-hidden="true" />
+                    <span className="whitespace-nowrap">
+                      {template.label} · {template.durationMinutes}m
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
             <label htmlFor="sched-title" className="block text-xs font-semibold text-ink">
               Plan or Activity <span className="text-red-500">*</span>
             </label>
@@ -129,7 +204,10 @@ export function PersonalScheduleModal({
               type="text"
               required
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setTemplateId(null);
+              }}
               placeholder="e.g. Dinner with Sarah, Morning Run, Coffee Catch-Up"
               maxLength={120}
               className="mt-1.5 h-11 w-full rounded-2xl bg-paper px-3.5 text-[16px] text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
@@ -161,7 +239,10 @@ export function PersonalScheduleModal({
                 type="time"
                 required
                 value={time}
-                onChange={(e) => setTime(e.target.value)}
+                onChange={(e) => {
+                  setTime(e.target.value);
+                  setTemplateId(null);
+                }}
                 className="mt-1.5 h-11 w-full rounded-2xl bg-paper px-3.5 text-[15px] text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
@@ -177,7 +258,7 @@ export function PersonalScheduleModal({
               type="text"
               value={venue}
               onChange={(e) => setVenue(e.target.value)}
-              placeholder="e.g. The Rocks, Surry Hills Café, Zoom"
+              placeholder={activeTemplate ? activeTemplate.venueHint : "e.g. Local café, park, Zoom"}
               maxLength={120}
               className="mt-1.5 h-11 w-full rounded-2xl bg-paper px-3.5 text-[16px] text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
             />

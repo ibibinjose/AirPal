@@ -41,7 +41,7 @@ export function EventAgendaFields({ rows, onChange }: { rows: AgendaRow[]; onCha
             type="button"
             onClick={() => onChange(rows.filter((_, j) => j !== i))}
             aria-label={`Remove agenda item ${i + 1}`}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-mute ring-1 ring-line transition hover:bg-red-500/10 hover:text-red-600 active:scale-95 cursor-pointer touch-manipulation"
+            className="neu-btn grid h-11 w-11 shrink-0 place-items-center text-mute transition hover:text-red-600 active:scale-95 cursor-pointer touch-manipulation"
           >
             <Trash2 size={15} />
           </button>
@@ -51,7 +51,7 @@ export function EventAgendaFields({ rows, onChange }: { rows: AgendaRow[]; onCha
         <button
           type="button"
           onClick={() => onChange([...rows, { time: "", title: "" }])}
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-bold text-accent ring-1 ring-line transition hover:bg-card active:scale-95 cursor-pointer touch-manipulation"
+          className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-4 text-xs font-bold text-accent transition active:scale-95 cursor-pointer touch-manipulation"
         >
           <Plus size={14} />
           <span>Add timing</span>

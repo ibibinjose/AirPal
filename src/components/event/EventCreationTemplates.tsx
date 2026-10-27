@@ -144,10 +144,10 @@ export function EventCreationTemplates({ onApplyTemplate, className }: EventCrea
               key={tmpl.id}
               type="button"
               onClick={() => onApplyTemplate(tmpl)}
-              className="group flex flex-col items-start rounded-2xl bg-paper/90 p-3 text-left ring-1 ring-line/80 transition-all hover:bg-card hover:ring-brand/40 hover:shadow-sm active:scale-95"
+              className="group flex flex-col items-start neu-card p-3 text-left transition-[box-shadow,transform] active:scale-95"
             >
               <div className="flex w-full items-center justify-between">
-                <span className="grid h-8 w-8 place-items-center rounded-xl bg-card text-accent ring-1 ring-line group-hover:bg-brand group-hover:text-white transition">
+                <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand/10 text-accent transition">
                   <Icon size={15} />
                 </span>
                 <span className="rounded-full bg-brand/10 px-1.5 py-0.5 text-[9px] font-bold text-accent uppercase tracking-wider">

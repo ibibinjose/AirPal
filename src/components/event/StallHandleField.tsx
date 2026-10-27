@@ -76,11 +76,7 @@ export function StallHandleField({ value, onChange, onAutofillName }: Props) {
           title="Fill stall name from this profile"
         >
           {preview.photoUrl ? (
-            <Photo
-              src={preview.photoUrl}
-              alt={preview.name}
-              className="h-8 w-8 rounded-full object-cover ring-1 ring-line"
-            />
+            <Photo src={preview.photoUrl} alt={preview.name} className="h-8 w-8 rounded-full object-cover neu-avatar" />
           ) : (
             <span
               aria-hidden

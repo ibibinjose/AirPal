@@ -1892,3 +1892,260 @@ body.keyboard-open .keyboard-hide {
     opacity: 0.5;
   }
 }
+
+/* ── Neumorphic soft-UI kit for /me ─────────────────────────────
+ * Borderless surfaces: depth comes from twin soft shadows (one dark,
+ * one light) instead of rings and hairline borders. Unlayered author
+ * CSS, so these beat the layered ring/shadow utilities on the same
+ * element. Text tokens are untouched — contrast rails still hold. */
+.neu-section,
+.neu-card,
+.neu-row,
+.neu-inset,
+.neu-chip,
+.neu-btn {
+  border: 0;
+}
+.neu-section {
+  border-radius: 28px;
+  background: #191c21;
+  box-shadow:
+    9px 9px 20px rgba(0, 0, 0, 0.62),
+    -6px -6px 15px rgba(255, 255, 255, 0.06);
+}
+.neu-card {
+  border-radius: 20px;
+  background: #191c21;
+  box-shadow:
+    7px 7px 16px rgba(0, 0, 0, 0.6),
+    -5px -5px 12px rgba(255, 255, 255, 0.055);
+}
+.neu-row {
+  border-radius: 20px;
+  background: #14161a;
+  box-shadow:
+    6px 6px 14px rgba(0, 0, 0, 0.58),
+    -4px -4px 11px rgba(255, 255, 255, 0.05);
+}
+.neu-inset {
+  border-radius: 18px;
+  background: #0a0c0f;
+  box-shadow:
+    inset 5px 5px 12px rgba(0, 0, 0, 0.7),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.05);
+}
+.neu-chip,
+.neu-btn {
+  border-radius: 999px;
+  background: #191c21;
+  box-shadow:
+    4px 4px 10px rgba(0, 0, 0, 0.55),
+    -3px -3px 8px rgba(255, 255, 255, 0.055);
+}
+.neu-btn:active {
+  box-shadow:
+    inset 4px 4px 9px rgba(0, 0, 0, 0.6),
+    inset -3px -3px 7px rgba(255, 255, 255, 0.05);
+}
+.neu-avatar {
+  box-shadow:
+    4px 4px 10px rgba(0, 0, 0, 0.55),
+    -3px -3px 8px rgba(255, 255, 255, 0.055);
+}
+/* Source tints: my plans carry the brand wash, passes keep the Pass gold. */
+.neu-tint-brand {
+  background: rgba(0, 78, 255, 0.14);
+}
+.neu-tint-gold {
+  background: rgba(255, 178, 36, 0.13);
+}
+.neu-tint-sky {
+  background: rgba(56, 189, 248, 0.14);
+}
+.neu-tint-emerald {
+  background: rgba(52, 211, 153, 0.14);
+}
+/* Sticky tab bar on /me: inset track, borderless tabs, brand-filled active. */
+.neu-tabs {
+  background: #0a0c0f;
+  box-shadow:
+    inset 5px 5px 12px rgba(0, 0, 0, 0.7),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.05);
+}
+.neu-tabs > button {
+  box-shadow: none;
+  background: transparent;
+}
+.neu-tabs > button[aria-pressed="true"] {
+  background: var(--color-brand);
+  box-shadow:
+    4px 4px 10px rgba(0, 0, 0, 0.5),
+    -2px -2px 6px rgba(255, 255, 255, 0.06);
+}
+.neu-tabs > button > span:last-child {
+  box-shadow: none;
+}
+.neu-tabs > button[aria-pressed="false"] > span:last-child {
+  background: transparent;
+}
+
+@media (prefers-color-scheme: light) {
+  .neu-section,
+  .neu-card,
+  .neu-chip,
+  .neu-btn {
+    background: #ffffff;
+  }
+  .neu-section {
+    box-shadow:
+      9px 9px 20px rgba(22, 23, 15, 0.14),
+      -6px -6px 15px rgba(255, 255, 255, 0.95);
+  }
+  .neu-card {
+    box-shadow:
+      7px 7px 16px rgba(22, 23, 15, 0.12),
+      -5px -5px 12px rgba(255, 255, 255, 0.95);
+  }
+  .neu-row {
+    background: #ffffff;
+    box-shadow:
+      6px 6px 14px rgba(22, 23, 15, 0.11),
+      -4px -4px 11px rgba(255, 255, 255, 0.9);
+  }
+  .neu-inset,
+  .neu-tabs {
+    background: #e9edf1;
+    box-shadow:
+      inset 5px 5px 12px rgba(22, 23, 15, 0.13),
+      inset -4px -4px 10px rgba(255, 255, 255, 0.9);
+  }
+  .neu-chip,
+  .neu-btn {
+    box-shadow:
+      4px 4px 10px rgba(22, 23, 15, 0.12),
+      -3px -3px 8px rgba(255, 255, 255, 0.9);
+  }
+  .neu-btn:active {
+    box-shadow:
+      inset 4px 4px 9px rgba(22, 23, 15, 0.12),
+      inset -3px -3px 7px rgba(255, 255, 255, 0.9);
+  }
+  .neu-tint-brand {
+    background: rgba(0, 78, 255, 0.08);
+  }
+  .neu-tint-gold {
+    background: rgba(183, 121, 31, 0.13);
+  }
+  .neu-tint-sky {
+    background: rgba(2, 132, 199, 0.08);
+  }
+  .neu-tint-emerald {
+    background: rgba(4, 120, 87, 0.09);
+  }
+}
+
+/* Manual theme choice always wins over the OS-scheme media query above. */
+[data-theme="dark"] .neu-section,
+[data-theme="dark"] .neu-card,
+[data-theme="dark"] .neu-chip,
+[data-theme="dark"] .neu-btn {
+  background: #191c21;
+}
+[data-theme="dark"] .neu-section {
+  box-shadow:
+    9px 9px 20px rgba(0, 0, 0, 0.62),
+    -6px -6px 15px rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] .neu-card {
+  box-shadow:
+    7px 7px 16px rgba(0, 0, 0, 0.6),
+    -5px -5px 12px rgba(255, 255, 255, 0.055);
+}
+[data-theme="dark"] .neu-row {
+  background: #14161a;
+  box-shadow:
+    6px 6px 14px rgba(0, 0, 0, 0.58),
+    -4px -4px 11px rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] .neu-inset,
+[data-theme="dark"] .neu-tabs {
+  background: #0a0c0f;
+  box-shadow:
+    inset 5px 5px 12px rgba(0, 0, 0, 0.7),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] .neu-chip,
+[data-theme="dark"] .neu-btn {
+  box-shadow:
+    4px 4px 10px rgba(0, 0, 0, 0.55),
+    -3px -3px 8px rgba(255, 255, 255, 0.055);
+}
+[data-theme="dark"] .neu-btn:active {
+  box-shadow:
+    inset 4px 4px 9px rgba(0, 0, 0, 0.6),
+    inset -3px -3px 7px rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] .neu-tint-brand {
+  background: rgba(0, 78, 255, 0.14);
+}
+[data-theme="dark"] .neu-tint-gold {
+  background: rgba(255, 178, 36, 0.13);
+}
+[data-theme="dark"] .neu-tint-sky {
+  background: rgba(56, 189, 248, 0.14);
+}
+[data-theme="dark"] .neu-tint-emerald {
+  background: rgba(52, 211, 153, 0.14);
+}
+[data-theme="light"] .neu-section,
+[data-theme="light"] .neu-card,
+[data-theme="light"] .neu-chip,
+[data-theme="light"] .neu-btn {
+  background: #ffffff;
+}
+[data-theme="light"] .neu-section {
+  box-shadow:
+    9px 9px 20px rgba(22, 23, 15, 0.14),
+    -6px -6px 15px rgba(255, 255, 255, 0.95);
+}
+[data-theme="light"] .neu-card {
+  box-shadow:
+    7px 7px 16px rgba(22, 23, 15, 0.12),
+    -5px -5px 12px rgba(255, 255, 255, 0.95);
+}
+[data-theme="light"] .neu-row {
+  background: #ffffff;
+  box-shadow:
+    6px 6px 14px rgba(22, 23, 15, 0.11),
+    -4px -4px 11px rgba(255, 255, 255, 0.9);
+}
+[data-theme="light"] .neu-inset,
+[data-theme="light"] .neu-tabs {
+  background: #e9edf1;
+  box-shadow:
+    inset 5px 5px 12px rgba(22, 23, 15, 0.13),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.9);
+}
+[data-theme="light"] .neu-chip,
+[data-theme="light"] .neu-btn {
+  box-shadow:
+    4px 4px 10px rgba(22, 23, 15, 0.12),
+    -3px -3px 8px rgba(255, 255, 255, 0.9);
+}
+[data-theme="light"] .neu-btn:active {
+  box-shadow:
+    inset 4px 4px 9px rgba(22, 23, 15, 0.12),
+    inset -3px -3px 7px rgba(255, 255, 255, 0.9);
+}
+[data-theme="light"] .neu-tint-brand {
+  background: rgba(0, 78, 255, 0.08);
+}
+[data-theme="light"] .neu-tint-gold {
+  background: rgba(183, 121, 31, 0.13);
+}
+[data-theme="light"] .neu-tint-sky {
+  background: rgba(2, 132, 199, 0.08);
+}
+[data-theme="light"] .neu-tint-emerald {
+  background: rgba(4, 120, 87, 0.09);
+}

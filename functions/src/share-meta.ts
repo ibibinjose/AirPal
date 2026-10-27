@@ -151,6 +151,7 @@ async function resolveCard(pathname: string, origin: string): Promise<ShareCard 
   if ((match = /^\/pulse\/([^/]+)/.exec(path))) return resolvePulseCard(match[1]!, origin);
   if ((match = /^\/deals\/([^/]+)/.exec(path))) return resolvePromotionCard(match[1]!, origin);
   if ((match = /^\/@([^/]+)/.exec(path))) return resolveBioCard(match[1]!, origin);
+  if ((match = /^\/bio\/@([^/]+)/.exec(path))) return resolveBioCard(match[1]!, origin);
   if ((match = /^\/(?:stay|g)\/([^/]+)/.exec(path))) return resolvePropertyCard(match[1]!, origin);
   if (/^\/demohotel\/?$/i.test(path)) return resolveDemoHotelCard(origin);
   if (/^\/demo\/?$/i.test(path)) return shareCardFor("demo", {}, origin);

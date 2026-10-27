@@ -69,7 +69,7 @@ export function EventNameMediaFields({
         <EventCoverPresetSelector currentUrl={coverImage} onSelect={(url) => onCoverImage(url)} className="pt-2" />
       </div>
 
-      <div className="pt-2 border-t border-line/60">
+      <div className="pt-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-2 block">
           Ambient Page Accent
         </label>

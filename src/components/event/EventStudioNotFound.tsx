@@ -18,7 +18,7 @@ export function EventStudioNotFound() {
         </Link>
         <Link
           href="/events"
-          className="inline-flex min-h-[44px] items-center rounded-full px-5 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card active:scale-95"
+          className="neu-btn inline-flex min-h-[44px] items-center px-5 text-sm font-semibold text-ink transition active:scale-95"
         >
           Browse events
         </Link>

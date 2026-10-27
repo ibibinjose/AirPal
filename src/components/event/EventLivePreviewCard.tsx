@@ -92,9 +92,9 @@ export function EventLivePreviewCard({
   };
 
   return (
-    <div className={cn("rounded-[32px] bg-card p-4 sm:p-5 ring-1 ring-line/80 shadow-clay space-y-4", className)}>
+    <div className={cn("neu-section p-4 sm:p-5 space-y-4", className)}>
       {/* Live Preview Header Pill */}
-      <div className="flex items-center justify-between border-b border-line/60 pb-3">
+      <div className="flex items-center justify-between pb-3">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -161,7 +161,7 @@ export function EventLivePreviewCard({
       />
 
       {/* Ticket Tier Mock Card */}
-      <div className="rounded-[24px] bg-paper/80 p-4 ring-1 ring-line/70 shadow-2xs space-y-3">
+      <div className="neu-card p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
             <Ticket size={14} className="text-amber-500" />
@@ -171,12 +171,12 @@ export function EventLivePreviewCard({
             {ticketPriceCents > 0 ? `$${(ticketPriceCents / 100).toFixed(2)} AUD` : "Free Admission"}
           </span>
         </div>
-        <div className="flex items-center justify-between text-[11px] text-mute pt-1 border-t border-line/40">
+        <div className="flex items-center justify-between text-[11px] text-mute pt-1">
           <span>Capacity</span>
           <span className="font-semibold text-ink">{capacity ? `${capacity} guest spots` : "Open admission"}</span>
         </div>
         {requireApproval && (
-          <div className="flex items-center justify-between text-[11px] text-amber-700 dark:text-amber-300 font-semibold pt-1 border-t border-line/40">
+          <div className="flex items-center justify-between text-[11px] text-amber-700 dark:text-amber-300 font-semibold pt-1">
             <span className="flex items-center gap-1">
               <ShieldCheck size={12} className="text-amber-500" />
               <span>Guest Screening</span>

@@ -1,5 +1,6 @@
 import type { BookingWithId } from "@/hooks/useMyBookings";
 import type { CatchUpItem } from "@/lib/catchup";
+import type { CalendarEvent } from "@shared/event";
 
 /** Pure day-list filters for the Me dashboard (moved from MePage). */
 
@@ -35,4 +36,15 @@ export function upcomingScheduledAppointments(items: CatchUpItem[], today: strin
 export function upcomingTickets(bookings: BookingWithId[] | undefined, today: string): BookingWithId[] {
   if (!bookings) return [];
   return bookings.filter((b) => isLiveBooking(b) && (!b.date || b.date >= today));
+}
+
+/**
+ * Personal plans committed for today: calendar events the user marked Going
+ * (including rescheduled ones — `CalendarEvent.date` already reflects the
+ * rescheduled date). Interested-only saves are tentative, so they stay out of
+ * the Today agenda and live under /calendar instead.
+ */
+export function todayPersonalPlans(events: CalendarEvent[] | undefined, today: string): CalendarEvent[] {
+  if (!events) return [];
+  return events.filter((e) => e.isGoing && e.date === today).sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 }

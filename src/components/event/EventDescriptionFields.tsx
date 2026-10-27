@@ -47,7 +47,7 @@ export function EventDescriptionFields({
               onDescription(description ? `${description.trim()}${chip.snippet}` : chip.snippet.trim());
               toast.success(`Appended ${chip.label.replace("+ ", "")} section`);
             }}
-            className="rounded-full bg-paper px-2.5 py-1 text-[11px] font-semibold text-ink border border-line hover:border-brand hover:text-accent transition active:scale-95 shadow-2xs cursor-pointer"
+            className="neu-chip px-2.5 py-1 text-[11px] font-semibold text-ink transition active:scale-95 cursor-pointer"
           >
             {chip.label}
           </button>

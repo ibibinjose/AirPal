@@ -76,7 +76,7 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
 
   return (
     <div className="mt-5 space-y-4">
-      <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
+      <div className="neu-card p-5">
         <h2 className="font-display text-lg font-bold text-ink">Run the day</h2>
         <p className="mt-0.5 text-xs text-mute">Doors, guests, and invites — everything live.</p>
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -89,7 +89,7 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
           </Link>
           <Link
             href="/scan"
-            className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl px-4 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95"
+            className="neu-btn inline-flex min-h-[48px] items-center justify-center gap-1.5 px-4 text-sm font-semibold text-ink transition active:scale-95"
           >
             <ScanLine size={16} aria-hidden="true" />
             <span>Door scanner</span>
@@ -97,7 +97,7 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
           <button
             type="button"
             onClick={() => setInviteOpen(true)}
-            className="inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-1.5 rounded-2xl px-4 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95"
+            className="neu-btn inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-1.5 px-4 text-sm font-semibold text-ink transition active:scale-95"
           >
             <Mail size={16} aria-hidden="true" />
             <span>Invite guests</span>
@@ -105,7 +105,7 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
           <button
             type="button"
             onClick={() => setAnnounceOpen(true)}
-            className="inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-1.5 rounded-2xl px-4 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95"
+            className="neu-btn inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-1.5 px-4 text-sm font-semibold text-ink transition active:scale-95"
           >
             <Megaphone size={16} aria-hidden="true" />
             <span>Message guests</span>
@@ -113,14 +113,14 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
           <button
             type="button"
             onClick={exportIcs}
-            className="inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-1.5 rounded-2xl px-4 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95"
+            className="neu-btn inline-flex min-h-[48px] cursor-pointer items-center justify-center gap-1.5 px-4 text-sm font-semibold text-ink transition active:scale-95"
           >
             <CalendarArrowDown size={16} aria-hidden="true" />
             <span>Export .ics</span>
           </button>
           <Link
             href={`/e/${event.id}`}
-            className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl px-4 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95"
+            className="neu-btn inline-flex min-h-[48px] items-center justify-center gap-1.5 px-4 text-sm font-semibold text-ink transition active:scale-95"
           >
             <ExternalLink size={16} aria-hidden="true" />
             <span>Public event page</span>
@@ -128,7 +128,7 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
         </div>
       </div>
 
-      <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
+      <div className="neu-card p-5">
         <h2 className="font-display text-lg font-bold text-ink">Event actions</h2>
         <p className="mt-0.5 text-xs text-mute">Reuse the setup or close it down.</p>
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -156,7 +156,7 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
               <Button
                 type="button"
                 variant="ghost"
-                className="h-12 border border-line px-4 font-semibold"
+                className="neu-btn h-12 px-4 font-semibold"
                 disabled={working !== null}
                 onClick={() => setConfirmingCancel(false)}
               >

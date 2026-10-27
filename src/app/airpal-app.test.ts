@@ -30,6 +30,7 @@ describe("one AirPal App registry", () => {
     expect(canonicalRouteFor("/circle")?.section).toBe("circle");
     expect(canonicalRouteFor("/friends")?.section).toBe("circle");
     expect(canonicalRouteFor("/me")?.section).toBe("circle");
+    expect(canonicalRouteFor("/bio/@bibin")?.section).toBe("circle");
     expect(canonicalRouteFor("/business")?.section).toBe("business");
     expect(canonicalRouteFor("/join/XYZ")?.section).toBe("business");
     expect(canonicalRouteFor("/host/pulse")?.section).toBe("business");
@@ -66,5 +67,11 @@ describe("one AirPal App registry", () => {
     expect(patternMatches("/e/:id", "/e/abc/guests")).toBe(false);
     expect(patternMatches("/join", "/join/ABC")).toBe(false);
     expect(patternMatches("/join/:code", "/join/ABC")).toBe(true);
+  });
+
+  it("matches @-scoped handle params without swallowing static pages", () => {
+    expect(patternMatches("/bio/@:handle", "/bio/@bibin")).toBe(true);
+    expect(patternMatches("/bio/@:handle", "/bio/setup")).toBe(false);
+    expect(patternMatches("/bio/@:handle", "/bio/")).toBe(false);
   });
 });

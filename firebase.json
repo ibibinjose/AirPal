@@ -65,6 +65,13 @@
         }
       },
       {
+        "source": "/bio/**",
+        "function": {
+          "functionId": "shareMeta",
+          "region": "us-central1"
+        }
+      },
+      {
         "source": "/stay/**",
         "function": {
           "functionId": "shareMeta",

@@ -76,6 +76,7 @@ export const CANONICAL_ROUTES: CanonicalRoute[] = [
   { pattern: "/bio/setup", section: "circle", label: "Bio setup" },
   { pattern: "/bio/edit", section: "circle", label: "Bio edit" },
   { pattern: "/bio/recover", section: "circle", label: "Handle recovery" },
+  { pattern: "/bio/@:handle", section: "circle", label: "BioSite" },
   { pattern: "/me/memories", section: "circle", label: "Memory Wall" },
   { pattern: "/me/inbox", section: "circle", label: "Inbox" },
   // Business & Arrival
@@ -214,7 +215,14 @@ export function patternMatches(pattern: string, path: string): boolean {
   const pSegs = pattern.split("/");
   const pathSegs = path.split("?")[0]?.split("/") ?? [];
   if (pSegs.length !== pathSegs.length) return false;
-  return pSegs.every((seg, i) => seg.startsWith(":") || seg === pathSegs[i]);
+  return pSegs.every(
+    (seg, i) =>
+      seg.startsWith(":") ||
+      // @-scoped params (e.g. /bio/@:handle) need the literal @ prefix,
+      // exactly like wouter matches them in the router.
+      (seg.startsWith("@:") && (pathSegs[i]?.startsWith("@") ?? false)) ||
+      seg === pathSegs[i],
+  );
 }
 
 /** Find the canonical route for a concrete path, if it is first-class. */

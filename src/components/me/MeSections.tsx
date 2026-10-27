@@ -2,15 +2,12 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { Photo } from "@/components/ui/Photo";
 
-/** Shared /me section system: one shell, one header, one row, one empty
- * state — so every card on the page aligns instead of drifting apart. */
+/** Shared /me section system: one borderless neumorphic shell, one header,
+ * one row, one empty state — depth comes from twin soft shadows, never
+ * rings or hairline borders. */
 
 export function MeSection({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <section className={cn("rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay", className)}>
-      {children}
-    </section>
-  );
+  return <section className={cn("neu-section p-5 sm:p-7", className)}>{children}</section>;
 }
 
 export function MeSectionHeader({
@@ -42,7 +39,7 @@ export function MeSectionHeader({
 
 export function RowAvatar({ photo, name }: { photo?: string; name: string }) {
   return (
-    <div className="h-11 w-11 overflow-hidden rounded-full ring-2 ring-line bg-paper shrink-0">
+    <div className="h-11 w-11 overflow-hidden rounded-full neu-avatar bg-paper shrink-0">
       {photo ? (
         <Photo src={photo} className="h-full w-full object-cover rounded-full" />
       ) : (
@@ -58,19 +55,15 @@ export function RowActions({ children, divided = true }: { children: ReactNode; 
   if (!divided) {
     return <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">{children}</div>;
   }
-  return (
-    <div className="flex w-full sm:w-auto items-center justify-end gap-2 shrink-0 border-t border-line/40 pt-2.5 sm:border-0 sm:pt-0">
-      {children}
-    </div>
-  );
+  return <div className="flex w-full sm:w-auto items-center justify-end gap-2 shrink-0 pt-2.5 sm:pt-0">{children}</div>;
 }
 
 export function MeRow({
   visual,
   children,
   actions,
-  toneClass = "bg-paper/60 ring-line/80 hover:ring-brand/30",
-  roundedClass = "rounded-2xl",
+  toneClass = "neu-row",
+  roundedClass = "",
   divided = true,
 }: {
   visual: ReactNode;
@@ -83,7 +76,7 @@ export function MeRow({
   return (
     <div
       className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 ring-1 shadow-2xs transition-shadow",
+        "flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 transition-[box-shadow,transform]",
         roundedClass,
         toneClass,
       )}
@@ -93,6 +86,25 @@ export function MeRow({
         <div className="min-w-0">{children}</div>
       </div>
       {actions && <RowActions divided={divided}>{actions}</RowActions>}
+    </div>
+  );
+}
+
+export function TodaySkeleton({ lines = 3 }: { lines?: number }) {
+  return (
+    <div className="space-y-3" role="status" aria-label="Loading your agenda">
+      {Array.from({ length: lines }).map((_, i) => (
+        <div key={i} className="neu-row p-4 animate-pulse" aria-hidden="true">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-full bg-line/40 shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-3 w-2/3 rounded-full bg-line/40" />
+              <div className="h-2.5 w-1/3 rounded-full bg-line/30" />
+            </div>
+          </div>
+        </div>
+      ))}
+      <span className="sr-only">Loading your agenda…</span>
     </div>
   );
 }
@@ -109,7 +121,7 @@ export function MeEmpty({
   children?: ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-dashed border-line/80 p-6 text-center bg-paper/40">
+    <div className="neu-inset p-6 text-center">
       {icon}
       <p className="font-display text-base font-bold text-ink mt-2">{title}</p>
       <p className="text-xs text-mute mt-1 max-w-md mx-auto leading-relaxed">{body}</p>

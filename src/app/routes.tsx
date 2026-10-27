@@ -49,6 +49,7 @@ const BioPublicPage = lazy(() => import("@/pages/BioPublicPage").then((m) => ({ 
 const BioSetupPage = lazy(() => import("@/pages/BioSetupPage").then((m) => ({ default: m.BioSetupPage })));
 const BioEditPage = lazy(() => import("@/pages/BioEditPage").then((m) => ({ default: m.BioEditPage })));
 const BioRecoverPage = lazy(() => import("@/pages/BioRecoverPage").then((m) => ({ default: m.BioRecoverPage })));
+const BioSitePage = lazy(() => import("@/pages/BioSitePage").then((m) => ({ default: m.BioSitePage })));
 const SearchAnalyticsPage = lazy(() =>
   import("@/pages/SearchAnalyticsPage").then((m) => ({ default: m.SearchAnalyticsPage })),
 );
@@ -137,6 +138,8 @@ export function AppRoutes() {
           <Route path="/bio/setup" component={BioSetupPage} />
           <Route path="/bio/edit" component={BioEditPage} />
           <Route path="/bio/recover" component={BioRecoverPage} />
+          {/* BioSite must come last: /bio/@handle only matches @-handles, never static pages. */}
+          <Route path="/bio/@:handle" component={BioSitePage} />
           <Route path="/me/memories" component={MemoryWallPage} />
           <Route path="/me/inbox" component={InboxPage} />
 
