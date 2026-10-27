@@ -107,7 +107,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
 
   const [catchUpsList, setCatchUpsList] = useState<CatchUpItem[]>(() => listCatchUps());
   // True once the owner inbox has synced at least once — until then an empty
-  // agenda means "still loading", never "clear schedule".
+  // agenda means "still loading", never "an open day".
   const [catchupsSynced, setCatchupsSynced] = useState(() => listCatchUps().length > 0);
   const [myReminders, setMyReminders] = useState<CatchUpItem[]>(() =>
     listCatchUps().filter((item) => item.isReminderOnly && item.status !== "dismissed"),
@@ -342,6 +342,19 @@ export function MePage({ defaultTab }: MePageProps = {}) {
   const handleTabChange = (tab: MeTab) => {
     void triggerHapticSelection();
     setActiveTab(tab);
+    // Keep the active pill visible: five tabs overflow a 390px screen, so
+    // glide it into view like a native segmented control.
+    if (typeof document !== "undefined" && typeof requestAnimationFrame !== "undefined") {
+      const reduce =
+        typeof window !== "undefined" &&
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      requestAnimationFrame(() => {
+        document
+          .querySelector('[aria-label="Me sections"] [aria-pressed="true"]')
+          ?.scrollIntoView({ inline: "center", block: "nearest", behavior: reduce ? "auto" : "smooth" });
+      });
+    }
   };
 
   const handleAcceptCatchUp = async (id: string, name: string) => {
@@ -382,11 +395,11 @@ export function MePage({ defaultTab }: MePageProps = {}) {
       className="mx-auto max-w-5xl bg-paper px-4 sm:px-6 lg:px-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] pt-[max(1rem,env(safe-area-inset-top,0px))]"
     >
       {/* 🧭 1. TOP OF PAGE NAVIGATION TABS */}
-      <div className="sticky top-2 z-30 mb-6">
+      <div className="sticky top-[max(0.5rem,env(safe-area-inset-top,0px))] z-30 mb-6">
         <TabPills
           layout="contained"
           ariaLabel="Me sections"
-          className="neu-tabs"
+          className="neu-tabs scroll-smooth"
           items={[
             {
               id: "today" as const,
@@ -410,7 +423,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
               icon: Ticket,
               badge: upcomingTickets.length > 0 ? String(upcomingTickets.length) : undefined,
             },
-            { id: "pass" as const, label: "Bio & QR Pass", icon: QrCode },
+            { id: "pass" as const, label: "Pass", icon: QrCode, ariaLabel: "Bio & QR Pass" },
           ]}
           active={activeTab}
           onChange={handleTabChange}
@@ -750,143 +763,234 @@ export function MePage({ defaultTab }: MePageProps = {}) {
 
       {/* 🌟 4. MAIN ME SECTIONS (one per tab) */}
       <div className="space-y-6">
-        {/* SECTION: TODAY'S AGENDA */}
+        {/* SECTION: TODAY — a cool window on the day */}
         {showSection("today") && (
-          <MeSection className="overflow-hidden">
-            <MeSectionHeader
-              icon={<Sun size={18} />}
-              tileClass="bg-brand/10 text-accent"
-              title="Today's Agenda"
-              sub={`${formattedToday} · ${city || "Sydney"}`}
-              right={
-                <div className="flex items-center gap-2 shrink-0">
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1.5 text-[10px] font-bold rounded-full px-3 py-1 whitespace-nowrap",
-                      todayTotalCount > 0
-                        ? "bg-brand text-white"
-                        : agendaLoading
-                          ? "bg-paper text-mute"
-                          : "bg-emerald-500/15 text-emerald-600",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "h-1.5 w-1.5 rounded-full",
-                        todayTotalCount > 0
-                          ? "bg-amber-400"
-                          : agendaLoading
-                            ? "bg-mute animate-pulse"
-                            : "bg-emerald-500 animate-pulse",
-                      )}
-                    />
-                    <span>
-                      {todayTotalCount > 0
-                        ? `${todayTotalCount} scheduled today`
-                        : agendaLoading
-                          ? "Checking your day…"
-                          : "Clear schedule"}
-                    </span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void triggerHaptic("light");
-                      setConfirmRemoveId(null);
-                      setScheduleOpen(true);
-                    }}
-                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
-                    aria-label="Add a personal plan for today"
-                    title="Add a personal plan for today"
-                  >
-                    <Plus size={14} className="shrink-0" />
-                    <span className="hidden min-[420px]:inline">Add plan</span>
-                  </button>
-                </div>
-              }
-            />
+          <section aria-label="Today" className="neu-section overflow-hidden">
+            {/* Window chrome */}
+            <div className="flex items-center gap-3 px-4 py-2.5 sm:px-5">
+              <span aria-hidden="true" className="flex shrink-0 items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-line" />
+                <span className="h-2.5 w-2.5 rounded-full bg-line" />
+                <span className="h-2.5 w-2.5 rounded-full bg-line" />
+              </span>
+              <p className="min-w-0 flex-1 truncate text-center text-xs font-bold text-mute">
+                Today · {formattedToday}
+              </p>
+              {weather ? (
+                <span className="shrink-0 text-xs font-black text-ink tabular-nums">{weather.temp}°C</span>
+              ) : (
+                <span className="w-7 shrink-0" aria-hidden="true" />
+              )}
+            </div>
+            <div className="h-px bg-line/40" aria-hidden="true" />
 
-            {/* Weather & Deterministic Outfit Widget */}
-            {weather && outfitAdvice && (
-              <div className="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 neu-inset p-4">
-                <div className="flex items-center gap-3">
-                  <span className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-500/15 text-amber-600 shrink-0">
-                    <Shirt size={18} />
-                  </span>
-                  <div>
-                    <p className="text-xs font-bold text-ink leading-snug">
-                      Outfit Recommendation: {outfitAdvice.outfit}
-                    </p>
-                    <p className="text-[11px] font-medium text-accent leading-snug mt-0.5">{outfitAdvice.accessory}</p>
+            {/* Window view: the day at a glance */}
+            <div className="p-5 sm:p-7">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="human-eyebrow">Today&apos;s agenda</p>
+                  <h2 className="font-display mt-1 text-2xl font-extrabold tracking-tight text-ink text-balance sm:text-3xl">
+                    {formattedToday}
+                  </h2>
+                  <p className="mt-1 flex items-center gap-1.5 text-sm text-mute">
+                    <MapPin size={13} className="shrink-0 text-accent" aria-hidden="true" />
+                    <span className="truncate">{city || "Sydney"}</span>
+                    {todayTotalCount > 0 ? (
+                      <span className="shrink-0 tabular-nums">· {todayTotalCount} scheduled</span>
+                    ) : agendaLoading ? (
+                      <span className="shrink-0">· Checking your day…</span>
+                    ) : null}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("light");
+                    setConfirmRemoveId(null);
+                    setScheduleOpen(true);
+                  }}
+                  className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
+                  aria-label="Add a personal plan for today"
+                  title="Add a personal plan for today"
+                >
+                  <Plus size={14} className="shrink-0" />
+                  <span className="hidden min-[420px]:inline">Add plan</span>
+                </button>
+              </div>
+
+              {/* Weather & Deterministic Outfit Widget */}
+              {weather && outfitAdvice && (
+                <div className="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 neu-inset p-4">
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-500/15 text-amber-600 shrink-0">
+                      <Shirt size={18} />
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold text-ink leading-snug">
+                        Outfit Recommendation: {outfitAdvice.outfit}
+                      </p>
+                      <p className="text-[11px] font-medium text-accent leading-snug mt-0.5">
+                        {outfitAdvice.accessory}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-left sm:text-right shrink-0 pt-2 sm:pt-0">
+                    <span className="font-display text-base font-black text-ink tabular-nums">{weather.temp}°C</span>
+                    <span className="block text-[10px] text-mute">
+                      {weather.isDay ? "Daytime" : "Evening"} local forecast
+                    </span>
                   </div>
                 </div>
-                <div className="text-left sm:text-right shrink-0 pt-2 sm:pt-0">
-                  <span className="font-display text-base font-black text-ink tabular-nums">{weather.temp}°C</span>
-                  <span className="block text-[10px] text-mute">
-                    {weather.isDay ? "Daytime" : "Evening"} local forecast
-                  </span>
-                </div>
-              </div>
-            )}
+              )}
 
-            {todayTotalCount > 0 ? (
-              <div className="space-y-3">
-                {/* Row colour map (matches the source tabs): catch-ups with other
+              {todayTotalCount > 0 ? (
+                <div className="space-y-3">
+                  {/* Row colour map (matches the source tabs): catch-ups with other
                     people stay neutral paper; my own plans carry the brand tint;
                     passes keep the Pass gold/amber. Pending state always pairs
                     the amber ring with a "Pending" text chip, never colour alone. */}
-                {/* Today's 1-on-1 Catch-ups (proposed by others) */}
-                {todayAppointments.length > 0 && (
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-mute">Catch-ups today</p>
-                )}
-                {todayAppointments.map((item) => {
-                  const isPending = item.status === "pending";
-                  const confirming = confirmRemoveId === item.id;
-                  return (
-                    <MeRow
-                      key={item.id}
-                      toneClass={isPending ? "neu-row neu-tint-gold" : "neu-row"}
-                      visual={<RowAvatar photo={item.requesterPhoto} name={item.requesterName} />}
-                      actions={
-                        isPending ? (
+                  {/* Today's 1-on-1 Catch-ups (proposed by others) */}
+                  {todayAppointments.length > 0 && (
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-mute">Catch-ups today</p>
+                  )}
+                  {todayAppointments.map((item) => {
+                    const isPending = item.status === "pending";
+                    const confirming = confirmRemoveId === item.id;
+                    return (
+                      <MeRow
+                        key={item.id}
+                        toneClass={isPending ? "neu-row neu-tint-gold" : "neu-row"}
+                        visual={<RowAvatar photo={item.requesterPhoto} name={item.requesterName} />}
+                        actions={
+                          isPending ? (
+                            <>
+                              <Button
+                                size="sm"
+                                className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full bg-emerald-600 px-3.5 text-xs font-bold text-white hover:bg-emerald-700 active:scale-95"
+                                onClick={() => void handleAcceptCatchUp(item.id, item.requesterName)}
+                              >
+                                <Check size={13} className="mr-1 shrink-0" />
+                                Accept
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="neu-btn min-h-[44px] flex-1 sm:flex-initial justify-center px-3 text-xs font-medium text-mute hover:text-ink"
+                                onClick={() => void handleDismissCatchUp(item.id)}
+                              >
+                                Dismiss
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              {item.meetingLink && (
+                                <a
+                                  href={item.meetingLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={() => void triggerHaptic("light")}
+                                  className="inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-500/15 px-4 text-xs font-bold text-emerald-800 hover:bg-emerald-500/25 transition-[background-color,transform] active:scale-95"
+                                >
+                                  <PhoneCall size={13} className="shrink-0 text-emerald-700" />
+                                  <span>Join Call</span>
+                                </a>
+                              )}
+                              <AddToCalendarMenu
+                                event={{
+                                  title: `Catch Up: ${item.requesterName}`,
+                                  description: item.notes || `AirPal with ${item.requesterName}`,
+                                  startsAt: `${item.date}T${item.time || "12:00"}:00`,
+                                  venue: item.venue,
+                                }}
+                                size="sm"
+                                variant="ghost"
+                                label="Calendar"
+                                buttonClassName="neu-btn min-h-[44px] px-3.5 text-xs font-bold"
+                              />
+                              {confirming ? (
+                                <Button
+                                  size="sm"
+                                  className="min-h-[44px] rounded-full bg-red-600 px-3.5 text-xs font-bold text-white hover:bg-red-700 active:scale-95"
+                                  onClick={() => void handleDismissCatchUp(item.id)}
+                                  aria-label={`Confirm cancelling catch-up with ${item.requesterName}`}
+                                >
+                                  Confirm cancel
+                                </Button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    void triggerHaptic("light");
+                                    setConfirmRemoveId(item.id);
+                                  }}
+                                  className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3 text-xs font-semibold text-mute hover:text-ink transition-[box-shadow,color,transform] active:scale-95 cursor-pointer"
+                                  aria-label={`Cancel catch-up with ${item.requesterName}`}
+                                >
+                                  <X size={13} />
+                                  <span>Cancel</span>
+                                </button>
+                              )}
+                            </>
+                          )
+                        }
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-ink truncate">{item.requesterName}</span>
+                          <span className="text-[10px] font-bold rounded-full bg-brand/10 text-accent px-2 py-0.5">
+                            {item.type === "meeting" ? "Meeting" : item.type === "nightout" ? "Hangout" : "Coffee"}
+                          </span>
+                          {isPending && (
+                            <span className="text-[10px] font-bold uppercase rounded-full bg-amber-500/25 px-2 py-0.5 text-amber-950 dark:text-amber-100">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-mute mt-1 flex items-center gap-1.5 truncate">
+                          <Clock size={12} className="text-mute shrink-0" />
+                          <span>Today {item.time ? `@ ${item.time}` : ""}</span>
+                          {item.venue && <span>· {item.venue}</span>}
+                        </p>
+                      </MeRow>
+                    );
+                  })}
+
+                  {/* Today's Personal Plans (my own Going commitments from /calendar) */}
+                  {todayPlans.length > 0 && (
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-mute pt-1">My plans today</p>
+                  )}
+                  {todayPlans.map((plan) => {
+                    const confirming = confirmRemoveId === plan.id;
+                    return (
+                      <MeRow
+                        key={plan.id}
+                        toneClass="neu-row neu-tint-brand"
+                        visual={
+                          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-brand/10 text-accent shrink-0">
+                            <Calendar size={20} />
+                          </span>
+                        }
+                        actions={
                           <>
-                            <Button
-                              size="sm"
-                              className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full bg-emerald-600 px-3.5 text-xs font-bold text-white hover:bg-emerald-700 active:scale-95"
-                              onClick={() => void handleAcceptCatchUp(item.id, item.requesterName)}
-                            >
-                              <Check size={13} className="mr-1 shrink-0" />
-                              Accept
-                            </Button>
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="neu-btn min-h-[44px] flex-1 sm:flex-initial justify-center px-3 text-xs font-medium text-mute hover:text-ink"
-                              onClick={() => void handleDismissCatchUp(item.id)}
+                              className="neu-btn min-h-[44px] px-3.5 text-xs font-bold text-ink active:scale-95"
+                              onClick={() => {
+                                void triggerHaptic("light");
+                                setConfirmRemoveId(null);
+                                setRescheduleTarget(plan);
+                              }}
+                              aria-label={`Reschedule ${plan.title}`}
                             >
-                              Dismiss
+                              <Clock size={13} className="mr-1 shrink-0" />
+                              Reschedule
                             </Button>
-                          </>
-                        ) : (
-                          <>
-                            {item.meetingLink && (
-                              <a
-                                href={item.meetingLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => void triggerHaptic("light")}
-                                className="inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-500/15 px-4 text-xs font-bold text-emerald-800 hover:bg-emerald-500/25 transition-[background-color,transform] active:scale-95"
-                              >
-                                <PhoneCall size={13} className="shrink-0 text-emerald-700" />
-                                <span>Join Call</span>
-                              </a>
-                            )}
                             <AddToCalendarMenu
                               event={{
-                                title: `Catch Up: ${item.requesterName}`,
-                                description: item.notes || `AirPal with ${item.requesterName}`,
-                                startsAt: `${item.date}T${item.time || "12:00"}:00`,
-                                venue: item.venue,
+                                title: plan.title,
+                                description: plan.description || plan.categoryLabel,
+                                startsAt: plan.startsAt,
+                                venue: plan.venue,
                               }}
                               size="sm"
                               variant="ghost"
@@ -897,290 +1001,201 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                               <Button
                                 size="sm"
                                 className="min-h-[44px] rounded-full bg-red-600 px-3.5 text-xs font-bold text-white hover:bg-red-700 active:scale-95"
-                                onClick={() => void handleDismissCatchUp(item.id)}
-                                aria-label={`Confirm cancelling catch-up with ${item.requesterName}`}
+                                onClick={() => void handleRemovePlan(plan.id, plan.title)}
+                                aria-label={`Confirm removing ${plan.title} from your schedule`}
                               >
-                                Confirm cancel
+                                <Trash2 size={13} className="mr-1 shrink-0" />
+                                Confirm
                               </Button>
                             ) : (
                               <button
                                 type="button"
                                 onClick={() => {
                                   void triggerHaptic("light");
-                                  setConfirmRemoveId(item.id);
+                                  setConfirmRemoveId(plan.id);
                                 }}
-                                className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3 text-xs font-semibold text-mute hover:text-ink transition-[box-shadow,color,transform] active:scale-95 cursor-pointer"
-                                aria-label={`Cancel catch-up with ${item.requesterName}`}
+                                className="neu-btn grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center text-mute transition-[box-shadow,color,transform] hover:text-red-600 active:scale-95 cursor-pointer touch-manipulation"
+                                aria-label={`Remove ${plan.title} from your schedule`}
+                                title="Remove from schedule"
                               >
-                                <X size={13} />
-                                <span>Cancel</span>
+                                <Trash2 size={15} />
                               </button>
                             )}
                           </>
-                        )
-                      }
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-ink truncate">{item.requesterName}</span>
-                        <span className="text-[10px] font-bold rounded-full bg-brand/10 text-accent px-2 py-0.5">
-                          {item.type === "meeting" ? "Meeting" : item.type === "nightout" ? "Hangout" : "Coffee"}
-                        </span>
-                        {isPending && (
-                          <span className="text-[10px] font-bold uppercase rounded-full bg-amber-500/25 px-2 py-0.5 text-amber-950 dark:text-amber-100">
-                            Pending
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-mute mt-1 flex items-center gap-1.5 truncate">
-                        <Clock size={12} className="text-mute shrink-0" />
-                        <span>Today {item.time ? `@ ${item.time}` : ""}</span>
-                        {item.venue && <span>· {item.venue}</span>}
-                      </p>
-                    </MeRow>
-                  );
-                })}
+                        }
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-ink truncate">{plan.title}</span>
+                          {plan.isRescheduled && (
+                            <span className="text-[10px] font-bold uppercase rounded-full bg-brand/10 text-accent px-2 py-0.5">
+                              Moved
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-mute mt-1 flex items-center gap-1.5 truncate">
+                          <Clock size={12} className="text-mute shrink-0" />
+                          <span>Today @ {plan.timeLabel || plan.startsAt.slice(11, 16)}</span>
+                          {plan.venue && <span>· {plan.venue}</span>}
+                        </p>
+                      </MeRow>
+                    );
+                  })}
 
-                {/* Today's Personal Plans (my own Going commitments from /calendar) */}
-                {todayPlans.length > 0 && (
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-mute pt-1">My plans today</p>
-                )}
-                {todayPlans.map((plan) => {
-                  const confirming = confirmRemoveId === plan.id;
-                  return (
+                  {/* Today's Tickets */}
+                  {todayTickets.length > 0 && (
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-mute pt-1">Passes today</p>
+                  )}
+                  {todayTickets.map((ticket) => (
                     <MeRow
-                      key={plan.id}
-                      toneClass="neu-row neu-tint-brand"
+                      key={ticket.id}
+                      toneClass="neu-row neu-tint-gold"
+                      divided={false}
                       visual={
-                        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-brand/10 text-accent shrink-0">
-                          <Calendar size={20} />
+                        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-400 shrink-0">
+                          <Ticket size={22} />
                         </span>
                       }
                       actions={
-                        <>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="neu-btn min-h-[44px] px-3.5 text-xs font-bold text-ink active:scale-95"
-                            onClick={() => {
-                              void triggerHaptic("light");
-                              setConfirmRemoveId(null);
-                              setRescheduleTarget(plan);
-                            }}
-                            aria-label={`Reschedule ${plan.title}`}
-                          >
-                            <Clock size={13} className="mr-1 shrink-0" />
-                            Reschedule
-                          </Button>
-                          <AddToCalendarMenu
-                            event={{
-                              title: plan.title,
-                              description: plan.description || plan.categoryLabel,
-                              startsAt: plan.startsAt,
-                              venue: plan.venue,
-                            }}
-                            size="sm"
-                            variant="ghost"
-                            label="Calendar"
-                            buttonClassName="neu-btn min-h-[44px] px-3.5 text-xs font-bold"
-                          />
-                          {confirming ? (
-                            <Button
-                              size="sm"
-                              className="min-h-[44px] rounded-full bg-red-600 px-3.5 text-xs font-bold text-white hover:bg-red-700 active:scale-95"
-                              onClick={() => void handleRemovePlan(plan.id, plan.title)}
-                              aria-label={`Confirm removing ${plan.title} from your schedule`}
-                            >
-                              <Trash2 size={13} className="mr-1 shrink-0" />
-                              Confirm
-                            </Button>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                void triggerHaptic("light");
-                                setConfirmRemoveId(plan.id);
-                              }}
-                              className="neu-btn grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center text-mute transition-[box-shadow,color,transform] hover:text-red-600 active:scale-95 cursor-pointer touch-manipulation"
-                              aria-label={`Remove ${plan.title} from your schedule`}
-                              title="Remove from schedule"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          )}
-                        </>
+                        <Button
+                          size="sm"
+                          className="min-h-[44px] rounded-full bg-amber-600 px-4 text-xs font-bold text-white shadow-2xs hover:bg-amber-700 transition-[background-color,transform] active:scale-95"
+                          onClick={() => nav(`/ticket/${ticket.id}`)}
+                        >
+                          <QrCode size={14} className="mr-1.5" />
+                          Open Pass
+                        </Button>
                       }
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-ink truncate">{plan.title}</span>
-                        {plan.isRescheduled && (
-                          <span className="text-[10px] font-bold uppercase rounded-full bg-brand/10 text-accent px-2 py-0.5">
-                            Moved
-                          </span>
-                        )}
-                      </div>
+                      <span className="font-bold text-sm text-ink truncate block">{ticket.title}</span>
                       <p className="text-xs text-mute mt-1 flex items-center gap-1.5 truncate">
-                        <Clock size={12} className="text-mute shrink-0" />
-                        <span>Today @ {plan.timeLabel || plan.startsAt.slice(11, 16)}</span>
-                        {plan.venue && <span>· {plan.venue}</span>}
+                        <Flame size={12} className="text-amber-600 shrink-0" />
+                        <span>
+                          Pass ({ticket.spots || 1}x) {ticket.time ? `· Doors ${ticket.time}` : ""}
+                        </span>
+                        <span>· {ticket.suburb || "Venue"}</span>
                       </p>
                     </MeRow>
-                  );
-                })}
-
-                {/* Today's Tickets */}
-                {todayTickets.length > 0 && (
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-mute pt-1">Passes today</p>
-                )}
-                {todayTickets.map((ticket) => (
-                  <MeRow
-                    key={ticket.id}
-                    toneClass="neu-row neu-tint-gold"
-                    divided={false}
-                    visual={
-                      <span className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-400 shrink-0">
-                        <Ticket size={22} />
-                      </span>
-                    }
-                    actions={
-                      <Button
-                        size="sm"
-                        className="min-h-[44px] rounded-full bg-amber-600 px-4 text-xs font-bold text-white shadow-2xs hover:bg-amber-700 transition-[background-color,transform] active:scale-95"
-                        onClick={() => nav(`/ticket/${ticket.id}`)}
-                      >
-                        <QrCode size={14} className="mr-1.5" />
-                        Open Pass
-                      </Button>
-                    }
-                  >
-                    <span className="font-bold text-sm text-ink truncate block">{ticket.title}</span>
-                    <p className="text-xs text-mute mt-1 flex items-center gap-1.5 truncate">
-                      <Flame size={12} className="text-amber-600 shrink-0" />
-                      <span>
-                        Pass ({ticket.spots || 1}x) {ticket.time ? `· Doors ${ticket.time}` : ""}
-                      </span>
-                      <span>· {ticket.suburb || "Venue"}</span>
-                    </p>
-                  </MeRow>
-                ))}
-              </div>
-            ) : agendaLoading ? (
-              <TodaySkeleton />
-            ) : (
-              <div className="px-1 py-2 text-center">
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 mx-auto mb-3">
-                  <Sun size={24} />
-                </span>
-                <h3 className="font-display text-base sm:text-lg font-bold text-ink">Your day is open</h3>
-                <p className="text-xs text-mute mt-1 max-w-md mx-auto leading-relaxed">
-                  No catch-ups, plans or passes scheduled for today. Turn free time into an experience!
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void triggerHaptic("light");
-                    setConfirmRemoveId(null);
-                    setScheduleOpen(true);
-                  }}
-                  className="mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
-                >
-                  <Plus size={14} />
-                  <span>Add a plan for today</span>
-                </button>
-
-                {/* 🌟 Rich Full Journey Cards */}
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
-                  {/* Card 1: Meet People */}
-                  <div className="flex flex-col justify-between neu-card neu-tint-brand p-4 transition-[box-shadow,transform]">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand/10 text-accent">
-                          <Users size={15} />
-                        </span>
-                        <h4 className="font-display text-xs font-bold text-ink">Meet People</h4>
-                      </div>
-                      <p className="text-[11px] text-mute leading-relaxed">
-                        Catch up with mutuals or check in at a nearby venue in Circle.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void triggerHaptic("light");
-                        nav("/circle");
-                      }}
-                      className="mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-3.5 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
-                    >
-                      <Users size={13} />
-                      <span>Meet people</span>
-                    </button>
-                  </div>
-
-                  {/* Card 2: Discover Passes */}
-                  <div className="flex flex-col justify-between neu-card neu-tint-gold p-4 transition-[box-shadow,transform]">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="grid h-8 w-8 place-items-center rounded-xl bg-amber-500/15 text-amber-600">
-                          <Ticket size={15} />
-                        </span>
-                        <h4 className="font-display text-xs font-bold text-ink">Events &amp; Deals</h4>
-                      </div>
-                      <p className="text-[11px] text-mute leading-relaxed">
-                        Live concerts, cultural festivals, and member perks active today.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => nav("/pass")}
-                      className="mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-amber-500/15 px-3.5 text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-500/25 transition-[background-color,transform] active:scale-95 cursor-pointer"
-                    >
-                      <Ticket size={13} />
-                      <span>Discover Passes</span>
-                    </button>
-                  </div>
-
-                  {/* Card 3: Curated Places */}
-                  <div className="flex flex-col justify-between neu-card neu-tint-sky p-4 transition-[box-shadow,transform]">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="grid h-8 w-8 place-items-center rounded-xl bg-sky-500/10 text-sky-600">
-                          <MapPin size={15} />
-                        </span>
-                        <h4 className="font-display text-xs font-bold text-ink">Curated Places</h4>
-                      </div>
-                      <p className="text-[11px] text-mute leading-relaxed">
-                        Handpicked cafes, scenic spots, and local hubs in {city || "Sydney"}.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => nav("/places")}
-                      className="neu-btn mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95 cursor-pointer"
-                    >
-                      <MapPin size={13} className="text-sky-600" />
-                      <span>Explore Places</span>
-                    </button>
-                  </div>
+                  ))}
                 </div>
-
-                {/* Footer Planning Bridge */}
-                <div className="mt-5 pt-1 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-mute">
-                  <span>Planning ahead for the rest of the week?</span>
+              ) : agendaLoading ? (
+                <TodaySkeleton />
+              ) : (
+                <div className="px-1 py-6 text-center sm:py-8">
+                  <p className="human-eyebrow">Open day</p>
+                  <h3 className="font-display mx-auto mt-2 max-w-md text-2xl font-extrabold tracking-tight text-ink text-balance sm:text-3xl">
+                    Today is wide open.
+                  </h3>
+                  <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-mute">
+                    No catch-ups, plans or passes yet — a perfect day to start something.
+                  </p>
                   <button
                     type="button"
                     onClick={() => {
                       void triggerHaptic("light");
-                      nav("/calendar");
+                      setConfirmRemoveId(null);
+                      setScheduleOpen(true);
                     }}
-                    className="inline-flex min-h-[44px] items-center gap-1.5 font-bold text-accent hover:text-brand transition-colors cursor-pointer"
+                    className="mt-4 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
                   >
-                    <Calendar size={13} />
-                    <span>Open Personal Calendar</span>
-                    <ArrowRight size={12} className="shrink-0" />
+                    <Plus size={14} />
+                    <span>Add a plan for today</span>
                   </button>
+
+                  {/* 🌟 Rich Full Journey Cards */}
+                  <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+                    {/* Card 1: Meet People */}
+                    <div className="flex flex-col justify-between neu-card neu-tint-brand p-4 transition-[box-shadow,transform]">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand/10 text-accent">
+                            <Users size={15} />
+                          </span>
+                          <h4 className="font-display text-xs font-bold text-ink">Meet People</h4>
+                        </div>
+                        <p className="text-[11px] text-mute leading-relaxed">
+                          Catch up with mutuals or check in at a nearby venue in Circle.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void triggerHaptic("light");
+                          nav("/circle");
+                        }}
+                        className="mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-3.5 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
+                      >
+                        <Users size={13} />
+                        <span>Meet people</span>
+                      </button>
+                    </div>
+
+                    {/* Card 2: Discover Passes */}
+                    <div className="flex flex-col justify-between neu-card neu-tint-gold p-4 transition-[box-shadow,transform]">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="grid h-8 w-8 place-items-center rounded-xl bg-amber-500/15 text-amber-600">
+                            <Ticket size={15} />
+                          </span>
+                          <h4 className="font-display text-xs font-bold text-ink">Events &amp; Deals</h4>
+                        </div>
+                        <p className="text-[11px] text-mute leading-relaxed">
+                          Live concerts, cultural festivals, and member perks active today.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => nav("/pass")}
+                        className="mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-amber-500/15 px-3.5 text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-500/25 transition-[background-color,transform] active:scale-95 cursor-pointer"
+                      >
+                        <Ticket size={13} />
+                        <span>Discover Passes</span>
+                      </button>
+                    </div>
+
+                    {/* Card 3: Curated Places */}
+                    <div className="flex flex-col justify-between neu-card neu-tint-sky p-4 transition-[box-shadow,transform]">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="grid h-8 w-8 place-items-center rounded-xl bg-sky-500/10 text-sky-600">
+                            <MapPin size={15} />
+                          </span>
+                          <h4 className="font-display text-xs font-bold text-ink">Curated Places</h4>
+                        </div>
+                        <p className="text-[11px] text-mute leading-relaxed">
+                          Handpicked cafes, scenic spots, and local hubs in {city || "Sydney"}.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => nav("/places")}
+                        className="neu-btn mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95 cursor-pointer"
+                      >
+                        <MapPin size={13} className="text-sky-600" />
+                        <span>Explore Places</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Footer Planning Bridge */}
+                  <div className="mt-5 pt-1 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-mute">
+                    <span>Planning ahead for the rest of the week?</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void triggerHaptic("light");
+                        nav("/calendar");
+                      }}
+                      className="inline-flex min-h-[44px] items-center gap-1.5 font-bold text-accent hover:text-brand transition-colors cursor-pointer"
+                    >
+                      <Calendar size={13} />
+                      <span>Open Personal Calendar</span>
+                      <ArrowRight size={12} className="shrink-0" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </MeSection>
+              )}
+            </div>
+          </section>
         )}
 
         {/* SECTION: APPOINTMENTS & CATCH-UPS */}

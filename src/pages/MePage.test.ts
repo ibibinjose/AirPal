@@ -221,12 +221,15 @@ describe("MePage", () => {
 
   it("renders Today as the first tab and all as Overview", () => {
     const markup = renderToStaticMarkup(createElement(MePage));
-    expect(markup).toContain("Today&#x27;s Agenda");
+    // Today is a cool window on the day: chrome bar, date view, agenda rows
+    expect(markup).toContain('aria-label="Today"');
+    expect(markup).toContain("Today&#x27;s agenda");
     expect(markup).toContain("Today");
     expect(markup).toContain("Overview");
     expect(markup).toContain("Catch-ups");
     expect(markup).toContain("Tickets");
-    expect(markup).toContain("Bio &amp; QR Pass");
+    // Native-short tab label with the full name kept for screen readers
+    expect(markup).toContain('aria-label="Bio &amp; QR Pass"');
   });
 
   it("renders dedicated Bio & QR Pass tab with passbook showcase and capabilities", () => {

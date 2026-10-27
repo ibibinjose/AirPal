@@ -133,7 +133,8 @@ export function CalendarRescheduleModal({ event, onClose }: CalendarRescheduleMo
       />
 
       {/* Sheet Content */}
-      <div className="scroll-container relative z-10 max-h-[min(90dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] w-full rounded-t-3xl bg-card p-5 shadow-2xl ring-1 ring-line sm:max-w-md sm:rounded-3xl sm:p-6 overflow-y-auto transition-all duration-200">
+      <div className="scroll-container relative z-10 max-h-[min(90dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] w-full rounded-t-3xl bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] shadow-2xl ring-1 ring-line sm:max-w-md sm:rounded-3xl sm:p-6 overflow-y-auto transition-all duration-200">
+        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line/60 sm:hidden" aria-hidden="true" />
         {/* Mobile Pull Tab */}
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-line sm:hidden" />
 

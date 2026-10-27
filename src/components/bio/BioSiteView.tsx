@@ -266,7 +266,7 @@ export function BioSiteModal({
         }
       }}
     >
-      <div className="relative w-full max-w-md rounded-t-[32px] sm:rounded-[32px] bg-card p-6 max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] overflow-y-auto">
+      <div className="relative w-full max-w-md rounded-t-[32px] sm:rounded-[32px] bg-card p-6 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] sm:pb-6 max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] overflow-y-auto">
         <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-line/60 sm:hidden" aria-hidden="true" />
         <button
           type="button"

@@ -136,7 +136,8 @@ export function PersonalScheduleModal({
         }
       }}
     >
-      <div className="w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] bg-card p-6 ring-1 ring-line/80 shadow-clay max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] overflow-y-auto">
+      <div className="w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] bg-card p-6 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] sm:pb-6 ring-1 ring-line/80 shadow-clay max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] overflow-y-auto">
+        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line/80 sm:hidden" aria-hidden="true" />
         <div className="flex items-center justify-between pb-4 border-b border-line">
           <div className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-brand/10 text-accent">
@@ -276,7 +277,7 @@ export function PersonalScheduleModal({
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Meeting link, table reservation, or what to bring..."
               maxLength={500}
-              className="mt-1.5 w-full rounded-2xl bg-paper p-3 text-[15px] text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
+              className="mt-1.5 w-full rounded-2xl bg-paper p-3 text-[16px] text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
             />
           </div>
 
