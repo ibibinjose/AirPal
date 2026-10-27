@@ -57,9 +57,7 @@ export class RouteErrorBoundary extends React.Component<
             </p>
             {import.meta.env.DEV && (
               <details className="mt-4 text-left">
-                <summary className="cursor-pointer text-xs font-semibold text-mute">
-                  Error details (dev only)
-                </summary>
+                <summary className="cursor-pointer text-xs font-semibold text-mute">Error details (dev only)</summary>
                 <pre className="mt-2 max-h-48 overflow-auto rounded-xl bg-paper p-3 text-[11px] text-mute">
                   {message}
                   {this.state.err.stack ? `\n${this.state.err.stack}` : ""}
