@@ -6,6 +6,7 @@ import {
   Building2,
   CalendarDays,
   Flame,
+  Footprints,
   Gift,
   LayoutGrid,
   MapPin,
@@ -21,7 +22,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEvents } from "@/contexts/EventsContext";
-import { useLocalNow } from "@/contexts/LocalNowContext";
+import { useLocalNow, useOptionalLocalNow } from "@/contexts/LocalNowContext";
+import { formatWalk } from "@shared/nearby";
+import { haversineMeters } from "@/lib/geo";
+import { triggerHapticSelection } from "@/lib/native";
+import { cn } from "@/lib/cn";
+import { PossieTicket, stubCode } from "@/components/pass/PossieTicket";
+import { PlanBeforeYouGo } from "@/components/pass/PlanBeforeYouGo";
 import { getFirebaseDb } from "@/lib/firebase";
 import { recordToCalendarBase, cityMatches } from "@/lib/remote-events";
 import { EcosystemSwitcher } from "@/components/brand/EcosystemSwitcher";
@@ -54,6 +61,10 @@ export function PassPage() {
   const [activeCategory, setActiveCategory] = useState<PassCategory>("all");
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const { bookings: myBookings, upcomingBookings: myUpcomingBookings } = useMyBookings();
+  const local = useOptionalLocalNow();
+  // Straight-line walk estimates only when the device GPS is active — never fabricated.
+  const origin = local && local.usingGps ? local.here : undefined;
+  const [closestFirst, setClosestFirst] = useState(true);
 
   // Load live promotions/deals
   useEffect(() => {
@@ -92,6 +103,8 @@ export function PassPage() {
         date: e.date,
         time: e.timeLabel,
         venue: e.venue || e.city || "Sydney",
+        city: e.city,
+        geo: e.geo,
         category: e.category || "community",
         image: e.heroImage || FALLBACK_EVENT_IMAGE,
         priceLabel: e.ticketPrice || (e.ticketPriceCents ? `$${Math.round(e.ticketPriceCents / 100)}` : "Free Pass"),
@@ -115,6 +128,8 @@ export function PassPage() {
         date: base.date,
         time: base.timeLabel,
         venue: base.venue || base.city || "Sydney",
+        city: base.city,
+        geo: base.geo,
         category: base.category || "community",
         image: base.heroImage || FALLBACK_EVENT_IMAGE,
         priceLabel:
@@ -126,8 +141,13 @@ export function PassPage() {
       });
     }
 
+    // Straight-line walk helpers — computed inside the memo so hooks lint stays clean.
+    const metersFor = (geo?: { lat: number; lng: number }) => {
+      if (!origin || !geo || !Number.isFinite(geo.lat) || !Number.isFinite(geo.lng)) return undefined;
+      return haversineMeters(origin, geo);
+    };
     // Apply category filter
-    return all.filter((item) => {
+    const matches = all.filter((item) => {
       const titleLower = item.title.toLowerCase();
       const catLower = item.category.toLowerCase();
 
@@ -192,7 +212,13 @@ export function PassPage() {
       }
       return true;
     });
-  }, [calendarEvents, events, today, activeCategory, userStates]);
+    const withWalk = matches.map((item) => {
+      const meters = metersFor(item.geo);
+      return { ...item, meters, walk: meters != null ? formatWalk(meters).walkTime : undefined };
+    });
+    if (closestFirst && origin) withWalk.sort((a, b) => (a.meters ?? 9e9) - (b.meters ?? 9e9));
+    return withWalk;
+  }, [calendarEvents, events, today, activeCategory, userStates, closestFirst, origin, effectiveCity]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] md:px-6">
@@ -263,6 +289,8 @@ export function PassPage() {
         </div>
       </header>
 
+      <PlanBeforeYouGo />
+
       {/* Category Pills Strip */}
       <FilterChips
         ariaLabel="Experience Categories"
@@ -271,6 +299,26 @@ export function PassPage() {
         value={activeCategory}
         onChange={setActiveCategory}
       />
+
+      {/* Popular · tap a ticket */}
+      {filteredEvents.length > 0 && (
+        <section aria-label="Popular experiences" className="mt-5">
+          <p className="human-eyebrow">Popular · tap a ticket</p>
+          <ul className="mt-2 grid grid-cols-2 gap-2">
+            {filteredEvents.slice(0, 6).map((event) => (
+              <li key={event.id}>
+                <PossieTicket
+                  stub={stubCode(event.city)}
+                  title={event.title}
+                  subtitle={[event.date, event.venue].filter(Boolean).join(" · ")}
+                  walk={event.walk}
+                  href={`/e/${event.id}`}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Active Pass Wallet Bar (For Signed-In Members) */}
       <section aria-label="Passbook Wallet" className="mt-6">
@@ -351,13 +399,32 @@ export function PassPage() {
             </h2>
             <p className="text-sm text-mute mt-0.5">Real events in {effectiveCity} · Guaranteed entry</p>
           </div>
-          <Link
-            href="/events"
-            className="inline-flex min-h-[44px] items-center gap-1 text-sm font-bold text-accent hover:underline"
-          >
-            See Calendar
-            <ArrowRight size={14} className="shrink-0" aria-hidden="true" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-pressed={closestFirst && Boolean(origin)}
+              disabled={!origin}
+              title={origin ? "Sort by closest walk first" : "Turn on location to sort by walk time"}
+              onClick={() => {
+                void triggerHapticSelection();
+                setClosestFirst((v) => !v);
+              }}
+              className={cn(
+                "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-xs font-bold ring-1 transition active:scale-95 cursor-pointer touch-manipulation disabled:cursor-not-allowed disabled:opacity-50",
+                closestFirst && origin ? "bg-brand text-white ring-brand" : "bg-card text-ink ring-line hover:bg-paper",
+              )}
+            >
+              <Footprints size={14} aria-hidden="true" />
+              <span>Closest{origin ? "" : " · off"}</span>
+            </button>
+            <Link
+              href="/events"
+              className="inline-flex min-h-[44px] items-center gap-1 text-sm font-bold text-accent hover:underline"
+            >
+              See Calendar
+              <ArrowRight size={14} className="shrink-0" aria-hidden="true" />
+            </Link>
+          </div>
         </div>
 
         {filteredEvents.length === 0 ? (
@@ -410,7 +477,10 @@ export function PassPage() {
                     </p>
                     <p className="mt-1 flex items-center gap-1.5 text-sm text-mute line-clamp-1">
                       <MapPin size={13} className="shrink-0 text-accent" aria-hidden="true" />
-                      <span>{event.venue}</span>
+                      <span className="truncate tabular-nums">
+                        {event.venue}
+                        {event.walk ? ` · ~${event.walk}` : ""}
+                      </span>
                     </p>
 
                     {/* Live Attendee Preview Pile */}
