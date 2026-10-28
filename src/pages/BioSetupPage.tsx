@@ -66,6 +66,10 @@ export function BioSetupPage() {
   }, [asBusiness, domain, name]);
   const matches = handleMatchesClaim(handle, { name, domain, trademark });
   const handleOk = handleStatus.ok && (!asBusiness || matches);
+  // Your own handle is "free" for you, so the checker reports Unique — but
+  // offering Claim on it re-saves your profile and reads as broken. Route to
+  // the editor instead (finding 7).
+  const ownHandle = Boolean(current?.handle) && normalizeHandle(handle) === normalizeHandle(current?.handle ?? "");
   const nameOk = name.trim().length >= 2;
   const emailOk = !user ? isEmail(email) : true;
   const passOk = !user ? passwordOk(password) : true;
@@ -353,9 +357,11 @@ export function BioSetupPage() {
             hint={
               handleStatus.checking
                 ? "Checking…"
-                : suggested && suggested !== normalizeHandle(handle)
-                  ? `Suggested @${suggested}`
-                  : "Unique"
+                : ownHandle
+                  ? "This handle is yours"
+                  : suggested && suggested !== normalizeHandle(handle)
+                    ? `Suggested @${suggested}`
+                    : "Unique"
             }
           >
             <input value={handle} onChange={(e) => setHandle(e.target.value)} className={fieldInput} />
@@ -391,9 +397,15 @@ export function BioSetupPage() {
               </ValidField>
             </>
           )}
-          <Button type="submit" className="w-full" disabled={busy || !handleOk} loading={busy}>
-            Claim
-          </Button>
+          {ownHandle ? (
+            <Button type="button" className="w-full" onClick={() => nav("/bio/edit")}>
+              Manage your bio
+            </Button>
+          ) : (
+            <Button type="submit" className="w-full" disabled={busy || !handleOk} loading={busy}>
+              Claim
+            </Button>
+          )}
         </form>
       )}
 
@@ -413,7 +425,7 @@ export function BioSetupPage() {
             label={`@${normalizeHandle(handle) || "handle"}`}
             ok={handleOk}
             error={handle && !matches ? "Must match name, mark, or domain" : handleStatus.reason}
-            hint={handleStatus.checking ? "Checking…" : "No duplicates"}
+            hint={handleStatus.checking ? "Checking…" : ownHandle ? "This handle is yours" : "No duplicates"}
           >
             <input value={handle} onChange={(e) => setHandle(e.target.value)} className={fieldInput} />
           </ValidField>
@@ -453,9 +465,15 @@ export function BioSetupPage() {
               </Link>
             </span>
           </label>
-          <Button className="w-full" onClick={nextBusiness} disabled={!handleOk}>
-            Next · address
-          </Button>
+          {ownHandle ? (
+            <Button type="button" className="w-full" onClick={() => nav("/business")}>
+              Manage your venue
+            </Button>
+          ) : (
+            <Button className="w-full" onClick={nextBusiness} disabled={!handleOk}>
+              Next · address
+            </Button>
+          )}
         </div>
       )}
 

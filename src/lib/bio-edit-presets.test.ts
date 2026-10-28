@@ -5,6 +5,8 @@ import {
   PERSONAL_CATEGORY_PRESETS,
   PERSONAL_CTA_PRESETS,
   formatFinalLinkHref,
+  newCatalogItemError,
+  newLinkError,
 } from "./bio-edit-presets";
 
 describe("bio edit presets", () => {
@@ -32,5 +34,29 @@ describe("formatFinalLinkHref", () => {
     expect(formatFinalLinkHref("website", "https://example.com/menu")).toBe("https://example.com/menu");
     expect(formatFinalLinkHref("website", "example.com/menu")).toBe("https://example.com/menu");
     expect(formatFinalLinkHref("website", "  ")).toBe("");
+  });
+});
+
+describe("newLinkError", () => {
+  it("flags empty and whitespace-only input instead of silently no-oping", () => {
+    expect(newLinkError("website", "")).toContain("Enter a value first");
+    expect(newLinkError("instagram", "   ")).toContain("Enter a value first");
+  });
+
+  it("passes real values through", () => {
+    expect(newLinkError("website", "https://example.com/menu")).toBeNull();
+    expect(newLinkError("instagram", "alex_sydney")).toBeNull();
+  });
+});
+
+describe("newCatalogItemError", () => {
+  it("flags empty and whitespace-only titles instead of silently no-oping", () => {
+    expect(newCatalogItemError("", 0)).toContain("title first");
+    expect(newCatalogItemError("   ", 0)).toContain("title first");
+  });
+
+  it("flags a full category and passes valid items", () => {
+    expect(newCatalogItemError("10% Off Coffee", 8)).toContain("full");
+    expect(newCatalogItemError("10% Off Coffee", 3)).toBeNull();
   });
 });

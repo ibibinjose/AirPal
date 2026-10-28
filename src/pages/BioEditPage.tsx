@@ -90,6 +90,7 @@ import {
   PERSONAL_CTA_PRESETS,
   SOCIAL_CONFIG,
   formatFinalLinkHref,
+  newLinkError,
 } from "@/lib/bio-edit-presets";
 
 export function BioEditPage() {
@@ -1772,9 +1773,16 @@ export function BioEditPage() {
                       className="space-y-3 rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay"
                       onSubmit={(e) => {
                         e.preventDefault();
-                        if (!href.trim()) return;
+                        const empty = newLinkError(type, href);
+                        if (empty) {
+                          toast.error(empty);
+                          return;
+                        }
                         const finalHref = formatFinalLinkHref(type, href);
-                        if (!finalHref) return;
+                        if (!finalHref) {
+                          toast.error("Enter a value first — a username for socials, a URL for web links.");
+                          return;
+                        }
                         const next = [
                           ...links,
                           {
@@ -1819,6 +1827,7 @@ export function BioEditPage() {
 
                           <input
                             value={href}
+                            required
                             onChange={(e) => setHref(e.target.value)}
                             placeholder={
                               social

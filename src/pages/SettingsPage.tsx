@@ -37,6 +37,7 @@ import {
   type BirthdayRegionCode,
 } from "@shared/birthday-freebies";
 import { Button } from "@/components/ui/Button";
+import { PageLoading } from "@/components/ui/PageLoading";
 import { MeAvatar } from "@/components/auth/MeAvatar";
 import { AccountContacts } from "@/components/auth/AccountContacts";
 import { BiometricEnrollCard } from "@/components/auth/BiometricEnrollCard";
@@ -59,7 +60,8 @@ import { bioPath } from "@shared/bio";
 
 export function SettingsPage() {
   const [, nav] = useLocation();
-  const { user, logout, deleteAccount, sendVerificationEmail, requestPasswordReset, refreshUser } = useAuth();
+  const { user, authReady, logout, deleteAccount, sendVerificationEmail, requestPasswordReset, refreshUser } =
+    useAuth();
   const { mine, business } = useBio();
   const { city, usingGps, geoBlocked, chooseLocation, shareLocation, setShareLocation } = useLocalNow();
   const buildInfo = getBuildInfo();
@@ -204,8 +206,12 @@ export function SettingsPage() {
         <div className="h-10 w-10 shrink-0" aria-hidden="true" />
       </div>
 
-      {/* Account Overview Header */}
-      {user ? (
+      {/* Account Overview Header. While auth restores, hold a loader: a bare
+          `!user` flash shows the signed-out card even though cached bios list
+          the account (intermittent finding). */}
+      {!authReady ? (
+        <PageLoading />
+      ) : user ? (
         <div className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
           <div className="flex items-center gap-4">
             <MeAvatar faceClassName="h-16 w-16 text-xl ring-2 ring-brand/40 shadow-sm" />

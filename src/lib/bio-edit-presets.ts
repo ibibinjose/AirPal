@@ -1,4 +1,4 @@
-import type { BioLinkType } from "@shared/bio";
+import { BIO_CATALOG_MAX, type BioLinkType } from "@shared/bio";
 
 /** Bio edit presets + social link formatting (moved from BioEditPage). */
 // Personal Profile Category / Vibe Presets
@@ -152,4 +152,27 @@ export function formatFinalLinkHref(type: BioLinkType, input: string): string {
   if (/^https?:\/\//i.test(raw)) return raw;
   if (/^[a-z0-9.-]+\.[a-z]{2,}/i.test(raw)) return `https://${raw}`;
   return raw;
+}
+
+/**
+ * Empty-submit guard for the bio Links tab. An empty Add Link tap used to
+ * return silently, which reads as broken — callers surface the message
+ * (toast) instead of no-oping.
+ */
+export function newLinkError(type: BioLinkType, href: string): string | null {
+  if (!href.trim() || !formatFinalLinkHref(type, href)) {
+    return "Enter a value first — a username for socials, a URL for web links.";
+  }
+  return null;
+}
+
+/**
+ * Empty/full guard for the Shop & Deals catalog form. Whitespace-only titles
+ * slip past native `required`, so this keeps the no-op visible with an
+ * inline message instead of silence.
+ */
+export function newCatalogItemError(title: string, count: number): string | null {
+  if (!title.trim()) return "Give your item a title first.";
+  if (count >= BIO_CATALOG_MAX) return `Catalog is full — ${BIO_CATALOG_MAX} per category max.`;
+  return null;
 }

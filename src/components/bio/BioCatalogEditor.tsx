@@ -5,6 +5,7 @@ import { BIO_CATALOG_KINDS, BIO_CATALOG_MAX, type BioCatalogItem, type BioCatalo
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { fieldInput } from "@/components/forms/ValidField";
+import { newCatalogItemError } from "@/lib/bio-edit-presets";
 
 export function BioCatalogEditor({
   products,
@@ -26,12 +27,17 @@ export function BioCatalogEditor({
   const [price, setPrice] = useState("");
   const [badge, setBadge] = useState("");
   const [href, setHref] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const rows = kind === "deal" ? deals : kind === "product" ? products : services;
 
   function add(e: FormEvent) {
     e.preventDefault();
-    if (!title.trim()) return;
-    if (rows.length >= BIO_CATALOG_MAX) return;
+    const problem = newCatalogItemError(title, rows.length);
+    if (problem) {
+      setError(problem);
+      return;
+    }
+    setError(null);
     onChange(kind, [
       ...rows,
       {
@@ -110,10 +116,21 @@ export function BioCatalogEditor({
         </div>
 
         <div className="space-y-2">
+          {error && (
+            <p
+              role="alert"
+              className="rounded-xl bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-600 ring-1 ring-red-500/25 dark:text-red-400"
+            >
+              {error}
+            </p>
+          )}
           <div>
             <input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (error) setError(null);
+              }}
               placeholder={
                 kind === "deal"
                   ? "e.g. 10% Off First Coffee or Welcome Drink"

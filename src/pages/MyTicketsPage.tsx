@@ -16,7 +16,7 @@ type FilterTab = "upcoming" | "past" | "all";
  * Powered by unified AirPal account, real-time sync, offline resilient, with calendar export.
  */
 export function MyTicketsPage() {
-  const { user } = useAuth();
+  const { user, authReady } = useAuth();
   const { bookings, upcomingBookings, pastBookings, upcomingSpots, loading, failed, isOfflineCached, refresh } =
     useMyBookings();
   const [tab, setTab] = useState<FilterTab>("upcoming");
@@ -36,7 +36,9 @@ export function MyTicketsPage() {
     );
   }, [baseList, query]);
 
-  if (loading) return <PageLoading />;
+  // While auth restores, hold a loader: a bare `!user` flash shows the
+  // signed-out card even though a signed-in wallet is about to load.
+  if (!authReady || loading) return <PageLoading />;
 
   return (
     <div className="mx-auto max-w-2xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)] pt-4 md:px-6 md:pt-6">
