@@ -152,9 +152,6 @@ export function AppRoutes() {
           <Route path="/business/setup">
             <BusinessOnboardPage step="setup" />
           </Route>
-          <Route path="/business/helpdesk">
-            <BusinessOnboardPage step="helpdesk" />
-          </Route>
           <Route path="/business/promotions/new">
             <PromotionsStudioPage scope="business" view="new" />
           </Route>

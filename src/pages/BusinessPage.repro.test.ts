@@ -81,10 +81,18 @@ describe("BusinessPage direct ?tab=place load", () => {
     expect(markup).toContain("Venue Details");
   });
 
-  it("renders the default place tab without a query string", () => {
+  it("renders the Tonight briefing by default without a query string", () => {
     searchBox.current = "";
     const markup = renderToStaticMarkup(createElement(BusinessPage));
+    expect(markup).toContain("Open door list");
+    expect(markup).toContain("Needs your attention");
+  });
+
+  it("resolves the legacy ?tab=place to the venue tab", () => {
+    searchBox.current = "?tab=place";
+    const markup = renderToStaticMarkup(createElement(BusinessPage));
     expect(markup).toContain("Venue Details");
+    expect(markup).not.toContain("Open door list");
   });
 });
 

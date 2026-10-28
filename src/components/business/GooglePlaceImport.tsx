@@ -25,8 +25,12 @@ export function GooglePlaceImportCard({
   onImport: (place: GooglePlaceImport) => void;
   importedPlaceId?: string;
   initialQuery?: string;
-  /** `field` is the business-name search on Register. `card` is the later import panel. */
-  variant?: "card" | "field";
+  /**
+   * `field` is the business-name search on Register. `card` is the later
+   * import panel. `bare` is the card content without its chrome — for pages
+   * that already provide the heading, so cards never nest inside cards.
+   */
+  variant?: "card" | "field" | "bare";
   onQueryChange?: (query: string) => void;
 }) {
   const { here } = useLocalNow();
@@ -134,12 +138,12 @@ export function GooglePlaceImportCard({
   const already = Boolean(importedPlaceId && preview && importedPlaceId === preview.placeId);
   const open = hits.length > 0;
   // Card variant sits on a card section, so inner surfaces step down to paper;
-  // field variant (Register) keeps its card surfaces.
+  // field and bare variants sit on the page, so they keep card surfaces.
   const innerSurface = variant === "card" ? "bg-paper" : "bg-card";
   const innerHover = variant === "card" ? "hover:bg-black/5" : "hover:bg-paper";
 
   const searchField = (
-    <label className={cn("relative block", variant === "card" && "mt-3")}>
+    <label className={cn("relative block", variant !== "field" && "mt-3")}>
       {variant === "field" ? (
         <span className="text-[13px] font-semibold">Business name</span>
       ) : (
@@ -241,7 +245,7 @@ export function GooglePlaceImportCard({
         {preview.hours ? preview.hours.split("; ").slice(0, 2).join(" · ") : "Hours not listed"}
         {preview.menuUrl ? " · Menu link found" : ""}
       </div>
-      {variant === "card" && (
+      {variant !== "field" && (
         <div className="p-3 pt-0">
           <Button className="w-full" disabled={already || importing} onClick={() => void commit(preview)}>
             <BadgeCheck size={16} className={cn(already && "text-white")} />
@@ -272,6 +276,16 @@ export function GooglePlaceImportCard({
   ) : null;
 
   if (variant === "field") {
+    return (
+      <div>
+        {searchField}
+        {results}
+        {previewCard}
+      </div>
+    );
+  }
+
+  if (variant === "bare") {
     return (
       <div>
         {searchField}

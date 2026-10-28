@@ -4,24 +4,19 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   ArrowRight,
-  Building2,
   Calendar,
   Check,
   Clock,
-  HelpCircle,
-  LifeBuoy,
-  MapPin,
-  QrCode,
   Rocket,
   Settings2,
   ShieldCheck,
   Sparkles,
   Tag,
   UserCheck,
-  Users,
 } from "lucide-react";
 import { BUSINESS_CATEGORIES, type BusinessCategoryId } from "@shared/business";
 import { formatAddressOneLine } from "@shared/geo-address";
+import { venueStreetReady } from "@/lib/venue-readiness";
 import type { GooglePlaceImport } from "@shared/google-place";
 import { GooglePlaceImportCard } from "@/components/business/GooglePlaceImport";
 import { AuthGate } from "@/components/auth/AuthGate";
@@ -33,11 +28,11 @@ import { venueBioHandle, venueBioInput } from "@/lib/venue-bio";
 import { cn } from "@/lib/cn";
 
 /**
- * Business onboarding / setup / helpdesk — full interactive 3-stage partner
- * studio connected directly to ListingsContext & BioContext so partners never
+ * Business onboarding / setup — full interactive 2-stage partner studio
+ * connected directly to ListingsContext & BioContext so partners never
  * hit a circular loop or dead-end stub.
  */
-export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "helpdesk" }) {
+export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
   const [, nav] = useLocation();
   const { user } = useAuth();
   const { mine, createPlace, confirmHours, saveDeal } = useListings();
@@ -71,22 +66,16 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
 
   const copy = {
     onboard: {
-      eyebrow: "Business · Step 1 of 3 · Onboard",
+      eyebrow: "Business · Step 1 of 2 · Onboard",
       title: "Put your venue on AirPal.",
       lede: "Import your Google Place in one tap or enter your details below — your venue goes live in your Business Hub immediately.",
       icon: Rocket,
     },
     setup: {
-      eyebrow: "Business · Step 2 of 3 · Setup Checklist",
+      eyebrow: "Business · Step 2 of 2 · Setup Checklist",
       title: "Finish your venue readiness.",
       lede: "Verify your hours, publish a member perk, and connect your public @handle and arrival tools.",
       icon: Settings2,
-    },
-    helpdesk: {
-      eyebrow: "Business · Step 3 of 3 · Partner Helpdesk",
-      title: "Partner operations & support.",
-      lede: "Guides and direct links for venue claims, member perks, QR redemptions, door scanning, and arrival cohorts.",
-      icon: LifeBuoy,
     },
   }[step];
   const Icon = copy.icon;
@@ -183,15 +172,19 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
     }
   }
 
+  // Step 1 counts complete only with a street-level address — a bare suburb
+  // never marks the venue ready (finding 14).
+  const venueAddressOk = venueStreetReady(mine?.address);
   const checklist = [
     {
       id: "venue",
-      title: "1. Venue profile & address",
-      detail: mine
-        ? `${mine.name} · ${formatAddressOneLine(mine.address)}`
-        : "Import from Google Maps or create your venue listing.",
-      done: Boolean(mine?.name && mine?.address),
-      href: mine ? "/business?tab=place" : "/business/onboard",
+      title: "1. Venue profile & street address",
+      detail:
+        mine && venueAddressOk
+          ? `${mine.name} · ${formatAddressOneLine(mine.address)}`
+          : "Import from Google Maps or add your street address — suburb alone is not enough.",
+      done: Boolean(mine?.name) && venueAddressOk,
+      href: mine ? "/business?tab=venue" : "/business/onboard",
       cta: mine ? "Edit Venue" : "Add Venue",
     },
     {
@@ -207,7 +200,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
             toast.success("Trading hours confirmed!");
           }
         : undefined,
-      href: "/business?tab=place",
+      href: "/business?tab=venue",
       cta: mine?.hoursVerifiedAt ? "Update Hours" : "Confirm Hours Now",
     },
     {
@@ -261,8 +254,9 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
     },
   ];
   const completedCount = checklist.filter((c) => c.done).length;
+  const allDone = completedCount === checklist.length;
 
-  const stepIndex = step === "onboard" ? 0 : step === "setup" ? 1 : 2;
+  const stepIndex = step === "onboard" ? 0 : 1;
   return (
     <div className="page-wrap-narrow space-y-5 pt-4 sm:pt-6">
       {/* Flow header: back, title, and honest 3-step progress in one card */}
@@ -306,12 +300,11 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
         </div>
 
         <nav aria-label="Onboarding steps" className="mt-5">
-          <ol className="grid grid-cols-3 gap-1.5 rounded-2xl bg-paper p-1 ring-1 ring-line">
+          <ol className="grid grid-cols-2 gap-1.5 rounded-2xl bg-paper p-1 ring-1 ring-line">
             {(
               [
                 { id: "onboard", label: "Onboard", href: "/business/onboard" },
                 { id: "setup", label: "Setup", href: "/business/setup" },
-                { id: "helpdesk", label: "Helpdesk", href: "/business/helpdesk" },
               ] as const
             ).map((item, i) => {
               const active = step === item.id;
@@ -346,7 +339,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
             })}
           </ol>
           <div className="flow-progress mt-3" aria-hidden>
-            <span style={{ width: `${((stepIndex + 1) / 3) * 100}%` }} />
+            <span style={{ width: `${((stepIndex + 1) / 2) * 100}%` }} />
           </div>
         </nav>
       </div>
@@ -565,14 +558,14 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-accent">Partner Readiness</p>
                 <h2 className="font-display text-lg font-bold text-ink mt-0.5">
-                  {completedCount} of {checklist.length} steps complete
+                  {allDone ? "You're live — see tonight" : `${completedCount} of ${checklist.length} steps complete`}
                 </h2>
               </div>
               <Link
                 href="/business"
                 className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs transition hover:bg-brand-ink"
               >
-                <span>Open Business Hub</span>
+                <span>{allDone ? "Open Tonight" : "Open Business Hub"}</span>
                 <ArrowRight size={14} />
               </Link>
             </div>
@@ -587,7 +580,9 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
               <span style={{ width: `${Math.round((completedCount / checklist.length) * 100)}%` }} />
             </div>
             <p className="text-sm text-mute tabular-nums">
-              {Math.round((completedCount / checklist.length) * 100)}% ready — finish the open steps to go fully live.
+              {allDone
+                ? "100% ready — your Tonight briefing, door list, and offers are live in the Hub."
+                : `${Math.round((completedCount / checklist.length) * 100)}% ready — finish the open steps to go fully live.`}
             </p>
           </div>
 
@@ -672,103 +667,6 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" | "hel
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {/* STEP 3: HELPDESK */}
-      {step === "helpdesk" && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {[
-              {
-                icon: ShieldCheck,
-                title: "Venue Claims & Verification",
-                body: "Match your Google Maps listing and verify ownership to unlock the official Verified Partner badge.",
-                href: "/claim",
-                cta: "Open Venue Claim Flow",
-              },
-              {
-                icon: Tag,
-                title: "Member Perks & QR Redemptions",
-                body: "Publish a deal to /deals. Guests present their dynamic AirPal Pass QR code at your counter.",
-                href: "/business/promotions",
-                cta: "Open Promotions Studio",
-              },
-              {
-                icon: QrCode,
-                title: "Door Scanner & Event Ticketing",
-                body: "Sell Stripe-backed tickets or issue free passes, then scan attendees in at the door.",
-                href: "/scan",
-                cta: "Open Door Scanner",
-              },
-              {
-                icon: Users,
-                title: "B2B2C Arrival & Cohort Engine",
-                body: "Onboard university, corporate, or residential cohorts with curated welcome passes.",
-                href: "/join",
-                cta: "Open Arrival Engine",
-              },
-              {
-                icon: Building2,
-                title: "Belonging & Cohort Pulse Reports",
-                body: "Track cohort activation, venue check-ins, and aggregate belonging metrics.",
-                href: "/host/pulse",
-                cta: "View Belonging Reports",
-              },
-              {
-                icon: HelpCircle,
-                title: "Help Centre & Human Support",
-                body: "Browse partner FAQs or message our team directly with your venue name and @handle.",
-                href: "/help",
-                cta: "Visit Help Centre",
-              },
-            ].map((card) => (
-              <div
-                key={card.title}
-                className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col justify-between gap-4"
-              >
-                <div className="space-y-2">
-                  <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
-                    <card.icon size={18} />
-                  </span>
-                  <h3 className="font-display text-base font-bold text-ink">{card.title}</h3>
-                  <p className="text-xs text-mute leading-relaxed">{card.body}</p>
-                </div>
-                <Link
-                  href={card.href}
-                  className="inline-flex min-h-[44px] items-center justify-between rounded-2xl bg-paper px-4 text-xs font-bold text-ink ring-1 ring-line transition hover:bg-brand hover:text-white hover:ring-brand"
-                >
-                  <span>{card.cta}</span>
-                  <ArrowRight size={14} />
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="font-display text-base font-bold text-ink">Need direct human assistance?</h3>
-              <p className="text-xs text-mute mt-0.5">
-                Reach our partner support desk and mention your venue name or @handle for priority routing.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href="/contact"
-                className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-xs transition hover:bg-brand-ink"
-              >
-                <span>Contact Partner Support</span>
-                <ArrowRight size={14} />
-              </Link>
-              <Link
-                href="/business"
-                className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card"
-              >
-                <MapPin size={13} className="text-accent" />
-                <span>Back to Business Hub</span>
-              </Link>
-            </div>
-          </div>
         </div>
       )}
     </div>

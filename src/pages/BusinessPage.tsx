@@ -40,6 +40,9 @@ import { fieldInput, fieldTextarea } from "@/components/forms/ValidField";
 import { BusinessBookingsSection } from "@/components/booking/BusinessBookingsSection";
 import { PayoutSetupCard } from "@/components/connect/PayoutSetupCard";
 import { BusinessNavHub, type BusinessNavTab } from "@/components/business/BusinessNavHub";
+import { BusinessTonight } from "@/components/business/BusinessTonight";
+import { OfferForm, dealToDraft, type OfferPayload } from "@/components/business/OfferForm";
+import { Sheet } from "@/components/ui/Sheet";
 import { BusinessSubscriptionCard } from "@/components/business/BusinessSubscriptionCard";
 import { DeleteVenueDialog } from "@/components/business/DeleteVenueDialog";
 import { GooglePlaceImportCard } from "@/components/business/GooglePlaceImport";
@@ -60,7 +63,6 @@ import {
   Globe2,
   Headphones,
   MapPin,
-  Percent,
   Plus,
   QrCode,
   Save,
@@ -72,13 +74,6 @@ import {
   Users,
 } from "lucide-react";
 
-const DEAL_PRESETS = [
-  { badge: "10% OFF", detail: "10% discount on entire bill for AirPal guests. Show app at till." },
-  { badge: "15% OFF", detail: "15% off food and beverages when booking through AirPal." },
-  { badge: "2-for-1 Deal", detail: "Buy one main course or entry pass and get the second free." },
-  { badge: "Free Drink", detail: "Complimentary house beverage or barista coffee with any meal purchase." },
-];
-
 export function BusinessPage() {
   const [, nav] = useLocation();
   const search = useSearch();
@@ -87,20 +82,29 @@ export function BusinessPage() {
     useListings();
   const { mine: bio, business, createProfile, updateProfile } = useBio();
   const [bioBusy, setBioBusy] = useState(false);
+  // `?tab=place` is the legacy id for the venue tab — it resolves to `venue`
+  // so old links keep working.
   const [tab, setTab] = useState<BusinessNavTab>(() => {
     const params = new URLSearchParams(search);
     const t = params.get("tab");
-    if (t === "place" || t === "offer" || t === "bookings" || t === "list") return t;
-    return "place";
+    if (t === "place") return "venue";
+    if (t === "tonight" || t === "venue" || t === "offer" || t === "bookings" || t === "list") return t;
+    return "tonight";
   });
 
   useEffect(() => {
     const params = new URLSearchParams(search);
     const t = params.get("tab");
-    if (t === "place" || t === "offer" || t === "bookings" || t === "list") {
+    if (t === "place") {
+      setTab("venue");
+      params.set("tab", "venue");
+      nav(`/business?${params.toString()}`, { replace: true });
+      return;
+    }
+    if (t === "tonight" || t === "venue" || t === "offer" || t === "bookings" || t === "list") {
       setTab(t);
     }
-  }, [search]);
+  }, [search, nav]);
 
   // Pills write the tab back to the URL (replace, no history spam) so
   // ?tab= links, bookmarks and refreshes always land on the right tab.
@@ -128,6 +132,8 @@ export function BusinessPage() {
   const [hero, setHero] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [offerSheet, setOfferSheet] = useState(false);
+  const [offerBusy, setOfferBusy] = useState(false);
 
   useEffect(() => {
     if (!mine) return;
@@ -214,8 +220,8 @@ export function BusinessPage() {
 
   if (!mine) {
     return (
-      <div className="page-wrap-narrow pt-6 sm:pt-10">
-        <div className="surface-card p-5 sm:p-8">
+      <div className="page-wrap-narrow space-y-8 pt-6 sm:pt-10">
+        <div>
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
               <Building2 className="h-6 w-6" aria-hidden="true" />
@@ -261,7 +267,7 @@ export function BusinessPage() {
           </ol>
 
           {/* 1-Click Inline Google Place Import */}
-          <div className="mt-6 rounded-2xl bg-paper p-4 ring-1 ring-line sm:p-5">
+          <section aria-label="Import from Google Maps" className="mt-8">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs font-semibold text-accent">Fastest start</p>
@@ -271,7 +277,7 @@ export function BusinessPage() {
               <Globe2 className="mt-1 h-5 w-5 shrink-0 text-accent" aria-hidden />
             </div>
             <GooglePlaceImportCard
-              variant="card"
+              variant="bare"
               onImport={(found) => {
                 void createPlace({
                   name: found.name,
@@ -289,9 +295,9 @@ export function BusinessPage() {
                 });
               }}
             />
-          </div>
+          </section>
 
-          <div className="mt-5 space-y-2.5">
+          <div className="space-y-2.5">
             <Button
               size="lg"
               className="w-full gap-2"
@@ -370,21 +376,20 @@ export function BusinessPage() {
     }
   }
 
-  async function onDeal(e: FormEvent) {
-    e.preventDefault();
-    if (!badge.trim() || !detail.trim()) {
-      toast.error("Please fill in both the offer badge and deal details");
-      return;
-    }
-    setBusy(true);
+  // One shared creation path: the same form the Promotions Studio uses.
+  // Runs only after the listing guard above, so mine is set here.
+  async function publishOffer(payload: OfferPayload) {
+    setOfferBusy(true);
     try {
-      // Runs only after the listing guard above, so mine is set here.
-      await saveDeal(mine!.id, { badge: badge.trim(), detail: detail.trim(), claimHint: "Show AirPal" });
-      toast.success("Exclusive deal published to Deals");
+      await saveDeal(mine!.id, payload);
+      setBadge(payload.badge);
+      setDetail(payload.detail);
+      setOfferSheet(false);
+      toast.success("Offer live on /deals");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to publish deal");
     } finally {
-      setBusy(false);
+      setOfferBusy(false);
     }
   }
 
@@ -540,11 +545,11 @@ export function BusinessPage() {
               <span>Setup Checklist</span>
             </Link>
             <Link
-              href="/business/helpdesk"
+              href="/help"
               className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
             >
               <Headphones className="h-3.5 w-3.5 shrink-0 text-accent" />
-              <span>Partner Helpdesk</span>
+              <span>Help Centre</span>
             </Link>
             <Link
               href="/host/pulse"
@@ -627,8 +632,21 @@ export function BusinessPage() {
             bookingCount={stats.rsvps}
           />
 
-          {/* TAB 1: VENUE PROFILE & DETAILS */}
-          {tab === "place" && (
+          {/* TAB 1: TONIGHT — service briefing, the hub landing */}
+          {tab === "tonight" && (
+            <BusinessTonight
+              listingName={mine.name}
+              status={mine.status}
+              hours={mine.hours}
+              dealLive={Boolean(mine.deal)}
+              dealBadge={mine.deal?.badge}
+              campaigns={stats.campaigns}
+              rsvps={stats.rsvps}
+            />
+          )}
+
+          {/* TAB 2: VENUE PROFILE & DETAILS */}
+          {tab === "venue" && (
             <div className="space-y-6">
               {/* Google Place Quick Sync Card */}
               <section className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
@@ -897,78 +915,60 @@ export function BusinessPage() {
             </div>
           )}
 
-          {/* TAB 4: OFFERS & EXCLUSIVE DEALS */}
+          {/* TAB 4: OFFERS — one shared creation sheet with the Promotions Studio */}
           {tab === "offer" && (
-            <div className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-6">
-              <div>
-                <div className="flex items-center justify-between">
-                  <h2 className="font-display text-base font-bold text-ink">Publish Neighbourhood Offer</h2>
-                  <Tag className="h-4 w-4 text-accent" />
+            <div className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-display text-base font-bold text-ink">Neighbourhood Offer</h2>
+                  <p className="text-xs text-mute mt-0.5">
+                    {mine.deal
+                      ? "Live on /deals with QR verification."
+                      : "Exclusive perks appear on the Explore map, What's On, and your verified page."}
+                  </p>
                 </div>
-                <p className="text-xs text-mute mt-0.5">
-                  Exclusive perks appear prominently on the Explore map, What&apos;s On, and your verified page.
-                </p>
+                <span
+                  className={
+                    mine.deal
+                      ? "inline-flex min-h-[44px] items-center rounded-full bg-emerald-500/10 px-3.5 text-xs font-bold text-emerald-600 ring-1 ring-emerald-500/25 dark:text-emerald-400"
+                      : "inline-flex min-h-[44px] items-center rounded-full bg-paper px-3.5 text-xs font-bold text-mute ring-1 ring-line"
+                  }
+                >
+                  {mine.deal ? mine.deal.badge : "No offer live"}
+                </span>
               </div>
 
-              {/* Preset Deal Templates */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-mute mb-2">
-                  Quick Preset Templates
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {DEAL_PRESETS.map((p) => (
-                    <button
-                      key={p.badge}
-                      type="button"
-                      onClick={() => {
-                        setBadge(p.badge);
-                        setDetail(p.detail);
-                      }}
-                      className="flex flex-col items-start rounded-2xl bg-paper p-3 text-left ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs"
-                    >
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-brand/10 px-2 py-0.5 text-xs font-bold text-accent">
-                        <Percent className="h-3 w-3" />
-                        {p.badge}
-                      </span>
-                      <p className="text-[11px] text-mute mt-1.5 line-clamp-2">{p.detail}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {mine.deal && (
+                <p className="rounded-2xl bg-paper px-4 py-3 text-sm text-ink ring-1 ring-line">{mine.deal.detail}</p>
+              )}
 
-              <form className="space-y-4 border-t border-line/60 pt-4" onSubmit={onDeal}>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-mute mb-1">
-                    Offer Badge / Headline
-                  </label>
-                  <input
-                    value={badge}
-                    onChange={(e) => setBadge(e.target.value)}
-                    placeholder="e.g. 15% OFF or Free Barista Coffee"
-                    className={fieldInput}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-mute mb-1">
-                    Conditions & Redemption Details
-                  </label>
-                  <textarea
-                    value={detail}
-                    onChange={(e) => setDetail(e.target.value)}
-                    placeholder="e.g. Show active AirPal screen at till. Valid Monday to Friday before 5pm."
-                    rows={3}
-                    className={fieldTextarea}
-                    required
-                  />
-                </div>
-
-                <Button type="submit" size="lg" className="w-full gap-2" disabled={busy} loading={busy}>
-                  <Tag className="h-4 w-4" />
-                  Publish Live Offer
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button type="button" size="lg" className="flex-1 gap-2" onClick={() => setOfferSheet(true)}>
+                  <Tag className="h-4 w-4" aria-hidden="true" />
+                  <span>{mine.deal ? "Edit offer" : "New offer"}</span>
                 </Button>
-              </form>
+                <Link
+                  href="/business/promotions"
+                  className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-full bg-paper px-5 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+                >
+                  <span>Promotions Studio</span>
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </Link>
+              </div>
+
+              <Sheet
+                open={offerSheet}
+                onClose={() => setOfferSheet(false)}
+                title={mine.deal ? "Edit offer" : "New offer"}
+              >
+                <OfferForm
+                  key={mine.deal?.badge || "new"}
+                  initial={dealToDraft(mine.deal)}
+                  submitLabel={mine.deal ? "Update live offer" : "Publish to /deals"}
+                  busy={offerBusy}
+                  onSubmit={(payload) => void publishOffer(payload)}
+                />
+              </Sheet>
             </div>
           )}
         </main>
@@ -1019,7 +1019,7 @@ export function BusinessPage() {
                 onClick={() => nav("/business/setup")}
                 className="mt-3.5 w-full justify-between"
               >
-                <span>Complete 3-Step Setup</span>
+                <span>Complete Setup Checklist</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             </section>
@@ -1102,12 +1102,12 @@ export function BusinessPage() {
               <ArrowRight className="h-3.5 w-3.5 text-mute" />
             </Link>
             <Link
-              href="/business/helpdesk"
+              href="/help"
               className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
             >
               <span className="flex items-center gap-2">
                 <Headphones className="h-4 w-4 text-accent" />
-                Partner Help Desk
+                Help Centre
               </span>
               <ArrowRight className="h-3.5 w-3.5 text-mute" />
             </Link>

@@ -1,5 +1,7 @@
 import { Link, useParams } from "wouter";
-import { ArrowLeft, ArrowRight, Building2, HeartHandshake, Lock, QrCode, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, Building2, HeartHandshake, Lock, QrCode, ScanLine, Users } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useListings } from "@/contexts/ListingsContext";
 
 /**
  * Pulse — belonging reports for hosts.
@@ -9,6 +11,9 @@ import { ArrowLeft, ArrowRight, Building2, HeartHandshake, Lock, QrCode, Users }
 export function PulsePage() {
   const params = useParams<{ publicToken?: string }>();
   const token = params.publicToken?.trim();
+  const { user } = useAuth();
+  const { myListings } = useListings();
+  const venues = user ? myListings : [];
 
   return (
     <div className="page-wrap-narrow pt-6 space-y-6">
@@ -50,6 +55,68 @@ export function PulsePage() {
           act on.
         </p>
       </div>
+
+      {!token && venues.length > 0 && (
+        <section aria-label="Your venues tonight">
+          <p className="text-xs font-bold uppercase tracking-wider text-accent">Your venues tonight</p>
+          <ul className="mt-2 overflow-hidden rounded-[24px] bg-card ring-1 ring-line/80 shadow-clay">
+            {venues.map((v, i) => {
+              const live = v.status === "active";
+              return (
+                <li
+                  key={v.id}
+                  className={`flex min-h-[64px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 ${i > 0 ? "border-t border-line/70" : ""}`}
+                >
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      className={
+                        live
+                          ? "grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/25 dark:text-emerald-400"
+                          : "grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/25 dark:text-amber-400"
+                      }
+                      aria-hidden="true"
+                    >
+                      <Building2 size={16} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-bold text-ink">{v.name}</span>
+                      <span className="block text-[11px] font-semibold text-mute">
+                        {live ? "Live on the map" : "Draft — finish setup"}
+                      </span>
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-1.5">
+                    <Link
+                      href="/business"
+                      aria-label={`Open ${v.name} in Business Hub`}
+                      title="Business Hub"
+                      className="grid h-11 w-11 place-items-center rounded-full text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink active:scale-95"
+                    >
+                      <Building2 size={16} />
+                    </Link>
+                    <Link
+                      href="/scan"
+                      aria-label={`Scan tickets at ${v.name}`}
+                      title="Door Scanner"
+                      className="grid h-11 w-11 place-items-center rounded-full text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink active:scale-95"
+                    >
+                      <ScanLine size={16} />
+                    </Link>
+                    <Link
+                      href="/event"
+                      aria-label={`Open ${v.name} in Event Studio`}
+                      title="Event Studio"
+                      className="grid h-11 w-11 place-items-center rounded-full text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink active:scale-95"
+                    >
+                      <Users size={16} />
+                    </Link>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {token ? (
         <div className="human-card p-5 sm:p-6">

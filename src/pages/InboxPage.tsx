@@ -63,7 +63,7 @@ function NotificationKindIcon({ kind }: { kind: string }) {
   }
 }
 
-function NotificationRows({
+export function NotificationRows({
   rows,
   onOpen,
   onToggleRead,
@@ -91,7 +91,7 @@ function NotificationRows({
             <button
               type="button"
               onClick={() => void onOpen(n)}
-              className="flex min-h-[56px] min-w-0 flex-1 cursor-pointer items-start gap-3 px-4 py-3.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+              className="flex min-h-[56px] min-w-0 flex-1 cursor-pointer items-start gap-3 px-4 py-3.5 text-left transition-colors active:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
             >
               <div className="relative mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-paper ring-1 ring-line/70">
                 <NotificationKindIcon kind={n.kind} />
@@ -111,7 +111,7 @@ function NotificationRows({
                 </span>
                 <span
                   className={cn(
-                    "mt-0.5 block text-[15px] leading-5",
+                    "mt-0.5 line-clamp-2 block text-[15px] leading-5",
                     n.read ? "font-medium text-ink" : "font-bold text-ink",
                   )}
                 >
@@ -270,11 +270,15 @@ export function InboxPage() {
 
   async function deleteNote(n: PromotionNotification) {
     void triggerHaptic("medium");
+    // Optimistic remove; the server has no un-delete (client create is
+    // rules-denied), so a failed delete rolls the row back into place.
     setNotes((rows) => rows.filter((row) => row.id !== n.id));
     try {
-      await deleteNotification(n.id);
+      const ok = await deleteNotification(n.id);
+      if (!ok) throw new Error("delete failed");
       toast.success("Notification dismissed");
     } catch {
+      setNotes((rows) => [...rows, n].sort((a, b) => b.at.localeCompare(a.at)));
       toast.error("Couldn't delete notification");
     }
   }
@@ -297,6 +301,14 @@ export function InboxPage() {
   async function clearReadNotifications(rows: PromotionNotification[]) {
     const readIds = rows.filter((n) => n.read).map((n) => n.id);
     if (readIds.length === 0 || clearing) return;
+    // Bulk dismiss is irreversible (no server un-delete), so confirm first.
+    if (
+      !window.confirm(
+        `Clear ${readIds.length} read notification${readIds.length > 1 ? "s" : ""}? This can't be undone.`,
+      )
+    ) {
+      return;
+    }
     setClearing(true);
     void triggerHaptic("medium");
     const idSet = new Set(readIds);
@@ -332,13 +344,59 @@ export function InboxPage() {
 
   return (
     <div className="mx-auto max-w-lg px-4 pb-[max(6rem,calc(env(safe-area-inset-bottom,0px)+5rem))]">
-      <div className="flex items-center justify-between pt-6">
-        <div>
+      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 pt-6">
+        <div className="min-w-0">
           <h1 className="human-title text-[28px] text-balance">Inbox</h1>
-          <p className="mt-1 text-sm sm:text-base text-mute tabular-data">
-            {totalUnread ? `${totalUnread} unread` : "Updates & notifications"}
+          <p className="mt-0.5 text-sm text-mute tabular-data">
+            {totalUnread ? `${totalUnread} unread · Updates & notifications` : "Updates & notifications"}
           </p>
         </div>
+        {segment !== "pings" && (
+          <div className="flex shrink-0 items-center gap-1.5" role="group" aria-label="Filter notifications">
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("selection");
+                setFilter("all");
+              }}
+              aria-pressed={filter === "all"}
+              className={cn(
+                "inline-flex min-h-[44px] items-center rounded-full px-3.5 text-[12px] font-semibold transition-colors",
+                filter === "all"
+                  ? "bg-accent text-card shadow-sm"
+                  : "bg-paper text-mute hover:bg-paper/80 hover:text-ink ring-1 ring-line/60",
+              )}
+            >
+              All ({activeList.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("selection");
+                setFilter("unread");
+              }}
+              aria-pressed={filter === "unread"}
+              className={cn(
+                "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3.5 text-[12px] font-semibold transition-colors",
+                filter === "unread"
+                  ? "bg-accent text-card shadow-sm"
+                  : "bg-paper text-mute hover:bg-paper/80 hover:text-ink ring-1 ring-line/60",
+              )}
+            >
+              Unread
+              {currentUnreadCount > 0 && (
+                <span
+                  className={cn(
+                    "grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-bold tabular-data",
+                    filter === "unread" ? "bg-card text-accent" : "bg-brand text-white",
+                  )}
+                >
+                  {currentUnreadCount}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="mt-4">
@@ -346,7 +404,10 @@ export function InboxPage() {
           ariaLabel="Inbox sections"
           layout="contained"
           active={segment}
-          onChange={setSegment}
+          onChange={(next) => {
+            setSegment(next);
+            setFilter("all");
+          }}
           items={[
             { id: "updates", label: "Updates", badge: unreadUpdates ? String(unreadUpdates) : undefined },
             { id: "pings", label: "Pings" },
@@ -359,52 +420,11 @@ export function InboxPage() {
         <PingsPanel />
       ) : (
         <>
-          {/* Subheader with Filter + Bulk Actions */}
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => {
-                  void triggerHaptic("selection");
-                  setFilter("all");
-                }}
-                className={cn(
-                  "inline-flex min-h-[44px] items-center rounded-full px-3 text-[12px] font-semibold transition-colors",
-                  filter === "all"
-                    ? "bg-accent text-card shadow-sm"
-                    : "bg-paper text-mute hover:bg-paper/80 hover:text-ink ring-1 ring-line/60",
-                )}
-              >
-                All ({activeList.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  void triggerHaptic("selection");
-                  setFilter("unread");
-                }}
-                className={cn(
-                  "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 text-[12px] font-semibold transition-colors",
-                  filter === "unread"
-                    ? "bg-accent text-card shadow-sm"
-                    : "bg-paper text-mute hover:bg-paper/80 hover:text-ink ring-1 ring-line/60",
-                )}
-              >
-                Unread
-                {currentUnreadCount > 0 && (
-                  <span
-                    className={cn(
-                      "grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-bold",
-                      filter === "unread" ? "bg-card text-accent" : "bg-brand text-white",
-                    )}
-                  >
-                    {currentUnreadCount}
-                  </span>
-                )}
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3">
+          {/* Bulk actions live on their own slim row that only renders when
+              useful. This branch never renders for the Pings segment, so the
+              actions always target the visible list. */}
+          {(currentUnreadCount > 0 || currentReadCount > 0) && (
+            <div className="mt-2 flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
               {currentUnreadCount > 0 && (
                 <button
                   type="button"
@@ -426,7 +446,7 @@ export function InboxPage() {
                 </button>
               )}
             </div>
-          </div>
+          )}
 
           {!pushPrefEnabled() && segment === "activity" && (
             <button

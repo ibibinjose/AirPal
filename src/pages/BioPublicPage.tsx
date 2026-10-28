@@ -44,6 +44,7 @@ import { BioCatchUpModal } from "@/components/bio/BioCatchUpModal";
 import { CatchUpSlotActions } from "@/components/bio/CatchUpSlotActions";
 import { BioStatusModal } from "@/components/bio/BioStatusModal";
 import { BioPulseRate } from "@/components/bio/BioPulseRate";
+import { VenueLiveStrip } from "@/components/bio/VenueLiveStrip";
 import { BioKindIcon } from "@/components/bio/BioKindBadge";
 import { AddToCalendarMenu } from "@/components/calendar/AddToCalendarMenu";
 import { inviteLinkFor } from "@/lib/app-invites";
@@ -1241,12 +1242,7 @@ export function BioPublicPage() {
           {bio.kind === "business" && (
             <div className="mt-6">
               <div className="flex items-center justify-between">
-                <p className="text-[14px] font-semibold">
-                  <span className={cn(bio.openNow ? "text-emerald-600" : "text-red-500")}>
-                    ● {bio.openNow ? "Open now" : "Closed"}
-                  </span>
-                  {bio.hours && <span className="text-mute font-normal"> · {bio.hours}</span>}
-                </p>
+                <VenueLiveStrip openNow={bio.openNow} hours={bio.hours} offerBadge={liveOffer?.badge} />
               </div>
 
               {/* Section Tabs */}

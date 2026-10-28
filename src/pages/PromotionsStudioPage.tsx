@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
 import {
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useListings } from "@/contexts/ListingsContext";
+import { OfferForm, dealToDraft, type OfferDraft, type OfferPayload } from "@/components/business/OfferForm";
 import { cn } from "@/lib/cn";
 
 const DEAL_PRESETS = [
@@ -67,19 +68,8 @@ export function PromotionsStudioPage({
   const isAdmin = scope === "admin";
   const { mine, saveDeal } = useListings();
 
-  const [dealTitle, setDealTitle] = useState(mine?.deal?.detail || "");
-  const [dealBadge, setDealBadge] = useState(mine?.deal?.badge || "Member Perk");
-  const [dealUntil, setDealUntil] = useState(mine?.deal?.claimHint || "Show AirPal Pass QR at counter");
-  const [dealTerms, setDealTerms] = useState("Valid for AirPal members · 1 per visit");
+  const [preset, setPreset] = useState<OfferDraft | null>(null);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (mine?.deal) {
-      setDealTitle(mine.deal.detail || "");
-      setDealBadge(mine.deal.badge || "Member Perk");
-      setDealUntil(mine.deal.claimHint || "Show AirPal Pass QR at counter");
-    }
-  }, [mine?.id, mine?.deal]);
 
   const title =
     view === "new"
@@ -103,25 +93,17 @@ export function PromotionsStudioPage({
             ? "Stewards review partner offers here. Guests only ever see verified offers on Deals."
             : "Every offer you publish lives on /deals, /giveaways, or /birthday-freebies and is redeemable by QR at your venue.";
 
-  async function handlePublishDeal(e: FormEvent) {
-    e.preventDefault();
+  // Same shared form as the Business Hub Offers tab — one payload rule.
+  async function publish(payload: OfferPayload) {
     if (!mine) {
       toast.error("Set up your venue first to publish a promotion");
       nav("/business/onboard");
       return;
     }
-    const trimmed = dealTitle.trim();
-    if (trimmed.length < 3) {
-      toast.error("Enter a clear promotion headline");
-      return;
-    }
     setSaving(true);
     try {
-      await saveDeal(mine.id, {
-        badge: dealBadge.trim() || "Member Perk",
-        detail: dealTerms.trim() ? `${trimmed} — ${dealTerms.trim()}` : trimmed,
-        claimHint: dealUntil.trim() || "Show AirPal Pass QR at counter",
-      });
+      await saveDeal(mine.id, payload);
+      setPreset(null);
       toast.success("Promotion published live to /deals!");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not publish promotion");
@@ -135,7 +117,7 @@ export function PromotionsStudioPage({
     setSaving(true);
     try {
       await saveDeal(mine.id, null);
-      setDealTitle("");
+      setPreset(null);
       toast.success("Promotion removed");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not remove promotion");
@@ -255,10 +237,7 @@ export function PromotionsStudioPage({
               </div>
             </div>
           ) : (
-            <form
-              onSubmit={(e) => void handlePublishDeal(e)}
-              className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-5"
-            >
+            <div className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line/60 pb-4">
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-accent">
@@ -286,10 +265,12 @@ export function PromotionsStudioPage({
                       key={preset.label}
                       type="button"
                       onClick={() => {
-                        setDealTitle(preset.title);
-                        setDealBadge(preset.badge);
-                        setDealUntil(preset.until);
-                        setDealTerms(preset.terms);
+                        setPreset({
+                          headline: preset.title,
+                          badge: preset.badge,
+                          window: preset.until,
+                          terms: preset.terms,
+                        });
                         toast.success(`Applied "${preset.label}" template`);
                       }}
                       className="rounded-2xl bg-paper p-3.5 text-left ring-1 ring-line transition hover:border-brand/40 hover:bg-card"
@@ -306,83 +287,27 @@ export function PromotionsStudioPage({
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
-                    Offer Headline *
-                  </label>
-                  <input
-                    value={dealTitle}
-                    onChange={(e) => setDealTitle(e.target.value)}
-                    placeholder="e.g. 2-for-1 house drink for AirPal Pass holders"
-                    required
-                    maxLength={120}
-                    className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  />
-                </div>
+              <OfferForm
+                key={preset ? `preset-${preset.headline}` : (mine.deal?.badge ?? "new")}
+                initial={preset ?? dealToDraft(mine.deal)}
+                submitLabel={saving ? "Publishing…" : mine.deal?.detail ? "Update Live Promotion" : "Publish to /deals"}
+                busy={saving}
+                onSubmit={(payload) => void publish(payload)}
+              />
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
-                      Badge Pill
-                    </label>
-                    <input
-                      value={dealBadge}
-                      onChange={(e) => setDealBadge(e.target.value)}
-                      placeholder="e.g. Member Perk, 20% Off, Birthday"
-                      maxLength={32}
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
-                      Redemption Window
-                    </label>
-                    <input
-                      value={dealUntil}
-                      onChange={(e) => setDealUntil(e.target.value)}
-                      placeholder="e.g. Thu–Sun · 5pm–8pm"
-                      maxLength={80}
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
-                    Terms & Counter Instructions
-                  </label>
-                  <input
-                    value={dealTerms}
-                    onChange={(e) => setDealTerms(e.target.value)}
-                    placeholder="e.g. Present AirPal Pass QR on arrival · 1 redemption per member"
-                    maxLength={160}
-                    className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-                <Button type="submit" size="lg" className="flex-1 min-h-[48px] gap-2" disabled={saving}>
-                  <Sparkles size={16} />
-                  <span>
-                    {saving ? "Publishing…" : mine.deal?.detail ? "Update Live Promotion" : "Publish to /deals"}
-                  </span>
+              {mine.deal?.detail && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="min-h-[48px] w-full gap-1.5 border border-rose-500/30 text-rose-600 hover:bg-rose-500/10"
+                  disabled={saving}
+                  onClick={() => void handleRemoveDeal()}
+                >
+                  <Trash2 size={15} />
+                  <span>Remove Offer</span>
                 </Button>
-                {mine.deal?.detail && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="min-h-[48px] gap-1.5 border border-rose-500/30 text-rose-600 hover:bg-rose-500/10"
-                    disabled={saving}
-                    onClick={() => void handleRemoveDeal()}
-                  >
-                    <Trash2 size={15} />
-                    <span>Remove Offer</span>
-                  </Button>
-                )}
-              </div>
-            </form>
+              )}
+            </div>
           )}
         </>
       )}

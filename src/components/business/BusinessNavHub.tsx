@@ -7,6 +7,7 @@ import {
   PlusCircle,
   Settings2,
   ShieldCheck,
+  Sunrise,
   Tag,
   Ticket,
 } from "lucide-react";
@@ -14,7 +15,7 @@ import { TabPills } from "@/components/ui/TabPills";
 
 export type BusinessRoleDomain = "venue" | "bookings" | "experiences" | "promotions" | "onboard";
 
-export type BusinessNavTab = "place" | "bookings" | "list" | "offer";
+export type BusinessNavTab = "tonight" | "venue" | "bookings" | "list" | "offer";
 
 interface BusinessNavHubProps {
   activeTab: BusinessNavTab;
@@ -91,11 +92,11 @@ export function BusinessNavHub({
               <span>Setup Checklist</span>
             </Link>
             <Link
-              href="/business/helpdesk"
+              href="/help"
               className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-ink/80 ring-1 ring-line hover:text-ink hover:bg-card transition-[background-color,color]"
             >
               <Headphones size={13} aria-hidden />
-              <span>Help Desk</span>
+              <span>Help Centre</span>
             </Link>
           </div>
           <Link
@@ -112,10 +113,11 @@ export function BusinessNavHub({
       <TabPills
         ariaLabel="Business sections"
         items={[
-          { id: "place", label: "Venue Info", icon: Building2, badge: listingActive ? "Live" : "Draft" },
+          { id: "tonight", label: "Tonight", icon: Sunrise },
+          { id: "venue", label: "Venue", icon: Building2, badge: listingActive ? "Live" : "Draft" },
           { id: "bookings", label: "Bookings", icon: Ticket, badge: String(bookingCount) },
           { id: "list", label: "Door List", icon: ClipboardList, badge: "Live" },
-          { id: "offer", label: "Offers & Deals", icon: Tag, badge: dealLive ? "Live" : "Off" },
+          { id: "offer", label: "Offers", icon: Tag, badge: dealLive ? "Live" : "Off" },
         ]}
         active={activeTab}
         onChange={onTabChange}

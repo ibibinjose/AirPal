@@ -36,6 +36,13 @@ export function normalizeEmail(raw: string) {
   return raw.trim().toLowerCase();
 }
 
+/** Walk-in form guard: empty taps used to fail silently or toast-only. */
+export function guestEmailError(raw: string): string | null {
+  if (!raw.trim()) return "Enter the guest's email first.";
+  if (!isEmail(raw)) return "That email doesn't look right — check it and try again.";
+  return null;
+}
+
 export function inviteMailto(emails: string[], subject: string, body: string) {
   const list = emails.map(normalizeEmail).filter(isEmail);
   const first = list[0] || "";
