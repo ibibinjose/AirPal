@@ -44,9 +44,9 @@ export interface DigitalBioPassCardProps {
 
 /** Shared pill-button shell: one class source so all pass actions align. */
 const ACTION_CORE =
-  "inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition-[background-color,transform] active:scale-95 shadow-2xs";
+  "neu-btn inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 px-3.5 text-xs font-bold text-ink transition-[background-color,transform] active:scale-95";
 const ACTION_ACCENT =
-  "inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 rounded-full bg-brand/10 text-accent font-bold px-3.5 text-xs ring-1 ring-brand/20 hover:bg-brand/15 transition-[background-color,transform] active:scale-95 shadow-2xs";
+  "neu-chip neu-tint-brand inline-flex min-h-[44px] justify-center whitespace-nowrap items-center gap-1.5 text-accent font-bold px-3.5 text-xs transition-[background-color,transform] active:scale-95";
 
 function PassActionButton({
   icon,
@@ -110,7 +110,7 @@ function PassHeader({
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="font-display text-lg sm:text-xl font-black text-ink truncate">{title}</h2>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
               <ShieldCheck size={11} aria-hidden="true" />
               <span>Verified ID</span>
             </span>
@@ -126,7 +126,7 @@ function PassHeader({
           </span>
         )}
         <BioKindBadge kind={kind} />
-        <span className="truncate max-w-[160px] sm:max-w-none text-xs font-mono font-bold text-ink bg-paper px-3 py-1 rounded-full ring-1 ring-line/80">
+        <span className="neu-chip truncate max-w-[160px] sm:max-w-none text-xs font-mono font-bold text-ink px-3 py-1">
           @{cleanHandle}
         </span>
       </div>
@@ -268,7 +268,7 @@ export function DigitalBioPassCard({
   };
 
   return (
-    <section className={cn("rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7 shadow-clay", className)}>
+    <section className={cn("neu-section p-5 sm:p-7", className)}>
       <PassHeader
         title={title}
         subtitle={subtitle}

@@ -91,7 +91,7 @@ export function CalendarSidebar({
       count: statusCounts.all,
       icon: CalendarDays,
       activeClass: "bg-brand text-white",
-      softClass: "bg-ink/[0.04] ring-1 ring-ink/15 hover:bg-ink/[0.08]",
+      softClass: "bg-ink/[0.04] hover:bg-ink/[0.08]",
       iconClass: "text-ink",
     },
     {
@@ -100,7 +100,7 @@ export function CalendarSidebar({
       count: statusCounts.weekend,
       icon: Compass,
       activeClass: "bg-sky-600 text-white font-semibold",
-      softClass: "bg-sky-500/10 ring-1 ring-sky-500/40 hover:bg-sky-500/20",
+      softClass: "bg-sky-500/10 hover:bg-sky-500/20",
       iconClass: "text-sky-600",
     },
     {
@@ -109,7 +109,7 @@ export function CalendarSidebar({
       count: statusCounts.free,
       icon: Sparkles,
       activeClass: "bg-teal-600 text-white font-semibold",
-      softClass: "bg-teal-500/10 ring-1 ring-teal-500/40 hover:bg-teal-500/20",
+      softClass: "bg-teal-500/10 hover:bg-teal-500/20",
       iconClass: "text-teal-600",
     },
     {
@@ -118,7 +118,7 @@ export function CalendarSidebar({
       count: statusCounts.going,
       icon: Check,
       activeClass: "bg-emerald-600 text-white font-semibold",
-      softClass: "bg-emerald-500/10 ring-1 ring-emerald-500/40 hover:bg-emerald-500/20",
+      softClass: "bg-emerald-500/10 hover:bg-emerald-500/20",
       iconClass: "text-emerald-600",
     },
     {
@@ -127,7 +127,7 @@ export function CalendarSidebar({
       count: statusCounts.interested,
       icon: Star,
       activeClass: "bg-amber-600 text-white font-semibold",
-      softClass: "bg-amber-500/10 ring-1 ring-amber-500/40 hover:bg-amber-500/20",
+      softClass: "bg-amber-500/10 hover:bg-amber-500/20",
       iconClass: "text-amber-600",
     },
     {
@@ -136,7 +136,7 @@ export function CalendarSidebar({
       count: statusCounts.liked,
       icon: Heart,
       activeClass: "bg-rose-600 text-white font-semibold",
-      softClass: "bg-rose-500/10 ring-1 ring-rose-500/40 hover:bg-rose-500/20",
+      softClass: "bg-rose-500/10 hover:bg-rose-500/20",
       iconClass: "text-rose-600",
     },
     {
@@ -145,7 +145,7 @@ export function CalendarSidebar({
       count: statusCounts.local,
       icon: Sparkles,
       activeClass: "bg-brand text-white font-semibold",
-      softClass: "bg-brand/10 ring-1 ring-brand/40 hover:bg-brand/20",
+      softClass: "bg-brand/10 hover:bg-brand/20",
       iconClass: "text-accent",
     },
   ];
@@ -158,9 +158,7 @@ export function CalendarSidebar({
           <Filter size={16} className="text-accent" />
           <h2 className="font-display text-sm font-bold tracking-tight text-ink">Search & Filters</h2>
           {hasActiveFilters && (
-            <span className="rounded-full bg-brand/15 px-2 py-0.5 text-[10px] font-bold text-accent ring-1 ring-brand/30">
-              Active
-            </span>
+            <span className="rounded-full bg-brand/15 px-2 py-0.5 text-[10px] font-bold text-accent">Active</span>
           )}
         </div>
 
@@ -195,11 +193,7 @@ export function CalendarSidebar({
           <span>Calendar View</span>
           <span className="text-[10px] font-semibold capitalize text-accent">{viewMode} mode</span>
         </div>
-        <div
-          role="radiogroup"
-          aria-label="Calendar view mode"
-          className="grid grid-cols-2 gap-1 rounded-xl bg-paper p-1 ring-1 ring-line/70 shadow-2xs"
-        >
+        <div role="radiogroup" aria-label="Calendar view mode" className="neu-inset grid grid-cols-2 gap-1 p-1">
           <button
             type="button"
             role="radio"
@@ -289,7 +283,7 @@ export function CalendarSidebar({
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by title, tag (#jazz)..."
             aria-label="Search events by title or tag"
-            className="h-11 sm:h-10 w-full rounded-xl bg-paper/90 pl-10 pr-10 text-[16px] sm:text-xs text-ink placeholder:text-mute border border-line outline-none transition focus:bg-card focus:ring-2 focus:ring-brand focus:border-brand shadow-xs"
+            className="neu-inset h-11 sm:h-10 w-full pl-10 pr-10 text-[16px] sm:text-xs text-ink placeholder:text-mute outline-none transition focus:ring-2 focus:ring-brand"
           />
           {searchQuery && (
             <button
@@ -345,7 +339,7 @@ export function CalendarSidebar({
                       : cn(theme.blockClass, "text-ink/90 font-medium")
                     : isSelected
                       ? "bg-brand text-white font-medium shadow-xs"
-                      : "bg-ink/[0.04] text-ink/85 ring-1 ring-ink/15 hover:bg-ink/[0.08]",
+                      : "bg-ink/[0.04] text-ink/85 hover:bg-ink/[0.08]",
                 )}
               >
                 <div className="flex items-center gap-2 truncate">
@@ -361,11 +355,7 @@ export function CalendarSidebar({
                 <span
                   className={cn(
                     "ml-2 rounded-full px-1.5 py-0.2 text-[10px] font-semibold shrink-0",
-                    isSelected
-                      ? "bg-white/25 text-white"
-                      : theme
-                        ? theme.countClass
-                        : "bg-paper text-mute ring-1 ring-line/50",
+                    isSelected ? "bg-white/25 text-white" : theme ? theme.countClass : "bg-paper text-mute",
                   )}
                 >
                   {count}
@@ -422,8 +412,8 @@ export function CalendarSidebar({
                   className={cn(
                     "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] transition active:scale-95 cursor-pointer",
                     isActive
-                      ? "bg-brand text-white font-semibold shadow-xs ring-1 ring-brand-ink"
-                      : "bg-paper text-mute hover:text-ink hover:bg-paper/80 ring-1 ring-line/60",
+                      ? "bg-brand text-white font-semibold shadow-xs"
+                      : "bg-paper text-mute hover:text-ink hover:bg-paper/80",
                   )}
                 >
                   <span>#{tag}</span>
@@ -487,7 +477,7 @@ export function CalendarSidebar({
                 <span
                   className={cn(
                     "rounded-full px-1.5 py-0.2 text-[10px] font-semibold",
-                    isSelected ? "bg-white/25 text-white" : "bg-white/70 text-neutral-950 ring-1 ring-black/10",
+                    isSelected ? "bg-white/25 text-white" : "bg-white/70 text-neutral-950",
                   )}
                 >
                   {opt.count}
@@ -499,7 +489,7 @@ export function CalendarSidebar({
       </div>
 
       {/* 5. Live Count Footer */}
-      <div className="rounded-xl bg-paper/90 p-3 text-xs text-mute ring-1 ring-line/60 space-y-2 mt-auto">
+      <div className="neu-row p-3 text-xs text-mute space-y-2 mt-auto">
         <div className="flex items-center justify-between">
           <span>Matching Events:</span>
           <span className="font-semibold text-ink">
@@ -513,7 +503,7 @@ export function CalendarSidebar({
               void triggerHaptic("light");
               onResetFilters();
             }}
-            className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-card py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-line/60 transition active:scale-95 cursor-pointer"
+            className="neu-btn w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer"
           >
             <RotateCcw size={12} />
             <span>Reset All Filters</span>

@@ -395,7 +395,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
       className="mx-auto max-w-5xl bg-paper px-4 sm:px-6 lg:px-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] pt-[max(1rem,env(safe-area-inset-top,0px))]"
     >
       {/* 🧭 1. TOP OF PAGE NAVIGATION TABS */}
-      <div className="sticky top-[max(0.5rem,env(safe-area-inset-top,0px))] z-30 mb-6">
+      <div className="sticky top-[max(0.5rem,env(safe-area-inset-top,0px))] z-30 mb-8">
         <TabPills
           layout="contained"
           ariaLabel="Me sections"
@@ -432,7 +432,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
 
       {/* 🌟 2. APPLE HIG NATIVE HERO PROFILE CARD */}
       {activeTab === "all" && (
-        <div className="relative overflow-hidden neu-section mb-6">
+        <div className="relative overflow-hidden neu-section mb-8">
           {/* Ambient Top Glow & Pattern */}
           <div className="relative h-28 sm:h-32 bg-gradient-to-r from-brand-ink via-[#0d173f] to-[#0a0d1e] overflow-hidden">
             <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1.2px,transparent_1.2px)] [background-size:18px_18px]" />
@@ -493,11 +493,11 @@ export function MePage({ defaultTab }: MePageProps = {}) {
 
           {/* Profile Info & Action Controls */}
           <div className="px-5 sm:px-7 pb-6 pt-0">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-10 sm:-mt-12 mb-4">
+            <div className="flex flex-col gap-4 -mt-10 lg:-mt-12 mb-4">
               {/* Avatar & Identifiers Row */}
-              <div className="flex flex-col sm:flex-row sm:items-end gap-4 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4 min-w-0 flex-1">
                 {/* Perfectly Centered Circular Profile Avatar with Camera Trigger */}
-                <div className="relative group shrink-0 self-start sm:self-auto">
+                <div className="relative group shrink-0 self-start lg:self-auto">
                   <div className="relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-full bg-paper ring-4 ring-card shadow-xl">
                     {mine?.avatar ? (
                       <Photo src={mine.avatar} className="h-full w-full object-cover rounded-full" />
@@ -574,11 +574,11 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                 </div>
               </div>
 
-              {/* Header Action Buttons */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 items-center gap-2 w-full sm:w-auto shrink-0 mt-3 sm:mt-0">
+              {/* Header Action Buttons — own full-width row so labels never collide with the handle */}
+              <div className="grid min-w-0 grid-cols-2 sm:grid-cols-4 items-center gap-2 w-full mt-1">
                 <Button
                   variant="primary"
-                  className="min-h-[44px] justify-center rounded-full bg-brand px-3.5 sm:px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95"
+                  className="min-h-[44px] min-w-0 justify-center overflow-hidden rounded-full bg-brand px-3.5 sm:px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95"
                   onClick={() => nav(mine ? bioPath(mine.handle) : "/bio/setup")}
                 >
                   <UserRound size={14} className="mr-1.5 shrink-0" />
@@ -588,39 +588,39 @@ export function MePage({ defaultTab }: MePageProps = {}) {
 
                 <Button
                   variant="ghost"
-                  className="neu-btn min-h-[44px] justify-center px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+                  className="neu-btn min-h-[44px] min-w-0 justify-center overflow-hidden px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
                   onClick={() => {
                     void triggerHaptic("light");
                     setShowShareModal(true);
                   }}
                 >
                   <Share2 size={14} className="text-accent mr-1.5 shrink-0" />
-                  <span>Share Pass</span>
+                  <span className="truncate">Share Pass</span>
                 </Button>
 
                 <Button
                   variant="ghost"
-                  className="neu-btn min-h-[44px] justify-center px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+                  className="neu-btn min-h-[44px] min-w-0 justify-center overflow-hidden px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
                   onClick={() => nav("/circle")}
                 >
                   <Users size={14} className="text-accent mr-1.5 shrink-0" />
-                  <span>My Circle</span>
+                  <span className="truncate">My Circle</span>
                 </Button>
 
                 <Button
                   variant="ghost"
-                  className="neu-btn min-h-[44px] justify-center px-3.5 text-xs font-semibold text-ink transition-[box-shadow,transform] active:scale-95"
+                  className="neu-btn min-h-[44px] min-w-0 justify-center overflow-hidden px-3.5 text-xs font-semibold text-ink transition-[box-shadow,transform] active:scale-95"
                   onClick={() => nav(mine ? "/bio/edit" : "/bio/setup")}
                   title="Edit Bio"
                 >
                   <Edit3 size={13} className="text-mute mr-1 shrink-0" />
-                  <span>Edit Bio</span>
+                  <span className="truncate">Edit Bio</span>
                 </Button>
               </div>
             </div>
 
             {/* Stat Strip — jumps to each tab */}
-            <div role="group" aria-label="Jump to section" className="grid grid-cols-3 gap-1 neu-inset mt-4">
+            <div role="group" aria-label="Jump to section" className="grid grid-cols-3 gap-1 neu-inset mt-4 p-1">
               {[
                 {
                   id: "today" as const,
@@ -656,8 +656,8 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                     onClick={() => handleTabChange(stat.id)}
                     aria-current={selected ? "true" : undefined}
                     className={cn(
-                      "flex min-h-[64px] flex-col items-center justify-center gap-0.5 px-2 py-2.5 text-center transition-[background-color,transform] cursor-pointer active:scale-[0.98]",
-                      selected ? "bg-brand/10 font-bold" : "hover:bg-paper",
+                      "flex min-h-[64px] flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-2.5 text-center transition-[background-color,transform] cursor-pointer active:scale-[0.98]",
+                      selected ? "bg-brand/10 font-bold" : "hover:bg-paper/60",
                     )}
                   >
                     <div className="flex items-center gap-1.5">
@@ -732,7 +732,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
 
       {/* 🌟 3. OVERVIEW DASHBOARD (replaces the stacked sections on "all") */}
       {activeTab === "all" && (
-        <div className="space-y-6 mb-6">
+        <div className="space-y-8 mb-8">
           <MeOverview
             todayItems={glanceToday}
             todayTotalCount={todayTotalCount}
@@ -762,16 +762,16 @@ export function MePage({ defaultTab }: MePageProps = {}) {
       )}
 
       {/* 🌟 4. MAIN ME SECTIONS (one per tab) */}
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* SECTION: TODAY — a cool window on the day */}
         {showSection("today") && (
           <section aria-label="Today" className="neu-section overflow-hidden">
             {/* Window chrome */}
             <div className="flex items-center gap-3 px-4 py-2.5 sm:px-5">
               <span aria-hidden="true" className="flex shrink-0 items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-line" />
-                <span className="h-2.5 w-2.5 rounded-full bg-line" />
-                <span className="h-2.5 w-2.5 rounded-full bg-line" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
               </span>
               <p className="min-w-0 flex-1 truncate text-center text-xs font-bold text-mute">
                 Today · {formattedToday}
@@ -872,14 +872,28 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                                 <Check size={13} className="mr-1 shrink-0" />
                                 Accept
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="neu-btn min-h-[44px] flex-1 sm:flex-initial justify-center px-3 text-xs font-medium text-mute hover:text-ink"
-                                onClick={() => void handleDismissCatchUp(item.id)}
-                              >
-                                Dismiss
-                              </Button>
+                              {confirming ? (
+                                <Button
+                                  size="sm"
+                                  className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full bg-red-600 px-3.5 text-xs font-bold text-white hover:bg-red-700 active:scale-95"
+                                  onClick={() => void handleDismissCatchUp(item.id)}
+                                  aria-label={`Confirm declining catch-up with ${item.requesterName}`}
+                                >
+                                  Confirm decline
+                                </Button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    void triggerHaptic("light");
+                                    setConfirmRemoveId(item.id);
+                                  }}
+                                  className="neu-btn inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center px-3 text-xs font-semibold text-mute hover:text-ink transition-[box-shadow,color,transform] active:scale-95 cursor-pointer"
+                                  aria-label={`Dismiss catch-up with ${item.requesterName}`}
+                                >
+                                  Dismiss
+                                </button>
+                              )}
                             </>
                           ) : (
                             <>
@@ -1086,7 +1100,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                     Today is wide open.
                   </h3>
                   <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-mute">
-                    No catch-ups, plans or passes yet — a perfect day to start something.
+                    Nothing today — a perfect day to start something.
                   </p>
                   <button
                     type="button"
@@ -1113,7 +1127,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                           <h4 className="font-display text-xs font-bold text-ink">Meet People</h4>
                         </div>
                         <p className="text-[11px] text-mute leading-relaxed">
-                          Catch up with mutuals or check in at a nearby venue in Circle.
+                          Catch up with mutuals or check in nearby.
                         </p>
                       </div>
                       <button
@@ -1122,9 +1136,9 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                           void triggerHaptic("light");
                           nav("/circle");
                         }}
-                        className="mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-brand px-3.5 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
+                        className="neu-btn mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95 cursor-pointer"
                       >
-                        <Users size={13} />
+                        <Users size={13} className="text-accent" />
                         <span>Meet people</span>
                       </button>
                     </div>
@@ -1139,15 +1153,18 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                           <h4 className="font-display text-xs font-bold text-ink">Events &amp; Deals</h4>
                         </div>
                         <p className="text-[11px] text-mute leading-relaxed">
-                          Live concerts, cultural festivals, and member perks active today.
+                          Concerts, festivals, and member perks near you.
                         </p>
                       </div>
                       <button
                         type="button"
-                        onClick={() => nav("/pass")}
-                        className="mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-amber-500/15 px-3.5 text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-500/25 transition-[background-color,transform] active:scale-95 cursor-pointer"
+                        onClick={() => {
+                          void triggerHaptic("light");
+                          nav("/pass");
+                        }}
+                        className="neu-btn mt-3.5 inline-flex min-h-[44px] items-center justify-center gap-1.5 px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95 cursor-pointer"
                       >
-                        <Ticket size={13} />
+                        <Ticket size={13} className="text-amber-600" />
                         <span>Discover Passes</span>
                       </button>
                     </div>
@@ -1162,7 +1179,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                           <h4 className="font-display text-xs font-bold text-ink">Curated Places</h4>
                         </div>
                         <p className="text-[11px] text-mute leading-relaxed">
-                          Handpicked cafes, scenic spots, and local hubs in {city || "Sydney"}.
+                          Handpicked cafes, scenic spots, and local hubs.
                         </p>
                       </div>
                       <button
@@ -1255,21 +1272,36 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                             <Check size={13} className="mr-1 shrink-0" />
                             Accept
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="neu-btn min-h-[44px] flex-1 sm:flex-initial justify-center px-3 text-xs font-medium text-mute hover:text-ink"
-                            onClick={async () => {
-                              try {
-                                await updateCatchUpStatus(item.id, "dismissed");
-                                toast.info("Request dismissed");
-                              } catch (error) {
-                                toast.error(error instanceof Error ? error.message : "Couldn't dismiss request.");
-                              }
-                            }}
-                          >
-                            Dismiss
-                          </Button>
+                          {confirmRemoveId === item.id ? (
+                            <Button
+                              size="sm"
+                              className="min-h-[44px] flex-1 sm:flex-initial justify-center rounded-full bg-red-600 px-3.5 text-xs font-bold text-white hover:bg-red-700 active:scale-95"
+                              onClick={async () => {
+                                try {
+                                  await updateCatchUpStatus(item.id, "dismissed");
+                                  setConfirmRemoveId(null);
+                                  toast.info("Request dismissed");
+                                } catch (error) {
+                                  toast.error(error instanceof Error ? error.message : "Couldn't dismiss request.");
+                                }
+                              }}
+                              aria-label={`Confirm declining catch-up with ${item.requesterName}`}
+                            >
+                              Confirm decline
+                            </Button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                void triggerHaptic("light");
+                                setConfirmRemoveId(item.id);
+                              }}
+                              className="neu-btn inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center px-3 text-xs font-semibold text-mute hover:text-ink transition-[box-shadow,color,transform] active:scale-95 cursor-pointer"
+                              aria-label={`Dismiss catch-up with ${item.requesterName}`}
+                            >
+                              Dismiss
+                            </button>
+                          )}
                         </>
                       }
                     >
@@ -1564,7 +1596,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
               title="Hosting"
               sub="My event, live from the studio"
               right={
-                <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                   {myEvent.status}
                 </span>
               }
@@ -1599,7 +1631,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
         {/* SECTION: DIGITAL BIO PASS & QR CARD */}
         {showSection("pass") &&
           (mine ? (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* Elevated Passbook Showcase Header on dedicated pass tab */}
               {activeTab === "pass" && (
                 <div className="relative overflow-hidden neu-section p-5 sm:p-7">
@@ -1619,8 +1651,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                         AirPal Passbook &amp; Identity Pass
                       </h2>
                       <p className="text-xs sm:text-sm text-mute max-w-xl leading-relaxed font-medium">
-                        Your universal credential for 1-tap contact exchange, Apple &amp; Google Wallet passes, door
-                        check-ins, and networking across the AirPal ecosystem.
+                        One pass for contact exchange, Wallet, and door check-ins.
                       </p>
                     </div>
 
@@ -1689,7 +1720,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                       </span>
                       <h4 className="font-display font-bold text-sm text-ink">Apple &amp; Google Wallet</h4>
                       <p className="text-xs text-mute mt-1 leading-relaxed">
-                        Store in your device wallet for lockscreen access and contactless NFC pass taps.
+                        Lockscreen access and contactless NFC taps.
                       </p>
                     </div>
                   </div>
@@ -1701,7 +1732,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                       </span>
                       <h4 className="font-display font-bold text-sm text-ink">Scannable Anywhere</h4>
                       <p className="text-xs text-mute mt-1 leading-relaxed">
-                        100% offline scannable with standard cameras. No third-party app or account required to scan.
+                        Offline scannable with any camera. No app needed to scan.
                       </p>
                     </div>
                   </div>
@@ -1713,8 +1744,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                       </span>
                       <h4 className="font-display font-bold text-sm text-ink">Instant vCard Contacts</h4>
                       <p className="text-xs text-mute mt-1 leading-relaxed">
-                        Saves full contact cards with phone, email, avatar, and social links straight into phone
-                        contacts.
+                        Saves full contact cards straight into phone contacts.
                       </p>
                     </div>
                   </div>
@@ -1728,8 +1758,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
               </span>
               <h3 className="font-display text-xl font-bold text-ink">Claim your Digital Pass</h3>
               <p className="text-xs sm:text-sm text-mute mt-2 leading-relaxed">
-                Choose your unique @handle to generate your universal digital contact pass, Apple Wallet pass, and
-                personal Bio page.
+                Choose your @handle to generate your pass, wallet credential, and bio page.
               </p>
               <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Button
@@ -1745,7 +1774,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
           ))}
 
         {/* 🛠 4. TOOLS, WORKSPACES & ECOSYSTEM SHORTCUTS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Invite Mates Card */}
           <div className="neu-section p-5 sm:p-6 flex flex-col justify-between">
             <div>
@@ -1756,7 +1785,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                 <h3 className="font-display text-base font-bold text-ink">Invite mates to AirPal</h3>
               </div>
               <p className="text-xs text-mute mb-4 leading-relaxed">
-                Earn Stars when friends claim their bio handle or join your circle.
+                Earn Stars when friends claim their handle or join your circle.
               </p>
             </div>
             <InvitePanel handle={mine?.handle} loading={!biosReady} />

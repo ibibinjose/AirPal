@@ -113,7 +113,7 @@ export function EventPage() {
     <>
       {isLocalOnly && (
         <div className="mx-auto max-w-4xl px-4 pt-3">
-          <div className="rounded-2xl bg-amber-500/15 p-3.5 ring-1 ring-amber-500/30 text-xs flex items-center justify-between gap-2 flex-wrap">
+          <div className="rounded-2xl bg-amber-500/15 p-3.5 text-xs flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="font-bold text-amber-800 dark:text-amber-200">⚠️ Local Device Preview:</span>
               <span className="text-amber-700 dark:text-amber-300">
@@ -285,7 +285,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
           <span>All events</span>
         </button>
 
-        <div className="hidden min-[380px]:inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-amber-400/30 whitespace-nowrap">
+        <div className="neu-chip neu-tint-gold hidden min-[380px]:inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 whitespace-nowrap">
           <Ticket size={13} className="shrink-0" />
           <span>AirPal Pass</span>
         </div>
@@ -304,7 +304,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
             type="button"
             onClick={handleShare}
             aria-label="Share event"
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-card ring-1 ring-line text-mute hover:text-ink transition cursor-pointer active:scale-95 shadow-xs"
+            className="neu-btn grid h-11 w-11 shrink-0 place-items-center text-mute hover:text-ink transition cursor-pointer active:scale-95"
             title="Share"
           >
             <Share2 size={15} />
@@ -350,7 +350,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
             </div>
 
             {/* Secondary Action Buttons (Save, Like, Add to Trip) */}
-            <div className="rounded-3xl bg-card p-3 ring-1 ring-line">
+            <div className="neu-card p-3">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -360,9 +360,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
                   }}
                   className={cn(
                     "inline-flex h-11 min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-bold transition active:scale-[0.98] cursor-pointer",
-                    event.isInterested
-                      ? "bg-ink text-paper shadow-xs"
-                      : "bg-paper text-mute ring-1 ring-line hover:text-ink",
+                    event.isInterested ? "bg-ink text-paper shadow-xs" : "bg-paper text-mute hover:text-ink",
                   )}
                 >
                   <Star
@@ -381,8 +379,8 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
                     if (toggleLiked(event.id) && !event.isLiked) toast.success(`Liked "${event.title}"`);
                   }}
                   className={cn(
-                    "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition active:scale-95 cursor-pointer ring-1 ring-line",
-                    event.isLiked ? "bg-rose-500 text-white ring-rose-500" : "bg-paper text-mute hover:text-ink",
+                    "neu-btn inline-flex h-11 w-11 shrink-0 items-center justify-center transition active:scale-95 cursor-pointer",
+                    event.isLiked ? "bg-rose-500 text-white" : "text-mute hover:text-ink",
                   )}
                 >
                   <Heart size={16} className={event.isLiked ? "fill-white" : ""} strokeWidth={2} />
@@ -398,15 +396,13 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
 
             {/* Event Category & Schedule Pill Badge */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-card px-2.5 py-0.5 text-xs font-bold text-ink ring-1 ring-line shadow-2xs">
-                {event.categoryLabel}
-              </span>
+              <span className="neu-chip px-2.5 py-0.5 text-xs font-bold text-ink">{event.categoryLabel}</span>
               <span
                 className={cn(
-                  "rounded-full px-2.5 py-0.5 text-xs font-bold ring-1",
+                  "rounded-full px-2.5 py-0.5 text-xs font-bold",
                   relative.highlight
-                    ? "bg-amber-100 text-amber-900 ring-amber-300 dark:bg-amber-950 dark:text-amber-200"
-                    : "bg-card text-mute ring-line",
+                    ? "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200"
+                    : "bg-card text-mute",
                 )}
               >
                 {relative.label}
@@ -425,7 +421,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
                   <Link
                     key={tag}
                     href={`/events?q=${encodeURIComponent(tag)}`}
-                    className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-3.5 text-xs font-semibold text-mute ring-1 ring-line hover:text-accent hover:ring-brand/30 transition touch-manipulation"
+                    className="neu-btn inline-flex min-h-[44px] items-center px-3.5 text-xs font-semibold text-mute hover:text-accent transition touch-manipulation"
                   >
                     #{tag}
                   </Link>
@@ -456,7 +452,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
 
             {/* Luma-style Registration & Ticket Tier Card — closed once past or host-closed */}
             {closed ? (
-              <div className="rounded-3xl bg-paper p-5 sm:p-6 ring-1 ring-line text-center space-y-4">
+              <div className="neu-section p-5 sm:p-6 text-center space-y-4">
                 <div>
                   <p className="human-eyebrow">Registration Closed</p>
                   <p className="human-section-title mt-1 text-lg text-balance">
@@ -504,7 +500,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
             )}
 
             {/* About Event Description Card */}
-            <div className="human-card p-5 space-y-3">
+            <div className="neu-section p-5 space-y-3">
               <div className="flex items-center justify-between border-b border-line/50 pb-2.5">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-ink">About This Experience</h3>
                 <span className="text-xs text-mute font-medium">Verified by AirPal</span>
@@ -537,7 +533,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
 
             {/* Program Lineup & Speakers */}
             {event.speakers && event.speakers.length > 0 && (
-              <div className="rounded-3xl bg-card p-5 ring-1 ring-line space-y-3">
+              <div className="neu-section p-5 space-y-3">
                 <h3 className="human-eyebrow">Speakers, Artists &amp; Lineup</h3>
                 <SpeakerRow speakers={event.speakers} />
               </div>
@@ -612,7 +608,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
           <div className="flex items-center gap-2">
             <span className="human-eyebrow">{ev.when}</span>
             {ev.ticketPrice && (
-              <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:text-amber-300 ring-1 ring-amber-400/30">
+              <span className="neu-chip neu-tint-gold px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:text-amber-300">
                 {ev.ticketPrice}
               </span>
             )}
@@ -625,7 +621,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
           <EventLocationCard venue={ev.venueName || ev.title} city="Sydney" />
 
           {ev.isEnded ? (
-            <div className="rounded-3xl bg-paper p-5 ring-1 ring-line text-center">
+            <div className="neu-section p-5 text-center">
               <p className="human-eyebrow">Registration Closed</p>
               <p className="human-section-title mt-1 text-lg text-balance">This event has ended</p>
               <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
@@ -650,7 +646,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
               )}
               <Button
                 variant="ghost"
-                className="flex-1 min-h-[44px] ring-1 ring-line font-bold whitespace-nowrap"
+                className="flex-1 min-h-[44px] font-bold whitespace-nowrap"
                 onClick={() => nav("/calendar")}
               >
                 Calendar Schedule

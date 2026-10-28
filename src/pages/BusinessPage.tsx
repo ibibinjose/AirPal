@@ -223,7 +223,7 @@ export function BusinessPage() {
       <div className="page-wrap-narrow space-y-8 pt-6 sm:pt-10">
         <div>
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
+            <div className="neu-tint-brand flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-accent">
               <Building2 className="h-6 w-6" aria-hidden="true" />
             </div>
             <div className="min-w-0">
@@ -247,7 +247,7 @@ export function BusinessPage() {
               </div>
             </li>
             <li className="flex gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card text-xs font-bold text-ink ring-1 ring-line">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full neu-chip text-xs font-bold text-ink">
                 2
               </span>
               <div className="min-w-0 pt-0.5">
@@ -256,7 +256,7 @@ export function BusinessPage() {
               </div>
             </li>
             <li className="flex gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card text-xs font-bold text-ink ring-1 ring-line">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full neu-chip text-xs font-bold text-ink">
                 3
               </span>
               <div className="min-w-0 pt-0.5">
@@ -308,11 +308,11 @@ export function BusinessPage() {
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Button>
             <div className="grid grid-cols-1 gap-2.5 min-[420px]:grid-cols-2">
-              <Button variant="ghost" size="lg" className="w-full gap-2 ring-1 ring-line" onClick={() => nav("/claim")}>
+              <Button variant="ghost" size="lg" className="w-full gap-2" onClick={() => nav("/claim")}>
                 <ShieldCheck className="h-4 w-4 text-accent" aria-hidden />
                 <span>Claim existing venue</span>
               </Button>
-              <Button variant="ghost" size="lg" className="w-full gap-2 ring-1 ring-line" onClick={() => nav("/event")}>
+              <Button variant="ghost" size="lg" className="w-full gap-2" onClick={() => nav("/event")}>
                 <Calendar className="h-4 w-4 text-accent" aria-hidden />
                 <span>Host an event</span>
               </Button>
@@ -438,7 +438,7 @@ export function BusinessPage() {
                 value={mine.id}
                 onChange={(e) => setSelectedListingId(e.target.value)}
                 aria-label="Select active venue"
-                className="rounded-xl bg-paper py-1.5 pl-3 pr-8 text-[16px] sm:text-xs font-bold text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand/40 min-h-[44px]"
+                className="neu-inset py-1.5 pl-3 pr-8 text-[16px] sm:text-xs font-bold text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 min-h-[44px]"
               >
                 {myListings.map((l) => (
                   <option key={l.id} value={l.id}>
@@ -455,21 +455,21 @@ export function BusinessPage() {
         <div className="flex w-full sm:w-auto flex-wrap items-center gap-2">
           <Link
             href="/business/onboard"
-            className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-xl bg-paper px-3.5 py-2 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs active:scale-[0.98] whitespace-nowrap"
+            className="neu-btn inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-ink transition active:scale-[0.98] whitespace-nowrap sm:flex-initial"
           >
             <Plus className="h-4 w-4 shrink-0 text-accent" />
             <span>Add Venue</span>
           </Link>
           <Link
             href="/claim"
-            className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-xl bg-paper px-3.5 py-2 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs active:scale-[0.98] whitespace-nowrap"
+            className="neu-btn inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-ink transition active:scale-[0.98] whitespace-nowrap sm:flex-initial"
           >
             <ShieldCheck className="h-4 w-4 shrink-0 text-accent" />
             <span>Claim Venue</span>
           </Link>
           <Link
             href="/business/promotions/new"
-            className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-xl bg-paper px-3.5 py-2 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs active:scale-[0.98] whitespace-nowrap"
+            className="neu-btn inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-ink transition active:scale-[0.98] whitespace-nowrap sm:flex-initial"
           >
             <Tag className="h-4 w-4 shrink-0 text-accent" />
             <span>Create Offer</span>
@@ -490,7 +490,7 @@ export function BusinessPage() {
       </div>
 
       {/* Top Header Card with Cover & Fast Action Hub */}
-      <header className="overflow-hidden rounded-[32px] bg-card ring-1 ring-line shadow-clay">
+      <header className="neu-section overflow-hidden">
         <div className="relative min-h-[12rem] sm:h-56 w-full overflow-hidden bg-zinc-900">
           <Photo
             src={hero || mine.heroImage || "/media/harbour.jpg"}
@@ -539,28 +539,28 @@ export function BusinessPage() {
           <div className="flex items-center gap-2 sm:flex-wrap sm:gap-2.5">
             <Link
               href="/business/setup"
-              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 font-semibold text-accent ring-1 ring-line/60 hover:ring-brand/40 transition whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1.5 px-3.5 py-1.5 font-semibold text-accent transition whitespace-nowrap"
             >
               <Settings2 className="h-3.5 w-3.5 shrink-0" />
               <span>Setup Checklist</span>
             </Link>
             <Link
               href="/help"
-              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1.5 px-3.5 py-1.5 font-semibold text-ink/85 transition hover:text-accent whitespace-nowrap"
             >
               <Headphones className="h-3.5 w-3.5 shrink-0 text-accent" />
               <span>Help Centre</span>
             </Link>
             <Link
               href="/host/pulse"
-              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1.5 px-3.5 py-1.5 font-semibold text-ink/85 transition hover:text-accent whitespace-nowrap"
             >
               <Activity className="h-3.5 w-3.5 shrink-0 text-accent" />
               <span>Belonging &amp; Pulse</span>
             </Link>
             <Link
               href="/business/promotions"
-              className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-card px-3.5 py-1.5 font-semibold text-ink/85 ring-1 ring-line/60 hover:text-accent hover:ring-brand/40 transition whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1.5 px-3.5 py-1.5 font-semibold text-ink/85 transition hover:text-accent whitespace-nowrap"
             >
               <Gift className="h-3.5 w-3.5 shrink-0 text-amber-500" />
               <span>Promotions Studio</span>
@@ -569,7 +569,7 @@ export function BusinessPage() {
           {business?.handle ? (
             <Link
               href="/bio/edit?kind=business"
-              className="inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-card px-3.5 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1 px-3.5 py-1.5 font-semibold text-mute transition hover:text-ink whitespace-nowrap"
             >
               <span>Edit Venue Bio &amp; Links</span>
               <ArrowRight className="h-3 w-3 shrink-0" />
@@ -579,7 +579,7 @@ export function BusinessPage() {
               type="button"
               onClick={() => void handleCreateVenueBio()}
               disabled={bioBusy}
-              className="inline-flex min-h-[44px] shrink-0 cursor-pointer items-center gap-1 rounded-full bg-card px-3.5 py-1.5 font-semibold text-mute ring-1 ring-line/60 hover:text-ink transition whitespace-nowrap disabled:opacity-60"
+              className="neu-btn inline-flex min-h-[44px] shrink-0 cursor-pointer items-center gap-1 px-3.5 py-1.5 font-semibold text-mute transition hover:text-ink whitespace-nowrap disabled:opacity-60"
             >
               <span>{bioBusy ? "Creating venue bio…" : "Create venue bio"}</span>
               <ArrowRight className="h-3 w-3 shrink-0" />
@@ -618,7 +618,7 @@ export function BusinessPage() {
         {/* Left Column: Primary Management Subsystems (7-8 cols on desktop) */}
         <main className="space-y-6 lg:col-span-7 xl:col-span-8">
           {/* Wave NFC Check-in & Host Station */}
-          <div className="rounded-[28px] bg-card p-4 sm:p-5 ring-1 ring-line shadow-clay">
+          <div className="neu-section p-4 sm:p-5">
             <WaveHostCard placeName={mine.name} placeId={mine.placeId} listingId={mine.id} handle={handle} />
           </div>
 
@@ -649,7 +649,7 @@ export function BusinessPage() {
           {tab === "venue" && (
             <div className="space-y-6">
               {/* Google Place Quick Sync Card */}
-              <section className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
+              <section className="neu-section p-5 sm:p-6">
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <h2 className="font-display text-base font-bold text-ink">Google Place Sync</h2>
@@ -711,10 +711,7 @@ export function BusinessPage() {
               </section>
 
               {/* Venue Form */}
-              <form
-                className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-5"
-                onSubmit={onPlace}
-              >
+              <form className="neu-section p-5 sm:p-6 space-y-5" onSubmit={onPlace}>
                 <div>
                   <h2 className="font-display text-base font-bold text-ink">Venue Details & Media</h2>
                   <p className="text-xs text-mute">Showcase your venue to neighbourhood visitors and locals</p>
@@ -777,9 +774,7 @@ export function BusinessPage() {
                         }}
                         className={cn(
                           "min-h-[44px] rounded-2xl px-3.5 text-xs font-semibold transition active:scale-95 shadow-2xs cursor-pointer",
-                          category === c.id
-                            ? "bg-brand text-white shadow-sm ring-2 ring-brand/30"
-                            : "bg-paper text-ink ring-1 ring-line hover:bg-card",
+                          category === c.id ? "bg-brand text-white shadow-sm" : "bg-paper text-ink hover:bg-card",
                         )}
                       >
                         {c.label}
@@ -910,14 +905,14 @@ export function BusinessPage() {
 
           {/* TAB 3: DOOR & GUEST LIST */}
           {tab === "list" && (
-            <div className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
+            <div className="neu-section p-5 sm:p-6">
               <GuestListPanel clubId={handle || mine.id} clubName={mine.name} />
             </div>
           )}
 
           {/* TAB 4: OFFERS — one shared creation sheet with the Promotions Studio */}
           {tab === "offer" && (
-            <div className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-4">
+            <div className="neu-section p-5 sm:p-6 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
                   <h2 className="font-display text-base font-bold text-ink">Neighbourhood Offer</h2>
@@ -930,17 +925,15 @@ export function BusinessPage() {
                 <span
                   className={
                     mine.deal
-                      ? "inline-flex min-h-[44px] items-center rounded-full bg-emerald-500/10 px-3.5 text-xs font-bold text-emerald-600 ring-1 ring-emerald-500/25 dark:text-emerald-400"
-                      : "inline-flex min-h-[44px] items-center rounded-full bg-paper px-3.5 text-xs font-bold text-mute ring-1 ring-line"
+                      ? "neu-chip neu-tint-emerald inline-flex min-h-[44px] items-center px-3.5 text-xs font-bold text-emerald-600 dark:text-emerald-400"
+                      : "neu-chip inline-flex min-h-[44px] items-center px-3.5 text-xs font-bold text-mute"
                   }
                 >
                   {mine.deal ? mine.deal.badge : "No offer live"}
                 </span>
               </div>
 
-              {mine.deal && (
-                <p className="rounded-2xl bg-paper px-4 py-3 text-sm text-ink ring-1 ring-line">{mine.deal.detail}</p>
-              )}
+              {mine.deal && <p className="neu-row px-4 py-3 text-sm text-ink">{mine.deal.detail}</p>}
 
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button type="button" size="lg" className="flex-1 gap-2" onClick={() => setOfferSheet(true)}>
@@ -949,7 +942,7 @@ export function BusinessPage() {
                 </Button>
                 <Link
                   href="/business/promotions"
-                  className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-full bg-paper px-5 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+                  className="neu-btn inline-flex min-h-[48px] items-center justify-center gap-1.5 px-5 text-sm font-semibold text-ink transition"
                 >
                   <span>Promotions Studio</span>
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -976,7 +969,7 @@ export function BusinessPage() {
         {/* Right Column: Live Guest Preview, Visibility Score & Subscription (4-5 cols on desktop) */}
         <aside className="space-y-6 lg:col-span-5 xl:col-span-4">
           {/* Live Guest Preview Card */}
-          <section className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay">
+          <section className="neu-section p-5">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Live Guest View</span>
               <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
@@ -1003,7 +996,7 @@ export function BusinessPage() {
 
           {/* Partner Visibility Checklist */}
           {!(business?.products?.length || business?.services?.length || business?.deals?.length) && (
-            <section className="rounded-[28px] bg-card p-5 ring-1 ring-brand/20 shadow-clay">
+            <section className="neu-section p-5">
               <div className="flex items-center gap-2">
                 <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-brand/10 text-accent">
                   <Sparkles className="h-4 w-4" />
@@ -1029,11 +1022,11 @@ export function BusinessPage() {
           <BusinessSubscriptionCard />
 
           {/* Quick Operations Links */}
-          <section className="rounded-[28px] bg-card p-5 ring-1 ring-line shadow-clay space-y-2">
+          <section className="neu-section p-5 space-y-2">
             <h3 className="font-display text-xs font-bold uppercase tracking-wider text-mute">Operations Hub</h3>
             <Link
               href="/business/setup"
-              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              className="neu-row flex min-h-[44px] items-center justify-between px-3.5 py-2.5 text-xs font-semibold text-ink transition"
             >
               <span className="flex items-center gap-2">
                 <Settings2 className="h-4 w-4 text-accent" />
@@ -1043,7 +1036,7 @@ export function BusinessPage() {
             </Link>
             <Link
               href="/claim"
-              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              className="neu-row flex min-h-[44px] items-center justify-between px-3.5 py-2.5 text-xs font-semibold text-ink transition"
             >
               <span className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-emerald-600" />
@@ -1053,7 +1046,7 @@ export function BusinessPage() {
             </Link>
             <Link
               href="/business/promotions"
-              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              className="neu-row flex min-h-[44px] items-center justify-between px-3.5 py-2.5 text-xs font-semibold text-ink transition"
             >
               <span className="flex items-center gap-2">
                 <Compass className="h-4 w-4 text-accent" />
@@ -1063,7 +1056,7 @@ export function BusinessPage() {
             </Link>
             <Link
               href="/events/new"
-              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              className="neu-row flex min-h-[44px] items-center justify-between px-3.5 py-2.5 text-xs font-semibold text-ink transition"
             >
               <span className="flex items-center gap-2">
                 <Plus className="h-4 w-4 text-amber-500" />
@@ -1073,7 +1066,7 @@ export function BusinessPage() {
             </Link>
             <Link
               href="/scan"
-              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              className="neu-row flex min-h-[44px] items-center justify-between px-3.5 py-2.5 text-xs font-semibold text-ink transition"
             >
               <span className="flex items-center gap-2">
                 <QrCode className="h-4 w-4 text-accent" />
@@ -1083,7 +1076,7 @@ export function BusinessPage() {
             </Link>
             <Link
               href="/join"
-              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              className="neu-row flex min-h-[44px] items-center justify-between px-3.5 py-2.5 text-xs font-semibold text-ink transition"
             >
               <span className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-emerald-600" />
@@ -1093,7 +1086,7 @@ export function BusinessPage() {
             </Link>
             <Link
               href="/host/pulse"
-              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              className="neu-row flex min-h-[44px] items-center justify-between px-3.5 py-2.5 text-xs font-semibold text-ink transition"
             >
               <span className="flex items-center gap-2">
                 <Activity className="h-4 w-4 text-accent" />
@@ -1103,7 +1096,7 @@ export function BusinessPage() {
             </Link>
             <Link
               href="/help"
-              className="flex min-h-[44px] items-center justify-between rounded-xl bg-paper px-3.5 py-2.5 text-xs font-semibold text-ink transition hover:bg-card hover:ring-1 hover:ring-brand/30"
+              className="neu-row flex min-h-[44px] items-center justify-between px-3.5 py-2.5 text-xs font-semibold text-ink transition"
             >
               <span className="flex items-center gap-2">
                 <Headphones className="h-4 w-4 text-accent" />

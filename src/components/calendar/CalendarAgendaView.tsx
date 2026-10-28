@@ -112,7 +112,7 @@ export function CalendarAgendaView({ events, onSelectEvent, onResetFilters, onSe
                       <span
                         key={cat}
                         className={cn(
-                          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1",
+                          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
                           theme.badgeClass,
                         )}
                         title={`Contains ${theme.label} event`}

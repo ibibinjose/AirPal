@@ -387,10 +387,8 @@ function CalendarPageContent() {
             }}
             title={isSidebarOpen ? "Collapse search sidebar" : "Expand search sidebar"}
             className={cn(
-              "hidden lg:inline-flex min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition-[background-color,color,transform] shadow-xs active:scale-95 cursor-pointer whitespace-nowrap",
-              isSidebarOpen
-                ? "bg-card text-ink ring-1 ring-line/80 hover:bg-paper"
-                : "bg-paper text-ink ring-1 ring-line hover:bg-line",
+              "hidden lg:inline-flex min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition-[box-shadow,background-color,color,transform] active:scale-95 cursor-pointer whitespace-nowrap",
+              isSidebarOpen ? "neu-inset text-ink" : "neu-btn text-ink",
             )}
           >
             <SlidersHorizontal size={13} className="shrink-0 text-accent" />
@@ -425,7 +423,7 @@ function CalendarPageContent() {
               setIsMobileDrawerOpen(true);
             }}
             title="Open search and filters"
-            className="inline-flex lg:hidden flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-medium text-ink ring-1 ring-line/80 hover:bg-paper transition-[background-color,transform] shadow-xs active:scale-95 cursor-pointer whitespace-nowrap"
+            className="neu-btn inline-flex lg:hidden flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 px-3.5 text-xs font-medium text-ink transition-[box-shadow,transform] active:scale-95 cursor-pointer whitespace-nowrap"
           >
             <SlidersHorizontal size={13} className="shrink-0 text-accent" />
             <span>Filters</span>
@@ -445,10 +443,8 @@ function CalendarPageContent() {
             }}
             title="Export your saved RSVP events to Apple, Outlook, or Google Calendar"
             className={cn(
-              "inline-flex flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition-[background-color,color,box-shadow,transform] shadow-xs active:scale-95 cursor-pointer whitespace-nowrap",
-              savedItineraryCount > 0
-                ? "bg-brand text-white hover:bg-brand-ink shadow-sm"
-                : "bg-card text-ink ring-1 ring-line/80 hover:bg-paper",
+              "inline-flex flex-1 sm:flex-initial justify-center min-h-[44px] h-11 items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition-[box-shadow,background-color,color,transform] active:scale-95 cursor-pointer whitespace-nowrap",
+              savedItineraryCount > 0 ? "bg-brand text-white hover:bg-brand-ink shadow-sm" : "neu-btn text-ink",
             )}
           >
             <Download size={13} className="shrink-0" />
@@ -466,7 +462,7 @@ function CalendarPageContent() {
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Desktop Sticky Sidebar */}
         {isSidebarOpen && (
-          <div className="hidden lg:block w-72 xl:w-80 shrink-0 sticky top-20 rounded-2xl ring-1 ring-line bg-card p-4 shadow-xs max-h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar">
+          <div className="hidden lg:block w-72 xl:w-80 shrink-0 sticky top-20 neu-section p-4 max-h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar">
             <CalendarSidebar
               viewMode={viewMode}
               onViewModeChange={setViewMode}
@@ -494,7 +490,7 @@ function CalendarPageContent() {
         <div className="flex-1 min-w-0 w-full space-y-4">
           {/* Active Filter Feedback Summary */}
           {(searchQuery || category !== "all" || filter !== "all") && (
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-paper px-3.5 py-2 text-xs text-mute ring-1 ring-line/70">
+            <div className="neu-inset mb-4 flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 text-xs text-mute">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="font-semibold text-ink">Active filters:</span>
                 {filter !== "all" && (
@@ -571,7 +567,7 @@ function CalendarPageContent() {
                   <button
                     type="button"
                     onClick={handleExportSelectedDay}
-                    className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3.5 text-[11px] font-medium text-ink ring-1 ring-line hover:bg-paper transition"
+                    className="neu-btn inline-flex min-h-[44px] items-center gap-1 px-3.5 text-[11px] font-medium text-ink transition-[box-shadow] "
                   >
                     <Download size={11} />
                     <span>Save Day (.ics)</span>
@@ -580,7 +576,7 @@ function CalendarPageContent() {
                 <button
                   type="button"
                   onClick={() => setSelectedDate(undefined)}
-                  className="inline-flex min-h-[44px] items-center rounded-full bg-card px-3.5 text-[11px] font-medium text-ink ring-1 ring-line hover:bg-paper transition"
+                  className="neu-btn inline-flex min-h-[44px] items-center px-3.5 text-[11px] font-medium text-ink transition-[box-shadow]"
                 >
                   Show full month
                 </button>
@@ -655,7 +651,7 @@ function CalendarPageContent() {
                         downloadMultipleIcs(targets, `sydney-events-${Date.now().toString().slice(-4)}.ics`);
                         toast.success(`Exported ${targets.length} events to .ics calendar file!`);
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-xs font-medium text-ink ring-1 ring-line/80 hover:bg-paper transition active:scale-95 shadow-xs"
+                      className="neu-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-ink transition active:scale-95"
                     >
                       <Download size={13} className="text-mute" />
                       <span>Download visible (.ics)</span>
@@ -676,8 +672,8 @@ function CalendarPageContent() {
                 </div>
 
                 {(selectedDate ? selectedDayEvents : filteredEvents).length === 0 && (
-                  <div className="rounded-3xl bg-card p-8 text-center ring-1 ring-line/80">
-                    <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-paper text-accent ring-1 ring-line">
+                  <div className="neu-section p-8 text-center">
+                    <div className="neu-inset mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl text-accent">
                       {filter === "going" ? (
                         <Check size={22} />
                       ) : filter === "interested" ? (
@@ -708,7 +704,7 @@ function CalendarPageContent() {
                     {usingGps && filter === "all" && (
                       <button
                         type="button"
-                        className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-[13px] font-semibold text-accent ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+                        className="neu-btn mt-3 inline-flex min-h-[44px] items-center gap-1.5 px-4 text-[13px] font-semibold text-accent transition active:scale-95 cursor-pointer"
                         onClick={() => chooseLocation(ROCKS_BROWSE)}
                       >
                         See The Rocks
@@ -743,7 +739,7 @@ function CalendarPageContent() {
                         <button
                           type="button"
                           onClick={() => setSelectedDate(undefined)}
-                          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-medium text-ink ring-1 ring-line hover:bg-line transition"
+                          className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-4 text-xs font-medium text-ink transition active:scale-95"
                         >
                           <span>Clear Date Filter</span>
                         </button>
@@ -755,7 +751,7 @@ function CalendarPageContent() {
                             setCategory("all");
                             setSearchQuery("");
                           }}
-                          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 text-xs font-medium text-ink ring-1 ring-line hover:bg-line transition"
+                          className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-4 text-xs font-medium text-ink transition active:scale-95"
                         >
                           <span>Reset Search & Filters</span>
                         </button>
@@ -810,7 +806,7 @@ function CalendarPageContent() {
             {/* AirPal Pass Event Passes */}
             <section
               aria-label="Event Passes & Tickets"
-              className="flex flex-col justify-between rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay md:p-6"
+              className="neu-section flex flex-col justify-between p-4 md:p-6"
             >
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -825,7 +821,7 @@ function CalendarPageContent() {
                   </div>
                   <Link
                     href="/pass"
-                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-4 py-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95"
+                    className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-4 py-2 text-xs font-semibold text-ink transition active:scale-95"
                   >
                     <Ticket size={13} className="text-amber-500" />
                     <span>Explore</span>
@@ -833,7 +829,7 @@ function CalendarPageContent() {
                 </div>
 
                 {upcomingBookings.length === 0 ? (
-                  <div className="mt-4 rounded-2xl bg-paper px-4 py-3 text-[13px] text-mute ring-1 ring-line/60">
+                  <div className="neu-inset mt-4 px-4 py-3 text-[13px] text-mute">
                     <p>No booked passes yet. Browse concerts, Diwali festivals, or dining perks on AirPal Pass.</p>
                     <Link
                       href="/pass"
@@ -848,7 +844,7 @@ function CalendarPageContent() {
                     {upcomingBookings.slice(0, 5).map((b) => (
                       <li
                         key={b.id}
-                        className="flex items-center gap-3 rounded-2xl bg-paper px-3 py-2.5 ring-1 ring-line/60 transition hover:bg-card"
+                        className="neu-row flex items-center gap-3 px-3 py-2.5 transition-transform active:scale-[0.99]"
                       >
                         <Link href="/me/tickets" className="min-w-0 flex-1 text-left">
                           <span className="block truncate text-[14px] font-semibold text-ink">{b.title}</span>
@@ -859,7 +855,7 @@ function CalendarPageContent() {
                         </Link>
                         <Link
                           href="/me/tickets"
-                          className="grid h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 place-items-center rounded-full bg-card ring-1 ring-line text-accent hover:ring-brand/40 transition active:scale-90"
+                          className="neu-btn grid h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 place-items-center text-accent transition active:scale-90"
                           title="View Gate QR Pass"
                           aria-label="View gate QR pass"
                         >

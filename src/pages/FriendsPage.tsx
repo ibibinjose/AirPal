@@ -69,21 +69,23 @@ export function FriendsPage() {
   }, [upcomingBookings]);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-24 pt-6 sm:px-6">
-      <p className="human-eyebrow">Friends</p>
-      <h1 className="human-title mt-2 text-2xl sm:text-3xl">Never go alone.</h1>
-      <p className="human-lede mt-2 text-sm sm:text-base">
-        {friends.length > 0
-          ? `${friends.length} in your circle${mutuals > 0 ? ` · ${mutuals} mutual` : ""}.`
-          : "Follow people you meet. Mutuals rise to the top."}
-      </p>
+    <div className="page-wrap-narrow space-y-8 pt-6">
+      <div>
+        <p className="human-eyebrow">Friends</p>
+        <h1 className="human-title mt-2 text-2xl sm:text-3xl">Never go alone.</h1>
+        <p className="human-lede mt-2 text-sm sm:text-base">
+          {friends.length > 0
+            ? `${friends.length} in your circle${mutuals > 0 ? ` · ${mutuals} mutual` : ""}.`
+            : "Follow people you meet. Mutuals rise to the top."}
+        </p>
+      </div>
 
       {friends.length > 0 ? (
-        <ul className="mt-5 space-y-2">
+        <ul className="space-y-2">
           {friends.map((f) => (
-            <li key={f.handle} className="human-card flex items-center gap-3 p-3.5">
+            <li key={f.handle} className="neu-row flex items-center gap-3 p-3.5">
               <span
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary-container font-display text-base font-bold text-on-primary-container"
+                className="neu-avatar grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary-container font-display text-base font-bold text-on-primary-container"
                 aria-hidden="true"
               >
                 {f.name.charAt(0).toUpperCase()}
@@ -98,7 +100,7 @@ export function FriendsPage() {
               </div>
               <Link
                 href={bioPath(f.handle)}
-                className="inline-flex min-h-[44px] shrink-0 items-center whitespace-nowrap rounded-full px-3 text-xs font-semibold text-accent ring-1 ring-line transition-[background-color,transform] hover:bg-card active:scale-95"
+                className="neu-btn inline-flex min-h-[44px] shrink-0 items-center whitespace-nowrap px-3 text-xs font-semibold text-accent transition-[box-shadow,transform] active:scale-95"
               >
                 Bio
               </Link>
@@ -107,10 +109,8 @@ export function FriendsPage() {
                 onClick={() => toggleFollow(f.handle, f.name)}
                 aria-pressed={f.following}
                 className={cn(
-                  "inline-flex min-h-[44px] shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-3.5 text-xs font-bold transition-[background-color,color,transform] active:scale-95",
-                  f.following
-                    ? "bg-paper text-ink ring-1 ring-line hover:bg-card"
-                    : "bg-brand text-white hover:bg-brand-ink",
+                  "inline-flex min-h-[44px] shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-3.5 text-xs font-bold transition-[box-shadow,background-color,color,transform] active:scale-95",
+                  f.following ? "neu-btn text-ink" : "bg-brand text-white shadow-xs hover:bg-brand-ink",
                 )}
               >
                 {f.following ? <Check size={13} className="shrink-0" /> : <Plus size={13} className="shrink-0" />}
@@ -120,7 +120,7 @@ export function FriendsPage() {
           ))}
         </ul>
       ) : (
-        <div className="human-card mt-5 p-8 text-center">
+        <div className="neu-section p-8 text-center">
           <HeartHandshake size={28} className="mx-auto text-mute" aria-hidden="true" />
           <h2 className="human-section-title mt-3 text-base">No friends yet.</h2>
           <p className="mt-1 text-sm text-mute">Meet people at events, or find organisers to follow.</p>
@@ -134,7 +134,7 @@ export function FriendsPage() {
             </Link>
             <Link
               href="/circle"
-              className="inline-flex min-h-[44px] items-center rounded-full px-5 text-sm font-semibold text-ink ring-1 ring-line transition-[background-color,transform] hover:bg-card active:scale-95"
+              className="neu-btn inline-flex min-h-[44px] items-center px-5 text-sm font-semibold text-ink transition-[box-shadow,transform] active:scale-95"
             >
               Open full Circle
             </Link>
@@ -143,7 +143,7 @@ export function FriendsPage() {
       )}
 
       {goingTogether.length > 0 ? (
-        <section aria-label="Going together" className="mt-6">
+        <section aria-label="Going together">
           <h2 className="human-section-title text-lg">Going together</h2>
           <p className="mt-0.5 text-sm text-mute">Your upcoming passes — send the link, bring a friend.</p>
           <div className="mt-3 space-y-2">
@@ -151,10 +151,10 @@ export function FriendsPage() {
               <Link
                 key={b.id}
                 href={`/ticket/${b.id}`}
-                className="human-card group flex items-center gap-3 p-3.5 transition-[box-shadow] hover:shadow-clay-hover"
+                className="neu-row group flex items-center gap-3 p-3.5 transition-transform active:scale-[0.99]"
               >
                 <span
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary-container text-on-primary-container"
+                  className="neu-avatar grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary-container text-on-primary-container"
                   aria-hidden="true"
                 >
                   <Ticket size={18} />

@@ -20,27 +20,27 @@ export function PulsePage() {
       <div className="flex flex-wrap items-center gap-2">
         <Link
           href="/business"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink"
+          className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute transition hover:text-ink"
         >
           <ArrowLeft size={14} />
           <span>Business Hub</span>
         </Link>
         <Link
           href="/event"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink"
+          className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute transition hover:text-ink"
         >
           <span>Event Studio</span>
         </Link>
         <Link
           href="/join"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink"
+          className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute transition hover:text-ink"
         >
           <Users size={13} className="text-accent" />
           <span>Arrival Engine</span>
         </Link>
         <Link
           href="/scan"
-          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink"
+          className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute transition hover:text-ink"
         >
           <QrCode size={13} className="text-accent" />
           <span>Door Scanner</span>
@@ -59,7 +59,7 @@ export function PulsePage() {
       {!token && venues.length > 0 && (
         <section aria-label="Your venues tonight">
           <p className="text-xs font-bold uppercase tracking-wider text-accent">Your venues tonight</p>
-          <ul className="mt-2 overflow-hidden rounded-[24px] bg-card ring-1 ring-line/80 shadow-clay">
+          <ul className="neu-card mt-2 overflow-hidden p-1">
             {venues.map((v, i) => {
               const live = v.status === "active";
               return (
@@ -71,8 +71,8 @@ export function PulsePage() {
                     <span
                       className={
                         live
-                          ? "grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/25 dark:text-emerald-400"
-                          : "grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/25 dark:text-amber-400"
+                          ? "neu-tint-emerald grid h-9 w-9 shrink-0 place-items-center rounded-2xl text-emerald-600 dark:text-emerald-400"
+                          : "neu-tint-gold grid h-9 w-9 shrink-0 place-items-center rounded-2xl text-amber-600 dark:text-amber-400"
                       }
                       aria-hidden="true"
                     >
@@ -90,7 +90,7 @@ export function PulsePage() {
                       href="/business"
                       aria-label={`Open ${v.name} in Business Hub`}
                       title="Business Hub"
-                      className="grid h-11 w-11 place-items-center rounded-full text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink active:scale-95"
+                      className="neu-btn grid h-11 w-11 place-items-center text-mute transition hover:text-ink active:scale-95"
                     >
                       <Building2 size={16} />
                     </Link>
@@ -98,7 +98,7 @@ export function PulsePage() {
                       href="/scan"
                       aria-label={`Scan tickets at ${v.name}`}
                       title="Door Scanner"
-                      className="grid h-11 w-11 place-items-center rounded-full text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink active:scale-95"
+                      className="neu-btn grid h-11 w-11 place-items-center text-mute transition hover:text-ink active:scale-95"
                     >
                       <ScanLine size={16} />
                     </Link>
@@ -106,7 +106,7 @@ export function PulsePage() {
                       href="/event"
                       aria-label={`Open ${v.name} in Event Studio`}
                       title="Event Studio"
-                      className="grid h-11 w-11 place-items-center rounded-full text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink active:scale-95"
+                      className="neu-btn grid h-11 w-11 place-items-center text-mute transition hover:text-ink active:scale-95"
                     >
                       <Users size={16} />
                     </Link>
@@ -119,7 +119,7 @@ export function PulsePage() {
       )}
 
       {token ? (
-        <div className="human-card p-5 sm:p-6">
+        <div className="neu-section p-5 sm:p-6">
           <div className="flex items-start gap-3">
             <span
               className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary-container text-on-primary-container"
@@ -145,14 +145,14 @@ export function PulsePage() {
             </Link>
             <Link
               href="/trust"
-              className="inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-paper px-5 text-sm font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95"
+              className="neu-btn inline-flex min-h-[48px] items-center justify-center px-5 text-sm font-semibold text-ink active:scale-95"
             >
               How privacy works
             </Link>
           </div>
         </div>
       ) : (
-        <div className="human-card p-5 sm:p-6">
+        <div className="neu-section p-5 sm:p-6">
           <div className="flex items-start gap-3">
             <span
               className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-human-blush text-human-clay"
@@ -177,7 +177,7 @@ export function PulsePage() {
             </Link>
             <Link
               href="/business"
-              className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl bg-paper px-5 text-sm font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95"
+              className="neu-btn inline-flex min-h-[48px] items-center justify-center gap-1.5 px-5 text-sm font-semibold text-ink active:scale-95"
             >
               <Building2 size={15} className="text-accent" />
               <span>Open Business Hub</span>

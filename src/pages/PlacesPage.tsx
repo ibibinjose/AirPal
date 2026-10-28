@@ -83,7 +83,7 @@ export function PlacesPage() {
         </section>
       )}
 
-      <section aria-label="Results" className="mt-5 rounded-3xl bg-card/60 p-3 ring-1 ring-line sm:p-4">
+      <section aria-label="Results" className="neu-section mt-5 p-3 sm:p-4">
         <div className="mx-auto mb-1 h-1.5 w-10 shrink-0 rounded-full bg-line/80 sm:hidden" aria-hidden="true" />
         <div className="flex flex-wrap items-center justify-between gap-2 px-1 pb-2">
           <p className="text-xs font-bold uppercase tracking-wider text-mute">
@@ -100,8 +100,8 @@ export function PlacesPage() {
               setClosestFirst((v) => !v);
             }}
             className={cn(
-              "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-xs font-bold ring-1 transition active:scale-95 cursor-pointer touch-manipulation disabled:cursor-not-allowed disabled:opacity-50",
-              closestFirst && origin ? "bg-brand text-white ring-brand" : "bg-card text-ink ring-line hover:bg-paper",
+              "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-xs font-bold transition active:scale-95 cursor-pointer touch-manipulation disabled:cursor-not-allowed disabled:opacity-50",
+              closestFirst && origin ? "bg-brand text-white shadow-sm" : "neu-btn text-ink",
             )}
           >
             <Footprints size={14} aria-hidden="true" />
@@ -135,7 +135,7 @@ export function PlacesPage() {
             ))}
           </div>
         ) : (
-          <div className="human-card p-8 text-center">
+          <div className="neu-section p-8 text-center">
             <SearchX size={28} className="mx-auto text-mute" aria-hidden="true" />
             <h2 className="human-section-title mt-3 text-base">
               {query ? "No places match that search." : "No places listed yet."}
@@ -163,7 +163,7 @@ export function PlacesPage() {
                   </Link>
                   <Link
                     href="/events"
-                    className="inline-flex min-h-[44px] items-center gap-1 rounded-full px-5 text-sm font-semibold text-ink ring-1 ring-line transition-[background-color,transform] hover:bg-card active:scale-95"
+                    className="neu-btn inline-flex min-h-[44px] items-center gap-1 px-5 text-sm font-semibold text-ink transition active:scale-95"
                   >
                     <span>What&apos;s on instead</span>
                     <ArrowRight size={14} />

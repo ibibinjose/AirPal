@@ -322,10 +322,10 @@ export function PassPage() {
 
       {/* Active Pass Wallet Bar (For Signed-In Members) */}
       <section aria-label="Passbook Wallet" className="mt-6">
-        <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay">
+        <div className="neu-section p-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/30">
+              <div className="neu-tint-gold grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-amber-600 dark:text-amber-400">
                 <Ticket size={24} />
               </div>
               <div>
@@ -356,7 +356,7 @@ export function PassPage() {
               <span className="text-xs font-bold uppercase tracking-wider text-accent">Upcoming Scannable Passes</span>
               <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {myUpcomingBookings.slice(0, 2).map((b) => (
-                  <div key={b.id} className="flex items-center justify-between gap-3 rounded-2xl bg-paper p-3">
+                  <div key={b.id} className="neu-row flex items-center justify-between gap-3 p-3">
                     <div className="min-w-0">
                       <p className="font-display text-sm font-bold text-ink truncate">{b.title}</p>
                       <p className="text-xs text-mute truncate mt-0.5">
@@ -365,7 +365,7 @@ export function PassPage() {
                     </div>
                     <Link
                       href="/me/tickets"
-                      className="inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-full bg-paper px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-card transition"
+                      className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1 px-3 text-xs font-bold text-accent transition"
                     >
                       <Ticket size={12} aria-hidden="true" />
                       <span>Pass</span>
@@ -410,8 +410,8 @@ export function PassPage() {
                 setClosestFirst((v) => !v);
               }}
               className={cn(
-                "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-xs font-bold ring-1 transition active:scale-95 cursor-pointer touch-manipulation disabled:cursor-not-allowed disabled:opacity-50",
-                closestFirst && origin ? "bg-brand text-white ring-brand" : "bg-card text-ink ring-line hover:bg-paper",
+                "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-xs font-bold transition active:scale-95 cursor-pointer touch-manipulation disabled:cursor-not-allowed disabled:opacity-50",
+                closestFirst && origin ? "bg-brand text-white shadow-sm" : "neu-btn text-ink",
               )}
             >
               <Footprints size={14} aria-hidden="true" />
@@ -428,7 +428,7 @@ export function PassPage() {
         </div>
 
         {filteredEvents.length === 0 ? (
-          <div className="human-card mt-4 p-10 text-center">
+          <div className="neu-section mt-4 p-10 text-center">
             <Ticket size={32} className="mx-auto text-mute" aria-hidden="true" />
             <p className="human-section-title mt-2 text-base">No events match this filter</p>
             <p className="text-sm text-mute mt-1">Try “All Access” or explore upcoming calendar dates.</p>
@@ -445,10 +445,7 @@ export function PassPage() {
         ) : (
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredEvents.slice(0, 9).map((event) => (
-              <div
-                key={event.id}
-                className="group flex flex-col justify-between overflow-hidden rounded-3xl bg-card ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover transition-[box-shadow,border-color] hover:ring-brand/30"
-              >
+              <div key={event.id} className="neu-card group flex flex-col justify-between overflow-hidden transition">
                 <div>
                   <div className="relative aspect-[16/9] w-full overflow-hidden bg-paper">
                     <Photo
@@ -529,7 +526,7 @@ export function PassPage() {
         </div>
 
         {promotions.length === 0 ? (
-          <div className="rounded-3xl bg-card p-5 text-sm text-mute ring-1 ring-line/80">
+          <div className="neu-card p-5 text-sm text-mute">
             No live perks right now.{" "}
             <Link href="/deals" className="font-semibold text-accent hover:underline">
               Browse all member deals
@@ -541,7 +538,7 @@ export function PassPage() {
             <Link
               key={deal.id || idx}
               href={`/deals/${deal.id}`}
-              className="group flex items-center justify-between gap-3 rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-brand/30 transition active:scale-[0.98]"
+              className="neu-card group flex items-center justify-between gap-3 p-4 transition active:scale-[0.98]"
             >
               <div className="flex items-center gap-3.5 min-w-0">
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-paper">
@@ -588,9 +585,9 @@ export function PassPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Pillar 1: Ticket Sales & Event Hosting */}
-          <div className="group flex flex-col justify-between rounded-3xl bg-card p-6 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-amber-500/30 transition">
+          <div className="neu-card group flex flex-col justify-between p-6 transition">
             <div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
+              <div className="neu-tint-gold flex h-12 w-12 items-center justify-center rounded-2xl text-amber-600 dark:text-amber-400">
                 <Ticket size={24} />
               </div>
               <h3 className="font-display text-lg font-bold text-ink mt-4">Ticket Sales &amp; Hosting</h3>
@@ -609,7 +606,7 @@ export function PassPage() {
               </Link>
               <Link
                 href="/events"
-                className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3.5 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink hover:bg-paper transition"
+                className="neu-btn inline-flex min-h-[44px] items-center gap-1 px-3.5 py-2 text-xs font-semibold text-mute transition hover:text-ink"
               >
                 Browse Events
               </Link>
@@ -617,9 +614,9 @@ export function PassPage() {
           </div>
 
           {/* Pillar 2: Business Hub & Member Perks */}
-          <div className="group flex flex-col justify-between rounded-3xl bg-card p-6 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-emerald-500/30 transition">
+          <div className="neu-card group flex flex-col justify-between p-6 transition">
             <div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+              <div className="neu-tint-emerald flex h-12 w-12 items-center justify-center rounded-2xl text-emerald-600 dark:text-emerald-400">
                 <Building2 size={24} />
               </div>
               <h3 className="font-display text-lg font-bold text-ink mt-4">Business Hub &amp; Member Perks</h3>
@@ -638,7 +635,7 @@ export function PassPage() {
               </Link>
               <Link
                 href="/deals"
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink hover:bg-paper transition"
+                className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-mute transition hover:text-ink"
               >
                 <Users size={14} />
                 Member Deals
@@ -647,9 +644,9 @@ export function PassPage() {
           </div>
 
           {/* Pillar 3: Door Scanner & Operations */}
-          <div className="group flex flex-col justify-between rounded-3xl bg-card p-6 ring-1 ring-line/80 shadow-clay hover:shadow-clay-hover hover:ring-rose-500/30 transition">
+          <div className="neu-card group flex flex-col justify-between p-6 transition">
             <div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/20">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400">
                 <QrCode size={24} />
               </div>
               <h3 className="font-display text-lg font-bold text-ink mt-4">Door Scanner &amp; Partner Hub</h3>
@@ -668,7 +665,7 @@ export function PassPage() {
               </Link>
               <Link
                 href="/business"
-                className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-card px-3.5 py-2 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink hover:bg-paper transition"
+                className="neu-btn inline-flex min-h-[44px] items-center gap-1 px-3.5 py-2 text-xs font-semibold text-mute transition hover:text-ink"
               >
                 Partner Onboarding
               </Link>

@@ -59,9 +59,7 @@ export function MyTicketsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div>
           <h1 className="human-title mt-0.5 text-2xl sm:text-3xl font-black">My event passes &amp; tickets</h1>
-          <p className="human-lede text-xs sm:text-sm mt-0.5">
-            Every ticket you hold, ready to scan at the gate — online &amp; offline.
-          </p>
+          <p className="human-lede text-xs sm:text-sm mt-0.5">Ready to scan at the gate — online &amp; offline.</p>
         </div>
         <div className="flex items-center gap-2">
           {user && (
@@ -116,7 +114,7 @@ export function MyTicketsPage() {
       {isOfflineCached && (
         <div className="mb-4 flex items-center gap-2 rounded-2xl bg-amber-500/10 px-3.5 py-2.5 text-xs font-medium text-amber-900 dark:text-amber-300 ring-1 ring-amber-500/20">
           <WifiOff size={14} className="shrink-0 text-amber-600" />
-          <span>Offline mode · Showing tickets cached on your device. Ready to scan at the gate!</span>
+          <span>Offline — showing cached tickets. Ready to scan at the gate.</span>
         </div>
       )}
 
@@ -124,9 +122,7 @@ export function MyTicketsPage() {
         <div className="human-card mt-6 p-8 text-center">
           <Ticket size={28} className="mx-auto text-mute" aria-hidden="true" />
           <p className="human-section-title mt-2 text-lg">Sign in to see your passes</p>
-          <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
-            Tickets and passes live under your AirPal account — one account, tickets everywhere.
-          </p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-mute">One account, tickets everywhere.</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <Link
               href="/start?tab=signin"
@@ -187,8 +183,7 @@ export function MyTicketsPage() {
           </div>
           <p className="human-section-title text-lg font-bold">No tickets or passes yet</p>
           <p className="mx-auto max-w-sm text-xs sm:text-sm text-mute leading-relaxed">
-            Passes and tickets you get on AirPal Pass live here — ready to scan at the door and save to Apple Wallet /
-            Google Wallet.
+            Passes live here — ready to scan and save to Apple / Google Wallet.
           </p>
           <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
             <Link
@@ -214,7 +209,7 @@ export function MyTicketsPage() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search passes by event, venue, or date…"
+              placeholder="Search event, venue, or date…"
               aria-label="Search passes by event, venue, or date"
               className="min-h-[46px] h-11 w-full rounded-2xl border border-line bg-card pl-9 pr-12 text-[16px] sm:text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-brand touch-manipulation"
             />
@@ -307,10 +302,10 @@ export function MyTicketsPage() {
               </p>
               <p className="text-xs sm:text-sm text-mute">
                 {query
-                  ? "Try searching for a different keyword or clear the search filter."
+                  ? "Try a different keyword or clear the search."
                   : tab === "upcoming"
-                    ? "Grab a pass to a festival, concert, or gig on AirPal Pass."
-                    : "Passes you have previously scanned or attended will be kept here."}
+                    ? "Grab a pass on AirPal Pass."
+                    : "Scanned passes stay here."}
               </p>
               {query ? (
                 <button

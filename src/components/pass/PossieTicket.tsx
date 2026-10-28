@@ -55,7 +55,7 @@ function TicketBody({ stub, title, subtitle, walk }: Omit<PossieTicketProps, "hr
 
 export function PossieTicket({ stub, title, subtitle, walk, href, onSelect, className }: PossieTicketProps) {
   const cls = cn(
-    "group grid h-[60px] min-h-[60px] w-full grid-cols-[44px_1fr] items-stretch rounded-xl bg-card text-left ring-1 ring-line transition-[background-color] hover:bg-paper active:bg-paper",
+    "group grid h-[60px] min-h-[60px] w-full grid-cols-[44px_1fr] items-stretch rounded-xl bg-card text-left shadow-[0_10px_24px_-16px_rgb(15_23_42/0.45)] transition-[background-color] hover:bg-paper active:bg-paper",
     className,
   );
   const body = <TicketBody stub={stub} title={title} subtitle={subtitle} walk={walk} />;

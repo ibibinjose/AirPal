@@ -80,17 +80,14 @@ export function BusinessTonight({
   return (
     <div className="space-y-4">
       {/* Service card: state as icon + text, hours as given */}
-      <section
-        aria-label="Tonight service status"
-        className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay sm:p-6"
-      >
+      <section aria-label="Tonight service status" className="neu-section p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <span
               className={
                 active
-                  ? "grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/25 dark:text-emerald-400"
-                  : "grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/25 dark:text-amber-400"
+                  ? "neu-tint-emerald grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-emerald-600 dark:text-emerald-400"
+                  : "neu-tint-gold grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-amber-600 dark:text-amber-400"
               }
               aria-hidden="true"
             >
@@ -103,7 +100,7 @@ export function BusinessTonight({
               <p className="mt-0.5 truncate text-xs text-mute">{hours || "Hours not set — add them in Venue"}</p>
             </div>
           </div>
-          <span className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-3.5 text-xs font-bold text-ink ring-1 ring-line tabular-nums">
+          <span className="neu-chip inline-flex min-h-[44px] items-center px-3.5 text-xs font-bold text-ink tabular-nums">
             {rsvps} {rsvps === 1 ? "RSVP" : "RSVPs"}
           </span>
         </div>
@@ -121,10 +118,7 @@ export function BusinessTonight({
       </section>
 
       {/* Action queue: at most three, each a button to the exact place */}
-      <section
-        aria-label="Needs your attention"
-        className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay sm:p-6"
-      >
+      <section aria-label="Needs your attention" className="neu-section p-5 sm:p-6">
         <p className="text-xs font-bold uppercase tracking-wider text-accent">Needs your attention</p>
         {actions.length === 0 ? (
           <p className="mt-2 text-sm text-mute">All clear — venue live, offer up, campaigns running. Enjoy service.</p>
@@ -134,7 +128,7 @@ export function BusinessTonight({
               <li key={a.id}>
                 <Link
                   href={a.href}
-                  className="flex min-h-[56px] items-center justify-between gap-3 rounded-2xl bg-paper px-4 py-2.5 ring-1 ring-line transition hover:ring-ink/20"
+                  className="neu-row flex min-h-[56px] items-center justify-between gap-3 px-4 py-2.5 transition"
                 >
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold text-ink">{a.title}</span>
@@ -150,10 +144,7 @@ export function BusinessTonight({
 
       {/* Offers + belonging strip */}
       <section aria-label="Offers and belonging" className="grid gap-4 sm:grid-cols-2">
-        <Link
-          href="/business?tab=offer"
-          className="flex min-h-[56px] items-center gap-3 rounded-3xl bg-card px-4 ring-1 ring-line shadow-clay transition hover:ring-ink/20"
-        >
+        <Link href="/business?tab=offer" className="neu-card flex min-h-[56px] items-center gap-3 px-4 transition">
           <Gift size={18} className="shrink-0 text-amber-500" aria-hidden="true" />
           <span className="min-w-0">
             <span className="block text-xs font-bold text-ink">{dealLive ? "Offer live" : "Offer off"}</span>
@@ -162,10 +153,7 @@ export function BusinessTonight({
             </span>
           </span>
         </Link>
-        <Link
-          href="/host/pulse"
-          className="flex min-h-[56px] items-center gap-3 rounded-3xl bg-card px-4 ring-1 ring-line shadow-clay transition hover:ring-ink/20"
-        >
+        <Link href="/host/pulse" className="neu-card flex min-h-[56px] items-center gap-3 px-4 transition">
           <Activity size={18} className="shrink-0 text-accent" aria-hidden="true" />
           <span className="min-w-0">
             <span className="block text-xs font-bold text-ink">Belonging pulse</span>

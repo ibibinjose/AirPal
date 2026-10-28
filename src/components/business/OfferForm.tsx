@@ -80,14 +80,14 @@ export function OfferForm({
   }
 
   const inputClass =
-    "h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20";
+    "neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20";
 
   return (
     <form className="space-y-3" onSubmit={(e) => void submit(e)}>
       {error && (
         <p
           role="alert"
-          className="rounded-xl bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-600 ring-1 ring-red-500/25 dark:text-red-400"
+          className="rounded-xl bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-600 dark:text-red-400"
         >
           {error}
         </p>

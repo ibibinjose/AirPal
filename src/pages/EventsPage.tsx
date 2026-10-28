@@ -257,7 +257,7 @@ export function EventsPage() {
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               href="/pass"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-xs font-bold uppercase tracking-wider text-accent ring-1 ring-line hover:bg-card transition"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-bold uppercase tracking-wider text-accent transition"
             >
               <ArrowLeft size={13} aria-hidden="true" /> AirPal Pass
             </Link>
@@ -275,7 +275,7 @@ export function EventsPage() {
                   void triggerHaptic("light");
                   setCityMenuOpen((v) => !v);
                 }}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-2xl bg-card px-3.5 py-1.5 text-2xl font-display font-extrabold text-brand ring-1 ring-line hover:bg-paper transition shadow-2xs"
+                className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 py-1.5 font-display text-2xl font-extrabold text-brand transition"
                 aria-expanded={cityMenuOpen}
                 aria-label="Select city"
               >
@@ -294,7 +294,7 @@ export function EventsPage() {
                     className="fixed inset-0 z-20 cursor-default"
                   />
                   <div
-                    className="absolute left-0 top-full z-30 mt-2 w-64 rounded-3xl bg-card/95 p-2 shadow-2xl ring-1 ring-line/80 backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150"
+                    className="absolute left-0 top-full z-30 mt-2 w-64 rounded-3xl bg-card/95 p-2 shadow-2xl backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150"
                     role="menu"
                     onKeyDown={(e) => {
                       if (e.key === "Escape") setCityMenuOpen(false);
@@ -354,7 +354,7 @@ export function EventsPage() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Link
             href="/calendar"
-            className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-card px-4 py-2 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition active:scale-95 shadow-xs"
+            className="neu-btn inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 whitespace-nowrap px-4 py-2 text-xs font-bold text-ink transition active:scale-95 sm:flex-initial"
           >
             <CalendarDays size={14} className="shrink-0 text-accent" />
             <span>Calendar</span>
@@ -397,7 +397,7 @@ export function EventsPage() {
           placeholder={`Search events, venues in ${effectiveCity}…`}
           aria-label="Search events"
           enterKeyHint="search"
-          className="min-h-[44px] w-full rounded-full bg-card py-2.5 pl-11 pr-11 text-sm text-ink shadow-xs ring-1 ring-line placeholder:text-mute focus:outline-none focus:ring-2 focus:ring-brand"
+          className="neu-inset min-h-[44px] w-full py-2.5 pl-11 pr-11 text-sm text-ink placeholder:text-mute focus:outline-none focus:ring-2 focus:ring-brand"
         />
         {query && (
           <button
@@ -434,7 +434,7 @@ export function EventsPage() {
 
       {/* Event Results Section */}
       {visible.length === 0 ? (
-        <div className="human-card mt-6 p-10 text-center">
+        <div className="neu-section mt-6 p-10 text-center">
           <Ticket size={36} className="mx-auto text-mute" aria-hidden="true" />
           <p className="human-section-title mt-3 text-lg">
             {query.trim() ? `No results for “${query.trim()}”` : "No events match these filters"}
@@ -451,7 +451,7 @@ export function EventsPage() {
                 setDateRange("all");
                 setQuery("");
               }}
-              className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 text-sm font-bold text-ink ring-1 ring-line hover:bg-card transition"
+              className="neu-btn inline-flex min-h-[44px] items-center px-4 text-sm font-bold text-ink transition"
             >
               Reset Filters
             </button>

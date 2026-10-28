@@ -133,9 +133,20 @@ vi.mock("@/lib/catchup", async (importOriginal) => {
     isReminderOnly: true,
     createdAt: "2026-10-09T00:00:00+10:00",
   };
+  const pendingItem = {
+    id: "cup-2",
+    requesterName: "Pending Pat",
+    requesterHandle: "pat",
+    type: "coffee",
+    date: "2026-10-10",
+    time: "15:00",
+    venue: "Central Station",
+    status: "pending",
+    requesterUid: "u999",
+  };
   return {
     ...actual,
-    listCatchUps: () => [testItem, reminderItem],
+    listCatchUps: () => [testItem, pendingItem, reminderItem],
     subscribeCatchUpsForOwner: (_uid: string, cb: (items: unknown[]) => void) => {
       cb([testItem]);
       return () => undefined;
@@ -195,7 +206,10 @@ describe("MePage", () => {
     expect(markup).toContain("Bibin Jose");
     expect(markup).toContain("@bibinjose");
     expect(markup).toContain("Remove reminder for Bibin Jose");
-    expect(markup).not.toContain("Requests awaiting your response");
+    // Pending owner requests need an explicit second tap to decline
+    expect(markup).toContain("Requests awaiting your response (1)");
+    expect(markup).toContain("Dismiss catch-up with Pending Pat");
+    expect(markup).not.toContain("Confirm decline");
   });
 
   it("renders the full wallet on the tickets tab", () => {
@@ -217,6 +231,23 @@ describe("MePage", () => {
     expect(markup).toContain("Add a personal plan for today");
     // Accepted catch-up from the owner inbox surfaces a two-tap cancel
     expect(markup).toContain("Cancel catch-up with Sarah M");
+    // Pending catch-up dismiss also arms first instead of declining at once
+    expect(markup).toContain("Dismiss catch-up with Pending Pat");
+    expect(markup).not.toContain("Confirm decline");
+  });
+
+  it("keeps the hero identity row and action grid on non-colliding tracks", () => {
+    const markup = renderToStaticMarkup(createElement(MePage, { defaultTab: "all" }));
+    // Identity stacks above the action grid at every width — side-by-side
+    // tracks let buttons drift over the name/handle at desktop widths.
+    expect(markup).not.toContain("lg:flex-row");
+    expect(markup).not.toContain("lg:w-auto");
+    // Four hero actions: 2-col on phones, 4-col from sm up.
+    expect(markup).toContain("sm:grid-cols-4");
+    expect(markup).toContain("@testmate Bio");
+    expect(markup).toContain("Share Pass");
+    expect(markup).toContain("My Circle");
+    expect(markup).toContain("Edit Bio");
   });
 
   it("renders Today as the first tab and all as Overview", () => {

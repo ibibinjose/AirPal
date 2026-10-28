@@ -46,7 +46,7 @@ export function BioInsightsPanel({
 
   if (!liveBackendEnabled()) {
     return (
-      <div className="mt-6 rounded-3xl border border-line bg-card p-6 text-center shadow-clay">
+      <div className="neu-section mt-6 p-6 text-center">
         <BarChart3 size={22} className="mx-auto text-mute" />
         <p className="mt-2 text-sm font-semibold text-ink">Insights need the live backend</p>
         <p className="mt-1 text-xs text-mute">Sign in with a connected account to see real tap analytics.</p>
@@ -56,7 +56,7 @@ export function BioInsightsPanel({
 
   if (loading && !stats) {
     return (
-      <div className="mt-6 rounded-3xl border border-line bg-card p-6 text-center shadow-clay">
+      <div className="neu-section mt-6 p-6 text-center">
         <p className="text-sm text-mute">Loading insights…</p>
       </div>
     );
@@ -64,7 +64,7 @@ export function BioInsightsPanel({
 
   if (failed && !stats) {
     return (
-      <div className="mt-6 rounded-3xl border border-line bg-card p-6 text-center shadow-clay">
+      <div className="neu-section mt-6 p-6 text-center">
         <p className="text-sm font-semibold text-ink">Couldn&apos;t load insights</p>
         <p className="mt-1 text-xs text-mute">Check your connection and try this tab again.</p>
       </div>
@@ -79,7 +79,7 @@ export function BioInsightsPanel({
 
   return (
     <div className="mt-6 space-y-6">
-      <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay">
+      <div className="neu-section p-5 sm:p-6">
         <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
           <MousePointerClick size={14} />
           <span>Total Taps · Last 30 Days</span>
@@ -93,7 +93,7 @@ export function BioInsightsPanel({
       </div>
 
       {days.length > 0 && (
-        <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay">
+        <div className="neu-section p-5 sm:p-6">
           <p className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Daily Taps · Last 14 Days</p>
           <div className="flex h-24 items-end gap-1.5" role="img" aria-label="Daily tap counts">
             {days.map((d) => (
@@ -109,7 +109,7 @@ export function BioInsightsPanel({
         </div>
       )}
 
-      <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay">
+      <div className="neu-section p-5 sm:p-6">
         <p className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Top Links</p>
         {rows.length === 0 ? (
           <p className="text-xs text-mute">No link taps yet. When visitors tap a link, it will rank here.</p>
@@ -118,10 +118,7 @@ export function BioInsightsPanel({
             {rows.slice(0, 10).map((row, index) => {
               const share = linkTotal > 0 ? Math.round((row.taps / linkTotal) * 100) : 0;
               return (
-                <li
-                  key={row.linkId}
-                  className="flex items-center gap-3 rounded-2xl bg-paper px-3.5 py-2.5 ring-1 ring-line/70"
-                >
+                <li key={row.linkId} className="neu-row flex items-center gap-3 px-3.5 py-2.5">
                   <span className="w-6 text-center text-xs font-bold text-mute">{index + 1}</span>
                   <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">
                     {linkLabel(links, row.linkId)}

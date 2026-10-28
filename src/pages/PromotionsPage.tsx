@@ -89,14 +89,14 @@ export function PromotionsPage() {
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href="/pass"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition-[background-color,color] whitespace-nowrap"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-ink transition whitespace-nowrap"
           >
             <ArrowLeft size={14} className="shrink-0" />
             <span>AirPal Pass</span>
           </Link>
           <Link
             href="/me/tickets"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition-[background-color,color] whitespace-nowrap"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-ink transition whitespace-nowrap"
           >
             <Ticket size={14} className="shrink-0 text-amber-500" />
             <span>My Passbook Wallet</span>
@@ -116,7 +116,7 @@ export function PromotionsPage() {
           {user && (
             <Link
               href="/business/promotions"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition-[background-color,color] whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-ink transition whitespace-nowrap"
             >
               <Store size={14} className="shrink-0 text-accent" />
               <span>My Deals</span>
@@ -136,14 +136,12 @@ export function PromotionsPage() {
       </div>
 
       {/* Hero Section */}
-      <div className="rounded-3xl bg-card p-6 md:p-8 ring-1 ring-line shadow-clay">
+      <div className="neu-section p-6 md:p-8">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider ring-1 ring-amber-400/30 whitespace-nowrap">
+          <span className="neu-chip neu-tint-gold px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider whitespace-nowrap">
             AirPal Pass · Member Perks
           </span>
-          <span className="rounded-full bg-paper px-2.5 py-1 text-xs font-semibold text-mute ring-1 ring-line whitespace-nowrap">
-            Sydney & Local
-          </span>
+          <span className="neu-chip px-2.5 py-1 text-xs font-semibold text-mute whitespace-nowrap">Sydney & Local</span>
         </div>
         <h1 className="human-title mt-3 text-2xl sm:text-3xl md:text-4xl text-balance">
           Exclusive Deals & Member Offers
@@ -200,8 +198,8 @@ export function PromotionsPage() {
           <p className="text-xs font-medium">Loading local deals & perks…</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="mt-8 rounded-3xl bg-card p-8 md:p-12 text-center ring-1 ring-line shadow-clay">
-          <div className="grid h-16 w-16 place-items-center rounded-3xl bg-brand/10 text-accent mx-auto mb-3 ring-1 ring-brand/20">
+        <div className="neu-section mt-8 p-8 md:p-12 text-center">
+          <div className="neu-tint-brand grid h-16 w-16 place-items-center rounded-3xl text-accent mx-auto mb-3">
             <BadgePercent size={32} />
           </div>
           <h2 className="font-display text-xl font-bold text-ink">
@@ -230,7 +228,7 @@ export function PromotionsPage() {
             return (
               <div
                 key={p.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-card ring-1 ring-line shadow-clay hover:shadow-clay-hover hover:ring-brand/30 transition duration-200"
+                className="neu-card group relative flex flex-col justify-between overflow-hidden transition duration-200"
               >
                 {/* Top Image Banner */}
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-paper">
@@ -286,7 +284,7 @@ export function PromotionsPage() {
                         <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Live Now</span>
                       )}
 
-                      <span className="capitalize rounded-full bg-paper px-2 py-0.5 text-[10px] font-semibold text-mute ring-1 ring-line">
+                      <span className="neu-chip capitalize px-2 py-0.5 text-[10px] font-semibold text-mute">
                         {p.mechanicType.replace("_", " ")}
                       </span>
                     </div>
@@ -297,7 +295,7 @@ export function PromotionsPage() {
                     {isOwner || isAdmin ? (
                       <Link
                         href={isAdmin ? `/admin/promotions/${p.id}` : `/business/promotions/${p.id}`}
-                        className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-line/50 transition-[background-color] whitespace-nowrap"
+                        className="neu-btn inline-flex min-h-[44px] items-center gap-1 px-4 text-xs font-semibold text-ink transition whitespace-nowrap"
                       >
                         <Pencil size={12} className="shrink-0" />
                         <span>Edit</span>

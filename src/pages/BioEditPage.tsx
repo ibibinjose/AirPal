@@ -283,8 +283,8 @@ export function BioEditPage() {
     if (queryKind === "business") {
       return (
         <div className="grid min-h-[60vh] place-items-center px-6 text-center">
-          <div className="rounded-[32px] bg-card p-8 sm:p-10 shadow-clay ring-1 ring-line max-w-md w-full">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-amber-500/15 text-amber-700 dark:text-amber-300 mb-5 ring-1 ring-amber-500/20">
+          <div className="neu-section p-8 sm:p-10 max-w-md w-full">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-amber-500/15 text-amber-700 dark:text-amber-300 mb-5">
               <Store size={32} />
             </div>
             <p className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">
@@ -311,8 +311,8 @@ export function BioEditPage() {
     }
     return (
       <div className="grid min-h-[60vh] place-items-center px-6 text-center">
-        <div className="rounded-[32px] bg-card p-8 sm:p-10 shadow-clay ring-1 ring-line max-w-md w-full">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-brand/10 text-accent mb-5 ring-1 ring-brand/20">
+        <div className="neu-section p-8 sm:p-10 max-w-md w-full">
+          <div className="neu-tint-brand mx-auto flex h-16 w-16 items-center justify-center rounded-3xl text-accent mb-5">
             <UserRound size={32} />
           </div>
           <p className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">No @handle yet</p>
@@ -879,7 +879,7 @@ export function BioEditPage() {
             </button>
 
             {/* Live avatar thumb with unsaved-changes dot */}
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-2xl bg-brand/10 ring-1 ring-line shadow-xs">
+            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-2xl bg-brand/10 shadow-xs">
               {avatar ? (
                 <Photo src={avatar} thumb className="h-full w-full object-cover" alt="" />
               ) : (
@@ -965,15 +965,13 @@ export function BioEditPage() {
       {/* Main Page Content */}
       <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-5">
         {/* 2. Identity Switcher Strip */}
-        <div className="flex items-center justify-between gap-2 rounded-2xl bg-card px-3 py-2.5 ring-1 ring-line shadow-xs border border-line/40">
+        <div className="neu-row flex items-center justify-between gap-2 px-3 py-2.5">
           {/* Identity Info */}
           <div className="flex items-center gap-2.5 min-w-0">
             <div
               className={cn(
-                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl shadow-xs ring-1",
-                isBusiness
-                  ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 ring-amber-500/20"
-                  : "bg-brand/10 text-accent ring-brand/20",
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl shadow-xs",
+                isBusiness ? "bg-amber-500/15 text-amber-800 dark:text-amber-300" : "bg-brand/10 text-accent",
               )}
             >
               {isBusiness ? <Store size={17} /> : <UserRound size={17} />}
@@ -991,7 +989,7 @@ export function BioEditPage() {
           {/* Profile Switcher or Creation CTAs */}
           <div className="flex items-center gap-2 shrink-0 max-w-full">
             {mine && business && (
-              <div className="inline-flex max-w-full rounded-full bg-paper p-1 ring-1 ring-line">
+              <div className="neu-inset inline-flex max-w-full p-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -1057,7 +1055,7 @@ export function BioEditPage() {
 
         {/* Mobile Edit / Preview switcher */}
         <div className="lg:hidden sticky top-[68px] z-20 mt-4">
-          <div className="flex items-center gap-1.5 rounded-2xl bg-paper/95 p-1.5 ring-1 ring-line shadow-xs backdrop-blur-md">
+          <div className="neu-inset flex items-center gap-1.5 p-1.5 backdrop-blur-md">
             <div className="grid flex-1 grid-cols-2 gap-1" role="tablist" aria-label="Editor view">
               {[
                 { id: "edit" as const, label: "Edit", icon: Edit3 },
@@ -1114,7 +1112,7 @@ export function BioEditPage() {
           <div className={cn("lg:col-span-7", mobileView === "preview" && "hidden lg:block")}>
             {/* Apple HIG Segmented Navigation Tabs */}
             <div
-              className="flex gap-1 overflow-x-auto no-scrollbar rounded-2xl bg-paper p-1.5 ring-1 ring-line shadow-xs lg:sticky lg:top-[76px] lg:z-20"
+              className="neu-inset flex gap-1 overflow-x-auto no-scrollbar p-1.5 lg:sticky lg:top-[76px] lg:z-20"
               role="tablist"
               aria-label="Profile sections"
             >
@@ -1156,7 +1154,7 @@ export function BioEditPage() {
                     <span
                       className={cn(
                         "ml-0.5 rounded-full px-1.5 py-0.2 text-[10px] font-bold",
-                        tab === item.id ? "bg-white/25 text-white" : "bg-card text-mute ring-1 ring-line",
+                        tab === item.id ? "bg-white/25 text-white" : "bg-card text-mute",
                       )}
                     >
                       {item.count}
@@ -1178,7 +1176,7 @@ export function BioEditPage() {
             {tab === "profile" && (
               <form className="mt-6 space-y-6" onSubmit={(e) => void handleSaveAll(e)}>
                 {/* 1.1 Media & Visual Studio Section */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
+                <div className="neu-section p-5 sm:p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <Camera size={14} />
@@ -1231,7 +1229,7 @@ export function BioEditPage() {
                 </div>
 
                 {/* 1.2 Basic Profile Info Section */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
+                <div className="neu-section p-5 sm:p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <Edit3 size={14} />
@@ -1278,8 +1276,8 @@ export function BioEditPage() {
                             "inline-flex min-h-[44px] items-center rounded-full px-4 text-xs font-medium transition active:scale-95 cursor-pointer",
                             categoryTag === cat.id
                               ? isBusiness
-                                ? "bg-amber-600 text-white shadow-xs ring-1 ring-amber-600"
-                                : "bg-brand text-white shadow-xs ring-1 ring-brand"
+                                ? "bg-amber-600 text-white shadow-xs"
+                                : "bg-brand text-white shadow-xs"
                               : "bg-paper border border-line text-ink hover:border-brand/40",
                           )}
                         >
@@ -1345,7 +1343,7 @@ export function BioEditPage() {
                           ? "Tell customers what makes your venue, menu, or services special…"
                           : "Share who you are, your background, hobbies, or what you love exploring…"
                       }
-                      className="w-full rounded-2xl border border-line bg-paper p-3 text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-brand focus:border-ink placeholder:text-mute/60 resize-none"
+                      className="neu-inset w-full p-3 text-sm outline-none transition focus-visible:ring-2 focus-visible:ring-brand placeholder:text-mute/60 resize-none"
                     />
                   </div>
 
@@ -1413,7 +1411,7 @@ export function BioEditPage() {
                 </div>
 
                 {/* 1.3 Live Availability & Presence Section */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
+                <div className="neu-section p-5 sm:p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <Sparkles size={14} />
@@ -1443,8 +1441,8 @@ export function BioEditPage() {
                               "flex items-center gap-2 rounded-2xl p-3 text-left border text-xs font-semibold transition active:scale-95 cursor-pointer",
                               isSelected
                                 ? isBusiness
-                                  ? "bg-amber-500/10 border-amber-600 text-amber-900 dark:text-amber-300 shadow-xs ring-1 ring-amber-600/30"
-                                  : "bg-brand/10 border-brand text-accent shadow-xs ring-1 ring-brand/30"
+                                  ? "bg-amber-500/10 border-amber-600 text-amber-900 dark:text-amber-300 shadow-xs"
+                                  : "bg-brand/10 border-brand text-accent shadow-xs"
                                 : "bg-paper border-line text-ink hover:bg-card",
                             )}
                           >
@@ -1468,7 +1466,7 @@ export function BioEditPage() {
                         placeholder="☕"
                         maxLength={4}
                         aria-label="Status Emoji"
-                        className="h-11 w-14 shrink-0 rounded-2xl border border-line bg-paper text-center text-lg outline-none focus:border-ink"
+                        className="neu-inset h-11 w-14 shrink-0 text-center text-lg outline-none"
                       />
                       <input
                         value={customStatus}
@@ -1485,7 +1483,7 @@ export function BioEditPage() {
                 </div>
 
                 {/* 1.4 Location & Hours Section */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
+                <div className="neu-section p-5 sm:p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <MapPin size={14} />
@@ -1509,7 +1507,7 @@ export function BioEditPage() {
                 </div>
 
                 {/* 1.5 Virtual Sync & Video Call Platform */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
+                <div className="neu-section p-5 sm:p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-line/60 pb-3">
                     <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                       <Video size={14} />
@@ -1584,12 +1582,9 @@ export function BioEditPage() {
 
                 {/* 1.6 Profile Visibility (Personal only) */}
                 {!isBusiness && (
-                  <section
-                    className="rounded-3xl border border-line bg-card p-5 shadow-clay sm:p-6"
-                    aria-labelledby="visibility-title"
-                  >
+                  <section className="neu-section p-5 sm:p-6" aria-labelledby="visibility-title">
                     <div className="flex items-start gap-3">
-                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/15">
+                      <span className="neu-tint-brand grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-accent">
                         <Shield size={19} aria-hidden="true" />
                       </span>
                       <div className="min-w-0 flex-1">
@@ -1602,11 +1597,7 @@ export function BioEditPage() {
                       </div>
                     </div>
 
-                    <div
-                      className="mt-5 rounded-2xl bg-paper/80 p-1 ring-1 ring-line/80"
-                      role="radiogroup"
-                      aria-label="Profile visibility"
-                    >
+                    <div className="neu-inset mt-5 p-1" role="radiogroup" aria-label="Profile visibility">
                       <div className="grid grid-cols-2 gap-1">
                         {(
                           [
@@ -1627,9 +1618,7 @@ export function BioEditPage() {
                               }}
                               className={cn(
                                 "min-h-[60px] rounded-[13px] px-3 py-2 text-left transition-[background-color,color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
-                                isSelected
-                                  ? "bg-card text-ink shadow-sm ring-1 ring-line/80"
-                                  : "text-mute hover:bg-card/70",
+                                isSelected ? "bg-card text-ink shadow-sm" : "text-mute hover:bg-card/70",
                               )}
                             >
                               <span className="flex items-center gap-2 text-xs font-bold">
@@ -1702,7 +1691,7 @@ export function BioEditPage() {
                 return (
                   <div className="mt-6 space-y-6">
                     {/* Quick-Pick Trays */}
-                    <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-5">
+                    <div className="neu-section p-5 sm:p-6 space-y-5">
                       {/* Social Media Networks */}
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
@@ -1724,8 +1713,8 @@ export function BioEditPage() {
                                 "inline-flex min-h-[44px] items-center rounded-full px-4 text-xs font-semibold transition active:scale-95 cursor-pointer",
                                 type === t.id
                                   ? isBusiness
-                                    ? "bg-amber-600 text-white shadow-xs ring-1 ring-amber-600"
-                                    : "bg-brand text-white shadow-xs ring-1 ring-brand"
+                                    ? "bg-amber-600 text-white shadow-xs"
+                                    : "bg-brand text-white shadow-xs"
                                   : "bg-paper border border-line text-ink hover:bg-card",
                               )}
                             >
@@ -1756,8 +1745,8 @@ export function BioEditPage() {
                                 "inline-flex min-h-[44px] items-center rounded-full px-4 text-xs font-semibold transition active:scale-95 cursor-pointer",
                                 type === t.id
                                   ? isBusiness
-                                    ? "bg-amber-600 text-white shadow-xs ring-1 ring-amber-600"
-                                    : "bg-brand text-white shadow-xs ring-1 ring-brand"
+                                    ? "bg-amber-600 text-white shadow-xs"
+                                    : "bg-brand text-white shadow-xs"
                                   : "bg-paper border border-line text-ink hover:bg-card",
                               )}
                             >
@@ -1770,7 +1759,7 @@ export function BioEditPage() {
 
                     {/* Add Link Input Box */}
                     <form
-                      className="space-y-3 rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay"
+                      className="space-y-3 neu-section p-5 sm:p-6"
                       onSubmit={(e) => {
                         e.preventDefault();
                         const empty = newLinkError(type, href);
@@ -1813,7 +1802,7 @@ export function BioEditPage() {
                         {social && <span className="text-[11px] text-mute font-mono">{social.example}</span>}
                       </div>
 
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center overflow-hidden rounded-2xl bg-paper ring-1 ring-line transition focus-within:ring-2 focus-within:ring-ink">
+                      <div className="neu-inset flex flex-col sm:flex-row items-stretch sm:items-center overflow-hidden transition focus-within:ring-2 focus-within:ring-ink">
                         <div className="flex flex-1 items-center min-w-0">
                           {social ? (
                             <span className="flex h-12 shrink-0 select-none items-center border-r border-line bg-black/[0.04] px-3 font-mono text-xs font-medium text-mute">
@@ -1859,7 +1848,7 @@ export function BioEditPage() {
                     </form>
 
                     {/* Active Links List */}
-                    <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay space-y-4">
+                    <div className="neu-section p-5 sm:p-6 space-y-4">
                       <div className="flex items-center justify-between">
                         <p className="text-xs font-semibold uppercase tracking-wider text-mute">
                           Active Bio Links ({links.length})
@@ -1903,7 +1892,7 @@ export function BioEditPage() {
                                         </span>
                                       )}
                                       {l.archived && (
-                                        <span className="rounded-full bg-paper px-2 py-0.5 text-[10px] font-bold text-mute ring-1 ring-line">
+                                        <span className="rounded-full bg-paper px-2 py-0.5 text-[10px] font-bold text-mute">
                                           Archived
                                         </span>
                                       )}
@@ -1990,7 +1979,7 @@ export function BioEditPage() {
                                     type="date"
                                     value={l.startsAt || ""}
                                     onChange={(e) => saveLink({ startsAt: e.target.value || undefined })}
-                                    className="h-9 min-w-[125px] flex-1 rounded-xl border border-line bg-card px-2 text-xs outline-none focus:border-brand"
+                                    className="neu-inset h-9 min-w-[125px] flex-1 px-2 text-xs outline-none"
                                   />
                                   <span className="text-xs text-mute">→</span>
                                   <label className="sr-only" htmlFor={`link-end-${l.id}`}>
@@ -2002,7 +1991,7 @@ export function BioEditPage() {
                                     value={l.endsAt || ""}
                                     min={l.startsAt || undefined}
                                     onChange={(e) => saveLink({ endsAt: e.target.value || undefined })}
-                                    className="h-9 min-w-[125px] flex-1 rounded-xl border border-line bg-card px-2 text-xs outline-none focus:border-brand"
+                                    className="neu-inset h-9 min-w-[125px] flex-1 px-2 text-xs outline-none"
                                   />
                                   {(l.startsAt || l.endsAt) && (
                                     <button
@@ -2026,7 +2015,7 @@ export function BioEditPage() {
 
             {/* TAB 3: SHOP & CATALOG */}
             {tab === "shop" && (
-              <div className="mt-6 rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay">
+              <div className="mt-6 neu-section p-5 sm:p-6">
                 <div className="mb-4 pb-3 border-b border-line/60">
                   <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
                     <Package size={14} />
@@ -2066,7 +2055,7 @@ export function BioEditPage() {
                   showViewBioLink
                 >
                   {/* Australian Air Zoo Collectible Sticker Toggle */}
-                  <label className="flex min-h-[44px] items-center justify-between gap-3 rounded-2xl bg-paper p-3.5 text-xs font-medium ring-1 ring-line cursor-pointer hover:ring-brand/30 transition">
+                  <label className="neu-row flex min-h-[44px] items-center justify-between gap-3 p-3.5 text-xs font-medium cursor-pointer transition">
                     <span className="text-ink font-semibold">
                       Air Zoo Hunt — display collectible Aussie sticker on pass
                     </span>
@@ -2080,7 +2069,7 @@ export function BioEditPage() {
                 </DigitalBioPassCard>
 
                 {/* Handle Configuration */}
-                <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay">
+                <div className="neu-section p-5 sm:p-6">
                   <ChangeHandleForm current={activeProfile.handle} profileId={activeProfile.id} />
                 </div>
               </div>

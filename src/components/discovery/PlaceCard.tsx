@@ -29,7 +29,7 @@ export function PlaceCard({ place, walk }: { place: NearbyPlace; walk?: string }
         void triggerHaptic("light");
       }}
       className={cn(
-        "group relative block aspect-square overflow-hidden rounded-3xl text-left ring-1 ring-line",
+        "group relative block aspect-square overflow-hidden rounded-3xl text-left shadow-[0_18px_40px_-24px_rgb(15_23_42/0.4)] transition active:scale-[0.98]",
         onPhoto ? "bg-paper" : "bg-card",
       )}
     >
@@ -43,11 +43,7 @@ export function PlaceCard({ place, walk }: { place: NearbyPlace; walk?: string }
           <span
             className={cn(
               "rounded-full px-2.5 py-1 text-[11px] font-semibold",
-              open
-                ? "bg-emerald-500/90 text-white"
-                : onPhoto
-                  ? "bg-black/70 text-white/85"
-                  : "bg-paper text-mute ring-1 ring-line",
+              open ? "bg-emerald-500/90 text-white" : onPhoto ? "bg-black/70 text-white/85" : "bg-paper text-mute",
             )}
           >
             {open ? t("openNow") : t("closedNow")}

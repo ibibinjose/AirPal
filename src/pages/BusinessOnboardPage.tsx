@@ -264,21 +264,21 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/business"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-sm font-semibold text-ink transition"
           >
             <ArrowLeft size={15} aria-hidden />
             <span>Business Hub</span>
           </Link>
           <Link
             href="/claim"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-sm font-semibold text-ink transition"
           >
             <ShieldCheck size={15} className="text-accent" aria-hidden />
             <span>Claim venue</span>
           </Link>
           <Link
             href="/business/promotions"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-sm font-semibold text-ink transition"
           >
             <Tag size={15} className="text-accent" aria-hidden />
             <span>Promotions</span>
@@ -287,7 +287,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
 
         <div className="mt-5 flex items-start gap-3.5">
           <span
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20"
+            className="neu-tint-brand grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-accent"
             aria-hidden="true"
           >
             <Icon size={20} />
@@ -300,7 +300,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
         </div>
 
         <nav aria-label="Onboarding steps" className="mt-5">
-          <ol className="grid grid-cols-2 gap-1.5 rounded-2xl bg-paper p-1 ring-1 ring-line">
+          <ol className="neu-inset grid grid-cols-2 gap-1.5 p-1">
             {(
               [
                 { id: "onboard", label: "Onboard", href: "/business/onboard" },
@@ -322,11 +322,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                     <span
                       className={cn(
                         "grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-bold",
-                        active
-                          ? "bg-white/25 text-white"
-                          : done
-                            ? "bg-brand/15 text-accent"
-                            : "bg-card text-mute ring-1 ring-line",
+                        active ? "bg-white/25 text-white" : done ? "bg-brand/15 text-accent" : "bg-card text-mute",
                       )}
                       aria-hidden
                     >
@@ -357,7 +353,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
           ) : (
             <div className="space-y-5">
               {mine && (
-                <div className="rounded-3xl bg-emerald-500/10 p-5 ring-1 ring-emerald-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="rounded-3xl bg-emerald-500/10 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
                       <Check size={14} strokeWidth={3} /> Active Venue Connected
@@ -375,7 +371,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                     </Link>
                     <Link
                       href="/business"
-                      className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl bg-card px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-paper"
+                      className="neu-btn inline-flex min-h-[44px] items-center justify-center gap-1.5 px-4 text-xs font-semibold text-ink transition"
                     >
                       <span>Open Business Hub</span>
                     </Link>
@@ -384,7 +380,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
               )}
 
               {/* Option A: 1-Click Google Place Import */}
-              <section className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-3">
+              <section className="neu-section p-5 sm:p-6 space-y-3">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-accent">
@@ -402,10 +398,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
               </section>
 
               {/* Option B: Manual Quick Launch Form */}
-              <form
-                onSubmit={(e) => void handleManualCreate(e)}
-                className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-4"
-              >
+              <form onSubmit={(e) => void handleManualCreate(e)} className="neu-section p-5 sm:p-6 space-y-4">
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-mute">
                     No Google listing yet?
@@ -426,7 +419,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g. Reuben Hills Roastery"
                       required
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                     />
                   </div>
                   <div>
@@ -437,7 +430,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                       value={handle}
                       onChange={(e) => setHandle(e.target.value)}
                       placeholder="e.g. reubenhills"
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                     />
                   </div>
                 </div>
@@ -454,7 +447,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                           onClick={() => setCategory(c.id)}
                           className={cn(
                             "min-h-[44px] rounded-full px-3.5 text-sm font-semibold transition",
-                            on ? "bg-brand text-white shadow-xs" : "bg-paper text-mute ring-1 ring-line hover:text-ink",
+                            on ? "bg-brand text-white shadow-xs" : "bg-paper text-mute hover:text-ink",
                           )}
                         >
                           {c.label}
@@ -473,7 +466,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       placeholder="61 Albion St, Surry Hills NSW 2010"
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                     />
                   </div>
                   <div>
@@ -484,7 +477,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                       value={hours}
                       onChange={(e) => setHours(e.target.value)}
                       placeholder="Mon–Sun · 7am–4pm"
-                      className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                     />
                   </div>
                 </div>
@@ -498,7 +491,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                     onChange={(e) => setShortWhy(e.target.value)}
                     placeholder="What makes locals love your spot? e.g. Specialty single-origin espresso & weekend brunch."
                     maxLength={140}
-                    className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                   />
                 </div>
 
@@ -510,10 +503,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
 
               {/* More Partner Pathways */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <Link
-                  href="/claim"
-                  className="rounded-3xl bg-card p-4 ring-1 ring-line shadow-clay transition hover:border-brand/40 flex flex-col justify-between gap-2"
-                >
+                <Link href="/claim" className="neu-card p-4 transition flex flex-col justify-between gap-2">
                   <div className="flex items-center gap-2 text-accent">
                     <ShieldCheck size={16} />
                     <span className="text-xs font-bold uppercase tracking-wider">Official Verification</span>
@@ -523,7 +513,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                 </Link>
                 <Link
                   href="/bio/setup?kind=business"
-                  className="rounded-3xl bg-card p-4 ring-1 ring-line shadow-clay transition hover:border-brand/40 flex flex-col justify-between gap-2"
+                  className="neu-card p-4 transition flex flex-col justify-between gap-2"
                 >
                   <div className="flex items-center gap-2 text-accent">
                     <UserCheck size={16} />
@@ -532,10 +522,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                   <p className="text-sm font-bold text-ink">Business Bio Wizard</p>
                   <p className="text-xs text-mute">Design your shareable /@handle digital business card.</p>
                 </Link>
-                <Link
-                  href="/event"
-                  className="rounded-3xl bg-card p-4 ring-1 ring-line shadow-clay transition hover:border-brand/40 flex flex-col justify-between gap-2"
-                >
+                <Link href="/event" className="neu-card p-4 transition flex flex-col justify-between gap-2">
                   <div className="flex items-center gap-2 text-accent">
                     <Calendar size={16} />
                     <span className="text-xs font-bold uppercase tracking-wider">Events & Tickets</span>
@@ -553,7 +540,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
       {step === "setup" && (
         <div className="space-y-5">
           {/* Readiness Progress Bar */}
-          <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay space-y-3">
+          <div className="neu-section p-5 space-y-3">
             <div className="flex items-center justify-between gap-2">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-accent">Partner Readiness</p>
@@ -591,15 +578,13 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
             {checklist.map((item) => (
               <div
                 key={item.id}
-                className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                className="neu-section p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <div className="flex items-start gap-3.5 min-w-0">
                   <span
                     className={cn(
-                      "grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-bold ring-1",
-                      item.done
-                        ? "bg-emerald-500/15 text-emerald-700 ring-emerald-500/30"
-                        : "bg-paper text-mute ring-line",
+                      "grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-bold",
+                      item.done ? "bg-emerald-500/15 text-emerald-700" : "bg-paper text-mute",
                     )}
                   >
                     {item.done ? <Check size={16} strokeWidth={3} /> : <Clock size={15} />}
@@ -625,7 +610,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                       className={cn(
                         "inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl px-4 text-xs font-bold transition",
                         item.done
-                          ? "bg-paper text-ink ring-1 ring-line hover:bg-card"
+                          ? "bg-paper text-ink hover:bg-card"
                           : "bg-brand text-white shadow-xs hover:bg-brand-ink",
                       )}
                     >
@@ -640,7 +625,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
 
           {/* Inline 1-Click Perk Publisher */}
           {mine && (
-            <div className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-3">
+            <div className="neu-section p-5 sm:p-6 space-y-3">
               <div className="flex items-center gap-2 text-accent">
                 <Sparkles size={16} />
                 <span className="text-xs font-bold uppercase tracking-wider">Instant Member Offer</span>
@@ -654,7 +639,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                   onChange={(e) => setQuickDealTitle(e.target.value)}
                   placeholder="e.g. Free pastry with any morning coffee"
                   aria-label="Instant member offer title"
-                  className="h-12 flex-1 rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="neu-inset h-12 flex-1 px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                 />
                 <Button
                   type="button"

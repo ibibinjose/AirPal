@@ -328,7 +328,7 @@ export function BioSetupPage() {
               aria-current={step === n ? "step" : undefined}
               className={cn(
                 "h-11 flex-1 rounded-full text-center text-sm font-semibold leading-[44px]",
-                step === n ? "bg-brand text-white shadow-xs" : "bg-card ring-1 ring-line",
+                step === n ? "bg-brand text-white shadow-xs" : "bg-card",
               )}
             >
               {n}
@@ -451,7 +451,7 @@ export function BioSetupPage() {
           <ValidField label="Trade mark (optional)">
             <input value={trademark} onChange={(e) => setTrademark(e.target.value)} className={fieldInput} />
           </ValidField>
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-card px-4 py-3 text-sm ring-1 ring-line">
+          <label className="neu-row flex cursor-pointer items-start gap-3 px-4 py-3 text-sm">
             <input
               type="checkbox"
               className="mt-0.5 h-5 w-5 shrink-0 accent-brand"
@@ -479,11 +479,11 @@ export function BioSetupPage() {
 
       {asBusiness && step === 2 && (
         <div className="mt-6 space-y-4">
-          <div className="rounded-2xl bg-card p-4 ring-1 ring-line space-y-3">
+          <div className="neu-row p-4 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-mute">Map Pin / Location</span>
               {geo ? (
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full ring-1 ring-emerald-500/20">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full">
                   <Check className="size-3" /> Pinned
                 </span>
               ) : (
@@ -549,7 +549,7 @@ export function BioSetupPage() {
                 aria-pressed={category === c.id}
                 className={cn(
                   "inline-flex min-h-[44px] items-center whitespace-nowrap rounded-full px-4 text-sm transition active:scale-95",
-                  category === c.id ? "bg-brand text-white shadow-xs" : "bg-card ring-1 ring-line",
+                  category === c.id ? "bg-brand text-white shadow-xs" : "bg-card",
                 )}
               >
                 {c.label}

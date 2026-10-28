@@ -24,7 +24,7 @@ function ChipIcon({ icon }: { icon?: LucideIcon }) {
 function chipClass(on: boolean): string {
   return cn(
     "flex min-h-[44px] shrink-0 touch-manipulation cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-semibold transition active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-    on ? "bg-brand text-white shadow-xs" : "bg-card text-mute ring-1 ring-line hover:bg-paper hover:text-ink",
+    on ? "bg-brand text-white shadow-xs" : "neu-btn text-mute hover:text-ink",
   );
 }
 
@@ -114,7 +114,7 @@ export function FilterChips<T extends string>(props: FilterChipsProps<T>) {
               <span
                 className={cn(
                   "rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
-                  on ? "bg-white/20 text-white" : "bg-paper text-mute ring-1 ring-line",
+                  on ? "bg-white/20 text-white" : "bg-paper text-mute",
                 )}
               >
                 {option.count}
@@ -131,7 +131,7 @@ export function FilterChips<T extends string>(props: FilterChipsProps<T>) {
             (props as MultiProps<T>).onClear?.();
           }}
           aria-label={(props as MultiProps<T>).clearLabel || `Clear ${selected.length} filters`}
-          className="flex min-h-[44px] shrink-0 touch-manipulation cursor-pointer items-center gap-1 rounded-full bg-paper px-3.5 py-2 text-xs font-bold text-ink ring-1 ring-line transition hover:bg-card active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="neu-btn flex min-h-[44px] shrink-0 touch-manipulation cursor-pointer items-center gap-1 px-3.5 py-2 text-xs font-bold text-ink transition active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           <X size={13} aria-hidden />
           <span className="tabular-nums">{selected.length}</span>

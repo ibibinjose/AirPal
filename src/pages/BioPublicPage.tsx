@@ -305,7 +305,7 @@ export function BioPublicPage() {
   if (!profile && !tried) {
     return (
       <div className="mx-auto max-w-lg px-4 py-8" aria-label="Loading profile" role="status">
-        <div className="overflow-hidden rounded-3xl bg-card ring-1 ring-line/70 shadow-xs">
+        <div className="neu-card overflow-hidden">
           <div className="h-44 w-full motion-safe:animate-pulse bg-paper sm:h-52" />
           <div className="p-5">
             <div className="flex items-end justify-between">
@@ -338,7 +338,7 @@ export function BioPublicPage() {
     if (handle) {
       return (
         <div className="mx-auto max-w-md px-4 py-16 text-center">
-          <div className="rounded-[32px] border border-line bg-card p-6 sm:p-8 shadow-clay">
+          <div className="neu-section p-6 sm:p-8">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-brand/10 text-accent shadow-inner">
               <Sparkles size={32} />
             </div>
@@ -389,10 +389,10 @@ export function BioPublicPage() {
   if (!canView) {
     return (
       <main className="bio-page-shell px-4 py-16 sm:py-24" aria-label="Private AirPal bio">
-        <div className="overflow-hidden rounded-[32px] border border-line bg-card text-center shadow-clay">
+        <div className="neu-section overflow-hidden text-center">
           <div className="h-24 bg-gradient-to-br from-[#0c1024] via-[#141b38] to-[#0a0d1e]" />
           <div className="px-6 pb-8 sm:px-8 sm:pb-10">
-            <span className="-mt-9 mx-auto grid h-[72px] w-[72px] place-items-center rounded-[26px] bg-card text-accent shadow-clay ring-1 ring-line">
+            <span className="neu-card -mt-9 mx-auto grid h-[72px] w-[72px] place-items-center text-accent">
               <Lock size={28} aria-hidden="true" />
             </span>
             <p className="human-eyebrow mt-5">Profile protected</p>
@@ -809,7 +809,7 @@ export function BioPublicPage() {
                     <Star size={20} className="fill-current text-accent" aria-hidden="true" />
                   </span>
                 ) : (
-                  <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent ring-1 ring-brand/20">
+                  <span className="neu-chip neu-tint-brand px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent">
                     {bio.categoryTag}
                   </span>
                 ))}
@@ -844,9 +844,9 @@ export function BioPublicPage() {
                 aria-label={`Profile visibility: ${isPublic ? "public" : "private"}. Activate to switch.`}
                 disabled={visibilitySaving}
                 onClick={() => void handleVisibilityToggle()}
-                className="mt-4 flex min-h-[52px] w-full max-w-sm items-center gap-3 rounded-2xl bg-paper px-3.5 py-2 text-left ring-1 ring-line/80 transition-[background-color,color,opacity] duration-200 hover:bg-card disabled:cursor-wait disabled:opacity-70 cursor-pointer touch-manipulation active:scale-[0.99]"
+                className="neu-row mt-4 flex min-h-[52px] w-full max-w-sm items-center gap-3 px-3.5 py-2 text-left transition-[background-color,color,opacity] duration-200 disabled:cursor-wait disabled:opacity-70 cursor-pointer touch-manipulation active:scale-[0.99]"
               >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-card text-accent ring-1 ring-line/80">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-card text-accent">
                   <Lock size={14} aria-hidden="true" />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -883,7 +883,7 @@ export function BioPublicPage() {
                   }
                 }}
                 className={cn(
-                  "inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-xs font-semibold ring-1 ring-line/80 bg-paper/70 text-ink transition-[background-color,transform] duration-200 shadow-2xs",
+                  "neu-btn inline-flex min-h-[44px] items-center gap-2 px-4 text-xs font-semibold text-ink transition-[background-color,transform] duration-200",
                   isOwner ? "cursor-pointer hover:bg-paper active:scale-95" : "cursor-default",
                 )}
                 title={isOwner ? "Click to change status" : statusInfo.description}
@@ -923,7 +923,7 @@ export function BioPublicPage() {
                   void triggerHaptic("light");
                   recordTap(bio.handle, websiteLink?.type || "website");
                 }}
-                className="inline-flex h-11 w-11 sm:w-auto min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-paper sm:px-3.5 text-xs font-bold text-ink whitespace-nowrap shadow-2xs ring-1 ring-line/80 transition hover:bg-paper/80 active:scale-95"
+                className="neu-btn inline-flex h-11 w-11 sm:w-auto min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 sm:px-3.5 text-xs font-bold text-ink whitespace-nowrap transition active:scale-95"
                 title={`Visit ${websiteUrl}`}
                 aria-label="Visit website"
               >
@@ -937,7 +937,7 @@ export function BioPublicPage() {
                 void triggerHaptic("light");
                 setShareModalOpen(true);
               }}
-              className="inline-flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 cursor-pointer items-center justify-center rounded-full bg-paper text-ink shadow-2xs ring-1 ring-line/80 transition hover:bg-paper/80 active:scale-95"
+              className="neu-btn inline-flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 cursor-pointer items-center justify-center text-ink transition active:scale-95"
               title="Share & QR Code"
               aria-label="Open share and QR code"
             >
@@ -988,10 +988,10 @@ export function BioPublicPage() {
                       }
                     }}
                     className={cn(
-                      "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
+                      "neu-btn inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap px-4 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                       catchUpReminderActive
-                        ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 ring-amber-500/40 dark:ring-amber-500/30 font-bold"
-                        : "bg-card text-mute ring-line hover:text-ink hover:bg-paper",
+                        ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 font-bold"
+                        : "bg-card text-mute hover:text-ink hover:bg-paper",
                     )}
                     title={catchUpReminderActive ? "Catch-up reminder active" : "Set a reminder to catch up"}
                   >
@@ -1032,21 +1032,21 @@ export function BioPublicPage() {
                         label: "Catch Up",
                         sub: "1-on-1 coffee · 45m",
                         Icon: Coffee,
-                        tint: "bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/20",
+                        tint: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
                       },
                       {
                         type: "meeting" as const,
                         label: "Meeting",
                         sub: "1-on-1 sync · 30m",
                         Icon: Calendar,
-                        tint: "bg-sky-500/15 text-sky-700 dark:text-sky-400 ring-1 ring-sky-500/20",
+                        tint: "bg-sky-500/15 text-sky-700 dark:text-sky-400",
                       },
                       {
                         type: "nightout" as const,
                         label: "Hangout",
                         sub: "Group catch-up · 2h",
                         Icon: Users,
-                        tint: "bg-rose-500/15 text-rose-700 dark:text-rose-400 ring-1 ring-rose-500/20",
+                        tint: "bg-rose-500/15 text-rose-700 dark:text-rose-400",
                       },
                     ] as const
                   ).map((opt) => (
@@ -1100,7 +1100,7 @@ export function BioPublicPage() {
                     void triggerHaptic("light");
                     recordTap(bio.handle, "whatsapp");
                   }}
-                  className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-white ring-1 ring-emerald-500/30 transition-[background-color,color,transform] duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
+                  className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-white transition-[background-color,color,transform] duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
                 >
                   <MessageCircle
                     size={16}
@@ -1117,7 +1117,7 @@ export function BioPublicPage() {
                     void triggerHaptic("light");
                     recordTap(bio.handle, "call");
                   }}
-                  className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-white ring-1 ring-amber-500/30 transition-[background-color,color,transform] duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
+                  className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-white transition-[background-color,color,transform] duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
                 >
                   <Phone
                     size={16}
@@ -1140,7 +1140,7 @@ export function BioPublicPage() {
                     note: `AirPal bio · AirPal.Me/@${bio.handle}`,
                   });
                 }}
-                className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper/80 dark:bg-card/70 px-3 text-xs font-semibold text-ink ring-1 ring-line/80 transition-[background-color,ring-color,transform] duration-200 hover:bg-paper hover:ring-brand/40 active:scale-95 shadow-2xs cursor-pointer touch-manipulation"
+                className="neu-btn group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 px-3 text-xs font-semibold text-ink transition-[background-color,transform] duration-200 active:scale-95 cursor-pointer touch-manipulation"
                 title={`Save ${bio.name} to phone contacts (.vcf)`}
               >
                 <ContactRound size={16} className="text-accent group-hover:scale-110 transition-transform shrink-0" />
@@ -1151,10 +1151,7 @@ export function BioPublicPage() {
 
           {/* Extended About Story Card: the story follows the action, connection-first. */}
           {bio.aboutText && (
-            <div
-              id="bio-about"
-              className="mt-4 scroll-mt-24 rounded-[26px] bg-paper/70 p-4 sm:p-5 ring-1 ring-line/80 shadow-2xs"
-            >
+            <div id="bio-about" className="neu-row mt-4 scroll-mt-24 p-4 sm:p-5">
               <p className="human-eyebrow mb-1.5">About Story</p>
               <p className="text-sm sm:text-base leading-relaxed text-ink whitespace-pre-line">{bio.aboutText}</p>
             </div>
@@ -1162,13 +1159,13 @@ export function BioPublicPage() {
 
           {/* AirPal Pass (owner-only: save the profile QR card to Apple or Google Wallet) */}
           {isOwner && (
-            <div className="human-card mt-6 p-5 sm:p-6 relative overflow-hidden ring-1 ring-brand/30 shadow-xs">
+            <div className="neu-section mt-6 p-5 sm:p-6 relative overflow-hidden">
               <div className="flex items-center justify-between gap-2 mb-4">
                 <div className="human-eyebrow flex items-center gap-2">
                   <QrCode size={15} aria-hidden="true" />
                   <span>Your AirPal Pass · Digital Card</span>
                 </div>
-                <span className="text-xs font-mono font-bold text-accent bg-brand/10 px-2.5 py-0.5 rounded-full ring-1 ring-brand/30 tabular-data">
+                <span className="neu-chip neu-tint-brand text-xs font-mono font-bold text-accent px-2.5 py-0.5 tabular-data">
                   @{bio.handle}
                 </span>
               </div>
@@ -1268,7 +1265,7 @@ export function BioPublicPage() {
                       void triggerHaptic("selection");
                       document.getElementById("bio-offers")?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="min-h-[44px] shrink-0 rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line/80 transition hover:ring-brand/40 active:scale-95"
+                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95"
                   >
                     Offers
                   </button>
@@ -1280,7 +1277,7 @@ export function BioPublicPage() {
                       void triggerHaptic("selection");
                       document.getElementById("bio-products")?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="min-h-[44px] shrink-0 rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line/80 transition hover:ring-brand/40 active:scale-95"
+                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95"
                   >
                     Products
                   </button>
@@ -1292,7 +1289,7 @@ export function BioPublicPage() {
                       void triggerHaptic("selection");
                       document.getElementById("bio-services")?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="min-h-[44px] shrink-0 rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line/80 transition hover:ring-brand/40 active:scale-95"
+                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95"
                   >
                     Services
                   </button>
@@ -1304,7 +1301,7 @@ export function BioPublicPage() {
                       void triggerHaptic("selection");
                       document.getElementById("bio-about")?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="min-h-[44px] shrink-0 rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line/80 transition hover:ring-brand/40 active:scale-95"
+                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95"
                   >
                     About
                   </button>
@@ -1354,7 +1351,7 @@ export function BioPublicPage() {
 
               {/* Business Location & Trading Hours Schedule Card */}
               {(bio.city || bio.hours || bio.phone) && (
-                <div className="mt-5 divide-y divide-line/70 rounded-[28px] bg-paper/60 ring-1 ring-line/80 overflow-hidden shadow-2xs">
+                <div className="neu-card mt-5 divide-y divide-line/70 overflow-hidden">
                   {bio.city && (
                     <a
                       href={maps || undefined}
@@ -1412,7 +1409,7 @@ export function BioPublicPage() {
 
           {/* Owner Hangout Planner Hub and Proposals Inbox */}
           {isOwner && (
-            <div className="mt-7 rounded-[28px] sm:rounded-[32px] bg-gradient-to-br from-paper/90 via-card to-paper/60 p-5 sm:p-6 ring-1 ring-brand/30 shadow-xs">
+            <div className="mt-7 rounded-[28px] sm:rounded-[32px] bg-gradient-to-br from-paper/90 via-card to-paper/60 p-5 sm:p-6 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
                   <Sparkles size={12} className="text-accent" />
@@ -1453,7 +1450,7 @@ export function BioPublicPage() {
                       label: "Hangout",
                       sub: "Group catch-up",
                       Icon: Users,
-                      tint: "bg-rose-500/15 text-rose-700 dark:text-rose-400 ring-1 ring-rose-500/20",
+                      tint: "bg-rose-500/15 text-rose-700 dark:text-rose-400",
                     },
                   ] as const
                 ).map((opt) => (
@@ -1465,7 +1462,7 @@ export function BioPublicPage() {
                       setCatchUpInitialType(opt.type);
                       setCatchUpModalOpen(true);
                     }}
-                    className="group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[64px] sm:min-h-[96px] rounded-[22px] bg-card p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-[box-shadow,ring-color,transform] duration-200 hover:ring-brand/40 hover:shadow-xs active:scale-[0.98] cursor-pointer touch-manipulation"
+                    className="neu-row group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[64px] sm:min-h-[96px] p-3.5 sm:p-4 text-left sm:text-center transition duration-200 active:scale-[0.98] cursor-pointer touch-manipulation"
                   >
                     <span
                       className={cn(
@@ -1515,11 +1512,11 @@ export function BioPublicPage() {
                       return (
                         <div
                           key={item.id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 rounded-[22px] bg-card p-4 ring-1 ring-line/80 shadow-2xs"
+                          className="neu-row flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 p-4"
                         >
                           <div className="min-w-0 flex-1 space-y-2.5">
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className="h-11 w-11 overflow-hidden rounded-full ring-1 ring-line bg-paper shrink-0">
+                              <div className="h-11 w-11 overflow-hidden rounded-full bg-paper shrink-0">
                                 {item.requesterPhoto ? (
                                   <Photo src={item.requesterPhoto} className="h-full w-full object-cover" />
                                 ) : (
@@ -1568,8 +1565,8 @@ export function BioPublicPage() {
                                 className={cn(
                                   "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-xs font-semibold transition active:scale-95 touch-manipulation focus-visible:outline-2 focus-visible:outline-brand",
                                   item.meetingPlatform === "facetime" || item.meetingLink.includes("facetime")
-                                    ? "bg-emerald-500/15 text-emerald-800 ring-1 ring-emerald-500/30 hover:bg-emerald-500/25"
-                                    : "bg-brand/10 text-accent ring-1 ring-brand/30 hover:bg-brand/20",
+                                    ? "bg-emerald-500/15 text-emerald-800 hover:bg-emerald-500/25"
+                                    : "bg-brand/10 text-accent hover:bg-brand/20",
                                 )}
                                 title={
                                   item.meetingPlatform === "facetime" || item.meetingLink.includes("facetime")
@@ -1654,7 +1651,7 @@ export function BioPublicPage() {
                   return (
                     <div
                       key={s.id}
-                      className="w-full flex items-center justify-between rounded-3xl bg-card p-4 text-left ring-1 ring-line/80 transition hover:bg-paper shadow-2xs"
+                      className="neu-row w-full flex items-center justify-between p-4 text-left transition"
                     >
                       <button
                         type="button"
@@ -1695,7 +1692,7 @@ export function BioPublicPage() {
           {liveOffer && (
             <div
               id="bio-offers"
-              className="mt-8 scroll-mt-24 overflow-hidden rounded-[28px] sm:rounded-[32px] bg-gradient-to-br from-card via-card to-paper p-5 sm:p-6 ring-1 ring-gold/40 shadow-sm"
+              className="mt-8 scroll-mt-24 overflow-hidden rounded-[28px] sm:rounded-[32px] bg-gradient-to-br from-card via-card to-paper p-5 sm:p-6 shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
@@ -1849,7 +1846,7 @@ export function BioPublicPage() {
                   recordTap(bio.handle, "maps");
                   trackMapClick({ source: "bio" });
                 }}
-                className="flex min-h-[44px] h-11 items-center justify-center gap-2 rounded-full bg-paper text-xs font-bold text-ink ring-1 ring-line/80 transition hover:bg-paper/80 shadow-2xs active:scale-95 touch-manipulation cursor-pointer"
+                className="neu-btn flex min-h-[44px] h-11 items-center justify-center gap-2 text-xs font-bold text-ink transition active:scale-95 touch-manipulation cursor-pointer"
               >
                 <MapPin size={15} className="text-accent" />
                 <span>Open in Maps</span>
@@ -1859,7 +1856,7 @@ export function BioPublicPage() {
 
           {/* Guestlist signups are stored by the authenticated server callable. */}
           <form
-            className="mt-8 rounded-[28px] sm:rounded-[32px] bg-paper/60 p-5 sm:p-6 ring-1 ring-line/80 shadow-2xs space-y-3"
+            className="neu-section mt-8 p-5 sm:p-6 space-y-3"
             onSubmit={(e) => {
               e.preventDefault();
               if (listSending) return;
@@ -1997,7 +1994,7 @@ export function BioPublicPage() {
                       className={
                         on
                           ? "min-h-[44px] shrink-0 cursor-pointer rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-                          : "min-h-[44px] shrink-0 cursor-pointer rounded-full bg-card px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:ring-brand/40 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                          : "min-h-[44px] shrink-0 cursor-pointer rounded-full bg-card px-4 text-xs font-semibold text-ink transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                       }
                     >
                       {interest.label}
@@ -2028,19 +2025,19 @@ export function BioPublicPage() {
 
           {/* Invite code — every bio carries its owner's code so any visitor can join under them */}
           {bio.ownerUid && (
-            <div className="mt-8 rounded-[28px] bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 p-5 ring-1 ring-amber-500/25 shadow-xs">
+            <div className="mt-8 rounded-[28px] bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/10 p-5 shadow-xs">
               <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-accent">
                 <Ticket size={14} className="text-amber-500" aria-hidden />
                 <span>{isOwner ? "Your invite code" : `Join with ${firstNameOf(bio.name)}'s code`}</span>
               </p>
               <div className="mt-3 flex flex-wrap sm:flex-nowrap items-center gap-2">
-                <code className="min-w-0 w-full sm:w-auto sm:flex-1 truncate rounded-2xl bg-card px-4 py-2.5 text-sm font-bold text-ink ring-1 ring-line/80 shadow-2xs font-mono">
+                <code className="neu-inset min-w-0 w-full sm:w-auto sm:flex-1 truncate px-4 py-2.5 text-sm font-bold text-ink font-mono">
                   @{bio.handle}
                 </code>
                 <button
                   type="button"
                   onClick={() => void handleCopyInviteCode()}
-                  className="inline-flex min-h-[44px] flex-1 sm:flex-initial sm:shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-2xl bg-card px-4 text-xs font-semibold text-ink ring-1 ring-line/80 shadow-2xs transition hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
+                  className="neu-btn inline-flex min-h-[44px] flex-1 sm:flex-initial sm:shrink-0 items-center justify-center gap-1.5 whitespace-nowrap px-4 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer touch-manipulation"
                   aria-label="Copy invite code"
                 >
                   {copiedCode ? (
@@ -2076,7 +2073,7 @@ export function BioPublicPage() {
         <div className="flex flex-col items-center gap-2">
           <Link
             href="/"
-            className="group inline-flex items-center gap-2.5 rounded-full bg-card/85 dark:bg-card/60 px-4 py-2 ring-1 ring-line/70 shadow-2xs backdrop-blur-md transition hover:bg-card hover:ring-brand/40 active:scale-95"
+            className="neu-btn group inline-flex items-center gap-2.5 px-4 py-2 backdrop-blur-md transition active:scale-95"
             aria-label="AirPal Home"
           >
             <BrandMark compact mode="me" className="h-7 w-7" />
@@ -2097,7 +2094,7 @@ export function BioPublicPage() {
           <div className="flex flex-wrap items-center justify-center gap-2 max-w-md">
             <Link
               href="/bio/edit"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-card/90 dark:bg-card/70 px-4 py-2 text-xs font-semibold text-ink ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition hover:bg-card hover:ring-brand/50 active:scale-95 cursor-pointer touch-manipulation"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-2 px-4 py-2 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer touch-manipulation"
             >
               <Edit3 size={14} className="text-brand shrink-0" />
               <span>Edit Bio Pass</span>
@@ -2108,14 +2105,14 @@ export function BioPublicPage() {
                 void triggerHaptic("medium");
                 setShareModalOpen(true);
               }}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-card/90 dark:bg-card/70 px-4 py-2 text-xs font-semibold text-ink ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition hover:bg-card hover:ring-brand/50 active:scale-95 cursor-pointer touch-manipulation"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-2 px-4 py-2 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer touch-manipulation"
             >
               <QrCode size={14} className="text-accent shrink-0" />
               <span>Share Pass QR</span>
             </button>
             <Link
               href="/pass"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-card/90 dark:bg-card/70 px-4 py-2 text-xs font-semibold text-ink ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition hover:bg-card hover:ring-brand/50 active:scale-95 cursor-pointer touch-manipulation"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-2 px-4 py-2 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer touch-manipulation"
             >
               <Ticket size={14} className="text-amber-500 shrink-0" />
               <span>Events &amp; Deals</span>
@@ -2137,7 +2134,7 @@ export function BioPublicPage() {
               </Link>
               <Link
                 href="/pass"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-card/90 dark:bg-card/70 px-4 py-2.5 text-xs font-semibold text-ink ring-1 ring-line/80 shadow-2xs backdrop-blur-sm transition hover:bg-card hover:ring-brand/50 active:scale-95 cursor-pointer touch-manipulation"
+                className="neu-btn inline-flex min-h-[44px] items-center gap-2 px-4 py-2.5 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer touch-manipulation"
               >
                 <span>AirPal Pass</span>
                 <ChevronRight size={14} className="shrink-0 text-mute" />
@@ -2150,7 +2147,7 @@ export function BioPublicPage() {
         <button
           type="button"
           onClick={handleQuickCopy}
-          className="group inline-flex min-h-[44px] items-center gap-2 rounded-full bg-paper/80 dark:bg-card/70 px-4 py-1.5 text-xs font-mono text-mute ring-1 ring-line/70 transition hover:text-ink hover:ring-brand/40 active:scale-95 cursor-pointer touch-manipulation select-none"
+          className="neu-btn group inline-flex min-h-[44px] items-center gap-2 px-4 py-1.5 text-xs font-mono text-mute transition hover:text-ink active:scale-95 cursor-pointer touch-manipulation select-none"
           title="Copy profile link"
           aria-label="Copy profile link"
         >
@@ -2253,7 +2250,7 @@ export function BioPublicPage() {
           onClick={() => setClaim(null)}
         >
           <div
-            className="w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] bg-card p-6 text-center shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] sm:pb-6"
+            className="w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] bg-card p-6 text-center shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] sm:pb-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />

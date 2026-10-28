@@ -163,7 +163,7 @@ export function GooglePlaceImportCard({
           aria-controls={listId}
           aria-autocomplete="list"
           aria-activedescendant={open && hits[active] ? `${listId}-${hits[active]!.placeId}` : undefined}
-          className={`w-full rounded-xl border border-line ${innerSurface} py-3 pl-9 pr-14 text-sm outline-none placeholder:text-mute focus:border-brand focus:ring-2 focus:ring-brand/20`}
+          className="neu-inset w-full py-3 pl-9 pr-14 text-sm outline-none placeholder:text-mute focus:ring-2 focus:ring-brand/20"
         />
         {query && (
           <button
@@ -188,11 +188,7 @@ export function GooglePlaceImportCard({
       )}
       {error && <p className="mt-2 text-[13px] text-red-600">{error}</p>}
       {hits.length > 0 && (
-        <ul
-          id={listId}
-          role="listbox"
-          className={`mt-2 divide-y divide-line overflow-hidden rounded-xl ring-1 ring-line ${innerSurface}`}
-        >
+        <ul id={listId} role="listbox" className="neu-inset mt-2 divide-y divide-line overflow-hidden">
           {hits.map((hit, i) => (
             <li key={hit.placeId} role="presentation">
               <button
@@ -222,16 +218,10 @@ export function GooglePlaceImportCard({
   );
 
   const previewCard = preview ? (
-    <div
-      className={cn(
-        "overflow-hidden rounded-2xl ring-1 ring-line",
-        innerSurface,
-        variant === "field" ? "mt-2" : "mt-3",
-      )}
-    >
+    <div className={cn("overflow-hidden rounded-2xl", innerSurface, variant === "field" ? "mt-2" : "mt-3")}>
       {cover && <img src={cover} alt="" className="h-28 w-full object-cover" />}
       <div className="flex gap-3 p-3">
-        {logo && <img src={logo} alt="" className="h-14 w-14 shrink-0 rounded-full object-cover ring-1 ring-line" />}
+        {logo && <img src={logo} alt="" className="neu-avatar h-14 w-14 shrink-0 rounded-full object-cover" />}
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-base font-bold">{preview.name}</p>
           <p className="truncate text-xs text-mute">{preview.address}</p>
@@ -296,7 +286,7 @@ export function GooglePlaceImportCard({
   }
 
   return (
-    <div className="rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay">
+    <div className="neu-section p-5 sm:p-6">
       <p className="text-[11px] font-bold uppercase tracking-wider text-accent">
         {fromGoogle ? "From Google" : "Public listing"}
       </p>

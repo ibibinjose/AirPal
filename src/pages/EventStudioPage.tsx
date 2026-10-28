@@ -708,7 +708,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     setCreatingNew(false);
                     setSelectedEventId(myEvents[0]?.id ?? null);
                   }}
-                  className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand/10 px-4 text-xs font-bold text-accent ring-1 ring-brand/25 hover:bg-brand/15 transition"
+                  className="neu-chip neu-tint-brand inline-flex min-h-[44px] items-center gap-1.5 px-4 text-xs font-bold text-accent transition"
                 >
                   <LayoutGrid size={13} />
                   <span>Manage Existing Events ({myEvents.length})</span>
@@ -806,8 +806,8 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         >
                           <span
                             className={cn(
-                              "grid h-10 w-10 place-items-center rounded-xl ring-1",
-                              on ? "bg-white/15 text-white ring-white/25" : "bg-brand/10 text-accent ring-brand/20",
+                              "grid h-10 w-10 place-items-center rounded-xl",
+                              on ? "bg-white/15 text-white ring-1 ring-white/25" : "bg-brand/10 text-accent",
                             )}
                           >
                             <Icon size={18} />
@@ -878,7 +878,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                       maxLength={300}
                       rows={2}
                       placeholder="e.g. Take the lift to Level 4 and meet at the bar from 6pm"
-                      className="w-full rounded-2xl border border-line bg-paper p-3 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                      className="neu-inset w-full p-3 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
                     />
                   </div>
                 </div>
@@ -905,7 +905,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         value={startsLocal}
                         onChange={(e) => setStartsLocal(e.target.value)}
                         required
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
                     <div>
@@ -916,7 +916,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         type="datetime-local"
                         value={endsLocal}
                         onChange={(e) => setEndsLocal(e.target.value)}
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
                   </div>
@@ -1051,7 +1051,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     maxLength={500}
                     rows={2}
                     placeholder="e.g. No refunds, but tickets are transferable — message us to swap the name over."
-                    className="w-full rounded-2xl border border-line bg-paper p-3 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                    className="neu-inset w-full p-3 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
                   />
                 </div>
 
@@ -1059,7 +1059,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 <div className="neu-section p-5 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-400/20">
+                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
                         <ShieldCheck size={16} />
                       </div>
                       <div>
@@ -1304,7 +1304,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   </span>
                 )}
                 {activeEvent.seriesId && activeEvent.recurrenceIndex && activeEvent.recurrenceCount && (
-                  <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-accent ring-1 ring-brand/20">
+                  <span className="neu-chip neu-tint-brand px-2 py-0.5 text-[10px] font-semibold text-accent">
                     Weekly {activeEvent.recurrenceIndex} of {activeEvent.recurrenceCount}
                   </span>
                 )}
@@ -1342,7 +1342,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
           </div>
 
           {isLocalOnly && (
-            <div className="mt-4 rounded-2xl bg-amber-500/10 p-4 ring-1 ring-amber-500/30 flex items-center justify-between gap-3 flex-wrap">
+            <div className="mt-4 rounded-2xl bg-amber-500/10 p-4 flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2.5">
                 <AlertTriangle className="text-amber-500 shrink-0" size={18} />
                 <div>
@@ -1583,7 +1583,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         onChange={(e) => setStallName(e.target.value)}
                         placeholder={labels.businessPlaceholder}
                         required
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
 
@@ -1596,7 +1596,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                           value={booth}
                           onChange={(e) => setBooth(e.target.value)}
                           placeholder={labels.unitPlaceholder}
-                          className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                          className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                         />
                       </div>
                       <StallHandleField
@@ -1620,7 +1620,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         onChange={(e) => setStallLocation(e.target.value)}
                         placeholder="e.g. Aisle C · Bay 12, near Gate B"
                         maxLength={120}
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60"
+                        className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60"
                       />
                     </div>
 
@@ -1654,7 +1654,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         value={stallWhy}
                         onChange={(e) => setStallWhy(e.target.value)}
                         placeholder="One-line summary guests see (e.g. Handmade ceramic cups & vases)"
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
 
@@ -1666,7 +1666,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         value={stallOffer}
                         onChange={(e) => setStallOffer(e.target.value)}
                         placeholder="e.g. Free espresso with bag of beans, or 10% off"
-                        className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                        className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                       />
                     </div>
 
@@ -1747,7 +1747,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
         {/* TAB 3: PRINT GATE QR */}
         {tab === "print" && (
           <div className="mt-5 neu-section p-6 text-center space-y-4">
-            <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20">
+            <span className="neu-tint-brand mx-auto grid h-14 w-14 place-items-center rounded-2xl text-accent">
               <QrCode size={26} />
             </span>
             <div>
@@ -1759,7 +1759,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             </div>
 
             {qr ? (
-              <div className="relative inline-block rounded-3xl bg-white p-4 ring-1 ring-line shadow-md">
+              <div className="relative inline-block rounded-3xl bg-white p-4 shadow-md">
                 <img src={qr} alt={`QR code for ${activeEvent.name}`} className="mx-auto h-52 w-52" />
               </div>
             ) : (
@@ -1888,7 +1888,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   maxLength={300}
                   rows={2}
                   placeholder="e.g. Take the lift to Level 4 and meet at the bar from 6pm"
-                  className="w-full rounded-2xl border border-line bg-paper p-3 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                  className="neu-inset w-full p-3 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
                 />
               </div>
             </div>
@@ -1941,7 +1941,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   type="datetime-local"
                   value={startsLocal}
                   onChange={(e) => setStartsLocal(e.target.value)}
-                  className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                 />
               </div>
               <div>
@@ -1950,7 +1950,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   type="datetime-local"
                   value={endsLocal}
                   onChange={(e) => setEndsLocal(e.target.value)}
-                  className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20"
                 />
               </div>
             </div>
@@ -2011,7 +2011,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 maxLength={500}
                 rows={2}
                 placeholder="e.g. No refunds, but tickets are transferable — message us to swap the name over."
-                className="w-full rounded-2xl border border-line bg-paper p-3 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
+                className="neu-inset w-full p-3 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60 resize-none leading-relaxed"
               />
             </div>
 
@@ -2020,7 +2020,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             {/* Guest Screening & Approval Mode in Settings */}
             <div className="neu-card p-4 space-y-2.5">
               <div className="flex items-center gap-2">
-                <div className="grid h-7 w-7 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-400/20">
+                <div className="grid h-7 w-7 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
                   <ShieldCheck size={15} />
                 </div>
                 <div>

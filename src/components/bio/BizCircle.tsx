@@ -18,7 +18,7 @@ export function BizCircle({
     onClick?.();
   };
   const circle =
-    "grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-[20px] sm:rounded-[24px] bg-card text-accent ring-1 ring-line/80 shadow-2xs transition-all duration-150 group-hover:ring-brand/40 group-hover:scale-105 active:scale-95";
+    "neu-card grid h-12 w-12 sm:h-14 sm:w-14 place-items-center text-accent transition-all duration-150 group-hover:scale-105 active:scale-95";
   const wrap =
     "flex min-w-[56px] sm:min-w-[64px] touch-manipulation flex-col items-center gap-1.5 group cursor-pointer";
   const caption = "text-[11px] sm:text-xs font-semibold text-ink/90 group-hover:text-accent transition-colors";

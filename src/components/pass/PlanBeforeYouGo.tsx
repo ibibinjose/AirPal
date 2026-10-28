@@ -19,7 +19,7 @@ export function PlanBeforeYouGo({ storageKey = STORAGE_KEY }: { storageKey?: str
   if (dismissed) return null;
 
   return (
-    <div className="mt-4 flex items-start gap-3 rounded-2xl bg-card px-4 py-3 ring-1 ring-line">
+    <div className="neu-row mt-4 flex items-start gap-3 px-4 py-3">
       <TriangleAlert size={16} className="mt-0.5 shrink-0 text-[#ffb224]" aria-hidden="true" />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-bold text-ink">Plan before you go</p>
@@ -39,7 +39,7 @@ export function PlanBeforeYouGo({ storageKey = STORAGE_KEY }: { storageKey?: str
           }
           setDismissed(true);
         }}
-        className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full px-3 text-xs font-bold text-accent ring-1 ring-line hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
+        className="neu-btn inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center px-3 text-xs font-bold text-accent active:scale-95 cursor-pointer touch-manipulation"
       >
         Got it
       </button>

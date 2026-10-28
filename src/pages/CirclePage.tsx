@@ -423,7 +423,7 @@ export function CirclePage() {
               void triggerHaptic("light");
               setLogMetOpen(true);
             }}
-            className="min-h-[44px] justify-center gap-1.5 px-3.5 text-xs font-semibold active:scale-95"
+            className="neu-btn min-h-[44px] justify-center gap-1.5 px-3.5 text-xs font-semibold active:scale-95"
             aria-label="Log someone you met in person"
           >
             <Handshake size={15} aria-hidden="true" />
@@ -435,7 +435,7 @@ export function CirclePage() {
               void triggerHaptic("light");
               setQrOpen(true);
             }}
-            className="min-h-[44px] justify-center gap-1.5 px-3.5 text-xs font-semibold active:scale-95"
+            className="neu-btn min-h-[44px] justify-center gap-1.5 px-3.5 text-xs font-semibold active:scale-95"
             aria-label="Show Circle QR code"
           >
             <QrCode size={15} aria-hidden="true" />
@@ -454,7 +454,7 @@ export function CirclePage() {
       </header>
 
       {/* Connector Rank Card */}
-      <div className="human-card relative mt-6 overflow-hidden p-4 sm:p-5">
+      <div className="neu-section relative mt-6 overflow-hidden p-4 sm:p-5">
         <ConfettiBurst fireKey={celebrate} />
         <div className="flex items-center gap-3.5">
           {/* Level emblem with progress ring */}
@@ -515,7 +515,7 @@ export function CirclePage() {
               void triggerHaptic("light");
               setShowQuests((prev) => !prev);
             }}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-paper ring-1 ring-line text-mute hover:text-ink cursor-pointer"
+            className="neu-btn inline-flex h-11 w-11 shrink-0 items-center justify-center text-mute hover:text-ink cursor-pointer"
             aria-label={showQuests ? "Hide quests" : "Show quests"}
             aria-expanded={showQuests}
             aria-controls="circle-quests"
@@ -530,7 +530,7 @@ export function CirclePage() {
               const isDone = quest.done[q.id];
               const Icon = QUEST_ICONS[q.id];
               return (
-                <div key={q.id} className="flex items-center gap-3 rounded-2xl bg-paper/70 p-3 ring-1 ring-line/50">
+                <div key={q.id} className="neu-row flex items-center gap-3 p-3">
                   <span
                     className={cn(
                       "grid h-10 w-10 shrink-0 place-items-center rounded-xl",
@@ -675,7 +675,7 @@ export function CirclePage() {
                     }}
                     className={cn(
                       "inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-[background-color,color,box-shadow] cursor-pointer",
-                      active ? "bg-ink text-card shadow-2xs" : "bg-paper text-mute ring-1 ring-line hover:text-ink",
+                      active ? "bg-ink text-card shadow-2xs" : "neu-btn text-mute hover:text-ink",
                     )}
                   >
                     <span>{pill.label}</span>
@@ -703,7 +703,7 @@ export function CirclePage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, @handle, community, or precinct..."
-            className="w-full min-h-[44px] rounded-2xl bg-card pl-10 pr-9 text-base sm:text-sm text-ink placeholder:text-mute ring-1 ring-line focus:outline-hidden focus:ring-2 focus:ring-brand/40"
+            className="neu-inset w-full min-h-[44px] rounded-2xl pl-10 pr-9 text-base sm:text-sm text-ink placeholder:text-mute focus:outline-hidden focus:ring-2 focus:ring-brand/40"
             aria-label="Search contacts"
           />
           {searchQuery && (
@@ -785,7 +785,7 @@ export function CirclePage() {
             filteredContacts.map((contact) => (
               <div
                 key={contact.id}
-                className="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 rounded-2xl bg-card p-4 ring-1 ring-line shadow-clay transition-[box-shadow,border-color] duration-200 hover:shadow-clay-hover hover:border-line"
+                className="neu-row group relative flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 p-4 transition-transform duration-200 active:scale-[0.99]"
               >
                 {/* Left: Avatar & Contact Metadata */}
                 <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
@@ -904,7 +904,7 @@ export function CirclePage() {
                   {contact.category === "places" ? (
                     <Link
                       href={`/@${contact.handle}`}
-                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition-[background-color,transform]"
+                      className="neu-btn inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center whitespace-nowrap px-3.5 py-1.5 text-xs font-semibold text-ink transition-[box-shadow,transform] active:scale-95"
                       aria-label={`View place ${contact.name}`}
                     >
                       View
@@ -912,7 +912,7 @@ export function CirclePage() {
                   ) : contact.category === "communities" ? (
                     <Link
                       href="/events"
-                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1 whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition-[background-color,transform]"
+                      className="neu-btn inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1 whitespace-nowrap px-3.5 py-1.5 text-xs font-semibold text-ink transition-[box-shadow,transform] active:scale-95"
                       aria-label={`Find events near ${contact.name}`}
                     >
                       Events
@@ -922,7 +922,7 @@ export function CirclePage() {
                     <button
                       type="button"
                       onClick={() => setCatchUpContact({ handle: contact.handle, name: contact.name })}
-                      className="inline-flex min-h-[44px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition-[background-color,transform]"
+                      className="neu-btn inline-flex min-h-[44px] flex-1 sm:flex-initial cursor-pointer items-center justify-center gap-1 whitespace-nowrap px-3.5 py-1.5 text-xs font-semibold text-ink transition-[box-shadow,transform] active:scale-95"
                       aria-label={`Propose a catch-up with ${contact.name}`}
                     >
                       <CalendarDays size={13} className="shrink-0" />
@@ -937,7 +937,7 @@ export function CirclePage() {
       </section>
 
       {/* Fast CTA */}
-      <div className="human-card mt-8 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="neu-section mt-8 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 className="human-section-title text-base">Grow your circle?</h3>
           <p className="text-sm text-mute mt-0.5">Invite family or a friend with your Circle link in one tap.</p>
@@ -946,7 +946,7 @@ export function CirclePage() {
           <Button
             variant="outlined"
             onClick={() => setQrOpen(true)}
-            className="min-h-[44px] justify-center gap-1.5 px-4 text-sm font-semibold active:scale-95"
+            className="neu-btn min-h-[44px] justify-center gap-1.5 px-4 text-sm font-semibold active:scale-95"
           >
             <QrCode size={15} aria-hidden="true" />
             <span>Show QR</span>

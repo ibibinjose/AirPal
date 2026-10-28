@@ -51,7 +51,7 @@ export function BioSubscribersPanel({ handle }: { handle: string }) {
   if (!liveBackendEnabled()) return null;
 
   return (
-    <div className="mt-6 rounded-3xl border border-line bg-card p-5 sm:p-6 shadow-clay">
+    <div className="neu-section mt-6 p-5 sm:p-6">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
           <Users size={14} />
@@ -61,7 +61,7 @@ export function BioSubscribersPanel({ handle }: { handle: string }) {
           <button
             type="button"
             onClick={exportCsv}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 text-xs font-bold text-accent ring-1 ring-line transition hover:bg-brand/5 active:scale-95 cursor-pointer"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-4 text-xs font-bold text-accent transition active:scale-95 cursor-pointer"
           >
             <Download size={14} />
             <span>Export CSV</span>
@@ -84,10 +84,7 @@ export function BioSubscribersPanel({ handle }: { handle: string }) {
       {rows !== null && rows.length > 0 && (
         <ul className="mt-3 space-y-2">
           {rows.slice(0, 50).map((row) => (
-            <li
-              key={row.email}
-              className="flex items-center gap-3 rounded-2xl bg-paper px-3.5 py-2.5 ring-1 ring-line/70"
-            >
+            <li key={row.email} className="neu-row flex items-center gap-3 px-3.5 py-2.5">
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-semibold text-ink">{row.name || row.email}</span>
                 <span className="block truncate text-[11px] text-mute">

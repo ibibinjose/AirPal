@@ -260,7 +260,7 @@ export function BioSocials({
             }}
             aria-label={`${title} (${cfg.action})`}
             className={cn(
-              "group flex w-full items-center justify-between rounded-2xl sm:rounded-[22px] bg-card p-3.5 sm:p-4 text-left ring-1 ring-line/80 shadow-2xs transition-[box-shadow,transform,border-color] duration-200 hover:shadow-xs active:scale-[0.99] touch-manipulation cursor-pointer",
+              "neu-row group flex w-full items-center justify-between p-3.5 sm:p-4 text-left transition-[box-shadow,transform] duration-200 active:scale-[0.99] touch-manipulation cursor-pointer",
               cfg.hoverBorder,
             )}
           >

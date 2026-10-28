@@ -383,7 +383,7 @@ export function BioCatchUpModal({
       aria-labelledby="catchup-modal-title"
     >
       <div
-        className="relative w-full max-w-lg max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] flex flex-col overflow-hidden rounded-t-[32px] sm:rounded-[32px] bg-paper shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:pb-0"
+        className="relative w-full max-w-lg max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] flex flex-col overflow-hidden rounded-t-[32px] sm:rounded-[32px] bg-paper shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:pb-0"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mt-2 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />
@@ -393,7 +393,7 @@ export function BioCatchUpModal({
           <button
             type="button"
             onClick={handleClose}
-            className="absolute right-4 top-4 grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-card text-mute ring-1 ring-line hover:text-ink transition-[background-color,color] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            className="neu-btn absolute right-4 top-4 grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center text-mute hover:text-ink transition-[background-color,color] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Close dialog"
           >
             <X size={18} />
@@ -436,7 +436,7 @@ export function BioCatchUpModal({
               </p>
             </div>
 
-            <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 space-y-3 text-sm">
+            <div className="neu-row p-4 space-y-3 text-sm">
               <div className="flex items-center justify-between border-b border-line/40 pb-2.5">
                 <span className="text-xs font-semibold uppercase tracking-wider text-mute">Format</span>
                 <span className="font-bold text-ink flex items-center gap-1.5">
@@ -475,7 +475,7 @@ export function BioCatchUpModal({
               <button
                 type="button"
                 onClick={() => void handleCopyInviteMessage()}
-                className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-card px-4 text-xs font-bold text-ink ring-1 ring-line hover:bg-paper transition cursor-pointer active:scale-95 touch-manipulation"
+                className="neu-btn inline-flex min-h-[46px] w-full items-center justify-center gap-2 px-4 text-xs font-bold text-ink transition cursor-pointer active:scale-95 touch-manipulation"
               >
                 {copiedInvite ? (
                   <>
@@ -508,7 +508,7 @@ export function BioCatchUpModal({
             <div className="max-h-[65vh] space-y-5 overflow-y-auto p-6">
               {/* Double-booking Collision Warning */}
               {conflict.hasConflict && (
-                <div className="rounded-2xl bg-amber-500/10 p-3.5 ring-1 ring-amber-500/30 text-xs animate-in fade-in">
+                <div className="rounded-2xl bg-amber-500/10 p-3.5 text-xs animate-in fade-in">
                   <div className="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-400">
                     <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
                     <span>Double-Booking Conflict Detected</span>
@@ -560,8 +560,8 @@ export function BioCatchUpModal({
                           if (opt.type === "nightout" && durationMinutes < 60) setDurationMinutes(120);
                         }}
                         className={cn(
-                          "flex flex-col items-center rounded-2xl p-3 text-center ring-1 transition-[background-color,box-shadow,transform] cursor-pointer active:scale-95",
-                          isSelected ? "bg-card ring-brand shadow-xs" : "bg-card/60 ring-line hover:bg-card",
+                          "flex flex-col items-center rounded-2xl p-3 text-center transition-[background-color,box-shadow,transform] cursor-pointer active:scale-95",
+                          isSelected ? "bg-card ring-1 ring-brand shadow-xs" : "bg-card/60 hover:bg-card",
                         )}
                       >
                         <span className={cn("mb-1.5 rounded-xl border p-2", opt.color)}>
@@ -577,7 +577,7 @@ export function BioCatchUpModal({
 
               {/* Hangout Vibe / Activity selection (visible when nightout/hangout is active) */}
               {selectedType === "nightout" && (
-                <div className="rounded-2xl bg-card/60 p-3.5 ring-1 ring-line/80 space-y-2 animate-in fade-in">
+                <div className="neu-row p-3.5 space-y-2 animate-in fade-in">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-mute flex items-center gap-1.5">
                     <span>Hangout Vibe &amp; Activity</span>
                   </p>
@@ -591,10 +591,10 @@ export function BioCatchUpModal({
                           setSelectedVibe(selectedVibe === vibe.label ? "" : vibe.label);
                         }}
                         className={cn(
-                          "inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold ring-1 transition-[background-color,color,transform] cursor-pointer active:scale-95 touch-manipulation",
+                          "inline-flex min-h-[44px] items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold transition-[background-color,color,transform] cursor-pointer active:scale-95 touch-manipulation",
                           selectedVibe === vibe.label
-                            ? "bg-rose-500/15 text-rose-700 dark:text-rose-300 ring-rose-500/30 font-bold"
-                            : "bg-paper text-mute ring-line hover:text-ink hover:bg-card",
+                            ? "bg-rose-500/15 text-rose-700 dark:text-rose-300 ring-1 ring-rose-500/30 font-bold"
+                            : "bg-paper text-mute hover:text-ink hover:bg-card",
                         )}
                       >
                         <vibe.icon size={13} className="shrink-0" aria-hidden="true" />
@@ -618,10 +618,10 @@ export function BioCatchUpModal({
                         setDurationMinutes(d.mins);
                       }}
                       className={cn(
-                        "flex flex-col items-center justify-center min-h-[48px] rounded-xl px-1 py-1.5 text-center ring-1 transition-[background-color,color,transform] cursor-pointer active:scale-95 touch-manipulation",
+                        "flex flex-col items-center justify-center min-h-[48px] rounded-xl px-1 py-1.5 text-center transition-[background-color,color,transform] cursor-pointer active:scale-95 touch-manipulation",
                         durationMinutes === d.mins
-                          ? "bg-brand text-white ring-brand shadow-xs font-bold"
-                          : "bg-card text-ink ring-line hover:bg-paper",
+                          ? "bg-brand text-white ring-1 ring-brand shadow-xs font-bold"
+                          : "bg-card text-ink hover:bg-paper",
                       )}
                     >
                       <span className="text-xs font-bold">{d.label}</span>
@@ -678,7 +678,7 @@ export function BioCatchUpModal({
                         void triggerHaptic("light");
                         setDate(localDate(Number(days)));
                       }}
-                      className="min-h-[40px] flex-1 sm:flex-initial whitespace-nowrap rounded-xl bg-card px-3 py-1.5 text-xs font-semibold text-mute ring-1 ring-line hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
+                      className="neu-btn min-h-[40px] flex-1 sm:flex-initial whitespace-nowrap px-3 py-1.5 text-xs font-semibold text-mute hover:text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand touch-manipulation"
                     >
                       {label}
                     </button>
@@ -698,7 +698,7 @@ export function BioCatchUpModal({
                 </div>
 
                 {/* 4-way Segmented Control */}
-                <div className="grid grid-cols-4 gap-1 rounded-2xl bg-card p-1 ring-1 ring-line">
+                <div className="neu-inset grid grid-cols-4 gap-1 p-1">
                   <button
                     type="button"
                     onClick={() => {
@@ -708,7 +708,7 @@ export function BioCatchUpModal({
                     className={cn(
                       "min-h-[44px] flex items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1 py-2 text-[10px] sm:text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                       meetingPlatform === "in_person"
-                        ? "bg-paper text-ink shadow-xs ring-1 ring-line/80 font-bold"
+                        ? "bg-paper text-ink shadow-xs font-bold"
                         : "text-mute hover:text-ink",
                     )}
                   >
@@ -725,7 +725,7 @@ export function BioCatchUpModal({
                     className={cn(
                       "min-h-[44px] flex items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1 py-2 text-[10px] sm:text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                       meetingPlatform === "google_meet"
-                        ? "bg-brand/10 text-accent ring-1 ring-brand/30 shadow-xs font-bold"
+                        ? "bg-brand/10 text-accent shadow-xs font-bold"
                         : "text-mute hover:text-ink",
                     )}
                   >
@@ -742,7 +742,7 @@ export function BioCatchUpModal({
                     className={cn(
                       "min-h-[44px] flex items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1 py-2 text-[10px] sm:text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                       meetingPlatform === "facetime"
-                        ? "bg-emerald-500/15 text-emerald-800 ring-1 ring-emerald-500/30 shadow-xs font-bold"
+                        ? "bg-emerald-500/15 text-emerald-800 shadow-xs font-bold"
                         : "text-mute hover:text-ink",
                     )}
                   >
@@ -759,7 +759,7 @@ export function BioCatchUpModal({
                     className={cn(
                       "min-h-[44px] flex items-center justify-center gap-1 whitespace-nowrap rounded-xl px-1 py-2 text-[10px] sm:text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                       meetingPlatform === "zoom"
-                        ? "bg-blue-500/15 text-blue-800 ring-1 ring-blue-500/30 shadow-xs font-bold"
+                        ? "bg-blue-500/15 text-blue-800 shadow-xs font-bold"
                         : "text-mute hover:text-ink",
                     )}
                   >
@@ -792,10 +792,10 @@ export function BioCatchUpModal({
                             setVenue(spot);
                           }}
                           className={cn(
-                            "inline-flex min-h-[36px] items-center rounded-lg px-2.5 text-[11px] font-medium ring-1 transition cursor-pointer touch-manipulation",
+                            "inline-flex min-h-[36px] items-center rounded-lg px-2.5 text-[11px] font-medium transition cursor-pointer touch-manipulation",
                             venue === spot
-                              ? "bg-brand/10 text-accent ring-brand/30 font-bold"
-                              : "bg-paper text-mute ring-line hover:text-ink hover:bg-card",
+                              ? "bg-brand/10 text-accent ring-1 ring-brand/30 font-bold"
+                              : "bg-paper text-mute hover:text-ink hover:bg-card",
                           )}
                         >
                           {spot}
@@ -925,10 +925,10 @@ export function BioCatchUpModal({
                   disabled={Boolean(user?.uid) && !myCatchupsLoaded}
                   onClick={handleToggleReminder}
                   className={cn(
-                    "inline-flex min-h-[44px] whitespace-nowrap items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold ring-1 transition cursor-pointer active:scale-95 touch-manipulation",
+                    "inline-flex min-h-[44px] whitespace-nowrap items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
                     isRemembered
-                      ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 ring-amber-500/40 dark:ring-amber-500/30 font-bold"
-                      : "bg-card text-ink ring-line hover:bg-paper",
+                      ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 ring-1 ring-amber-500/40 dark:ring-amber-500/30 font-bold"
+                      : "bg-card text-ink hover:bg-paper",
                   )}
                 >
                   <Bell

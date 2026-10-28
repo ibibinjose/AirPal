@@ -68,7 +68,7 @@ export function ChangeDisplayNameForm({ currentName, compact }: { currentName?: 
           </p>
         </>
       )}
-      <div className="flex items-center overflow-hidden rounded-2xl bg-paper ring-1 ring-line focus-within:ring-2 focus-within:ring-ink">
+      <div className="neu-inset flex items-center overflow-hidden focus-within:ring-2 focus-within:ring-ink">
         <input
           value={next}
           onChange={(e) => setNext(e.target.value)}

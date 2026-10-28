@@ -32,8 +32,8 @@ export function BioKindBadge({ kind, className }: { kind?: BioKind | null; class
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1",
-        business ? "bg-gold/10 text-accent ring-gold/25" : "bg-paper text-mute ring-line",
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+        business ? "bg-gold/10 text-accent" : "bg-paper text-mute",
         className,
       )}
     >

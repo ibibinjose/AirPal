@@ -79,7 +79,7 @@ function ItemCard({
   );
 
   const cardCls = cn(
-    "group block relative rounded-[26px] bg-card p-4 sm:p-5 text-left ring-1 ring-line/80 shadow-2xs transition-[box-shadow,ring-color,transform] duration-200 hover:shadow-xs hover:ring-brand/40 active:scale-[0.99] touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+    "neu-card group block relative p-4 sm:p-5 text-left transition-[box-shadow,transform] duration-200 active:scale-[0.99] touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
     featured && "bg-gradient-to-br from-card via-card to-paper ring-gold/40 shadow-sm",
   );
 

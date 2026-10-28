@@ -33,18 +33,34 @@ const KIND_LABEL: Record<OverviewGlanceItem["kind"], string> = {
   ticket: "Pass",
 };
 
-function GlanceRows({ items }: { items: OverviewGlanceItem[] }) {
+/**
+ * Kind → tab the row deep-links to. Rows look tappable, so they are: a dead
+ * row reads as broken.
+ */
+export function glanceItemTab(item: Pick<OverviewGlanceItem, "kind">): OverviewTab {
+  if (item.kind === "catchup") return "appointments";
+  if (item.kind === "ticket") return "tickets";
+  return "today";
+}
+
+function GlanceRows({ items, onOpen }: { items: OverviewGlanceItem[]; onOpen: (item: OverviewGlanceItem) => void }) {
   return (
     <div className="space-y-2">
       {items.map((item) => (
-        <div key={item.id} className="flex items-center gap-3 min-w-0">
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onOpen(item)}
+          aria-label={`${item.title} — open in ${KIND_LABEL[item.kind]}`}
+          className="flex min-h-[44px] w-full cursor-pointer items-center gap-3 rounded-xl px-1 text-left transition-colors min-w-0 hover:bg-paper/60 active:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60"
+        >
           <span className={cn("h-2 w-2 rounded-full shrink-0", KIND_DOT[item.kind])} aria-hidden="true" />
           <p className="font-bold text-sm text-ink truncate">{item.title}</p>
           <span className="text-[10px] font-bold rounded-full bg-paper px-2 py-0.5 text-mute shrink-0">
             {KIND_LABEL[item.kind]}
           </span>
           <p className="text-xs text-mute truncate ml-auto pl-2 shrink-0 max-w-[45%] text-right">{item.sub}</p>
-        </div>
+        </button>
       ))}
     </div>
   );
@@ -87,6 +103,8 @@ export function MeOverview({
     onGoTab(tab);
   };
 
+  const openItem = (item: OverviewGlanceItem) => go(glanceItemTab(item));
+
   return (
     <div className="space-y-6">
       {/* TODAY AT A GLANCE */}
@@ -108,14 +126,12 @@ export function MeOverview({
           }
         />
         {todayItems.length > 0 ? (
-          <GlanceRows items={todayItems} />
+          <GlanceRows items={todayItems} onOpen={openItem} />
         ) : agendaLoading ? (
           <TodaySkeleton />
         ) : (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <p className="text-xs text-mute leading-relaxed">
-              No catch-ups, plans or passes scheduled for today. Turn free time into an experience!
-            </p>
+            <p className="text-xs text-mute leading-relaxed">Nothing scheduled today — the day is yours.</p>
             <Button
               size="sm"
               className="min-h-[44px] shrink-0 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-xs hover:bg-brand-ink active:scale-95"
@@ -143,13 +159,24 @@ export function MeOverview({
           }
         />
         {upcomingItems.length > 0 ? (
-          <GlanceRows items={upcomingItems} />
+          <GlanceRows items={upcomingItems} onOpen={openItem} />
         ) : agendaLoading ? (
           <TodaySkeleton lines={2} />
         ) : (
-          <p className="text-xs text-mute leading-relaxed">
-            Nothing coming up. Browse the Pass for concerts, festivals and member perks.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <p className="text-xs text-mute leading-relaxed">Nothing coming up yet.</p>
+            <button
+              type="button"
+              onClick={() => {
+                void triggerHaptic("light");
+                nav("/pass");
+              }}
+              className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1.5 px-4 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95 cursor-pointer"
+            >
+              <Ticket size={14} className="text-amber-600" />
+              <span>Browse Pass</span>
+            </button>
+          </div>
         )}
         <div className="mt-4 flex flex-wrap gap-2">
           <button
@@ -182,8 +209,8 @@ export function MeOverview({
           />
           <p className="text-xs text-mute leading-relaxed mb-4">
             {hasPass
-              ? "One scannable identity for contact exchange, door check-ins and Apple & Google Wallet."
-              : "Claim your @handle to unlock your scannable bio pass and wallet credential."}
+              ? "Your scannable identity for doors, Wallet, and contacts."
+              : "Claim your @handle to unlock your bio pass and wallet credential."}
           </p>
           <button
             type="button"
@@ -226,7 +253,7 @@ export function MeOverview({
               sub="Live on AirPal Pass"
             />
             <p className="text-xs text-mute leading-relaxed mb-4">
-              Concerts, cultural festivals and member dining perks happening around you.
+              Concerts, festivals, and member dining perks near you.
             </p>
             <button
               type="button"

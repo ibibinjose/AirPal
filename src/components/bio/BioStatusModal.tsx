@@ -132,7 +132,7 @@ export function BioStatusModal({
       aria-labelledby="bio-status-modal-title"
     >
       <div
-        className="relative w-full max-w-md max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] flex flex-col overflow-hidden rounded-t-[32px] sm:rounded-[32px] bg-paper shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:pb-0"
+        className="relative w-full max-w-md max-h-[min(92dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] flex flex-col overflow-hidden rounded-t-[32px] sm:rounded-[32px] bg-paper shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:pb-0"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mx-auto mt-2 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />
@@ -152,7 +152,7 @@ export function BioStatusModal({
           <button
             type="button"
             onClick={handleClose}
-            className="flex h-11 w-11 touch-manipulation items-center justify-center rounded-full bg-card ring-1 ring-line text-mute hover:text-ink hover:bg-paper transition"
+            className="neu-btn flex h-11 w-11 touch-manipulation items-center justify-center text-mute hover:text-ink transition"
             aria-label="Close dialog"
           >
             <X size={16} />
@@ -178,7 +178,7 @@ export function BioStatusModal({
                     className={cn(
                       "flex min-h-[46px] items-center gap-2.5 p-2.5 rounded-2xl border text-left transition-all touch-manipulation cursor-pointer",
                       isSelected
-                        ? "bg-card border-brand shadow-xs ring-1 ring-brand/30"
+                        ? "bg-card border-brand shadow-xs"
                         : "bg-card/50 border-line hover:bg-card hover:border-line/80",
                     )}
                   >
@@ -199,8 +199,8 @@ export function BioStatusModal({
             <label className="text-xs font-semibold text-ink uppercase tracking-wider block mb-2">
               What&apos;s on?
             </label>
-            <div className="flex min-h-[48px] items-center gap-2 rounded-2xl bg-card p-1.5 ring-1 ring-line">
-              <div className="flex items-center justify-center h-9 w-9 rounded-xl bg-paper ring-1 ring-line text-lg shrink-0">
+            <div className="neu-inset flex min-h-[48px] items-center gap-2 p-1.5">
+              <div className="flex items-center justify-center h-9 w-9 rounded-xl bg-paper text-lg shrink-0">
                 {emoji || "💬"}
               </div>
               <input
@@ -257,7 +257,7 @@ export function BioStatusModal({
                       setEmoji(p.emoji);
                       setCustomText(p.text);
                     }}
-                    className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full bg-card px-3 py-1 text-[11px] font-medium text-ink ring-1 ring-line hover:bg-paper transition touch-manipulation cursor-pointer active:scale-95"
+                    className="neu-btn inline-flex min-h-[34px] items-center gap-1.5 px-3 py-1 text-[11px] font-medium text-ink transition touch-manipulation cursor-pointer active:scale-95"
                   >
                     <span>{p.emoji}</span>
                     <span>{p.text}</span>

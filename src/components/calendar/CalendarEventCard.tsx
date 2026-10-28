@@ -184,7 +184,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
         endDrag();
       }}
       className={cn(
-        "cv-auto group relative flex flex-col rounded-3xl bg-card p-4 ring-1 ring-line/80 shadow-clay transition-[box-shadow,ring-color,transform,background-color] duration-200 hover:shadow-clay-hover hover:ring-brand/30 active:scale-[0.99] md:p-5 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2",
+        "neu-card cv-auto group relative flex flex-col p-4 transition-[box-shadow,transform,background-color] duration-200 active:scale-[0.99] md:p-5 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2",
         onSelect && "cursor-pointer",
         event.isGoing && "ring-emerald-500/50 bg-gradient-to-b from-emerald-500/5 via-card to-card",
         isCurrentlyDragged && "opacity-40 ring-2 ring-brand ring-dashed scale-[0.99]",
@@ -325,22 +325,22 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               <span
                 className={cn(
                   "rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
-                  relative.highlight ? "bg-amber-100 text-amber-900 ring-1 ring-amber-300" : "bg-paper text-mute",
+                  relative.highlight ? "bg-amber-100 text-amber-900" : "bg-paper text-mute",
                 )}
               >
                 {relative.label}
               </span>
-              <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium ring-1", categoryTheme.badgeClass)}>
+              <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", categoryTheme.badgeClass)}>
                 {event.categoryLabel}
               </span>
               {event.isGoing && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-900 px-2 py-0.5 text-[10px] font-bold ring-1 ring-emerald-300">
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-900 px-2 py-0.5 text-[10px] font-bold">
                   <Check size={10} className="stroke-[3]" />
                   <span>Booked</span>
                 </span>
               )}
               {event.isInterested && !event.isGoing && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-bold ring-1 ring-amber-300">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-bold">
                   <Star size={10} className="fill-current" />
                   <span>Interested</span>
                 </span>
@@ -352,7 +352,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               )}
               {event.isRescheduled && (
                 <span
-                  className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-900 ring-1 ring-amber-300 px-2 py-0.5 text-[10px] font-bold"
+                  className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-bold"
                   title={`Rescheduled from ${event.originalDate}`}
                 >
                   <RotateCcw size={10} />
@@ -423,8 +423,8 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                 className={cn(
                   "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium transition",
                   onSelectTag
-                    ? "relative bg-paper text-mute hover:bg-card hover:text-ink ring-1 ring-line/70 cursor-pointer active:scale-95 after:absolute after:-inset-2 after:content-['']"
-                    : "bg-paper text-mute ring-1 ring-line/50",
+                    ? "relative bg-paper text-mute hover:text-ink cursor-pointer active:scale-95 after:absolute after:-inset-2 after:content-['']"
+                    : "bg-paper text-mute",
                 )}
                 title={`Filter events by #${tag}`}
               >
@@ -461,8 +461,8 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               className={cn(
                 "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition-[background-color,color,box-shadow,transform] active:scale-95",
                 event.isGoing
-                  ? "bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-700 font-semibold"
-                  : "bg-paper text-ink/80 hover:bg-emerald-50 hover:text-emerald-800 ring-1 ring-line/80",
+                  ? "bg-emerald-600 text-white shadow-sm font-semibold"
+                  : "neu-btn text-ink/80 hover:text-emerald-800",
               )}
             >
               <Check size={13} className="shrink-0" strokeWidth={event.isGoing ? 3 : 2} />
@@ -478,8 +478,8 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               className={cn(
                 "inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-xs font-medium transition-[background-color,color,box-shadow,transform] active:scale-95",
                 event.isInterested
-                  ? "bg-amber-500 text-white shadow-sm ring-1 ring-amber-600 font-semibold"
-                  : "bg-paper text-ink/80 hover:bg-amber-50 hover:text-amber-800 ring-1 ring-line/80",
+                  ? "bg-amber-500 text-white shadow-sm font-semibold"
+                  : "neu-btn text-ink/80 hover:text-amber-800",
               )}
             >
               <Star
@@ -499,9 +499,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
               title={event.isLiked ? "Liked" : "Like event"}
               className={cn(
                 "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-[background-color,color,box-shadow,transform] active:scale-95",
-                event.isLiked
-                  ? "bg-rose-500 text-white shadow-sm ring-1 ring-rose-600"
-                  : "bg-paper text-ink/70 hover:bg-rose-50 hover:text-rose-600 ring-1 ring-line/80",
+                event.isLiked ? "bg-rose-500 text-white shadow-sm" : "neu-btn text-ink/70 hover:text-rose-600",
               )}
             >
               <Heart size={14} className={event.isLiked ? "fill-white" : ""} strokeWidth={event.isLiked ? 2.5 : 2} />
@@ -536,7 +534,7 @@ export function CalendarEventCard({ event, onSelect, compact = false, onSelectTa
                     }}
                   />
                   <div
-                    className="absolute right-0 bottom-full z-50 mb-1 w-52 overflow-hidden rounded-2xl bg-card p-1.5 shadow-xl ring-1 ring-line animate-in fade-in zoom-in-95"
+                    className="absolute right-0 bottom-full z-50 mb-1 w-52 overflow-hidden rounded-2xl bg-card p-1.5 shadow-xl animate-in fade-in zoom-in-95"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="px-3 py-1.5 text-[11px] font-semibold text-mute border-b border-line/60">

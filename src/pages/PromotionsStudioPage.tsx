@@ -133,28 +133,28 @@ export function PromotionsStudioPage({
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href={isAdmin ? "/admin" : "/business"}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute transition hover:text-ink"
           >
             <ArrowLeft size={14} />
             <span>{isAdmin ? "Admin Console" : "Business Hub"}</span>
           </Link>
           <Link
             href="/deals"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute transition hover:text-ink"
           >
             <Tag size={13} className="text-accent" />
             <span>Live Deals</span>
           </Link>
           <Link
             href="/giveaways"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute transition hover:text-ink"
           >
             <Gift size={13} className="text-accent" />
             <span>Giveaways</span>
           </Link>
           <Link
             href="/birthday-freebies"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-mute transition hover:text-ink"
           >
             <Sparkles size={13} className="text-accent" />
             <span>Birthday Freebies</span>
@@ -162,7 +162,7 @@ export function PromotionsStudioPage({
         </div>
 
         {!isAdmin && (
-          <div className="flex items-center gap-1.5 rounded-2xl bg-paper p-1 ring-1 ring-line">
+          <div className="neu-inset flex items-center gap-1.5 p-1">
             <Link
               href="/business/promotions"
               className={cn(
@@ -186,10 +186,10 @@ export function PromotionsStudioPage({
       </div>
 
       {/* Header Card */}
-      <div className="rounded-[28px] bg-card p-6 ring-1 ring-line shadow-clay">
+      <div className="neu-section p-6">
         <div className="flex items-start gap-3.5">
           <span
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent ring-1 ring-brand/20"
+            className="neu-tint-brand grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-accent"
             aria-hidden="true"
           >
             {view === "notifications" ? <Bell size={22} /> : <BadgePercent size={22} />}
@@ -208,7 +208,7 @@ export function PromotionsStudioPage({
       {!isAdmin && (
         <>
           {!mine ? (
-            <div className="rounded-3xl bg-card p-6 ring-1 ring-line shadow-clay space-y-4">
+            <div className="neu-section p-6 space-y-4">
               <div className="flex items-center gap-3">
                 <span className="grid h-11 w-11 place-items-center rounded-2xl bg-brand/10 text-accent">
                   <Building2 size={20} />
@@ -230,14 +230,14 @@ export function PromotionsStudioPage({
                 </Link>
                 <Link
                   href="/claim"
-                  className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-paper px-5 text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+                  className="neu-btn inline-flex min-h-[48px] items-center justify-center gap-2 px-5 text-sm font-semibold text-ink transition"
                 >
                   <span>Claim Existing Venue</span>
                 </Link>
               </div>
             </div>
           ) : (
-            <div className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay space-y-5">
+            <div className="neu-section p-5 sm:p-6 space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line/60 pb-4">
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-accent">
@@ -248,7 +248,7 @@ export function PromotionsStudioPage({
                   </h2>
                 </div>
                 {mine.deal?.detail && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/30">
+                  <span className="neu-chip neu-tint-emerald inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">
                     <Check size={13} strokeWidth={3} /> Live on /deals
                   </span>
                 )}
@@ -273,7 +273,7 @@ export function PromotionsStudioPage({
                         });
                         toast.success(`Applied "${preset.label}" template`);
                       }}
-                      className="rounded-2xl bg-paper p-3.5 text-left ring-1 ring-line transition hover:border-brand/40 hover:bg-card"
+                      className="neu-row p-3.5 text-left transition"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-bold text-ink">{preset.label}</span>
@@ -313,7 +313,7 @@ export function PromotionsStudioPage({
       )}
 
       {/* Navigation & Trust Footer Card */}
-      <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-clay space-y-4">
+      <div className="neu-section p-5 space-y-4">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div>
             <h2 className="font-display text-base font-bold text-ink">
@@ -344,13 +344,13 @@ export function PromotionsStudioPage({
           )}
           <Link
             href={isAdmin ? "/admin" : "/business?tab=offer"}
-            className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl bg-paper px-4 text-xs sm:text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+            className="neu-btn inline-flex min-h-[48px] items-center justify-center gap-1.5 px-4 text-xs sm:text-sm font-semibold text-ink transition"
           >
             <span>{isAdmin ? "Back to Admin" : "Business Offer Tab"}</span>
           </Link>
           <Link
             href="/scan"
-            className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl bg-paper px-4 text-xs sm:text-sm font-semibold text-ink ring-1 ring-line transition hover:bg-card"
+            className="neu-btn inline-flex min-h-[48px] items-center justify-center gap-1.5 px-4 text-xs sm:text-sm font-semibold text-ink transition"
           >
             <span>Open QR Door Scanner</span>
           </Link>

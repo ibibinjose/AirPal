@@ -19,7 +19,7 @@ export function StatTile({
   tone?: "brand" | "green" | "amber" | "red";
 }) {
   return (
-    <div className="rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs">
+    <div className="neu-row p-4">
       <div className="flex items-center justify-between text-mute">
         <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
         <Icon

@@ -15,8 +15,8 @@ export function DeleteVenueDialog({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-3xl bg-card p-6 ring-1 ring-line shadow-2xl">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-500/10 text-red-500 ring-1 ring-red-500/20">
+      <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-2xl">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-500/10 text-red-500">
           <AlertTriangle className="h-6 w-6" aria-hidden />
         </div>
         <h3 className="font-display mt-4 text-xl font-bold text-ink">Remove &ldquo;{venueName}&rdquo;?</h3>

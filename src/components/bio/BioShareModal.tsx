@@ -146,7 +146,7 @@ export function BioShareModal({
       onClick={onClose}
     >
       <div
-        className="modal-safe relative w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] bg-paper p-5 sm:p-6 text-center shadow-2xl ring-1 ring-line animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 max-h-[min(94dvh,calc(var(--visual-viewport-height,100dvh)-1rem))] overflow-y-auto pb-[calc(env(safe-area-inset-bottom,0px)+1.25rem)] sm:pb-6 no-scrollbar"
+        className="modal-safe relative w-full max-w-sm rounded-t-[32px] sm:rounded-[32px] bg-paper p-5 sm:p-6 text-center shadow-2xl animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 max-h-[min(94dvh,calc(var(--visual-viewport-height,100dvh)-1rem))] overflow-y-auto pb-[calc(env(safe-area-inset-bottom,0px)+1.25rem)] sm:pb-6 no-scrollbar"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Mobile Drag Indicator */}
@@ -164,7 +164,7 @@ export function BioShareModal({
               void triggerHaptic("light");
               onClose();
             }}
-            className="grid h-9 w-9 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-card text-mute ring-1 ring-line hover:text-ink hover:bg-paper transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            className="neu-btn grid h-9 w-9 min-h-[44px] min-w-[44px] place-items-center text-mute hover:text-ink transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="Close"
           >
             <X size={17} />
@@ -192,7 +192,7 @@ export function BioShareModal({
           <button
             type="button"
             onClick={() => void handleNativeShare()}
-            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition-[background-color,transform] cursor-pointer"
+            className="neu-card flex min-h-[44px] flex-col items-center justify-center gap-1 p-2 text-xs font-semibold text-ink active:scale-95 transition-[background-color,transform] cursor-pointer"
           >
             <Share2 size={16} className="text-brand" />
             <span>Share</span>
@@ -200,7 +200,7 @@ export function BioShareModal({
           <button
             type="button"
             onClick={handleSaveVCard}
-            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-card p-2 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition-[background-color,transform] cursor-pointer"
+            className="neu-card flex min-h-[44px] flex-col items-center justify-center gap-1 p-2 text-xs font-semibold text-ink active:scale-95 transition-[background-color,transform] cursor-pointer"
           >
             <Contact size={16} className="text-brand" />
             <span>Save Contact</span>
@@ -209,7 +209,7 @@ export function BioShareModal({
             type="button"
             onClick={() => void handleDownloadFullPass()}
             disabled={exportingPass}
-            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-brand/10 p-2 text-xs font-semibold text-accent ring-1 ring-brand/20 hover:bg-brand/15 active:scale-95 transition-[background-color,transform] cursor-pointer disabled:opacity-40"
+            className="flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-2xl bg-brand/10 p-2 text-xs font-semibold text-accent hover:bg-brand/15 active:scale-95 transition-[background-color,transform] cursor-pointer disabled:opacity-40"
           >
             <Download size={16} className="text-accent" />
             <span>{exportingPass ? "Saving…" : "Save Card"}</span>

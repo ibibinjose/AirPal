@@ -110,7 +110,7 @@ export function AdminPage() {
   if (locked) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-red-500/10 ring-1 ring-red-500/20">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-red-500/10">
           <ShieldCheck className="h-7 w-7 text-red-500" />
         </div>
         <p className="font-display mt-4 text-2xl font-bold">Admin Restricted</p>
@@ -136,7 +136,7 @@ export function AdminPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
       {/* Top Command Bar & Status Header */}
-      <header className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
+      <header className="neu-section p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -162,21 +162,21 @@ export function AdminPage() {
           <div className="flex w-full sm:w-auto flex-wrap items-center gap-2">
             <Link
               href="/help"
-              className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-2xl bg-paper px-3.5 sm:px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 px-3.5 sm:px-4 text-xs font-semibold text-ink transition whitespace-nowrap sm:flex-initial"
             >
               <Headphones className="h-3.5 w-3.5 shrink-0 text-accent" />
               <span>Support</span>
             </Link>
             <Link
               href="/event"
-              className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-2xl bg-paper px-3.5 sm:px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 px-3.5 sm:px-4 text-xs font-semibold text-ink transition whitespace-nowrap sm:flex-initial"
             >
               <Building2 className="h-3.5 w-3.5 shrink-0 text-amber-500" />
               <span>Event Studio</span>
             </Link>
             <Link
               href="/business"
-              className="inline-flex min-h-[44px] flex-1 sm:flex-initial items-center justify-center gap-1.5 rounded-2xl bg-paper px-3.5 sm:px-4 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-card hover:ring-brand/40 shadow-2xs whitespace-nowrap"
+              className="neu-btn inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 px-3.5 sm:px-4 text-xs font-semibold text-ink transition whitespace-nowrap sm:flex-initial"
             >
               <Users className="h-3.5 w-3.5 shrink-0 text-accent" />
               <span>Business</span>
@@ -233,10 +233,7 @@ export function AdminPage() {
 
           {/* Operational Quick Portals */}
           <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Link
-              href="/admin/promotions"
-              className="group flex flex-col justify-between rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs transition hover:bg-paper hover:ring-brand/40"
-            >
+            <Link href="/admin/promotions" className="neu-card group flex flex-col justify-between p-4 transition">
               <div>
                 <div className="flex items-center justify-between">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 text-accent">
@@ -250,10 +247,7 @@ export function AdminPage() {
               <span className="mt-4 text-[11px] font-semibold text-accent">Open Promotion Manager →</span>
             </Link>
 
-            <Link
-              href="/admin/notifications"
-              className="group flex flex-col justify-between rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs transition hover:bg-paper hover:ring-brand/40"
-            >
+            <Link href="/admin/notifications" className="neu-card group flex flex-col justify-between p-4 transition">
               <div>
                 <div className="flex items-center justify-between">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 text-accent">
@@ -269,7 +263,7 @@ export function AdminPage() {
 
             <Link
               href="/admin/search-analytics"
-              className="group flex flex-col justify-between rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs transition hover:bg-paper hover:ring-brand/40"
+              className="neu-card group flex flex-col justify-between p-4 transition"
             >
               <div>
                 <div className="flex items-center justify-between">
@@ -284,10 +278,7 @@ export function AdminPage() {
               <span className="mt-4 text-[11px] font-semibold text-accent">View Analytics →</span>
             </Link>
 
-            <Link
-              href="/helpdesk"
-              className="group flex flex-col justify-between rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs transition hover:bg-paper hover:ring-brand/40"
-            >
+            <Link href="/helpdesk" className="neu-card group flex flex-col justify-between p-4 transition">
               <div>
                 <div className="flex items-center justify-between">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
@@ -303,10 +294,7 @@ export function AdminPage() {
               <span className="mt-4 text-[11px] font-semibold text-accent">View All Open Tickets →</span>
             </Link>
 
-            <Link
-              href="/pulse"
-              className="group flex flex-col justify-between rounded-2xl bg-card p-4 ring-1 ring-line shadow-xs transition hover:bg-paper hover:ring-brand/40"
-            >
+            <Link href="/pulse" className="neu-card group flex flex-col justify-between p-4 transition">
               <div>
                 <div className="flex items-center justify-between">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
@@ -329,7 +317,7 @@ export function AdminPage() {
       {tab === "system" && (
         <div className="mt-6 space-y-6">
           {/* WQGA diagnostic telemetry (QR-context health — not the product north star) */}
-          <section className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
+          <section className="neu-section p-5 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent">QR Telemetry</p>
@@ -370,7 +358,7 @@ export function AdminPage() {
                   h: "Conversion efficiency",
                 },
               ].map((s) => (
-                <div key={s.l} className="rounded-2xl bg-paper p-3.5 text-center ring-1 ring-line/50">
+                <div key={s.l} className="neu-row p-3.5 text-center">
                   <p className="font-display text-2xl font-bold text-ink">{s.n}</p>
                   <p className="text-xs font-semibold text-ink mt-0.5">{s.l}</p>
                   <p className="text-[10px] text-mute">{s.h}</p>
@@ -384,7 +372,7 @@ export function AdminPage() {
           </section>
 
           {/* Public Handles Directory with Search & Sort */}
-          <section className="rounded-[28px] bg-card p-5 sm:p-6 ring-1 ring-line shadow-xs">
+          <section className="neu-section p-5 sm:p-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="font-display text-lg font-bold text-ink">Public Handles Directory</h2>
@@ -398,14 +386,14 @@ export function AdminPage() {
                     value={handleSearch}
                     onChange={(e) => setHandleSearch(e.target.value)}
                     placeholder="Search handle or name…"
-                    className="min-h-[44px] w-full sm:w-56 rounded-xl bg-paper pl-8 pr-3 py-2 text-[16px] sm:text-sm text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand/40"
+                    className="neu-inset min-h-[44px] w-full sm:w-56 pl-8 pr-3 py-2 text-[16px] sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40"
                   />
                 </div>
                 <select
                   value={handleSort}
                   onChange={(e) => setHandleSort(e.target.value as "taps" | "alpha")}
                   aria-label="Sort handles"
-                  className="min-h-[44px] rounded-xl bg-paper px-3 py-2 text-[16px] sm:text-sm text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  className="neu-inset min-h-[44px] px-3 py-2 text-[16px] sm:text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40"
                 >
                   <option value="taps">Sort by Taps</option>
                   <option value="alpha">Sort A-Z</option>
@@ -417,10 +405,7 @@ export function AdminPage() {
               {filteredRows.map((row) => {
                 const isCopied = copiedHandle === row.handle;
                 return (
-                  <div
-                    key={row.handle}
-                    className="group flex items-center justify-between rounded-2xl bg-paper p-3 ring-1 ring-line transition hover:bg-card hover:ring-brand/40"
-                  >
+                  <div key={row.handle} className="neu-row group flex items-center justify-between p-3 transition">
                     <button
                       type="button"
                       onClick={() => nav(bioPath(row.handle))}
@@ -466,7 +451,7 @@ export function AdminPage() {
       {/* SUB-TABS WITH BREADCRUMB HEADER */}
       {tab !== "overview" && tab !== "system" && (
         <div className="mt-6 space-y-6">
-          <div className="flex items-center justify-between rounded-2xl bg-card px-4 py-3 ring-1 ring-line shadow-xs">
+          <div className="neu-row flex items-center justify-between px-4 py-3">
             <button
               type="button"
               onClick={() => setTab("overview")}

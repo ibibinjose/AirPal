@@ -56,7 +56,7 @@ export function ChangeHandleForm({
           </p>
         </>
       )}
-      <div className="flex items-center overflow-hidden rounded-2xl bg-paper ring-1 ring-line focus-within:ring-2 focus-within:ring-ink">
+      <div className="neu-inset flex items-center overflow-hidden focus-within:ring-2 focus-within:ring-ink">
         <span className="shrink-0 px-3 text-sm font-semibold text-mute">@</span>
         <input
           value={next}

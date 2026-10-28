@@ -52,7 +52,7 @@ describe("DigitalBioPassCard", () => {
   it("matches sibling section rhythm with explicit motion", () => {
     const card = read("./DigitalBioPassCard.tsx");
     const visual = read("./BioPassVisual.tsx");
-    expect(card).toContain("rounded-[36px] ring-1 ring-line/80 bg-card p-5 sm:p-7");
+    expect(card).toContain("neu-section p-5 sm:p-7");
     expect(card).toContain("grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent");
     expect(card).toContain("mt-5 grid grid-cols-1 lg:grid-cols-2 gap-2.5 pt-5 border-t border-line/60");
     expect(visual).toContain("aspect-[874/1409]");

@@ -35,10 +35,7 @@ export function TabPills<T extends string>({
     return (
       <nav
         aria-label={ariaLabel}
-        className={cn(
-          "no-scrollbar flex gap-1 overflow-x-auto rounded-full bg-card/80 p-1 ring-1 ring-line shadow-sm backdrop-blur",
-          className,
-        )}
+        className={cn("neu-tabs no-scrollbar flex gap-1 overflow-x-auto rounded-full p-1 backdrop-blur", className)}
       >
         {items.map((item) => {
           const Icon = item.icon;
@@ -55,7 +52,7 @@ export function TabPills<T extends string>({
               aria-label={item.ariaLabel}
               className={cn(
                 "flex h-11 min-h-[44px] shrink-0 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-xs sm:text-sm transition touch-manipulation cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-                on ? "bg-brand font-semibold text-white shadow-sm" : "font-medium text-mute hover:text-ink",
+                on ? "font-semibold text-white" : "font-medium text-mute hover:text-ink",
               )}
             >
               {Icon && <Icon size={15} className="shrink-0" aria-hidden />}
@@ -64,7 +61,7 @@ export function TabPills<T extends string>({
                 <span
                   className={cn(
                     "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
-                    on ? "bg-white/20 text-white" : "bg-paper text-mute ring-1 ring-line",
+                    on ? "bg-white/20 text-white" : "bg-paper text-mute",
                   )}
                 >
                   {item.badge}
@@ -96,7 +93,7 @@ export function TabPills<T extends string>({
             aria-label={item.ariaLabel}
             className={cn(
               "flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold transition active:scale-95 touch-manipulation cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-              on ? "bg-brand text-white shadow-xs" : "bg-card text-mute ring-1 ring-line hover:text-ink hover:bg-paper",
+              on ? "bg-brand text-white shadow-xs" : "neu-btn text-mute hover:text-ink",
             )}
           >
             {Icon && <Icon size={14} className="shrink-0" aria-hidden />}
@@ -105,7 +102,7 @@ export function TabPills<T extends string>({
               <span
                 className={cn(
                   "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
-                  on ? "bg-white/20 text-white" : "bg-paper text-mute ring-1 ring-line",
+                  on ? "bg-white/20 text-white" : "bg-paper text-mute",
                 )}
               >
                 {item.badge}

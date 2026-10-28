@@ -39,15 +39,15 @@ export function ValidField({
 }
 
 /**
- * Shared field system: light line at rest, brand ring on focus.
+ * Shared field system: inset neu well at rest, brand ring on focus.
  * Use these constants for every text input / select / textarea so all
  * forms across bio, host, business, companion, circle, and auth match.
  */
 export const fieldInput =
-  "h-12 w-full rounded-2xl border border-line bg-card px-4 pr-10 text-[16px] sm:text-sm outline-none transition placeholder:text-mute/60 focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:opacity-60";
+  "neu-inset h-12 w-full px-4 pr-10 text-[16px] sm:text-sm outline-none transition placeholder:text-mute/60 focus:ring-2 focus:ring-brand/20 disabled:opacity-60";
 
 export const fieldSelect =
-  "h-12 w-full rounded-2xl border border-line bg-card px-4 text-[16px] sm:text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:opacity-60";
+  "neu-inset h-12 w-full px-4 text-[16px] sm:text-sm outline-none transition focus:ring-2 focus:ring-brand/20 disabled:opacity-60";
 
 export const fieldTextarea =
-  "min-h-28 w-full rounded-2xl border border-line bg-card p-4 text-[16px] sm:text-sm outline-none transition placeholder:text-mute/60 focus:border-brand focus:ring-2 focus:ring-brand/20 disabled:opacity-60";
+  "neu-inset min-h-28 w-full p-4 text-[16px] sm:text-sm outline-none transition placeholder:text-mute/60 focus:ring-2 focus:ring-brand/20 disabled:opacity-60";
