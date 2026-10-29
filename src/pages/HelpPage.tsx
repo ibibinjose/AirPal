@@ -104,6 +104,9 @@ export function HelpPage() {
               >
                 <button
                   type="button"
+                  id={`help-article-${article.id}`}
+                  data-testid={`help-article-${article.id}`}
+                  aria-controls={`help-content-${article.id}`}
                   onClick={() => {
                     void triggerHaptic("light");
                     setOpenId(open ? null : article.id);
@@ -126,7 +129,12 @@ export function HelpPage() {
                   />
                 </button>
                 {open && (
-                  <div className="border-t border-line/60 px-4 pb-4 pt-3">
+                  <div
+                    id={`help-content-${article.id}`}
+                    role="region"
+                    aria-labelledby={`help-article-${article.id}`}
+                    className="border-t border-line/60 px-4 pb-4 pt-3"
+                  >
                     <p className="text-sm leading-6 text-mute">{article.summary}</p>
                     <ol className="mt-3 space-y-2.5">
                       {article.steps.map((step, i) => (

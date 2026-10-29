@@ -98,7 +98,7 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
 
   useEffect(() => {
     if (!open) return;
-    const onDown = (e: PointerEvent) => {
+    const onDown = (e: MouseEvent | PointerEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
@@ -107,9 +107,11 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
       if (e.key === "Escape") setOpen(false);
     };
     document.addEventListener("pointerdown", onDown);
+    document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("mousedown", onDown);
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
@@ -198,6 +200,10 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
     <div className="relative" ref={containerRef}>
       <button
         type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-controls="notifications-panel"
+        data-testid="notification-bell-trigger"
         onClick={() => {
           void triggerHaptic("light");
           setOpen((v) => !v);
@@ -226,7 +232,13 @@ export function NotificationBell({ onBrand = false }: { onBrand?: boolean }) {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-2 max-h-[28rem] w-[23rem] max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-3xl bg-card/95 shadow-2xl ring-1 ring-line/80 backdrop-blur-2xl">
+        <div
+          id="notifications-panel"
+          role="dialog"
+          aria-label="Notifications"
+          data-testid="notifications-panel"
+          className="absolute right-0 z-50 mt-2 max-h-[28rem] w-[23rem] max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-3xl bg-card/95 shadow-2xl ring-1 ring-line/80 backdrop-blur-2xl"
+        >
           <div className="flex items-center justify-between border-b border-line/60 px-4 py-3">
             <div className="flex items-center gap-2">
               <p className="text-[14px] font-bold text-ink">Notifications</p>

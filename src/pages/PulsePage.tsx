@@ -93,6 +93,7 @@ export function PulsePage() {
                       className="neu-btn grid h-11 w-11 place-items-center text-mute transition hover:text-ink active:scale-95"
                     >
                       <Building2 size={16} />
+                      <span className="sr-only">Business Hub</span>
                     </Link>
                     <Link
                       href="/scan"
@@ -101,6 +102,7 @@ export function PulsePage() {
                       className="neu-btn grid h-11 w-11 place-items-center text-mute transition hover:text-ink active:scale-95"
                     >
                       <ScanLine size={16} />
+                      <span className="sr-only">Door Scanner</span>
                     </Link>
                     <Link
                       href="/event"
@@ -109,6 +111,7 @@ export function PulsePage() {
                       className="neu-btn grid h-11 w-11 place-items-center text-mute transition hover:text-ink active:scale-95"
                     >
                       <Users size={16} />
+                      <span className="sr-only">Event Studio</span>
                     </Link>
                   </span>
                 </li>

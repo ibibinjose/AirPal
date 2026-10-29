@@ -160,8 +160,21 @@ export function formatFinalLinkHref(type: BioLinkType, input: string): string {
  * (toast) instead of no-oping.
  */
 export function newLinkError(type: BioLinkType, href: string): string | null {
-  if (!href.trim() || !formatFinalLinkHref(type, href)) {
+  const raw = href.trim();
+  if (!raw || !formatFinalLinkHref(type, raw)) {
     return "Enter a value first — a username for socials, a URL for web links.";
+  }
+  const social = SOCIAL_CONFIG[type];
+  if (!social && type !== "call") {
+    const formatted = formatFinalLinkHref(type, raw);
+    if (!/^https?:\/\//i.test(formatted)) {
+      return "Enter a valid URL (e.g. example.com or https://example.com).";
+    }
+    try {
+      new URL(formatted);
+    } catch {
+      return "Enter a valid URL (e.g. example.com or https://example.com).";
+    }
   }
   return null;
 }

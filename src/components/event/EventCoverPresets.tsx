@@ -83,6 +83,7 @@ export function EventCoverPresetSelector({ currentUrl, onSelect, className }: Ev
             <button
               key={preset.id}
               type="button"
+              aria-label={`Select cover preset: ${preset.label}`}
               onClick={() => onSelect(preset.url)}
               className={cn(
                 "group relative overflow-hidden rounded-2xl border text-left transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-brand",

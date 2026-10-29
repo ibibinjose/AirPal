@@ -73,6 +73,7 @@ import { CitySuburbRegionField } from "@/components/forms/CitySuburbRegionField"
 import { cn } from "@/lib/cn";
 import { PhoneField } from "@/components/forms/PhoneField";
 import { isValidPhone } from "@shared/geo-address";
+import { isEmail } from "@shared/validate";
 import { fieldInput } from "@/components/forms/ValidField";
 import { GooglePlaceImportCard } from "@/components/business/GooglePlaceImport";
 import { bioLinksFromGooglePlace, mergeBioLinks } from "@shared/google-place";
@@ -92,6 +93,31 @@ import {
   formatFinalLinkHref,
   newLinkError,
 } from "@/lib/bio-edit-presets";
+
+function isValidMeetingUrl(url: string, platform: string): boolean {
+  const trimmed = url.trim();
+  if (!trimmed) return true;
+  if (platform === "facetime") {
+    if (isEmail(trimmed) || /^\+?[0-9\s-]{6,20}$/.test(trimmed)) return true;
+  }
+  if (/^https?:\/\/[a-z0-9.-]+\.[a-z]{2,}/i.test(trimmed)) {
+    try {
+      new URL(trimmed);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  if (/^[a-z0-9.-]+\.[a-z]{2,}/i.test(trimmed)) {
+    try {
+      new URL(`https://${trimmed}`);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
 
 export function BioEditPage() {
   const [, nav] = useLocation();
@@ -164,6 +190,8 @@ export function BioEditPage() {
   // in the right column (bare screen, no device chrome) instead of a modal.
   const [mobileView, setMobileView] = useState<"edit" | "preview">("edit");
   const [previewThemeMode, setPreviewThemeMode] = useState<"dark" | "light">("dark");
+  const [nameTouched, setNameTouched] = useState(false);
+  const [meetingUrlTouched, setMeetingUrlTouched] = useState(false);
 
   // Synchronize form states when active target profile changes
   useEffect(() => {
@@ -365,8 +393,18 @@ export function BioEditPage() {
 
   async function handleSaveAll(e?: FormEvent) {
     if (e) e.preventDefault();
+    if (!name.trim()) {
+      setNameTouched(true);
+      toast.error("Please enter a display name");
+      return;
+    }
     if (phone && !isValidPhone(phone)) {
       toast.error("Phone needs a valid country code (e.g. +61 400 123 456)");
+      return;
+    }
+    if (meetingUrl.trim() && !isValidMeetingUrl(meetingUrl, preferredMeetingPlatform)) {
+      setMeetingUrlTouched(true);
+      toast.error("Enter a valid video room URL or meeting link");
       return;
     }
     setSaving(true);
@@ -1245,11 +1283,20 @@ export function BioEditPage() {
                     </label>
                     <input
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        setNameTouched(true);
+                      }}
+                      onBlur={() => setNameTouched(true)}
                       placeholder={isBusiness ? "e.g. Harbour Brew Cafe" : "e.g. Alex Morgan"}
                       required
-                      className={fieldInput}
+                      className={cn(fieldInput, nameTouched && !name.trim() && "border-red-500 ring-2 ring-red-500/20")}
                     />
+                    {nameTouched && !name.trim() && (
+                      <p role="alert" className="text-xs font-semibold text-rose-600 dark:text-rose-400">
+                        Please enter a display name
+                      </p>
+                    )}
                     <p className="text-[11px] text-mute">
                       {isBusiness
                         ? "The public trading name shown on your place pass and precinct guide."
@@ -1565,14 +1612,33 @@ export function BioEditPage() {
                     <input
                       type="text"
                       value={meetingUrl}
-                      onChange={(e) => setMeetingUrl(e.target.value)}
+                      onChange={(e) => {
+                        setMeetingUrl(e.target.value);
+                        setMeetingUrlTouched(true);
+                      }}
+                      onBlur={() => setMeetingUrlTouched(true)}
                       placeholder={
                         preferredMeetingPlatform === "facetime"
                           ? "https://facetime.apple.com/... or Apple ID"
                           : "https://meet.google.com/xxx-yyyy-zzz"
                       }
-                      className={fieldInput}
+                      className={cn(
+                        fieldInput,
+                        meetingUrlTouched &&
+                          meetingUrl.trim() &&
+                          !isValidMeetingUrl(meetingUrl, preferredMeetingPlatform) &&
+                          "border-red-500 ring-2 ring-red-500/20",
+                      )}
                     />
+                    {meetingUrlTouched &&
+                      meetingUrl.trim() &&
+                      !isValidMeetingUrl(meetingUrl, preferredMeetingPlatform) && (
+                        <p role="alert" className="text-xs font-semibold text-rose-600 dark:text-rose-400">
+                          {preferredMeetingPlatform === "facetime"
+                            ? "Enter a valid FaceTime link, email, or phone number"
+                            : "Enter a valid video room URL (e.g. meet.google.com/xxx-yyyy-zzz or https://...)"}
+                        </p>
+                      )}
                     <p className="text-[11px] text-mute leading-relaxed">
                       Pre-fills when visitors schedule a catch-up or hangout, and embeds directly into Apple &amp;
                       Google Calendar invites.

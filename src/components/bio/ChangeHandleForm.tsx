@@ -79,7 +79,7 @@ export function ChangeHandleForm({
         type="submit"
         variant={compact ? "ghost" : "primary"}
         className="w-full border border-line"
-        disabled={busy || !next}
+        disabled={busy || !next || next.length < 3 || Boolean(handleError(next)) || next === current}
       >
         {busy ? "Saving…" : "Change @handle"}
       </Button>

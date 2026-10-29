@@ -359,6 +359,12 @@ export function CalendarMonthGrid({
           const eventCount = cell.events.length;
           const isOver = dragOverDate === cell.dateStr;
 
+          const cellDateLabel = new Intl.DateTimeFormat(undefined, {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }).format(cell.date);
+
           return (
             <button
               key={cell.dateStr}
@@ -391,7 +397,7 @@ export function CalendarMonthGrid({
                 void dropOnDate(cell.dateStr);
               }}
               role="gridcell"
-              aria-label={`${cell.dayNumber} ${monthLabel}${hasEvents ? `, ${eventCount} event${eventCount > 1 ? "s" : ""}` : ""}${isOver ? ", Drop to reschedule here" : ""}`}
+              aria-label={`${cellDateLabel}${hasEvents ? `, ${eventCount} event${eventCount > 1 ? "s" : ""}` : ""}${isOver ? ", Drop to reschedule here" : ""}`}
               aria-selected={isSelected}
               aria-current={cell.isToday ? "date" : undefined}
               tabIndex={isSelected || (!selectedDate && cell.isToday) ? 0 : -1}

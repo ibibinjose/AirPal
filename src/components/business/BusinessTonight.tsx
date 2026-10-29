@@ -1,5 +1,7 @@
 import { Link } from "wouter";
 import { Activity, ArrowRight, CalendarClock, ClipboardList, Gift, Settings2 } from "lucide-react";
+import { useOptionalLocalNow } from "@/contexts/LocalNowContext";
+import { isOpenAt } from "@/lib/hours";
 
 export interface TonightAction {
   id: string;
@@ -75,6 +77,8 @@ export function BusinessTonight({
   rsvps: number;
 }) {
   const active = status === "active";
+  const local = useOptionalLocalNow();
+  const open = hours && local ? isOpenAt(hours, local.now, local.timeZone) : null;
   const actions = tonightActions({ listingActive: active, listingName, dealLive, campaigns, rsvps });
 
   return (
@@ -85,7 +89,7 @@ export function BusinessTonight({
           <div className="flex min-w-0 items-center gap-3">
             <span
               className={
-                active
+                active && open !== false
                   ? "neu-tint-emerald grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-emerald-600 dark:text-emerald-400"
                   : "neu-tint-gold grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-amber-600 dark:text-amber-400"
               }
@@ -95,7 +99,8 @@ export function BusinessTonight({
             </span>
             <div className="min-w-0">
               <p className="text-sm font-bold text-ink">
-                {active ? "Live tonight" : "Not live yet"} · {listingName || "Your venue"}
+                {!active ? "Not live yet" : open === false ? "Closed right now" : "Live tonight"} ·{" "}
+                {listingName || "Your venue"}
               </p>
               <p className="mt-0.5 truncate text-xs text-mute">{hours || "Hours not set — add them in Venue"}</p>
             </div>

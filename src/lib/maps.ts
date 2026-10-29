@@ -24,7 +24,7 @@ export function mapsSearchUrl(query: string, geo?: Geo) {
 }
 
 export function mapsPlaceUrl(geo: Geo, name?: string) {
-  const q = name ? `${name} ${geo.lat},${geo.lng}` : `${geo.lat},${geo.lng}`;
+  const q = name ? `${name}, ${geo.lat},${geo.lng}` : `${geo.lat},${geo.lng}`;
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 }
 

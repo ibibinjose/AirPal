@@ -58,7 +58,8 @@ export function PhoneField({
 
   const activeCountry = countryByCode(selectedCountry) || HOST_COUNTRIES[0];
   const ok = isValidPhone(value);
-  const hasError = Boolean(value && !ok);
+  const hasInvalidChars = Boolean(national && /[^\d\s\-()]/i.test(national));
+  const hasError = Boolean((value && !ok) || hasInvalidChars);
   const displayError = customError || (hasError ? "Enter a valid mobile number (8–15 digits)" : null);
   const displayHint = customHint || (!value && required ? "Enter local mobile number" : null);
 
@@ -66,7 +67,8 @@ export function PhoneField({
     setSelectedCountry(newCode);
     const country = countryByCode(newCode) || HOST_COUNTRIES[0];
     if (national.trim()) {
-      onChange(composePhone(country.dial, national));
+      const composed = composePhone(country.dial, national);
+      onChange(composed || `${country.dial} ${national.trim()}`);
     }
   }
 
@@ -84,7 +86,8 @@ export function PhoneField({
     }
 
     setNational(raw);
-    onChange(composePhone(activeCountry.dial, raw));
+    const composed = composePhone(activeCountry.dial, raw);
+    onChange(composed || (raw.trim() ? `${activeCountry.dial} ${raw.trim()}` : ""));
   }
 
   const placeholder =

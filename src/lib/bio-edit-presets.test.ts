@@ -43,8 +43,13 @@ describe("newLinkError", () => {
     expect(newLinkError("instagram", "   ")).toContain("Enter a value first");
   });
 
+  it("flags invalid urls for website links", () => {
+    expect(newLinkError("website", "not a url")).toContain("valid URL");
+  });
+
   it("passes real values through", () => {
     expect(newLinkError("website", "https://example.com/menu")).toBeNull();
+    expect(newLinkError("website", "example.com/menu")).toBeNull();
     expect(newLinkError("instagram", "alex_sydney")).toBeNull();
   });
 });

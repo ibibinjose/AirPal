@@ -72,7 +72,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
       icon: Rocket,
     },
     setup: {
-      eyebrow: "Business · Step 2 of 2 · Setup Checklist",
+      eyebrow: "Business · Venue Readiness Checklist",
       title: "Finish your venue readiness.",
       lede: "Verify your hours, publish a member perk, and connect your public @handle and arrival tools.",
       icon: Settings2,

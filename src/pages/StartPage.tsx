@@ -21,6 +21,7 @@ import {
 import { authErrorMessage } from "@shared/auth-email";
 import { isEmail } from "@shared/validate";
 import { Button } from "@/components/ui/Button";
+import { PageLoading } from "@/components/ui/PageLoading";
 import { ValidField, fieldInput } from "@/components/forms/ValidField";
 import { VerifyEmailBanner } from "@/components/auth/VerifyEmailBanner";
 import { AccountContacts } from "@/components/auth/AccountContacts";
@@ -52,8 +53,16 @@ export function StartPage() {
   const emailParam = params.get("email") || "";
   const [, nav] = useLocation();
 
-  const { login, loginWithSocial, user, sendVerificationEmail, requestPasswordReset, logout, hasEnrolledBiometrics } =
-    useAuth();
+  const {
+    login,
+    loginWithSocial,
+    user,
+    authReady,
+    sendVerificationEmail,
+    requestPasswordReset,
+    logout,
+    hasEnrolledBiometrics,
+  } = useAuth();
   const { mine, business } = useBio();
   const [pendingGo, setPendingGo] = useState(false);
   const [signupPending, setSignupPending] = useState(false);
@@ -305,6 +314,10 @@ export function StartPage() {
     }
   }
 
+  if (!authReady) {
+    return <PageLoading message="Checking account status…" />;
+  }
+
   // ========================================================
   // ALREADY SIGNED IN VIEW: User & Identity Cockpit
   // ========================================================
@@ -411,7 +424,7 @@ export function StartPage() {
               className="w-full min-h-[44px] justify-between text-xs"
               onClick={() => {
                 void triggerHaptic("light");
-                nav("/host");
+                nav("/business");
               }}
             >
               <span className="flex items-center gap-2">

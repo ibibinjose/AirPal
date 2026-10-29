@@ -104,7 +104,9 @@ import {
   stackLinks,
   visibleBioLinks,
 } from "@shared/bio";
-import { mapsPlaceIdUrl, mapsPlaceUrl } from "@/lib/maps";
+import { appleMapsDirectionsUrl, mapsPlaceIdUrl, mapsPlaceUrl } from "@/lib/maps";
+import { useOptionalLocalNow } from "@/contexts/LocalNowContext";
+import { isOpenAt } from "@/lib/hours";
 import { toPublicUrl } from "@/lib/public-origin";
 import { NotFoundPage } from "./NotFoundPage";
 import { cn } from "@/lib/cn";
@@ -151,6 +153,7 @@ export function BioPublicPage() {
   const [reminderSaving, setReminderSaving] = useState(false);
   const { stalls, getEvent } = useEvents();
   const { isFollowing, followerHandles } = useSocial();
+  const localNow = useOptionalLocalNow();
   const local = resolvePublicBio(handle, byHandle);
   const [remote, setRemote] = useState<typeof local>();
   const [tried, setTried] = useState(!handle);
@@ -426,6 +429,13 @@ export function BioPublicPage() {
     : bio.geo
       ? mapsPlaceUrl(bio.geo, bio.name)
       : visibleBioLinks(bio.links).find((l) => l.type === "maps")?.href;
+
+  const appleMaps = bio.geo
+    ? appleMapsDirectionsUrl({ destination: bio.geo, destinationName: bio.name || bio.handle })
+    : null;
+
+  const venueOpen = bio.hours && localNow ? isOpenAt(bio.hours, localNow.now, localNow.timeZone) : null;
+  const venueOpenNow = venueOpen !== null ? venueOpen : Boolean(bio.openNow);
 
   async function onClaimDeal(item: BioCatalogItem) {
     recordTap(bio.handle, "deal");
@@ -872,34 +882,36 @@ export function BioPublicPage() {
               </button>
             )}
 
-            {/* Interactive Apple Availability / Focus Capsule without green frame */}
-            <div className="mt-3">
-              <button
-                type="button"
-                onClick={() => {
-                  if (isOwner) {
-                    void triggerHaptic("selection");
-                    setStatusModalOpen(true);
-                  }
-                }}
-                className={cn(
-                  "neu-btn inline-flex min-h-[44px] items-center gap-2 px-4 text-xs font-semibold text-ink transition-[background-color,transform] duration-200",
-                  isOwner ? "cursor-pointer hover:bg-paper active:scale-95" : "cursor-default",
-                )}
-                title={isOwner ? "Click to change status" : statusInfo.description}
-              >
-                <span className={cn("h-2 w-2 rounded-full shrink-0", statusInfo.dotColor)} />
-                {bio.customStatus ? (
-                  <span className="font-bold text-ink truncate max-w-[300px] sm:max-w-md">
-                    {bio.customStatusEmoji && `${bio.customStatusEmoji} `}
-                    {bio.customStatus}
-                  </span>
-                ) : (
-                  <span className="font-bold">{statusInfo.label}</span>
-                )}
-                {isOwner && <Edit3 size={11} className="opacity-60 ml-0.5" />}
-              </button>
-            </div>
+            {/* Interactive Apple Availability / Focus Capsule (Personal bios only) */}
+            {bio.kind !== "business" && (
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isOwner) {
+                      void triggerHaptic("selection");
+                      setStatusModalOpen(true);
+                    }
+                  }}
+                  className={cn(
+                    "neu-btn inline-flex min-h-[44px] items-center gap-2 px-4 text-xs font-semibold text-ink transition-[background-color,transform] duration-200",
+                    isOwner ? "cursor-pointer hover:bg-paper active:scale-95" : "cursor-default",
+                  )}
+                  title={isOwner ? "Click to change status" : statusInfo.description}
+                >
+                  <span className={cn("h-2 w-2 rounded-full shrink-0", statusInfo.dotColor)} />
+                  {bio.customStatus ? (
+                    <span className="font-bold text-ink truncate max-w-[300px] sm:max-w-md">
+                      {bio.customStatusEmoji && `${bio.customStatusEmoji} `}
+                      {bio.customStatus}
+                    </span>
+                  ) : (
+                    <span className="font-bold">{statusInfo.label}</span>
+                  )}
+                  {isOwner && <Edit3 size={11} className="opacity-60 ml-0.5" />}
+                </button>
+              </div>
+            )}
 
             {/* Elevator Pitch / Short Why */}
             {bio.shortWhy &&
@@ -1239,7 +1251,7 @@ export function BioPublicPage() {
           {bio.kind === "business" && (
             <div className="mt-6">
               <div className="flex items-center justify-between">
-                <VenueLiveStrip openNow={bio.openNow} hours={bio.hours} offerBadge={liveOffer?.badge} />
+                <VenueLiveStrip openNow={venueOpenNow} hours={bio.hours} offerBadge={liveOffer?.badge} />
               </div>
 
               {/* Section Tabs */}
@@ -1353,22 +1365,46 @@ export function BioPublicPage() {
               {(bio.city || bio.hours || bio.phone) && (
                 <div className="neu-card mt-5 divide-y divide-line/70 overflow-hidden">
                   {bio.city && (
-                    <a
-                      href={maps || undefined}
-                      target={maps ? "_blank" : undefined}
-                      rel="noreferrer"
-                      onClick={() => {
-                        void triggerHaptic("light");
-                        if (maps) recordTap(bio.handle, "maps");
-                      }}
-                      className="flex min-h-[52px] items-center gap-3 p-4 transition-[background-color,transform] hover:bg-paper active:scale-[0.99] touch-manipulation cursor-pointer"
-                    >
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent">
-                        <MapPin size={18} />
-                      </span>
-                      <span className="min-w-0 flex-1 text-sm font-semibold text-ink">{bio.city}</span>
-                      {maps && <ChevronRight size={18} className="shrink-0 text-mute" />}
-                    </a>
+                    <div className="flex items-center justify-between p-4 transition-[background-color,transform] hover:bg-paper">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent">
+                          <MapPin size={18} />
+                        </span>
+                        <span className="min-w-0 flex-1 text-sm font-semibold text-ink">{bio.city}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {appleMaps && (
+                          <a
+                            href={appleMaps}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={() => {
+                              void triggerHaptic("light");
+                              recordTap(bio.handle, "maps");
+                            }}
+                            className="neu-btn inline-flex min-h-[36px] items-center gap-1 px-3 text-xs font-semibold text-ink"
+                            title="Open in Apple Maps"
+                          >
+                            <span>Apple Maps</span>
+                          </a>
+                        )}
+                        {maps && (
+                          <a
+                            href={maps}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={() => {
+                              void triggerHaptic("light");
+                              recordTap(bio.handle, "maps");
+                            }}
+                            className="neu-btn inline-flex min-h-[36px] items-center gap-1 px-3 text-xs font-semibold text-ink"
+                            title="Open in Google Maps"
+                          >
+                            <span>Google Maps</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   )}
                   {bio.hours && (
                     <div className="p-1">

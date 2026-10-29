@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { X } from "lucide-react";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { dismissKeyboard } from "@/lib/keyboard";
 import { cn } from "@/lib/cn";
@@ -83,11 +84,23 @@ export function Sheet({
         )}
       >
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-line/80 sm:hidden" />
-        {title && (
-          <h2 id={titleId} className="font-display mb-4 text-xl font-semibold">
-            {title}
-          </h2>
-        )}
+        <div className="mb-4 flex items-center justify-between gap-3">
+          {title ? (
+            <h2 id={titleId} className="font-display text-xl font-semibold text-ink">
+              {title}
+            </h2>
+          ) : (
+            <span />
+          )}
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Close"
+            className="grid h-10 w-10 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute transition hover:bg-paper hover:text-ink active:scale-95 cursor-pointer"
+          >
+            <X size={18} />
+          </button>
+        </div>
         {children}
       </div>
     </div>,

@@ -11,6 +11,7 @@ export function ChangeDisplayNameForm({ currentName, compact }: { currentName?: 
   const { user, refreshUser } = useAuth();
   const { mine, updateProfile } = useBio();
   const [next, setNext] = useState("");
+  const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const activeName = currentName || mine?.name || user?.displayName || "";
@@ -71,13 +72,22 @@ export function ChangeDisplayNameForm({ currentName, compact }: { currentName?: 
       <div className="neu-inset flex items-center overflow-hidden focus-within:ring-2 focus-within:ring-ink">
         <input
           value={next}
-          onChange={(e) => setNext(e.target.value)}
+          onChange={(e) => {
+            setNext(e.target.value);
+            setTouched(true);
+          }}
+          onBlur={() => setTouched(true)}
           placeholder={activeName || "Your Full Name"}
           autoComplete="name"
           maxLength={60}
           className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
         />
       </div>
+      {touched && !next.trim() && (
+        <p role="alert" className="text-xs font-semibold text-rose-600 dark:text-rose-400">
+          Please enter a display name
+        </p>
+      )}
       <Button
         type="submit"
         variant={compact ? "ghost" : "primary"}

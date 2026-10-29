@@ -58,6 +58,7 @@ export function OfferForm({
   onSubmit: (payload: OfferPayload) => Promise<void> | void;
 }) {
   const [draft, setDraft] = useState<OfferDraft>(initial);
+  const [headlineTouched, setHeadlineTouched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function set(key: keyof OfferDraft) {
@@ -102,12 +103,22 @@ export function OfferForm({
         <input
           id="offer-headline"
           value={draft.headline}
-          onChange={set("headline")}
+          onChange={(e) => {
+            setHeadlineTouched(true);
+            setDraft((prev) => ({ ...prev, headline: e.target.value }));
+            if (error) setError(null);
+          }}
+          onBlur={() => setHeadlineTouched(true)}
           placeholder="e.g. 2-for-1 house drink for AirPal Pass holders"
           required
           maxLength={120}
           className={inputClass}
         />
+        {headlineTouched && draft.headline.trim().length < 3 && (
+          <p role="alert" className="mt-1 text-xs font-semibold text-red-600 dark:text-red-400">
+            Give your offer a clear headline (3+ characters).
+          </p>
+        )}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
@@ -156,7 +167,13 @@ export function OfferForm({
           className={inputClass}
         />
       </div>
-      <Button type="submit" size="lg" className="w-full gap-2" disabled={busy} loading={busy}>
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full gap-2"
+        disabled={busy || draft.headline.trim().length < 3}
+        loading={busy}
+      >
         <Sparkles size={16} aria-hidden="true" />
         <span>{submitLabel}</span>
       </Button>

@@ -174,8 +174,12 @@ export function AppRoutes() {
           <Route path="/arrival">
             <ArrivalPage mode="arrival" />
           </Route>
-          <Route path="/host/pulse" component={PulsePage} />
-          <Route path="/host" component={PulsePage} />
+          <Route path="/host/pulse">
+            <Redirect to="/pulse" />
+          </Route>
+          <Route path="/host">
+            <Redirect to="/business" />
+          </Route>
           <Route path="/pulse/:publicToken" component={PulsePage} />
           <Route path="/pulse" component={PulsePage} />
           <Route path="/deals/:id">
