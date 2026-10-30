@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useListings } from "@/contexts/ListingsContext";
 import { useBio } from "@/contexts/BioContext";
+import { useEvents } from "@/contexts/EventsContext";
 import { venueBioHandle, venueBioInput } from "@/lib/venue-bio";
 import { cn } from "@/lib/cn";
 
@@ -37,6 +38,7 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
   const { user } = useAuth();
   const { mine, createPlace, confirmHours, saveDeal } = useListings();
   const { business, createProfile } = useBio();
+  const { events } = useEvents();
 
   // Best-effort venue bio alongside the new listing, using the handle the
   // user chose. A failure here is non-fatal: the checklist step below
@@ -175,6 +177,14 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
   // Step 1 counts complete only with a street-level address — a bare suburb
   // never marks the venue ready (finding 14).
   const venueAddressOk = venueStreetReady(mine?.address);
+  const hasEvents = Boolean(
+    mine &&
+    events.some(
+      (e) =>
+        (mine.handle && e.hostHandle === mine.handle) ||
+        (mine.name && e.venue?.toLowerCase() === mine.name.toLowerCase()),
+    ),
+  );
   const checklist = [
     {
       id: "venue",
@@ -247,10 +257,12 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
     {
       id: "events",
       title: "5. Events, Arrival Engine & Door Scanner",
-      detail: "Host ticketed nights, scan passes at the door, or onboard a cohort.",
-      done: Boolean(mine),
+      detail: hasEvents
+        ? "Active events connected to door scanner and arrival pass."
+        : "Host ticketed nights, scan passes at the door, or onboard a cohort.",
+      done: hasEvents,
       href: "/event",
-      cta: "Open Event Studio",
+      cta: hasEvents ? "Manage Events" : "Open Event Studio",
     },
   ];
   const completedCount = checklist.filter((c) => c.done).length;

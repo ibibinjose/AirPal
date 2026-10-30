@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { doc, setDoc } from "firebase/firestore";
 import { Button } from "@/components/ui/Button";
@@ -10,11 +10,16 @@ import { getFirebaseAuth, getFirebaseDb } from "@/lib/firebase";
 export function ChangeDisplayNameForm({ currentName, compact }: { currentName?: string; compact?: boolean }) {
   const { user, refreshUser } = useAuth();
   const { mine, updateProfile } = useBio();
-  const [next, setNext] = useState("");
+  const activeName = currentName || mine?.name || user?.displayName || "";
+  const [next, setNext] = useState(activeName);
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const activeName = currentName || mine?.name || user?.displayName || "";
+  useEffect(() => {
+    if (!touched && activeName) {
+      setNext(activeName);
+    }
+  }, [activeName, touched]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -49,7 +54,8 @@ export function ChangeDisplayNameForm({ currentName, compact }: { currentName?: 
       // 4. Refresh Auth Context state
       await refreshUser();
 
-      setNext("");
+      setTouched(false);
+      setNext(trimmed);
       toast.success(`Display name updated to "${trimmed}"`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not update display name");

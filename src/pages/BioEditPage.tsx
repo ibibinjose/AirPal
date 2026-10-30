@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import { nanoid } from "nanoid";
@@ -192,10 +192,15 @@ export function BioEditPage() {
   const [previewThemeMode, setPreviewThemeMode] = useState<"dark" | "light">("dark");
   const [nameTouched, setNameTouched] = useState(false);
   const [meetingUrlTouched, setMeetingUrlTouched] = useState(false);
+  const loadedHandleRef = useRef<string | null>(null);
 
   // Synchronize form states when active target profile changes
   useEffect(() => {
     if (!activeProfile) return;
+    if (loadedHandleRef.current === activeProfile.handle) {
+      return;
+    }
+    loadedHandleRef.current = activeProfile.handle;
     setName(activeProfile.name);
     setShortWhy(activeProfile.shortWhy || "");
     setAboutText(activeProfile.aboutText || "");
@@ -300,6 +305,12 @@ export function BioEditPage() {
     setMeetingUrl(activeProfile.meetingUrl || "");
     setPreferredMeetingPlatform(activeProfile.preferredMeetingPlatform || "in_person");
     setZooHunt(Boolean(activeProfile.zooHunt));
+    setAvatar(activeProfile.avatar || "");
+    setCover(activeProfile.cover || "");
+    setLinks(activeProfile.links || []);
+    setProducts(activeProfile.products || []);
+    setServices(activeProfile.services || []);
+    setDeals(activeProfile.deals?.length ? activeProfile.deals : catalogDeals(activeProfile));
     toast.info("Changes reset to saved profile");
   };
 
@@ -1849,16 +1860,8 @@ export function BioEditPage() {
                         ];
                         setLinks(next);
                         setHref("");
-                        void updateProfile({ handle: activeProfile.handle, links: next })
-                          .then(() => {
-                            void triggerHaptic("success");
-                            toast.success(`Added ${selectedLabel} link`);
-                          })
-                          .catch((err) =>
-                            toast.error(
-                              err instanceof Error ? err.message : "Could not save that link to your account",
-                            ),
-                          );
+                        void triggerHaptic("success");
+                        toast.success(`Added ${selectedLabel} link`);
                       }}
                     >
                       <div className="flex items-center justify-between">
@@ -1936,9 +1939,6 @@ export function BioEditPage() {
                             const saveLink = (patch: Partial<typeof l>) => {
                               const next = links.map((x) => (x.id === l.id ? { ...x, ...patch } : x));
                               setLinks(next);
-                              void updateProfile({ handle: activeProfile.handle, links: next }).catch((err) =>
-                                toast.error(err instanceof Error ? err.message : "Could not update your account"),
-                              );
                             };
                             return (
                               <li
@@ -2019,16 +2019,8 @@ export function BioEditPage() {
                                       onClick={() => {
                                         const next = links.filter((x) => x.id !== l.id);
                                         setLinks(next);
-                                        void updateProfile({ handle: activeProfile.handle, links: next })
-                                          .then(() => {
-                                            void triggerHaptic("light");
-                                            toast.success("Link removed");
-                                          })
-                                          .catch((err) =>
-                                            toast.error(
-                                              err instanceof Error ? err.message : "Could not update your account",
-                                            ),
-                                          );
+                                        void triggerHaptic("light");
+                                        toast.success("Link removed");
                                       }}
                                     >
                                       <Trash2 size={15} />

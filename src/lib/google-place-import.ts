@@ -130,7 +130,14 @@ async function searchGooglePlaces(
 }
 
 export async function searchPlaces(input: string, sessionToken: string, bias?: Geo): Promise<GooglePlaceSuggestion[]> {
-  if (canImportGooglePlaces()) return searchGooglePlaces(input, sessionToken, bias, false);
+  if (canImportGooglePlaces()) {
+    try {
+      const hits = await searchGooglePlaces(input, sessionToken, bias, false);
+      if (hits.length > 0) return hits;
+    } catch {
+      // Fallback to OpenStreetMap if Google Places fails or rate-limits
+    }
+  }
   return searchOsmPlaces(input, bias);
 }
 
@@ -140,7 +147,14 @@ export async function searchAddressPlaces(
   sessionToken: string,
   bias?: Geo,
 ): Promise<GooglePlaceSuggestion[]> {
-  if (canImportGooglePlaces()) return searchGooglePlaces(input, sessionToken, bias, true);
+  if (canImportGooglePlaces()) {
+    try {
+      const hits = await searchGooglePlaces(input, sessionToken, bias, true);
+      if (hits.length > 0) return hits;
+    } catch {
+      // Fallback to OpenStreetMap if Google Places fails or rate-limits
+    }
+  }
   return searchOsmPlaces(input, bias, true);
 }
 
@@ -221,7 +235,13 @@ export async function searchCityRegions(
   } catch {
     // Fallback if specific types are not accepted
   }
-  return searchGooglePlaces(needle, sessionToken, bias, true);
+  try {
+    const fallback = await searchGooglePlaces(needle, sessionToken, bias, true);
+    if (fallback.length > 0) return fallback;
+  } catch {
+    // Fallback to OSM
+  }
+  return searchOsmPlaces(needle, bias, true);
 }
 
 export async function fetchPlace(placeId: string, sessionToken: string): Promise<GooglePlaceImport> {

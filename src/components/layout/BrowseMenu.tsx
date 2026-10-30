@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent }
 import { useLocation } from "wouter";
 import { ChevronDown } from "lucide-react";
 import { BROWSE_LINKS, BROWSE_SECTIONS, HOST_LINKS, type BrowseLink } from "@/lib/browse-menu";
+import { useBio } from "@/contexts/BioContext";
 import { cn } from "@/lib/cn";
 import { triggerHaptic } from "@/lib/native";
 
@@ -46,6 +47,7 @@ function MenuLink({ link, active, onGo }: { link: BrowseLink; active: boolean; o
 /** Desktop Browse dropdown for the top bar: full grouped sitemap. */
 export function BrowseMenu({ path, isHost }: { path: string; isHost: boolean }) {
   const [, nav] = useLocation();
+  const { mine } = useBio();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -138,9 +140,17 @@ export function BrowseMenu({ path, isHost }: { path: string; isHost: boolean }) 
                 {section.title}
               </p>
               <div className="space-y-0.5">
-                {section.links.map((link) => (
-                  <MenuLink key={link.href} link={link} active={link.match(path)} onGo={go} />
-                ))}
+                {section.links.map((link) => {
+                  const resolved =
+                    link.href === "/bio/setup" && mine?.handle
+                      ? {
+                          ...link,
+                          href: `/@${mine.handle}`,
+                          hint: `@${mine.handle} profile`,
+                        }
+                      : link;
+                  return <MenuLink key={resolved.href} link={resolved} active={resolved.match(path)} onGo={go} />;
+                })}
               </div>
             </div>
           ))}

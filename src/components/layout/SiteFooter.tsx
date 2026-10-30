@@ -5,6 +5,7 @@ import { LEGAL } from "@/lib/legal";
 import { getNativePlatform, isNativeApp, triggerHaptic } from "@/lib/native";
 import { getBuildInfo } from "@/lib/build-info";
 import { openDebugOverlay } from "@/components/debug/DebugInfoOverlay";
+import { useBio } from "@/contexts/BioContext";
 import { cn } from "@/lib/cn";
 
 const NAV_ME = [
@@ -48,6 +49,7 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
   const platform = getNativePlatform();
   const isNative = isNativeApp();
   const buildInfo = getBuildInfo();
+  const { mine } = useBio();
 
   const handleScrollTop = () => {
     void triggerHaptic("light");
@@ -95,13 +97,19 @@ export function SiteFooter({ hasTabBar = true, className }: SiteFooterProps) {
           <div>
             <p className="text-sm font-semibold text-white/90">AirPal Me</p>
             <ul className="mt-4 space-y-2.5 text-sm">
-              {NAV_ME.filter((item) => !isNative || item.href !== "/getAirPalApp").map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className="text-white/70 transition hover:text-white">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+              {NAV_ME.filter((item) => !isNative || item.href !== "/getAirPalApp").map((item) => {
+                const resolved =
+                  item.href === "/bio/setup" && mine?.handle
+                    ? { href: `/@${mine.handle}`, label: `@${mine.handle} Bio` }
+                    : item;
+                return (
+                  <li key={resolved.href}>
+                    <Link href={resolved.href} className="text-white/70 transition hover:text-white">
+                      {resolved.label}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
