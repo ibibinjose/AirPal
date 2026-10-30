@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { motion, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { dismissKeyboard } from "@/lib/keyboard";
@@ -21,6 +22,7 @@ export function Sheet({
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const prevFocus = useRef<HTMLElement | null>(null);
+  const reduceMotion = useReducedMotion();
   useScrollLock(open);
 
   const handleClose = () => {
@@ -66,20 +68,26 @@ export function Sheet({
 
   return createPortal(
     <div className="visual-viewport-modal z-[100] flex items-end justify-center sm:items-center">
-      <button
+      <motion.button
         type="button"
         className="absolute inset-0 bg-black/50 backdrop-blur-xs"
         aria-label={`Close ${title || "dialog"}`}
         onClick={handleClose}
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.18 }}
       />
-      <div
+      <motion.div
         ref={panelRef}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
+        initial={reduceMotion ? false : { y: 56, opacity: 0, scale: 0.98 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        transition={{ type: "spring", stiffness: 420, damping: 34 }}
         className={cn(
-          "scroll-container safe-bottom relative z-10 max-h-[min(88dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] w-full rounded-t-3xl bg-card p-5 shadow-2xl sm:max-w-md sm:rounded-3xl transition-[transform,opacity] duration-200",
+          "scroll-container safe-bottom relative z-10 max-h-[min(88dvh,calc(var(--visual-viewport-height,100dvh)-1.5rem))] w-full rounded-t-3xl bg-card p-5 shadow-2xl sm:max-w-md sm:rounded-3xl origin-bottom",
           className,
         )}
       >
@@ -103,7 +111,7 @@ export function Sheet({
           </button>
         </div>
         {children}
-      </div>
+      </motion.div>
     </div>,
     document.body,
   );

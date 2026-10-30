@@ -50,4 +50,12 @@ describe("ProfileMenu", () => {
     expect(markup).toContain('aria-label="Account menu,');
     expect(markup).not.toContain('role="menuitem"');
   });
+
+  it("does not require double confirmation or armed signout state in source", async () => {
+    const fs = await import("fs");
+    const code = fs.readFileSync(new URL("./ProfileMenu.tsx", import.meta.url), "utf-8");
+    expect(code).not.toContain("signoutArmed");
+    expect(code).not.toContain("Confirm Sign Out");
+    expect(code).toContain('label="Sign out"');
+  });
 });

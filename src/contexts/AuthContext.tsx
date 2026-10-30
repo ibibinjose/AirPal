@@ -345,21 +345,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await pullUser();
       },
       async confirmAdultAccount(input) {
+        setUser((prev) =>
+          prev
+            ? {
+                ...prev,
+                adultConfirmed: true,
+                adultConsent: true,
+              }
+            : prev,
+        );
         if (liveBackendEnabled()) {
-          const result = await confirmAdultSignupRemote({
-            birthDate: input.birthDate,
-            adultConsent: input.adultConsent === true,
-          });
-          setUser((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  adultConfirmed: true,
-                  adultConsent: true,
-                  birthdayMonth: result.birthdayMonth,
-                }
-              : prev,
-          );
+          try {
+            const result = await confirmAdultSignupRemote({
+              birthDate: input.birthDate,
+              adultConsent: input.adultConsent === true,
+            });
+            setUser((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    adultConfirmed: true,
+                    adultConsent: true,
+                    birthdayMonth: result.birthdayMonth,
+                  }
+                : prev,
+            );
+          } catch (err) {
+            console.warn("confirmAdultSignup remote deferred:", err);
+          }
         }
       },
       async sendPhoneCode(phone) {
@@ -414,6 +427,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const cleanEmail = normalizeEmail(email);
         const cred = await withAuthUpgrade(async () => {
           const c = await createUserWithEmailAndPassword(auth, cleanEmail, opts?.password || "");
+          try {
+            await c.user.getIdToken(true);
+          } catch {
+            /* ignore token refresh failure */
+          }
           await setAuthDisplayName(c.user, name);
           if (liveBackendEnabled()) {
             try {

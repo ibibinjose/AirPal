@@ -161,8 +161,6 @@ export function ProfileMenu() {
   const [editText, setEditText] = useState("");
   const [editEmoji, setEditEmoji] = useState("☕");
   const [statusSaving, setStatusSaving] = useState(false);
-  const [signoutArmed, setSignoutArmed] = useState(false);
-  const signoutTimer = useRef<number | undefined>(undefined);
   const statusGuard = useRef(createSubmitGuard());
   const box = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -178,19 +176,7 @@ export function ProfileMenu() {
   useEffect(() => {
     setOpen(false);
     setStatusEditing(false);
-    setSignoutArmed(false);
   }, [path]);
-
-  useEffect(() => {
-    if (!open) setSignoutArmed(false);
-  }, [open]);
-
-  useEffect(
-    () => () => {
-      if (signoutTimer.current) window.clearTimeout(signoutTimer.current);
-    },
-    [],
-  );
 
   const partnerPath = partnerAccountPath({ signedIn: !!user, hasPlace: !!business });
 
@@ -702,20 +688,13 @@ export function ProfileMenu() {
         )}
         <Row
           icon={LogOut}
-          label={signoutArmed ? "Confirm Sign Out" : "Sign out"}
-          hint={signoutArmed ? "Tap again to sign out on this device" : undefined}
+          label="Sign out"
+          hint="Sign out on this device"
           danger
           onClick={() => {
-            if (!signoutArmed) {
-              setSignoutArmed(true);
-              if (signoutTimer.current) window.clearTimeout(signoutTimer.current);
-              signoutTimer.current = window.setTimeout(() => setSignoutArmed(false), 4000);
-              return;
-            }
-            setSignoutArmed(false);
+            setOpen(false);
             void logout().then(
               () => {
-                setOpen(false);
                 nav("/");
               },
               () => toast.error("Couldn't sign out — try again."),

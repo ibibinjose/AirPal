@@ -14,6 +14,7 @@ const { fakes, FakeHttpsError, ledger } = vi.hoisted(() => {
     fakes: {
       promos: {} as Record<string, Record<string, unknown>>,
       rewards: {} as Record<string, Record<string, unknown>>,
+      grants: {} as Record<string, Record<string, unknown>>,
       redemptions: {} as Record<string, Record<string, unknown>>,
       rewardTx: [] as Record<string, unknown>[],
       notifications: [] as Record<string, unknown>[],
@@ -53,6 +54,9 @@ vi.mock("./admin", () => ({
       }
       if (name === "rewards") {
         return { doc: (id: string) => docRef(fakes.rewards, id) };
+      }
+      if (name === "reward_grants") {
+        return { doc: (id: string) => docRef(fakes.grants, id) };
       }
       if (name === "promotion_redemptions") {
         return {
@@ -151,6 +155,7 @@ describe("promotion redemption verify + consume", () => {
   beforeEach(() => {
     fakes.promos = {};
     fakes.rewards = {};
+    fakes.grants = {};
     fakes.redemptions = {};
     fakes.rewardTx = [];
     fakes.notifications = [];
@@ -218,6 +223,9 @@ describe("promotion redemption verify + consume", () => {
       eventName: "offer_redeem",
       properties: { offerId: "promo-1", claimId: "RDM-PRO-4242" },
     });
+    // The verified till redemption earns member points exactly once.
+    expect(fakes.rewards["guest-9"]).toMatchObject({ uid: "guest-9", points: 5 });
+    expect(fakes.rewardTx.filter((r) => r.reason === "deal_redeemed")).toHaveLength(1);
     await expect(
       (consumePromotionRedemption as unknown as Handler)({
         ...OWNER_REQ,

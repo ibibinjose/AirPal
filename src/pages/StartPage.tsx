@@ -801,7 +801,8 @@ export function StartPage() {
                         }}
                         onDone={() => {
                           const dest = afterInPath();
-                          nav(`/onboarding?next=${encodeURIComponent(dest)}`);
+                          const target = mine?.handle ? dest : `/onboarding?next=${encodeURIComponent(dest)}`;
+                          nav(target);
                         }}
                       />
                     </div>

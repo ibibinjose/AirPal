@@ -22,6 +22,7 @@ import {
   Share2,
   Sparkles,
   Star,
+  Store,
   Ticket,
   UserPlus,
   UserRound,
@@ -45,6 +46,8 @@ import { CatchUpSlotActions } from "@/components/bio/CatchUpSlotActions";
 import { BioStatusModal } from "@/components/bio/BioStatusModal";
 import { BioPulseRate } from "@/components/bio/BioPulseRate";
 import { VenueLiveStrip } from "@/components/bio/VenueLiveStrip";
+import { BioEventsSection } from "@/components/bio/BioEventsSection";
+import { BioRewardsSection } from "@/components/bio/BioRewardsSection";
 import { BioKindIcon } from "@/components/bio/BioKindBadge";
 import { AddToCalendarMenu } from "@/components/calendar/AddToCalendarMenu";
 import { inviteLinkFor } from "@/lib/app-invites";
@@ -76,6 +79,7 @@ import { canViewProfile } from "@/lib/profile-stats";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEvents } from "@/contexts/EventsContext";
 import { fetchPublicBio } from "@/lib/bio-store";
+import { subscribeRewardBalance } from "@/lib/rewards";
 import { TradingHoursScheduleView } from "@/components/discovery/TradingHoursScheduleView";
 import { ArrivalAssistantCard } from "@/components/arrival/ArrivalAssistantCard";
 import { resolvePublicBio } from "@/lib/bio-handle";
@@ -151,7 +155,8 @@ export function BioPublicPage() {
   const [requesterCatchUps, setRequesterCatchUps] = useState<CatchUpItem[]>([]);
   const [requesterCatchUpsLoaded, setRequesterCatchUpsLoaded] = useState(false);
   const [reminderSaving, setReminderSaving] = useState(false);
-  const { stalls, getEvent } = useEvents();
+  const { events, remoteRecords, stalls, getEvent } = useEvents();
+  const [pointsBalance, setPointsBalance] = useState<number | null>(null);
   const { isFollowing, followerHandles } = useSocial();
   const localNow = useOptionalLocalNow();
   const local = resolvePublicBio(handle, byHandle);
@@ -159,6 +164,16 @@ export function BioPublicPage() {
   const [tried, setTried] = useState(!handle);
   const [claim, setClaim] = useState<{ code: string; badge: string; detail: string } | null>(null);
   const viewed = useRef("");
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setPointsBalance(null);
+      return;
+    }
+    return subscribeRewardBalance((b) => {
+      setPointsBalance(b.points);
+    });
+  }, [user?.uid]);
 
   useEffect(() => {
     if (!user?.uid) {
@@ -228,10 +243,53 @@ export function BioPublicPage() {
   }, [claim]);
 
   const profile = remote || local;
+  const isOwner = Boolean(
+    (user && profile?.ownerUid && profile.ownerUid === user.uid) ||
+    (user && profile?.ownerEmail && profile.ownerEmail === user.email) ||
+    (mine && profile && normalizeHandle(mine.handle) === normalizeHandle(profile.handle)),
+  );
   // Hoisted above the early returns: hooks must run in the same order on
   // every render. Empty while the profile is still resolving; only read
   // after the guards below.
   const publicLinks = useMemo(() => (profile ? visibleBioLinks(profile.links) : []), [profile]);
+  const businessEvents = useMemo(() => {
+    const all = [...events, ...remoteRecords];
+    const seen = new Set<string>();
+    const handleLower = normalizeHandle(handle);
+    const nameLower = profile?.name?.trim().toLowerCase();
+
+    return all
+      .filter((ev) => {
+        if (!ev.id || seen.has(ev.id)) return false;
+        if (ev.status === "draft" && !isOwner) return false;
+
+        const matchesHostHandle = Boolean(ev.hostHandle && normalizeHandle(ev.hostHandle) === handleLower);
+        const matchesBizHandle = Boolean(ev.businessHandle && normalizeHandle(ev.businessHandle) === handleLower);
+        const matchesCollab = Boolean(ev.collaboratorHandles?.some((h) => normalizeHandle(h) === handleLower));
+        const matchesSponsor = Boolean(ev.sponsorHandles?.some((h) => normalizeHandle(h) === handleLower));
+
+        const matchesVenue = Boolean(nameLower && ev.venue && ev.venue.trim().toLowerCase() === nameLower);
+        const matchesHostName = Boolean(nameLower && ev.hostName && ev.hostName.trim().toLowerCase() === nameLower);
+        const matchesBizName = Boolean(
+          nameLower && ev.businessName && ev.businessName.trim().toLowerCase() === nameLower,
+        );
+
+        if (
+          matchesHostHandle ||
+          matchesBizHandle ||
+          matchesCollab ||
+          matchesSponsor ||
+          matchesVenue ||
+          matchesHostName ||
+          matchesBizName
+        ) {
+          seen.add(ev.id);
+          return true;
+        }
+        return false;
+      })
+      .sort((a, b) => (a.startsAt || "").localeCompare(b.startsAt || ""));
+  }, [events, remoteRecords, handle, profile?.name, isOwner]);
   const [bioQrUrl, setBioQrUrl] = useState<string>("");
   const catchUpReminderActive = Boolean(
     user?.uid &&
@@ -377,12 +435,6 @@ export function BioPublicPage() {
   // Single source of truth shared with the edit-preview mirror.
   const themeVars = bioThemeCssVars(theme) as CSSProperties;
 
-  const isOwner = Boolean(
-    (user && bio.ownerUid && bio.ownerUid === user.uid) ||
-    (user && bio.ownerEmail && bio.ownerEmail === user.email) ||
-    (mine && normalizeHandle(mine.handle) === normalizeHandle(bio.handle)),
-  );
-
   const viewer = user ? { uid: user.uid, email: user.email || undefined, handle: mine?.handle } : null;
   const canView = canViewProfile(viewer, bio, {
     isFollowing: (h) => isFollowing(h),
@@ -419,10 +471,7 @@ export function BioPublicPage() {
 
   const appearing = stalls.filter((s) => s.handle === bio.handle && s.status === "active");
   const unclaimed = isClaimableBioProfile(bio, isOwner);
-  // Unified Connect card: format tiles + reminder exactly where the old
-  // visitor planner deck rendered; direct-reach actions for every viewer.
-  const hasCatalog = (bio.products || []).length > 0 || (bio.services || []).length > 0;
-  const showPlanner = !isOwner && !(bio.kind === "business" && hasCatalog);
+  const showPlanner = !isOwner && !isBizBio;
 
   const maps = bio.mapsPlaceId
     ? mapsPlaceIdUrl(bio.mapsPlaceId)
@@ -700,11 +749,11 @@ export function BioPublicPage() {
                     className="gap-1.5 rounded-full bg-brand px-3.5 sm:px-5 min-h-[44px] text-xs font-bold text-white shadow-xs hover:bg-brand-ink active:scale-95 cursor-pointer touch-manipulation"
                     onClick={() => {
                       void triggerHaptic("light");
-                      nav("/me");
+                      nav(isBizBio ? "/business" : "/me");
                     }}
                   >
-                    <UserRound size={14} />
-                    <span>Open Me</span>
+                    {isBizBio ? <Store size={14} /> : <UserRound size={14} />}
+                    <span>{isBizBio ? "Business Hub" : "Open Me"}</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -712,11 +761,11 @@ export function BioPublicPage() {
                     className="bio-theme-btn gap-1.5 rounded-full border border-line bg-card/90 px-3.5 sm:px-4 min-h-[44px] text-xs font-semibold text-ink shadow-2xs hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
                     onClick={() => {
                       void triggerHaptic("light");
-                      nav("/bio/edit");
+                      nav(isBizBio ? "/business" : "/bio/edit");
                     }}
                   >
                     <Edit3 size={13} />
-                    <span>Edit Bio</span>
+                    <span>{isBizBio ? "Manage Venue" : "Edit Bio"}</span>
                   </Button>
                 </div>
               ) : unclaimed ? (
@@ -960,206 +1009,210 @@ export function BioPublicPage() {
           {/* Connect: one card for formats + direct reach. Replaces the old
               quick-action deck and the visitor planner deck — same actions,
               same conditions, single composition in the shared design language. */}
-          <div className="mt-3 px-1 pt-1">
-            {showPlanner ? (
-              <>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
-                    <Sparkles size={12} className="text-accent" />
-                    <span>AirPal Hangout Planner</span>
-                  </span>
-                  <button
-                    type="button"
-                    disabled={reminderSaving || (Boolean(user?.uid) && !requesterCatchUpsLoaded)}
-                    onClick={async () => {
-                      if (reminderSaving || (user?.uid && !requesterCatchUpsLoaded)) return;
-                      if (!user?.uid || !requireUser("Sign in to save catch-up reminders.")) return;
-                      void triggerHaptic("light");
-                      setReminderSaving(true);
-                      try {
-                        const next = await toggleCatchUpReminder({
-                          handle: bio.handle,
-                          name: bio.name,
-                          photo: avatar,
-                          city: bio.city,
-                          requesterUid: user.uid,
-                        });
-                        setRequesterCatchUps(
-                          listCatchUpsForHandle(bio.handle).filter(
-                            (item) => item.requesterUid === user.uid && item.status !== "dismissed",
-                          ),
-                        );
-                        toast[next ? "success" : "info"](
-                          next ? `Saved a reminder to catch up with ${bio.name}` : `Removed reminder for ${bio.name}`,
-                        );
-                        setCatchUpsList(listCatchUpsForHandle(bio.handle));
-                      } catch (error) {
-                        toast.error(error instanceof Error ? error.message : "Couldn't save the reminder.");
-                      } finally {
-                        setReminderSaving(false);
-                      }
-                    }}
-                    className={cn(
-                      "neu-btn inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap px-4 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
-                      catchUpReminderActive
-                        ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 font-bold"
-                        : "bg-card text-mute hover:text-ink hover:bg-paper",
-                    )}
-                    title={catchUpReminderActive ? "Catch-up reminder active" : "Set a reminder to catch up"}
-                  >
-                    <span
-                      className={cn(
-                        "h-2 w-2 shrink-0 rounded-full",
-                        catchUpReminderActive ? "bg-amber-500 motion-safe:animate-pulse" : "bg-mute/50",
-                      )}
-                    />
-                    <span className="inline-flex items-center gap-1">
-                      {catchUpReminderActive ? (
-                        <>
-                          <span>Reminder on</span>
-                          <Check size={12} className="shrink-0" aria-hidden="true" />
-                        </>
-                      ) : (
-                        <span>Remind me</span>
-                      )}
+          {!isBizBio && (
+            <div className="mt-3 px-1 pt-1">
+              {showPlanner ? (
+                <>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
+                      <Sparkles size={12} className="text-accent" />
+                      <span>AirPal Hangout Planner</span>
                     </span>
-                  </button>
-                </div>
-                {!user && (
-                  <p className="mt-1.5 text-right text-[11px] font-medium text-mute">
-                    Saved on this device only — sign in to sync
-                  </p>
-                )}
-                <h3 className="font-display mt-2.5 text-lg sm:text-xl font-bold text-ink">Catch up with {bio.name}</h3>
-                <p className="mt-1 text-xs sm:text-sm leading-relaxed text-mute">
-                  Propose a 1-on-1 coffee, schedule a sync meeting, or create a group hangout with instant calendar
-                  sync.
-                </p>
-
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
-                  {(
-                    [
-                      {
-                        type: "catchup" as const,
-                        label: "Catch Up",
-                        sub: "1-on-1 coffee · 45m",
-                        Icon: Coffee,
-                        tint: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-                      },
-                      {
-                        type: "meeting" as const,
-                        label: "Meeting",
-                        sub: "1-on-1 sync · 30m",
-                        Icon: Calendar,
-                        tint: "bg-sky-500/15 text-sky-700 dark:text-sky-400",
-                      },
-                      {
-                        type: "nightout" as const,
-                        label: "Hangout",
-                        sub: "Group catch-up · 2h",
-                        Icon: Users,
-                        tint: "bg-rose-500/15 text-rose-700 dark:text-rose-400",
-                      },
-                    ] as const
-                  ).map((opt) => (
                     <button
-                      key={opt.type}
                       type="button"
-                      onClick={() => {
+                      disabled={reminderSaving || (Boolean(user?.uid) && !requesterCatchUpsLoaded)}
+                      onClick={async () => {
+                        if (reminderSaving || (user?.uid && !requesterCatchUpsLoaded)) return;
+                        if (!user?.uid || !requireUser("Sign in to save catch-up reminders.")) return;
                         void triggerHaptic("light");
-                        setCatchUpInitialType(opt.type);
-                        setCatchUpModalOpen(true);
+                        setReminderSaving(true);
+                        try {
+                          const next = await toggleCatchUpReminder({
+                            handle: bio.handle,
+                            name: bio.name,
+                            photo: avatar,
+                            city: bio.city,
+                            requesterUid: user.uid,
+                          });
+                          setRequesterCatchUps(
+                            listCatchUpsForHandle(bio.handle).filter(
+                              (item) => item.requesterUid === user.uid && item.status !== "dismissed",
+                            ),
+                          );
+                          toast[next ? "success" : "info"](
+                            next ? `Saved a reminder to catch up with ${bio.name}` : `Removed reminder for ${bio.name}`,
+                          );
+                          setCatchUpsList(listCatchUpsForHandle(bio.handle));
+                        } catch (error) {
+                          toast.error(error instanceof Error ? error.message : "Couldn't save the reminder.");
+                        } finally {
+                          setReminderSaving(false);
+                        }
                       }}
-                      className="bio-theme-btn group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[68px] sm:min-h-[104px] rounded-[24px] bg-card/90 p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-[box-shadow,ring-color,transform] duration-200 hover:ring-brand/40 hover:shadow-md active:scale-[0.98] cursor-pointer touch-manipulation"
+                      className={cn(
+                        "neu-btn inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap px-4 text-xs font-semibold transition cursor-pointer active:scale-95 touch-manipulation",
+                        catchUpReminderActive
+                          ? "bg-amber-500/15 text-amber-800 dark:text-amber-300 font-bold"
+                          : "bg-card text-mute hover:text-ink hover:bg-paper",
+                      )}
+                      title={catchUpReminderActive ? "Catch-up reminder active" : "Set a reminder to catch up"}
                     >
                       <span
                         className={cn(
-                          "sm:mb-2 grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-2xl transition-transform group-hover:scale-105",
-                          opt.tint,
+                          "h-2 w-2 shrink-0 rounded-full",
+                          catchUpReminderActive ? "bg-amber-500 motion-safe:animate-pulse" : "bg-mute/50",
                         )}
-                      >
-                        <opt.Icon size={19} />
-                      </span>
-                      <span className="flex flex-col sm:items-center">
-                        <span className="text-xs font-bold text-ink">{opt.label}</span>
-                        <span className="mt-0.5 text-[11px] sm:text-[10px] text-mute">{opt.sub}</span>
+                      />
+                      <span className="inline-flex items-center gap-1">
+                        {catchUpReminderActive ? (
+                          <>
+                            <span>Reminder on</span>
+                            <Check size={12} className="shrink-0" aria-hidden="true" />
+                          </>
+                        ) : (
+                          <span>Remind me</span>
+                        )}
                       </span>
                     </button>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
-                <Sparkles size={12} className="text-accent" />
-                <span>Get in touch</span>
-              </p>
-            )}
+                  </div>
+                  {!user && (
+                    <p className="mt-1.5 text-right text-[11px] font-medium text-mute">
+                      Saved on this device only — sign in to sync
+                    </p>
+                  )}
+                  <h3 className="font-display mt-2.5 text-lg sm:text-xl font-bold text-ink">
+                    Catch up with {bio.name}
+                  </h3>
+                  <p className="mt-1 text-xs sm:text-sm leading-relaxed text-mute">
+                    Propose a 1-on-1 coffee, schedule a sync meeting, or create a group hangout with instant calendar
+                    sync.
+                  </p>
 
-            {/* Direct reach: same actions and conditions as the old quick-action deck. */}
-            <div
-              className={cn(
-                "flex flex-wrap sm:flex-nowrap items-stretch gap-2",
-                showPlanner && "mt-4 border-t border-line/70 pt-4",
-                !showPlanner && "mt-3",
-              )}
-            >
-              {whatsappUrl && (
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => {
-                    void triggerHaptic("light");
-                    recordTap(bio.handle, "whatsapp");
-                  }}
-                  className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-white transition-[background-color,color,transform] duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
-                >
-                  <MessageCircle
-                    size={16}
-                    className="text-emerald-600 dark:text-white group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
-                  />
-                  <span className="truncate">WhatsApp</span>
-                </a>
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                    {(
+                      [
+                        {
+                          type: "catchup" as const,
+                          label: "Catch Up",
+                          sub: "1-on-1 coffee · 45m",
+                          Icon: Coffee,
+                          tint: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
+                        },
+                        {
+                          type: "meeting" as const,
+                          label: "Meeting",
+                          sub: "1-on-1 sync · 30m",
+                          Icon: Calendar,
+                          tint: "bg-sky-500/15 text-sky-700 dark:text-sky-400",
+                        },
+                        {
+                          type: "nightout" as const,
+                          label: "Hangout",
+                          sub: "Group catch-up · 2h",
+                          Icon: Users,
+                          tint: "bg-rose-500/15 text-rose-700 dark:text-rose-400",
+                        },
+                      ] as const
+                    ).map((opt) => (
+                      <button
+                        key={opt.type}
+                        type="button"
+                        onClick={() => {
+                          void triggerHaptic("light");
+                          setCatchUpInitialType(opt.type);
+                          setCatchUpModalOpen(true);
+                        }}
+                        className="bio-theme-btn group flex flex-row sm:flex-col items-center sm:justify-center gap-3 sm:gap-0 min-h-[68px] sm:min-h-[104px] rounded-[24px] bg-card/90 p-3.5 sm:p-4 text-left sm:text-center ring-1 ring-line/80 shadow-2xs transition-[box-shadow,ring-color,transform] duration-200 hover:ring-brand/40 hover:shadow-md active:scale-[0.98] cursor-pointer touch-manipulation"
+                      >
+                        <span
+                          className={cn(
+                            "sm:mb-2 grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-2xl transition-transform group-hover:scale-105",
+                            opt.tint,
+                          )}
+                        >
+                          <opt.Icon size={19} />
+                        </span>
+                        <span className="flex flex-col sm:items-center">
+                          <span className="text-xs font-bold text-ink">{opt.label}</span>
+                          <span className="mt-0.5 text-[11px] sm:text-[10px] text-mute">{opt.sub}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
+                  <Sparkles size={12} className="text-accent" />
+                  <span>Get in touch</span>
+                </p>
               )}
 
-              {tel && (
-                <a
-                  href={tel}
-                  onClick={() => {
-                    void triggerHaptic("light");
-                    recordTap(bio.handle, "call");
-                  }}
-                  className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-white transition-[background-color,color,transform] duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
-                >
-                  <Phone
-                    size={16}
-                    className="text-amber-600 dark:text-white group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
-                  />
-                  <span className="truncate">Call</span>
-                </a>
-              )}
-
-              <button
-                type="button"
-                onClick={() => {
-                  void triggerHaptic("light");
-                  void saveBioContact({
-                    name: bio.name,
-                    handle: bio.handle,
-                    phone: bio.phone,
-                    avatar: bio.avatar,
-                    url: share,
-                    note: `AirPal bio · AirPal.Me/@${bio.handle}`,
-                  });
-                }}
-                className="neu-btn group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 px-3 text-xs font-semibold text-ink transition-[background-color,transform] duration-200 active:scale-95 cursor-pointer touch-manipulation"
-                title={`Save ${bio.name} to phone contacts (.vcf)`}
+              {/* Direct reach: same actions and conditions as the old quick-action deck. */}
+              <div
+                className={cn(
+                  "flex flex-wrap sm:flex-nowrap items-stretch gap-2",
+                  showPlanner && "mt-4 border-t border-line/70 pt-4",
+                  !showPlanner && "mt-3",
+                )}
               >
-                <ContactRound size={16} className="text-accent group-hover:scale-110 transition-transform shrink-0" />
-                <span className="truncate">Save Contact</span>
-              </button>
+                {whatsappUrl && (
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => {
+                      void triggerHaptic("light");
+                      recordTap(bio.handle, "whatsapp");
+                    }}
+                    className="group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 text-xs font-bold text-emerald-700 dark:text-white transition-[background-color,color,transform] duration-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white active:scale-95 shadow-2xs"
+                  >
+                    <MessageCircle
+                      size={16}
+                      className="text-emerald-600 dark:text-white group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
+                    />
+                    <span className="truncate">WhatsApp</span>
+                  </a>
+                )}
+
+                {tel && (
+                  <a
+                    href={tel}
+                    onClick={() => {
+                      void triggerHaptic("light");
+                      recordTap(bio.handle, "call");
+                    }}
+                    className="group flex-1 min-w-[100px] flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 px-3 text-xs font-bold text-amber-700 dark:text-white transition-[background-color,color,transform] duration-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white active:scale-95 shadow-2xs"
+                  >
+                    <Phone
+                      size={16}
+                      className="text-amber-600 dark:text-white group-hover:text-white shrink-0 group-hover:scale-110 transition-transform"
+                    />
+                    <span className="truncate">Call</span>
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("light");
+                    void saveBioContact({
+                      name: bio.name,
+                      handle: bio.handle,
+                      phone: bio.phone,
+                      avatar: bio.avatar,
+                      url: share,
+                      note: `AirPal bio · AirPal.Me/@${bio.handle}`,
+                    });
+                  }}
+                  className="neu-btn group flex-1 min-w-[110px] flex min-h-[48px] items-center justify-center gap-2 px-3 text-xs font-semibold text-ink transition-[background-color,transform] duration-200 active:scale-95 cursor-pointer touch-manipulation"
+                  title={`Save ${bio.name} to phone contacts (.vcf)`}
+                >
+                  <ContactRound size={16} className="text-accent group-hover:scale-110 transition-transform shrink-0" />
+                  <span className="truncate">Save Contact</span>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Extended About Story Card: the story follows the action, connection-first. */}
           {bio.aboutText && (
@@ -1169,83 +1222,90 @@ export function BioPublicPage() {
             </div>
           )}
 
-          {/* AirPal Pass (owner-only: save the profile QR card to Apple or Google Wallet) */}
-          {isOwner && (
-            <div className="neu-section mt-6 p-5 sm:p-6 relative overflow-hidden">
-              <div className="flex items-center justify-between gap-2 mb-4">
-                <div className="human-eyebrow flex items-center gap-2">
-                  <QrCode size={15} aria-hidden="true" />
-                  <span>Your AirPal Pass · Digital Card</span>
-                </div>
-                <span className="neu-chip neu-tint-brand text-xs font-mono font-bold text-accent px-2.5 py-0.5 tabular-data">
-                  @{bio.handle}
+          {/* AirPal Pass & Wallet Integration (visible to both owners and non-owners) */}
+          <div className="neu-section mt-6 p-5 sm:p-6 relative overflow-hidden">
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="human-eyebrow flex items-center gap-2">
+                <QrCode size={15} aria-hidden="true" />
+                <span>
+                  {isOwner
+                    ? "Your AirPal Pass · Digital Card"
+                    : isBizBio
+                      ? "Venue Pass · Digital Member Card"
+                      : "AirPal Pass · Digital Member Card"}
                 </span>
               </div>
+              <span className="neu-chip neu-tint-brand text-xs font-mono font-bold text-accent px-2.5 py-0.5 tabular-data">
+                @{bio.handle}
+              </span>
+            </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    void triggerHaptic("medium");
-                    setShareModalOpen(true);
-                  }}
-                  className="relative group cursor-pointer shrink-0 grid place-items-center h-36 w-36 rounded-[22px] bg-white p-2.5 shadow-inner ring-1 ring-black/10 hover:ring-brand/50 transition-[box-shadow,ring-color,transform] duration-200 active:scale-95"
-                  title="Tap to preview or share Pass QR"
-                  aria-label="Enlarge QR Code"
-                >
-                  {bioQrUrl ? (
-                    <img src={bioQrUrl} alt={`QR Code for @${bio.handle}`} className="h-full w-full object-contain" />
-                  ) : (
-                    <div className="text-xs text-mute animate-pulse">Loading QR…</div>
-                  )}
-                  <span className="absolute inset-0 bg-brand/5 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center">
-                    <span className="text-[11px] font-bold bg-ink/85 text-white rounded-full px-2.5 py-1 shadow-sm">
-                      Enlarge QR
-                    </span>
+            <div className="flex flex-col sm:flex-row items-center gap-5">
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("medium");
+                  setShareModalOpen(true);
+                }}
+                className="relative group cursor-pointer shrink-0 grid place-items-center h-36 w-36 rounded-[22px] bg-white p-2.5 shadow-inner ring-1 ring-black/10 hover:ring-brand/50 transition-[box-shadow,ring-color,transform] duration-200 active:scale-95"
+                title="Tap to preview or share Pass QR"
+                aria-label="Enlarge QR Code"
+              >
+                {bioQrUrl ? (
+                  <img src={bioQrUrl} alt={`QR Code for @${bio.handle}`} className="h-full w-full object-contain" />
+                ) : (
+                  <div className="text-xs text-mute animate-pulse">Loading QR…</div>
+                )}
+                <span className="absolute inset-0 bg-brand/5 rounded-[22px] opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center">
+                  <span className="text-[11px] font-bold bg-ink/85 text-white rounded-full px-2.5 py-1 shadow-sm">
+                    Enlarge QR
                   </span>
-                </button>
+                </span>
+              </button>
 
-                <div className="flex-1 min-w-0 w-full space-y-3">
-                  <p className="text-sm text-mute leading-relaxed text-center sm:text-left">
-                    Add this QR-backed profile card to Apple Wallet or Google Wallet, then let people scan it to connect
-                    with you in person.
-                  </p>
+              <div className="flex-1 min-w-0 w-full space-y-3">
+                <p className="text-sm text-mute leading-relaxed text-center sm:text-left">
+                  {isOwner
+                    ? "Add this QR-backed profile card to Apple Wallet or Google Wallet, then let people scan it to connect with you in person."
+                    : isBizBio
+                      ? `Save ${bio.name}'s digital pass to Apple Wallet or Google Wallet for instant door check-in, rewards points (+10 pts), and VIP access.`
+                      : `Save ${firstNameOf(bio.name)}'s AirPal pass to Apple Wallet or Google Wallet for instant connection and offline access.`}
+                </p>
 
-                  <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
-                    <AppleWalletButton
-                      className="w-full sm:w-auto flex-1 justify-center min-h-[44px]"
-                      onClick={() => {
-                        void triggerHaptic("medium");
-                        const passUrl = businessCardWalletPassUrl(bio.handle);
-                        void openAppleWalletPass(passUrl, "@" + bio.handle + "-AirPal-Pass");
-                      }}
-                    />
-                    <GoogleWalletButton
-                      className="w-full sm:w-auto flex-1 justify-center min-h-[44px]"
-                      onClick={() => {
-                        void triggerHaptic("medium");
-                        void openGoogleWalletPass(googleWalletCardUrl(bio.handle));
-                      }}
-                    />
-                  </div>
+                <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
+                  <AppleWalletButton
+                    className="w-full sm:w-auto flex-1 justify-center min-h-[44px]"
+                    onClick={() => {
+                      void triggerHaptic("medium");
+                      const passUrl = businessCardWalletPassUrl(bio.handle);
+                      void openAppleWalletPass(passUrl, "@" + bio.handle + "-AirPal-Pass");
+                    }}
+                  />
+                  <GoogleWalletButton
+                    className="w-full sm:w-auto flex-1 justify-center min-h-[44px]"
+                    onClick={() => {
+                      void triggerHaptic("medium");
+                      void openGoogleWalletPass(googleWalletCardUrl(bio.handle));
+                    }}
+                  />
+                </div>
 
-                  <div className="flex items-center justify-center sm:justify-start pt-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void triggerHaptic("light");
-                        setShareModalOpen(true);
-                      }}
-                      className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-accent hover:text-brand-ink transition cursor-pointer"
-                    >
-                      <Share2 size={13} />
-                      <span>View Branded Pass Card &amp; Share Sheet &rarr;</span>
-                    </button>
-                  </div>
+                <div className="flex items-center justify-center sm:justify-start pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void triggerHaptic("light");
+                      setShareModalOpen(true);
+                    }}
+                    className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-accent hover:text-brand-ink transition cursor-pointer"
+                  >
+                    <Share2 size={13} />
+                    <span>View Branded Pass Card &amp; Share Sheet &rarr;</span>
+                  </button>
                 </div>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Business profile specific overview & actions */}
           {bio.kind === "business" && (
@@ -1266,18 +1326,44 @@ export function BioPublicPage() {
                     void triggerHaptic("selection");
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
-                  className="min-h-[44px] shrink-0 rounded-full bg-neutral-900 px-4 text-xs font-bold text-white transition active:scale-95 shadow-2xs"
+                  className="min-h-[44px] shrink-0 rounded-full bg-neutral-900 px-4 text-xs font-bold text-white transition active:scale-95 shadow-2xs cursor-pointer touch-manipulation"
                 >
                   Overview
                 </button>
-                {liveOffer && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("selection");
+                    document.getElementById("bio-events")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95 inline-flex items-center gap-1.5 cursor-pointer touch-manipulation"
+                >
+                  <span>Events</span>
+                  {businessEvents.length > 0 && (
+                    <span className="rounded-full bg-brand/10 text-accent font-bold px-1.5 py-0.5 text-[10px]">
+                      {businessEvents.length}
+                    </span>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void triggerHaptic("selection");
+                    document.getElementById("bio-rewards")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95 inline-flex items-center gap-1 cursor-pointer touch-manipulation"
+                >
+                  <Sparkles size={12} className="text-accent" />
+                  <span>Rewards</span>
+                </button>
+                {(liveOffer || deals.length > 0) && (
                   <button
                     type="button"
                     onClick={() => {
                       void triggerHaptic("selection");
-                      document.getElementById("bio-offers")?.scrollIntoView({ behavior: "smooth" });
+                      document.getElementById("bio-rewards")?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95"
+                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer touch-manipulation"
                   >
                     Offers
                   </button>
@@ -1289,7 +1375,7 @@ export function BioPublicPage() {
                       void triggerHaptic("selection");
                       document.getElementById("bio-products")?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95"
+                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer touch-manipulation"
                   >
                     Products
                   </button>
@@ -1301,9 +1387,21 @@ export function BioPublicPage() {
                       void triggerHaptic("selection");
                       document.getElementById("bio-services")?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95"
+                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer touch-manipulation"
                   >
                     Services
+                  </button>
+                )}
+                {(bio.hours || bio.city) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void triggerHaptic("selection");
+                      document.getElementById("bio-location")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer touch-manipulation"
+                  >
+                    Hours &amp; Location
                   </button>
                 )}
                 {bio.aboutText && (
@@ -1313,7 +1411,7 @@ export function BioPublicPage() {
                       void triggerHaptic("selection");
                       document.getElementById("bio-about")?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95"
+                    className="neu-btn min-h-[44px] shrink-0 px-4 text-xs font-semibold text-ink transition active:scale-95 cursor-pointer touch-manipulation"
                   >
                     About
                   </button>
@@ -1363,7 +1461,7 @@ export function BioPublicPage() {
 
               {/* Business Location & Trading Hours Schedule Card */}
               {(bio.city || bio.hours || bio.phone) && (
-                <div className="neu-card mt-5 divide-y divide-line/70 overflow-hidden">
+                <div id="bio-location" className="neu-card mt-5 divide-y divide-line/70 overflow-hidden scroll-mt-24">
                   {bio.city && (
                     <div className="flex items-center justify-between p-4 transition-[background-color,transform] hover:bg-paper">
                       <div className="flex items-center gap-3 min-w-0">
@@ -1440,11 +1538,24 @@ export function BioPublicPage() {
                   />
                 </div>
               )}
+
+              {/* Events hosted by or appearing at the business */}
+              <BioEventsSection events={businessEvents} bio={bio} isOwner={isOwner} onNavigate={nav} />
+
+              {/* Rewards & member perks at the business */}
+              <BioRewardsSection
+                bio={bio}
+                pointsBalance={pointsBalance}
+                deals={deals}
+                liveOffer={liveOffer}
+                onClaimDeal={onClaimDeal}
+                isOwner={isOwner}
+              />
             </div>
           )}
 
           {/* Owner Hangout Planner Hub and Proposals Inbox */}
-          {isOwner && (
+          {isOwner && !isBizBio && (
             <div className="mt-7 rounded-[28px] sm:rounded-[32px] bg-gradient-to-br from-paper/90 via-card to-paper/60 p-5 sm:p-6 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-accent flex items-center gap-1.5">
@@ -1724,8 +1835,13 @@ export function BioPublicPage() {
             </div>
           )}
 
-          {/* Featured Live Offer Banner */}
-          {liveOffer && (
+          {/* Personal profile hosted events */}
+          {!isBizBio && businessEvents.length > 0 && (
+            <BioEventsSection events={businessEvents} bio={bio} isOwner={isOwner} onNavigate={nav} />
+          )}
+
+          {/* Featured Live Offer Banner (Personal profiles) */}
+          {!isBizBio && liveOffer && (
             <div
               id="bio-offers"
               className="mt-8 scroll-mt-24 overflow-hidden rounded-[28px] sm:rounded-[32px] bg-gradient-to-br from-card via-card to-paper p-5 sm:p-6 shadow-sm"
@@ -1761,13 +1877,15 @@ export function BioPublicPage() {
           )}
 
           {/* Secondary Deals, Products & Services Catalog */}
-          <BioCatalogSection
-            label={liveOffer ? "More Deals & Offers" : "Deals & Offers"}
-            items={deals}
-            featured={!liveOffer}
-            onTap={(kind) => recordTap(bio.handle, kind)}
-            onClaim={onClaimDeal}
-          />
+          {!isBizBio && (
+            <BioCatalogSection
+              label={liveOffer ? "More Deals & Offers" : "Deals & Offers"}
+              items={deals}
+              featured={!liveOffer}
+              onTap={(kind) => recordTap(bio.handle, kind)}
+              onClaim={onClaimDeal}
+            />
+          )}
           <BioCatalogSection
             label="Products"
             items={bio.products || []}

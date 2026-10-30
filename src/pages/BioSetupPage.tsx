@@ -4,7 +4,14 @@ import { placeByHandle } from "@/lib/catalog";
 import { stallByHandle } from "@/lib/bio-handle";
 import { toast } from "sonner";
 import { BUSINESS_CATEGORIES, type BusinessCategoryId } from "@shared/business";
-import { handleFromDomain, handleFromName, handleMatchesClaim, normalizeHandle, randomHexHandle } from "@shared/bio";
+import {
+  handleError,
+  handleFromDomain,
+  handleFromName,
+  handleMatchesClaim,
+  normalizeHandle,
+  randomHexHandle,
+} from "@shared/bio";
 import {
   countryByCode,
   emptyAddress,
@@ -71,8 +78,15 @@ export function BioSetupPage() {
   const handleStatus = useHandleStatus(handle, exceptId);
   const suggested = useMemo(() => {
     if (asBusiness && domain) return handleFromDomain(domain) || handleFromName(name);
+    const emailPrefix = user?.email ? normalizeHandle(user.email.split("@")[0] || "") : "";
+    if (emailPrefix && !handleError(emailPrefix)) {
+      if (emailPrefix.match(/\d+$/)) {
+        return emailPrefix;
+      }
+      return handleFromName(name) || emailPrefix;
+    }
     return handleFromName(name);
-  }, [asBusiness, domain, name]);
+  }, [asBusiness, domain, name, user?.email]);
   const matches = handleMatchesClaim(handle, { name, domain, trademark });
   const handleOk = handleStatus.ok && (!asBusiness || matches);
   // Your own handle is "free" for you, so the checker reports Unique — but

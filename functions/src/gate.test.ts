@@ -77,6 +77,10 @@ vi.mock("./analytics", () => ({
   },
 }));
 
+vi.mock("./rewards", () => ({
+  grantPoints: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("./guestlist", () => ({
   markTicketCheckedIn: (...args: unknown[]) => {
     fakes.guestlistMarks.push(args);
@@ -91,6 +95,8 @@ vi.mock("./guestlist", () => ({
 }));
 
 import { admitTicket, verifyTicket } from "./gate";
+import { grantPoints } from "./rewards";
+import { CHECKIN_POINTS } from "../../shared/promotions";
 
 type Handler = (request: unknown) => Promise<Record<string, unknown>>;
 
@@ -230,6 +236,17 @@ describe("gate scan", () => {
     expect(fakes.writes).toHaveLength(1);
     expect(fakes.audits).toHaveLength(1);
     expect(fakes.guestlistMarks).toHaveLength(1);
+  });
+
+  it("admitTicket grants check-in points to the ticket owner and replays safely", async () => {
+    fakes.bookings = { "bk-1": { ...PAID_BOOKING } };
+    vi.mocked(grantPoints).mockClear();
+    await run(admitTicket, "org-1", { ticketId: "bk-1" });
+    expect(grantPoints).toHaveBeenCalledWith("guest-9", CHECKIN_POINTS, "event_check_in", "bk-1");
+    // A re-scan replays the grant through the idempotent ledger path.
+    await run(admitTicket, "org-1", { ticketId: "bk-1" });
+    expect(grantPoints).toHaveBeenCalledTimes(2);
+    expect(grantPoints).toHaveBeenNthCalledWith(2, "guest-9", CHECKIN_POINTS, "event_check_in", "bk-1");
   });
 
   it("admitTicket emits one server-side event_check_in on fresh admit", async () => {

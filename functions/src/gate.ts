@@ -11,7 +11,9 @@ import { enforceRateLimit, noteAppCheck, writeAudit } from "./abuse";
 import { CALLABLE, db, isPlatformAdmin, requireAccount } from "./admin";
 import { writeAuthoritativeEvent } from "./analytics";
 import { isListManager } from "../../shared/guestlist";
+import { CHECKIN_POINTS } from "../../shared/promotions";
 import { markTicketCheckedIn, scopeHostUids } from "./guestlist";
+import { grantPoints } from "./rewards";
 
 /**
  * Gate scan: load a ticket the caller is entitled to verify. Providers,
@@ -109,8 +111,16 @@ export const admitTicket = onCall(CALLABLE, async (request) => {
     tx.set(ref, { admittedAt: now, admittedByUid: uid, updatedAt: now }, { merge: true });
     return { admittedAt: now, already: false };
   });
+  // Earn is best-effort and idempotent: a failed grant is safely replayed by
+  // the next scan instead of double-minting, and earn errors never fail entry.
+  const grantCheckIn = () => {
+    const customerUid = String(booking.customerUid || "");
+    if (!customerUid) return Promise.resolve();
+    return grantPoints(customerUid, CHECKIN_POINTS, "event_check_in", ticketId).catch(() => undefined);
+  };
   if (result.already) {
     const already: AdmitTicketResponse = { ticketId, admittedAt: result.admittedAt, already: true };
+    await grantCheckIn();
     return already;
   }
   await writeAudit({
@@ -137,6 +147,7 @@ export const admitTicket = onCall(CALLABLE, async (request) => {
       },
     });
   }
+  await grantCheckIn();
   const admitted: AdmitTicketResponse = { ticketId, admittedAt: result.admittedAt, already: false };
   return admitted;
 });

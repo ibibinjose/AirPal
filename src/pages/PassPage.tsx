@@ -279,6 +279,13 @@ export function PassPage() {
               Member Deals
             </Link>
             <Link
+              href="/rewards"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white/15 px-4 py-2.5 text-xs sm:text-sm font-bold text-white ring-1 ring-white/30 backdrop-blur-md transition hover:bg-white/25 active:scale-95"
+            >
+              <Sparkles size={16} className="shrink-0" />
+              Rewards
+            </Link>
+            <Link
               href="/scan"
               className="inline-flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white/10 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white/90 ring-1 ring-white/20 transition hover:bg-white/20 active:scale-95"
             >

@@ -479,12 +479,20 @@ export function InboxPage() {
                 <p className="mx-auto mt-1 max-w-xs text-[14px] leading-relaxed text-mute">
                   Catch-ups, meetings, passes, waves, and deals land here as they happen.
                 </p>
-                <Link
-                  href="/deals"
-                  className="mt-5 inline-flex min-h-[44px] items-center text-[14px] font-bold text-accent hover:underline"
-                >
-                  Browse deals
-                </Link>
+                <div className="mt-5 flex items-center justify-center gap-5">
+                  <Link
+                    href="/deals"
+                    className="inline-flex min-h-[44px] items-center text-[14px] font-bold text-accent hover:underline"
+                  >
+                    Browse deals
+                  </Link>
+                  <Link
+                    href="/rewards"
+                    className="inline-flex min-h-[44px] items-center text-[14px] font-bold text-accent hover:underline"
+                  >
+                    View rewards
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="mt-10 text-center">

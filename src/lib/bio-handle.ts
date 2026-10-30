@@ -190,7 +190,10 @@ export function resolvePublicBio(
   if (owned) {
     if (owned.kind === "business") {
       const listing = getCachedListings().find(
-        (row) => row.id === owned.listingId || row.placeId === owned.placeId || row.handle === h,
+        (row) =>
+          (Boolean(owned.listingId) && row.id === owned.listingId) ||
+          (Boolean(owned.placeId) && row.placeId === owned.placeId) ||
+          (typeof row.handle === "string" && normalizeHandle(row.handle) === h),
       );
       if (listing) {
         return {

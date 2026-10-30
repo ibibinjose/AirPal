@@ -21,6 +21,8 @@ import {
   type SubmitPartnerClaimRequest,
 } from "../../shared/airpal-security";
 import { clampBusinessPlan } from "../../shared/business-onboarding";
+import { REDEEM_POINTS } from "../../shared/promotions";
+import { grantPoints } from "./rewards";
 
 import { emailMatchesWebsite } from "../../shared/google-place";
 import { CATALOG_DEALS, CATALOG_VENUE_IDS } from "./catalog";
@@ -156,6 +158,7 @@ export const redeemVoucher = onCall(CALLABLE, async (request) => {
 
   const voucherRef = db.collection("vouchers").doc(voucherId);
   const now = new Date().toISOString();
+  let ownerUid = "";
 
   await db.runTransaction(async (tx) => {
     const voucherSnap = await tx.get(voucherRef);
@@ -185,7 +188,7 @@ export const redeemVoucher = onCall(CALLABLE, async (request) => {
       redeemedAt: now,
       redeemedByStaff: "venue-staff",
     });
-    const ownerUid = String(voucher.uid || "");
+    ownerUid = String(voucher.uid || "");
     if (ownerUid) {
       tx.set(
         db.collection("users").doc(ownerUid).collection("vouchers").doc(voucherId),
@@ -206,6 +209,11 @@ export const redeemVoucher = onCall(CALLABLE, async (request) => {
     source: "internal",
     properties: { offerId: voucherId, partnerId: "venue", claimId: voucherId, redemptionChannel: "staff_pin" },
   });
+  // Verified till redemption earns member points. Best-effort: earn errors
+  // never fail the redemption, and the guard replays instead of doubling.
+  if (ownerUid) {
+    await grantPoints(ownerUid, REDEEM_POINTS, "deal_redeemed", voucherId).catch(() => undefined);
+  }
   return {
     ok: true as const,
     success: true as const,

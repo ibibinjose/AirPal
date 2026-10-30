@@ -292,7 +292,11 @@ export function BioProvider({ children }: { children: ReactNode }) {
       ]);
       if (kind === "business") syncBioToListing(profile);
       refresh();
-      await persistOwnedProfile(profile);
+      try {
+        await persistOwnedProfile(profile);
+      } catch (err) {
+        console.warn("Could not sync profile to remote:", err);
+      }
       return profile;
     },
     [business, mine, refresh, user],

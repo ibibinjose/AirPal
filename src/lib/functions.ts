@@ -16,7 +16,7 @@ export function liveBackendEnabled() {
 async function callFunction<Req, Res>(name: string, data: Req): Promise<Res> {
   const functions = getFirebaseFunctions();
   if (!functions) throw new Error("Firebase is not configured.");
-  const callable = httpsCallable<Req, Res>(functions, name);
+  const callable = httpsCallable<Req, Res>(functions, name, { timeout: 15_000 });
   const result = await callable(data);
   return result.data;
 }

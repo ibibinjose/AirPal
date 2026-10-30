@@ -1818,6 +1818,13 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                   <span>Memories</span>
                 </Link>
                 <Link
+                  href="/rewards"
+                  className="neu-chip flex min-h-[44px] items-center gap-2.5 p-3 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+                >
+                  <Sparkles size={15} className="text-amber-600" />
+                  <span>Rewards</span>
+                </Link>
+                <Link
                   href="/settings"
                   className="neu-chip flex min-h-[44px] items-center gap-2.5 p-3 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
                 >

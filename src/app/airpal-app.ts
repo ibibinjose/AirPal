@@ -98,6 +98,7 @@ export const CANONICAL_ROUTES: CanonicalRoute[] = [
   { pattern: "/pulse/:token", section: "business", label: "Belonging report (shared)" },
   { pattern: "/deals", section: "business", label: "Member deals" },
   { pattern: "/deals/:id", section: "business", label: "Deal detail" },
+  { pattern: "/rewards", section: "business", label: "Member rewards" },
   { pattern: "/giveaways", section: "business", label: "Giveaways" },
   { pattern: "/giveaways/:id", section: "business", label: "Giveaway detail" },
   { pattern: "/birthday-freebies", section: "business", label: "Birthday freebies" },

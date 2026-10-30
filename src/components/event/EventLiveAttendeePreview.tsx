@@ -279,7 +279,7 @@ export function EventLiveAttendeePreview({
       href={targetHref}
       onClick={handleActionClick}
       className={cn(
-        "group flex items-center justify-between rounded-2xl bg-paper/85 dark:bg-card/75 p-2.5 sm:px-3 sm:py-2.5 ring-1 ring-line/70 backdrop-blur-md transition hover:bg-paper hover:ring-brand/40 active:scale-[0.99] cursor-pointer touch-manipulation",
+        "group flex items-center justify-between rounded-2xl bg-paper p-2.5 sm:px-3 sm:py-2.5 ring-1 ring-line/70 transition hover:ring-brand/40 active:scale-[0.99] cursor-pointer touch-manipulation",
         className,
       )}
     >

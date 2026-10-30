@@ -12,6 +12,7 @@ import {
   winnerCanTransition,
   ENTRY_POINTS,
   REFERRAL_POINTS,
+  REDEEM_POINTS,
   type CreatePromotionRequest,
   type DrawWinnersRequest,
   type EnterPromotionRequest,
@@ -30,6 +31,7 @@ import { CALLABLE, auth, db, isPlatformAdmin, requireAccount, requireAuth } from
 import { writeAuthoritativeEvent } from "./analytics";
 import { isAnonymousAuth } from "./abuse";
 import { sendPushIfAllowed } from "./notifications";
+import { grantPoints } from "./rewards";
 import type { AccessClaims } from "../../shared/airpal-security";
 
 function slugFor(title: string): string {
@@ -83,24 +85,7 @@ async function notifyUser(uid: string, kind: NotificationKind, title: string, bo
   await sendPushIfAllowed(uid, kind, title, body, promotionId);
 }
 
-/** Ledger grant. Points are earned, never bought; deltas may be negative for redemptions. */
-async function grantPoints(uid: string, delta: number, reason: string, refId: string) {
-  if (!uid || !delta) return;
-  const ref = db.collection("rewards").doc(uid);
-  await db.runTransaction(async (tx) => {
-    const snap = await tx.get(ref);
-    const current = snap.exists ? Number(snap.data()?.points || 0) : 0;
-    tx.set(ref, { uid, points: current + delta, updatedAt: new Date().toISOString() }, { merge: true });
-  });
-  await db.collection("reward_transactions").add({
-    uid,
-    delta,
-    reason,
-    refId,
-    at: new Date().toISOString(),
-    createdAt: FieldValue.serverTimestamp(),
-  });
-}
+/** Idempotent ledger grants live in ./rewards (leaf module: no import cycles). */
 
 /** D1 — venue-owner check: listings by ownerUid, properties by ownerId/members. */
 async function ownsOfferVenue(uid: string, targetType: string, targetId: string): Promise<boolean> {
@@ -819,6 +804,9 @@ export const consumePromotionRedemption = onCall(CALLABLE, async (request) => {
   });
   const guestUid = String((await db.collection("promotion_redemptions").doc(redeemed.id).get()).data()?.uid || "");
   if (guestUid) {
+    // Verified till redemption earns member points. Best-effort: earn errors
+    // never fail the redemption, and the guard replays instead of doubling.
+    await grantPoints(guestUid, REDEEM_POINTS, "deal_redeemed", redeemed.id).catch(() => undefined);
     await notifyUser(
       guestUid,
       "points_redeemed",

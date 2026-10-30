@@ -85,12 +85,18 @@ vi.mock("./analytics", () => ({
   },
 }));
 
+vi.mock("./rewards", () => ({
+  grantPoints: vi.fn(async () => ({ duplicate: false })),
+}));
+
 vi.mock("firebase-functions/v2/https", () => ({
   HttpsError: FakeHttpsError,
   onCall: vi.fn((_opts: unknown, handler: unknown) => handler),
 }));
 
 import { redeemVoucher } from "./deals";
+import { grantPoints } from "./rewards";
+import { REDEEM_POINTS } from "../../shared/promotions";
 import { hashPin } from "./pin";
 
 type Handler = (request: unknown) => Promise<Record<string, unknown>>;
@@ -120,6 +126,7 @@ describe("redeemVoucher staff-PIN gap", () => {
 
   it("redeems with the correct staff PIN and writes the ledger", async () => {
     seedVoucher();
+    vi.mocked(grantPoints).mockClear();
     const res = (await (redeemVoucher as unknown as Handler)({
       ...STAFF_REQ,
       data: { voucherId: "tea-1234", staffPin: "2468" },
@@ -131,6 +138,7 @@ describe("redeemVoucher staff-PIN gap", () => {
       eventName: "offer_redeem",
       properties: { claimId: "TEA-1234", redemptionChannel: "staff_pin" },
     });
+    expect(grantPoints).toHaveBeenCalledWith("guest-9", REDEEM_POINTS, "deal_redeemed", "TEA-1234");
   });
 
   it("rejects the wrong PIN without touching the voucher", async () => {

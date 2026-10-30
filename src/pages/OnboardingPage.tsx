@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import { ArrowRight, AtSign, Cake, Check, Fingerprint, MapPin, User } from "lucide-react";
-import { handleFromName, normalizeHandle } from "@shared/bio";
+import { handleError, handleFromName, normalizeHandle } from "@shared/bio";
 import { isAdultBirthDate, sydneyToday } from "@shared/validate";
 import { Button } from "@/components/ui/Button";
 import { ValidField, fieldInput } from "@/components/forms/ValidField";
@@ -66,14 +66,16 @@ export function OnboardingPage() {
   // Suggest a handle from the name or email while the field is empty.
   useEffect(() => {
     if (handle) return;
+    const emailPrefix = user?.email ? normalizeHandle(user.email.split("@")[0] || "") : "";
     if (initialHandleParam) {
       setHandle(normalizeHandle(initialHandleParam));
+    } else if (emailPrefix && emailPrefix.match(/\d+$/) && !handleError(emailPrefix)) {
+      setHandle(emailPrefix);
     } else if (name) {
       const h = handleFromName(name);
       if (h) setHandle(h);
-    } else if (user?.email) {
-      const h = normalizeHandle(user.email.split("@")[0] || "");
-      if (h) setHandle(h);
+    } else if (emailPrefix && !handleError(emailPrefix)) {
+      setHandle(emailPrefix);
     }
   }, [handle, initialHandleParam, name, user?.email]);
 

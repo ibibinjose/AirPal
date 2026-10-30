@@ -15,6 +15,7 @@ import { toPublicUrl } from "@/lib/public-origin";
 import { cn } from "@/lib/cn";
 import { isEventEnded } from "@/lib/event-status";
 import { track } from "@/lib/analytics";
+import { triggerHaptic } from "@/lib/native";
 import type { CalendarEvent } from "@shared/event";
 import type { NearbyEvent } from "@shared/nearby";
 import { recordToCalendarBase } from "@/lib/remote-events";
@@ -183,6 +184,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
       const applied = toggleGoing(event.id);
       if (applied && !event.isGoing) {
         toast.success(`You're registered for "${event.title}"! Added to your AirPal Pass.`);
+        void triggerHaptic("success");
       }
       return;
     }
@@ -240,6 +242,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
         return;
       }
       toast.success("Ticket reserved — added to your AirPal Pass wallet");
+      void triggerHaptic("success");
       nav(`/ticket/${bookingId}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't start checkout.");

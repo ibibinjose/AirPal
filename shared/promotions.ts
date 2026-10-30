@@ -402,6 +402,10 @@ export interface RewardTransaction {
 /** Points earned for legitimate activity. Never purchasable, never random entries. */
 export const ENTRY_POINTS = 10;
 export const REFERRAL_POINTS = 5;
+/** Ticket or RSVP verified at the door (admit or guestlist check-in). */
+export const CHECKIN_POINTS = 10;
+/** Deal verified as consumed at the till (staff PIN or promotion scan). */
+export const REDEEM_POINTS = 5;
 
 export interface WeekCampaign {
   weekId: string;

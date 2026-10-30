@@ -143,6 +143,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
       setReference(res.reference);
       if (typeof res.founderNumber === "number") setFounderNumber(res.founderNumber);
       if (!res.duplicate) setCelebrate((n) => n + 1);
+      void triggerHaptic(res.duplicate ? "selection" : "success");
       toast.success(
         typeof res.founderNumber === "number" && !res.duplicate
           ? `You're founder #${res.founderNumber.toLocaleString("en-AU")}. Good luck!`
@@ -175,6 +176,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
       const res = await redeemPointsRemote({ promotionId: id });
       setRedeemCode(res.code);
       toast.success("Offer redeemed.");
+      void triggerHaptic("success");
     } catch (err) {
       toast.error(friendlyPromotionError(err));
     } finally {

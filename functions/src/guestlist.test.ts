@@ -148,6 +148,10 @@ vi.mock("./email", () => ({
   sendTicketReceiptEmail: vi.fn(async () => true),
 }));
 
+vi.mock("./rewards", () => ({
+  grantPoints: vi.fn(async () => ({ duplicate: false })),
+}));
+
 import {
   checkInGuest,
   closeGuestlist,
@@ -157,6 +161,7 @@ import {
   onGuestRsvpWritten,
   onGuestlistEntryWritten,
 } from "./guestlist";
+import { CHECKIN_POINTS } from "../../shared/promotions";
 
 type Handler = (request: unknown) => Promise<Record<string, unknown>>;
 type Trigger = (event: unknown) => Promise<void>;
@@ -196,6 +201,21 @@ describe("guestlist server", () => {
     await expect(run(checkInGuest, "org-1", { scope: "event", id: "nope", entryId: "a" })).rejects.toMatchObject({
       code: "not-found",
     });
+  });
+
+  it("checkInGuest grants points to linked members and skips walk-ins", async () => {
+    const { grantPoints } = await import("./rewards");
+    fakes.events = { "evt-1": { organiserUid: "org-1" } };
+    fakes.guestlist = {
+      "events/evt-1": {
+        m1: { name: "M", status: "going", partySize: 1, uid: "member-1", ticketId: "bk-9" },
+        w1: { name: "Walk In", status: "going", partySize: 2 },
+      },
+    };
+    await run(checkInGuest, "org-1", { scope: "event", id: "evt-1", entryId: "m1" });
+    expect(grantPoints).toHaveBeenCalledWith("member-1", CHECKIN_POINTS, "event_check_in", "bk-9");
+    await run(checkInGuest, "org-1", { scope: "event", id: "evt-1", entryId: "w1" });
+    expect(grantPoints).toHaveBeenCalledTimes(1);
   });
 
   it("checkInGuest admits co-hosts and rejects the removed plan scope", async () => {

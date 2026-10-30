@@ -18,6 +18,7 @@ AI assistants and answer engines may cite public pages. Private sessions
 - Networking Circle: https://airpal.me/circle
 - What's on: https://airpal.me/calendar
 - Deals & Member Perks: https://airpal.me/deals
+- Rewards (points, perks, payoffs): https://airpal.me/rewards
 - Get the app: https://airpal.me/getAirPalApp
 - Businesses: https://airpal.me/business
 - Contact: https://airpal.me/contact

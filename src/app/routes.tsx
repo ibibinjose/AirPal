@@ -64,6 +64,7 @@ const PromotionDetailPage = lazy(() =>
 const PromotionsStudioPage = lazy(() =>
   import("@/pages/PromotionsStudioPage").then((m) => ({ default: m.PromotionsStudioPage })),
 );
+const RewardsPage = lazy(() => import("@/pages/RewardsPage").then((m) => ({ default: m.RewardsPage })));
 const ArrivalPage = lazy(() => import("@/pages/ArrivalPage").then((m) => ({ default: m.ArrivalPage })));
 const PulsePage = lazy(() => import("@/pages/PulsePage").then((m) => ({ default: m.PulsePage })));
 const BirthdayFreebiesPage = lazy(() =>
@@ -186,6 +187,7 @@ export function AppRoutes() {
             <PromotionDetailPage kind="promotion" />
           </Route>
           <Route path="/deals" component={PromotionsPage} />
+          <Route path="/rewards" component={RewardsPage} />
           <Route path="/giveaways/:id">
             <PromotionDetailPage kind="giveaway" />
           </Route>

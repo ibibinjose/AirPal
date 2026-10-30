@@ -23,6 +23,8 @@ import type {
   ListDoorTeamRequest,
   ListDoorTeamResponse,
 } from "../../shared/airpal-security";
+import { CHECKIN_POINTS } from "../../shared/promotions";
+import { grantPoints } from "./rewards";
 import { enforceRateLimit, noteAppCheck, writeAudit } from "./abuse";
 import { CALLABLE, db, isPlatformAdmin, requireAccount } from "./admin";
 import { sendEventRsvpEmail, sendTicketReceiptEmail } from "./email";
@@ -332,6 +334,16 @@ export const checkInGuest = onCall(CALLABLE, async (request) => {
   const ref = guestlistCol(scope, id).doc(entryId);
   const snap = await ref.get();
   if (!snap.exists) throw new HttpsError("not-found", "Guest not found on this list.");
+  // Ticket-linked rows carry the booking id so scanner admits and door
+  // check-ins share one idempotency key per attendance.
+  const memberUid = String(snap.data()?.uid || "");
+  const earnRef = String(snap.data()?.ticketId || entryId);
+  // Earn is best-effort and idempotent: failures never fail entry, and the
+  // next scan replays the grant instead of double-minting.
+  const grantCheckIn = () => {
+    if (!memberUid) return Promise.resolve();
+    return grantPoints(memberUid, CHECKIN_POINTS, "event_check_in", earnRef).catch(() => undefined);
+  };
   const current = String(snap.data()?.status);
   if (current === "checked-in") {
     const already: CheckInGuestResponse = {
@@ -341,6 +353,7 @@ export const checkInGuest = onCall(CALLABLE, async (request) => {
       checkedInAt: String(snap.data()?.checkedInAt || ""),
       already: true,
     };
+    await grantCheckIn();
     return already;
   }
   const now = new Date().toISOString();
@@ -353,6 +366,7 @@ export const checkInGuest = onCall(CALLABLE, async (request) => {
     actorUid: uid,
     note: "door check-in",
   });
+  await grantCheckIn();
   const done: CheckInGuestResponse = { scope, id, entryId, checkedInAt: now, already: false };
   return done;
 });

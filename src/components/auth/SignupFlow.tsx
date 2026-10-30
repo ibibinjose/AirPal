@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { AlertCircle, ArrowRight, AtSign, Cake, Check, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { authErrorMessage } from "@shared/auth-email";
-import { handleFromName, normalizeHandle } from "@shared/bio";
+import { handleError, handleFromName, normalizeHandle } from "@shared/bio";
 import { PASSWORD_RULES, isAdultBirthDate, isEmail, passwordIssues, passwordOk, sydneyToday } from "@shared/validate";
 import { Button } from "@/components/ui/Button";
 import { ValidField, fieldInput } from "@/components/forms/ValidField";
@@ -57,15 +57,20 @@ export function SignupFlow({
 
   const handleStatus = useHandleStatus(handle, mine?.id);
 
-  // Auto-suggest handle from name if not customized
+  // Auto-suggest handle from email (if it has digits like airpalqa2) or name if not customized
   useEffect(() => {
-    if (!handleCustomized && name.trim().length >= 2) {
-      const suggested = handleFromName(name);
-      if (suggested && suggested.length >= 3) {
-        setHandle(suggested);
+    if (!handleCustomized) {
+      const emailPrefix = email ? normalizeHandle(email.split("@")[0] || "") : "";
+      if (emailPrefix && emailPrefix.match(/\d+$/) && !handleError(emailPrefix)) {
+        setHandle(emailPrefix);
+      } else if (name.trim().length >= 2) {
+        const suggested = handleFromName(name);
+        if (suggested && suggested.length >= 3) {
+          setHandle(suggested);
+        }
       }
     }
-  }, [name, handleCustomized]);
+  }, [name, email, handleCustomized]);
 
   const nameOk = name.trim().length >= 2;
   const emailOk = isEmail(email.trim());
@@ -129,22 +134,38 @@ export function SignupFlow({
         accountCreated = true;
         setEmailAccountCreated(true);
       }
-      await confirmAdultAccount({ birthDate: birthDate.trim(), adultConsent });
 
-      // Claim chosen handle profile if specified
+      // Run post-registration setup tasks in parallel with safety timeouts
+      // so slow network/cold-starts never trap the user on "Creating your account…".
+      const withTimeout = <T,>(p: Promise<T>, ms: number) =>
+        Promise.race([p, new Promise<T>((_, reject) => setTimeout(() => reject(new Error("Timeout")), ms))]);
+
+      const postTasks: Promise<unknown>[] = [];
+
+      postTasks.push(
+        withTimeout(confirmAdultAccount({ birthDate: birthDate.trim(), adultConsent }), 5000).catch((err) => {
+          console.warn("confirmAdultAccount non-blocking warning:", err);
+        }),
+      );
+
       if (cleanHandle && handleOk) {
-        try {
-          await createProfile({
-            handle: cleanHandle,
-            name: cleanName,
-            city: "Sydney",
-            shortWhy: "On AirPal",
-            kind: "person",
-          });
-        } catch {
-          /* Can be finalized during onboarding */
-        }
+        postTasks.push(
+          withTimeout(
+            createProfile({
+              handle: cleanHandle,
+              name: cleanName,
+              city: "Sydney",
+              shortWhy: "On AirPal",
+              kind: "person",
+            }),
+            5000,
+          ).catch((err) => {
+            console.warn("createProfile non-blocking warning:", err);
+          }),
+        );
       }
+
+      await Promise.allSettled(postTasks);
 
       void triggerHaptic("success");
       toast.success("Account created successfully!");
