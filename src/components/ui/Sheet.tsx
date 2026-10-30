@@ -69,7 +69,7 @@ export function Sheet({
       <button
         type="button"
         className="absolute inset-0 bg-black/50 backdrop-blur-xs"
-        aria-label="Close"
+        aria-label={`Close ${title || "dialog"}`}
         onClick={handleClose}
       />
       <div
@@ -95,10 +95,11 @@ export function Sheet({
           <button
             type="button"
             onClick={handleClose}
-            aria-label="Close"
+            aria-label={`Close ${title || "dialog"}`}
             className="grid h-10 w-10 min-h-[44px] min-w-[44px] place-items-center rounded-full text-mute transition hover:bg-paper hover:text-ink active:scale-95 cursor-pointer"
           >
-            <X size={18} />
+            <X size={18} aria-hidden="true" />
+            <span className="sr-only">Close {title || "dialog"}</span>
           </button>
         </div>
         {children}

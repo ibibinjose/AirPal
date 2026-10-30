@@ -184,6 +184,11 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
   // Event core fields
   const [name, setName] = useState("");
+  const [nameTouched, setNameTouched] = useState(false);
+  const nameError =
+    (nameTouched || name.length > 0) && name.trim().length < 2
+      ? "Please enter an event name (at least 2 characters)"
+      : null;
   const [flavour, setFlavour] = useState<EventFlavour>("market");
   const [city, setCity] = useState("Sydney");
   const [venue, setVenue] = useState("");
@@ -403,9 +408,10 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
   async function onCreate(e: FormEvent) {
     e.preventDefault();
+    setNameTouched(true);
     const trimmed = name.trim();
     if (trimmed.length < 2) {
-      toast.error("Give the event a name");
+      toast.error("Give the event a name (at least 2 characters)");
       return;
     }
     const startsAt = fromLocalInput(startsLocal);
@@ -844,7 +850,12 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     themeColor={themeColor}
                     coverOptionalLabel
                     nameRequired
-                    onName={setName}
+                    nameError={nameError}
+                    onName={(val) => {
+                      setName(val);
+                      if (!nameTouched && val.trim().length === 0) setNameTouched(true);
+                    }}
+                    onNameBlur={() => setNameTouched(true)}
                     onShortWhy={setShortWhy}
                     onCoverImage={setCoverImage}
                     onThemeColor={setThemeColor}
@@ -1009,7 +1020,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
                 {/* Publish Status */}
                 <div id="sec-status" className="scroll-mt-24 neu-section p-5 space-y-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-accent">7. Status</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-accent">7. Status & Tickets</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {(
                       [
@@ -1114,7 +1125,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   type="submit"
                   size="lg"
                   className="w-full h-12 text-base font-semibold shadow-md gap-2"
-                  disabled={creating}
+                  disabled={creating || name.trim().length < 2}
                 >
                   <span>
                     {creating ? "Creating Event…" : status === "draft" ? "Save Draft" : "Create Event & Open Gate"}
@@ -1868,7 +1879,13 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 shortWhy={shortWhy}
                 coverImage={coverImage}
                 themeColor={themeColor}
-                onName={setName}
+                nameRequired
+                nameError={nameError}
+                onName={(val) => {
+                  setName(val);
+                  if (!nameTouched && val.trim().length === 0) setNameTouched(true);
+                }}
+                onNameBlur={() => setNameTouched(true)}
                 onShortWhy={setShortWhy}
                 onCoverImage={setCoverImage}
                 onThemeColor={setThemeColor}
@@ -2108,7 +2125,11 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
               </label>
             </div>
 
-            <Button type="submit" className="w-full h-12 text-base font-semibold shadow-md" disabled={saving}>
+            <Button
+              type="submit"
+              className="w-full h-12 text-base font-semibold shadow-md"
+              disabled={saving || name.trim().length < 2}
+            >
               {saving ? "Saving Changes…" : "Save All Event Details"}
             </Button>
           </form>

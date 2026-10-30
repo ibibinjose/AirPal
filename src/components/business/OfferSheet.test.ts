@@ -68,4 +68,18 @@ describe("OfferForm sheet", () => {
     expect(markup).toContain("Publish to /deals");
     expect(markup).toContain('for="offer-headline"');
   });
+
+  it("renders an accessible cancel button when onCancel is provided", () => {
+    const markup = renderToStaticMarkup(
+      createElement(OfferForm, {
+        initial: EMPTY_OFFER_DRAFT,
+        submitLabel: "Update live offer",
+        busy: false,
+        onCancel: () => {},
+        onSubmit: () => {},
+      }),
+    );
+    expect(markup).toContain('aria-label="Cancel editing offer"');
+    expect(markup).toContain("Cancel");
+  });
 });

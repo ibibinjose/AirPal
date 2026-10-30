@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 export interface OfferDraft {
   headline: string;
@@ -50,11 +51,13 @@ export function OfferForm({
   initial,
   submitLabel,
   busy,
+  onCancel,
   onSubmit,
 }: {
   initial: OfferDraft;
   submitLabel: string;
   busy: boolean;
+  onCancel?: () => void;
   onSubmit: (payload: OfferPayload) => Promise<void> | void;
 }) {
   const [draft, setDraft] = useState<OfferDraft>(initial);
@@ -167,16 +170,30 @@ export function OfferForm({
           className={inputClass}
         />
       </div>
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full gap-2"
-        disabled={busy || draft.headline.trim().length < 3}
-        loading={busy}
-      >
-        <Sparkles size={16} aria-hidden="true" />
-        <span>{submitLabel}</span>
-      </Button>
+      <div className="flex items-center gap-2 pt-1">
+        {onCancel && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="lg"
+            className="min-h-[44px] flex-1 neu-btn font-semibold text-mute hover:text-ink cursor-pointer"
+            onClick={onCancel}
+            aria-label="Cancel editing offer"
+          >
+            Cancel
+          </Button>
+        )}
+        <Button
+          type="submit"
+          size="lg"
+          className={cn("gap-2", onCancel ? "flex-1" : "w-full")}
+          disabled={busy || draft.headline.trim().length < 3}
+          loading={busy}
+        >
+          <Sparkles size={16} aria-hidden="true" />
+          <span>{submitLabel}</span>
+        </Button>
+      </div>
     </form>
   );
 }

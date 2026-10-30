@@ -192,6 +192,7 @@ export function BioEditPage() {
   const [previewThemeMode, setPreviewThemeMode] = useState<"dark" | "light">("dark");
   const [nameTouched, setNameTouched] = useState(false);
   const [meetingUrlTouched, setMeetingUrlTouched] = useState(false);
+  const [linkTouched, setLinkTouched] = useState(false);
   const loadedHandleRef = useRef<string | null>(null);
 
   // Synchronize form states when active target profile changes
@@ -311,6 +312,10 @@ export function BioEditPage() {
     setProducts(activeProfile.products || []);
     setServices(activeProfile.services || []);
     setDeals(activeProfile.deals?.length ? activeProfile.deals : catalogDeals(activeProfile));
+    setNameTouched(false);
+    setMeetingUrlTouched(false);
+    setLinkTouched(false);
+    setHref("");
     toast.info("Changes reset to saved profile");
   };
 
@@ -1784,6 +1789,7 @@ export function BioEditPage() {
                                 void triggerHaptic("selection");
                                 setType(t.id);
                                 setHref("");
+                                setLinkTouched(false);
                               }}
                               aria-pressed={type === t.id}
                               className={cn(
@@ -1816,6 +1822,7 @@ export function BioEditPage() {
                                 void triggerHaptic("selection");
                                 setType(t.id);
                                 setHref("");
+                                setLinkTouched(false);
                               }}
                               aria-pressed={type === t.id}
                               className={cn(
@@ -1835,86 +1842,119 @@ export function BioEditPage() {
                     </div>
 
                     {/* Add Link Input Box */}
-                    <form
-                      className="space-y-3 neu-section p-5 sm:p-6"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        const empty = newLinkError(type, href);
-                        if (empty) {
-                          toast.error(empty);
-                          return;
-                        }
-                        const finalHref = formatFinalLinkHref(type, href);
-                        if (!finalHref) {
-                          toast.error("Enter a value first — a username for socials, a URL for web links.");
-                          return;
-                        }
-                        const next = [
-                          ...links,
-                          {
-                            id: nanoid(6),
-                            type,
-                            label: selectedLabel,
-                            href: finalHref,
-                          },
-                        ];
-                        setLinks(next);
-                        setHref("");
-                        void triggerHaptic("success");
-                        toast.success(`Added ${selectedLabel} link`);
-                      }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-mute">
-                          Add {selectedLabel} Link
-                        </span>
-                        {social && <span className="text-[11px] text-mute font-mono">{social.example}</span>}
-                      </div>
-
-                      <div className="neu-inset flex flex-col sm:flex-row items-stretch sm:items-center overflow-hidden transition focus-within:ring-2 focus-within:ring-ink">
-                        <div className="flex flex-1 items-center min-w-0">
-                          {social ? (
-                            <span className="flex h-12 shrink-0 select-none items-center border-r border-line bg-black/[0.04] px-3 font-mono text-xs font-medium text-mute">
-                              {social.cleanPrefix}
-                            </span>
-                          ) : type === "call" ? (
-                            <span className="flex h-12 shrink-0 select-none items-center border-r border-line bg-black/[0.04] px-3 font-mono text-xs font-medium text-mute">
-                              tel:
-                            </span>
-                          ) : null}
-
-                          <input
-                            value={href}
-                            required
-                            onChange={(e) => setHref(e.target.value)}
-                            placeholder={
-                              social
-                                ? social.placeholder
-                                : type === "call"
-                                  ? "+61 400 123 456"
-                                  : "https://yourwebsite.com"
+                    {(() => {
+                      const linkError =
+                        (linkTouched || href.trim().length > 0) && href.trim().length > 0
+                          ? newLinkError(type, href)
+                          : null;
+                      return (
+                        <form
+                          className="space-y-3 neu-section p-5 sm:p-6"
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            setLinkTouched(true);
+                            const empty = newLinkError(type, href);
+                            if (empty) {
+                              toast.error(empty);
+                              return;
                             }
-                            className="h-12 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-mute/60"
-                          />
-                        </div>
-
-                        <Button
-                          type="submit"
-                          size="sm"
-                          className="m-1.5 min-h-[44px] justify-center shrink-0 px-4 font-semibold rounded-xl cursor-pointer"
+                            const finalHref = formatFinalLinkHref(type, href);
+                            if (!finalHref) {
+                              toast.error("Enter a value first — a username for socials, a URL for web links.");
+                              return;
+                            }
+                            const next = [
+                              ...links,
+                              {
+                                id: nanoid(6),
+                                type,
+                                label: selectedLabel,
+                                href: finalHref,
+                              },
+                            ];
+                            setLinks(next);
+                            setHref("");
+                            setLinkTouched(false);
+                            void triggerHaptic("success");
+                            toast.success(`Added ${selectedLabel} link`);
+                          }}
                         >
-                          Add Link
-                        </Button>
-                      </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-mute">
+                              Add {selectedLabel} Link
+                            </span>
+                            {social && <span className="text-[11px] text-mute font-mono">{social.example}</span>}
+                          </div>
 
-                      <p className="text-[11px] text-mute">
-                        {social
-                          ? "Enter your username/handle. AirPal formats the destination URL automatically."
-                          : type === "call"
-                            ? "Enter phone number with international country code."
-                            : "Enter complete destination web URL."}
-                      </p>
-                    </form>
+                          <div
+                            className={cn(
+                              "neu-inset flex flex-col sm:flex-row items-stretch sm:items-center overflow-hidden transition focus-within:ring-2",
+                              linkError
+                                ? "border border-rose-500 focus-within:ring-rose-500/20"
+                                : "focus-within:ring-ink",
+                            )}
+                          >
+                            <div className="flex flex-1 items-center min-w-0">
+                              {social ? (
+                                <span className="flex h-12 shrink-0 select-none items-center border-r border-line bg-black/[0.04] px-3 font-mono text-xs font-medium text-mute">
+                                  {social.cleanPrefix}
+                                </span>
+                              ) : type === "call" ? (
+                                <span className="flex h-12 shrink-0 select-none items-center border-r border-line bg-black/[0.04] px-3 font-mono text-xs font-medium text-mute">
+                                  tel:
+                                </span>
+                              ) : null}
+
+                              <input
+                                value={href}
+                                required
+                                onChange={(e) => {
+                                  setHref(e.target.value);
+                                  if (!linkTouched && e.target.value.length > 0) setLinkTouched(true);
+                                }}
+                                onBlur={() => setLinkTouched(true)}
+                                aria-invalid={Boolean(linkError)}
+                                aria-describedby={linkError ? "bio-link-error" : "bio-link-hint"}
+                                placeholder={
+                                  social
+                                    ? social.placeholder
+                                    : type === "call"
+                                      ? "+61 400 123 456"
+                                      : "https://yourwebsite.com"
+                                }
+                                className="h-12 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-mute/60"
+                              />
+                            </div>
+
+                            <Button
+                              type="submit"
+                              size="sm"
+                              className="m-1.5 min-h-[44px] justify-center shrink-0 px-4 font-semibold rounded-xl cursor-pointer"
+                            >
+                              Add Link
+                            </Button>
+                          </div>
+
+                          {linkError ? (
+                            <p
+                              id="bio-link-error"
+                              role="alert"
+                              className="text-xs font-semibold text-rose-600 dark:text-rose-400"
+                            >
+                              {linkError}
+                            </p>
+                          ) : (
+                            <p id="bio-link-hint" className="text-[11px] text-mute">
+                              {social
+                                ? "Enter your username/handle. AirPal formats the destination URL automatically."
+                                : type === "call"
+                                  ? "Enter phone number with international country code."
+                                  : "Enter complete destination web URL."}
+                            </p>
+                          )}
+                        </form>
+                      );
+                    })()}
 
                     {/* Active Links List */}
                     <div className="neu-section p-5 sm:p-6 space-y-4">

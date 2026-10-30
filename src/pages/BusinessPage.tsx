@@ -959,6 +959,7 @@ export function BusinessPage() {
                   initial={dealToDraft(mine.deal)}
                   submitLabel={mine.deal ? "Update live offer" : "Publish to /deals"}
                   busy={offerBusy}
+                  onCancel={() => setOfferSheet(false)}
                   onSubmit={(payload) => void publishOffer(payload)}
                 />
               </Sheet>

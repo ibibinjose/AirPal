@@ -336,11 +336,12 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
                         "grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-bold",
                         active ? "bg-white/25 text-white" : done ? "bg-brand/15 text-accent" : "bg-card text-mute",
                       )}
-                      aria-hidden
+                      aria-hidden="true"
                     >
                       {done ? <Check size={12} strokeWidth={3} /> : i + 1}
                     </span>
                     <span className="truncate">{item.label}</span>
+                    <span className="sr-only">{done ? " (Completed)" : active ? " (Current)" : ""}</span>
                   </Link>
                 </li>
               );
@@ -594,12 +595,19 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
               >
                 <div className="flex items-start gap-3.5 min-w-0">
                   <span
+                    role="img"
+                    aria-label={item.done ? "Completed step" : "Incomplete step"}
                     className={cn(
                       "grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-bold",
                       item.done ? "bg-emerald-500/15 text-emerald-700" : "bg-paper text-mute",
                     )}
                   >
-                    {item.done ? <Check size={16} strokeWidth={3} /> : <Clock size={15} />}
+                    {item.done ? (
+                      <Check size={16} strokeWidth={3} aria-hidden="true" />
+                    ) : (
+                      <Clock size={15} aria-hidden="true" />
+                    )}
+                    <span className="sr-only">{item.done ? "Completed" : "Incomplete"}</span>
                   </span>
                   <div className="min-w-0">
                     <h3 className="font-display text-base font-bold text-ink">{item.title}</h3>

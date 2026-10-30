@@ -30,7 +30,7 @@ export function ClaimShell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-[100dvh] bg-paper">
+    <main id="main-content" aria-labelledby="claim-venue-title" className="min-h-[100dvh] bg-paper">
       <header className="bg-ink text-white">
         <div className="mx-auto w-full max-w-2xl px-4 pb-6 pt-[max(1.25rem,env(safe-area-inset-top,0px))] sm:px-5 sm:pb-7">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -72,7 +72,12 @@ export function ClaimShell({
             <BrandMark compact invert />
             <span className="text-xs font-semibold text-white/70">{eyebrow}</span>
           </div>
-          <h1 className="font-display mt-2 text-balance text-3xl font-bold leading-tight sm:text-4xl">{title}</h1>
+          <h1
+            id="claim-venue-title"
+            className="font-display mt-2 text-balance text-3xl font-bold leading-tight sm:text-4xl"
+          >
+            {title}
+          </h1>
           <p className="mt-2 max-w-lg text-pretty text-base leading-relaxed text-white/75">{lede}</p>
           <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/85 ring-1 ring-white/15">
             <ShieldCheck size={13} aria-hidden /> Takes about 2 minutes · Nothing goes public until you publish
@@ -119,7 +124,7 @@ export function ClaimShell({
         </div>
         <div className="h-1 bg-brand" aria-hidden />
       </header>
-      <main className="mx-auto w-full max-w-2xl px-4 py-5 pb-[max(5rem,calc(env(safe-area-inset-bottom,0px)+4rem))] sm:px-5 sm:py-7">
+      <div className="mx-auto w-full max-w-2xl px-4 py-5 pb-[max(5rem,calc(env(safe-area-inset-bottom,0px)+4rem))] sm:px-5 sm:py-7">
         {children}
         <p className="mt-6 text-center text-sm text-mute">
           Stuck?{" "}
@@ -131,7 +136,7 @@ export function ClaimShell({
             Contact partner support
           </Link>
         </p>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

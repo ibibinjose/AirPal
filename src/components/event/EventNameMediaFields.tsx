@@ -19,7 +19,9 @@ export function EventNameMediaFields({
   themeColor,
   nameRequired,
   coverOptionalLabel,
+  nameError,
   onName,
+  onNameBlur,
   onShortWhy,
   onCoverImage,
   onThemeColor,
@@ -30,7 +32,9 @@ export function EventNameMediaFields({
   themeColor: string;
   nameRequired?: boolean;
   coverOptionalLabel?: boolean;
+  nameError?: string | null;
   onName: (v: string) => void;
+  onNameBlur?: () => void;
   onShortWhy: (v: string) => void;
   onCoverImage: (v: string) => void;
   onThemeColor: (v: string) => void;
@@ -38,14 +42,33 @@ export function EventNameMediaFields({
   return (
     <>
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">Event Name</label>
+        <label
+          htmlFor="event-name-input"
+          className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+        >
+          Event Name{nameRequired ? " *" : ""}
+        </label>
         <input
+          id="event-name-input"
           value={name}
           onChange={(e) => onName(e.target.value)}
+          onBlur={onNameBlur}
           placeholder="e.g. The Rocks Weekend Market or Sydney Design Expo"
           required={nameRequired}
-          className="h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+          aria-invalid={Boolean(nameError)}
+          aria-describedby={nameError ? "event-name-error" : undefined}
+          className={cn(
+            "h-12 w-full rounded-2xl border bg-paper px-4 text-sm outline-none transition focus:ring-2",
+            nameError
+              ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
+              : "border-line focus:border-brand focus:ring-brand/20",
+          )}
         />
+        {nameError && (
+          <p id="event-name-error" role="alert" className="mt-1 text-xs font-semibold text-rose-600 dark:text-rose-400">
+            {nameError}
+          </p>
+        )}
       </div>
 
       <div>
