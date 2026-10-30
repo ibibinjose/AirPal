@@ -53,12 +53,15 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
     }
   }
 
-  const [name, setName] = useState(mine?.name || "");
-  const [category, setCategory] = useState<BusinessCategoryId>(mine?.category || "eat");
-  const [address, setAddress] = useState(mine?.address || "");
-  const [hours, setHours] = useState(mine?.hours || "Mon–Sun · 9am–9pm");
-  const [shortWhy, setShortWhy] = useState(mine?.shortWhy || "");
-  const [handle, setHandle] = useState(mine?.handle || business?.handle || "");
+  // Onboard is create-only: always start blank. Prefilling from the owner's
+  // existing listing leaks venue 1's name, address, hours, and handle into the
+  // venue 2 form (first-time owners have no listing, so they already see blanks).
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState<BusinessCategoryId>("eat");
+  const [address, setAddress] = useState("");
+  const [hours, setHours] = useState("Mon–Sun · 9am–9pm");
+  const [shortWhy, setShortWhy] = useState("");
+  const [handle, setHandle] = useState("");
   const [saving, setSaving] = useState(false);
 
   const [quickDealTitle, setQuickDealTitle] = useState(
@@ -105,9 +108,12 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
         geo: found.geo,
         handle: cleanHandle,
       });
-      await ensureVenueBio(created);
       toast.success(`${found.name} imported! Opening your setup checklist…`);
       nav("/business/setup");
+      // Venue bio builds in the background and never blocks setup: a slow
+      // profile chain used to strand owners on step 1 with the venue already
+      // created. Failures surface their own toast via ensureVenueBio.
+      void ensureVenueBio(created);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not import venue");
     } finally {
@@ -139,9 +145,12 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
         shortWhy: shortWhy.trim() || `Local ${category} partner on AirPal.`,
         handle: cleanHandle,
       });
-      await ensureVenueBio(created);
       toast.success(`${trimmed} created! Let's finish your readiness checklist.`);
       nav("/business/setup");
+      // Venue bio builds in the background and never blocks setup: a slow
+      // profile chain used to strand owners on step 1 with the venue already
+      // created. Failures surface their own toast via ensureVenueBio.
+      void ensureVenueBio(created);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not create venue");
     } finally {

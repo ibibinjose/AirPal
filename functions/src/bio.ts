@@ -52,10 +52,15 @@ export const createBusinessProfile = onCall(CALLABLE, async (request) => {
   const owned = await db.collection("profiles").where("ownerUid", "==", uid).get();
   const sameKind = owned.docs.find((row) => String(row.data()?.kind || "") === kind);
   const legacySolo = kind === "person" && owned.size === 1 && !owned.docs[0]?.data()?.kind ? owned.docs[0] : undefined;
+  // A new venue handle always mints its own profile: reusing the owner's
+  // existing business profile would overwrite venue 1 with venue 2's data.
+  // Personal profiles keep the single-identity reuse below.
   const profileId =
     existingHandle.exists && String(existingHandle.data()?.ownerUid) === uid
       ? String(existingHandle.data()?.profileId)
-      : sameKind?.id || legacySolo?.id || `bio-${randomBytes(4).toString("hex")}`;
+      : kind === "business"
+        ? `bio-${randomBytes(4).toString("hex")}`
+        : sameKind?.id || legacySolo?.id || `bio-${randomBytes(4).toString("hex")}`;
   const previous = await db.collection("handles").where("ownerUid", "==", uid).get();
   const stale = previous.docs.filter((row) => row.id !== handle && String(row.data()?.profileId || "") === profileId);
   const previousProfile = await db.collection("profiles").doc(profileId).get();
@@ -115,7 +120,12 @@ export const updateBusinessProfile = onCall(CALLABLE, async (request) => {
     const sameKind = owned.docs.find((row) => String(row.data()?.kind || "") === kind);
     const legacySolo =
       kind === "person" && owned.size === 1 && !owned.docs[0]?.data()?.kind ? owned.docs[0] : undefined;
-    const profileIdNew = sameKind?.id || legacySolo?.id || `bio-${randomBytes(4).toString("hex")}`;
+    // Same rule as create: a new venue handle mints its own profile instead
+    // of merging into the owner's existing business profile.
+    const profileIdNew =
+      kind === "business"
+        ? `bio-${randomBytes(4).toString("hex")}`
+        : sameKind?.id || legacySolo?.id || `bio-${randomBytes(4).toString("hex")}`;
     await db.collection("handles").doc(handle).set({ handle, profileId: profileIdNew, ownerUid: uid });
     await db
       .collection("profiles")

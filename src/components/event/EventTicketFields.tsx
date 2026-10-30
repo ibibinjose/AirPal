@@ -19,13 +19,15 @@ export interface TicketFieldValues {
 
 /** Validate ticket fields. Returns the error message, or null when valid. */
 export function validateTickets(values: TicketFieldValues): string | null {
-  if (!values.paid) return null;
-  const price = Number(String(values.price).replace(/[^0-9.]/g, ""));
-  if (!Number.isFinite(price) || price <= 0) return "Enter a ticket price, or switch to Free.";
+  // Capacity applies to free RSVPs too — the door list gates on it — so it
+  // validates regardless of paid vs free.
   if (values.capacity.trim()) {
     const cap = Number(values.capacity.trim());
     if (!Number.isInteger(cap) || cap < 1 || cap > 2000) return "Capacity must be 1–2000, or leave it empty.";
   }
+  if (!values.paid) return null;
+  const price = Number(String(values.price).replace(/[^0-9.]/g, ""));
+  if (!Number.isFinite(price) || price <= 0) return "Enter a ticket price, or switch to Free.";
   for (let i = 0; i < values.tiers.length; i++) {
     const tier = values.tiers[i]!;
     if (!tier.name.trim()) return `Tier ${i + 1} needs a name.`;
@@ -44,16 +46,18 @@ interface Props {
   onChange: (next: TicketFieldValues) => void;
 }
 
-/** Dollars → cents for the events engine. */
+/** Dollars → cents for the events engine. Capacity is kept for free events:
+ * the server gates free RSVPs on it, and empty still means unlimited. */
 export function ticketValuesToCents(values: TicketFieldValues): {
   ticketPriceCents?: number;
   capacity?: number;
   ticketTiers?: { id: string; name: string; priceCents: number; capacity?: number }[];
 } {
-  if (!values.paid) return { ticketPriceCents: undefined, capacity: undefined, ticketTiers: undefined };
-  const cents = Math.max(0, Math.round(Number(String(values.price).replace(/[^0-9.]/g, "")) * 100));
   const capRaw = values.capacity.trim();
   const cap = capRaw ? Math.floor(Number(capRaw)) : undefined;
+  const capacity = cap && Number.isInteger(cap) && cap >= 1 && cap <= 2000 ? cap : undefined;
+  if (!values.paid) return { ticketPriceCents: undefined, capacity, ticketTiers: undefined };
+  const cents = Math.max(0, Math.round(Number(String(values.price).replace(/[^0-9.]/g, "")) * 100));
   const tiers = values.tiers
     .map((t, i) => ({
       id:
@@ -72,7 +76,7 @@ export function ticketValuesToCents(values: TicketFieldValues): {
     .slice(0, 8);
   return {
     ticketPriceCents: cents > 0 ? cents : undefined,
-    capacity: cap && Number.isInteger(cap) && cap >= 1 && cap <= 2000 ? cap : undefined,
+    capacity,
     ticketTiers: tiers.length ? tiers : undefined,
   };
 }
@@ -109,11 +113,17 @@ export function EventTicketFields({ values, onChange }: Props) {
           );
         })}
       </div>
-      {values.paid && (
-        <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
+        {values.paid && (
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">Price (AUD)</label>
+            <label
+              htmlFor="ticket-price"
+              className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+            >
+              Price (AUD)
+            </label>
             <input
+              id="ticket-price"
               value={values.price}
               onChange={(e) => set({ price: e.target.value })}
               placeholder="25"
@@ -121,20 +131,25 @@ export function EventTicketFields({ values, onChange }: Props) {
               className={input}
             />
           </div>
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
-              Capacity (optional)
-            </label>
-            <input
-              value={values.capacity}
-              onChange={(e) => set({ capacity: e.target.value })}
-              placeholder="40"
-              inputMode="numeric"
-              className={input}
-            />
-          </div>
+        )}
+        <div>
+          <label
+            htmlFor="ticket-capacity"
+            className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+          >
+            Capacity (optional)
+          </label>
+          <input
+            id="ticket-capacity"
+            value={values.capacity}
+            onChange={(e) => set({ capacity: e.target.value })}
+            placeholder="40"
+            inputMode="numeric"
+            aria-describedby="ticket-capacity-hint"
+            className={input}
+          />
         </div>
-      )}
+      </div>
       {values.paid && (
         <div className="space-y-2.5 pt-1">
           <div className="flex items-center justify-between">
@@ -207,10 +222,10 @@ export function EventTicketFields({ values, onChange }: Props) {
           )}
         </div>
       )}
-      <p className="text-[11px] text-mute leading-relaxed">
+      <p id="ticket-capacity-hint" className="text-[11px] text-mute leading-relaxed">
         {values.paid
           ? "Guests pay by card at checkout. The platform fee comes from admin settings — you receive the night's takings after the event."
-          : "Free nights use the I'm-going RSVP. Switch to paid any time before tickets sell."}
+          : "Free nights use the I'm-going RSVP, gated by the capacity above — empty means unlimited. Switch to paid any time before tickets sell."}
       </p>
     </div>
   );

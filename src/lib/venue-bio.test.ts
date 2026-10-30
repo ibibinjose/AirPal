@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { listingDefaults } from "./listings";
-import { venueBioHandle, venueBioInput } from "./venue-bio";
+import { shouldKeepBusinessBio, venueBioHandle, venueBioInput } from "./venue-bio";
 
 function qaListing() {
   return listingDefaults({
@@ -41,5 +41,30 @@ describe("venue bio one-click input", () => {
   it("returns null when no handle can be derived", () => {
     const listing = { ...qaListing(), placeId: "!!" };
     expect(venueBioInput(listing)).toBeNull();
+  });
+
+  it("carries the listing trading hours for the venue bio header", () => {
+    expect(venueBioInput({ ...qaListing(), hours: "Mon–Sun · 9am–5pm" })?.hours).toBe("Mon–Sun · 9am–5pm");
+  });
+});
+
+describe("shouldKeepBusinessBio", () => {
+  const venueOne = { listingId: "list-aaa" };
+
+  it("starts fresh when there is no existing business bio", () => {
+    expect(shouldKeepBusinessBio(null, "list-bbb")).toBe(false);
+  });
+
+  it("keeps inheriting for legacy edits with no listing context", () => {
+    expect(shouldKeepBusinessBio(venueOne, undefined)).toBe(true);
+  });
+
+  it("keeps inheriting when re-saving the same venue", () => {
+    expect(shouldKeepBusinessBio(venueOne, "list-aaa")).toBe(true);
+  });
+
+  it("starts fresh for a second venue so venue 1 data never copies over", () => {
+    expect(shouldKeepBusinessBio(venueOne, "list-bbb")).toBe(false);
+    expect(shouldKeepBusinessBio({ listingId: null }, "list-bbb")).toBe(false);
   });
 });

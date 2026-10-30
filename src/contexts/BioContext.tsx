@@ -23,6 +23,7 @@ import { syncBioToListing } from "@/lib/identity";
 import { placeByHandle } from "@/lib/catalog";
 import { resolvePublicBio, stallByHandle } from "@/lib/bio-handle";
 import { getCachedListings } from "@/lib/listings";
+import { shouldKeepBusinessBio } from "@/lib/venue-bio";
 
 type CreateBioInput = Pick<BioProfile, "handle" | "name" | "city" | "shortWhy" | "aboutText"> & {
   category?: BioProfile["category"];
@@ -32,6 +33,8 @@ type CreateBioInput = Pick<BioProfile, "handle" | "name" | "city" | "shortWhy" |
   domain?: string;
   trademark?: string;
   phone?: string;
+  /** Venue trading hours, e.g. from the listing being launched. */
+  hours?: string;
   geo?: BioProfile["geo"];
   propertyId?: string;
   /** Real listing identifiers for venue bios — never derived from the handle. */
@@ -178,7 +181,18 @@ export function BioProvider({ children }: { children: ReactNode }) {
       const err = handleError(h);
       if (err) throw new Error(err);
       const kind: BioKind = input.kind || "person";
-      const sameKind = kind === "business" ? business : mine?.kind === "person" ? mine : null;
+      // Business inheritance is scoped to the same venue listing: a second
+      // venue starts fresh instead of copying the first venue's about text,
+      // hours, and photos. Personal profiles keep the single-identity rule.
+      const keep =
+        kind === "business"
+          ? shouldKeepBusinessBio(business, input.listingId)
+            ? business
+            : null
+          : mine?.kind === "person"
+            ? mine
+            : null;
+      const sameKind = keep;
       const currentUid = getFirebaseAuth()?.currentUser?.uid || user?.uid;
       const currentEmail = getFirebaseAuth()?.currentUser?.email || user?.email;
       const existing = loadBios().find((p) => p.handle === h);
@@ -213,7 +227,6 @@ export function BioProvider({ children }: { children: ReactNode }) {
       );
       const listingId =
         kind === "business" ? input.listingId || business?.listingId || listing?.id : business?.listingId;
-      const keep = kind === "business" ? business : sameKind;
       const profile: BioProfile = {
         id: keep?.id || existing?.id || `bio-${nanoid(8)}`,
         handle: h,
@@ -225,7 +238,11 @@ export function BioProvider({ children }: { children: ReactNode }) {
         aboutText: input.aboutText?.trim() || keep?.aboutText || undefined,
         city: input.city.trim() || "Sydney",
         category: input.category || keep?.category || (kind === "person" ? "services" : "eat"),
-        hours: keep?.hours || place?.hours || (kind === "person" ? "" : stall ? "Market hours" : "See bio"),
+        hours:
+          (kind === "business" ? input.hours?.trim() : undefined) ||
+          keep?.hours ||
+          place?.hours ||
+          (kind === "person" ? "" : stall ? "Market hours" : "See bio"),
         openNow: keep?.openNow ?? place?.openNow ?? true,
         phone: input.phone || keep?.phone || place?.phone,
         geo: input.geo || keep?.geo || place?.geo,
@@ -259,7 +276,14 @@ export function BioProvider({ children }: { children: ReactNode }) {
           (p) =>
             p.handle !== h &&
             p.id !== profile.id &&
-            !(p.ownerUid && p.ownerUid === profile.ownerUid && (p.kind || "business") === kind),
+            // One profile per owner per kind — except venues: a second
+            // venue's bio must not wipe the first venue's bio.
+            !(
+              p.ownerUid &&
+              p.ownerUid === profile.ownerUid &&
+              (p.kind || "business") === kind &&
+              (p.listingId || null) === (profile.listingId || null)
+            ),
         ),
       ]);
       if (kind === "business") syncBioToListing(profile);

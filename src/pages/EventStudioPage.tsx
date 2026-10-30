@@ -481,11 +481,17 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
       if (!first) throw new Error("Couldn't create event");
       setCreatingNew(false);
       setSelectedEventId(first.id);
-      setCelebrationEventId(first.id);
-      setCelebrationEventName(first.name);
-      toast.success(
-        seriesId ? `${instances.length} weekly events created and live! 🎉` : "Event created and officially live! 🎉",
-      );
+      if (status === "draft") {
+        // Drafts stay on this device until published: no celebration modal,
+        // no public link, no "live" toast.
+        toast.success("Draft saved on this device — publish it when you're ready.");
+      } else {
+        setCelebrationEventId(first.id);
+        setCelebrationEventName(first.name);
+        toast.success(
+          seriesId ? `${instances.length} weekly events created and live! 🎉` : "Event created and officially live! 🎉",
+        );
+      }
       setTab(flavour === "market" || flavour === "expo" ? "stalls" : "today");
     } catch (err) {
       const msg = friendlyFunctionError(err) || (err instanceof Error ? err.message : "Couldn’t publish event");
@@ -618,7 +624,11 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
         registrationNote: festivalFields.registrationNote.trim() || undefined,
         speakers: festivalFields.speakers.length > 0 ? festivalFields.speakers : [],
       });
-      toast.success("Event details and Google place saved live on AirPal");
+      toast.success(
+        status === "draft"
+          ? "Draft updated on this device — publish it when you're ready."
+          : "Event details and Google place saved live on AirPal",
+      );
     } catch (err) {
       const msg = friendlyFunctionError(err) || (err instanceof Error ? err.message : "Couldn’t save event details");
       toast.error(msg);
