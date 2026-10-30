@@ -1,3 +1,5 @@
+import { cn } from "@/lib/cn";
+
 export interface TicketTierDraft {
   id: string;
   name: string;
@@ -85,6 +87,13 @@ export function EventTicketFields({ values, onChange }: Props) {
   const set = (patch: Partial<TicketFieldValues>) => onChange({ ...values, ...patch });
   const input =
     "h-12 w-full rounded-2xl border border-line bg-paper px-4 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20 placeholder:text-mute/60";
+  const capVal = values.capacity.trim();
+  const capNum = Number(capVal);
+  const capError =
+    capVal && (!Number.isInteger(capNum) || capNum < 1 || capNum > 2000)
+      ? "Capacity must be 1–2000, or leave it empty for unlimited."
+      : null;
+
   return (
     <div className="neu-section p-5 space-y-4">
       <p className="text-xs font-bold uppercase tracking-wider text-accent">Tickets</p>
@@ -144,10 +153,22 @@ export function EventTicketFields({ values, onChange }: Props) {
             value={values.capacity}
             onChange={(e) => set({ capacity: e.target.value })}
             placeholder="40"
-            inputMode="numeric"
-            aria-describedby="ticket-capacity-hint"
-            className={input}
+            type="number"
+            min={1}
+            max={2000}
+            aria-invalid={Boolean(capError)}
+            aria-describedby={capError ? "ticket-capacity-error" : "ticket-capacity-hint"}
+            className={cn(input, capError && "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20")}
           />
+          {capError && (
+            <p
+              id="ticket-capacity-error"
+              role="alert"
+              className="mt-1 text-xs font-semibold text-rose-600 dark:text-rose-400"
+            >
+              {capError}
+            </p>
+          )}
         </div>
       </div>
       {values.paid && (

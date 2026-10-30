@@ -231,40 +231,28 @@ export function initialMonthFor(events: Array<{ date: string }>, todayStr: strin
 }
 
 /**
- * Format an event clock time for display.
- * Prefer the wall-clock embedded in the ISO string (with its offset) so CI
- * (UTC) and local machines show the same guest-facing time. Fall back to
- * Australia/Sydney when no offset is present.
+ * Format an event clock time for display in the event's local timezone.
+ * Falls back to Australia/Sydney when no timezone is specified.
  */
-export function formatTime(isoString: string): string {
+export function formatTime(isoString: string, timeZone?: string): string {
   try {
-    const wall = isoString.match(/T(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?$/i);
-    if (wall) {
-      const hours = Number(wall[1]);
-      const minutes = Number(wall[2]);
-      const utc = new Date(Date.UTC(2020, 0, 1, hours, minutes));
-      return new Intl.DateTimeFormat(deviceLocale(), {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-        timeZone: "UTC",
-      }).format(utc);
-    }
     const d = new Date(isoString);
+    if (Number.isNaN(d.getTime())) return "";
+    const tz = timeZone || "Australia/Sydney";
     return new Intl.DateTimeFormat(deviceLocale(), {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
-      timeZone: "Australia/Sydney",
+      timeZone: tz,
     }).format(d);
   } catch {
     return "";
   }
 }
 
-export function formatEventTimeRange(startsAt: string, endsAt: string): string {
-  const start = formatTime(startsAt);
-  const end = formatTime(endsAt);
+export function formatEventTimeRange(startsAt: string, endsAt: string, timeZone?: string): string {
+  const start = formatTime(startsAt, timeZone);
+  const end = formatTime(endsAt, timeZone);
   if (!start) return "";
   if (!end || start === end) return start;
   return `${start} – ${end}`;

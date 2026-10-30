@@ -120,5 +120,47 @@ describe("bio handle joins", () => {
     expect(bio.mapsPlaceId).toBe("ChIJtest");
     expect(bio.phone).toBe("+61 2 0000");
     expect(bio.deals[0]?.title).toBe("Taste");
+    expect(bio.aboutText).toBeUndefined();
+  });
+
+  it("overlays owned listing hours and description onto public bio", () => {
+    upsertCachedListing(
+      listingDefaults({
+        id: "list-venue2",
+        placeId: "pl-venue2",
+        name: "AirPal QA Test Host",
+        category: "eat",
+        placeCategory: "eat",
+        address: "20 Test Lane\nSydney NSW 2000\nAustralia",
+        shortWhy: "Second test venue",
+        description: "Venue 2 unique about text",
+        hours: "9am–5pm",
+        handle: "airpalqatest",
+        ownerUid: "u-qa",
+        ownerEmail: "info@sarvamdaily.com",
+      }),
+    );
+    const resolved = resolvePublicBio("airpalqatest", () => ({
+      id: "bio-venue2",
+      handle: "airpalqatest",
+      name: "Old Name",
+      kind: "business",
+      visibility: "public",
+      city: "Sydney",
+      category: "eat",
+      shortWhy: "Old why",
+      aboutText: "Old description",
+      hours: "9am–9pm",
+      openNow: true,
+      deals: [],
+      products: [],
+      services: [],
+      links: [],
+      listingId: "list-venue2",
+    })) as BioProfile;
+
+    expect(resolved.name).toBe("AirPal QA Test Host");
+    expect(resolved.aboutText).toBe("Venue 2 unique about text");
+    expect(resolved.hours).toBe("9am–5pm");
   });
 });

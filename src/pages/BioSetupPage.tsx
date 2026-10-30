@@ -37,24 +37,33 @@ export function BioSetupPage() {
   const params = new URLSearchParams(useSearch());
   const asBusiness = params.get("kind") === "business";
   const { user, authReady, register } = useAuth();
-  const { mine, business, createProfile } = useBio();
+  const { mine, business, profiles, createProfile } = useBio();
   const { mine: existingListing, savePlace } = useListings();
   const wanted = params.get("handle") || "";
-  const current = asBusiness ? business : mine;
+  const queryListingId = params.get("listingId") || "";
+  const current = asBusiness
+    ? queryListingId
+      ? profiles.find((p) => p.listingId === queryListingId) || null
+      : wanted
+        ? profiles.find((p) => p.handle === normalizeHandle(wanted)) || null
+        : business
+    : mine;
+  const isDifferent = Boolean(wanted && current && current.handle !== normalizeHandle(wanted));
+  const base = isDifferent ? null : current;
   const [step, setStep] = useState(1);
-  const [handle, setHandle] = useState(current?.handle || wanted);
-  const [name, setName] = useState(current?.name || "");
-  const [shortWhy, setShortWhy] = useState(current?.shortWhy || "");
-  const [category, setCategory] = useState<BusinessCategoryId>(current?.category || "eat");
-  const [hours, setHours] = useState("9am–5pm");
-  const [registrationNumber, setRegistrationNumber] = useState(business?.registrationNumber || "");
-  const [domain, setDomain] = useState(business?.domain || "");
-  const [trademark, setTrademark] = useState(business?.trademark || "");
+  const [handle, setHandle] = useState(wanted || current?.handle || "");
+  const [name, setName] = useState(base?.name || "");
+  const [shortWhy, setShortWhy] = useState(base?.shortWhy || "");
+  const [category, setCategory] = useState<BusinessCategoryId>(base?.category || "eat");
+  const [hours, setHours] = useState(base?.hours || "9am–5pm");
+  const [registrationNumber, setRegistrationNumber] = useState(base?.registrationNumber || "");
+  const [domain, setDomain] = useState(base?.domain || "");
+  const [trademark, setTrademark] = useState(base?.trademark || "");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState(current?.phone || "");
+  const [phone, setPhone] = useState(base?.phone || "");
   const [address, setAddress] = useState<AddressParts>(emptyAddress("AU"));
-  const [geo, setGeo] = useState(current?.geo);
+  const [geo, setGeo] = useState(base?.geo);
   const [locating, setLocating] = useState(false);
   const [accept, setAccept] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -146,6 +155,9 @@ export function BioSetupPage() {
         trademark: asBusiness ? trademark : undefined,
         phone: asBusiness ? phone : undefined,
         geo: asBusiness ? geo : undefined,
+        listingId: asBusiness
+          ? queryListingId || (existingListing?.handle === normalizeHandle(handle) ? existingListing.id : undefined)
+          : undefined,
       });
       // A fresh setup creates the listing alongside the bio. When the user
       // already has a venue, skip this: the setup form starts empty and

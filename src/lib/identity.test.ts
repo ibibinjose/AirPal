@@ -120,4 +120,22 @@ describe("identity listing sync", () => {
     const updatedBio = loadBios().find((r) => r.handle === "glenmore");
     expect(updatedBio?.aboutText).toBe("Updated historic rooftop pub with Sydney Harbour views");
   });
+
+  it("provisions a new business bio when a venue listing is created with a unique handle", () => {
+    persistBios([person()]);
+    syncListingToBio({
+      id: "list-venue2",
+      name: "AirPal QA Test Host",
+      hours: "9am–5pm",
+      shortWhy: "Test venue",
+      description: "Custom test description",
+      handle: "airpalqatest",
+    });
+    const venueBio = loadBios().find((r) => r.handle === "airpalqatest");
+    expect(venueBio).toBeDefined();
+    expect(venueBio?.kind).toBe("business");
+    expect(venueBio?.name).toBe("AirPal QA Test Host");
+    expect(venueBio?.hours).toBe("9am–5pm");
+    expect(venueBio?.aboutText).toBe("Custom test description");
+  });
 });

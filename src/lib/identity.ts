@@ -1,7 +1,8 @@
-import type { BioProfile } from "@shared/bio";
+import { normalizeHandle, type BioProfile } from "@shared/bio";
 import { placeCategoryFor } from "@shared/business";
 import { getCachedListings, listingDefaults, upsertCachedListing } from "./listings";
 import { loadBios, persistBios } from "./bio-store";
+import { isOpenAt } from "./hours";
 
 export function syncBioToListing(bio: BioProfile) {
   if (bio.kind === "person") return;
@@ -49,13 +50,57 @@ export function syncListingToBio(listing: {
   heroImage?: string;
   deal?: { badge: string; detail: string };
   geo?: { lat: number; lng: number };
+  ownerUid?: string;
+  ownerEmail?: string;
 }) {
   const bios = loadBios();
   const bio = bios.find((row) => {
     if (row.kind === "person") return false;
     return row.listingId === listing.id || Boolean(listing.handle && row.handle === listing.handle);
   });
-  if (!bio) return;
+  if (!bio) {
+    if (!listing.handle) return;
+    const h = normalizeHandle(listing.handle);
+    const existingAny = bios.find((row) => row.handle === h);
+    if (existingAny) return;
+    const newBio: BioProfile = {
+      id: `bio-${listing.id.replace(/^list-/, "")}`,
+      handle: h,
+      kind: "business",
+      visibility: "public",
+      name: listing.name,
+      shortWhy: listing.shortWhy,
+      aboutText: listing.description !== undefined ? listing.description.trim() || undefined : undefined,
+      city: "Sydney",
+      category: "eat",
+      hours: listing.hours,
+      openNow: listing.hours ? (isOpenAt(listing.hours, new Date(), "Australia/Sydney") ?? true) : true,
+      phone: listing.phone,
+      geo: listing.geo,
+      avatar: listing.heroImage,
+      cover: listing.heroImage,
+      listingId: listing.id,
+      ownerUid: listing.ownerUid,
+      ownerEmail: listing.ownerEmail,
+      offer: listing.deal ? { badge: listing.deal.badge, detail: listing.deal.detail } : undefined,
+      deals: listing.deal
+        ? [
+            {
+              id: "offer",
+              kind: "deal" as const,
+              title: listing.deal.badge,
+              detail: listing.deal.detail,
+              badge: listing.deal.badge,
+            },
+          ]
+        : [],
+      products: [],
+      services: [],
+      links: [],
+    };
+    persistBios([...bios, newBio]);
+    return;
+  }
   persistBios([
     {
       ...bio,

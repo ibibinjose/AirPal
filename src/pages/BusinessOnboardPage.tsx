@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import {
@@ -37,8 +37,20 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
   const [, nav] = useLocation();
   const { user } = useAuth();
   const { mine, createPlace, confirmHours, saveDeal } = useListings();
-  const { business, createProfile } = useBio();
+  const { profiles = [], createProfile } = useBio();
   const { events } = useEvents();
+
+  const venueBio = useMemo(() => {
+    if (!mine) return null;
+    return (
+      (profiles || []).find(
+        (p) =>
+          (p.kind || "business") === "business" &&
+          p.kind !== "person" &&
+          (p.listingId === mine.id || (mine.handle && p.handle === mine.handle)),
+      ) || null
+    );
+  }, [mine, profiles]);
 
   // Best-effort venue bio alongside the new listing, using the handle the
   // user chose. A failure here is non-fatal: the checklist step below
@@ -236,18 +248,20 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
       id: "bio",
       title: "4. Public Business Bio (@handle)",
       // Only the venue BIO counts as live — the listing handle alone is not a page.
-      detail: business?.handle
-        ? `Live at /@${business.handle}`
+      detail: venueBio?.handle
+        ? `Live at /@${venueBio.handle}`
         : "Claim your @handle so guests can follow your venue and share your card.",
-      done: Boolean(business?.handle),
-      href: business?.handle
-        ? `/@${business.handle}`
+      done: Boolean(venueBio?.handle),
+      href: venueBio?.handle
+        ? `/@${venueBio.handle}`
         : `/bio/setup?kind=business${
-            mine && venueBioHandle(mine) ? `&handle=${encodeURIComponent(venueBioHandle(mine))}` : ""
+            mine && venueBioHandle(mine)
+              ? `&handle=${encodeURIComponent(venueBioHandle(mine))}&listingId=${encodeURIComponent(mine.id)}`
+              : ""
           }`,
-      cta: business?.handle ? "View Public Bio" : "Create Venue Bio",
+      cta: venueBio?.handle ? "View Public Bio" : "Create Venue Bio",
       action:
-        mine && !business?.handle
+        mine && !venueBio?.handle
           ? async () => {
               const input = venueBioInput(mine);
               if (!input) {

@@ -14,6 +14,7 @@ import { useBio } from "@/contexts/BioContext";
 import { withWalk } from "@/lib/catalog";
 import { hrefForPlace } from "@/lib/bio-handle";
 import { venueBioInput } from "@/lib/venue-bio";
+import { syncListingToBio } from "@/lib/identity";
 import { partnerAccountPath } from "@/lib/partner-account";
 import { cn } from "@/lib/cn";
 import { GuestListPanel } from "@/components/club/GuestListPanel";
@@ -80,7 +81,7 @@ export function BusinessPage() {
   const { user, authReady } = useAuth();
   const { mine, myListings, setSelectedListingId, createPlace, savePlace, saveDeal, confirmHours, deleteListing } =
     useListings();
-  const { mine: bio, business, createProfile, updateProfile } = useBio();
+  const { mine: bio, business, profiles = [], createProfile, updateProfile } = useBio();
   const [bioBusy, setBioBusy] = useState(false);
   // `?tab=place` is the legacy id for the venue tab — it resolves to `venue`
   // so old links keep working.
@@ -177,7 +178,19 @@ export function BusinessPage() {
   // Every hook must run on every render, including the first loading render.
   // These stay above the auth/listing early returns so a hard load never
   // changes the hook order (Rules of Hooks).
+  const currentVenueBio = useMemo(() => {
+    if (!mine) return null;
+    return (
+      (profiles || []).find(
+        (p) =>
+          (p.kind || "business") === "business" &&
+          p.kind !== "person" &&
+          (p.listingId === mine.id || (mine.handle && p.handle === mine.handle)),
+      ) || null
+    );
+  }, [mine, profiles]);
   const handle = mine?.handle || bio?.handle;
+  const venueHandle = currentVenueBio?.handle || handle;
   // Guest preview recomputes only when edited fields change — not on every keystroke render.
   const preview = useMemo(
     () =>
@@ -193,14 +206,14 @@ export function BusinessPage() {
               shortWhy,
               description,
               deal: badge ? { badge, detail } : mine.deal,
-              handle,
+              handle: venueHandle,
               heroImage: hero || mine.heroImage,
               geo: geo || mine.geo,
               phone,
             }),
           )
         : null,
-    [mine, name, category, address, hours, shortWhy, description, badge, detail, handle, hero, geo, phone],
+    [mine, name, category, address, hours, shortWhy, description, badge, detail, venueHandle, hero, geo, phone],
   );
 
   if (!authReady) {
@@ -353,19 +366,38 @@ export function BusinessPage() {
         handle: mine!.handle,
         heroImage: hero,
       });
-      // Sync the VENUE bio only — never the owner's personal profile.
-      if (
-        business?.handle &&
-        (business.aboutText !== description || business.shortWhy !== shortWhy || business.name !== name)
-      ) {
+      // Sync THIS venue's bio only — never the owner's personal profile or another venue.
+      const targetBio =
+        currentVenueBio ||
+        (profiles || []).find(
+          (p) =>
+            (p.kind || "business") === "business" &&
+            p.kind !== "person" &&
+            (p.listingId === mine!.id || (mine!.handle && p.handle === mine!.handle)),
+        );
+      if (targetBio?.handle) {
         await updateProfile({
-          handle: business.handle,
+          handle: targetBio.handle,
           name,
           shortWhy,
           aboutText: description,
           hours,
           phone,
           geo,
+        });
+      } else if (mine) {
+        syncListingToBio({
+          id: mine.id,
+          name,
+          hours,
+          shortWhy,
+          description,
+          phone,
+          handle: mine.handle,
+          geo,
+          heroImage: hero,
+          ownerUid: mine.ownerUid,
+          ownerEmail: mine.ownerEmail,
         });
       }
       toast.success("Venue profile saved successfully");
@@ -566,9 +598,9 @@ export function BusinessPage() {
               <span>Promotions Studio</span>
             </Link>
           </div>
-          {business?.handle ? (
+          {currentVenueBio?.handle ? (
             <Link
-              href="/bio/edit?kind=business"
+              href={`/bio/edit?kind=business&handle=${encodeURIComponent(currentVenueBio.handle)}`}
               className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1 px-3.5 py-1.5 font-semibold text-mute transition hover:text-ink whitespace-nowrap"
             >
               <span>Edit Venue Bio &amp; Links</span>
@@ -683,20 +715,28 @@ export function BusinessPage() {
                       mapsPlaceId: place.placeId,
                       website: place.website,
                     }).then(() => toast.success("Imported and saved from Google Places"));
-                    // Sync the VENUE bio only — never the owner's personal profile.
-                    if (business?.handle) {
+                    // Sync THIS venue's bio only — never the owner's personal profile or another venue.
+                    const targetBio =
+                      currentVenueBio ||
+                      (profiles || []).find(
+                        (p) =>
+                          (p.kind || "business") === "business" &&
+                          p.kind !== "person" &&
+                          (p.listingId === mine.id || (mine.handle && p.handle === mine.handle)),
+                      );
+                    if (targetBio?.handle) {
                       void updateProfile({
-                        handle: business.handle,
+                        handle: targetBio.handle,
                         name: place.name,
-                        shortWhy: place.shortWhy || business.shortWhy,
-                        aboutText: description || business.aboutText,
-                        hours: place.hours || business.hours,
-                        phone: place.phone || business.phone,
-                        city: place.city || business.city,
-                        avatar: place.photoNames[1] || place.photoNames[0] || business.avatar,
-                        cover: place.photoNames[0] || business.cover,
+                        shortWhy: place.shortWhy || targetBio.shortWhy,
+                        aboutText: description || targetBio.aboutText,
+                        hours: place.hours || targetBio.hours,
+                        phone: place.phone || targetBio.phone,
+                        city: place.city || targetBio.city,
+                        avatar: place.photoNames[1] || place.photoNames[0] || targetBio.avatar,
+                        cover: place.photoNames[0] || targetBio.cover,
                         mapsPlaceId: place.placeId,
-                        links: mergeBioLinks(business.links, bioLinksFromGooglePlace(place)),
+                        links: mergeBioLinks(targetBio.links, bioLinksFromGooglePlace(place)),
                       });
                     }
                   }}

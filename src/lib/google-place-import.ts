@@ -178,38 +178,8 @@ export async function searchCityRegions(
         body: JSON.stringify({
           input: needle,
           languageCode: "en",
-          includedPrimaryTypes: [
-            "locality",
-            "sublocality",
-            "sublocality_level_1",
-            "administrative_area_level_1",
-            "administrative_area_level_2",
-            "postal_code",
-            "neighborhood",
-          ],
-          includedRegionCodes: [
-            "au",
-            "in",
-            "ae",
-            "gb",
-            "us",
-            "ca",
-            "fr",
-            "de",
-            "es",
-            "it",
-            "nl",
-            "ie",
-            "nz",
-            "sg",
-            "my",
-            "th",
-            "ph",
-            "id",
-            "jp",
-            "kr",
-            "vn",
-          ],
+          includedPrimaryTypes: ["locality", "sublocality", "sublocality_level_1", "postal_code"],
+          includedRegionCodes: ["au", "in", "ae", "gb", "us", "ca", "fr", "de", "es", "it", "nl", "ie"],
           sessionToken,
           locationBias: {
             circle: { center: { latitude: center.lat, longitude: center.lng }, radius: 50000 },
@@ -218,6 +188,9 @@ export async function searchCityRegions(
       },
       "suggestions.placePrediction.placeId,suggestions.placePrediction.text,suggestions.placePrediction.structuredFormat,suggestions.placePrediction.types",
     );
+    if (!res.ok) {
+      return searchOsmPlaces(needle, bias, true);
+    }
     const json = (await res.json()) as AutocompleteJson;
     if (res.ok && json.suggestions && json.suggestions.length > 0) {
       return json.suggestions

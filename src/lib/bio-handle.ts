@@ -6,6 +6,7 @@ import { loadBios } from "./bio-store";
 import { placeByHandle } from "./catalog";
 import { loadStalls } from "./events-store";
 import { getCachedListings } from "./listings";
+import { isOpenAt } from "./hours";
 
 export function handleOfPlace(place: Pick<NearbyPlace, "id" | "handle">): string | undefined {
   if (place.handle) return normalizeHandle(place.handle);
@@ -50,10 +51,11 @@ export function placeAsBio(place: NearbyPlace, handle: string): BioProfile {
     visibility: "public",
     name: place.name,
     shortWhy: place.shortWhy,
+    aboutText: place.description || undefined,
     city: "Sydney",
     category,
     hours: place.hours || "",
-    openNow: place.openNow ?? true,
+    openNow: place.hours ? (isOpenAt(place.hours, new Date(), "Australia/Sydney") ?? true) : (place.openNow ?? true),
     phone: place.phone,
     avatar: place.heroImage,
     cover: place.heroImage || place.photos?.[0],
@@ -185,17 +187,45 @@ export function resolvePublicBio(
 ): BioProfile | undefined {
   const h = normalizeHandle(handle);
   const owned = byHandle(h);
-  if (owned) return owned;
+  if (owned) {
+    if (owned.kind === "business") {
+      const listing = getCachedListings().find(
+        (row) => row.id === owned.listingId || row.placeId === owned.placeId || row.handle === h,
+      );
+      if (listing) {
+        return {
+          ...owned,
+          name: listing.name || owned.name,
+          shortWhy: listing.shortWhy || owned.shortWhy,
+          aboutText: listing.description !== undefined ? listing.description.trim() || undefined : owned.aboutText,
+          hours: listing.hours || owned.hours,
+          openNow: listing.hours ? (isOpenAt(listing.hours, new Date(), "Australia/Sydney") ?? true) : owned.openNow,
+          phone: listing.phone || owned.phone,
+          geo: listing.geo || owned.geo,
+        };
+      }
+    }
+    return owned;
+  }
   if (h === "bibinjose") return BIBIN_JOSE_PROFILE;
   const place = placeByHandle(h);
   if (place) {
     const bio = placeAsBio(place, h);
     // A place backed by an owned listing belongs to the listing owner: the
     // owner sees the page as owner (no claim banner) instead of a visitor.
-    const listing = getCachedListings().find((row) => row.placeId === place.id);
-    if (listing?.ownerUid || listing?.ownerEmail) {
-      bio.ownerUid = listing.ownerUid;
-      bio.ownerEmail = listing.ownerEmail;
+    const listing = getCachedListings().find(
+      (row) => row.placeId === place.id || row.id === place.id || row.handle === h,
+    );
+    if (listing) {
+      bio.name = listing.name || bio.name;
+      bio.shortWhy = listing.shortWhy || bio.shortWhy;
+      bio.aboutText = listing.description || bio.aboutText;
+      bio.hours = listing.hours || bio.hours;
+      bio.openNow = listing.hours ? (isOpenAt(listing.hours, new Date(), "Australia/Sydney") ?? true) : bio.openNow;
+      if (listing.ownerUid || listing.ownerEmail) {
+        bio.ownerUid = listing.ownerUid;
+        bio.ownerEmail = listing.ownerEmail;
+      }
     }
     return bio;
   }

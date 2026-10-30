@@ -40,6 +40,7 @@ export function CitySuburbRegionField({
   const listId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedRef = useRef(false);
+  const lastSelectedRef = useRef(value.trim());
 
   const [session, setSession] = useState(() => newPlacesSessionToken());
   const [hits, setHits] = useState<GooglePlaceSuggestion[]>([]);
@@ -65,12 +66,16 @@ export function CitySuburbRegionField({
   useEffect(() => {
     if (selectedRef.current) {
       selectedRef.current = false;
+      lastSelectedRef.current = value.trim();
       setHits([]);
       setIsOpen(false);
       return;
     }
 
     const needle = value.trim();
+    if (needle === lastSelectedRef.current) {
+      return;
+    }
     if (needle.length < 2) {
       setHits([]);
       setIsOpen(false);
@@ -104,12 +109,14 @@ export function CitySuburbRegionField({
       const place = await fetchPlace(hit.placeId, session);
       const formatted = formatCitySuburbRegion(place.name || hit.title, place.address || hit.subtitle);
       selectedRef.current = true;
+      lastSelectedRef.current = formatted.trim();
       onChange(formatted);
       setVerifiedSource("google");
       setSession(newPlacesSessionToken());
     } catch {
       const formatted = formatCitySuburbRegion(hit.title, hit.subtitle);
       selectedRef.current = true;
+      lastSelectedRef.current = formatted.trim();
       onChange(formatted);
       setVerifiedSource("google");
     } finally {
@@ -141,6 +148,7 @@ export function CitySuburbRegionField({
 
         if (label) {
           selectedRef.current = true;
+          lastSelectedRef.current = label.trim();
           onChange(label);
           setVerifiedSource("gps");
           toast.success(`Located at ${label} (${formatGps(found.geo.lat, found.geo.lng)})`);
@@ -308,6 +316,7 @@ export function CitySuburbRegionField({
                 type="button"
                 onClick={() => {
                   selectedRef.current = true;
+                  lastSelectedRef.current = p.label.trim();
                   setHits([]);
                   setIsOpen(false);
                   onChange(p.label);

@@ -12,6 +12,7 @@ import {
 } from "@shared/event";
 import type { NearbyEvent } from "@shared/nearby";
 import { formatEventTimeRange, toDateStr } from "./calendar-utils";
+import { timeZoneForCity } from "./cities";
 import { toZonedDateStr } from "./local-time";
 
 const EVENT_CATEGORIES: ReadonlySet<string> = new Set([
@@ -132,7 +133,7 @@ export function recordToCalendarBase(e: EventRecord): Omit<CalendarEvent, "isGoi
     startsAt: e.startsAt,
     endsAt: e.endsAt,
     date: originalDate,
-    timeLabel: formatEventTimeRange(e.startsAt, e.endsAt),
+    timeLabel: formatEventTimeRange(e.startsAt, e.endsAt, timeZoneForCity(e.city)),
     city: e.city,
     venue: e.venue || e.city,
     room: e.room,

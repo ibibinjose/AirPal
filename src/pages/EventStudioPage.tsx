@@ -262,7 +262,9 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
   const stalls = activeEvent ? stallsFor(activeEvent.id) : [];
 
   function startNewEventDraft() {
+    setSelectedEventId(null);
     setName("");
+    setNameTouched(false);
     setFlavour("market");
     setVenue(business?.name || "");
     setAddress("");
@@ -274,6 +276,19 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
     setDirections("");
     setRefundPolicy("");
     setAgenda([]);
+    setTicketFields({
+      paid: false,
+      price: "25",
+      capacity: "40",
+      tiers: [],
+    });
+    setFestivalFields({
+      festivalSlug: "",
+      track: "",
+      registrationUrl: "",
+      registrationNote: "",
+      speakers: [],
+    });
     setStartsLocal(toLocalInput(nextSaturdayNine().toISOString()));
     setEndsLocal(toLocalInput(sameDayFifteen(nextSaturdayNine()).toISOString()));
     setStatus("live");
@@ -1135,7 +1150,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   type="submit"
                   size="lg"
                   className="w-full h-12 text-base font-semibold shadow-md gap-2"
-                  disabled={creating || name.trim().length < 2}
+                  disabled={creating || name.trim().length < 2 || Boolean(validateTickets(ticketFields))}
                 >
                   <span>
                     {creating ? "Creating Event…" : status === "draft" ? "Save Draft" : "Create Event & Open Gate"}
@@ -1173,7 +1188,13 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 hostType={hostType}
                 collaboratorHandles={collaboratorHandles}
                 ticketPriceCents={ticketFields.paid ? Math.round(Number(ticketFields.price || 0) * 100) : 0}
-                capacity={Number(ticketFields.capacity) || undefined}
+                capacity={
+                  ticketFields.capacity.trim() &&
+                  Number.isInteger(Number(ticketFields.capacity.trim())) &&
+                  Number(ticketFields.capacity.trim()) > 0
+                    ? Number(ticketFields.capacity.trim())
+                    : undefined
+                }
               />
 
               {mobilePreview && (
@@ -2138,7 +2159,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             <Button
               type="submit"
               className="w-full h-12 text-base font-semibold shadow-md"
-              disabled={saving || name.trim().length < 2}
+              disabled={saving || name.trim().length < 2 || Boolean(validateTickets(ticketFields))}
             >
               {saving ? "Saving Changes…" : "Save All Event Details"}
             </Button>

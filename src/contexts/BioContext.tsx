@@ -24,6 +24,7 @@ import { placeByHandle } from "@/lib/catalog";
 import { resolvePublicBio, stallByHandle } from "@/lib/bio-handle";
 import { getCachedListings } from "@/lib/listings";
 import { shouldKeepBusinessBio } from "@/lib/venue-bio";
+import { isOpenAt } from "@/lib/hours";
 
 type CreateBioInput = Pick<BioProfile, "handle" | "name" | "city" | "shortWhy" | "aboutText"> & {
   category?: BioProfile["category"];
@@ -181,12 +182,25 @@ export function BioProvider({ children }: { children: ReactNode }) {
       const err = handleError(h);
       if (err) throw new Error(err);
       const kind: BioKind = input.kind || "person";
+      const place = placeByHandle(h);
+      const stall = stallByHandle(h);
+      // Match the caller's listing first: the cached listing may not carry a
+      // handle yet, so also match the handle derived from its place id.
+      const listing = getCachedListings().find(
+        (row) =>
+          (input.listingId && row.id === input.listingId) ||
+          (input.placeId && row.placeId === input.placeId) ||
+          row.handle === h ||
+          handleFromPlaceId(row.placeId) === h ||
+          (Boolean(business?.listingId) && row.id === business?.listingId),
+      );
+      const listingId = kind === "business" ? input.listingId || listing?.id : business?.listingId;
       // Business inheritance is scoped to the same venue listing: a second
       // venue starts fresh instead of copying the first venue's about text,
       // hours, and photos. Personal profiles keep the single-identity rule.
       const keep =
         kind === "business"
-          ? shouldKeepBusinessBio(business, input.listingId)
+          ? shouldKeepBusinessBio(business, listingId)
             ? business
             : null
           : mine?.kind === "person"
@@ -213,20 +227,11 @@ export function BioProvider({ children }: { children: ReactNode }) {
         }
         if (!isMyOwn) throw new Error("Taken");
       }
-      const place = placeByHandle(h);
-      const stall = stallByHandle(h);
-      // Match the caller's listing first: the cached listing may not carry a
-      // handle yet, so also match the handle derived from its place id.
-      const listing = getCachedListings().find(
-        (row) =>
-          (input.listingId && row.id === input.listingId) ||
-          (input.placeId && row.placeId === input.placeId) ||
-          row.handle === h ||
-          handleFromPlaceId(row.placeId) === h ||
-          row.id === business?.listingId,
-      );
-      const listingId =
-        kind === "business" ? input.listingId || business?.listingId || listing?.id : business?.listingId;
+      const finalHours =
+        (kind === "business" ? input.hours?.trim() || listing?.hours?.trim() : undefined) ||
+        keep?.hours ||
+        place?.hours ||
+        (kind === "person" ? "" : stall ? "Market hours" : "See bio");
       const profile: BioProfile = {
         id: keep?.id || existing?.id || `bio-${nanoid(8)}`,
         handle: h,
@@ -235,19 +240,18 @@ export function BioProvider({ children }: { children: ReactNode }) {
         ownerEmail: getFirebaseAuth()?.currentUser?.email || user?.email,
         name: input.name.trim(),
         shortWhy: input.shortWhy.trim(),
-        aboutText: input.aboutText?.trim() || keep?.aboutText || undefined,
+        aboutText: input.aboutText?.trim() || listing?.description?.trim() || keep?.aboutText || undefined,
         city: input.city.trim() || "Sydney",
         category: input.category || keep?.category || (kind === "person" ? "services" : "eat"),
-        hours:
-          (kind === "business" ? input.hours?.trim() : undefined) ||
-          keep?.hours ||
-          place?.hours ||
-          (kind === "person" ? "" : stall ? "Market hours" : "See bio"),
-        openNow: keep?.openNow ?? place?.openNow ?? true,
-        phone: input.phone || keep?.phone || place?.phone,
-        geo: input.geo || keep?.geo || place?.geo,
-        avatar: keep?.avatar || place?.heroImage,
-        cover: keep?.cover || place?.heroImage || place?.photos?.[0],
+        hours: finalHours,
+        openNow:
+          kind === "business" && finalHours
+            ? (isOpenAt(finalHours, new Date(), "Australia/Sydney") ?? true)
+            : (keep?.openNow ?? place?.openNow ?? true),
+        phone: input.phone || keep?.phone || listing?.phone || place?.phone,
+        geo: input.geo || keep?.geo || listing?.geo || place?.geo,
+        avatar: keep?.avatar || listing?.heroImage || place?.heroImage,
+        cover: keep?.cover || listing?.heroImage || place?.heroImage || place?.photos?.[0],
         offer:
           keep?.offer ||
           (place?.deal ? { badge: place.deal.badge, detail: place.deal.detail } : undefined) ||

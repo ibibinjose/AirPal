@@ -3,6 +3,7 @@ import { Clock } from "lucide-react";
 import { AddToCalendarMenu } from "@/components/calendar/AddToCalendarMenu";
 import type { CalendarEvent } from "@shared/event";
 import { cn } from "@/lib/cn";
+import { timeZoneForCity } from "@/lib/cities";
 
 export interface EventDateCalendarBlockProps {
   event: CalendarEvent;
@@ -18,19 +19,21 @@ export function EventDateCalendarBlock({ event, className }: EventDateCalendarBl
     const m = valid ? MONTH_NAMES[at.getMonth()] : "EVENT";
     const d = valid ? String(at.getDate()) : "·";
 
+    const cityTz = timeZoneForCity(event.city);
     let dateStr = event.date;
     if (valid) {
       dateStr = at.toLocaleDateString("en-AU", {
         weekday: "long",
         month: "short",
         day: "numeric",
+        timeZone: cityTz,
       });
     }
 
     // Determine user or event timezone
-    let tz = "AEST";
+    let tz = "AEDT";
     try {
-      const match = at.toLocaleTimeString("en-AU", { timeZoneName: "short" }).split(" ");
+      const match = at.toLocaleTimeString("en-AU", { timeZone: cityTz, timeZoneName: "short" }).split(" ");
       tz = match[match.length - 1] || "Local Time";
     } catch {
       tz = "Local Time";
@@ -42,7 +45,7 @@ export function EventDateCalendarBlock({ event, className }: EventDateCalendarBl
       fullDateString: dateStr,
       timezoneLabel: tz,
     };
-  }, [event.startsAt, event.date]);
+  }, [event.startsAt, event.date, event.city]);
 
   return (
     <div className={cn("rounded-3xl bg-card p-4 sm:p-5 ring-1 ring-line", className)}>

@@ -6,6 +6,8 @@ import { EventHostCard } from "./EventHostCard";
 import { EventLocationCard } from "./EventLocationCard";
 import { EventLiveAttendeePreview } from "./EventLiveAttendeePreview";
 import { cn } from "@/lib/cn";
+import { formatEventTimeRange } from "@/lib/calendar-utils";
+import { timeZoneForCity } from "@/lib/cities";
 
 export interface EventLivePreviewCardProps {
   title: string;
@@ -74,11 +76,9 @@ export function EventLivePreviewCard({
       weekday: "short",
       day: "numeric",
       month: "short",
+      timeZone: timeZoneForCity(city),
     }),
-    timeLabel: new Date(isoStarts).toLocaleTimeString("en-AU", {
-      hour: "numeric",
-      minute: "2-digit",
-    }),
+    timeLabel: formatEventTimeRange(isoStarts, isoEnds, timeZoneForCity(city)),
     city,
     venue: venue || "Venue to be announced",
     category: flavour === "market" ? "market" : flavour === "expo" ? "expo" : "community",
@@ -173,7 +173,9 @@ export function EventLivePreviewCard({
         </div>
         <div className="flex items-center justify-between text-[11px] text-mute pt-1">
           <span>Capacity</span>
-          <span className="font-semibold text-ink">{capacity ? `${capacity} guest spots` : "Open admission"}</span>
+          <span className="font-semibold text-ink">
+            {capacity && capacity > 0 ? `${capacity} guest spots` : "Open admission"}
+          </span>
         </div>
         {requireApproval && (
           <div className="flex items-center justify-between text-[11px] text-amber-700 dark:text-amber-300 font-semibold pt-1">
