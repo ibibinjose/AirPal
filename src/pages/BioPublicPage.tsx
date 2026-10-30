@@ -7,6 +7,7 @@ import {
   Calendar,
   Check,
   ChevronRight,
+  CloudOff,
   Coffee,
   ContactRound,
   Copy,
@@ -78,7 +79,7 @@ import { useSocial } from "@/contexts/SocialContext";
 import { canViewProfile } from "@/lib/profile-stats";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEvents } from "@/contexts/EventsContext";
-import { fetchPublicBio } from "@/lib/bio-store";
+import { fetchPublicBio, publicBioLoadState } from "@/lib/bio-store";
 import { subscribeRewardBalance } from "@/lib/rewards";
 import { TradingHoursScheduleView } from "@/components/discovery/TradingHoursScheduleView";
 import { ArrivalAssistantCard } from "@/components/arrival/ArrivalAssistantCard";
@@ -162,6 +163,8 @@ export function BioPublicPage() {
   const local = resolvePublicBio(handle, byHandle);
   const [remote, setRemote] = useState<typeof local>();
   const [tried, setTried] = useState(!handle);
+  const [remoteFailed, setRemoteFailed] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
   const [claim, setClaim] = useState<{ code: string; badge: string; detail: string } | null>(null);
   const viewed = useRef("");
 
@@ -214,6 +217,7 @@ export function BioPublicPage() {
   useEffect(() => {
     let live = true;
     setRemote(undefined);
+    setRemoteFailed(false);
     if (!handle) {
       setTried(true);
       return;
@@ -223,15 +227,18 @@ export function BioPublicPage() {
       .then((row) => {
         if (!live) return;
         if (row) setRemote(row);
+        setRemoteFailed(false);
         setTried(true);
       })
       .catch(() => {
-        if (live) setTried(true);
+        if (!live) return;
+        setRemoteFailed(true);
+        setTried(true);
       });
     return () => {
       live = false;
     };
-  }, [handle]);
+  }, [handle, retryNonce]);
 
   useEffect(() => {
     if (!claim) return;
@@ -395,7 +402,36 @@ export function BioPublicPage() {
     );
   }
 
-  if (!profile && tried) {
+  const loadState = publicBioLoadState({ tried, hasProfile: Boolean(profile), remoteFailed });
+  if (loadState === "unreachable") {
+    return (
+      <div className="mx-auto max-w-md px-4 py-16 text-center">
+        <div className="neu-section p-6 sm:p-8">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-brand/10 text-accent shadow-inner">
+            <CloudOff size={32} />
+          </div>
+          <h1 className="human-title mt-5 text-2xl sm:text-3xl text-balance">Couldn’t load @{handle}</h1>
+          <p className="human-lede mt-2.5 text-sm sm:text-base">
+            Check your connection and try again — this handle may already belong to someone.
+          </p>
+          <div className="mt-6 flex flex-col gap-2.5">
+            <Button
+              size="lg"
+              className="w-full gap-2 rounded-full bg-brand font-semibold text-white shadow-md hover:bg-brand-ink"
+              onClick={() => setRetryNonce((n) => n + 1)}
+            >
+              Try again
+            </Button>
+            <Button variant="ghost" className="w-full rounded-full" onClick={() => nav("/")}>
+              Explore AirPal
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadState === "available") {
     if (handle) {
       return (
         <div className="mx-auto max-w-md px-4 py-16 text-center">

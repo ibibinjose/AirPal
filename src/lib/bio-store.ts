@@ -261,6 +261,18 @@ export async function hydrateOwnedBios(uid: string): Promise<{ rows: BioProfile[
   return { rows: merged, needsBackfill: fetched.needsBackfill };
 }
 
+export type PublicBioLoadState = "loading" | "ready" | "available" | "unreachable";
+
+export function publicBioLoadState(args: {
+  tried: boolean;
+  hasProfile: boolean;
+  remoteFailed: boolean;
+}): PublicBioLoadState {
+  if (args.hasProfile) return "ready";
+  if (!args.tried) return "loading";
+  return args.remoteFailed ? "unreachable" : "available";
+}
+
 export async function fetchPublicBio(handle: string): Promise<BioProfile | null> {
   const db = getFirebaseDb();
   if (!db) return null;

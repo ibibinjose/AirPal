@@ -8,6 +8,7 @@ import { isWorkspacePath } from "@/lib/workspace";
 import { LocalNowBar } from "./LocalNowBar";
 import { ThemeToggle } from "./ThemeToggle";
 import { NetworkStatusToast } from "./NetworkStatusToast";
+import { SyncStatusPill } from "./SyncStatusPill";
 import { applyRouteMeta } from "@/lib/share-meta";
 import { isPassApp } from "@/lib/app-flavor";
 import { OPEN_SEARCH_EVENT, SEARCH_READY_EVENT, openGlobalSearch } from "@/components/search/openSearch";
@@ -224,6 +225,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Suspense>
           )}
           <NetworkStatusToast />
+          <SyncStatusPill />
           <NotificationPopup />
         </>
       )}

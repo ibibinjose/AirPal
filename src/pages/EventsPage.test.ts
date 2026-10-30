@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import type { CalendarEvent } from "@shared/event";
 
 const { fakes } = vi.hoisted(() => ({
-  fakes: { search: "" },
+  fakes: { search: "", remoteFailed: false, events: null as CalendarEvent[] | null },
 }));
 
 vi.mock("wouter", () => ({
@@ -48,7 +48,12 @@ const EVENTS: CalendarEvent[] = [
 ];
 
 vi.mock("@/contexts/EventsContext", () => ({
-  useEvents: () => ({ calendarEvents: EVENTS, events: [], userStates: {} }),
+  useEvents: () => ({
+    calendarEvents: fakes.events ?? EVENTS,
+    events: [],
+    userStates: {},
+    remoteFailed: fakes.remoteFailed,
+  }),
 }));
 
 vi.mock("@/contexts/LocalNowContext", () => ({
@@ -62,8 +67,10 @@ vi.mock("../components/calendar/CalendarEventCard", () => ({
 
 import { EventsPage } from "./EventsPage";
 
-function render(search = "") {
+function render(search = "", opts: { remoteFailed?: boolean; events?: CalendarEvent[] } = {}) {
   fakes.search = search;
+  fakes.remoteFailed = opts.remoteFailed ?? false;
+  fakes.events = opts.events ?? null;
   return renderToStaticMarkup(createElement(EventsPage));
 }
 
@@ -97,5 +104,12 @@ describe("EventsPage search", () => {
     const markup = render();
     expect(markup).toContain('aria-expanded="false"');
     expect(markup).not.toContain("Choose your city");
+  });
+
+  it("says the refresh failed instead of claiming no events exist", () => {
+    const markup = render("", { remoteFailed: true, events: [] });
+    expect(markup).not.toContain('data-testid="event-card"');
+    expect(markup).not.toContain("Nothing live in");
+    expect(markup).toContain("refresh events");
   });
 });

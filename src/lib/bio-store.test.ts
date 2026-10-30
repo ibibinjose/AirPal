@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mergeOwnedBios, profileFromDoc } from "./bio-store";
+import { mergeOwnedBios, profileFromDoc, publicBioLoadState } from "./bio-store";
 import type { BioProfile } from "@shared/bio";
 
 function person(over: Partial<BioProfile> = {}): BioProfile {
@@ -89,5 +89,20 @@ describe("profileFromDoc", () => {
     expect(profileFromDoc("p2", { handle: "maya", categoryTag: "Creator & Artist" }).categoryTag).toBe(
       "Creator & Artist",
     );
+  });
+});
+
+describe("publicBioLoadState", () => {
+  it("stays loading until the fetch settles", () => {
+    expect(publicBioLoadState({ tried: false, hasProfile: false, remoteFailed: false })).toBe("loading");
+  });
+
+  it("prefers the profile when local or remote resolved one", () => {
+    expect(publicBioLoadState({ tried: true, hasProfile: true, remoteFailed: true })).toBe("ready");
+  });
+
+  it("reports unreachable instead of available when the fetch failed", () => {
+    expect(publicBioLoadState({ tried: true, hasProfile: false, remoteFailed: true })).toBe("unreachable");
+    expect(publicBioLoadState({ tried: true, hasProfile: false, remoteFailed: false })).toBe("available");
   });
 });

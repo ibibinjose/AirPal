@@ -24,6 +24,7 @@ import { placeByHandle } from "@/lib/catalog";
 import { resolvePublicBio, stallByHandle } from "@/lib/bio-handle";
 import { getCachedListings } from "@/lib/listings";
 import { shouldKeepBusinessBio } from "@/lib/venue-bio";
+import { runRemoteWrite } from "@/lib/synced-write";
 import { isOpenAt } from "@/lib/hours";
 
 type CreateBioInput = Pick<BioProfile, "handle" | "name" | "city" | "shortWhy" | "aboutText"> & {
@@ -91,11 +92,14 @@ export function BioProvider({ children }: { children: ReactNode }) {
         refresh();
         const mineRows = rows.filter((row) => row.ownerUid === user.uid && row.handle);
         for (const row of mineRows) {
-          try {
-            await persistOwnedProfile(row);
-          } catch {
-            /* stay on device; next save retries */
-          }
+          // Best-effort re-sync: failures stay on device; the next save retries.
+          await runRemoteWrite({
+            runJob: undefined,
+            jobId: `bio-hydrate-${row.id}`,
+            label: "Bio",
+            remote: () => persistOwnedProfile(row),
+            policy: "direct-best-effort",
+          });
         }
         if (cancelled) return;
         refresh();
@@ -292,11 +296,14 @@ export function BioProvider({ children }: { children: ReactNode }) {
       ]);
       if (kind === "business") syncBioToListing(profile);
       refresh();
-      try {
-        await persistOwnedProfile(profile);
-      } catch (err) {
-        console.warn("Could not sync profile to remote:", err);
-      }
+      await runRemoteWrite({
+        runJob: undefined,
+        jobId: `bio-${profile.id}`,
+        label: "Bio",
+        remote: () => persistOwnedProfile(profile),
+        policy: "direct-best-effort",
+        onError: (err) => console.warn("Could not sync profile to remote:", err),
+      });
       return profile;
     },
     [business, mine, refresh, user],
@@ -338,11 +345,14 @@ export function BioProvider({ children }: { children: ReactNode }) {
       persistBios([next, ...allBios.filter((p) => normalizeHandle(p.handle) !== h)]);
       if ((next.kind || "business") === "business") syncBioToListing(next);
       refresh();
-      try {
-        await persistOwnedProfile(next);
-      } catch (err) {
-        console.warn("Could not persist profile remotely:", err);
-      }
+      await runRemoteWrite({
+        runJob: undefined,
+        jobId: `bio-${next.id}`,
+        label: "Bio",
+        remote: () => persistOwnedProfile(next),
+        policy: "direct-best-effort",
+        onError: (err) => console.warn("Could not persist profile remotely:", err),
+      });
     },
     [mine, profiles, refresh],
   );

@@ -35,4 +35,3 @@ describe("Wallet badge buttons", () => {
     expect(markup).toContain("#4285F4");
   });
 });
-

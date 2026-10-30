@@ -148,7 +148,7 @@ function matchesDateRange(date: string, range: DateRange, today: string): boolea
  */
 export function EventsPage() {
   const [, nav] = useLocation();
-  const { calendarEvents, events, userStates } = useEvents();
+  const { calendarEvents, events, userStates, remoteFailed } = useEvents();
   const { city, today, chooseLocation } = useLocalNow();
   const effectiveCity = city && city !== "Choose a city" && city !== "Current location" ? city : "Sydney";
 
@@ -437,11 +437,24 @@ export function EventsPage() {
         <div className="neu-section mt-6 p-10 text-center">
           <Ticket size={36} className="mx-auto text-mute" aria-hidden="true" />
           <p className="human-section-title mt-3 text-lg">
-            {query.trim() ? `No results for “${query.trim()}”` : "No events match these filters"}
+            {query.trim()
+              ? `No results for “${query.trim()}”`
+              : remoteFailed
+                ? "Couldn't refresh events"
+                : "No events match these filters"}
           </p>
           <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
-            Nothing live in {effectiveCity} for this combination yet. Try a different search or reset the filters — or
-            host your own gathering.
+            {query.trim() || !remoteFailed ? (
+              <>
+                Nothing live in {effectiveCity} for this combination yet. Try a different search or reset the filters —
+                or host your own gathering.
+              </>
+            ) : (
+              <>
+                Check your connection and try again — showing what’s saved on this device in the meantime. Or host your
+                own gathering.
+              </>
+            )}
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
             <button

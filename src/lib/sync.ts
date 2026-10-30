@@ -38,6 +38,10 @@ export function worstSyncState(jobs: SyncJob[]): SyncState | null {
   return jobs.reduce((worst, job) => (rank[job.state] > rank[worst] ? job.state : worst), jobs[0]!.state);
 }
 
+export function retryableSyncJobs(jobs: SyncJob[]): SyncJob[] {
+  return jobs.filter((job) => job.state === "failed" || job.state === "pending_retry");
+}
+
 export function nextRetryDelayMs(retries: number, powerSave = false): number {
   if (powerSave) {
     return powerSaveRetryDelayMs(retries);

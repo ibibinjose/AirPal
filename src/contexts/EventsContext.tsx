@@ -32,6 +32,7 @@ import {
 } from "@/lib/functions";
 import { track } from "@/lib/analytics";
 import { useOptionalSync } from "@/contexts/SyncContext";
+import { runRemoteWrite } from "@/lib/synced-write";
 import { stampContentMeta } from "@shared/content-meta";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -61,6 +62,8 @@ type EventsValue = {
   remoteNearby: NearbyEvent[];
   remoteRecords: EventRecord[];
   remoteLoaded: boolean;
+  /** True when the last public-events fetch failed (offline) — lists may show cached/empty. */
+  remoteFailed: boolean;
   refresh: () => void;
   fetchRemoteStalls: (eventId: string) => Promise<void>;
   /** Direct by-id read for deep links the list fetch skipped (demo docs). */
@@ -104,6 +107,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const [remoteNearby, setRemoteNearby] = useState<NearbyEvent[]>([]);
   const [remoteRecords, setRemoteRecords] = useState<EventRecord[]>([]);
   const [remoteLoaded, setRemoteLoaded] = useState(false);
+  const [remoteFailed, setRemoteFailed] = useState(false);
   const stallsFetchedRef = useRef<Set<string>>(new Set());
 
   const refresh = useCallback(() => {
@@ -198,6 +202,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         setRemoteBases(bases);
         setRemoteNearby(nearby);
         setRemoteRecords(records);
+        setRemoteFailed(false);
         setRemoteLoaded(true);
       })
       .catch(() => {
@@ -205,6 +210,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
           setRemoteBases([]);
           setRemoteNearby([]);
           setRemoteRecords([]);
+          setRemoteFailed(true);
           setRemoteLoaded(true);
         }
       });
@@ -498,6 +504,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       remoteNearby,
       remoteRecords,
       remoteLoaded,
+      remoteFailed,
       refresh,
       fetchRemoteStalls,
       fetchRemoteEvent,
@@ -631,17 +638,14 @@ export function EventsProvider({ children }: { children: ReactNode }) {
             speakers: stamped.speakers,
             demo: stamped.demo,
           };
-          try {
-            await upsertEventRemote(remotePayload);
-            setRemoteRecords((prev) => [stamped, ...prev.filter((e) => e.id !== stamped.id)]);
-          } catch (err) {
-            void sync?.runJob({
-              id: `event-${stamped.id}`,
-              label: "Event",
-              remote: () => upsertEventRemote(remotePayload),
-            });
-            throw err;
-          }
+          await runRemoteWrite({
+            runJob: sync?.runJob,
+            jobId: `event-${stamped.id}`,
+            label: "Event",
+            remote: () => upsertEventRemote(remotePayload),
+            policy: "direct-then-queue",
+          });
+          setRemoteRecords((prev) => [stamped, ...prev.filter((e) => e.id !== stamped.id)]);
         }
         return stamped;
       },
@@ -659,8 +663,9 @@ export function EventsProvider({ children }: { children: ReactNode }) {
           activationStep: "schedule_verified",
           contextId: stamped.id,
         });
-        await sync?.runJob({
-          id: `event-schedule-${stamped.id}`,
+        await runRemoteWrite({
+          runJob: sync?.runJob,
+          jobId: `event-schedule-${stamped.id}`,
           label: "Schedule",
           remote:
             liveBackendEnabled() && uidNow()
@@ -711,6 +716,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
                     demo: stamped.demo,
                   })
               : undefined,
+          policy: "queue",
         });
       },
       async importCsv(eventId, csv) {
@@ -768,8 +774,9 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         void track("event_save", { eventId: event.id, contextId: event.id, stallId: stall.id });
         const uid = uidNow();
         const db = getFirebaseDb();
-        await sync?.runJob({
-          id: `save-stall-${stall.id}`,
+        await runRemoteWrite({
+          runJob: sync?.runJob,
+          jobId: `save-stall-${stall.id}`,
           label: "Saved stall",
           remote:
             liveBackendEnabled() && uid
@@ -781,6 +788,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
                   }
                 }
               : undefined,
+          policy: "queue",
         });
       },
       async unsaveStall(stallId) {
@@ -819,6 +827,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       remoteNearby,
       remoteRecords,
       remoteLoaded,
+      remoteFailed,
       fetchRemoteStalls,
       fetchRemoteEvent,
       userStates,

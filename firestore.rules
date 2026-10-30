@@ -5,6 +5,8 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ── Shared helpers: auth, tenancy, and ACL pins. Everything below
+    // builds on these; keep them side-effect free and cheap (get/exists).
     function signedIn() {
       return request.auth != null;
     }
@@ -100,6 +102,9 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ── Personal account: the member's own data (profile, wallet rows,
+    // calendar, follows, devices). Owner-or-admin throughout; server callables
+    // own every write that carries money, inventory, or trust.
     match /users/{userId} {
       allow read: if signedIn() && (request.auth.uid == userId || platformAdmin());
       allow create, delete: if false;
@@ -206,6 +211,8 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // ── Events & ticketing: public once live/ended; organiser + co-hosts
+    // manage their own. Guest rows arrive via server triggers only.
     match /events/{eventId} {
       allow get, list: if resource.data.status in ['live', 'ended']
         || (signedIn() && resource.data.organiserUid == request.auth.uid)
@@ -328,6 +335,9 @@ service cloud.firestore {
       allow delete: if signedIn() && platformAdmin();
     }
 
+    // ── Legacy stay system (concierge/hotel flows): hosts manage, public
+    // reads. Kept for retired surfaces; do not extend — new venues use
+    // /listings + /partners below.
     match /properties/{propertyId} {
       // Public property docs must not contain wifi.password — see private/hostSecrets.
       allow read: if true;
@@ -407,12 +417,6 @@ service cloud.firestore {
         allow create, update, delete: if false;
       }
 
-match /dining_orders/{orderId} {
-        allow read: if manages(propertyId)
-          || (signedIn() && resource.data.guestUid == request.auth.uid);
-        allow create, update, delete: if false;
-      }
-
       match /events/{eventId} {
         allow read: if manages(propertyId);
         allow create: if signedIn()
@@ -457,6 +461,9 @@ match /dining_orders/{orderId} {
       allow update, delete: if signedIn() && manages(resource.data.propertyId);
     }
 
+    // ── Business: listings, partners, deals, promotions, rewards. Public
+    // reads of approved/live rows; every privileged write runs through a
+    // Cloud Function (claims, redemptions, reviews, payouts).
     match /businessDeals/{dealId} {
       allow read: if true;
       allow write: if false;
@@ -700,6 +707,15 @@ match /dining_orders/{orderId} {
       allow write: if false;
     }
 
+    // Earn idempotency guards: one doc per member/reason/source, written by
+    // the grant transaction only. Clients never read or write these — the
+    // human-readable reward_transactions rows are the member-visible ledger.
+    match /reward_grants/{grantId} {
+      allow read, write: if false;
+    }
+
+    // ── Comms, account & public profiles: broadcasts, redemptions,
+    // deletion requests, settings, mate cards.
     // Creator broadcasts: owner drafts, admin reviews, functions send.
     match /broadcasts/{broadcastId} {
       allow get, list: if signedIn() && (
@@ -742,6 +758,8 @@ match /dining_orders/{orderId} {
       allow create, update, delete: if platformAdmin();
     }
 
+    // ── Bookings, payouts & reviews: guests read their own rows; providers
+    // move service status; money fields are Functions-only throughout.
     // §9 shared booking engine. $0 is paid; otherwise unpaid until Stripe confirms.
     // Money fields (price, fees, payment/payout, Stripe ids) are Functions-only.
     match /bookings/{bookingId} {
@@ -849,6 +867,9 @@ match /dining_orders/{orderId} {
       allow update, delete: if signedIn() && platformAdmin();
     }
 
+    // ── Trust & safety: reports, blocks, pings, companion applications,
+    // trips. Reporter/party-bound reads; admin triage; nothing deletable
+    // that must stay auditable.
     // Trust moat: safety reports open admin cases; blocks are private to the blocker.
     match /safety_reports/{reportId} {
       allow read: if signedIn() && (
@@ -1015,6 +1036,9 @@ match /dining_orders/{orderId} {
       allow update, delete: if signedIn() && resource.data.ownerId == request.auth.uid;
     }
 
+    // ── Presence, social graph & discovery: markers, presence, here-pins,
+    // waves, follows, precincts, tours, places. Public reads of published
+    // rows; private rows are owner-or-admin.
     // Physical marker docs for /q/{markerHex}. Public get; list only own property/owner.
     match /markers/{markerId} {
       allow get: if true;
@@ -1170,6 +1194,8 @@ match /dining_orders/{orderId} {
       allow list, update, delete: if platformAdmin();
     }
 
+    // ── Analytics & abuse telemetry: written by server only, read by
+    // admins (plus per-tenant daily rollups). Clients never write here.
     match /analyticsEvents/{eventId} {
       allow read: if platformAdmin();
       allow write: if false;
@@ -1211,6 +1237,8 @@ match /dining_orders/{orderId} {
     }
 
 
+    // ── Personal planning & search: catch-ups, search logs. Party-bound
+    // reads; proposals pin both parties and move through a fixed lifecycle.
     // 1-on-1 catch-up / meeting / hangout proposals from a public bio.
     match /catchups/{catchupId} {
       allow create: if signedIn()
@@ -1252,6 +1280,8 @@ match /dining_orders/{orderId} {
       allow delete: if platformAdmin();
     }
 
+    // ── Arrival institutions & cohorts (B2B2C layer): public reads,
+    // admin-only writes; belonging reports additionally visible to hosts.
     // Institutions & Cohorts (B2B2C Arrival Layer)
     match /institutions/{instId} {
       allow read: if true;

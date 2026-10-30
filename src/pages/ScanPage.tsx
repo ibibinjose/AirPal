@@ -26,7 +26,7 @@ import { DealGatePanel } from "@/components/deals/DealGatePanel";
 export function ScanPage() {
   const [, nav] = useLocation();
   const { t } = useLocale();
-  const { version, remoteLoaded } = useListings();
+  const { version, remoteLoaded, remoteFailed } = useListings();
   const { here, city, usingGps } = useLocalNow();
   const quickPlaces = useMemo(
     () => placesForLocation(activePlaces(), here, city, usingGps).slice(0, 6),
@@ -346,8 +346,12 @@ export function ScanPage() {
         <div className="mt-5 pb-6">
           <EmptyState
             icon={<Zap size={28} className="text-mute" />}
-            title="Nothing nearby to try yet"
-            body="Enter a ticket code, event link, or @handle."
+            title={remoteFailed ? "Couldn't refresh nearby places" : "Nothing nearby to try yet"}
+            body={
+              remoteFailed
+                ? "Check your connection — showing what's saved on this device. You can still enter a ticket code, event link, or @handle."
+                : "Enter a ticket code, event link, or @handle."
+            }
           />
         </div>
       ) : (

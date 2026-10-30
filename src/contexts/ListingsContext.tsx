@@ -29,6 +29,7 @@ import { fetchPlaces, loadPlaces } from "@/lib/places-store";
 import { syncListingToBio } from "@/lib/identity";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOptionalSync } from "@/contexts/SyncContext";
+import { runRemoteWrite } from "@/lib/synced-write";
 import { track } from "@/lib/analytics";
 import { isoFromUnknown } from "@shared/freshness";
 
@@ -56,6 +57,8 @@ type ListingsValue = {
   version: number;
   /** True after the first listings + places fetch settles (success or fail). */
   remoteLoaded: boolean;
+  /** True when the last listings fetch failed (offline) — lists may show cached/empty. */
+  remoteFailed: boolean;
   savePlace: (input: SavePlaceInput, targetListingId?: string) => Promise<BusinessListing>;
   createPlace: (input: SavePlaceInput) => Promise<BusinessListing>;
   deleteListing: (listingId: string) => Promise<void>;
@@ -106,6 +109,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
   const [listings, setListings] = useState<BusinessListing[]>([]);
   const [version, setVersion] = useState(0);
   const [remoteLoaded, setRemoteLoaded] = useState(false);
+  const [remoteFailed, setRemoteFailed] = useState(false);
   const [selectedListingId, setSelectedListingIdState] = useState<string | null>(() => {
     try {
       return localStorage.getItem(SELECTED_LISTING_STORAGE_KEY);
@@ -142,6 +146,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
         setRemoteLoaded(true);
         return;
       }
+      let failed = false;
       void Promise.all([
         getDocs(query(collection(db, "listings"), where("status", "==", "active")))
           .then((snap) => {
@@ -153,14 +158,21 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
             merged.forEach(upsertCachedListing);
             bump(merged);
           })
-          .catch(() => undefined),
+          .catch(() => {
+            failed = true;
+          }),
         fetchPlaces()
           .then(() => {
             loadPlaces();
             bump(getCachedListings());
           })
-          .catch(() => undefined),
-      ]).finally(() => setRemoteLoaded(true));
+          .catch(() => {
+            failed = true;
+          }),
+      ]).finally(() => {
+        setRemoteFailed(failed);
+        setRemoteLoaded(true);
+      });
     });
 
     const handleReload = () => {
@@ -202,6 +214,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
       setSelectedListingId,
       version,
       remoteLoaded,
+      remoteFailed,
       async savePlace(input, targetListingId) {
         const existing = targetListingId ? listings.find((r) => r.id === targetListingId) || mine : mine;
         const id = existing?.id || `list-${nanoid(8)}`;
@@ -237,8 +250,9 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
             actorRole: "host_admin",
           });
         }
-        await sync?.runJob({
-          id: `listing-${listing.id}`,
+        await runRemoteWrite({
+          runJob: sync?.runJob,
+          jobId: `listing-${listing.id}`,
           label: "Listing",
           remote:
             liveBackendEnabled() && getFirebaseAuth()?.currentUser
@@ -266,6 +280,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
                   bump(getCachedListings());
                 }
               : undefined,
+          policy: "queue",
         });
         return listing;
       },
@@ -300,8 +315,9 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
           contextId: listing.id,
           actorRole: "host_admin",
         });
-        await sync?.runJob({
-          id: `listing-${listing.id}`,
+        await runRemoteWrite({
+          runJob: sync?.runJob,
+          jobId: `listing-${listing.id}`,
           label: "Listing",
           remote:
             liveBackendEnabled() && getFirebaseAuth()?.currentUser
@@ -329,6 +345,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
                   bump(getCachedListings());
                 }
               : undefined,
+          policy: "queue",
         });
         return listing;
       },
@@ -365,8 +382,9 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
           activationStep: "hours_verified",
           contextId: listing.id,
         });
-        await sync?.runJob({
-          id: `listing-hours-${listing.id}`,
+        await runRemoteWrite({
+          runJob: sync?.runJob,
+          jobId: `listing-hours-${listing.id}`,
           label: "Hours",
           remote:
             liveBackendEnabled() && getFirebaseAuth()?.currentUser
@@ -388,6 +406,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
                   });
                 }
               : undefined,
+          policy: "queue",
         });
       },
       async saveDeal(listingId, deal) {
@@ -397,8 +416,9 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
         upsertCachedListing(next);
         syncListingToBio(next);
         bump(getCachedListings());
-        await sync?.runJob({
-          id: `deal-${listingId}`,
+        await runRemoteWrite({
+          runJob: sync?.runJob,
+          jobId: `deal-${listingId}`,
           label: "Offer",
           remote:
             liveBackendEnabled() && getFirebaseAuth()?.currentUser && deal
@@ -411,10 +431,23 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
                     active: true,
                   })
               : undefined,
+          policy: "queue",
         });
       },
     }),
-    [bump, listings, mine, myListings, remoteLoaded, selectedListingId, setSelectedListingId, sync, user, version],
+    [
+      bump,
+      listings,
+      mine,
+      myListings,
+      remoteFailed,
+      remoteLoaded,
+      selectedListingId,
+      setSelectedListingId,
+      sync,
+      user,
+      version,
+    ],
   );
 
   return <ListingsContext.Provider value={value}>{children}</ListingsContext.Provider>;
