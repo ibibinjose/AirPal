@@ -666,7 +666,9 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
       await upsertEvent({
         ...activeEvent,
         id: activeEvent.id,
+        status: "live",
       });
+      setStatus("live");
       toast.success("Event is now officially live on AirPal! Visitors can now open the public link.");
     } catch (err) {
       const msg = friendlyFunctionError(err) || (err instanceof Error ? err.message : "Failed to publish live");
@@ -1400,17 +1402,20 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             )}
           </div>
 
-          {isLocalOnly && (
+          {(isLocalOnly || activeEvent.status === "draft") && (
             <div className="mt-4 rounded-2xl bg-amber-500/10 p-4 flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2.5">
                 <AlertTriangle className="text-amber-500 shrink-0" size={18} />
                 <div>
                   <p className="text-xs font-bold text-amber-900 dark:text-amber-200">
-                    Not Published Live on AirPal Cloud
+                    {activeEvent.status === "draft"
+                      ? "Draft Event · Not Live to the Public"
+                      : "Not Published Live on AirPal Cloud"}
                   </p>
                   <p className="text-[11px] text-amber-700 dark:text-amber-300">
-                    This event is only saved in this browser. Anyone opening the link on another device will see a 404
-                    Not Found error.
+                    {activeEvent.status === "draft"
+                      ? "This event is saved as a private draft. Anyone opening the link will see a 404 Not Found error until published live."
+                      : "This event is only saved in this browser. Anyone opening the link on another device will see a 404 Not Found error."}
                   </p>
                 </div>
               </div>

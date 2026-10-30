@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, Copy, MessageCircle, QrCode, Share2, Twitter } from "lucide-react";
+import { AlertTriangle, Check, Copy, MessageCircle, QrCode, Share2, Twitter } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet } from "@/components/ui/Sheet";
 import { Button } from "@/components/ui/Button";
@@ -15,9 +15,19 @@ export interface EventShareModalProps {
   venue?: string;
   date?: string;
   heroImage?: string;
+  isDraft?: boolean;
 }
 
-export function EventShareModal({ open, onClose, eventId, title, venue, date, heroImage }: EventShareModalProps) {
+export function EventShareModal({
+  open,
+  onClose,
+  eventId,
+  title,
+  venue,
+  date,
+  heroImage,
+  isDraft,
+}: EventShareModalProps) {
   const { mine } = useBio();
   const [copied, setCopied] = useState(false);
   const [qrUrl, setQrUrl] = useState("");
@@ -91,6 +101,19 @@ export function EventShareModal({ open, onClose, eventId, title, venue, date, he
             )}
           </div>
         </div>
+
+        {isDraft && (
+          <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-3.5 text-xs flex items-start gap-2.5 text-amber-900 dark:text-amber-200">
+            <AlertTriangle size={18} className="shrink-0 text-amber-600 mt-0.5" />
+            <div className="space-y-0.5">
+              <p className="font-bold">This event is in Draft mode</p>
+              <p className="text-amber-700 dark:text-amber-300 text-[11px] leading-relaxed">
+                Anyone opening this shared link will see <strong>404 · Page Not Found</strong> until you publish it live
+                in the Event Studio.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Link Copy Bar */}
         <div className="space-y-1.5">

@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { CalendarArrowDown, Copy, ExternalLink, Mail, Megaphone, ScanLine, Trash2, Users } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarArrowDown,
+  Copy,
+  ExternalLink,
+  Mail,
+  Megaphone,
+  ScanLine,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useEvents } from "@/contexts/EventsContext";
 import { EventShareModal } from "@/components/event/EventShareModal";
@@ -20,7 +30,23 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [announceOpen, setAnnounceOpen] = useState(false);
   const [confirmingCancel, setConfirmingCancel] = useState(false);
-  const [working, setWorking] = useState<"clone" | "cancel" | null>(null);
+  const [working, setWorking] = useState<"clone" | "cancel" | "publish" | null>(null);
+
+  const publishLive = async () => {
+    setWorking("publish");
+    try {
+      await upsertEvent({
+        ...event,
+        id: event.id,
+        status: "live",
+      });
+      toast.success("Event is now officially live on AirPal! Visitors can now open the public link.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't publish live");
+    } finally {
+      setWorking(null);
+    }
+  };
 
   const exportIcs = () => {
     downloadIcs({
@@ -79,6 +105,29 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
       <div className="neu-card p-5">
         <h2 className="font-display text-lg font-bold text-ink">Run the day</h2>
         <p className="mt-0.5 text-xs text-mute">Doors, guests, and invites — everything live.</p>
+
+        {event.status === "draft" && (
+          <div className="mt-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2.5">
+              <AlertTriangle className="text-amber-500 shrink-0" size={18} />
+              <div>
+                <p className="text-xs font-bold text-amber-900 dark:text-amber-200">Event is currently in Draft mode</p>
+                <p className="text-[11px] text-amber-700 dark:text-amber-300">
+                  Invited guests and visitors will see <strong>404 · Page Not Found</strong> until published live.
+                </p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              loading={working === "publish"}
+              onClick={publishLive}
+              className="min-h-[44px] text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs"
+            >
+              Publish Live Now
+            </Button>
+          </div>
+        )}
+
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
           <Link
             href={`/e/${event.id}/guests`}
@@ -187,6 +236,7 @@ export function EventManagePanel({ event }: { event: EventRecord }) {
         title={event.name}
         venue={event.venue || ""}
         date={event.startsAt}
+        isDraft={event.status === "draft"}
       />
       <EventAnnounceModal
         open={announceOpen}

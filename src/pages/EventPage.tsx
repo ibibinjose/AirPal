@@ -553,6 +553,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
         venue={event.venue}
         date={event.date}
         heroImage={event.heroImage}
+        isDraft={Boolean(event.isLocal)}
       />
 
       {/* Floating Mobile Sticky Registration Button — hidden once closed */}
