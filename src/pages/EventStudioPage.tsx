@@ -244,6 +244,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
   const [stallWhy, setStallWhy] = useState("");
   const [stallCategory, setStallCategory] = useState<StallCategoryId>("shops");
   const [editingStallId, setEditingStallId] = useState<string | null>(null);
+  const [addingStall, setAddingStall] = useState(false);
 
   const [qr, setQr] = useState("");
   const [creating, setCreating] = useState(false);
@@ -289,7 +290,6 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
       }
       return;
     }
-    if (!activeEvent) return;
     setName(activeEvent.name);
     setFlavour(activeEvent.flavour);
     setCity(activeEvent.city || "Sydney");
@@ -313,6 +313,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
     setHostName(activeEvent.hostName || activeEvent.businessName || "");
     setHostHandle(activeEvent.hostHandle || activeEvent.businessHandle || "");
     setCollaboratorHandles(activeEvent.collaboratorHandles || []);
+    setCollaboratorInput("");
     setSponsorHandles(activeEvent.sponsorHandles || []);
     setSponsorInput("");
     setFestivalFields({
@@ -532,19 +533,27 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
       toast.error("Add a business or stall name");
       return;
     }
-    await upsertStall({
-      id: editingStallId || undefined,
-      eventId: activeEvent.id,
-      name: stallName.trim(),
-      category: stallCategory,
-      booth: booth.trim(),
-      location: stallLocation.trim() || undefined,
-      shortWhy: stallWhy.trim(),
-      offer: stallOffer.trim() || undefined,
-      handle: stallHandle.trim().replace(/^@+/, "").toLowerCase() || undefined,
-    });
-    resetStallForm();
-    toast.success(editingStallId ? "Stall updated" : "Stall added to directory");
+    setAddingStall(true);
+    try {
+      await upsertStall({
+        id: editingStallId || undefined,
+        eventId: activeEvent.id,
+        name: stallName.trim(),
+        category: stallCategory,
+        booth: booth.trim(),
+        location: stallLocation.trim() || undefined,
+        shortWhy: stallWhy.trim(),
+        offer: stallOffer.trim() || undefined,
+        handle: stallHandle.trim().replace(/^@+/, "").toLowerCase() || undefined,
+      });
+      resetStallForm();
+      toast.success(editingStallId ? "Stall updated" : "Stall added to directory");
+    } catch (err) {
+      const msg = friendlyFunctionError(err) || (err instanceof Error ? err.message : "Could not save stall");
+      toast.error(msg);
+    } finally {
+      setAddingStall(false);
+    }
   }
 
   async function onSaveSettings(e: FormEvent) {
@@ -897,10 +906,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
+                      <label
+                        htmlFor="event-starts-at"
+                        className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                      >
                         Starts At
                       </label>
                       <input
+                        id="event-starts-at"
                         type="datetime-local"
                         value={startsLocal}
                         onChange={(e) => setStartsLocal(e.target.value)}
@@ -909,10 +922,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
+                      <label
+                        htmlFor="event-ends-at"
+                        className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                      >
                         Ends At
                       </label>
                       <input
+                        id="event-ends-at"
                         type="datetime-local"
                         value={endsLocal}
                         onChange={(e) => setEndsLocal(e.target.value)}
@@ -1575,10 +1592,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
+                      <label
+                        htmlFor="stall-name"
+                        className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                      >
                         {labels.business}
                       </label>
                       <input
+                        id="stall-name"
                         value={stallName}
                         onChange={(e) => setStallName(e.target.value)}
                         placeholder={labels.businessPlaceholder}
@@ -1589,10 +1610,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
+                        <label
+                          htmlFor="stall-unit"
+                          className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                        >
                           {labels.unit}
                         </label>
                         <input
+                          id="stall-unit"
                           value={booth}
                           onChange={(e) => setBooth(e.target.value)}
                           placeholder={labels.unitPlaceholder}
@@ -1612,10 +1637,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
+                      <label
+                        htmlFor="stall-location"
+                        className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                      >
                         Floor location (Optional)
                       </label>
                       <input
+                        id="stall-location"
                         value={stallLocation}
                         onChange={(e) => setStallLocation(e.target.value)}
                         placeholder="e.g. Aisle C · Bay 12, near Gate B"
@@ -1626,13 +1655,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5">Category</p>
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Stall category">
                         {STALL_CATEGORIES.map((c) => {
                           const on = stallCategory === c.id;
                           return (
                             <button
                               key={c.id}
                               type="button"
+                              aria-pressed={on}
                               onClick={() => setStallCategory(c.id)}
                               className={cn(
                                 "min-h-[44px] rounded-full px-3 text-xs font-semibold transition active:scale-95",
@@ -1647,10 +1677,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
+                      <label
+                        htmlFor="stall-about"
+                        className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                      >
                         {labels.about}
                       </label>
                       <input
+                        id="stall-about"
                         value={stallWhy}
                         onChange={(e) => setStallWhy(e.target.value)}
                         placeholder="One-line summary guests see (e.g. Handmade ceramic cups & vases)"
@@ -1659,10 +1693,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
+                      <label
+                        htmlFor="stall-offer"
+                        className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                      >
                         Exclusive Guest Offer (Optional)
                       </label>
                       <input
+                        id="stall-offer"
                         value={stallOffer}
                         onChange={(e) => setStallOffer(e.target.value)}
                         placeholder="e.g. Free espresso with bag of beans, or 10% off"
@@ -1670,8 +1708,13 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                       />
                     </div>
 
-                    <Button type="submit" className="w-full h-11 font-semibold shadow-xs">
-                      {editingStallId ? "Save Stall Changes" : labels.addTitle}
+                    <Button
+                      type="submit"
+                      className="w-full h-11 font-semibold shadow-xs"
+                      disabled={addingStall}
+                      loading={addingStall}
+                    >
+                      {addingStall ? "Saving Stall…" : editingStallId ? "Save Stall Changes" : labels.addTitle}
                     </Button>
                   </form>
 
@@ -1840,6 +1883,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   <button
                     key={id}
                     type="button"
+                    aria-pressed={flavour === id}
                     onClick={() => setFlavour(id)}
                     className={cn(
                       "min-h-[44px] rounded-full px-4 text-xs font-semibold transition active:scale-95",
@@ -1934,10 +1978,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
             {/* Dates & Schedule */}
             <div className="grid gap-3 sm:grid-cols-2 pt-2">
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">
+                <label
+                  htmlFor="event-starts-at-edit"
+                  className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                >
                   Starts At
                 </label>
                 <input
+                  id="event-starts-at-edit"
                   type="datetime-local"
                   value={startsLocal}
                   onChange={(e) => setStartsLocal(e.target.value)}
@@ -1945,8 +1993,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block">Ends At</label>
+                <label
+                  htmlFor="event-ends-at-edit"
+                  className="text-xs font-semibold uppercase tracking-wider text-mute mb-1.5 block"
+                >
+                  Ends At
+                </label>
                 <input
+                  id="event-ends-at-edit"
                   type="datetime-local"
                   value={endsLocal}
                   onChange={(e) => setEndsLocal(e.target.value)}
@@ -1965,6 +2019,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                     <button
                       key={id}
                       type="button"
+                      aria-pressed={on}
                       onClick={() => setStatus(id)}
                       className={cn(
                         "min-h-[44px] rounded-2xl px-3 py-2.5 text-xs font-semibold capitalize transition",
