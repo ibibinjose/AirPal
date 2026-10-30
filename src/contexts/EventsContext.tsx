@@ -821,7 +821,6 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       remoteLoaded,
       fetchRemoteStalls,
       fetchRemoteEvent,
-      remoteRecords,
       userStates,
       toggleGoing,
       toggleInterested,
