@@ -19,7 +19,7 @@ describe("NativeSplashTransition", () => {
     expect(html).toContain("AirPal");
     expect(html).toContain(".me");
     expect(html).toContain("Life Made Easy.");
-    expect(html).toContain('src="/logo-mark.png"');
+    expect(html).toContain('src="/brand/tantumi.jpg"');
     expect(html).toContain('id="native-splash-transition"');
   });
 

@@ -19,6 +19,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="manifest" href="/manifest.json" />
+    <link rel="preload" as="image" href="/brand/tantumi.jpg" />
     <link rel="canonical" href="https://airpal.me/" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta
@@ -207,27 +208,41 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 12px;
-        background: linear-gradient(135deg, #004eff 0%, #0037b3 60%, #002a8a 100%);
+        gap: 16px;
+        background: #14161b;
+        background-image: radial-gradient(circle at 50% 45%, rgba(0, 78, 255, 0.15) 0%, rgba(20, 22, 27, 0) 65%);
         color: #fff;
         font-family:
           system-ui,
           -apple-system,
           &quot;Segoe UI&quot;,
           sans-serif;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.5s ease;
       "
     >
-      <div style="font-size: 30px; font-weight: 800; letter-spacing: -0.02em; line-height: 1">AirPal</div>
-      <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.24em; opacity: 0.85">LIFE MADE EASY</div>
+      <img
+        src="/brand/tantumi.jpg"
+        alt="AirPal"
+        style="
+          max-width: min(80vw, 320px);
+          max-height: min(48vh, 380px);
+          object-fit: contain;
+          border-radius: 24px;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        "
+      />
+      <div style="font-size: 28px; font-weight: 800; letter-spacing: -0.02em; line-height: 1">AirPal</div>
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.24em; color: #3b82f6; text-transform: uppercase">
+        LIFE MADE EASY
+      </div>
       <div
         style="
-          width: 34px;
-          height: 34px;
-          margin-top: 6px;
+          width: 30px;
+          height: 30px;
+          margin-top: 4px;
           border-radius: 50%;
-          border: 3px solid rgba(255, 255, 255, 0.3);
-          border-top-color: #fff;
+          border: 3px solid rgba(255, 255, 255, 0.2);
+          border-top-color: #3b82f6;
           animation: airpal-boot-spin 0.9s linear infinite;
         "
       ></div>

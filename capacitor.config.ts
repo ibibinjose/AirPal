@@ -49,10 +49,10 @@ const config: CapacitorConfig = {
       overlaysWebView: false,
     },
     SplashScreen: {
-      launchShowDuration: 1500,
+      launchShowDuration: 2400,
       launchAutoHide: true,
-      launchFadeOutDuration: 350,
-      backgroundColor: "#004EFF",
+      launchFadeOutDuration: 500,
+      backgroundColor: "#14161B",
       showSpinner: false,
       androidScaleType: "CENTER_CROP",
       iosSpinnerStyle: "small",
