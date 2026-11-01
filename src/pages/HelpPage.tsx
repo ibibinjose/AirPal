@@ -1,6 +1,16 @@
 import { useMemo, useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, Building2, ChevronDown, LifeBuoy, ShieldCheck, Sparkles, Ticket, User } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  ChevronDown,
+  LifeBuoy,
+  ShieldCheck,
+  Sparkles,
+  Ticket,
+  User,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { TabPills } from "@/components/ui/TabPills";
 import { SearchBar } from "@/components/search/SearchBar";
@@ -36,7 +46,33 @@ export function HelpPage() {
   }, [query, category]);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
+    <div className="mx-auto max-w-2xl px-4 py-6 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
+      {/* Top Navigation Bar */}
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
+        <Link
+          href="/settings"
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-4 text-xs font-bold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95"
+        >
+          <ArrowLeft size={15} />
+          <span>Settings</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/trust"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-paper"
+          >
+            <ShieldCheck size={14} className="text-accent" />
+            <span>Trust &amp; Safety</span>
+          </Link>
+          <Link
+            href="/contact"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-2xs transition hover:bg-brand-ink"
+          >
+            <span>Contact Us</span>
+          </Link>
+        </div>
+      </div>
+
       <p className="human-eyebrow">Knowledge Hub</p>
       <h1 className="human-title mt-2 text-3xl text-balance">How can we help?</h1>
       <p className="mt-1 text-sm leading-6 text-mute">

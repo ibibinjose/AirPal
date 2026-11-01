@@ -9,7 +9,6 @@ import {
   Camera,
   Check,
   Compass,
-  Footprints,
   Gift,
   MapPin,
   Plus,
@@ -301,9 +300,9 @@ export function HomePage() {
             </span>
             <div className="min-w-0">
               <p className="font-display font-bold text-ink truncate">
-                {weather.temp}°C in {effectiveCity} · {outfitAdvice.headline}
+                {weather.temp}°C in {effectiveCity} · {outfitAdvice.vibe}
               </p>
-              <p className="text-[11px] text-mute truncate max-w-[260px]">{outfitAdvice.suggestion}</p>
+              <p className="text-[11px] text-mute truncate max-w-[260px]">{outfitAdvice.outfit}</p>
             </div>
           </div>
         )}

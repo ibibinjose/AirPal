@@ -1,4 +1,4 @@
-import { ArrowRight, Calendar, Coffee, QrCode, Sun, Ticket } from "lucide-react";
+import { ArrowRight, Calendar, Coffee, Images, QrCode, Sparkles, Sun, Tag, Ticket, Users } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/Button";
 import { MeSection, MeSectionHeader, TodaySkeleton } from "@/components/me/MeSections";
@@ -52,14 +52,19 @@ function GlanceRows({ items, onOpen }: { items: OverviewGlanceItem[]; onOpen: (i
           type="button"
           onClick={() => onOpen(item)}
           aria-label={`${item.title} — open in ${KIND_LABEL[item.kind]}`}
-          className="flex min-h-[44px] w-full cursor-pointer items-center gap-3 rounded-xl px-1 text-left transition-colors min-w-0 hover:bg-paper/60 active:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60"
+          className="group flex min-h-[48px] w-full cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors min-w-0 neu-row hover:bg-paper/80 active:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/60"
         >
-          <span className={cn("h-2 w-2 rounded-full shrink-0", KIND_DOT[item.kind])} aria-hidden="true" />
+          <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", KIND_DOT[item.kind])} aria-hidden="true" />
           <p className="font-bold text-sm text-ink truncate">{item.title}</p>
           <span className="text-[10px] font-bold rounded-full bg-paper px-2 py-0.5 text-mute shrink-0">
             {KIND_LABEL[item.kind]}
           </span>
-          <p className="text-xs text-mute truncate ml-auto pl-2 shrink-0 max-w-[45%] text-right">{item.sub}</p>
+          <p className="text-xs text-mute truncate ml-auto pl-2 shrink-0 max-w-[40%] text-right">{item.sub}</p>
+          <ArrowRight
+            size={13}
+            className="shrink-0 text-mute/60 transition-transform group-hover:translate-x-0.5 group-hover:text-ink"
+            aria-hidden="true"
+          />
         </button>
       ))}
     </div>
@@ -195,6 +200,17 @@ export function MeOverview({
             <Ticket size={14} className="text-amber-600" />
             <span>Tickets</span>
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              void triggerHaptic("light");
+              nav("/calendar");
+            }}
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-4 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95 cursor-pointer"
+          >
+            <Calendar size={14} className="text-accent" />
+            <span>Full Calendar</span>
+          </button>
         </div>
       </MeSection>
 
@@ -268,6 +284,77 @@ export function MeOverview({
             </button>
           </MeSection>
         )}
+      </div>
+
+      {/* PERSONAL LIFE & ECOSYSTEM STRIP */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            void triggerHaptic("light");
+            nav("/me/memories");
+          }}
+          className="neu-card neu-tint-brand p-4 text-left flex flex-col justify-between min-h-[104px] transition-[box-shadow,transform] active:scale-[0.98] cursor-pointer"
+        >
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand/10 text-accent mb-2.5">
+            <Images size={16} />
+          </span>
+          <div>
+            <p className="font-display text-xs font-bold text-ink">Memory Wall</p>
+            <p className="text-[11px] text-mute mt-0.5 truncate">Photos &amp; moments</p>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            void triggerHaptic("light");
+            nav("/friends");
+          }}
+          className="neu-card neu-tint-sky p-4 text-left flex flex-col justify-between min-h-[104px] transition-[box-shadow,transform] active:scale-[0.98] cursor-pointer"
+        >
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-sky-500/10 text-sky-600 mb-2.5">
+            <Users size={16} />
+          </span>
+          <div>
+            <p className="font-display text-xs font-bold text-ink">Friends Hub</p>
+            <p className="text-[11px] text-mute mt-0.5 truncate">Mutuals &amp; IRL logs</p>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            void triggerHaptic("light");
+            nav("/deals");
+          }}
+          className="neu-card neu-tint-gold p-4 text-left flex flex-col justify-between min-h-[104px] transition-[box-shadow,transform] active:scale-[0.98] cursor-pointer"
+        >
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/15 text-amber-600 mb-2.5">
+            <Tag size={16} />
+          </span>
+          <div>
+            <p className="font-display text-xs font-bold text-ink">Member Perks</p>
+            <p className="text-[11px] text-mute mt-0.5 truncate">Dining &amp; Pass deals</p>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            void triggerHaptic("light");
+            nav("/rewards");
+          }}
+          className="neu-card neu-tint-emerald p-4 text-left flex flex-col justify-between min-h-[104px] transition-[box-shadow,transform] active:scale-[0.98] cursor-pointer"
+        >
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 mb-2.5">
+            <Sparkles size={16} />
+          </span>
+          <div>
+            <p className="font-display text-xs font-bold text-ink">Stars &amp; Rewards</p>
+            <p className="text-[11px] text-mute mt-0.5 truncate">Connector rank &amp; perks</p>
+          </div>
+        </button>
       </div>
     </div>
   );

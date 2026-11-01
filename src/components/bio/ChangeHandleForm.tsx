@@ -46,43 +46,52 @@ export function ChangeHandleForm({
   }
 
   return (
-    <form onSubmit={(e) => void onSubmit(e)} className={compact ? "space-y-2" : "space-y-3"}>
+    <form onSubmit={(e) => void onSubmit(e)} className={compact ? "space-y-2.5" : "space-y-3"}>
       {!compact && (
-        <>
-          <p className="text-xs font-bold uppercase tracking-wider text-accent">@handle</p>
-          <p className="text-sm text-mute">
-            Current <span className="font-semibold text-ink">@{current}</span>. Changing it updates your public page and
-            account. Old links to the previous handle stop working.
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wider text-accent">Public @handle</p>
+          <p className="text-xs sm:text-sm text-mute mt-1 leading-relaxed">
+            Current: <span className="font-semibold text-ink">@{current}</span>. Changing it updates your public bio URL
+            and QR pass. Old links to the previous handle stop working.
           </p>
-        </>
+        </div>
       )}
-      <div className="neu-inset flex items-center overflow-hidden focus-within:ring-2 focus-within:ring-ink">
-        <span className="shrink-0 px-3 text-sm font-semibold text-mute">@</span>
-        <input
-          value={next}
-          onChange={(e) => {
-            const h = normalizeHandle(e.target.value);
-            setNext(h);
-            setHint("");
-            if (h && h !== current) {
-              void handleFree(h, profileId).then((r) => setHint(r.ok ? "Available" : r.reason || "Taken"));
-            }
-          }}
-          placeholder="newhandle"
-          autoComplete="off"
-          autoCapitalize="none"
-          className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none"
-        />
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="neu-inset flex flex-1 items-center overflow-hidden rounded-2xl bg-paper ring-1 ring-line focus-within:ring-2 focus-within:ring-brand">
+          <span className="shrink-0 pl-3.5 pr-1 text-sm font-bold text-accent">@</span>
+          <input
+            value={next}
+            onChange={(e) => {
+              const h = normalizeHandle(e.target.value);
+              setNext(h);
+              setHint("");
+              if (h && h !== current) {
+                void handleFree(h, profileId).then((r) => setHint(r.ok ? "Available" : r.reason || "Taken"));
+              }
+            }}
+            placeholder="newhandle"
+            autoComplete="off"
+            autoCapitalize="none"
+            aria-label="New handle"
+            className="h-11 min-h-[44px] min-w-0 flex-1 bg-transparent pr-3 text-sm font-medium text-ink outline-none"
+          />
+        </div>
+        <Button
+          type="submit"
+          variant={compact ? "ghost" : "primary"}
+          className="min-h-[44px] shrink-0 rounded-2xl px-5 text-xs font-bold sm:w-auto w-full"
+          disabled={busy || !next || next.length < 3 || Boolean(handleError(next)) || next === current}
+        >
+          {busy ? "Saving…" : "Change @handle"}
+        </Button>
       </div>
-      {hint && <p className={`text-xs ${hint === "Available" ? "text-emerald-700" : "text-rose-700"}`}>{hint}</p>}
-      <Button
-        type="submit"
-        variant={compact ? "ghost" : "primary"}
-        className="w-full border border-line"
-        disabled={busy || !next || next.length < 3 || Boolean(handleError(next)) || next === current}
-      >
-        {busy ? "Saving…" : "Change @handle"}
-      </Button>
+      {hint && (
+        <p
+          className={`text-xs font-semibold ${hint === "Available" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}
+        >
+          {hint === "Available" ? `✓ @${next} is available` : hint}
+        </p>
+      )}
     </form>
   );
 }

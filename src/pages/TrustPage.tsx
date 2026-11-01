@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import {
+  ArrowLeft,
   CheckCircle2,
   CreditCard,
   ExternalLink,
@@ -85,6 +86,34 @@ export function TrustPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(block).replace(/</g, "\\u003c") }}
         />
       ))}
+
+      {/* Top Navigation & Policy Switcher */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+        <Link
+          href="/settings"
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-4 text-xs font-bold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95"
+        >
+          <ArrowLeft size={15} />
+          <span>Settings</span>
+        </Link>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {[
+            { href: "/privacy", label: "Privacy" },
+            { href: "/terms", label: "Terms" },
+            { href: "/cookies", label: "Cookies" },
+            { href: "/help", label: "Help" },
+            { href: "/contact", label: "Contact" },
+          ].map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="inline-flex min-h-[36px] items-center rounded-full bg-card px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition"
+            >
+              {l.label}
+            </Link>
+          ))}
+        </div>
+      </div>
 
       <p className="human-eyebrow">Trust & company facts</p>
       <h1 className="human-title mt-1 text-3xl sm:text-4xl text-balance">Is AirPal.Me legit?</h1>

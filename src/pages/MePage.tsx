@@ -395,7 +395,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
       className="mx-auto max-w-5xl bg-paper px-4 sm:px-6 lg:px-8 pb-[max(6.5rem,calc(env(safe-area-inset-bottom,0px)+5.5rem))] pt-[max(1rem,env(safe-area-inset-top,0px))]"
     >
       {/* 🧭 1. TOP OF PAGE NAVIGATION TABS */}
-      <div className="sticky top-[max(0.5rem,env(safe-area-inset-top,0px))] z-30 mb-8">
+      <div className="sticky top-[max(0.5rem,env(safe-area-inset-top,0px))] z-30 mb-6">
         <TabPills
           layout="contained"
           ariaLabel="Me sections"
@@ -429,6 +429,106 @@ export function MePage({ defaultTab }: MePageProps = {}) {
           onChange={handleTabChange}
         />
       </div>
+
+      {/* 🪪 COMPACT IDENTITY COCKPIT BAR (visible on focused tabs so identity & quick actions stay 1-tap away) */}
+      {activeTab !== "all" && (
+        <div className="neu-section mb-6 px-4 py-3 sm:px-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => handleTabChange("all")}
+              className="relative h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 overflow-hidden rounded-full bg-paper ring-2 ring-card shadow-xs transition-transform active:scale-95 cursor-pointer"
+              title="Open Overview"
+              aria-label="Open Overview"
+            >
+              {mine?.avatar ? (
+                <Photo src={mine.avatar} className="h-full w-full object-cover rounded-full" />
+              ) : (
+                <span className="grid h-full w-full place-items-center bg-gradient-to-br from-neutral-900 to-neutral-800 font-display text-sm font-extrabold text-white select-none">
+                  {(user.displayName || mine?.name || "U")[0].toUpperCase()}
+                </span>
+              )}
+              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-card" />
+            </button>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="font-display text-sm sm:text-base font-black text-ink truncate">
+                  {user.displayName || mine?.name || "AirPal Member"}
+                </p>
+                {mine && <BioKindBadge kind={mine.kind} />}
+              </div>
+              <div className="flex items-center gap-2 mt-0.5">
+                <button
+                  type="button"
+                  onClick={handleCopyBioLink}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:underline cursor-pointer"
+                >
+                  <span>{mine ? `@${mine.handle}` : "Claim your @handle"}</span>
+                  {copiedBioLink ? (
+                    <Check size={11} className="text-emerald-600" />
+                  ) : (
+                    <Copy size={10} className="text-mute" />
+                  )}
+                </button>
+                {city && <span className="text-xs text-mute hidden sm:inline">· {city}</span>}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 ml-auto">
+            {mine ? (
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  setShowShareModal(true);
+                }}
+                className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95 cursor-pointer"
+                title="Show QR Pass"
+              >
+                <QrCode size={13} className="text-accent shrink-0" />
+                <span className="hidden min-[420px]:inline">Pass QR</span>
+              </button>
+            ) : (
+              <Link
+                href="/bio/setup"
+                className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3 text-xs font-bold text-accent transition-[box-shadow,transform] active:scale-95"
+              >
+                <Sparkles size={13} className="shrink-0" />
+                <span>Setup Bio</span>
+              </Link>
+            )}
+
+            <Link
+              href="/circle"
+              className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+              title="Networking Circle & Check-In"
+            >
+              <Users size={13} className="text-sky-600 shrink-0" />
+              <span className="hidden sm:inline">Circle</span>
+            </Link>
+
+            <Link
+              href="/me/inbox"
+              className="neu-btn grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center text-ink transition-[box-shadow,transform] active:scale-95"
+              title="Notifications Inbox"
+              aria-label="Notifications Inbox"
+            >
+              <Bell size={14} className="text-accent" />
+            </Link>
+
+            <Link
+              href="/settings"
+              className="neu-btn grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center text-mute hover:text-ink transition-[box-shadow,color,transform] active:scale-95"
+              title="Settings"
+              aria-label="Settings"
+            >
+              <Settings size={14} />
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* 🌟 2. APPLE HIG NATIVE HERO PROFILE CARD */}
       {activeTab === "all" && (
@@ -477,6 +577,15 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                       {upcomingTickets.length}
                     </span>
                   )}
+                </Link>
+
+                <Link
+                  href="/me/inbox"
+                  className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-black/40 text-white backdrop-blur-xl transition-[background-color,transform] hover:bg-black/60 active:scale-95"
+                  title="Notifications Inbox"
+                  aria-label="Notifications Inbox"
+                >
+                  <Bell size={14} />
                 </Link>
 
                 <Link
@@ -681,54 +790,55 @@ export function MePage({ defaultTab }: MePageProps = {}) {
       )}
 
       {/* 🔔 PRIORITY ACTION BANNER: PENDING CATCH-UP PROPOSALS */}
-      {(activeTab === "all" || activeTab === "appointments") && pendingAppointments.length > 0 && (
-        <div className="mb-6 neu-card neu-tint-gold p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3.5 min-w-0">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-300 shrink-0">
-              <HeartHandshake size={20} />
-            </span>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-black uppercase tracking-wider text-amber-800 dark:text-amber-200">
-                  Catch-up Proposal ({pendingAppointments.length})
-                </span>
-                <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+      {(activeTab === "today" || activeTab === "all" || activeTab === "appointments") &&
+        pendingAppointments.length > 0 && (
+          <div className="mb-6 neu-card neu-tint-gold p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-300 shrink-0">
+                <HeartHandshake size={20} />
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-amber-800 dark:text-amber-200">
+                    Catch-up Proposal ({pendingAppointments.length})
+                  </span>
+                  <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                </div>
+                <p className="text-sm font-bold text-ink truncate mt-0.5">
+                  {pendingAppointments[0].requesterName} wants to connect
+                  {pendingAppointments[0].date && ` · ${pendingAppointments[0].date}`}
+                  {pendingAppointments[0].time && ` @ ${pendingAppointments[0].time}`}
+                  {pendingAppointments[0].venue && ` · ${pendingAppointments[0].venue}`}
+                </p>
               </div>
-              <p className="text-sm font-bold text-ink truncate mt-0.5">
-                {pendingAppointments[0].requesterName} wants to connect
-                {pendingAppointments[0].date && ` · ${pendingAppointments[0].date}`}
-                {pendingAppointments[0].time && ` @ ${pendingAppointments[0].time}`}
-                {pendingAppointments[0].venue && ` · ${pendingAppointments[0].venue}`}
-              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+              <Button
+                size="sm"
+                className="min-h-[44px] rounded-full bg-emerald-600 px-4 text-xs font-bold text-white hover:bg-emerald-700 transition-[background-color,transform] active:scale-95 shadow-xs"
+                onClick={async () => {
+                  try {
+                    await updateCatchUpStatus(pendingAppointments[0].id, "accepted");
+                    toast.success(`Accepted catch up with ${pendingAppointments[0].requesterName}!`);
+                  } catch (error) {
+                    toast.error(error instanceof Error ? error.message : "Couldn't accept this request.");
+                  }
+                }}
+              >
+                <Check size={13} className="mr-1 shrink-0" />
+                Accept
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="neu-btn min-h-[44px] px-3.5 text-xs font-semibold text-ink transition-[box-shadow,transform] active:scale-95"
+                onClick={() => handleTabChange("appointments")}
+              >
+                View Proposals
+              </Button>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-            <Button
-              size="sm"
-              className="min-h-[44px] rounded-full bg-emerald-600 px-4 text-xs font-bold text-white hover:bg-emerald-700 transition-[background-color,transform] active:scale-95 shadow-xs"
-              onClick={async () => {
-                try {
-                  await updateCatchUpStatus(pendingAppointments[0].id, "accepted");
-                  toast.success(`Accepted catch up with ${pendingAppointments[0].requesterName}!`);
-                } catch (error) {
-                  toast.error(error instanceof Error ? error.message : "Couldn't accept this request.");
-                }
-              }}
-            >
-              <Check size={13} className="mr-1 shrink-0" />
-              Accept
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="neu-btn min-h-[44px] px-3.5 text-xs font-semibold text-ink transition-[box-shadow,transform] active:scale-95"
-              onClick={() => handleTabChange("appointments")}
-            >
-              View Proposals
-            </Button>
-          </div>
-        </div>
-      )}
+        )}
 
       {/* 🌟 3. OVERVIEW DASHBOARD (replaces the stacked sections on "all") */}
       {activeTab === "all" && (
@@ -786,7 +896,7 @@ export function MePage({ defaultTab }: MePageProps = {}) {
 
             {/* Window view: the day at a glance */}
             <div className="p-5 sm:p-7">
-              <div className="flex flex-wrap items-end justify-between gap-3">
+              <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
                 <div className="min-w-0">
                   <p className="human-eyebrow">Today&apos;s agenda</p>
                   <h2 className="font-display mt-1 text-2xl font-extrabold tracking-tight text-ink text-balance sm:text-3xl">
@@ -802,20 +912,38 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                     ) : null}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void triggerHaptic("light");
-                    setConfirmRemoveId(null);
-                    setScheduleOpen(true);
-                  }}
-                  className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
-                  aria-label="Add a personal plan for today"
-                  title="Add a personal plan for today"
-                >
-                  <Plus size={14} className="shrink-0" />
-                  <span className="hidden min-[420px]:inline">Add plan</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void triggerHaptic("light");
+                      setConfirmRemoveId(null);
+                      setScheduleOpen(true);
+                    }}
+                    className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-brand px-4 text-xs font-bold text-white shadow-xs hover:bg-brand-ink transition-[background-color,transform] active:scale-95 cursor-pointer"
+                    aria-label="Add a personal plan for today"
+                    title="Add a personal plan for today"
+                  >
+                    <Plus size={14} className="shrink-0" />
+                    <span className="hidden min-[420px]:inline">Add plan</span>
+                  </button>
+                  <Link
+                    href="/calendar"
+                    className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1.5 px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+                    title="Open Full Calendar"
+                  >
+                    <Calendar size={14} className="text-sky-600 shrink-0" />
+                    <span className="hidden sm:inline">Calendar</span>
+                  </Link>
+                  <Link
+                    href="/circle"
+                    className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1.5 px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+                    title="Check In Live (I'm Here)"
+                  >
+                    <MapPin size={14} className="text-emerald-600 shrink-0" />
+                    <span className="hidden sm:inline">Check in</span>
+                  </Link>
+                </div>
               </div>
 
               {/* Weather & Deterministic Outfit Widget */}
@@ -1224,15 +1352,25 @@ export function MePage({ defaultTab }: MePageProps = {}) {
               title="Appointments & Catch-ups"
               sub={`1-on-1 catch-ups (${upcomingScheduledAppointments.length + pendingAppointments.length})`}
               right={
-                <button
-                  type="button"
-                  onClick={handleCopyBioLink}
-                  className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-4 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95 cursor-pointer"
-                  title="Copy your bio link"
-                >
-                  {copiedBioLink ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
-                  <span>{copiedBioLink ? "Copied" : "Share My Bio"}</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/circle"
+                    className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+                    title="Find people in your Circle"
+                  >
+                    <Users size={13} className="text-accent" />
+                    <span className="hidden sm:inline">Find People</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleCopyBioLink}
+                    className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-4 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95 cursor-pointer"
+                    title="Copy your bio link"
+                  >
+                    {copiedBioLink ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+                    <span>{copiedBioLink ? "Copied" : "Share My Bio"}</span>
+                  </button>
+                </div>
               }
             />
 
@@ -1404,67 +1542,82 @@ export function MePage({ defaultTab }: MePageProps = {}) {
             {upcomingScheduledAppointments.length > 0 ? (
               <div className="space-y-3">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-mute">Upcoming</p>
-                {upcomingScheduledAppointments.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 neu-row p-4"
-                  >
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="h-11 w-11 overflow-hidden rounded-full neu-avatar bg-paper shrink-0">
-                        {item.requesterPhoto ? (
-                          <Photo src={item.requesterPhoto} className="h-full w-full object-cover rounded-full" />
-                        ) : (
-                          <span className="grid h-full w-full place-items-center bg-neutral-900 font-bold text-xs text-white rounded-full">
-                            {item.requesterName[0]}
-                          </span>
+                {upcomingScheduledAppointments.map((item) => {
+                  const confirming = confirmRemoveId === item.id;
+                  return (
+                    <MeRow
+                      key={item.id}
+                      toneClass="neu-row"
+                      visual={<RowAvatar photo={item.requesterPhoto} name={item.requesterName} />}
+                      actions={
+                        <>
+                          {item.meetingLink && (
+                            <a
+                              href={item.meetingLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-500/15 px-3.5 text-xs font-bold text-emerald-800 hover:bg-emerald-500/25 transition-[background-color,transform] active:scale-95"
+                            >
+                              <PhoneCall size={13} className="shrink-0" />
+                              <span>Join Call</span>
+                            </a>
+                          )}
+                          <AddToCalendarMenu
+                            event={{
+                              title: `Catch Up: ${item.requesterName}`,
+                              description: item.notes || `AirPal with ${item.requesterName}`,
+                              startsAt: `${item.date || today}T${item.time || "12:00"}:00`,
+                              venue: item.venue,
+                            }}
+                            size="sm"
+                            variant="ghost"
+                            label="Calendar"
+                            buttonClassName="neu-btn min-h-[44px] px-3.5 text-xs font-bold"
+                          />
+                          {confirming ? (
+                            <Button
+                              size="sm"
+                              className="min-h-[44px] rounded-full bg-red-600 px-3.5 text-xs font-bold text-white hover:bg-red-700 active:scale-95"
+                              onClick={() => void handleDismissCatchUp(item.id)}
+                              aria-label={`Confirm cancelling catch-up with ${item.requesterName}`}
+                            >
+                              Confirm cancel
+                            </Button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                void triggerHaptic("light");
+                                setConfirmRemoveId(item.id);
+                              }}
+                              className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3 text-xs font-semibold text-mute hover:text-ink transition-[box-shadow,color,transform] active:scale-95 cursor-pointer"
+                              aria-label={`Cancel catch-up with ${item.requesterName}`}
+                            >
+                              <X size={13} />
+                              <span>Cancel</span>
+                            </button>
+                          )}
+                        </>
+                      }
+                    >
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-sm text-ink truncate">{item.requesterName}</p>
+                        {item.requesterHandle && (
+                          <Link
+                            href={`/@${item.requesterHandle}`}
+                            className="text-xs text-mute hover:text-accent truncate"
+                          >
+                            @{item.requesterHandle}
+                          </Link>
                         )}
                       </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-bold text-sm text-ink truncate">{item.requesterName}</p>
-                          {item.requesterHandle && (
-                            <Link
-                              href={`/@${item.requesterHandle}`}
-                              className="text-xs text-mute hover:text-accent truncate"
-                            >
-                              @{item.requesterHandle}
-                            </Link>
-                          )}
-                        </div>
-                        <p className="text-xs text-mute truncate mt-0.5">
-                          {item.date || "Upcoming"} {item.time ? `@ ${item.time}` : ""}{" "}
-                          {item.venue ? `· ${item.venue}` : ""}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex w-full sm:w-auto items-center justify-end gap-2 shrink-0 pt-2.5 sm:pt-0">
-                      {item.meetingLink && (
-                        <a
-                          href={item.meetingLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-500/15 px-3.5 text-xs font-bold text-emerald-800 hover:bg-emerald-500/25 transition-[background-color,transform] active:scale-95"
-                        >
-                          <PhoneCall size={13} className="shrink-0" />
-                          <span>Join Call</span>
-                        </a>
-                      )}
-                      <AddToCalendarMenu
-                        event={{
-                          title: `Catch Up: ${item.requesterName}`,
-                          description: item.notes || `AirPal with ${item.requesterName}`,
-                          startsAt: `${item.date || today}T${item.time || "12:00"}:00`,
-                          venue: item.venue,
-                        }}
-                        size="sm"
-                        variant="ghost"
-                        label="Calendar"
-                        buttonClassName="neu-btn min-h-[44px] px-3.5 text-xs font-bold"
-                      />
-                    </div>
-                  </div>
-                ))}
+                      <p className="text-xs text-mute truncate mt-0.5">
+                        {item.date || "Upcoming"} {item.time ? `@ ${item.time}` : ""}{" "}
+                        {item.venue ? `· ${item.venue}` : ""}
+                      </p>
+                    </MeRow>
+                  );
+                })}
               </div>
             ) : pendingAppointments.length === 0 && myReminders.length === 0 && !agendaLoading ? (
               <div className="neu-inset p-6 text-center">
@@ -1494,13 +1647,23 @@ export function MePage({ defaultTab }: MePageProps = {}) {
               title="AirPal Pass · Digital Wallet"
               sub={`My Tickets & Event Passes (${upcomingTickets.length})`}
               right={
-                <Link
-                  href="/me/tickets"
-                  className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap px-4 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
-                >
-                  <span>Full Wallet</span>
-                  <ChevronRight size={14} />
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/scan"
+                    className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap px-3.5 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+                    title="Scan Door QR"
+                  >
+                    <QrCode size={14} className="text-accent" />
+                    <span className="hidden sm:inline">Scan</span>
+                  </Link>
+                  <Link
+                    href="/me/tickets"
+                    className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 whitespace-nowrap px-4 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+                  >
+                    <span>Full Wallet</span>
+                    <ChevronRight size={14} />
+                  </Link>
+                </div>
               }
             />
 
@@ -1818,11 +1981,25 @@ export function MePage({ defaultTab }: MePageProps = {}) {
                   <span>Memories</span>
                 </Link>
                 <Link
+                  href="/friends"
+                  className="neu-chip flex min-h-[44px] items-center gap-2.5 p-3 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+                >
+                  <Users size={15} className="text-sky-600" />
+                  <span>Friends</span>
+                </Link>
+                <Link
                   href="/rewards"
                   className="neu-chip flex min-h-[44px] items-center gap-2.5 p-3 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
                 >
                   <Sparkles size={15} className="text-amber-600" />
                   <span>Rewards</span>
+                </Link>
+                <Link
+                  href="/scan"
+                  className="neu-chip flex min-h-[44px] items-center gap-2.5 p-3 text-xs font-bold text-ink transition-[box-shadow,transform] active:scale-95"
+                >
+                  <QrCode size={15} className="text-accent" />
+                  <span>Scan Pass</span>
                 </Link>
                 <Link
                   href="/settings"

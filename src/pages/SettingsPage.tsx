@@ -10,15 +10,18 @@ import {
   Calendar,
   Check,
   ChevronRight,
+  Copy,
   Download,
   ExternalLink,
   Gift,
   KeyRound,
   LogOut,
+  Mail,
   MapPin,
   Monitor,
   Moon,
   Palette,
+  QrCode,
   Scale,
   ShieldCheck,
   Sparkles,
@@ -27,6 +30,7 @@ import {
   Trash2,
   UserCheck,
   UserRound,
+  Users,
   Briefcase,
 } from "lucide-react";
 import { authErrorMessage } from "@shared/auth-email";
@@ -70,6 +74,7 @@ export function SettingsPage() {
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [showDeleteZone, setShowDeleteZone] = useState(false);
+  const [copiedBio, setCopiedBio] = useState(false);
   const [alertsEnabled, setAlertsEnabled] = useState(true);
   const [alertsRegion, setAlertsRegion] = useState<BirthdayRegionCode>("au");
   const [birthdayMonth, setBirthdayMonth] = useState<number | null>(user?.birthdayMonth ?? null);
@@ -179,9 +184,9 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-xl px-4 sm:px-6 pb-[max(7.5rem,calc(env(safe-area-inset-bottom,0px)+6.5rem))] pt-4">
+    <div className="mx-auto max-w-2xl px-4 sm:px-6 pb-[max(7.5rem,calc(env(safe-area-inset-bottom,0px)+6.5rem))] pt-4">
       {/* Top Bar Navigation */}
-      <div className="flex items-center justify-between gap-3 mb-6">
+      <div className="flex items-center justify-between gap-3 mb-4">
         <button
           type="button"
           onClick={() => {
@@ -192,7 +197,7 @@ export function SettingsPage() {
               nav("/me");
             }
           }}
-          className="inline-flex h-10 w-10 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-card ring-1 ring-line text-ink transition hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
+          className="inline-flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-card ring-1 ring-line text-ink transition hover:bg-paper active:scale-95 cursor-pointer touch-manipulation"
           aria-label="Go back"
         >
           <ArrowLeft size={18} />
@@ -200,138 +205,229 @@ export function SettingsPage() {
 
         <div className="text-center min-w-0">
           <p className="text-[11px] font-bold uppercase tracking-wider text-mute">AirPal Account</p>
-          <h1 className="font-display text-lg sm:text-xl font-bold text-ink truncate">Settings & Preferences</h1>
+          <h1 className="font-display text-lg sm:text-xl font-bold text-ink truncate">Settings &amp; Preferences</h1>
         </div>
 
-        <div className="h-10 w-10 shrink-0" aria-hidden="true" />
+        <Link
+          href="/me"
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-bold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95 shrink-0"
+          title="My Hub"
+        >
+          <UserRound size={14} className="text-accent" />
+          <span className="hidden sm:inline">My Hub</span>
+        </Link>
       </div>
+
+      {/* Quick Section Jump Bar */}
+      <nav
+        aria-label="Settings sections"
+        className="sticky top-[max(0.5rem,env(safe-area-inset-top,0px))] z-20 mb-6 flex items-center gap-1.5 overflow-x-auto rounded-full bg-card/90 p-1.5 ring-1 ring-line backdrop-blur-md no-scrollbar shadow-2xs"
+      >
+        {[
+          { id: "settings-account", label: "Account" },
+          { id: "settings-appearance", label: "Display" },
+          { id: "settings-alerts", label: "Alerts" },
+          { id: "settings-location", label: "Location" },
+          { id: "settings-privacy", label: "Privacy" },
+          { id: "settings-workspaces", label: "Studios" },
+          ...(user ? [{ id: "settings-security", label: "Security" }] : []),
+          { id: "settings-legal", label: "Legal & Help" },
+        ].map((sec) => (
+          <button
+            key={sec.id}
+            type="button"
+            onClick={() => {
+              void triggerHaptic("light");
+              document.getElementById(sec.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            className="inline-flex min-h-[36px] shrink-0 items-center rounded-full px-3 text-xs font-semibold text-mute hover:bg-paper hover:text-ink active:scale-95 transition cursor-pointer"
+          >
+            {sec.label}
+          </button>
+        ))}
+      </nav>
 
       {/* Account Overview Header. While auth restores, hold a loader: a bare
           `!user` flash shows the signed-out card even though cached bios list
           the account (intermittent finding). */}
-      {!authReady ? (
-        <PageLoading />
-      ) : user ? (
-        <div className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
-          <div className="flex items-center gap-4">
-            <MeAvatar faceClassName="h-16 w-16 text-xl ring-2 ring-brand/40 shadow-sm" />
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-display text-lg sm:text-xl font-bold text-ink truncate">
-                  {mine?.name || user.displayName || "AirPal Member"}
-                </h2>
-                {user.emailVerified && (
-                  <span
-                    className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20"
-                    title="Verified Account"
-                  >
-                    <UserCheck size={11} /> Verified
-                  </span>
+      <div id="settings-account" className="scroll-mt-20">
+        {!authReady ? (
+          <PageLoading />
+        ) : user ? (
+          <div className="rounded-3xl bg-card p-5 sm:p-6 ring-1 ring-line shadow-clay">
+            <div className="flex items-center gap-4">
+              <MeAvatar faceClassName="h-16 w-16 text-xl ring-2 ring-brand/40 shadow-sm" />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="font-display text-lg sm:text-xl font-bold text-ink truncate">
+                    {mine?.name || user.displayName || "AirPal Member"}
+                  </h2>
+                  {user.emailVerified && (
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20"
+                      title="Verified Account"
+                    >
+                      <UserCheck size={11} /> Verified
+                    </span>
+                  )}
+                </div>
+                <p className="truncate text-xs sm:text-sm text-mute mt-0.5">
+                  {user.email || user.phone || "Signed In"}
+                </p>
+                {mine?.handle ? (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Link
+                      href={bioPath(mine.handle)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline"
+                    >
+                      <span>airpal.me/@{mine.handle}</span>
+                      <ExternalLink size={12} />
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void triggerHaptic("light");
+                        const url = `${window.location.origin}/@${mine.handle}`;
+                        void navigator.clipboard?.writeText(url).then(() => {
+                          setCopiedBio(true);
+                          toast.success("Bio link copied");
+                          setTimeout(() => setCopiedBio(false), 2000);
+                        });
+                      }}
+                      className="inline-flex items-center gap-1 rounded-full bg-paper px-2.5 py-0.5 text-[11px] font-semibold text-mute ring-1 ring-line hover:text-ink cursor-pointer"
+                    >
+                      {copiedBio ? <Check size={11} className="text-emerald-600" /> : <Copy size={11} />}
+                      <span>{copiedBio ? "Copied" : "Copy link"}</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mt-2">
+                    <Link
+                      href="/bio/setup"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:underline"
+                    >
+                      <Sparkles size={12} />
+                      <span>Claim your public @handle</span>
+                    </Link>
+                  </div>
                 )}
               </div>
-              <p className="truncate text-xs sm:text-sm text-mute mt-0.5">{user.email || user.phone || "Signed In"}</p>
-              {mine?.handle && (
-                <div className="mt-2 flex items-center gap-2">
-                  <Link
-                    href={bioPath(mine.handle)}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline"
-                  >
-                    <span>airpal.me/@{mine.handle}</span>
-                    <ExternalLink size={12} />
-                  </Link>
-                </div>
-              )}
+            </div>
+
+            {/* Quick Action Navigation Pills */}
+            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-line/70 pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav("/me");
+                }}
+                className="flex min-h-[48px] flex-col items-center justify-center rounded-2xl bg-paper px-2 py-2 text-center text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+              >
+                <Sparkles size={15} className="text-accent mb-1" />
+                <span>My Hub</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav(mine ? "/bio/edit" : "/bio/setup");
+                }}
+                className="flex min-h-[48px] flex-col items-center justify-center rounded-2xl bg-paper px-2 py-2 text-center text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+              >
+                <UserRound size={15} className="text-accent mb-1" />
+                <span>{mine ? "Edit Bio" : "Setup Bio"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav("/me/inbox");
+                }}
+                className="flex min-h-[48px] flex-col items-center justify-center rounded-2xl bg-paper px-2 py-2 text-center text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+              >
+                <Bell size={15} className="text-accent mb-1" />
+                <span>Inbox</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  void triggerHaptic("light");
+                  nav("/me/tickets");
+                }}
+                className="flex min-h-[48px] flex-col items-center justify-center rounded-2xl bg-paper px-2 py-2 text-center text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
+              >
+                <Ticket size={15} className="text-accent mb-1" />
+                <span>Wallet</span>
+              </button>
+            </div>
+
+            {user.email && user.emailVerified === false && (
+              <div className="mt-4">
+                <VerifyEmailBanner email={user.email} onSend={sendVerificationEmail} />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="rounded-3xl bg-card p-6 text-center ring-1 ring-line shadow-clay">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+              <UserRound size={26} />
+            </div>
+            <h2 className="font-display mt-3 text-lg font-bold text-ink">Sign in to AirPal</h2>
+            <p className="mt-1 text-xs sm:text-sm text-mute max-w-sm mx-auto leading-relaxed">
+              Connect your universal account to sync personal tickets, Apple &amp; Google Wallet passes, and manage your
+              digital bio.
+            </p>
+            <div className="mt-5 flex items-center justify-center gap-3">
+              <Button onClick={() => nav("/start")} className="min-w-[120px] rounded-full">
+                Join AirPal
+              </Button>
+              <Button variant="ghost" onClick={() => nav("/start?tab=signin")} className="min-w-[120px] rounded-full">
+                Sign In
+              </Button>
             </div>
           </div>
+        )}
 
-          {/* Quick Action Navigation Pills */}
-          <div className="mt-5 grid grid-cols-3 gap-2 border-t border-line/70 pt-4">
-            <button
-              type="button"
-              onClick={() => {
-                void triggerHaptic("light");
-                nav("/bio/edit");
-              }}
-              className="flex min-h-[44px] flex-col items-center justify-center rounded-2xl bg-paper px-2 py-2 text-center text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
-            >
-              <UserRound size={15} className="text-accent mb-1" />
-              <span>Edit Bio</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                void triggerHaptic("light");
-                nav("/me/tickets");
-              }}
-              className="flex min-h-[44px] flex-col items-center justify-center rounded-2xl bg-paper px-2 py-2 text-center text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
-            >
-              <Ticket size={15} className="text-accent mb-1" />
-              <span>Tickets</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                void triggerHaptic("light");
-                nav("/pass");
-              }}
-              className="flex min-h-[44px] flex-col items-center justify-center rounded-2xl bg-paper px-2 py-2 text-center text-xs font-semibold text-ink ring-1 ring-line hover:bg-card transition active:scale-95 cursor-pointer"
-            >
-              <Sparkles size={15} className="text-accent mb-1" />
-              <span>Passbook</span>
-            </button>
-          </div>
-
-          {user.email && user.emailVerified === false && (
-            <div className="mt-4">
-              <VerifyEmailBanner email={user.email} onSend={sendVerificationEmail} />
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="rounded-3xl bg-card p-6 text-center ring-1 ring-line shadow-clay">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-            <UserRound size={26} />
-          </div>
-          <h2 className="font-display mt-3 text-lg font-bold text-ink">Sign in to AirPal</h2>
-          <p className="mt-1 text-xs sm:text-sm text-mute max-w-sm mx-auto leading-relaxed">
-            Connect your universal account to sync personal tickets, Apple &amp; Google Wallet passes, and manage your
-            digital bio.
-          </p>
-          <div className="mt-5 flex items-center justify-center gap-3">
-            <Button onClick={() => nav("/start")} className="min-w-[120px] rounded-full">
-              Join AirPal
-            </Button>
-            <Button variant="ghost" onClick={() => nav("/start?tab=signin")} className="min-w-[120px] rounded-full">
-              Sign In
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Profile Details Edit Group (When signed in) */}
-      {user && (
-        <div className="mt-6 space-y-4">
-          <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
-            <p className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Display Name</p>
-            <ChangeDisplayNameForm currentName={mine?.name || user.displayName} />
-          </div>
-
-          {mine && (
+        {/* Profile Details Edit Group (When signed in) */}
+        {user && (
+          <div className="mt-4 space-y-4">
             <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
-              <p className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Public @handle</p>
-              <ChangeHandleForm current={mine.handle} profileId={mine.id} />
+              <ChangeDisplayNameForm currentName={mine?.name || user.displayName} />
             </div>
-          )}
 
-          <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
-            <p className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Linked Email & Mobile</p>
-            <AccountContacts />
+            {mine ? (
+              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+                <ChangeHandleForm current={mine.handle} profileId={mine.id} />
+              </div>
+            ) : (
+              <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-accent">Public @handle</p>
+                  <p className="text-xs sm:text-sm text-mute mt-1 leading-relaxed">
+                    Claim your personal @handle to unlock your digital bio, QR pass, and Wallet card.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => nav("/bio/setup")}
+                  className="min-h-[44px] shrink-0 rounded-full px-5 text-xs font-bold"
+                >
+                  Claim @handle
+                </Button>
+              </div>
+            )}
+
+            <div className="rounded-3xl bg-card p-5 ring-1 ring-line shadow-xs">
+              <p className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Linked Email &amp; Mobile</p>
+              <AccountContacts compact />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Appearance & Themes */}
-      <section className="mt-8">
+      <section id="settings-appearance" className="mt-8 scroll-mt-20">
         <div className="flex items-center gap-2 mb-1">
           <Palette size={16} className="text-accent" />
           <h2 className="font-display text-base sm:text-lg font-bold text-ink">Appearance</h2>
@@ -369,10 +465,10 @@ export function SettingsPage() {
       </section>
 
       {/* Notifications & Alerts */}
-      <section className="mt-8">
+      <section id="settings-alerts" className="mt-8 scroll-mt-20">
         <div className="flex items-center gap-2 mb-1">
           <Bell size={16} className="text-accent" />
-          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Notifications & Alerts</h2>
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Notifications &amp; Alerts</h2>
         </div>
         <p className="text-xs text-mute mb-3">Control push notifications, event drops, and local perks.</p>
 
@@ -407,7 +503,7 @@ export function SettingsPage() {
           {/* Event Drops & Dining Perks Row */}
           <div className="flex min-h-[56px] items-center justify-between p-4 sm:p-5">
             <div className="min-w-0 pr-3">
-              <span className="block text-sm font-semibold text-ink">Event Drops & Dining Deals</span>
+              <span className="block text-sm font-semibold text-ink">Event Drops &amp; Dining Deals</span>
               <span className="block text-xs text-mute mt-0.5">
                 Alerts when nearby partner venues post limited perks
               </span>
@@ -431,6 +527,36 @@ export function SettingsPage() {
               />
             </button>
           </div>
+
+          {/* In-App Notifications Inbox Link */}
+          {user && (
+            <Link
+              href="/me/inbox"
+              className="flex min-h-[56px] items-center justify-between p-4 sm:p-5 hover:bg-paper transition cursor-pointer"
+            >
+              <div className="min-w-0 pr-3">
+                <span className="block text-sm font-semibold text-ink">In-App Notifications Inbox</span>
+                <span className="block text-xs text-mute mt-0.5">
+                  Review catch-up updates, ticket passes, and system alerts
+                </span>
+              </div>
+              <ChevronRight size={18} className="text-mute shrink-0" />
+            </Link>
+          )}
+
+          {/* Email Guestlist & Unsubscribe Link */}
+          <Link
+            href={user?.email ? `/unsubscribe?email=${encodeURIComponent(user.email)}` : "/unsubscribe"}
+            className="flex min-h-[56px] items-center justify-between p-4 sm:p-5 hover:bg-paper transition cursor-pointer"
+          >
+            <div className="min-w-0 pr-3">
+              <span className="block text-sm font-semibold text-ink">Email Guestlist &amp; Invites</span>
+              <span className="block text-xs text-mute mt-0.5">
+                Manage or opt out of event invite emails in one click
+              </span>
+            </div>
+            <ChevronRight size={18} className="text-mute shrink-0" />
+          </Link>
 
           {/* Birthday Freebies Alert Section (When signed in) */}
           {user && (
@@ -547,10 +673,10 @@ export function SettingsPage() {
       </section>
 
       {/* Location & Precinct Preferences */}
-      <section className="mt-8">
+      <section id="settings-location" className="mt-8 scroll-mt-20">
         <div className="flex items-center gap-2 mb-1">
           <MapPin size={16} className="text-accent" />
-          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Location & Precinct</h2>
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Location &amp; Precinct</h2>
         </div>
         <p className="text-xs text-mute mb-3">Configure your anchor city for local recommendations.</p>
 
@@ -629,10 +755,10 @@ export function SettingsPage() {
       </section>
 
       {/* Privacy & Trust Controls */}
-      <section className="mt-8">
+      <section id="settings-privacy" className="mt-8 scroll-mt-20">
         <div className="flex items-center gap-2 mb-1">
           <ShieldCheck size={16} className="text-accent" />
-          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Privacy & Visibility</h2>
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Privacy &amp; Visibility</h2>
         </div>
         <p className="text-xs text-mute mb-3">Control your discoverability across search and Circle.</p>
 
@@ -774,48 +900,105 @@ export function SettingsPage() {
       </section>
 
       {/* Workspaces & Studios */}
-      <section className="mt-8">
+      <section id="settings-workspaces" className="mt-8 scroll-mt-20">
         <div className="flex items-center gap-2 mb-1">
           <Briefcase size={16} className="text-accent" />
-          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Workspaces & Studios</h2>
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Workspaces &amp; Studios</h2>
         </div>
         <p className="text-xs text-mute mb-3">Jump into your creator, merchant, and organizer dashboards.</p>
 
         <div className="divide-y divide-line/70 rounded-3xl bg-card ring-1 ring-line shadow-xs overflow-hidden">
           <button
             type="button"
-            className="flex min-h-[56px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
+            className="flex min-h-[60px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
             onClick={() => nav("/me")}
           >
-            <div>
-              <span className="block text-xs font-semibold text-mute">Personal Life &amp; Identity</span>
-              <span className="font-bold text-sm text-ink">{mine ? `@${mine.handle}` : "Digital Bio Dashboard"}</span>
+            <div className="flex items-center gap-3.5 min-w-0">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent">
+                <UserRound size={18} />
+              </span>
+              <div className="min-w-0">
+                <span className="block text-xs font-semibold text-mute">Personal Life &amp; Identity</span>
+                <span className="font-bold text-sm text-ink truncate block">
+                  {mine ? `@${mine.handle}` : "Digital Bio Dashboard"}
+                </span>
+              </div>
             </div>
             <ChevronRight size={18} className="text-mute shrink-0" />
           </button>
 
           <button
             type="button"
-            className="flex min-h-[56px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
+            className="flex min-h-[60px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
+            onClick={() => nav("/circle")}
+          >
+            <div className="flex items-center gap-3.5 min-w-0">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-sky-500/10 text-sky-600">
+                <Users size={18} />
+              </span>
+              <div className="min-w-0">
+                <span className="block text-xs font-semibold text-mute">Friends &amp; Networking Circle</span>
+                <span className="font-bold text-sm text-ink truncate block">
+                  Live check-in, mutuals &amp; 1-on-1 catch-ups
+                </span>
+              </div>
+            </div>
+            <ChevronRight size={18} className="text-mute shrink-0" />
+          </button>
+
+          <button
+            type="button"
+            className="flex min-h-[60px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
             onClick={() => nav(partnerAccountPath({ signedIn: Boolean(user), hasPlace: Boolean(business) }))}
           >
-            <div>
-              <span className="block text-xs font-semibold text-mute">{NAMES.partnerAccount}</span>
-              <span className="font-bold text-sm text-ink">
-                {business ? `@${business.handle}` : "Local venue, dining perks & counter QR"}
+            <div className="flex items-center gap-3.5 min-w-0">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-amber-500/10 text-amber-600">
+                <Briefcase size={18} />
               </span>
+              <div className="min-w-0">
+                <span className="block text-xs font-semibold text-mute">{NAMES.partnerAccount}</span>
+                <span className="font-bold text-sm text-ink truncate block">
+                  {business ? `@${business.handle}` : "Local venue, dining perks & counter QR"}
+                </span>
+              </div>
             </div>
             <ChevronRight size={18} className="text-mute shrink-0" />
           </button>
 
           <button
             type="button"
-            className="flex min-h-[56px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
+            className="flex min-h-[60px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
             onClick={() => nav("/event")}
           >
-            <div>
-              <span className="block text-xs font-semibold text-mute">Event Organiser Studio</span>
-              <span className="font-bold text-sm text-ink">Concert, festival & door scanner hub</span>
+            <div className="flex items-center gap-3.5 min-w-0">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600">
+                <Ticket size={18} />
+              </span>
+              <div className="min-w-0">
+                <span className="block text-xs font-semibold text-mute">Event Organiser Studio</span>
+                <span className="font-bold text-sm text-ink truncate block">
+                  Concert, festival &amp; guestlist console
+                </span>
+              </div>
+            </div>
+            <ChevronRight size={18} className="text-mute shrink-0" />
+          </button>
+
+          <button
+            type="button"
+            className="flex min-h-[60px] w-full cursor-pointer items-center justify-between p-4 sm:p-5 text-left transition hover:bg-paper active:scale-[0.99]"
+            onClick={() => nav("/scan")}
+          >
+            <div className="flex items-center gap-3.5 min-w-0">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent">
+                <QrCode size={18} />
+              </span>
+              <div className="min-w-0">
+                <span className="block text-xs font-semibold text-mute">Door Check-In &amp; QR Scanner</span>
+                <span className="font-bold text-sm text-ink truncate block">
+                  Verify passes, tickets &amp; member vouchers
+                </span>
+              </div>
             </div>
             <ChevronRight size={18} className="text-mute shrink-0" />
           </button>
@@ -824,10 +1007,10 @@ export function SettingsPage() {
 
       {/* Security & Authentication */}
       {user && (
-        <section className="mt-8">
+        <section id="settings-security" className="mt-8 scroll-mt-20">
           <div className="flex items-center gap-2 mb-1">
             <KeyRound size={16} className="text-accent" />
-            <h2 className="font-display text-base sm:text-lg font-bold text-ink">Security & Biometrics</h2>
+            <h2 className="font-display text-base sm:text-lg font-bold text-ink">Security &amp; Biometrics</h2>
           </div>
           <p className="text-xs text-mute mb-3">Manage Face ID, Touch ID, and password credentials.</p>
 
@@ -837,7 +1020,7 @@ export function SettingsPage() {
             {user.email && (
               <button
                 type="button"
-                className="flex min-h-[52px] w-full cursor-pointer items-center justify-between rounded-3xl bg-card p-4 sm:p-5 text-left ring-1 ring-line hover:bg-paper active:scale-[0.99] transition disabled:opacity-50"
+                className="flex min-h-[56px] w-full cursor-pointer items-center justify-between rounded-3xl bg-card p-4 sm:p-5 text-left ring-1 ring-line hover:bg-paper active:scale-[0.99] transition disabled:opacity-50"
                 disabled={resetBusy}
                 onClick={() => {
                   if (!user.email) {
@@ -851,11 +1034,20 @@ export function SettingsPage() {
                     .finally(() => setResetBusy(false));
                 }}
               >
-                <div>
-                  <span className="block text-sm font-semibold text-ink">Password Reset</span>
-                  <span className="block text-xs text-mute mt-0.5">Send a secure reset link to {user.email}</span>
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand/10 text-accent">
+                    <Mail size={18} />
+                  </span>
+                  <div className="min-w-0">
+                    <span className="block text-sm font-semibold text-ink">Password Reset</span>
+                    <span className="block text-xs text-mute mt-0.5 truncate">
+                      Send a secure reset link to {user.email}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-accent">{resetBusy ? "Sending…" : "Send Link"}</span>
+                <span className="rounded-full bg-paper px-3.5 py-1.5 text-xs font-bold text-accent ring-1 ring-line shrink-0">
+                  {resetBusy ? "Sending…" : "Send Link"}
+                </span>
               </button>
             )}
           </div>
@@ -863,27 +1055,34 @@ export function SettingsPage() {
       )}
 
       {/* Legal & Trust Links */}
-      <section className="mt-8">
+      <section id="settings-legal" className="mt-8 scroll-mt-20">
         <div className="flex items-center gap-2 mb-1">
           <Scale size={16} className="text-accent" />
-          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Legal & Privacy Rails</h2>
+          <h2 className="font-display text-base sm:text-lg font-bold text-ink">Legal, Trust &amp; Support</h2>
         </div>
-        <p className="text-xs text-mute mb-3">Our commitment to zero tracker bloat, privacy, and user rights.</p>
-        <div className="flex flex-wrap gap-2">
+        <p className="text-xs text-mute mb-3">Our commitment to zero tracker bloat, privacy, and human support.</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           {[
-            { href: "/privacy", label: "Privacy Policy" },
-            { href: "/terms", label: "Terms of Service" },
-            { href: "/cookies", label: "Cookie Policy" },
-            { href: "/trust", label: "Trust & Safety" },
-            { href: "/help", label: "Help Center" },
-            { href: "/contact", label: "Contact Us" },
+            { href: "/help", label: "Help Center", sub: "Guides & FAQs" },
+            { href: "/contact", label: "Contact Us", sub: "Human support" },
+            { href: "/trust", label: "Trust & Safety", sub: "Company facts" },
+            { href: "/bio/recover", label: "Handle Recovery", sub: "Reclaim @handle" },
+            { href: "/privacy", label: "Privacy Policy", sub: "GDPR & data" },
+            { href: "/terms", label: "Terms of Service", sub: "Platform rules" },
+            { href: "/cookies", label: "Cookie Policy", sub: "Zero ad pixels" },
+            {
+              href: user?.email ? `/unsubscribe?email=${encodeURIComponent(user.email)}` : "/unsubscribe",
+              label: "Email Opt-Out",
+              sub: "Leave guestlist",
+            },
           ].map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="inline-flex min-h-[44px] items-center rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card active:scale-95 transition"
+              className="flex min-h-[60px] flex-col justify-center rounded-2xl bg-card px-3.5 py-2.5 ring-1 ring-line hover:bg-paper active:scale-95 transition shadow-2xs"
             >
-              {l.label}
+              <span className="text-xs font-bold text-ink truncate">{l.label}</span>
+              <span className="text-[11px] text-mute truncate mt-0.5">{l.sub}</span>
             </Link>
           ))}
         </div>

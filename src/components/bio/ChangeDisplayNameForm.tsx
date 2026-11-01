@@ -65,43 +65,46 @@ export function ChangeDisplayNameForm({ currentName, compact }: { currentName?: 
   }
 
   return (
-    <form onSubmit={(e) => void onSubmit(e)} className={compact ? "space-y-2" : "space-y-3"}>
+    <form onSubmit={(e) => void onSubmit(e)} className={compact ? "space-y-2.5" : "space-y-3"}>
       {!compact && (
-        <>
+        <div>
           <p className="text-xs font-bold uppercase tracking-wider text-accent">Display Name</p>
-          <p className="text-sm text-mute">
-            Current: <span className="font-semibold text-ink">{activeName || "Not set"}</span>. This is the name shown
-            on your profile card, tickets, and messages.
+          <p className="text-xs sm:text-sm text-mute mt-1 leading-relaxed">
+            Current: <span className="font-semibold text-ink">{activeName || "Not set"}</span>. Shown on your profile
+            card, tickets, and catch-up requests.
           </p>
-        </>
+        </div>
       )}
-      <div className="neu-inset flex items-center overflow-hidden focus-within:ring-2 focus-within:ring-ink">
-        <input
-          value={next}
-          onChange={(e) => {
-            setNext(e.target.value);
-            setTouched(true);
-          }}
-          onBlur={() => setTouched(true)}
-          placeholder={activeName || "Your Full Name"}
-          autoComplete="name"
-          maxLength={60}
-          className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none"
-        />
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="neu-inset flex flex-1 items-center rounded-2xl bg-paper px-3 ring-1 ring-line focus-within:ring-2 focus-within:ring-brand">
+          <input
+            value={next}
+            onChange={(e) => {
+              setNext(e.target.value);
+              setTouched(true);
+            }}
+            onBlur={() => setTouched(true)}
+            placeholder={activeName || "Your Full Name"}
+            autoComplete="name"
+            maxLength={60}
+            aria-label="Display Name"
+            className="h-11 min-h-[44px] min-w-0 flex-1 bg-transparent text-sm font-medium text-ink outline-none"
+          />
+        </div>
+        <Button
+          type="submit"
+          variant={compact ? "ghost" : "primary"}
+          className="min-h-[44px] shrink-0 rounded-2xl px-5 text-xs font-bold sm:w-auto w-full"
+          disabled={busy || !next.trim() || next.trim() === activeName}
+        >
+          {busy ? "Saving…" : "Update Name"}
+        </Button>
       </div>
       {touched && !next.trim() && (
         <p role="alert" className="text-xs font-semibold text-rose-600 dark:text-rose-400">
           Please enter a display name
         </p>
       )}
-      <Button
-        type="submit"
-        variant={compact ? "ghost" : "primary"}
-        className="w-full border border-line"
-        disabled={busy || !next.trim() || next.trim() === activeName}
-      >
-        {busy ? "Saving…" : "Update Name"}
-      </Button>
     </form>
   );
 }
