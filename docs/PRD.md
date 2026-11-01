@@ -245,11 +245,12 @@ concurrent last-seat race proving no double-sell.
 User value: curated venue discovery and organiser communities with follow-to-join loops.
 No empty discovery silos.
 
-| Surface        | Requirements                                            |
-| -------------- | ------------------------------------------------------- |
-| `/places`      | Verified venue directory with live operating hours      |
-| `/communities` | Organiser and creator circles with follow-to-join loops |
-| `/claim`       | Venue claim flow plus Google Place import               |
+| Surface        | Requirements                                                                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`            | Home companion: outfit tip, quick-action strip, `<HereCheckIn />`, next pass QR, live places, deals, and communities spotlights (real data only) |
+| `/places`      | Verified venue directory with live operating hours; category chips with live counts; `/business` listing entry point                             |
+| `/communities` | Organiser and creator circles with follow-to-join loops; `All Organisers` / `Joined` filters; tappable next-up event card                       |
+| `/claim`       | Venue claim flow plus Google Place import                                                                                                         |
 
 Legacy redirects: `/now`, `/explore`, `/guide`, `/p/:id` redirect directly to Home (`/`).
 This eliminates empty discovery silos. The SEO gate enforces sitemap, prerender, and
@@ -401,6 +402,10 @@ Full CRUD checklist:
 - Follow members, connect with mutuals, like profiles.
 - Real-time mutual connection status updates.
 - Unfollow or unlike with two-way graph deletion.
+- Search plus relationship filters (`all`, `mutual`, `incoming`, `met`).
+- Embedded `<HereCheckIn />`; header actions for Log Met IRL (`upsertPerson`), My QR
+  (`BioShareModal`), and Memories (`/me/memories`).
+- One-tap "Catch up" per friend opens `BioCatchUpModal`.
 
 ### 9.3 Networking Circle (`/circle`) and live presence
 
@@ -420,8 +425,41 @@ Full CRUD checklist:
 ### 9.4 Me dashboard and inbox (`/me`, `/me/inbox`)
 
 - `/me`: central user dashboard. Attending (from bookings) plus hosting (from studio) in
-  one place.
+  one place. Five tabs:
+  - Today (default): agenda for today (catch-ups, my plans, passes), weather and outfit
+    tip, Add plan, Calendar and Check-in shortcuts, reschedule, two-tap cancel or
+    decline. Empty days show next-step cards (Meet people, Events and deals, Places).
+  - Overview (`all`): hero identity card (avatar upload, `@handle` copy, Bio, Share Pass,
+    My Circle, Edit Bio), stat strip that jumps to tabs, Today at a glance, Coming up,
+    Your Pass, Hosting or Go out tonight, and a personal-life strip (Memory Wall, Friends
+    Hub, Member Perks, Stars and Rewards).
+  - Catch-ups: pending requests, saved reminders, upcoming catch-ups with Join call,
+    Calendar, and two-tap cancel.
+  - Tickets: wallet grid with Open Pass plus Apple and Google Wallet buttons; Scan and
+    Full Wallet links.
+  - Pass: Bio and QR Pass showcase, `DigitalBioPassCard`, BioSite preview.
+- A compact identity bar (avatar, `@handle` copy, Pass QR, Circle, Inbox, Settings) shows
+  on every tab except Overview, which has the full hero card.
+- The pending catch-up banner shows on Today, Overview, and Catch-ups.
 - `/me/inbox`: unified notification and updates inbox (see section 10).
+
+### 9.5 Settings and support (`/settings` and linked pages)
+
+- `/settings` sections, reachable from a sticky jump bar: Account, Display, Alerts,
+  Location, Privacy, Studios, Security (signed in), Legal and Help.
+- Account: copy bio link (or claim-handle CTA), quick tiles (My Hub, Edit Bio, Inbox,
+  Wallet), display name, `@handle` change with live availability, linked email and mobile
+  with inline two-tap remove.
+- Alerts: push permission, event drops, birthday-month perks (saved server-side), inbox
+  link, guestlist opt-out link (`/unsubscribe?email=…`).
+- Studios: Me, Circle, Business Hub, Event Studio, Door Scanner.
+- Legal and support grid: Help, Contact, Trust, Handle Recovery, Privacy, Terms, Cookies,
+  Email opt-out.
+- Linked pages (`/help`, `/contact`, `/trust`, `/bio/recover`, `/unsubscribe`, and the
+  `LegalDoc` pages `/privacy`, `/terms`, `/cookies`) each carry a Settings back link.
+  `/contact` prefills name and email for signed-in users.
+- Known limit: the search-indexing, Circle-presence, and event-drops toggles are
+  device-local preferences only (see R8 in section 22).
 
 Acceptance: claim handle, share bio, QR scan, vCard import; check in, appears on radar
 (but 1-1 share stays private); ping, hangout; unfollow removes both graph edges.
@@ -575,6 +613,11 @@ between velocity and this section resolves in favour of this section.
    - Sheet traps Tab focus, focuses on open, restores focus on close.
    - Input font sizes 16px or more to prevent iOS Safari auto-zooming.
    - Clean keyboard listeners without double-padding.
+6. Destructive actions: prefer an inline two-tap confirm over `window.confirm()`. Account
+   deletion also requires typing `DELETE`.
+7. Source-level style guards: `MePage.test.ts` fails the build on legacy ring, border,
+   divide, `shadow-clay`, `purple-`, `transition-all`, or bare `transition` classes in
+   `MePage.tsx`. Use the neumorphic classes and explicit `transition-[…]` lists there.
 
 ---
 
@@ -843,6 +886,7 @@ never hand-edits. Keep the dated operations runbook and changelog current.
 | R5  | Secret leak via `.env` or signing material | Controlled | Secrets scanner gate; signing material off-repo, ignored by pattern      |
 | R6  | Clean-slate API cutover divergence         | Watch      | Contract gate; stays local candidate until green                         |
 | R7  | Store review or wallet cert expiry         | Watch      | Production-readiness gate covers listings, icons, native files           |
+| R8  | Settings privacy toggles are device-local  | Open       | Indexing, presence, and deals toggles only write `localStorage`; wire to server or relabel |
 
 Decisions (locked): single universal account; server-only money; event-level inventory;
 verified-only redemptions; default-deny rules; dual-lens single-bundle shells.

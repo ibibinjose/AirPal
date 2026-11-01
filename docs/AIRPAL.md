@@ -67,8 +67,9 @@ Under no circumstances should a second user database, partition, or duplicate au
 
 - Curated venue discovery and organiser communities with follow-to-join loops.
 - **Routes:**
-  - `/places` — Verified venue directory with live operating hours.
-  - `/communities` — Organiser and creator circles.
+  - `/` — Home companion: weather-aware outfit tip (`getDailyOutfitRecommendation()`), quick-action strip (`/pass`, `/me/tickets`, `/calendar`, `/@handle`, `/scan`, `/me/memories`), embedded `<HereCheckIn />`, next upcoming pass QR, and live spotlights for places, deals, and organiser communities. Spotlights read real data only and re-render on `useListings().version`.
+  - `/places` — Verified venue directory with live operating hours, category chips (`all`, `eat`, `coffee`, `deals`, `things`, `shops`, `stay`) with live counts, and a `/business` listing entry point.
+  - `/communities` — Organiser and creator circles: `All Organisers` / `Joined` filters, organiser links to `/@handle`, a tappable "Next up" event card (`/e/:id`), and `/events?q=<organiser>` deep links.
   - _Legacy redirects:_ `/now`, `/explore`, `/guide`, `/p/:id` redirect directly to Home (`/`) to eliminate empty discovery silos.
 
 ### 3. Personal Calendar & Catch-Ups
@@ -98,10 +99,19 @@ Under no circumstances should a second user database, partition, or duplicate au
 - **Routes:**
   - `/@handle` — Public digital bio and networking profile.
   - `/bio/setup` & `/bio/edit` — Bio configuration and social link management.
-  - `/friends` — Following, followers, mutuals, and "going together" connections.
+  - `/friends` — Following, followers, mutuals, and "going together" connections, with search, relationship filters (`all`, `mutual`, `incoming`, `met`), embedded `<HereCheckIn />`, "Log Met IRL" (`upsertPerson`), My QR (`BioShareModal`), and a 1-tap "Catch up" per friend (`BioCatchUpModal`).
   - `/circle` — Networking Circle with live presence radar and quests.
-  - `/me` — Central user dashboard (attending from bookings, hosting from studio).
+  - `/me` — Central user dashboard with five tabs: **Today** (default; agenda, weather and outfit tip, add-plan, reschedule, two-tap cancel), **Overview** (`all`; hero identity card, stat strip, at-a-glance summaries, personal-life strip for Memories, Friends, Perks, Rewards), **Catch-ups**, **Tickets**, and **Pass** (Bio & QR Pass). A compact identity bar (avatar, `@handle` copy, Pass QR, Circle, Inbox, Settings) shows on every tab except Overview; the pending catch-up banner shows on Today, Overview, and Catch-ups.
   - `/me/inbox` — Unified notification and updates inbox.
+  - `/me/memories` — Memory wall.
+
+### Cross-pillar: Account, Settings & Support
+
+- One settings hub for the universal account; support and legal pages link back to it.
+- **Routes:**
+  - `/settings` — Account card (copy bio link, My Hub, Edit Bio, Inbox, Wallet), display name, `@handle`, linked email and mobile, appearance, notifications (push, deals, birthday perks, inbox, guestlist opt-out), location, privacy, workspaces and studios (`/me`, `/circle`, `/business`, `/event`, `/scan`), security and biometrics, legal and support grid, sign out, and the danger zone. A sticky jump bar scrolls to each section.
+  - `/help`, `/contact`, `/trust`, `/bio/recover`, `/unsubscribe` — Support surfaces. Each has a "Settings" back link. `/contact` prefills name and email for signed-in users.
+  - `/privacy`, `/terms`, `/cookies` — Legal documents rendered through `LegalDoc` (back link, document switcher, support card).
 
 ---
 
@@ -164,6 +174,10 @@ Under no circumstances should a second user database, partition, or duplicate au
    - Universal backdrop dismiss on modals, popovers, and bottom sheets; `Sheet` traps Tab focus, focuses on open, and restores focus on close.
    - Input font sizes $\ge 16\text{px}$ to prevent iOS Safari auto-zooming.
    - Clean keyboard listeners without double-padding.
+5. **Destructive Actions:**
+   - Prefer an inline two-tap confirm ("Confirm remove", "Confirm cancel", "Confirm decline") over `window.confirm()`. Account deletion additionally requires typing `DELETE`.
+6. **Source-Level Style Guards (`/me`):**
+   - `src/pages/MePage.test.ts` reads `MePage.tsx` as text and fails on `ring-line`, `ring-white`, `ring-1 ring-`, `border-line`, `shadow-clay`, `divide-line`, `border-dashed`, `purple-`, `transition-all`, or a bare `transition` class. Use neumorphic classes (`neu-section`, `neu-card`, `neu-row`, `neu-inset`, `neu-btn`) and explicit `transition-[…]` property lists there.
 
 ---
 
@@ -394,5 +408,6 @@ _Primary surfaces: `/me/inbox`, `/settings`_
 - [x] **Privacy Data & Account**
   - **Create**: Request self-service JSON data export or submit account deletion request.
   - **Read**: Review profile data and privacy permissions in `/settings`.
-  - **Update**: Update email, phone, and communication preferences.
-  - **Delete**: Permanent account deletion (`/account_deletions`).
+  - **Update**: Update display name, `@handle` (live availability check), email, phone (SMS code), birthday-perk alerts (server-saved), theme, and city in `/settings`. Removing an email or phone uses an inline two-tap confirm.
+  - **Delete**: Permanent account deletion (`/account_deletions`), gated by typing `DELETE`.
+  - **Known limit**: The "Search & Directory Indexing", "Circle Presence & Live Check-in", and "Event Drops & Dining Deals" toggles save to device `localStorage` only (`airpal_privacy_*`, `airpal_notif_deals`). Nothing in the client or server reads them yet, so they do not change indexing, presence, or delivery. Presence privacy is enforced by `resolvePinOnMap` and rules, not by these toggles.
