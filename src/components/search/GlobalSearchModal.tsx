@@ -43,6 +43,7 @@ import { OPEN_SEARCH_EVENT, SEARCH_READY_EVENT, type OpenGlobalSearchOptions, ty
 const EXPLORE_GROUPS = [
   { label: "AirPal Pass", href: "/pass", icon: Ticket },
   { label: "Deals & Perks", href: "/deals", icon: Sparkles },
+  { label: "Member Rewards", href: "/rewards", icon: Sparkles },
   { label: "Circle & Presence", href: "/circle", icon: Users },
 ];
 
@@ -582,6 +583,21 @@ export function GlobalSearchModal() {
         href: "/business",
         icon: Building2,
         score: 80,
+      });
+    }
+
+    // 8. Match Member Rewards & Points keywords
+    const rewardKeywords = ["reward", "rewards", "points", "point", "loyalty", "earn", "redeem", "referral"];
+    if (rewardKeywords.some((k) => q.includes(k))) {
+      items.push({
+        id: "airpal-rewards",
+        category: "deal",
+        title: "AirPal Rewards",
+        subtitle: "Check your points balance, earn history & redeemable member perks",
+        badge: "Rewards",
+        href: "/rewards",
+        icon: Sparkles,
+        score: 92,
       });
     }
 

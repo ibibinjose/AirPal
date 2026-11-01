@@ -359,7 +359,7 @@ export function CalendarMonthGrid({
           const eventCount = cell.events.length;
           const isOver = dragOverDate === cell.dateStr;
 
-          const cellDateLabel = new Intl.DateTimeFormat(undefined, {
+          const cellDateLabel = new Intl.DateTimeFormat("en-AU", {
             day: "numeric",
             month: "long",
             year: "numeric",

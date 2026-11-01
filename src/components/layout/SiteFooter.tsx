@@ -22,6 +22,7 @@ const NAV_PASS = [
   { href: "/events", label: "Concerts & Festivals" },
   { href: "/me/tickets", label: "Passbook & Tickets" },
   { href: "/deals", label: "Member Dining Deals" },
+  { href: "/rewards", label: "Member Rewards" },
   { href: "/event", label: "Host an Event" },
   { href: "/host", label: "Belonging & Host Hub" },
   { href: "/pulse", label: "AirPal Pulse" },

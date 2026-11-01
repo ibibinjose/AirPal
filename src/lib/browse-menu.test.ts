@@ -28,6 +28,7 @@ describe("browse menu", () => {
     expect(matched("/offers")).toEqual(["Offers & Deals"]);
     expect(matched("/deals/summer")).toEqual(["Offers & Deals"]);
     expect(matched("/promotions/1")).toEqual(["Offers & Deals"]);
+    expect(matched("/rewards")).toEqual(["Rewards"]);
   });
 
   it("matches nothing outside the browse categories", () => {

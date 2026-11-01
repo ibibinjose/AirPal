@@ -19,6 +19,7 @@ import {
   Store,
   Tag,
   Ticket,
+  Trophy,
   UserRound,
   Users,
   type LucideIcon,
@@ -58,6 +59,13 @@ export const BROWSE_LINKS: BrowseLink[] = [
     hint: "Member perks & vouchers",
     icon: BadgePercent,
     match: (p) => p.startsWith("/offers") || p.startsWith("/deals") || p.startsWith("/promotions"),
+  },
+  {
+    href: "/rewards",
+    label: "Rewards",
+    hint: "Points, perks & payoffs",
+    icon: Trophy,
+    match: (p) => p.startsWith("/rewards"),
   },
   {
     href: "/birthday-freebies",
@@ -210,7 +218,18 @@ export const BROWSE_SECTIONS: BrowseSection[] = [
   { title: "Host", links: HOST_LINKS, hostsOnly: true },
 ];
 
-const STRIP_PREFIXES = ["/pass", "/circle", "/stay", "/events", "/calendar", "/e/", "/offers", "/deals", "/promotions"];
+const STRIP_PREFIXES = [
+  "/pass",
+  "/circle",
+  "/stay",
+  "/events",
+  "/calendar",
+  "/e/",
+  "/offers",
+  "/deals",
+  "/promotions",
+  "/rewards",
+];
 
 /** Mobile category strip shows on Home and browse-context routes only. */
 export function showBrowseStrip(path: string): boolean {

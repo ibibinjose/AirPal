@@ -11,6 +11,7 @@ import {
   Store,
   Tag,
   Ticket,
+  Trophy,
   ShieldCheck,
   Pencil,
   Loader2,
@@ -100,6 +101,13 @@ export function PromotionsPage() {
           >
             <Ticket size={14} className="shrink-0 text-amber-500" />
             <span>My Passbook Wallet</span>
+          </Link>
+          <Link
+            href="/rewards"
+            className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 text-xs font-semibold text-ink transition whitespace-nowrap"
+          >
+            <Trophy size={14} className="shrink-0 text-accent" />
+            <span>Member Rewards</span>
           </Link>
         </div>
 
