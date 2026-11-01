@@ -2,7 +2,19 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
-import { Plus, X, Ticket, QrCode, Building2, ChevronRight, ArrowRight } from "lucide-react";
+import {
+  Plus,
+  X,
+  Ticket,
+  QrCode,
+  Building2,
+  ChevronRight,
+  ArrowRight,
+  CalendarDays,
+  AtSign,
+  Camera,
+  MapPin,
+} from "lucide-react";
 import { triggerHaptic } from "@/lib/native";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { useVirtualKeyboard } from "@/lib/keyboard";
@@ -30,16 +42,6 @@ export const CREATE_GROUPS = [
 
 export const CREATE_OPTIONS: CreateOption[] = [
   {
-    id: "event",
-    title: "Host an Event",
-    subtitle: "Create a meetup, workshop, or ticketed experience",
-    href: "/event",
-    icon: Ticket,
-    colorClass: "bg-amber-500/10 text-amber-600 ring-amber-500/20",
-    group: "business",
-  },
-
-  {
     id: "scan",
     title: "Scan Ticket / Pass",
     subtitle: "Scan guest ticket, passbook, or venue door QR",
@@ -47,6 +49,51 @@ export const CREATE_OPTIONS: CreateOption[] = [
     icon: QrCode,
     colorClass: "bg-emerald-500/10 text-emerald-600 ring-emerald-500/20",
     group: "you",
+  },
+  {
+    id: "schedule",
+    title: "Add to My Schedule",
+    subtitle: "Plan a catch-up, personal event, or weekend outing",
+    href: "/calendar",
+    icon: CalendarDays,
+    colorClass: "bg-sky-500/10 text-sky-600 ring-sky-500/20",
+    group: "you",
+  },
+  {
+    id: "here",
+    title: "Check In Live (I'm Here)",
+    subtitle: "Share your live presence with your Networking Circle",
+    href: "/circle",
+    icon: MapPin,
+    colorClass: "bg-brand/10 text-accent ring-brand/20",
+    group: "you",
+  },
+  {
+    id: "bio",
+    title: "Digital Bio & QR Pass",
+    subtitle: "Share your @handle, vCard 3.0 contact, or Wallet pass",
+    href: "/bio",
+    icon: AtSign,
+    colorClass: "bg-purple-500/10 text-purple-600 ring-purple-500/20 dark:text-purple-400",
+    group: "you",
+  },
+  {
+    id: "memory",
+    title: "Add to Memory Wall",
+    subtitle: "Save a photo with the people you meet in real life",
+    href: "/me/memories",
+    icon: Camera,
+    colorClass: "bg-rose-500/10 text-rose-600 ring-rose-500/20",
+    group: "you",
+  },
+  {
+    id: "event",
+    title: "Host an Event",
+    subtitle: "Create a meetup, workshop, or ticketed experience",
+    href: "/event",
+    icon: Ticket,
+    colorClass: "bg-amber-500/10 text-amber-600 ring-amber-500/20",
+    group: "business",
   },
   {
     id: "partner",
