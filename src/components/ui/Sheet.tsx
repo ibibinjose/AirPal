@@ -38,7 +38,8 @@ export function Sheet({
     panelRef.current?.focus({ preventScroll: true });
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
-        handleClose();
+        void dismissKeyboard();
+        onClose();
         return;
       }
       if (e.key !== "Tab" || !panelRef.current) return;

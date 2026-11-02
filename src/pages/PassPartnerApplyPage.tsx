@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from "react";
-import { Link, useSearch } from "wouter";
+import { useEffect, useState, type FormEvent } from "react";
+import { Link, useLocation, useSearch } from "wouter";
 import { ArrowLeft, BadgeCheck, Handshake, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageLoading } from "@/components/ui/PageLoading";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { useAuth } from "@/contexts/AuthContext";
 import { BUSINESS_CATEGORIES } from "@shared/business";
@@ -32,7 +33,8 @@ function fieldErrorFor(problems: string[]): FieldErrors {
 }
 
 export function PassPartnerApplyPage() {
-  const { user } = useAuth();
+  const [, nav] = useLocation();
+  const { user, authReady } = useAuth();
   const search = useSearch();
   const claimedBusiness = (new URLSearchParams(search).get("business") || "").trim().slice(0, 80);
   const [businessName, setBusinessName] = useState(claimedBusiness);
@@ -46,10 +48,19 @@ export function PassPartnerApplyPage() {
   const [submitting, setSubmitting] = useState(false);
   const [reference, setReference] = useState("");
 
+  useEffect(() => {
+    if (claimedBusiness) setBusinessName((prev) => prev || claimedBusiness);
+  }, [claimedBusiness]);
+
+  if (!authReady) return <PageLoading />;
   if (!user) {
     return (
       <AuthGate
-        next="/pass/partners/apply"
+        next={
+          claimedBusiness
+            ? `/pass/partners/apply?business=${encodeURIComponent(claimedBusiness)}`
+            : "/pass/partners/apply"
+        }
         kicker="Pass partners"
         title="Partner with AirPal Pass"
         lede="Sign in to apply as a Pass partner. Member perks, event tie-ins, and door-ready discovery."
@@ -67,11 +78,11 @@ export function PassPartnerApplyPage() {
           body={`Your reference is ${reference}. Our team reviews every application and will reply by email. You can keep exploring partners and deals meanwhile.`}
           actionLabel="Browse partners"
           action={() => {
-            window.location.assign("/pass/partners");
+            nav("/pass/partners");
           }}
           secondaryLabel="Browse deals"
           secondary={() => {
-            window.location.assign("/deals");
+            nav("/deals");
           }}
         />
       </div>

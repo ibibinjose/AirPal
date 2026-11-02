@@ -70,7 +70,10 @@ export function LocationSheet({ open, onClose }: { open: boolean; onClose: () =>
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
+      if (e.key === "Escape") {
+        void dismissKeyboard();
+        onClose();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

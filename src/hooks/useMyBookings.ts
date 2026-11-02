@@ -106,7 +106,7 @@ export function useMyBookings() {
     }
 
     let cancelled = false;
-    setLoading(bookings === undefined);
+    setLoading((prev) => prev);
     setFailed(false);
 
     let unsubscribe: (() => void) | undefined;

@@ -56,7 +56,10 @@ export function CalendarEventModal({ event, onClose, onSelectTag }: CalendarEven
   useEffect(() => {
     if (!event) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
+      if (e.key === "Escape") {
+        void dismissKeyboard();
+        onClose();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => {

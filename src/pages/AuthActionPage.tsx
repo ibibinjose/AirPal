@@ -98,7 +98,7 @@ export function AuthActionPage() {
       <p className="human-eyebrow">Account</p>
       <h1 className="human-title mt-1 text-3xl text-balance">{title}</h1>
 
-      {phase === "loading" && <PageLoading label="Checking the link…" />}
+      {phase === "loading" && <PageLoading message="Checking the link…" />}
 
       {phase === "error" && (
         <>
@@ -151,12 +151,12 @@ export function AuthActionPage() {
         </>
       )}
 
-      <p className="mt-6 text-[12px] text-mute">
-        <Link href="/start?tab=signin" className="text-accent">
+      <p className="mt-6 flex items-center gap-2 text-[12px] text-mute">
+        <Link href="/start?tab=signin" className="inline-flex min-h-[44px] items-center text-accent hover:underline">
           Sign in
         </Link>
-        {" · "}
-        <Link href="/privacy" className="text-accent">
+        <span>·</span>
+        <Link href="/privacy" className="inline-flex min-h-[44px] items-center text-accent hover:underline">
           Privacy
         </Link>
       </p>

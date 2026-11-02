@@ -339,7 +339,7 @@ export function AdminPage() {
                       .catch((err) => toast.error(err instanceof Error ? err.message : "Aggregation failed"))
                       .finally(() => setAggregating(false));
                   }}
-                  className="shrink-0 gap-1.5"
+                  className="min-h-[44px] shrink-0 gap-1.5"
                 >
                   <Layers className={`h-3.5 w-3.5 ${aggregating ? "animate-spin" : ""}`} />
                   {aggregating ? "Aggregating…" : "Rebuild Daily Facts"}
@@ -409,7 +409,7 @@ export function AdminPage() {
                     <button
                       type="button"
                       onClick={() => nav(bioPath(row.handle))}
-                      className="flex-1 text-left truncate pr-2"
+                      className="min-h-[44px] flex-1 text-left truncate pr-2 flex flex-col justify-center"
                     >
                       <div className="flex items-center gap-1.5">
                         <span className="font-semibold text-xs text-ink group-hover:text-accent transition-colors truncate">
@@ -451,11 +451,11 @@ export function AdminPage() {
       {/* SUB-TABS WITH BREADCRUMB HEADER */}
       {tab !== "overview" && tab !== "system" && (
         <div className="mt-6 space-y-6">
-          <div className="neu-row flex items-center justify-between px-4 py-3">
+          <div className="neu-row flex items-center justify-between px-4 py-2">
             <button
               type="button"
               onClick={() => setTab("overview")}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
+              className="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Back to Cockpit Overview
@@ -487,7 +487,12 @@ export function AdminPage() {
 
       {/* Footer Return Home */}
       <div className="mt-8 flex justify-center">
-        <Button variant="ghost" size="sm" onClick={() => nav("/")} className="gap-1.5 text-xs text-mute hover:text-ink">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => nav("/")}
+          className="min-h-[44px] gap-1.5 text-xs text-mute hover:text-ink"
+        >
           <ArrowLeft className="h-3.5 w-3.5" />
           Return to AirPal Home
         </Button>

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { CURATED_EXPERIENCES } from "@/lib/curated-experiences";
 import { toZonedDateStr } from "@/lib/local-time";
 import { shareNative } from "@/lib/native";
+import { toPublicUrl } from "@/lib/public-origin";
 import { NotFoundPage } from "./NotFoundPage";
 
 /**
@@ -34,7 +35,7 @@ function ExperienceDetailView({ itemId }: { itemId: string }) {
     await shareNative({
       title: item.title,
       text: `${item.title} · ${item.venue} on AirPal`,
-      url: `https://airpal.me/experience/${item.id}`,
+      url: toPublicUrl(`/experience/${item.id}`),
     });
   };
 
@@ -43,6 +44,10 @@ function ExperienceDetailView({ itemId }: { itemId: string }) {
     // supplies the time of day.
     const timePart = item.starts_at?.split("T")[1] || "10:00:00";
     const start = new Date(`${selectedDate}T${timePart}`);
+    if (!selectedDate || Number.isNaN(start.getTime())) {
+      toast.error("Please select a valid date first.");
+      return;
+    }
     const end = new Date(start.getTime() + 7200000);
     const dateToCal = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
     const escapeCal = (s: string) => s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/[,;]/g, "\\$&");

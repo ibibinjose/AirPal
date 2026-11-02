@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useLocation } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import { ArrowLeft, Camera, MapPin, Trash2, Users, X } from "lucide-react";
 import { AuthGate } from "@/components/auth/AuthGate";
@@ -48,6 +48,7 @@ function formatDay(iso: string): string {
 
 export function MemoryWallPage() {
   const [, nav] = useLocation();
+  const searchStr = useSearch();
   const { user, authReady } = useAuth();
   const [memories, setMemories] = useState<Memory[]>([]);
   const [composerOpen, setComposerOpen] = useState(false);
@@ -58,15 +59,32 @@ export function MemoryWallPage() {
   const [place, setPlace] = useState("");
   const [saving, setSaving] = useState(false);
   const [lightbox, setLightbox] = useState<Memory | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const knownPeople = useMemo(() => listPeople(), [memories]);
+  const knownPeople = useMemo(() => {
+    if (memories.length < 0) return [];
+    return listPeople();
+  }, [memories.length]);
 
   const initialWith = useMemo(() => {
     try {
-      return new URLSearchParams(window.location.search).get("with") || "";
+      return new URLSearchParams(searchStr).get("with") || "";
     } catch {
       return "";
     }
+  }, [searchStr]);
+
+  const closeComposer = useCallback(() => {
+    void dismissKeyboard();
+    setComposerOpen(false);
+    setDraftBlob(null);
+    setDraftUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setCaption("");
+    setWithPeople("");
+    setPlace("");
   }, []);
 
   useEffect(() => {
@@ -85,7 +103,7 @@ export function MemoryWallPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [composerOpen]);
+  }, [composerOpen, closeComposer]);
 
   useEffect(() => {
     if (!lightbox) return;
@@ -132,17 +150,6 @@ export function MemoryWallPage() {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not read that photo");
     }
-  }
-
-  function closeComposer() {
-    void dismissKeyboard();
-    setComposerOpen(false);
-    setDraftBlob(null);
-    if (draftUrl) URL.revokeObjectURL(draftUrl);
-    setDraftUrl(null);
-    setCaption("");
-    setWithPeople("");
-    setPlace("");
   }
 
   async function onSave() {
@@ -376,13 +383,33 @@ export function MemoryWallPage() {
                   </div>
                 )}
                 <div className="mt-4 flex gap-2">
-                  <Button variant="ghost" className={cn("flex-1 rounded-full")} onClick={() => setLightbox(null)}>
+                  <Button
+                    variant="ghost"
+                    className={cn("flex-1 rounded-full")}
+                    onClick={() => {
+                      setConfirmDeleteId(null);
+                      setLightbox(null);
+                    }}
+                  >
                     Close
                   </Button>
-                  <Button variant="destructive" onClick={() => onDelete(lightbox.id)}>
-                    <Trash2 size={14} />
-                    Delete
-                  </Button>
+                  {confirmDeleteId === lightbox.id ? (
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        setConfirmDeleteId(null);
+                        void onDelete(lightbox.id);
+                      }}
+                    >
+                      <Trash2 size={14} />
+                      Confirm delete
+                    </Button>
+                  ) : (
+                    <Button variant="destructive" onClick={() => setConfirmDeleteId(lightbox.id)}>
+                      <Trash2 size={14} />
+                      Delete
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

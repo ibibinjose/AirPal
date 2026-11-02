@@ -55,6 +55,7 @@ export function OnboardingPage() {
   const [step, setStep] = useState<OnboardingStep>(1);
   const [name, setName] = useState(() => mine?.name || user?.displayName || "");
   const [handle, setHandle] = useState(() => initialHandleParam || mine?.handle || "");
+  const [handleTouched, setHandleTouched] = useState(() => Boolean(initialHandleParam || mine?.handle));
   const [city, setCity] = useState(() => mine?.city || "Sydney");
   const [birthDate, setBirthDate] = useState("");
   const [adultConsent, setAdultConsent] = useState(false);
@@ -63,9 +64,9 @@ export function OnboardingPage() {
 
   const handleStatus = useHandleStatus(handle, mine?.id);
 
-  // Suggest a handle from the name or email while the field is empty.
+  // Suggest a handle from the name or email until the user edits @handle directly.
   useEffect(() => {
-    if (handle) return;
+    if (handleTouched) return;
     const emailPrefix = user?.email ? normalizeHandle(user.email.split("@")[0] || "") : "";
     if (initialHandleParam) {
       setHandle(normalizeHandle(initialHandleParam));
@@ -77,7 +78,7 @@ export function OnboardingPage() {
     } else if (emailPrefix && !handleError(emailPrefix)) {
       setHandle(emailPrefix);
     }
-  }, [handle, initialHandleParam, name, user?.email]);
+  }, [handleTouched, initialHandleParam, name, user?.email]);
 
   useEffect(() => {
     if (!name && user?.displayName) setName(user.displayName);
@@ -252,7 +253,10 @@ export function OnboardingPage() {
                 autoCorrect="off"
                 autoComplete="username"
                 value={handle}
-                onChange={(e) => setHandle(e.target.value)}
+                onChange={(e) => {
+                  setHandleTouched(true);
+                  setHandle(e.target.value);
+                }}
                 placeholder="alex"
                 className={cn(fieldInput, "pl-10 text-[16px]")}
                 required

@@ -39,9 +39,7 @@ export function PhoneField({
   // Synchronize when external value changes
   useEffect(() => {
     if (!value) {
-      if (national !== "0" && national !== "") {
-        setNational("");
-      }
+      setNational((prev) => (prev !== "0" && prev !== "" ? "" : prev));
       return;
     }
     const detected = countryFromPhone(value);
@@ -49,11 +47,11 @@ export function PhoneField({
       setSelectedCountry(detected.code);
     }
     const parsed = splitPhone(value);
-    const userDigits = nationalDigits(national).replace(/^0+/, "");
-    const valueDigits = nationalDigits(parsed.national);
-    if (userDigits !== valueDigits) {
-      setNational(parsed.national);
-    }
+    setNational((prev) => {
+      const userDigits = nationalDigits(prev).replace(/^0+/, "");
+      const valueDigits = nationalDigits(parsed.national);
+      return userDigits !== valueDigits ? parsed.national : prev;
+    });
   }, [value]);
 
   const activeCountry = countryByCode(selectedCountry) || HOST_COUNTRIES[0];

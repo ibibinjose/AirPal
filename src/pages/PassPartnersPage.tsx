@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ArrowLeft, ArrowRight, Handshake, LogIn, Search, Store, Ticket, UserPlus } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FilterChips, type FilterChipOption } from "@/components/ui/FilterChips";
@@ -43,6 +43,7 @@ export function PartnerCard({ partner }: { partner: Partner }) {
 }
 
 export function PassPartnersDirectory({ partners, loading }: { partners: Partner[]; loading: boolean }) {
+  const [, nav] = useLocation();
   const { user } = useAuth();
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
@@ -113,11 +114,11 @@ export function PassPartnersDirectory({ partners, loading }: { partners: Partner
             }
             actionLabel="Become a partner"
             action={() => {
-              window.location.assign("/pass/partners/apply");
+              nav("/pass/partners/apply");
             }}
             secondaryLabel="Browse deals"
             secondary={() => {
-              window.location.assign("/deals");
+              nav("/deals");
             }}
           />
         </div>

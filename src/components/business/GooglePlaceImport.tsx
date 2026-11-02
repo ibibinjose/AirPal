@@ -56,7 +56,7 @@ export function GooglePlaceImportCard({
     const t = window.setTimeout(() => {
       setSearching(true);
       setError(null);
-      void searchPlaces(needle, session, here)
+      void searchPlaces(needle, session, { lat: here.lat, lng: here.lng })
         .then((rows) => {
           setHits(rows);
           setActive(0);

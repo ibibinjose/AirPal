@@ -154,7 +154,6 @@ export function PassPage() {
       if (activeCategory === "cultural") {
         return (
           catLower.includes("cultural") ||
-          catLower.includes("community") ||
           titleLower.includes("diwali") ||
           titleLower.includes("dandiya") ||
           titleLower.includes("bollywood") ||
@@ -216,7 +215,11 @@ export function PassPage() {
       const meters = metersFor(item.geo);
       return { ...item, meters, walk: meters != null ? formatWalk(meters).walkTime : undefined };
     });
-    if (closestFirst && origin) withWalk.sort((a, b) => (a.meters ?? 9e9) - (b.meters ?? 9e9));
+    if (closestFirst && origin) {
+      withWalk.sort((a, b) => (a.meters ?? 9e9) - (b.meters ?? 9e9));
+    } else {
+      withWalk.sort((a, b) => a.date.localeCompare(b.date));
+    }
     return withWalk;
   }, [calendarEvents, events, today, activeCategory, userStates, closestFirst, origin, effectiveCity]);
 
@@ -371,7 +374,7 @@ export function PassPage() {
                       </p>
                     </div>
                     <Link
-                      href="/me/tickets"
+                      href={`/ticket/${b.id}`}
                       className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1 px-3 text-xs font-bold text-accent transition"
                     >
                       <Ticket size={12} aria-hidden="true" />
@@ -533,42 +536,43 @@ export function PassPage() {
         </div>
 
         {promotions.length === 0 ? (
-          <div className="neu-card p-5 text-sm text-mute">
+          <div className="neu-card mt-4 p-5 text-sm text-mute">
             No live perks right now.{" "}
             <Link href="/deals" className="font-semibold text-accent hover:underline">
               Browse all member deals
             </Link>
           </div>
-        ) : null}
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {promotions.slice(0, 3).map((deal, idx) => (
-            <Link
-              key={deal.id || idx}
-              href={`/deals/${deal.id}`}
-              className="neu-card group flex items-center justify-between gap-3 p-4 transition active:scale-[0.98]"
-            >
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-paper">
-                  <Photo
-                    src={promoArtFor(deal.category, deal.heroImage)}
-                    className="h-full w-full object-cover"
-                    alt={deal.title}
-                  />
+        ) : (
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {promotions.slice(0, 3).map((deal, idx) => (
+              <Link
+                key={deal.id || idx}
+                href={`/deals/${deal.id}`}
+                className="neu-card group flex items-center justify-between gap-3 p-4 transition active:scale-[0.98]"
+              >
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-paper">
+                    <Photo
+                      src={promoArtFor(deal.category, deal.heroImage)}
+                      className="h-full w-full object-cover"
+                      alt={deal.title}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="inline-block rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                      {deal.prizeValue || "Exclusive Perk"}
+                    </span>
+                    <p className="font-display text-sm font-bold text-ink mt-0.5 truncate group-hover:text-accent transition-colors">
+                      {deal.title}
+                    </p>
+                    <p className="text-xs text-mute truncate mt-0.5">{deal.sponsorName || deal.locationText}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <span className="inline-block rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-                    {deal.prizeValue || "Exclusive Perk"}
-                  </span>
-                  <p className="font-display text-sm font-bold text-ink mt-0.5 truncate group-hover:text-accent transition-colors">
-                    {deal.title}
-                  </p>
-                  <p className="text-xs text-mute truncate mt-0.5">{deal.sponsorName || deal.locationText}</p>
-                </div>
-              </div>
-              <ArrowRight size={16} className="text-mute group-hover:text-ink shrink-0 mr-1" aria-hidden="true" />
-            </Link>
-          ))}
-        </div>
+                <ArrowRight size={16} className="text-mute group-hover:text-ink shrink-0 mr-1" aria-hidden="true" />
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Venue, Event & Stay Services */}

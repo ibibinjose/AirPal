@@ -48,7 +48,7 @@ export function AirPalTicketPass({ booking, guestName, hostName, showActions = t
     return () => {
       cancelled = true;
     };
-  }, [booking.id, booking.eventId]);
+  }, [booking]);
 
   const when = [booking.date, booking.time].filter(Boolean).join(" · ");
   const where = [booking.suburb].filter(Boolean).join("");

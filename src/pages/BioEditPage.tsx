@@ -239,16 +239,22 @@ export function BioEditPage() {
   const isDirty = useMemo(() => {
     if (!activeProfile) return false;
     const defaultTag = isBusiness ? "Local Business" : "AirPal Star";
+    const rawSavedTag = activeProfile.categoryTag?.trim();
+    const normalizedSavedTag = rawSavedTag && rawSavedTag.toLowerCase() !== "airpal mate" ? rawSavedTag : defaultTag;
+    const savedLinksJson = JSON.stringify(activeProfile.links || []);
+    const currentLinksJson = JSON.stringify(links || []);
     return (
       name !== activeProfile.name ||
       shortWhy !== (activeProfile.shortWhy || "") ||
       aboutText !== (activeProfile.aboutText || "") ||
-      categoryTag !== (activeProfile.categoryTag || defaultTag) ||
+      categoryTag !== normalizedSavedTag ||
       pronouns !== (activeProfile.pronouns || "") ||
       languages !== (activeProfile.languages || "") ||
       primaryCta !== (activeProfile.primaryCta || (isBusiness ? "Order Online" : "Catch Up")) ||
       city !== (activeProfile.city || "") ||
       hours !== (activeProfile.hours || "") ||
+      openNow !== Boolean(activeProfile.openNow) ||
+      mapsPlaceId !== (activeProfile.mapsPlaceId || "") ||
       availabilityStatus !== (activeProfile.availabilityStatus || "available") ||
       visibility !== (activeProfile.visibility === "public" ? "public" : "private") ||
       customStatus !== (activeProfile.customStatus || "") ||
@@ -256,7 +262,8 @@ export function BioEditPage() {
       phone !== (activeProfile.phone || "") ||
       meetingUrl !== (activeProfile.meetingUrl || "") ||
       preferredMeetingPlatform !== (activeProfile.preferredMeetingPlatform || "in_person") ||
-      zooHunt !== Boolean(activeProfile.zooHunt)
+      zooHunt !== Boolean(activeProfile.zooHunt) ||
+      currentLinksJson !== savedLinksJson
     );
   }, [
     activeProfile,
@@ -270,6 +277,8 @@ export function BioEditPage() {
     primaryCta,
     city,
     hours,
+    openNow,
+    mapsPlaceId,
     availabilityStatus,
     visibility,
     customStatus,
@@ -278,6 +287,7 @@ export function BioEditPage() {
     meetingUrl,
     preferredMeetingPlatform,
     zooHunt,
+    links,
   ]);
 
   const handleResetChanges = () => {
@@ -980,7 +990,7 @@ export function BioEditPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1.5 rounded-full border border-line bg-card/80 px-3.5 text-xs font-semibold text-ink shadow-xs hover:bg-paper cursor-pointer"
+                className="min-h-[44px] gap-1.5 rounded-full border border-line bg-card/80 px-3.5 text-xs font-semibold text-ink shadow-xs hover:bg-paper cursor-pointer"
                 onClick={() => {
                   void triggerHaptic("light");
                   nav(bioPath(activeProfile.handle));
@@ -995,7 +1005,7 @@ export function BioEditPage() {
             <Button
               size="sm"
               className={cn(
-                "h-10 px-3 sm:px-4 rounded-full font-semibold gap-1.5 shadow-md transition cursor-pointer active:scale-95",
+                "min-h-[44px] h-11 px-3.5 sm:px-4 rounded-full font-semibold gap-1.5 shadow-md transition cursor-pointer active:scale-95",
                 isBusiness
                   ? "bg-amber-600 hover:bg-amber-700 text-white"
                   : isDirty
@@ -1051,7 +1061,7 @@ export function BioEditPage() {
                     nav("/bio/edit?kind=person");
                   }}
                   className={cn(
-                    "inline-flex min-w-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
+                    "inline-flex min-h-[44px] min-w-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
                     !isBusiness ? "bg-brand text-white shadow-xs" : "text-mute hover:text-ink",
                   )}
                 >
@@ -1065,7 +1075,7 @@ export function BioEditPage() {
                     nav("/bio/edit?kind=business");
                   }}
                   className={cn(
-                    "inline-flex min-w-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
+                    "inline-flex min-h-[44px] min-w-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer",
                     isBusiness ? "bg-amber-600 text-white shadow-xs" : "text-mute hover:text-ink",
                   )}
                 >
@@ -1079,7 +1089,7 @@ export function BioEditPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold text-ink hover:bg-card shadow-xs cursor-pointer"
+                className="min-h-[44px] gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold text-ink hover:bg-card shadow-xs cursor-pointer"
                 onClick={() => {
                   void triggerHaptic("light");
                   nav("/bio/setup?kind=business");
@@ -1094,7 +1104,7 @@ export function BioEditPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold text-ink hover:bg-card shadow-xs cursor-pointer"
+                className="min-h-[44px] gap-1.5 rounded-full border border-line bg-paper text-xs font-semibold text-ink hover:bg-card shadow-xs cursor-pointer"
                 onClick={() => {
                   void triggerHaptic("light");
                   nav("/bio/setup");
@@ -2015,7 +2025,7 @@ export function BioEditPage() {
                                   <div className="flex items-center gap-0.5 shrink-0">
                                     <button
                                       type="button"
-                                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-card hover:text-ink cursor-pointer"
+                                      className="inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:bg-card hover:text-ink cursor-pointer"
                                       aria-label="Copy link"
                                       title="Copy link"
                                       onClick={() => {
@@ -2030,8 +2040,8 @@ export function BioEditPage() {
                                       type="button"
                                       className={
                                         l.featured
-                                          ? "inline-flex h-10 w-10 items-center justify-center rounded-full text-amber-600 cursor-pointer"
-                                          : "inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:text-amber-600 cursor-pointer"
+                                          ? "inline-flex h-11 w-11 items-center justify-center rounded-full text-amber-600 cursor-pointer"
+                                          : "inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:text-amber-600 cursor-pointer"
                                       }
                                       aria-label={l.featured ? "Unpin featured" : "Pin to top"}
                                       title={l.featured ? "Unpin featured" : "Pin to top"}
@@ -2041,7 +2051,7 @@ export function BioEditPage() {
                                     </button>
                                     <button
                                       type="button"
-                                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-card hover:text-ink cursor-pointer"
+                                      className="inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:bg-card hover:text-ink cursor-pointer"
                                       aria-label={l.archived ? "Restore link" : "Archive link"}
                                       title={l.archived ? "Restore link" : "Archive link"}
                                       onClick={() => {
@@ -2053,7 +2063,7 @@ export function BioEditPage() {
                                     </button>
                                     <button
                                       type="button"
-                                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-mute hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                                      className="inline-flex h-11 w-11 items-center justify-center rounded-full text-mute hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
                                       aria-label="Remove link"
                                       title="Remove link"
                                       onClick={() => {
@@ -2077,7 +2087,7 @@ export function BioEditPage() {
                                     type="date"
                                     value={l.startsAt || ""}
                                     onChange={(e) => saveLink({ startsAt: e.target.value || undefined })}
-                                    className="neu-inset h-9 min-w-[125px] flex-1 px-2 text-xs outline-none"
+                                    className="neu-inset h-11 min-w-[125px] flex-1 px-2.5 text-xs outline-none"
                                   />
                                   <span className="text-xs text-mute">→</span>
                                   <label className="sr-only" htmlFor={`link-end-${l.id}`}>
@@ -2089,13 +2099,13 @@ export function BioEditPage() {
                                     value={l.endsAt || ""}
                                     min={l.startsAt || undefined}
                                     onChange={(e) => saveLink({ endsAt: e.target.value || undefined })}
-                                    className="neu-inset h-9 min-w-[125px] flex-1 px-2 text-xs outline-none"
+                                    className="neu-inset h-11 min-w-[125px] flex-1 px-2.5 text-xs outline-none"
                                   />
                                   {(l.startsAt || l.endsAt) && (
                                     <button
                                       type="button"
                                       onClick={() => saveLink({ startsAt: undefined, endsAt: undefined })}
-                                      className="shrink-0 text-[11px] font-semibold text-mute hover:text-ink"
+                                      className="inline-flex min-h-[44px] shrink-0 items-center px-2 text-xs font-semibold text-mute hover:text-ink cursor-pointer"
                                     >
                                       Clear
                                     </button>
@@ -2202,7 +2212,7 @@ export function BioEditPage() {
                       void triggerHaptic("selection");
                       setPreviewThemeMode((m) => (m === "dark" ? "light" : "dark"));
                     }}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border border-line bg-card hover:bg-paper text-ink transition active:scale-95 cursor-pointer shadow-xs"
+                    className="flex min-h-[44px] items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border border-line bg-card hover:bg-paper text-ink transition active:scale-95 cursor-pointer shadow-xs"
                     title={`Switch mirror to ${previewThemeMode === "dark" ? "light" : "dark"} mode`}
                     aria-label={`Switch mirror to ${previewThemeMode === "dark" ? "light" : "dark"} mode`}
                   >
@@ -2241,7 +2251,7 @@ export function BioEditPage() {
               <button
                 type="button"
                 onClick={handleResetChanges}
-                className="h-8 px-3 rounded-full text-xs font-semibold text-mute hover:text-ink hover:bg-paper transition cursor-pointer"
+                className="min-h-[44px] px-3.5 rounded-full text-xs font-semibold text-mute hover:text-ink hover:bg-paper transition cursor-pointer"
               >
                 Discard
               </button>
@@ -2250,7 +2260,7 @@ export function BioEditPage() {
                 disabled={saving}
                 onClick={() => void handleSaveAll()}
                 className={cn(
-                  "h-8 px-4 rounded-full text-xs font-semibold text-white shadow-xs transition active:scale-95 cursor-pointer flex items-center gap-1.5",
+                  "min-h-[44px] px-4 rounded-full text-xs font-semibold text-white shadow-xs transition active:scale-95 cursor-pointer flex items-center gap-1.5",
                   isBusiness ? "bg-amber-600 hover:bg-amber-700" : "bg-brand hover:bg-brand-ink",
                 )}
               >

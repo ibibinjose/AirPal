@@ -61,7 +61,7 @@ export function PassPartnerDetailView({
 
         {partner.website ? (
           <a
-            href={partner.website}
+            href={/^https?:\/\//i.test(partner.website) ? partner.website : `https://${partner.website}`}
             target="_blank"
             rel="noreferrer"
             className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-accent"
@@ -218,6 +218,7 @@ export function PassPartnerDetailPage({ slug }: { slug: string }) {
 
   useEffect(() => {
     let live = true;
+    setLoading(true);
     (async () => {
       try {
         const found = await fetchPartnerBySlug(slug);

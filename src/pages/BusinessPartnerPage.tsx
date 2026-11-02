@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ArrowLeft, BadgeCheck, Handshake, Loader2, Send, Store, Ticket } from "lucide-react";
 import { BUSINESS_CATEGORIES } from "@shared/business";
 import { isPartnerCategory, isPartnerWebsite, type Partner, type PartnerApplication } from "@shared/partner";
@@ -28,6 +28,7 @@ const TEXTAREA_CLASS =
 const LABEL_CLASS = "mb-1 block text-sm font-semibold text-ink";
 
 export function BusinessPartnerEmpty() {
+  const [, nav] = useLocation();
   return (
     <div className="page-wrap-narrow pt-6 md:pt-10">
       <EmptyState
@@ -37,11 +38,11 @@ export function BusinessPartnerEmpty() {
         body="Apply once and track the review here. Approved partners edit their profile and link member offers from this dashboard."
         actionLabel="Apply to partner"
         action={() => {
-          window.location.assign("/pass/partners/apply");
+          nav("/pass/partners/apply");
         }}
         secondaryLabel="Browse partners"
         secondary={() => {
-          window.location.assign("/pass/partners");
+          nav("/pass/partners");
         }}
       />
     </div>
@@ -310,6 +311,8 @@ export function BusinessPartnerPage() {
   const [offers, setOffers] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
   const [withdrawing, setWithdrawing] = useState(false);
+  const [withdrawError, setWithdrawError] = useState("");
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false);
 
   useEffect(() => {
     if (!authReady || !user) {
@@ -359,9 +362,13 @@ export function BusinessPartnerPage() {
   async function onWithdraw() {
     if (!pending) return;
     setWithdrawing(true);
+    setWithdrawError("");
     try {
       await withdrawPartnerApplication(pending.id);
       setApplications((list) => list.map((a) => (a.id === pending.id ? { ...a, status: "withdrawn" as const } : a)));
+      setConfirmWithdraw(false);
+    } catch {
+      setWithdrawError("Could not withdraw your application right now. Please try again.");
     } finally {
       setWithdrawing(false);
     }
@@ -398,9 +405,43 @@ export function BusinessPartnerPage() {
         {pending ? (
           <div className="rounded-3xl bg-card p-5 ring-1 ring-line sm:p-6">
             <p className="text-sm text-mute">Applied as {pending.businessName}. Change your mind?</p>
-            <Button variant="ghost" size="sm" disabled={withdrawing} onClick={onWithdraw} className="mt-2 min-h-[44px]">
-              {withdrawing ? "Withdrawing…" : "Withdraw application"}
-            </Button>
+            {withdrawError ? (
+              <p role="alert" className="mt-2 text-xs font-medium text-red-600 dark:text-red-400">
+                {withdrawError}
+              </p>
+            ) : null}
+            {confirmWithdraw ? (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={withdrawing}
+                  onClick={onWithdraw}
+                  className="min-h-[44px] border border-red-500/30 text-red-600 hover:bg-red-500/10"
+                >
+                  {withdrawing ? "Withdrawing…" : "Confirm withdraw"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={withdrawing}
+                  onClick={() => setConfirmWithdraw(false)}
+                  className="min-h-[44px]"
+                >
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={withdrawing}
+                onClick={() => setConfirmWithdraw(true)}
+                className="mt-2 min-h-[44px]"
+              >
+                {withdrawing ? "Withdrawing…" : "Withdraw application"}
+              </Button>
+            )}
           </div>
         ) : null}
         {!partner && applications.length > 0 ? (
@@ -416,7 +457,7 @@ export function BusinessPartnerPage() {
         ) : null}
         {partner ? (
           <>
-            <PartnerProfileEditor partner={partner} />
+            <PartnerProfileEditor key={partner.id} partner={partner} />
             <PartnerOfferList offers={offers} partnerName={partner.name} />
           </>
         ) : null}

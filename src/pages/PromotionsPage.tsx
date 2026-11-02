@@ -65,8 +65,9 @@ export function PromotionsPage() {
 
       // Mechanic filter
       if (mechanicFilter === "discount" && r.mechanicType !== "discount") return false;
-      if (mechanicFilter === "offer" && r.mechanicType !== "offer") return false;
+      if (mechanicFilter === "offer" && r.mechanicType !== "offer" && r.mechanicType !== "member") return false;
       if (mechanicFilter === "reward" && r.mechanicType !== "reward") return false;
+      if (mechanicFilter === "member" && r.mechanicType !== "member") return false;
 
       // Search term
       if (search.trim()) {
@@ -191,6 +192,7 @@ export function PromotionsPage() {
               { id: "all", label: "All Formats" },
               { id: "discount", label: "Discounts" },
               { id: "offer", label: "Member Offers" },
+              { id: "member", label: "Points Perks" },
               { id: "reward", label: "Rewards" },
             ]}
             value={mechanicFilter}
@@ -219,7 +221,7 @@ export function PromotionsPage() {
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link href="/business/promotions/new">
-              <Button size="sm" className="gap-1.5 rounded-full px-5">
+              <Button size="sm" className="min-h-[44px] gap-1.5 rounded-full px-5">
                 <Plus size={14} />
                 <span>Post a Deal</span>
               </Button>
@@ -313,11 +315,11 @@ export function PromotionsPage() {
                     )}
 
                     <Link
-                      href={`/deals/${p.id}`}
+                      href={p.kind === "giveaway" ? `/giveaways/${p.id}` : `/deals/${p.id}`}
                       className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-brand px-5 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition-[background-color,transform] active:scale-95 whitespace-nowrap"
                     >
                       <Ticket size={13} className="shrink-0" />
-                      <span>Claim Deal</span>
+                      <span>{p.kind === "giveaway" ? "Enter Giveaway" : "Claim Deal"}</span>
                     </Link>
                   </div>
                 </div>

@@ -2,12 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { collection, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import {
+  ArrowLeft,
   Bell,
   CalendarCheck,
   CheckCheck,
   Hand,
   Mail,
   Radio,
+  Settings,
   ShieldAlert,
   Sparkles,
   Ticket,
@@ -21,6 +23,7 @@ import { AuthGate } from "@/components/auth/AuthGate";
 import { useAuth } from "@/contexts/AuthContext";
 import { getFirebaseDb } from "@/lib/firebase";
 import {
+  dealsNotifPrefEnabled,
   deleteAllNotifications,
   deleteNotification,
   enableWebPush,
@@ -166,11 +169,16 @@ export function InboxPage() {
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const [markingAll, setMarkingAll] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [confirmClearRead, setConfirmClearRead] = useState(false);
+  const showDealNotifs = dealsNotifPrefEnabled();
 
   // All hooks stay above the early returns — anything below breaks hook order
   // between the loading render and the loaded render.
   const updateNotes = useMemo(() => notes.filter((n) => isUpdateNoteKind(n.kind)), [notes]);
-  const activityNotes = useMemo(() => notes.filter((n) => !isUpdateNoteKind(n.kind)), [notes]);
+  const activityNotes = useMemo(
+    () => notes.filter((n) => !isUpdateNoteKind(n.kind) && (showDealNotifs || n.kind !== "prize_available")),
+    [notes, showDealNotifs],
+  );
 
   useEffect(() => {
     const db = getFirebaseDb();
@@ -301,14 +309,7 @@ export function InboxPage() {
   async function clearReadNotifications(rows: PromotionNotification[]) {
     const readIds = rows.filter((n) => n.read).map((n) => n.id);
     if (readIds.length === 0 || clearing) return;
-    // Bulk dismiss is irreversible (no server un-delete), so confirm first.
-    if (
-      !window.confirm(
-        `Clear ${readIds.length} read notification${readIds.length > 1 ? "s" : ""}? This can't be undone.`,
-      )
-    ) {
-      return;
-    }
+    setConfirmClearRead(false);
     setClearing(true);
     void triggerHaptic("medium");
     const idSet = new Set(readIds);
@@ -343,8 +344,29 @@ export function InboxPage() {
   const currentReadCount = activeList.filter((n) => n.read).length;
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-[max(6rem,calc(env(safe-area-inset-bottom,0px)+5rem))]">
-      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 pt-6">
+    <div className="mx-auto max-w-lg px-4 pb-[max(6rem,calc(env(safe-area-inset-bottom,0px)+5rem))] pt-4">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <button
+          type="button"
+          onClick={() => {
+            void triggerHaptic("light");
+            if (window.history.length > 1) window.history.back();
+            else nav("/me");
+          }}
+          className="inline-flex h-11 min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line transition hover:bg-paper active:scale-95 cursor-pointer"
+        >
+          <ArrowLeft size={15} />
+          <span>My Hub</span>
+        </button>
+        <Link
+          href="/settings"
+          className="inline-flex h-11 min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line transition hover:bg-paper hover:text-ink active:scale-95"
+        >
+          <Settings size={14} />
+          <span>Alert prefs</span>
+        </Link>
+      </div>
+      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 pt-2">
         <div className="min-w-0">
           <h1 className="human-title text-[28px] text-balance">Inbox</h1>
           <p className="mt-0.5 text-sm text-mute tabular-data">
@@ -435,16 +457,38 @@ export function InboxPage() {
                   {markingAll ? "Marking…" : "Mark all read"}
                 </button>
               )}
-              {currentReadCount > 0 && (
-                <button
-                  type="button"
-                  disabled={clearing}
-                  onClick={() => void clearReadNotifications(activeList)}
-                  className="inline-flex min-h-[44px] items-center text-[12px] font-bold text-rose-500/90 disabled:opacity-40 hover:underline"
-                >
-                  {clearing ? "Clearing…" : "Clear read"}
-                </button>
-              )}
+              {currentReadCount > 0 &&
+                (confirmClearRead ? (
+                  <span className="inline-flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={clearing}
+                      onClick={() => void clearReadNotifications(activeList)}
+                      className="inline-flex min-h-[44px] items-center rounded-full bg-rose-500/15 px-3 text-[12px] font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/25 cursor-pointer"
+                    >
+                      {clearing ? "Clearing…" : `Confirm clear (${currentReadCount})`}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmClearRead(false)}
+                      className="inline-flex min-h-[44px] items-center px-2 text-[12px] font-semibold text-mute hover:text-ink cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={clearing}
+                    onClick={() => {
+                      void triggerHaptic("light");
+                      setConfirmClearRead(true);
+                    }}
+                    className="inline-flex min-h-[44px] items-center text-[12px] font-bold text-rose-500/90 disabled:opacity-40 hover:underline cursor-pointer"
+                  >
+                    {clearing ? "Clearing…" : "Clear read"}
+                  </button>
+                ))}
             </div>
           )}
 

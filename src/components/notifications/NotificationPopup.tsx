@@ -47,7 +47,10 @@ export function NotificationPopup() {
   useEffect(() => {
     if (!current) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") dismiss();
+      if (e.key === "Escape") {
+        markPopupShown(current.id);
+        setQueue((q) => q.slice(1));
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

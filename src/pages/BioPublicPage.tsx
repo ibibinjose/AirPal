@@ -218,6 +218,7 @@ export function BioPublicPage() {
     let live = true;
     setRemote(undefined);
     setRemoteFailed(false);
+    setActiveVisibility(null);
     if (!handle) {
       setTried(true);
       return;
@@ -1516,7 +1517,7 @@ export function BioPublicPage() {
                               void triggerHaptic("light");
                               recordTap(bio.handle, "maps");
                             }}
-                            className="neu-btn inline-flex min-h-[36px] items-center gap-1 px-3 text-xs font-semibold text-ink"
+                            className="neu-btn inline-flex min-h-[44px] items-center gap-1 px-3 text-xs font-semibold text-ink"
                             title="Open in Apple Maps"
                           >
                             <span>Apple Maps</span>
@@ -1531,7 +1532,7 @@ export function BioPublicPage() {
                               void triggerHaptic("light");
                               recordTap(bio.handle, "maps");
                             }}
-                            className="neu-btn inline-flex min-h-[36px] items-center gap-1 px-3 text-xs font-semibold text-ink"
+                            className="neu-btn inline-flex min-h-[44px] items-center gap-1 px-3 text-xs font-semibold text-ink"
                             title="Open in Google Maps"
                           >
                             <span>Google Maps</span>
@@ -1704,7 +1705,7 @@ export function BioPublicPage() {
                                   <Photo src={item.requesterPhoto} className="h-full w-full object-cover" />
                                 ) : (
                                   <span className="grid h-full w-full place-items-center bg-neutral-900 font-bold text-sm text-white">
-                                    {item.requesterName[0]}
+                                    {(item.requesterName || "?")[0]}
                                   </span>
                                 )}
                               </div>
@@ -2355,29 +2356,47 @@ export function BioPublicPage() {
         {/* Navigation & Trust Links */}
         <nav
           aria-label="Profile footer navigation"
-          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-mute"
+          className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs text-mute"
         >
-          <Link href="/about" className="transition hover:text-ink hover:underline">
+          <Link
+            href="/about"
+            className="inline-flex min-h-[44px] items-center px-2 transition hover:text-ink hover:underline"
+          >
             About
           </Link>
           <span className="text-line select-none">·</span>
-          <Link href="/circle" className="transition hover:text-ink hover:underline">
+          <Link
+            href="/circle"
+            className="inline-flex min-h-[44px] items-center px-2 transition hover:text-ink hover:underline"
+          >
             Circle
           </Link>
           <span className="text-line select-none">·</span>
-          <Link href="/pass" className="transition hover:text-ink hover:underline">
+          <Link
+            href="/pass"
+            className="inline-flex min-h-[44px] items-center px-2 transition hover:text-ink hover:underline"
+          >
             Events
           </Link>
           <span className="text-line select-none">·</span>
-          <Link href="/trust" className="transition hover:text-ink hover:underline">
+          <Link
+            href="/trust"
+            className="inline-flex min-h-[44px] items-center px-2 transition hover:text-ink hover:underline"
+          >
             Trust &amp; Safety
           </Link>
           <span className="text-line select-none">·</span>
-          <Link href="/privacy" className="transition hover:text-ink hover:underline">
+          <Link
+            href="/privacy"
+            className="inline-flex min-h-[44px] items-center px-2 transition hover:text-ink hover:underline"
+          >
             Privacy
           </Link>
           <span className="text-line select-none">·</span>
-          <Link href="/terms" className="transition hover:text-ink hover:underline">
+          <Link
+            href="/terms"
+            className="inline-flex min-h-[44px] items-center px-2 transition hover:text-ink hover:underline"
+          >
             Terms
           </Link>
         </nav>
@@ -2506,9 +2525,10 @@ export function BioPublicPage() {
         currentCustomStatus={bio.customStatus}
         currentEmoji={bio.customStatusEmoji}
         onSaved={(newStatus, newCustom, newEmoji) => {
-          if (remote) {
+          const base = remote || local;
+          if (base) {
             setRemote({
-              ...remote,
+              ...base,
               availabilityStatus: newStatus,
               openNow: newStatus === "available",
               customStatus: newCustom,

@@ -50,7 +50,10 @@ export function AlternativesPage() {
         </div>
         <p className="mt-4 text-sm text-mute">
           Want the full story?{" "}
-          <Link href="/about" className="inline-flex items-center gap-1 font-semibold text-accent hover:underline">
+          <Link
+            href="/about"
+            className="inline-flex min-h-[44px] items-center gap-1 font-semibold text-accent hover:underline"
+          >
             About AirPal <ArrowRight size={13} />
           </Link>
         </p>

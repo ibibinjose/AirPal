@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/PageLoading";
@@ -8,8 +8,9 @@ import { PartnerApplicationsAdmin } from "@/components/admin/PartnerApplications
 /** Dedicated admin review queue for Pass partner applications. Admin-gated. */
 export function AdminPartnersPage() {
   const { isAdmin, authReady, user } = useAuth();
+  const [, nav] = useLocation();
 
-  if (!authReady) return <PageLoading message="Authenticating platform admin…" />;
+  if (authReady === false) return <PageLoading message="Authenticating platform admin…" />;
 
   if (!user || !isAdmin) {
     return (
@@ -21,7 +22,7 @@ export function AdminPartnersPage() {
         <p className="mt-2 text-sm text-mute leading-relaxed">
           Sign in with an authorized platform administrator account to review partner applications.
         </p>
-        <Button className="mt-6 w-full min-h-[44px]" onClick={() => window.location.assign("/start")}>
+        <Button className="mt-6 w-full min-h-[44px]" onClick={() => nav("/start?next=%2Fadmin%2Fpartners")}>
           Sign in
         </Button>
       </div>
@@ -29,7 +30,7 @@ export function AdminPartnersPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8 pb-[calc(env(safe-area-inset,0px)+6.5rem)]">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
       <Link
         href="/admin"
         className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-paper transition whitespace-nowrap"

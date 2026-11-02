@@ -37,6 +37,7 @@ import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { dismissKeyboard } from "@/lib/keyboard";
+import { safeGetItem } from "@/lib/safe-storage";
 import { cn } from "@/lib/cn";
 import { OPEN_SEARCH_EVENT, SEARCH_READY_EVENT, type OpenGlobalSearchOptions, type SearchCategory } from "./openSearch";
 
@@ -167,6 +168,8 @@ export function GlobalSearchModal() {
 
   // Generate indexed search results
   const results = useMemo<SearchResultItem[]>(() => {
+    void catalogVersion;
+    const allowSearchIndexing = safeGetItem("airpal_privacy_search_indexing") !== "false";
     const needle = searchNeedle(query);
     const q = needle.text.replace(/^@+/, "");
     const items: SearchResultItem[] = [];
@@ -283,7 +286,9 @@ export function GlobalSearchModal() {
     }
 
     // 0. Bios by @handle (local cache + remote exact hit)
-    if (handleBio && profileMatchesSearch(handleBio, needle)) {
+    const isBioHidden = (b: BioProfile) =>
+      b.visibility === "private" || (!allowSearchIndexing && Boolean(b.ownerUid || b.ownerEmail));
+    if (handleBio && !isBioHidden(handleBio) && profileMatchesSearch(handleBio, needle)) {
       const bioScore = scoreSearchItem(
         {
           title: handleBio.name || `@${handleBio.handle}`,
@@ -305,6 +310,7 @@ export function GlobalSearchModal() {
       });
     }
     for (const bio of loadBios()) {
+      if (isBioHidden(bio)) continue;
       const bioScore = scoreSearchItem(
         {
           title: bio.name || `@${bio.handle}`,

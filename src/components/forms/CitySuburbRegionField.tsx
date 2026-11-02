@@ -85,7 +85,7 @@ export function CitySuburbRegionField({
     const t = window.setTimeout(() => {
       setSearching(true);
       setError(null);
-      void searchCityRegions(needle, session, here)
+      void searchCityRegions(needle, session, { lat: here.lat, lng: here.lng })
         .then((rows) => {
           if (!selectedRef.current) {
             setHits(rows);

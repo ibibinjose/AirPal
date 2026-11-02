@@ -525,10 +525,14 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
 
   async function onCsv(file: File) {
     if (!activeEvent) return;
-    const text = await file.text();
-    const n = await importCsv(activeEvent.id, text);
-    toast.success(`${n} stalls imported`);
-    setTab("stalls");
+    try {
+      const text = await file.text();
+      const n = await importCsv(activeEvent.id, text);
+      toast.success(`${n} stalls imported`);
+      setTab("stalls");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not import CSV directory");
+    }
   }
 
   function resetStallForm() {
@@ -593,6 +597,10 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
     }
     const startsAt = fromLocalInput(startsLocal);
     const endsAt = fromLocalInput(endsLocal);
+    if (startsAt && endsAt && new Date(endsAt) <= new Date(startsAt)) {
+      toast.error("End time must be after the start time");
+      return;
+    }
     const ticketError = validateTickets(ticketFields);
     if (ticketError) {
       toast.error(ticketError);
@@ -704,7 +712,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
   // EVENT CREATION FLOW
   if (!activeEvent) {
     return (
-      <div data-theme="light" className="relative isolate overflow-hidden min-h-[85vh] bg-paper">
+      <div className="relative isolate overflow-hidden min-h-[85vh] bg-paper">
         <motion.div
           className="relative mx-auto max-w-6xl px-4 py-8 pb-24"
           initial={reduce ? false : "hidden"}
@@ -1245,7 +1253,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
         className="pointer-events-none absolute -right-16 top-28 h-56 w-56 rounded-full bg-gold/15 blur-3xl"
       />
 
-      <div data-theme="light" className="relative mx-auto max-w-4xl bg-paper px-4 pb-24 pt-4">
+      <div className="relative mx-auto max-w-4xl bg-paper px-4 pb-24 pt-4">
         {/* Breadcrumb Navigation Bar */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -1528,7 +1536,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 <Button
                   size="sm"
                   variant="tonal"
-                  className="mt-3 text-xs min-h-[40px]"
+                  className="mt-3 text-xs min-h-[44px]"
                   onClick={() => setTab("stalls")}
                 >
                   Manage {stallFieldLabels(activeEvent.flavour).listNoun}
@@ -1541,7 +1549,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                   <p className="text-xs text-ink font-semibold mt-1 truncate">{activeEvent.gatePath}</p>
                   <p className="text-xs text-mute mt-0.5">Scan at gate for live directory</p>
                 </div>
-                <Button size="sm" variant="tonal" className="mt-3 text-xs min-h-[40px]" onClick={() => setTab("print")}>
+                <Button size="sm" variant="tonal" className="mt-3 text-xs min-h-[44px]" onClick={() => setTab("print")}>
                   Print Entrance QR
                 </Button>
               </div>
@@ -1557,7 +1565,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                 <Button
                   size="sm"
                   variant="tonal"
-                  className="mt-3 text-xs min-h-[40px]"
+                  className="mt-3 text-xs min-h-[44px]"
                   onClick={() => nav(`/e/${activeEvent.id}/guests`)}
                 >
                   Open guestlist
@@ -1776,6 +1784,7 @@ export function EventStudioPage({ eventId, forceCreate }: { eventId?: string; fo
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) void onCsv(file);
+                          e.target.value = "";
                         }}
                       />
                     </label>

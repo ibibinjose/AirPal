@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo, type FormEvent } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import {
@@ -128,7 +128,7 @@ export function StartPage() {
     } else if (tabParam === "signin" || tabParam === "phone") {
       setMode("signin");
     }
-    if (emailParam && !resetEmail) setResetEmail(emailParam);
+    if (emailParam) setResetEmail((prev) => prev || emailParam);
   }, [tabParam, emailParam]);
 
   // Context & Role Intent Detection
@@ -202,7 +202,7 @@ export function StartPage() {
     return "One account for events, circle, and bio.";
   }
 
-  function afterInPath(): string {
+  const afterInPath = useCallback((): string => {
     const dest = next.trim();
     if (dest.startsWith("/") && !dest.startsWith("//") && !dest.startsWith("/start") && !dest.startsWith("/onboard"))
       return dest;
@@ -210,7 +210,7 @@ export function StartPage() {
     if (roleParam === "business" || business) return "/business";
     if (roleParam === "event") return "/event";
     return "/";
-  }
+  }, [next, roleParam, business]);
 
   useEffect(() => {
     if (!user) return;
@@ -223,7 +223,7 @@ export function StartPage() {
         nav(dest);
       }
     }
-  }, [user, pendingGo, next, nav, roleParam, business, mine?.handle]);
+  }, [user, pendingGo, next, nav, afterInPath, mine?.handle]);
 
   function switchMode(newMode: AuthMode) {
     void triggerHapticSelection();
@@ -768,7 +768,7 @@ export function StartPage() {
                                 setResetEmail(loginEmail);
                                 switchMode("reset");
                               }}
-                              className="font-bold text-accent underline inline-flex min-h-[36px] items-center gap-1 cursor-pointer"
+                              className="font-bold text-accent underline inline-flex min-h-[44px] items-center gap-1 cursor-pointer"
                             >
                               Forgot your password? Reset it here
                               <ArrowRight size={12} className="shrink-0" aria-hidden="true" />
@@ -777,7 +777,7 @@ export function StartPage() {
                             <button
                               type="button"
                               onClick={() => switchMode("signup")}
-                              className="font-bold text-accent underline inline-flex min-h-[36px] items-center gap-1 cursor-pointer"
+                              className="font-bold text-accent underline inline-flex min-h-[44px] items-center gap-1 cursor-pointer"
                             >
                               Create new account
                             </button>
@@ -853,7 +853,7 @@ export function StartPage() {
                           <button
                             type="button"
                             onClick={() => setShowPassword((prev) => !prev)}
-                            className="absolute right-1.5 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 grid h-11 w-11 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
                             aria-label={showPassword ? "Hide password" : "Show password"}
                           >
                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -867,7 +867,7 @@ export function StartPage() {
                             setResetEmail(loginEmail);
                             switchMode("reset");
                           }}
-                          className="inline-flex min-h-[36px] items-center text-xs font-semibold text-accent hover:underline cursor-pointer"
+                          className="inline-flex min-h-[44px] items-center text-xs font-semibold text-accent hover:underline cursor-pointer"
                         >
                           Forgot password?
                         </button>
@@ -892,7 +892,7 @@ export function StartPage() {
                       <button
                         type="button"
                         onClick={() => switchMode("signup")}
-                        className="font-bold text-accent hover:underline cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center font-bold text-accent hover:underline cursor-pointer"
                       >
                         Create an account
                       </button>
@@ -903,7 +903,7 @@ export function StartPage() {
                       <button
                         type="button"
                         onClick={() => switchMode("signin")}
-                        className="font-bold text-accent hover:underline cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center font-bold text-accent hover:underline cursor-pointer"
                       >
                         Sign in
                       </button>
@@ -929,20 +929,23 @@ export function StartPage() {
           <div className="mt-6 text-center space-y-2">
             <p className="text-xs text-mute">
               Explore partner options:{" "}
-              <Link href="/business" className="text-accent font-semibold hover:underline">
+              <Link
+                href="/business"
+                className="inline-flex min-h-[44px] items-center text-accent font-semibold hover:underline"
+              >
                 Become a Host, Business or Organiser
               </Link>
             </p>
             <div className="flex items-center justify-center gap-3 text-[11px] text-mute">
-              <Link href="/terms" className="hover:underline">
+              <Link href="/terms" className="inline-flex min-h-[44px] items-center hover:underline">
                 Terms of Service
               </Link>
               <span>·</span>
-              <Link href="/privacy" className="hover:underline">
+              <Link href="/privacy" className="inline-flex min-h-[44px] items-center hover:underline">
                 Privacy Policy
               </Link>
               <span>·</span>
-              <Link href="/trust" className="hover:underline">
+              <Link href="/trust" className="inline-flex min-h-[44px] items-center hover:underline">
                 Trust &amp; Facts
               </Link>
             </div>

@@ -185,10 +185,25 @@ export function BirthdayFreebiesPage() {
       (snapshot) => setWishlist(snapshot.docs.map((item) => item.id)),
       () => toast.error("Could not load your saved birthday offers."),
     );
-  }, [user?.uid]);
+  }, [user]);
 
   const [alertsEnabled, setAlertsEnabled] = useState(true);
   const [isSavingAlerts, setIsSavingAlerts] = useState(false);
+
+  useEffect(() => {
+    if (user && typeof user.birthdayAlertsEnabled === "boolean") {
+      setAlertsEnabled(user.birthdayAlertsEnabled);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!claimModalOffer) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setClaimModalOffer(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [claimModalOffer]);
 
   const toggleWishlist = async (id: string) => {
     if (!user) {
@@ -327,7 +342,7 @@ export function BirthdayFreebiesPage() {
               value={myBirthdayMonth ?? ""}
               onChange={(e) => handleSetBirthdayMonth(e.target.value ? Number(e.target.value) : null)}
               disabled={isSavingMonth}
-              className="min-h-[34px] rounded-xl bg-card border border-line pl-2.5 pr-8 py-1 text-xs font-bold text-ink shadow-xs transition hover:border-brand/40 focus:outline-hidden focus:ring-2 focus:ring-brand/30 cursor-pointer disabled:opacity-50 appearance-none"
+              className="min-h-[44px] rounded-xl bg-card border border-line pl-2.5 pr-8 py-1 text-xs font-bold text-ink shadow-xs transition hover:border-brand/40 focus:outline-hidden focus:ring-2 focus:ring-brand/30 cursor-pointer disabled:opacity-50 appearance-none"
             >
               <option value="">Choose Month... 🎂</option>
               {BIRTHDAY_MONTHS.map((m) => (
@@ -360,7 +375,7 @@ export function BirthdayFreebiesPage() {
         <Link
           href="/birthday-freebies"
           className={cn(
-            "min-h-[34px] rounded-full px-3 text-xs font-semibold transition shrink-0 flex items-center gap-1",
+            "min-h-[44px] rounded-full px-3.5 text-xs font-semibold transition shrink-0 flex items-center gap-1",
             region === null ? "bg-brand text-white shadow-xs" : "bg-card text-ink ring-1 ring-line hover:bg-paper",
           )}
         >
@@ -373,7 +388,7 @@ export function BirthdayFreebiesPage() {
               key={r.code}
               href={`/birthday-freebies/${r.code}`}
               className={cn(
-                "min-h-[34px] rounded-full px-3 text-xs font-semibold transition shrink-0 flex items-center gap-1",
+                "min-h-[44px] rounded-full px-3.5 text-xs font-semibold transition shrink-0 flex items-center gap-1",
                 isRegActive ? "bg-brand text-white shadow-xs" : "bg-card text-ink ring-1 ring-line hover:bg-paper",
               )}
             >
@@ -401,7 +416,7 @@ export function BirthdayFreebiesPage() {
                   void triggerHaptic("selection");
                   setSelectedMonth(myBirthdayMonth);
                 }}
-                className="rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 px-2 py-0.5 text-[11px] font-bold ring-1 ring-rose-500/30 hover:bg-rose-500/25 cursor-pointer transition"
+                className="inline-flex min-h-[44px] items-center rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 px-3 text-[11px] font-bold ring-1 ring-rose-500/30 hover:bg-rose-500/25 cursor-pointer transition"
               >
                 🎂 Switch to My Month ({myBirthMonthLabel?.slice(0, 3)})
               </button>
@@ -412,7 +427,7 @@ export function BirthdayFreebiesPage() {
               <button
                 type="button"
                 onClick={() => handleSetBirthdayMonth(selectedMonth)}
-                className="inline-flex items-center gap-1 rounded-xl bg-paper px-2.5 py-1 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card shadow-xs cursor-pointer transition"
+                className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card shadow-xs cursor-pointer transition"
                 title="Save this month as your birthday month"
               >
                 <span>🎂 Set as My Month</span>
@@ -421,7 +436,7 @@ export function BirthdayFreebiesPage() {
             <button
               type="button"
               onClick={handleCelebrate}
-              className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 px-2.5 py-1 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-95 cursor-pointer"
+              className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 px-3 text-xs font-bold text-white shadow-xs hover:brightness-105 active:scale-95 cursor-pointer"
             >
               <PartyPopper size={12} />
               <span>Celebrate! 🥳</span>
@@ -437,7 +452,7 @@ export function BirthdayFreebiesPage() {
               setSelectedMonth(null);
             }}
             className={cn(
-              "min-h-[32px] rounded-lg px-2.5 text-xs font-medium transition shrink-0 cursor-pointer",
+              "min-h-[44px] rounded-lg px-2.5 text-xs font-medium transition shrink-0 cursor-pointer",
               selectedMonth === null
                 ? "bg-ink text-paper font-bold shadow-xs"
                 : "bg-paper text-mute hover:text-ink ring-1 ring-line",
@@ -457,7 +472,7 @@ export function BirthdayFreebiesPage() {
                   setSelectedMonth(m.value);
                 }}
                 className={cn(
-                  "min-h-[32px] rounded-lg px-2 text-xs transition shrink-0 cursor-pointer flex items-center gap-1",
+                  "min-h-[44px] rounded-lg px-2.5 text-xs transition shrink-0 cursor-pointer flex items-center gap-1",
                   isSelected
                     ? "bg-brand text-white font-bold shadow-xs"
                     : isUserBirthdayMonth
@@ -488,13 +503,13 @@ export function BirthdayFreebiesPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search treats, burgers, drinks, zoo..."
               aria-label="Search birthday freebies"
-              className="w-full rounded-xl bg-card pl-9 pr-10 py-2 text-sm text-ink placeholder:text-mute ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
+              className="min-h-[44px] w-full rounded-xl bg-card pl-9 pr-11 py-2 text-sm text-ink placeholder:text-mute ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-brand"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
+                className="absolute right-0.5 top-1/2 -translate-y-1/2 grid h-11 w-11 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
                 aria-label="Clear search"
               >
                 <X size={14} />
@@ -510,7 +525,7 @@ export function BirthdayFreebiesPage() {
                 setOnlyCompletelyFree((v) => !v);
               }}
               className={cn(
-                "inline-flex min-h-[36px] items-center gap-1 rounded-xl px-2.5 text-xs font-semibold transition cursor-pointer shrink-0",
+                "inline-flex min-h-[44px] items-center gap-1 rounded-xl px-3 text-xs font-semibold transition cursor-pointer shrink-0",
                 onlyCompletelyFree
                   ? "bg-emerald-600 text-white shadow-xs"
                   : "bg-card text-ink ring-1 ring-line hover:bg-paper",
@@ -527,7 +542,7 @@ export function BirthdayFreebiesPage() {
                 setOnlyWishlist((v) => !v);
               }}
               className={cn(
-                "inline-flex min-h-[36px] items-center gap-1 rounded-xl px-2.5 text-xs font-semibold transition cursor-pointer shrink-0",
+                "inline-flex min-h-[44px] items-center gap-1 rounded-xl px-3 text-xs font-semibold transition cursor-pointer shrink-0",
                 onlyWishlist ? "bg-rose-600 text-white shadow-xs" : "bg-card text-ink ring-1 ring-line hover:bg-paper",
               )}
             >
@@ -550,7 +565,7 @@ export function BirthdayFreebiesPage() {
                   setSelectedCategory(cat.id);
                 }}
                 className={cn(
-                  "min-h-[32px] rounded-lg px-2.5 text-xs transition shrink-0 cursor-pointer flex items-center gap-1 font-medium",
+                  "min-h-[44px] rounded-lg px-3 text-xs transition shrink-0 cursor-pointer flex items-center gap-1 font-medium",
                   isCatActive
                     ? "bg-ink text-paper font-bold shadow-xs"
                     : "bg-card text-ink ring-1 ring-line hover:bg-paper",
@@ -581,7 +596,7 @@ export function BirthdayFreebiesPage() {
                 setOnlyWishlist(false);
                 setSelectedMonth(null);
               }}
-              className="mt-3 inline-flex min-h-[36px] items-center gap-1.5 rounded-xl bg-brand px-3 text-xs font-semibold text-white shadow-xs"
+              className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-brand px-4 text-xs font-semibold text-white shadow-xs"
             >
               Show all birthday treats
             </button>
@@ -637,7 +652,7 @@ export function BirthdayFreebiesPage() {
                         onClick={() => toggleWishlist(offer.id)}
                         disabled={savingWishlist.has(offer.id)}
                         aria-label={isSaved ? "Remove from wishlist" : "Save to wishlist"}
-                        className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition active:scale-90 cursor-pointer disabled:cursor-wait disabled:opacity-60"
+                        className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition active:scale-90 cursor-pointer disabled:cursor-wait disabled:opacity-60"
                       >
                         {isSaved ? (
                           <BookmarkCheck size={16} className="text-yellow-300 fill-yellow-300" />
@@ -680,7 +695,7 @@ export function BirthdayFreebiesPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(
-                        "inline-flex min-h-[38px] flex-1 items-center justify-center gap-1.5 rounded-2xl px-3 text-xs font-extrabold shadow-md transition active:scale-95 cursor-pointer",
+                        "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-2xl px-3 text-xs font-extrabold shadow-md transition active:scale-95 cursor-pointer",
                         theme.btnPrimary,
                       )}
                     >
@@ -693,7 +708,7 @@ export function BirthdayFreebiesPage() {
                       onClick={() => void handleShareWithMate(offer)}
                       title={BIRTHDAY_MATE_CTA.blurb}
                       className={cn(
-                        "inline-flex min-h-[38px] items-center justify-center gap-1 rounded-2xl px-2.5 text-xs font-semibold transition active:scale-95 cursor-pointer shrink-0",
+                        "inline-flex min-h-[44px] items-center justify-center gap-1 rounded-2xl px-3 text-xs font-semibold transition active:scale-95 cursor-pointer shrink-0",
                         theme.btnSecondary,
                       )}
                     >
@@ -706,7 +721,7 @@ export function BirthdayFreebiesPage() {
                       onClick={() => setClaimModalOffer(offer)}
                       title="View claim steps"
                       className={cn(
-                        "grid h-9 w-9 shrink-0 place-items-center rounded-2xl transition active:scale-95 cursor-pointer",
+                        "grid h-11 w-11 shrink-0 place-items-center rounded-2xl transition active:scale-95 cursor-pointer",
                         theme.btnSecondary,
                       )}
                       aria-label="View how to claim"
@@ -723,7 +738,15 @@ export function BirthdayFreebiesPage() {
 
       {/* Claim Steps Bottom Sheet / Modal */}
       {claimModalOffer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-150">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`How to claim ${claimModalOffer.brand}`}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setClaimModalOffer(null);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-150"
+        >
           <div className="w-full max-w-md rounded-3xl bg-card p-5 ring-1 ring-line shadow-2xl">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2">
@@ -738,7 +761,7 @@ export function BirthdayFreebiesPage() {
               <button
                 type="button"
                 onClick={() => setClaimModalOffer(null)}
-                className="grid h-8 w-8 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
+                className="grid h-11 w-11 place-items-center rounded-full text-mute hover:text-ink cursor-pointer"
                 aria-label="Close"
               >
                 <X size={16} />
@@ -771,7 +794,7 @@ export function BirthdayFreebiesPage() {
                 href={claimModalOffer.claimUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 inline-flex min-h-[38px] items-center justify-center gap-1 rounded-xl bg-brand text-xs font-bold text-white shadow-xs hover:bg-brand-ink"
+                className="flex-1 inline-flex min-h-[44px] items-center justify-center gap-1 rounded-xl bg-brand text-xs font-bold text-white shadow-xs hover:bg-brand-ink"
               >
                 <span>Go to {claimModalOffer.brand}</span>
                 <ExternalLink size={12} />
@@ -779,7 +802,7 @@ export function BirthdayFreebiesPage() {
               <button
                 type="button"
                 onClick={() => setClaimModalOffer(null)}
-                className="inline-flex min-h-[38px] items-center justify-center rounded-xl bg-paper px-3 text-xs font-semibold text-ink ring-1 ring-line"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-line"
               >
                 Done
               </button>
@@ -824,7 +847,7 @@ export function BirthdayFreebiesPage() {
           ) : (
             <Link
               href="/settings"
-              className="inline-flex min-h-[32px] items-center rounded-xl bg-brand px-2.5 text-xs font-bold text-white shadow-xs"
+              className="inline-flex min-h-[44px] items-center rounded-xl bg-brand px-3.5 text-xs font-bold text-white shadow-xs"
             >
               Enable
             </Link>
@@ -844,7 +867,7 @@ export function BirthdayFreebiesPage() {
           </div>
           <Link
             href="/business/promotions/new"
-            className="inline-flex min-h-[32px] items-center gap-1 rounded-xl bg-ink px-2.5 text-xs font-bold text-paper shadow-xs shrink-0"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-xl bg-ink px-3.5 text-xs font-bold text-paper shadow-xs shrink-0"
           >
             <span>Add Perk</span>
             <ArrowRight size={12} />

@@ -43,6 +43,7 @@ export function useSpeakerBios(speakers: Speaker[] | undefined): ResolvedSpeaker
   const key = JSON.stringify((speakers || []).map((s) => `${s.handle || ""}|${s.name}|${s.role || ""}`));
 
   useEffect(() => {
+    void key;
     let cancelled = false;
     const list = speakers || [];
     if (!list.some((s) => s.handle)) {
@@ -58,7 +59,7 @@ export function useSpeakerBios(speakers: Speaker[] | undefined): ResolvedSpeaker
     return () => {
       cancelled = true;
     };
-  }, [key]);
+  }, [key, speakers]);
 
   return resolved;
 }

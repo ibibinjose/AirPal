@@ -408,6 +408,5 @@ _Primary surfaces: `/me/inbox`, `/settings`_
 - [x] **Privacy Data & Account**
   - **Create**: Request self-service JSON data export or submit account deletion request.
   - **Read**: Review profile data and privacy permissions in `/settings`.
-  - **Update**: Update display name, `@handle` (live availability check), email, phone (SMS code), birthday-perk alerts (server-saved), theme, and city in `/settings`. Removing an email or phone uses an inline two-tap confirm.
+  - **Update**: Update display name, `@handle` (live availability check), email, phone (SMS code), birthday-perk alerts (server-saved), search indexing (`mine.visibility`: `"public"` vs `"private"`), live Circle presence (`shareLocation` + `stopHereRemote()`), deal alerts (`dealsNotifPrefEnabled()`), web push tokens (`enableWebPush()`), theme, and city in `/settings`. Removing an email or phone uses an inline two-tap confirm.
   - **Delete**: Permanent account deletion (`/account_deletions`), gated by typing `DELETE`.
-  - **Known limit**: The "Search & Directory Indexing", "Circle Presence & Live Check-in", and "Event Drops & Dining Deals" toggles save to device `localStorage` only (`airpal_privacy_*`, `airpal_notif_deals`). Nothing in the client or server reads them yet, so they do not change indexing, presence, or delivery. Presence privacy is enforced by `resolvePinOnMap` and rules, not by these toggles.

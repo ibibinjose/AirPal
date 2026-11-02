@@ -283,6 +283,10 @@ Gate: double-tap redeem test (replays, never re-charges); ledger shows exactly o
    - Safety reports (reporter-bound, new-only, bounded text, never deleted), blocks
      (pin blocker, unblock by deletion), read-only-after-submit feedback with emoji mood
      and reviews, admin triage and audits.
+   - Settings privacy & alert rails (`/settings`): search indexing syncs `mine.visibility`
+     (`"public"` vs `"private"`) and filters `GlobalSearchModal`; Circle presence syncs
+     `shareLocation` and calls `stopHereRemote()` when turned off; deal alerts filter
+     `"prize_available"` items in `/me/inbox`; push toggle calls `enableWebPush()`.
    - GDPR and Australian Privacy Act: self-service JSON data export plus
      account-deletion requests.
 

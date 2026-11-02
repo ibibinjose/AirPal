@@ -46,7 +46,7 @@ export function GuestListPanel({ clubId, clubName }: { clubId: string; clubName:
         toast.error("Could not load this guest list from the server.");
       },
     );
-  }, [clubId, user?.uid]);
+  }, [clubId, user]);
 
   useEffect(() => {
     const goOffline = () => setOffline(true);

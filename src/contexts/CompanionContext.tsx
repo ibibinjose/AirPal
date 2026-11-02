@@ -86,6 +86,7 @@ export function CompanionProvider({ children }: { children: ReactNode }) {
   const remoteMine = remoteApps.find((a) => a.userId === userId);
   const application = remoteMine || localApp;
   const allApplications = useMemo(() => {
+    void tick;
     const local = loadApplications();
     if (remoteApps.length === 0) return local;
     const byId = new Map<string, CompanionApplication>();

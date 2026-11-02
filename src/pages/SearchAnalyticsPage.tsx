@@ -27,8 +27,11 @@ import {
   MapPin,
   ArrowUpRight,
   SlidersHorizontal,
+  ShieldCheck,
 } from "lucide-react";
 import { getFirebaseDb } from "@/lib/firebase";
+import { liveBackendEnabled } from "@/lib/functions";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/Button";
 import { openGlobalSearch } from "@/components/search/openSearch";
 import { useSearchQueryLogger } from "@/hooks/useSearchQueryLogger";
@@ -67,6 +70,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export function SearchAnalyticsPage() {
   const [, nav] = useLocation();
+  const { user, isAdmin, authReady } = useAuth();
   const [popularTerms, setPopularTerms] = useState<PopularItem[]>([]);
   const [queryLogs, setQueryLogs] = useState<RawQueryLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -156,7 +160,7 @@ export function SearchAnalyticsPage() {
     await logSearch({
       query: term,
       category,
-      resultsCount: Math.floor(Math.random() * 8) + 1,
+      resultsCount: 1,
       source: "analytics_live_test",
     });
     toast.success(`Logged "${term}" to Firestore`);
@@ -200,12 +204,12 @@ export function SearchAnalyticsPage() {
     return Object.entries(counts).map(([name, value]) => ({
       name: name === "circle" ? "Circle" : name === "deals" ? "Deals" : name.charAt(0).toUpperCase() + name.slice(1),
       key: name,
-      value: Math.max(value, 5),
+      value,
       color: CATEGORY_COLORS[name] || "#004eff",
     }));
   }, [popularTerms]);
 
-  // Generate Daily Trend Line Data based on time range
+  // Generate Daily Trend Line Data from real queryLogs based on time range
   const trendData = useMemo(() => {
     const days = timeRange === "7d" ? 7 : timeRange === "30d" ? 14 : 21;
     const result = [];
@@ -214,28 +218,24 @@ export function SearchAnalyticsPage() {
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
+      const dayIso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       const label = d.toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
       });
 
-      // Factor based on time distribution curve with natural weekend bumps
-      const dayOfWeek = d.getDay();
-      const isWeekend = dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0;
-      const weekendBoost = isWeekend ? 1.4 : 1.0;
-      const baseSearches = Math.round((18 + (days - i) * 1.5 + Math.sin(i) * 6) * weekendBoost);
-
+      const dayLogs = queryLogs.filter((l) => (l.clientTimestamp || "").startsWith(dayIso));
       result.push({
         date: label,
-        total: Math.max(12, baseSearches),
-        places: Math.round(baseSearches * 0.35),
-        events: Math.round(baseSearches * 0.3),
-        deals: Math.round(baseSearches * 0.15),
+        total: dayLogs.length,
+        places: dayLogs.filter((l) => (l.category || "places") === "places").length,
+        events: dayLogs.filter((l) => l.category === "events").length,
+        deals: dayLogs.filter((l) => l.category === "deals").length,
       });
     }
 
     return result;
-  }, [timeRange]);
+  }, [timeRange, queryLogs]);
 
   // High-level KPI summary calculations
   const totalVolume = useMemo(() => {
@@ -245,6 +245,12 @@ export function SearchAnalyticsPage() {
   const topTerm = useMemo(() => {
     return popularTerms[0]?.term || "—";
   }, [popularTerms]);
+
+  const matchRateLabel = useMemo(() => {
+    if (queryLogs.length === 0) return "—";
+    const matched = queryLogs.filter((l) => (l.resultsCount ?? 0) > 0 || Boolean(l.selectedResultTitle)).length;
+    return `${Math.round((matched / queryLogs.length) * 100)}%`;
+  }, [queryLogs]);
 
   const filteredTableItems = useMemo(() => {
     let list = popularTerms;
@@ -257,6 +263,23 @@ export function SearchAnalyticsPage() {
     }
     return list;
   }, [popularTerms, filterCategory, tableFilter]);
+
+  if (authReady && liveBackendEnabled() && (!user || !isAdmin)) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-20 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-red-500/10 ring-1 ring-red-500/20">
+          <ShieldCheck className="h-7 w-7 text-red-500" />
+        </div>
+        <p className="font-display mt-4 text-2xl font-bold">Admin Restricted</p>
+        <p className="mt-2 text-sm text-mute leading-relaxed">
+          Sign in with an authorized platform administrator account to view search telemetry.
+        </p>
+        <Button className="mt-6 w-full min-h-[44px]" onClick={() => nav("/start?next=%2Fadmin%2Fsearch")}>
+          Sign in
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-paper pb-28 pt-4 sm:pt-6">
@@ -299,7 +322,7 @@ export function SearchAnalyticsPage() {
               variant="ghost"
               onClick={handleRefresh}
               disabled={refreshing}
-              className="rounded-full bg-card ring-1 ring-line text-xs font-semibold gap-1.5 shadow-xs"
+              className="min-h-[44px] rounded-full bg-card ring-1 ring-line text-xs font-semibold gap-1.5 shadow-xs"
             >
               <RefreshCw size={13} className={cn(refreshing && "animate-spin text-accent")} />
               <span>Refresh</span>
@@ -307,7 +330,7 @@ export function SearchAnalyticsPage() {
             <Button
               size="sm"
               onClick={() => openGlobalSearch()}
-              className="rounded-full text-xs font-bold gap-1 shadow-xs"
+              className="min-h-[44px] rounded-full text-xs font-bold gap-1 shadow-xs"
             >
               <Search size={13} />
               <span>Live Search</span>
@@ -324,7 +347,7 @@ export function SearchAnalyticsPage() {
             </p>
             <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
               <TrendingUp size={12} />
-              <span>+18.4% this week</span>
+              <span>{queryLogs.length > 0 ? `${queryLogs.length} recent logs` : "Live Firestore telemetry"}</span>
             </p>
           </div>
 
@@ -343,11 +366,11 @@ export function SearchAnalyticsPage() {
           </div>
 
           <div className="rounded-2xl bg-card p-4 ring-1 ring-line/80 shadow-clay">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Conversion / CTR</span>
-            <p className="font-display mt-1 text-2xl sm:text-3xl font-extrabold text-ink">74.2%</p>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-mute">Result Match Rate</span>
+            <p className="font-display mt-1 text-2xl sm:text-3xl font-extrabold text-ink">{matchRateLabel}</p>
             <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-accent">
               <Sparkles size={12} />
-              <span>High intent matches</span>
+              <span>Queries with results</span>
             </p>
           </div>
         </div>
@@ -605,17 +628,17 @@ export function SearchAnalyticsPage() {
                   { term: "Coogee Coastal Walk", cat: "places" },
                   { term: "Darling Harbour Dinner", cat: "places" },
                   { term: "Jazz Club Live", cat: "events" },
-                  { term: "Gym Workout Companion", cat: "people" },
-                  { term: "Paddington Boutique Hotel", cat: "stay" },
+                  { term: "Gym Workout Companion", cat: "circle" },
+                  { term: "Surry Hills Specialty Coffee", cat: "places" },
                   { term: "Barangaroo Sunset Drinks", cat: "places" },
-                  { term: "Coffee Tasting Masterclass", cat: "experiences" },
-                  { term: "Sydney Opera House Tour", cat: "experiences" },
+                  { term: "Coffee Tasting Masterclass", cat: "events" },
+                  { term: "Member Dining Perk", cat: "deals" },
                 ].map((item) => (
                   <button
                     key={item.term}
                     type="button"
                     onClick={() => void handleQuickTest(item.term, item.cat)}
-                    className="flex items-center gap-1.5 rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/40 transition active:scale-95 cursor-pointer touch-manipulation"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-paper px-3.5 py-1.5 text-xs font-semibold text-ink ring-1 ring-line hover:bg-card hover:ring-brand/40 transition active:scale-95 cursor-pointer touch-manipulation"
                   >
                     <Search size={12} className="text-accent" />
                     <span>{item.term}</span>
@@ -635,7 +658,7 @@ export function SearchAnalyticsPage() {
               <Button
                 size="sm"
                 onClick={() => openGlobalSearch()}
-                className="h-8 rounded-full px-3.5 text-xs font-bold shrink-0"
+                className="min-h-[44px] rounded-full px-3.5 text-xs font-bold shrink-0"
               >
                 <span>Go to Search</span>
                 <ArrowUpRight size={13} />
@@ -656,13 +679,13 @@ export function SearchAnalyticsPage() {
 
             <div className="w-full sm:w-64">
               <div className="relative">
-                <Search size={14} className="absolute left-3 top-2.5 text-mute" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-mute" />
                 <input
                   type="text"
                   value={tableFilter}
                   onChange={(e) => setTableFilter(e.target.value)}
                   placeholder="Filter keywords…"
-                  className="w-full rounded-xl bg-paper py-1.5 pl-8 pr-3 text-xs font-medium text-ink ring-1 ring-line focus:ring-brand focus:outline-none"
+                  className="min-h-[44px] w-full rounded-xl bg-paper py-2 pl-8 pr-3 text-xs font-medium text-ink ring-1 ring-line focus:ring-brand focus:outline-none"
                 />
               </div>
             </div>

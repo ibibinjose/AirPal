@@ -337,7 +337,19 @@ export function BioSetupPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-8 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
+    <div className="mx-auto max-w-md px-4 py-6 pb-[calc(env(safe-area-inset-bottom,0px)+6.5rem)]">
+      <div className="mb-4 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => {
+            if (window.history.length > 1) window.history.back();
+            else nav(asBusiness ? "/business" : "/me");
+          }}
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line hover:bg-paper hover:text-ink transition cursor-pointer"
+        >
+          <span>← {asBusiness ? "Business Hub" : "My Hub"}</span>
+        </button>
+      </div>
       <p className="human-eyebrow">{asBusiness ? "Business" : "AirPal.Me/@"}</p>
       <h1 className="human-title mt-1 text-3xl text-balance">{asBusiness ? "List your place" : "Your handle"}</h1>
       <p className="human-lede mt-2 text-sm sm:text-base">
@@ -531,7 +543,7 @@ export function BioSetupPage() {
                 size="sm"
                 disabled={locating}
                 onClick={() => void locate()}
-                className="text-xs flex items-center justify-center gap-1.5"
+                className="min-h-[44px] text-xs flex items-center justify-center gap-1.5"
               >
                 <Navigation className="size-3.5" />
                 {locating ? "Locating…" : "Use GPS"}
@@ -542,7 +554,7 @@ export function BioSetupPage() {
                 size="sm"
                 disabled={locating || (!address.line1.trim() && !address.city.trim())}
                 onClick={() => void pinFromAddress()}
-                className="text-xs flex items-center justify-center gap-1.5"
+                className="min-h-[44px] text-xs flex items-center justify-center gap-1.5"
               >
                 <MapPin className="size-3.5" />
                 Pin Address

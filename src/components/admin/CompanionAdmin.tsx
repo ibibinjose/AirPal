@@ -60,7 +60,7 @@ export function CompanionAdmin() {
         role: roleFilter === "all" ? undefined : roleFilter,
         location: locationFilter.trim() || undefined,
       }),
-    [adminList, allApplications, statusFilter, roleFilter, locationFilter],
+    [adminList, statusFilter, roleFilter, locationFilter],
   );
 
   const counts = useMemo(() => {

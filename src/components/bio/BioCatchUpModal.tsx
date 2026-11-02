@@ -179,11 +179,15 @@ export function BioCatchUpModal({
     setSubmittedSummary(null);
 
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") handleClose();
+      if (e.key === "Escape") {
+        void dismissKeyboard();
+        setSubmittedSummary(null);
+        onClose();
+      }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, initialType, handle, city, defaultMeetingUrl, defaultMeetingPlatform]);
+  }, [open, initialType, handle, city, defaultMeetingUrl, defaultMeetingPlatform, onClose]);
 
   const typeOptions: Array<{
     type: CatchUpType;

@@ -125,7 +125,7 @@ export function MyTicketsPage() {
           <p className="mx-auto mt-1 max-w-sm text-sm text-mute">One account, tickets everywhere.</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <Link
-              href="/start?tab=signin"
+              href={`/start?tab=signin&next=${encodeURIComponent("/me/tickets")}`}
               className="no-print inline-flex min-h-[44px] items-center rounded-full bg-brand px-5 text-sm font-semibold text-white"
             >
               Sign in
@@ -142,7 +142,10 @@ export function MyTicketsPage() {
         <>
           <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-brand/10 p-3.5 text-sm font-semibold text-accent ring-1 ring-brand/20 mb-4">
             <span>Viewing passes saved on this device. Sign in to sync across all your devices.</span>
-            <Link href="/start?tab=signin" className="underline shrink-0 font-bold inline-flex items-center gap-1">
+            <Link
+              href={`/start?tab=signin&next=${encodeURIComponent("/me/tickets")}`}
+              className="underline shrink-0 font-bold inline-flex items-center gap-1"
+            >
               Sign in
               <ArrowRight size={13} className="shrink-0" aria-hidden="true" />
             </Link>

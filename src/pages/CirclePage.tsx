@@ -226,14 +226,13 @@ export function CirclePage() {
       });
     }
 
-    // 4. PLACES: Liked or followed places, plus an offline landmark fallback
+    // 4. PLACES: Liked or followed places from the catalog
     const placesCatalog = activePlaces();
-    const candidatePlaces = placesCatalog.slice(0, 4);
-
-    for (const cp of candidatePlaces) {
+    for (const cp of placesCatalog) {
       const handle = cp.handle || cp.id;
       if (seenHandles.has(handle)) continue;
       const isFw = followedHandles.has(handle) || likedHandles.has(handle);
+      if (!isFw) continue;
       addContact({
         id: `place-${cp.id}`,
         handle,
@@ -247,7 +246,7 @@ export function CirclePage() {
             : cp.category === "coffee"
               ? "Coffee & Cafe"
               : "Local Precinct Spot",
-        isFollowing: isFw,
+        isFollowing: true,
         isFollower: false,
         isMutual: false,
         isMet: false,
@@ -754,6 +753,7 @@ export function CirclePage() {
                   <Button
                     variant="ghost"
                     size="sm"
+                    className="min-h-[44px]"
                     onClick={() => {
                       setSearchQuery("");
                       setRelationshipFilter("all");
@@ -762,19 +762,24 @@ export function CirclePage() {
                     Reset Filters
                   </Button>
                 ) : filter === "places" ? (
-                  <Button variant="primary" size="sm" onClick={() => openGlobalSearch({ category: "places" })}>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="min-h-[44px]"
+                    onClick={() => openGlobalSearch({ category: "places" })}
+                  >
                     Search Places
                   </Button>
                 ) : filter === "communities" ? (
-                  <Button variant="primary" size="sm" onClick={() => nav("/events")}>
+                  <Button variant="primary" size="sm" className="min-h-[44px]" onClick={() => nav("/events")}>
                     Browse Events
                   </Button>
                 ) : (
                   <>
-                    <Button variant="outlined" size="sm" onClick={() => setLogMetOpen(true)}>
+                    <Button variant="outlined" size="sm" className="min-h-[44px]" onClick={() => setLogMetOpen(true)}>
                       Log Met IRL
                     </Button>
-                    <Button variant="primary" size="sm" onClick={handleShareCircleInvite}>
+                    <Button variant="primary" size="sm" className="min-h-[44px]" onClick={handleShareCircleInvite}>
                       Invite Friends
                     </Button>
                   </>

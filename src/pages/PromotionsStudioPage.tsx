@@ -70,6 +70,7 @@ export function PromotionsStudioPage({
 
   const [preset, setPreset] = useState<OfferDraft | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   const title =
     view === "new"
@@ -118,6 +119,7 @@ export function PromotionsStudioPage({
     try {
       await saveDeal(mine.id, null);
       setPreset(null);
+      setConfirmRemove(false);
       toast.success("Promotion removed");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not remove promotion");
@@ -295,18 +297,41 @@ export function PromotionsStudioPage({
                 onSubmit={(payload) => void publish(payload)}
               />
 
-              {mine.deal?.detail && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="min-h-[48px] w-full gap-1.5 border border-rose-500/30 text-rose-600 hover:bg-rose-500/10"
-                  disabled={saving}
-                  onClick={() => void handleRemoveDeal()}
-                >
-                  <Trash2 size={15} />
-                  <span>Remove Offer</span>
-                </Button>
-              )}
+              {mine.deal?.detail &&
+                (confirmRemove ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="min-h-[48px] flex-1 gap-1.5 border border-rose-500/40 bg-rose-500/10 text-rose-600 hover:bg-rose-500/20"
+                      disabled={saving}
+                      onClick={() => void handleRemoveDeal()}
+                    >
+                      <Trash2 size={15} />
+                      <span>{saving ? "Removing…" : "Confirm Remove Offer"}</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="min-h-[48px] px-4"
+                      disabled={saving}
+                      onClick={() => setConfirmRemove(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="min-h-[48px] w-full gap-1.5 border border-rose-500/30 text-rose-600 hover:bg-rose-500/10"
+                    disabled={saving}
+                    onClick={() => setConfirmRemove(true)}
+                  >
+                    <Trash2 size={15} />
+                    <span>Remove Offer</span>
+                  </Button>
+                ))}
             </div>
           )}
         </>

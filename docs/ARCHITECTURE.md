@@ -46,6 +46,10 @@ product canon is [`AIRPAL.md`](./AIRPAL.md); this file is the tree legend.
 - **Client never prices, pays, or verifies:** display math may mirror the
   server for UX, but `functions/` re-derives every money, inventory, and
   trust decision from live documents.
+- **No synthetic production telemetry:** admin and analytics surfaces
+  (`AdminPage`, `SearchAnalyticsPage`) aggregate live Firestore documents
+  only (`search_queries`, `popular_searches`, `analyticsDaily`) and are
+  gated behind `useAuth().isAdmin` when the live backend is enabled.
 
 ## `shared/` contract
 

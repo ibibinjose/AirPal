@@ -4,12 +4,21 @@ import { getFirebaseApp, getFirebaseAuth, getFirebaseDb } from "./firebase";
 import { isNativeApp } from "./platform";
 
 const PREF_KEY = "airpal.notify.push";
+const DEALS_PREF_KEY = "airpal_notif_deals";
 
 export function pushPrefEnabled(): boolean {
   try {
     return localStorage.getItem(PREF_KEY) === "1";
   } catch {
     return false;
+  }
+}
+
+export function dealsNotifPrefEnabled(): boolean {
+  try {
+    return localStorage.getItem(DEALS_PREF_KEY) !== "false";
+  } catch {
+    return true;
   }
 }
 

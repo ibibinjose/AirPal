@@ -85,7 +85,7 @@ export function PlaceAddressField({
     const t = window.setTimeout(() => {
       setSearching(true);
       setError(null);
-      void searchAddressPlaces(needle, session, here)
+      void searchAddressPlaces(needle, session, { lat: here.lat, lng: here.lng })
         .then((rows) => {
           if (!selectedRef.current) {
             setHits(rows);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams, useSearch } from "wouter";
 import { collection, doc, getDoc, getDocs, limit, query, where } from "firebase/firestore";
 import {
@@ -135,7 +135,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
       .catch(() => undefined);
   }, [user, id, promo]);
 
-  async function doEnter() {
+  const doEnter = useCallback(async () => {
     if (!id) return;
     setEntering(true);
     try {
@@ -156,7 +156,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
     } finally {
       setEntering(false);
     }
-  }
+  }, [id, code, refParam]);
 
   async function enter() {
     if (
@@ -169,7 +169,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
     await doEnter();
   }
 
-  async function doRedeem() {
+  const doRedeem = useCallback(async () => {
     if (!id) return;
     setRedeeming(true);
     try {
@@ -182,7 +182,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
     } finally {
       setRedeeming(false);
     }
-  }
+  }, [id]);
 
   async function redeem() {
     if (
@@ -207,7 +207,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
       clearPendingIntent();
       void doRedeem();
     }
-  }, [user, promo, id]);
+  }, [user, promo, id, reference, redeemCode, doEnter, doRedeem]);
 
   async function share() {
     const url = toPublicUrl(`${window.location.pathname}${user ? `?ref=${user.uid}` : ""}`);
@@ -315,9 +315,9 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
       )}
 
       {target && !closed && (
-        <a href={target} onClick={() => promo.id && recordPromotionClickRemote(promo.id).catch(() => undefined)}>
+        <Link href={target} onClick={() => promo.id && recordPromotionClickRemote(promo.id).catch(() => undefined)}>
           <Button className="mt-4 w-full">View the experience</Button>
-        </a>
+        </Link>
       )}
 
       {promo.mechanicType === "member" && Number(promo.pointsCost) > 0 && !closed && (
@@ -376,7 +376,7 @@ export function PromotionDetailPage({ kind }: { kind?: "giveaway" | "promotion" 
           </div>
         ) : closed ? (
           <div className="rounded-2xl ring-1 ring-line/20 bg-card p-4 text-center text-sm font-semibold text-mute">
-            This {kind} has closed.
+            This {kind || promo.kind || "promotion"} has closed.
           </div>
         ) : null}
       </div>

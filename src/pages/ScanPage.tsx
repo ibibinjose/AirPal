@@ -28,13 +28,14 @@ export function ScanPage() {
   const { t } = useLocale();
   const { version, remoteLoaded, remoteFailed } = useListings();
   const { here, city, usingGps } = useLocalNow();
-  const quickPlaces = useMemo(
-    () => placesForLocation(activePlaces(), here, city, usingGps).slice(0, 6),
-    [version, here, city, usingGps],
-  );
+  const quickPlaces = useMemo(() => {
+    if (version < 0) return [];
+    return placesForLocation(activePlaces(), here, city, usingGps).slice(0, 6);
+  }, [version, here, city, usingGps]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const lastUnknownRef = useRef<{ data: string; at: number }>({ data: "", at: 0 });
   const [live, setLive] = useState(false);
   const [denied, setDenied] = useState(false);
   const [manualCode, setManualCode] = useState("");
@@ -67,9 +68,17 @@ export function ScanPage() {
 
     async function start() {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+        const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+        if (!running.current) {
+          s.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        stream = s;
         const video = videoRef.current;
-        if (!video) return;
+        if (!video) {
+          s.getTracks().forEach((t) => t.stop());
+          return;
+        }
         video.srcObject = stream;
         await video.play();
         setLive(true);
@@ -97,7 +106,11 @@ export function ScanPage() {
                   go(path);
                   return;
                 }
-                toast.message("Unknown code scanned");
+                const nowMs = Date.now();
+                if (lastUnknownRef.current.data !== code.data || nowMs - lastUnknownRef.current.at > 3000) {
+                  lastUnknownRef.current = { data: code.data, at: nowMs };
+                  toast.message("Unknown code scanned");
+                }
               }
             }
           }

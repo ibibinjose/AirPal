@@ -177,21 +177,23 @@ export function ClaimVenueForm({
         wasCreated = res.created;
       }
 
-      const createdListing = await createPlace({
-        name: businessName.trim(),
-        category: (category as BusinessCategoryId) || "eat",
-        address: address.trim() || city.trim() || "Sydney",
-        hours: place.hours || "Mon–Sun · 9am–9pm",
-        shortWhy: place.shortWhy || `Official AirPal partner venue in ${city.trim() || "Sydney"}.`,
-        phone: place.phone,
-        website: place.website,
-        heroImage: place.photoNames[0],
-        mapsPlaceId: place.placeId.startsWith("manual-") ? undefined : place.placeId,
-        geo: place.geo,
-      });
+      if (wasCreated) {
+        const createdListing = await createPlace({
+          name: businessName.trim(),
+          category: (category as BusinessCategoryId) || "eat",
+          address: address.trim() || city.trim() || "Sydney",
+          hours: place.hours || "Mon–Sun · 9am–9pm",
+          shortWhy: place.shortWhy || `Official AirPal partner venue in ${city.trim() || "Sydney"}.`,
+          phone: place.phone,
+          website: place.website,
+          heroImage: place.photoNames[0],
+          mapsPlaceId: place.placeId.startsWith("manual-") ? undefined : place.placeId,
+          geo: place.geo,
+        });
 
-      if (!isV3AdaptersEnabled()) {
-        claimedPlaceId = createdListing.id;
+        if (!isV3AdaptersEnabled()) {
+          claimedPlaceId = createdListing.id;
+        }
       }
 
       setResult({ placeId: claimedPlaceId, created: wasCreated });
@@ -248,7 +250,13 @@ export function ClaimVenueForm({
         <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-paper px-4 py-3 ring-1 ring-line">
           <span className="text-xs font-semibold uppercase tracking-wider text-mute">Ref:</span>
           <span className="min-w-0 flex-1 break-all font-mono text-[13px] text-ink">{result.placeId}</span>
-          <Button size="sm" variant="ghost" onClick={copyReference} aria-label="Copy claim reference">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="min-h-[44px]"
+            onClick={copyReference}
+            aria-label="Copy claim reference"
+          >
             {copied ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />}
             {copied ? "Copied" : "Copy"}
           </Button>

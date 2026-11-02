@@ -479,6 +479,8 @@ export function BusinessPage() {
       geo,
       handle: mine!.handle,
       heroImage: src || "",
+    }).catch((err) => {
+      toast.error(err instanceof Error ? err.message : "Could not update hero image");
     });
   }
 
@@ -694,7 +696,7 @@ export function BusinessPage() {
               <span>Personal Dashboard</span>
             </Link>
             <Link
-              href="/host/pulse"
+              href="/pulse"
               className="neu-btn inline-flex min-h-[44px] shrink-0 items-center gap-1.5 px-3.5 py-1.5 font-semibold text-ink/85 transition hover:text-accent whitespace-nowrap"
             >
               <Activity className="h-3.5 w-3.5 shrink-0 text-accent" />
@@ -929,7 +931,7 @@ export function BusinessPage() {
                 size="sm"
                 variant="outlined"
                 onClick={() => nav("/business/setup")}
-                className="mt-3.5 w-full justify-between"
+                className="mt-3.5 min-h-[44px] w-full justify-between"
               >
                 <span>Complete Setup Checklist</span>
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -1004,7 +1006,7 @@ export function BusinessPage() {
               <ArrowRight className="h-3.5 w-3.5 text-mute" />
             </Link>
             <Link
-              href="/host/pulse"
+              href="/pulse"
               className="neu-row flex min-h-[44px] items-center justify-between px-3.5 py-2.5 text-xs font-semibold text-ink transition"
             >
               <span className="flex items-center gap-2">

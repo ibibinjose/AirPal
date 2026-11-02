@@ -82,6 +82,7 @@ export function FriendsPage() {
   }, []);
 
   const friends = useMemo<Friend[]>(() => {
+    void peopleRevision;
     const myHandle = (mine?.handle || "").toLowerCase();
     const map = new Map<string, Friend>();
     const peopleMet = listPeople();

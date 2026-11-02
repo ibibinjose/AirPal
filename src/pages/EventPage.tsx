@@ -144,7 +144,7 @@ export function EventPage() {
 
 function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
   const [, nav] = useLocation();
-  const { user, requireUser } = useAuth();
+  const { user, isAdmin, requireUser } = useAuth();
   const { toggleGoing, toggleInterested, toggleLiked, getEvent } = useEvents();
   const [buying, setBuying] = useState(false);
   const [tier, setTier] = useState<string>("standard");
@@ -158,17 +158,24 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
 
   const [shareOpen, setShareOpen] = useState(false);
 
+  const activeNamedTier = namedTiers?.find((t) => t.id === tier) ?? namedTiers?.[0] ?? null;
   const paidCents = event.ticketPriceCents || 0;
-  const isPaid = paidCents > 0;
+  const unitPriceCents = activeNamedTier
+    ? activeNamedTier.priceCents
+    : tier === "vip"
+      ? Math.round(paidCents * 1.5)
+      : tier === "group"
+        ? Math.round(paidCents * 0.9)
+        : paidCents;
+  const isPaid = unitPriceCents > 0 || paidCents > 0;
 
-  const effectiveSpots = tier === "group" ? 4 : spots;
-  const unitPriceCents =
-    tier === "vip" ? Math.round(paidCents * 1.5) : tier === "group" ? Math.round(paidCents * 0.9) : paidCents;
+  const effectiveSpots = !activeNamedTier && tier === "group" ? 4 : spots;
   const effectivePriceCents = isPaid
-    ? tier === "group"
+    ? !activeNamedTier && tier === "group"
       ? Math.round(paidCents * 4 * 0.9)
       : unitPriceCents * spots
     : 0;
+  const canManage = Boolean(event.isLocal || (user && (isAdmin || event.organiserUid === user.uid)));
 
   // Server enforces the same gate at booking time; this only stops the UI
   // from promising a seat that the door list can't hold.
@@ -294,14 +301,16 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <Link
-            href={`/e/${event.id}/manage`}
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-3.5 py-1 text-xs font-bold transition hover:opacity-90 shadow-xs active:scale-95 whitespace-nowrap"
-            title="Manage Event"
-          >
-            <Settings size={13} className="shrink-0" />
-            <span>Manage</span>
-          </Link>
+          {canManage && (
+            <Link
+              href={`/e/${event.id}/manage`}
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 px-3.5 py-1 text-xs font-bold transition hover:opacity-90 shadow-xs active:scale-95 whitespace-nowrap"
+              title="Manage Event"
+            >
+              <Settings size={13} className="shrink-0" />
+              <span>Manage</span>
+            </Link>
+          )}
 
           <button
             type="button"
@@ -591,6 +600,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
 
 function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
   const [, nav] = useLocation();
+  const local = useLocalNow();
 
   useEffect(() => {
     setShareMeta({
@@ -603,6 +613,19 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
 
   return (
     <div className="page-wrap pt-5 sm:pt-6">
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            if (window.history.length > 1) window.history.back();
+            else nav("/events");
+          }}
+          className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-card px-3.5 text-xs font-semibold text-mute ring-1 ring-line hover:bg-paper hover:text-ink transition cursor-pointer"
+        >
+          <ArrowLeft size={15} className="shrink-0" />
+          <span>All events</span>
+        </button>
+      </div>
       <div className="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
         <div className="lg:col-span-5">
           <EventCoverGlow src={ev.heroImage} alt={ev.title} />
@@ -622,7 +645,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
 
           <p className="text-[15px] leading-relaxed text-ink/90 whitespace-pre-line">{ev.insiderTip || ev.detail}</p>
 
-          <EventLocationCard venue={ev.venueName || ev.title} city="Sydney" />
+          <EventLocationCard venue={ev.venueName || ev.title} city={local?.city || "Sydney"} />
 
           {ev.isEnded ? (
             <div className="neu-section p-5 text-center">

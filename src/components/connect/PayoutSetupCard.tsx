@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { useSearch } from "wouter";
 import { toast } from "sonner";
@@ -27,7 +27,7 @@ export function PayoutSetupCard() {
   /** Only sellers ever see this card — pure guests get a clean Me page. */
   const [isSeller, setIsSeller] = useState(false);
 
-  async function load() {
+  const load = useCallback(async () => {
     const db = getFirebaseDb();
     if (!db || !user) return;
     const [acct, books] = await Promise.all([
@@ -57,12 +57,12 @@ export function PayoutSetupCard() {
     setHeldCents(held);
     setHeldCount(heldN);
     setPaidCents(paid);
-  }
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
     void load();
-  }, [user]);
+  }, [user, load]);
 
   useEffect(() => {
     if (!user) return;
@@ -90,7 +90,7 @@ export function PayoutSetupCard() {
         url.searchParams.delete("payouts");
         window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
       });
-  }, [user, search]);
+  }, [user, search, load]);
 
   async function start() {
     if (!user) return;

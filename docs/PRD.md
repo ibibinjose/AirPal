@@ -245,12 +245,12 @@ concurrent last-seat race proving no double-sell.
 User value: curated venue discovery and organiser communities with follow-to-join loops.
 No empty discovery silos.
 
-| Surface        | Requirements                                                                                                                                      |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Surface        | Requirements                                                                                                                                     |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `/`            | Home companion: outfit tip, quick-action strip, `<HereCheckIn />`, next pass QR, live places, deals, and communities spotlights (real data only) |
 | `/places`      | Verified venue directory with live operating hours; category chips with live counts; `/business` listing entry point                             |
-| `/communities` | Organiser and creator circles with follow-to-join loops; `All Organisers` / `Joined` filters; tappable next-up event card                       |
-| `/claim`       | Venue claim flow plus Google Place import                                                                                                         |
+| `/communities` | Organiser and creator circles with follow-to-join loops; `All Organisers` / `Joined` filters; tappable next-up event card                        |
+| `/claim`       | Venue claim flow plus Google Place import                                                                                                        |
 
 Legacy redirects: `/now`, `/explore`, `/guide`, `/p/:id` redirect directly to Home (`/`).
 This eliminates empty discovery silos. The SEO gate enforces sitemap, prerender, and
@@ -458,8 +458,11 @@ Full CRUD checklist:
 - Linked pages (`/help`, `/contact`, `/trust`, `/bio/recover`, `/unsubscribe`, and the
   `LegalDoc` pages `/privacy`, `/terms`, `/cookies`) each carry a Settings back link.
   `/contact` prefills name and email for signed-in users.
-- Known limit: the search-indexing, Circle-presence, and event-drops toggles are
-  device-local preferences only (see R8 in section 22).
+- Privacy & alert toggles in `/settings` are wired end-to-end: Search & Directory Indexing
+  updates `mine.visibility` (`"public"` vs `"private"`) and filters `GlobalSearchModal`;
+  Circle Presence syncs `useLocalNow().shareLocation` and calls `stopHereRemote()` when
+  disabled; Event Drops & Dining Deals filters `"prize_available"` alerts in `/me/inbox`;
+  and Browser Push invokes `enableWebPush()` to persist FCM tokens.
 
 Acceptance: claim handle, share bio, QR scan, vCard import; check in, appears on radar
 (but 1-1 share stays private); ping, hangout; unfollow removes both graph edges.
@@ -877,16 +880,16 @@ never hand-edits. Keep the dated operations runbook and changelog current.
 
 ## 22. Open risks & decisions log
 
-| #   | Risk or decision                           | Status     | Mitigation or outcome                                                    |
-| --- | ------------------------------------------ | ---------- | ------------------------------------------------------------------------ |
-| R1  | Last-seat double-sell under concurrency    | Controlled | Single-transaction booking plus pre-session re-price; race test in suite |
-| R2  | Stale pending holds blocking inventory     | Controlled | Expiry auto-cancel releases holds                                        |
-| R3  | Coupon or points double-redeem             | Controlled | Idempotent redemption IDs plus ledger; double-tap replays                |
-| R4  | Presence leak (1-1 share on public map)    | Controlled | Direct-only delivery plus board filter plus owner and admin pin reads    |
-| R5  | Secret leak via `.env` or signing material | Controlled | Secrets scanner gate; signing material off-repo, ignored by pattern      |
-| R6  | Clean-slate API cutover divergence         | Watch      | Contract gate; stays local candidate until green                         |
-| R7  | Store review or wallet cert expiry         | Watch      | Production-readiness gate covers listings, icons, native files           |
-| R8  | Settings privacy toggles are device-local  | Open       | Indexing, presence, and deals toggles only write `localStorage`; wire to server or relabel |
+| #   | Risk or decision                           | Status     | Mitigation or outcome                                                                                                                      |
+| --- | ------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| R1  | Last-seat double-sell under concurrency    | Controlled | Single-transaction booking plus pre-session re-price; race test in suite                                                                   |
+| R2  | Stale pending holds blocking inventory     | Controlled | Expiry auto-cancel releases holds                                                                                                          |
+| R3  | Coupon or points double-redeem             | Controlled | Idempotent redemption IDs plus ledger; double-tap replays                                                                                  |
+| R4  | Presence leak (1-1 share on public map)    | Controlled | Direct-only delivery plus board filter plus owner and admin pin reads                                                                      |
+| R5  | Secret leak via `.env` or signing material | Controlled | Secrets scanner gate; signing material off-repo, ignored by pattern                                                                        |
+| R6  | Clean-slate API cutover divergence         | Watch      | Contract gate; stays local candidate until green                                                                                           |
+| R7  | Store review or wallet cert expiry         | Watch      | Production-readiness gate covers listings, icons, native files                                                                             |
+| R8  | Settings privacy & alert toggles           | Controlled | Search indexing syncs `mine.visibility` + search filter; presence syncs `shareLocation` + `stopHereRemote`; deal alerts filter `/me/inbox` |
 
 Decisions (locked): single universal account; server-only money; event-level inventory;
 verified-only redemptions; default-deny rules; dual-lens single-bundle shells.

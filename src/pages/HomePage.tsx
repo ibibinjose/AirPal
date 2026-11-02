@@ -232,6 +232,7 @@ export function HomePage() {
 
   // Curated Precinct Places (reactive when Firestore places/listings load)
   const featuredPlaces = useMemo(() => {
+    void listingsVersion;
     const all = activePlaces();
     const scoped = local ? placesForLocation(all, local.here, effectiveCity, local.usingGps) : all;
     const pool = scoped.length > 0 ? scoped : all;

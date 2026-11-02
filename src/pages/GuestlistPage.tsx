@@ -71,7 +71,7 @@ export function GuestlistPage() {
   const [, eventParams] = useRoute("/e/:id/guests");
   const scope: GuestScope | null = eventParams?.id ? "event" : null;
   const id = eventParams?.id || "";
-  const { user, isAdmin } = useAuth();
+  const { user, authReady, isAdmin } = useAuth();
 
   const [header, setHeader] = useState<ListHeader | null>(null);
   const [headerDone, setHeaderDone] = useState(false);
@@ -95,6 +95,7 @@ export function GuestlistPage() {
   const [handleDraft, setHandleDraft] = useState("");
   const [teamBusy, setTeamBusy] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     setHeader(null);
@@ -180,6 +181,7 @@ export function GuestlistPage() {
 
   const visible = showAll ? filtered : filtered.slice(0, ROW_CAP);
 
+  if (!authReady) return <PageLoading />;
   if (!user || !scope) {
     return (
       <AuthGate
@@ -203,7 +205,10 @@ export function GuestlistPage() {
           The guestlist is only visible to the event organiser and co-hosts. If this is yours, sign in with the host
           account.
         </p>
-        <Link href={header.backHref} className="mt-4 inline-block text-sm font-semibold text-accent hover:underline">
+        <Link
+          href={header.backHref}
+          className="mt-4 inline-flex min-h-[44px] items-center text-sm font-semibold text-accent hover:underline"
+        >
           Back to the event
         </Link>
       </div>
@@ -248,10 +253,14 @@ export function GuestlistPage() {
   async function onSaveCapacity() {
     if (capSaving) return;
     const next = Number.parseInt(capDraft, 10);
+    if (!Number.isInteger(next) || next < 1) {
+      toast.error("Enter a valid capacity of at least 1.");
+      return;
+    }
     // Client soft guard — the server rules enforce the same floor, so the
     // organiser gets instant feedback instead of a denied write.
     const seated = (counts.goingHeads || 0) + (counts.checkedInHeads || 0);
-    if (Number.isInteger(next) && next >= 1 && next < seated) {
+    if (next < seated) {
       toast.error(`Capacity can't drop below the ${seated} guests already on the list.`);
       return;
     }
@@ -330,7 +339,7 @@ export function GuestlistPage() {
 
   async function onDeleteGuest(row: GuestRow) {
     if (!scope || !id) return;
-    if (!window.confirm(`Remove ${row.name} from the guestlist?`)) return;
+    setConfirmDeleteId(null);
     setDeletingId(row.id);
     try {
       await deleteGuestEntry(scope, id, row.id);
@@ -591,16 +600,39 @@ export function GuestlistPage() {
                       {checkingId === row.id ? "…" : "Check in"}
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => void onDeleteGuest(row)}
-                    disabled={deletingId === row.id}
-                    aria-label={`Remove ${row.name}`}
-                    title="Remove from list"
-                    className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full text-mute transition hover:bg-paper hover:text-red-500 active:scale-95 disabled:opacity-50"
-                  >
-                    <Trash2 size={16} aria-hidden="true" />
-                  </button>
+                  {confirmDeleteId === row.id ? (
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => void onDeleteGuest(row)}
+                        disabled={deletingId === row.id}
+                        className="inline-flex h-11 min-h-[44px] items-center rounded-full bg-red-500/15 px-3 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-500/25 cursor-pointer"
+                      >
+                        {deletingId === row.id ? "…" : "Confirm"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDeleteId(null)}
+                        className="inline-flex h-11 min-h-[44px] items-center px-2 text-xs font-semibold text-mute hover:text-ink cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void triggerHaptic("light");
+                        setConfirmDeleteId(row.id);
+                      }}
+                      disabled={deletingId === row.id}
+                      aria-label={`Remove ${row.name}`}
+                      title="Remove from list"
+                      className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full text-mute transition hover:bg-paper hover:text-red-500 active:scale-95 disabled:opacity-50"
+                    >
+                      <Trash2 size={16} aria-hidden="true" />
+                    </button>
+                  )}
                 </div>
               </li>
             ))}

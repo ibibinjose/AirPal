@@ -47,7 +47,10 @@ export function PlacesPage() {
   const origin = local && local.usingGps ? local.here : undefined;
   const geoBlocked = local?.geoBlocked ?? false;
 
-  const places = useMemo(() => activePlaces(), [listingsVersion]);
+  const places = useMemo(() => {
+    void listingsVersion;
+    return activePlaces();
+  }, [listingsVersion]);
 
   const counts = useMemo(() => {
     return {

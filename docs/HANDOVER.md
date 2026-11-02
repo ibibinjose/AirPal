@@ -395,11 +395,18 @@ status); shaped safety-report writes (fixed field set, new-only, bounded text);
   `NativeAuthGate` plus `NativeOpenScreen` (shell auth), `BiometricAuthButton` plus
   enroll card, `SignupFlow`, `SocialAuthButtons`, pending-intent save and clear across
   auth, account-deletion marker flow.
+- Settings and privacy (`SettingsPage`): quick-jump section bar, display-name and
+  `@handle` forms, linked email and phone with 2-tap inline removal, search-indexing
+  visibility sync (`mine.visibility` + `GlobalSearchModal`), Circle presence sync
+  (`shareLocation` + `stopHereRemote`), deal-alert inbox filter (`dealsNotifPrefEnabled`),
+  FCM web push registration (`enableWebPush`), JSON data export, and `DELETE`-gated
+  account wipe.
 - Arrival and belonging: `ArrivalPage` (join and arrival modes) plus
   `ArrivalAssistantCard`; `PulsePage` (public token route included) for belonging
   reports; `MemoryWallPage`; `BirthdayFreebiesPage` by region.
 - Analytics: `AnalyticsContext` batch plus queue to `recordAnalyticsBatch` to hourly
-  aggregation to daily rows; rejects quarantined; `SearchAnalyticsPage` and booking
+  aggregation to daily rows; rejects quarantined; `SearchAnalyticsPage` (admin-gated,
+  real Firestore `search_queries` and `popular_searches` aggregation) and booking
   clicks feed funnels; `useSearchQueryLogger` plus `GlobalSearchModal` plus `SearchBar`.
 
 ---

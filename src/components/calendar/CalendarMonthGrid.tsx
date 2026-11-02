@@ -96,7 +96,7 @@ export function CalendarMonthGrid({
     onChangeMonth(new Date(today.getFullYear(), today.getMonth(), 1));
     onSelectDate(toDateStr(today));
     void track("calendar_jump_today", { date: toDateStr(today), action: "month_grid" });
-  }, [year, month, onChangeMonth, onSelectDate]);
+  }, [onChangeMonth, onSelectDate]);
 
   const handleDateSelect = useCallback(
     (dateStr: string, isSelected: boolean) => {

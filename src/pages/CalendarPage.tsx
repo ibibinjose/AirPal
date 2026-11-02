@@ -154,21 +154,6 @@ function CalendarPageContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
-  // Track search with debounce
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      const timer = setTimeout(() => {
-        void track("calendar_search", {
-          query: searchQuery,
-          queryLength: searchQuery.length,
-          count: filteredEvents.length,
-          action: "search",
-        });
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [searchQuery]);
-
   // Current calendar month view
   const [currentMonth, setCurrentMonth] = useState<Date | null>(null);
   useEffect(() => {
@@ -261,6 +246,21 @@ function CalendarPageContent() {
     return rows;
   }, [calendarEvents, filter, searchQuery, category, viewMode, selectedDate, today, city]);
 
+  // Track search with debounce
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const timer = setTimeout(() => {
+        void track("calendar_search", {
+          query: searchQuery,
+          queryLength: searchQuery.length,
+          count: filteredEvents.length,
+          action: "search",
+        });
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery, filteredEvents.length]);
+
   // Dots on the month grid reflect every active filter except the selected date itself
   const gridEvents = useMemo(() => {
     return filterCalendarEvents(calendarEvents, filter, searchQuery, category).filter((e) => cityMatches(e.city, city));
@@ -290,9 +290,11 @@ function CalendarPageContent() {
     (searchQuery.trim().length > 0 ? 1 : 0) + (category !== "all" ? 1 : 0) + (filter !== "all" ? 1 : 0);
   const hasActiveFilters = activeFilterCount > 0;
 
+  const citySlug = (city || "airpal").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
   const handleExportSelectedDay = () => {
     if (!selectedDayEvents.length || !selectedDate) return;
-    downloadMultipleIcs(selectedDayEvents, `sydney-schedule-${selectedDate}.ics`);
+    downloadMultipleIcs(selectedDayEvents, `${citySlug}-schedule-${selectedDate}.ics`);
     toast.success(
       `Exported ${selectedDayEvents.length} event${selectedDayEvents.length > 1 ? "s" : ""} to calendar (.ics)`,
     );
@@ -606,7 +608,7 @@ function CalendarPageContent() {
               </div>
               <div className="flex items-center gap-2">
                 <Link
-                  href="/me/tickets"
+                  href={`/ticket/${selectedDateBooking.id}`}
                   className="inline-flex min-h-[44px] items-center gap-1 rounded-full bg-brand px-4 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-brand/90 transition active:scale-95"
                 >
                   <span>View Pass (QR)</span>
@@ -647,11 +649,13 @@ function CalendarPageContent() {
                     <button
                       type="button"
                       onClick={() => {
-                        const targets = selectedDate ? selectedDayEvents : filteredEvents;
-                        downloadMultipleIcs(targets, `sydney-events-${Date.now().toString().slice(-4)}.ics`);
-                        toast.success(`Exported ${targets.length} events to .ics calendar file!`);
+                        downloadMultipleIcs(
+                          filteredEvents,
+                          `${citySlug}-events-${Date.now().toString().slice(-4)}.ics`,
+                        );
+                        toast.success(`Exported ${filteredEvents.length} events to .ics calendar file!`);
                       }}
-                      className="neu-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-ink transition active:scale-95"
+                      className="neu-btn inline-flex min-h-[44px] items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium text-ink transition active:scale-95 cursor-pointer"
                     >
                       <Download size={13} className="text-mute" />
                       <span>Download visible (.ics)</span>
@@ -846,7 +850,7 @@ function CalendarPageContent() {
                         key={b.id}
                         className="neu-row flex items-center gap-3 px-3 py-2.5 transition-transform active:scale-[0.99]"
                       >
-                        <Link href="/me/tickets" className="min-w-0 flex-1 text-left">
+                        <Link href={`/ticket/${b.id}`} className="min-w-0 flex-1 text-left">
                           <span className="block truncate text-[14px] font-semibold text-ink">{b.title}</span>
                           <span className="block text-[12px] text-mute">
                             {[b.date, b.time].filter(Boolean).join(" · ")}
@@ -854,7 +858,7 @@ function CalendarPageContent() {
                           </span>
                         </Link>
                         <Link
-                          href="/me/tickets"
+                          href={`/ticket/${b.id}`}
                           className="neu-btn grid h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 place-items-center text-accent transition active:scale-90"
                           title="View Gate QR Pass"
                           aria-label="View gate QR pass"

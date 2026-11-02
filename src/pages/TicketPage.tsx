@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useRoute } from "wouter";
 import { doc, getDoc } from "firebase/firestore";
-import { ArrowLeft, ArrowRight, ShieldCheck, Sun, SunMedium, Ticket } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShieldCheck, Sun, SunMedium } from "lucide-react";
 import { toast } from "sonner";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,12 +28,14 @@ export function TicketPage() {
 
   const { bookings } = useMyBookings();
   const [booking, setBooking] = useState<(Booking & { id: string }) | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [brightnessBoost, setBrightnessBoost] = useState(false);
   const [mode, setMode] = useState<"pass" | "gate">("pass");
 
   // Load booking from cached wallet or Firestore
   useEffect(() => {
+    setNotFound(false);
     if (!id || !isTicketId(id)) {
       setLoading(false);
       return;
@@ -66,6 +68,8 @@ export function TicketPage() {
         if (!alive) return;
         if (snap.exists()) {
           setBooking({ id: snap.id, ...(snap.data() as Omit<Booking, "id">) });
+        } else {
+          setNotFound(true);
         }
       })
       .catch(() => undefined)
@@ -110,6 +114,7 @@ export function TicketPage() {
 
   if (!isTicketId(id)) return <NotFoundPage />;
   if (!authReady || loading) return <PageLoading />;
+  if (notFound) return <NotFoundPage />;
   // Passes and door checks need an account (verifyTicket rejects guests); offer sign-in
   // instead of a dead-end "access denied" panel.
   if (!user && !booking) {
@@ -263,16 +268,7 @@ export function TicketPage() {
               showActions={true}
             />
           </div>
-        ) : (
-          <div className="human-card p-8 text-center">
-            <Ticket size={32} className="mx-auto text-mute" aria-hidden="true" />
-            <p className="human-section-title mt-3 text-lg">Pass Loaded for Gate Staff</p>
-            <p className="text-sm text-mute mt-1 tabular-data">Ticket ID: {id}</p>
-            <div className="mt-4">
-              <TicketGatePanel ticketId={id} deniedMessage="Only this event's organiser can verify tickets." />
-            </div>
-          </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

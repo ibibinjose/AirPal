@@ -54,7 +54,10 @@ export function GetAppPage() {
 
       <p className="mt-4 text-sm text-mute">
         On native builds the same screens run inside the AirPal and AirPal Pass shells.{" "}
-        <Link href="/help" className="inline-flex items-center gap-1 font-semibold text-accent hover:underline">
+        <Link
+          href="/help"
+          className="inline-flex min-h-[44px] items-center gap-1 font-semibold text-accent hover:underline"
+        >
           Need a hand? <ArrowRight size={13} />
         </Link>
       </p>

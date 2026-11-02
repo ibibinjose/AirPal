@@ -94,7 +94,9 @@ Google Wallet passes are minted on-demand as cryptographically signed JSON Web T
 | :------------------------------------ | :--------------------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
 | **Individual Ticket** (`/ticket/:id`) | `<AirPalTicketPass />` | Full-screen contrast boost for dark doors, dynamic QR code, 1-tap Apple & Google Wallet buttons, Add-to-Calendar, print PDF, native share. |
 | **Passbook & Wallet** (`/me/tickets`) | `<MyTicketsPage />`    | Search & filter active passes, offline cached passbook access, Apple & Google Wallet export on every card.                                 |
-| **Member Dashboard** (`/me`)          | `<MePage />`           | Digital Wallet card carousel with compact Apple & Google Wallet quick-action buttons.                                                      |
+| **AirPal Pass Hub** (`/pass`)         | `<PassPage />`         | Active pass strip with direct links to individual `/ticket/:id` passes and `/me/tickets` wallet.                                           |
+| **Personal Calendar** (`/calendar`)   | `<CalendarPage />`     | Booked pass agenda rows and date inspector linking directly to `/ticket/:id` pass view and `.ics` export.                                  |
+| **Member Dashboard** (`/me`)          | `<MePage />`           | Digital Wallet card carousel with compact Apple & Google Wallet quick-action buttons and 4-stat activity strip.                            |
 | **Public Bio Profile** (`/@handle`)   | `<BioPublicPage />`    | Owner-only section to save personal QR contact pass to Apple & Google Wallet.                                                              |
 | **Networking Circle** (`/circle`)     | `<BioShareModal />`    | Apple Wallet style luxury tear-away pass with QR code, vCard contact export, and Apple & Google Wallet buttons.                            |
 

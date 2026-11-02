@@ -53,6 +53,8 @@ import { ChangeDisplayNameForm } from "@/components/bio/ChangeDisplayNameForm";
 import { ChangeHandleForm } from "@/components/bio/ChangeHandleForm";
 import { partnerAccountPath } from "@/lib/partner-account";
 import { friendlyBirthdayError, setBirthdayAlertPrefsRemote } from "@/lib/birthday-freebies";
+import { enableWebPush, pushPrefEnabled } from "@/lib/notifications";
+import { stopHereRemote } from "@/lib/here";
 import { NAMES } from "@shared/names";
 import { syncNativeChrome, triggerHaptic } from "@/lib/native";
 import { getThemePreference, setThemePreference, type ThemeMode } from "@/lib/theme";
@@ -66,7 +68,7 @@ export function SettingsPage() {
   const [, nav] = useLocation();
   const { user, authReady, logout, deleteAccount, sendVerificationEmail, requestPasswordReset, refreshUser } =
     useAuth();
-  const { mine, business } = useBio();
+  const { mine, business, updateProfile } = useBio();
   const { city, usingGps, geoBlocked, chooseLocation, shareLocation, setShareLocation } = useLocalNow();
   const buildInfo = getBuildInfo();
 
@@ -86,7 +88,7 @@ export function SettingsPage() {
     const region = String(user.birthdayAlertsRegion || "au").toLowerCase();
     setAlertsRegion(isBirthdayRegionCode(region) ? region : "au");
     setBirthdayMonth(user.birthdayMonth ?? null);
-  }, [user?.uid, user?.birthdayAlertsEnabled, user?.birthdayAlertsRegion, user?.birthdayMonth]);
+  }, [user]);
 
   async function saveAlertPrefs(next: { enabled?: boolean; region?: BirthdayRegionCode; month?: number | null }) {
     if (!user) return;
@@ -115,28 +117,45 @@ export function SettingsPage() {
 
   const [theme, setTheme] = useState<ThemeMode>(() => getThemePreference());
   const [notifDeals, setNotifDeals] = useState(() => safeGetItem("airpal_notif_deals") !== "false");
-  const [pushStatus, setPushStatus] = useState<string>("default");
+  const [pushStatus, setPushStatus] = useState<string>(() => (pushPrefEnabled() ? "granted" : "default"));
   const [searchIndexing, setSearchIndexing] = useState(() => safeGetItem("airpal_privacy_search_indexing") !== "false");
-  const [circlePresence, setCirclePresence] = useState(() => safeGetItem("airpal_privacy_circle_presence") !== "false");
+  const [circlePresence, setCirclePresence] = useState(
+    () => shareLocation && safeGetItem("airpal_privacy_circle_presence") !== "false",
+  );
+
+  useEffect(() => {
+    if (mine?.visibility) {
+      const indexed = mine.visibility !== "private";
+      setSearchIndexing(indexed);
+      safeSetItem("airpal_privacy_search_indexing", String(indexed));
+    }
+  }, [mine?.visibility]);
+
+  useEffect(() => {
+    setCirclePresence(shareLocation);
+  }, [shareLocation]);
 
   const handleSearchIndexingToggle = () => {
     void triggerHaptic("light");
-    setSearchIndexing((prev) => {
-      const next = !prev;
-      safeSetItem("airpal_privacy_search_indexing", String(next));
-      toast.success(next ? "Profile directory indexing enabled" : "Profile hidden from search indexing");
-      return next;
-    });
+    const next = !searchIndexing;
+    setSearchIndexing(next);
+    safeSetItem("airpal_privacy_search_indexing", String(next));
+    if (mine?.handle) {
+      void updateProfile({ handle: mine.handle, visibility: next ? "public" : "private" });
+    }
+    toast.success(next ? "Profile directory indexing enabled" : "Profile hidden from search indexing");
   };
 
   const handleCirclePresenceToggle = () => {
     void triggerHaptic("light");
-    setCirclePresence((prev) => {
-      const next = !prev;
-      safeSetItem("airpal_privacy_circle_presence", String(next));
-      toast.success(next ? "Live presence check-ins visible to Circle" : "Circle presence set to private");
-      return next;
-    });
+    const next = !circlePresence;
+    setCirclePresence(next);
+    setShareLocation(next);
+    safeSetItem("airpal_privacy_circle_presence", String(next));
+    if (!next) {
+      void stopHereRemote().catch(() => undefined);
+    }
+    toast.success(next ? "Live presence check-ins visible to Circle" : "Circle presence set to private");
   };
 
   useEffect(() => {
@@ -160,26 +179,25 @@ export function SettingsPage() {
     setNotifDeals((prev) => {
       const nextVal = !prev;
       safeSetItem("airpal_notif_deals", String(nextVal));
+      toast.success(nextVal ? "Event drops & deal alerts enabled" : "Deal alerts muted");
       return nextVal;
     });
   };
 
   const requestPush = async () => {
     void triggerHaptic("medium");
-    if (typeof window !== "undefined" && "Notification" in window) {
-      try {
-        const perm = await Notification.requestPermission();
-        setPushStatus(perm);
-        if (perm === "granted") {
-          toast.success("Push notifications enabled");
-        } else {
-          toast.message("Push notifications not granted");
-        }
-      } catch {
-        toast.error("Could not request notification permission");
+    try {
+      const perm = await enableWebPush();
+      setPushStatus(perm === "granted" ? "granted" : perm === "denied" ? "denied" : "default");
+      if (perm === "granted") {
+        toast.success("Push notifications enabled");
+      } else if (perm === "denied") {
+        toast.message("Push notifications blocked in browser settings");
+      } else {
+        toast.message("Push notifications are not supported on this browser");
       }
-    } else {
-      toast.message("Push notifications are not supported on this browser");
+    } catch {
+      toast.error("Could not request notification permission");
     }
   };
 
@@ -240,7 +258,7 @@ export function SettingsPage() {
               void triggerHaptic("light");
               document.getElementById(sec.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
             }}
-            className="inline-flex min-h-[36px] shrink-0 items-center rounded-full px-3 text-xs font-semibold text-mute hover:bg-paper hover:text-ink active:scale-95 transition cursor-pointer"
+            className="inline-flex min-h-[44px] shrink-0 items-center rounded-full px-3.5 text-xs font-semibold text-mute hover:bg-paper hover:text-ink active:scale-95 transition cursor-pointer"
           >
             {sec.label}
           </button>
@@ -733,7 +751,13 @@ export function SettingsPage() {
               type="button"
               onClick={() => {
                 void triggerHaptic("light");
-                setShareLocation(!shareLocation);
+                const next = !shareLocation;
+                setShareLocation(next);
+                setCirclePresence(next);
+                safeSetItem("airpal_privacy_circle_presence", String(next));
+                if (!next) {
+                  void stopHereRemote().catch(() => undefined);
+                }
               }}
               className={cn(
                 "relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",

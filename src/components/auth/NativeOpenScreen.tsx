@@ -83,6 +83,7 @@ export function NativeOpenScreen({ defaultFlavor, onExplore }: NativeOpenScreenP
                 try {
                   await loginWithSocial(provider);
                   toast.success("Signed in to AirPal");
+                  nav(isPass ? "/pass" : "/");
                 } finally {
                   setBusy(false);
                 }

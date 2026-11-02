@@ -85,7 +85,7 @@ export function RewardsPage() {
   const referralCount = history.filter((r) => r.reason === "referral_bonus").length;
 
   return (
-    <div data-theme="light" className="relative isolate overflow-hidden min-h-[85vh] bg-paper">
+    <div className="relative isolate overflow-hidden min-h-[85vh] bg-paper">
       <div className="relative mx-auto max-w-4xl px-4 py-6 md:py-8 pb-32">
         <div className="flex flex-wrap items-center gap-2 mb-5">
           <Link

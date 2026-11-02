@@ -113,7 +113,7 @@ function matchesDateRange(date: string, range: DateRange, today: string): boolea
   if (range === "all") return date >= today;
   if (range === "today") return date === today;
   if (range === "weekend") {
-    const todayDate = new Date(today);
+    const todayDate = new Date(`${today}T00:00:00`);
     const dayOfWeek = todayDate.getDay();
     const daysUntilSat = (6 - dayOfWeek + 7) % 7;
     const sat = new Date(todayDate);
@@ -125,14 +125,14 @@ function matchesDateRange(date: string, range: DateRange, today: string): boolea
     return date === satStr || date === sunStr;
   }
   if (range === "week") {
-    const todayDate = new Date(today);
+    const todayDate = new Date(`${today}T00:00:00`);
     const in7 = new Date(todayDate);
     in7.setDate(todayDate.getDate() + 7);
     const in7Str = toZonedDateStr(in7);
     return date >= today && date <= in7Str;
   }
   if (range === "month") {
-    const todayDate = new Date(today);
+    const todayDate = new Date(`${today}T00:00:00`);
     const in30 = new Date(todayDate);
     in30.setDate(todayDate.getDate() + 30);
     const in30Str = toZonedDateStr(in30);
@@ -167,9 +167,7 @@ export function EventsPage() {
   const [cityMenuOpen, setCityMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (searchParam) {
-      setQuery(searchParam);
-    }
+    setQuery(searchParam);
   }, [searchParam]);
 
   // All upcoming events for the selected city

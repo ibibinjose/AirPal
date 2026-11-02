@@ -110,7 +110,7 @@ export function BioProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [refresh, user?.uid]);
+  }, [refresh, user]);
 
   const owned = useMemo(() => {
     if (!user) return profiles.filter((p) => p.ownerEmail || p.ownerUid || p.id.startsWith("bio-"));

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { toast } from "sonner";
 import { ArrowRight, CalendarDays, KeyRound, Store, Ticket, Users } from "lucide-react";
@@ -8,6 +8,10 @@ function CodeEntry({ mode }: { mode: "join" | "arrival" }) {
   const params = useParams<{ code?: string }>();
   const code = params.code?.trim();
   const [inputCode, setInputCode] = useState(code || "");
+
+  useEffect(() => {
+    setInputCode(code || "");
+  }, [code]);
 
   function handleApplyCode(e: FormEvent) {
     e.preventDefault();

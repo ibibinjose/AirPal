@@ -76,10 +76,7 @@ export function BioSitePage() {
   }, [tried, profile, handle]);
 
   return (
-    <div
-      data-theme="light"
-      className="mx-auto flex min-h-dvh w-full max-w-xl flex-col bg-paper px-4 py-[max(1rem,env(safe-area-inset-top,0px))] pb-[max(4rem,calc(env(safe-area-inset-bottom,0px)+3rem))]"
-    >
+    <div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col bg-paper px-4 py-[max(1rem,env(safe-area-inset-top,0px))] pb-[max(4rem,calc(env(safe-area-inset-bottom,0px)+3rem))]">
       <button
         type="button"
         onClick={() => nav("/")}
@@ -153,7 +150,7 @@ export function BioSitePage() {
           <button
             type="button"
             onClick={() => nav("/bio/setup")}
-            className="font-bold text-accent hover:text-brand transition-colors cursor-pointer"
+            className="inline-flex min-h-[44px] items-center px-2 font-bold text-accent hover:text-brand transition-colors cursor-pointer"
           >
             Claim your @handle
           </button>
