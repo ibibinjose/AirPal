@@ -181,7 +181,7 @@ export function GuestlistPage() {
 
   const visible = showAll ? filtered : filtered.slice(0, ROW_CAP);
 
-  if (!authReady) return <PageLoading />;
+  if (authReady === false) return <PageLoading />;
   if (!user || !scope) {
     return (
       <AuthGate

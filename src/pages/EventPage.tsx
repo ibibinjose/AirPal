@@ -600,6 +600,7 @@ function CalendarEventDetailView({ event }: { event: CalendarEvent }) {
 
 function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
   const [, nav] = useLocation();
+  const local = useLocalNow();
 
   useEffect(() => {
     setShareMeta({
@@ -644,7 +645,7 @@ function NearbyEventDetailView({ event: ev }: { event: NearbyEvent }) {
 
           <p className="text-[15px] leading-relaxed text-ink/90 whitespace-pre-line">{ev.insiderTip || ev.detail}</p>
 
-          <EventLocationCard venue={ev.venueName || ev.title} city={ev.area || "Sydney"} />
+          <EventLocationCard venue={ev.venueName || ev.title} city={local?.city || "Sydney"} />
 
           {ev.isEnded ? (
             <div className="neu-section p-5 text-center">

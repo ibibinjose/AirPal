@@ -52,7 +52,7 @@ export function PassPartnerApplyPage() {
     if (claimedBusiness) setBusinessName((prev) => prev || claimedBusiness);
   }, [claimedBusiness]);
 
-  if (!authReady) return <PageLoading />;
+  if (authReady === false) return <PageLoading />;
   if (!user) {
     return (
       <AuthGate
