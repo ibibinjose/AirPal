@@ -29,9 +29,9 @@ import {
   SlidersHorizontal,
   ShieldCheck,
 } from "lucide-react";
-import { getFirebaseDb } from "@/lib/firebase";
-import { liveBackendEnabled } from "@/lib/functions";
+import { getFirebaseDb, liveBackendEnabled } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
+import { PageLoading } from "@/components/ui/PageLoading";
 import { Button } from "@/components/ui/Button";
 import { openGlobalSearch } from "@/components/search/openSearch";
 import { useSearchQueryLogger } from "@/hooks/useSearchQueryLogger";
@@ -264,7 +264,11 @@ export function SearchAnalyticsPage() {
     return list;
   }, [popularTerms, filterCategory, tableFilter]);
 
-  if (authReady && liveBackendEnabled() && (!user || !isAdmin)) {
+  if (authReady === false) {
+    return <PageLoading message="Authenticating platform admin…" />;
+  }
+
+  if (liveBackendEnabled() && (!user || !isAdmin)) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-red-500/10 ring-1 ring-red-500/20">
