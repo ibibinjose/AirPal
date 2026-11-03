@@ -7,9 +7,10 @@ interface Props {
   referralCount: number;
   loading: boolean;
   signedIn: boolean;
+  level?: { rank: number; name: string } | null;
 }
 
-export function RewardsBalance({ points, redeemedCount, referralCount, loading, signedIn }: Props) {
+export function RewardsBalance({ points, redeemedCount, referralCount, loading, signedIn, level }: Props) {
   return (
     <div className="neu-section p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -27,6 +28,11 @@ export function RewardsBalance({ points, redeemedCount, referralCount, loading, 
               </p>
             )}
             <p className="text-xs text-mute font-medium">points</p>
+            {signedIn && level ? (
+              <p className="text-xs font-semibold text-ink">
+                {level.name} · Level {level.rank}
+              </p>
+            ) : null}
           </div>
         </div>
         {!signedIn && (

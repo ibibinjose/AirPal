@@ -1,12 +1,13 @@
 import { Link } from "wouter";
 import { TicketCheck, Users, Gift, Store } from "lucide-react";
-import { CHECKIN_POINTS, REDEEM_POINTS, REFERRAL_POINTS } from "@shared/promotions";
+import { CHECKIN_POINTS, REDEEM_POINTS } from "@shared/promotions";
+import { perJoinPointsLabel } from "@/lib/member-standing";
 
 const EARN_ROWS = [
   {
     icon: Users,
     title: "Bring a mate",
-    detail: `+${REFERRAL_POINTS} points when someone joins with your link.`,
+    detail: perJoinPointsLabel(),
     href: "/friends",
     cta: "Invite mates",
   },

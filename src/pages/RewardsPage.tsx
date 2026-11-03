@@ -4,7 +4,8 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { ArrowLeft, Sparkles, Ticket } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { getFirebaseDb } from "@/lib/firebase";
-import { fetchRewardHistory, subscribeRewardBalance } from "@/lib/rewards";
+import { fetchRewardHistory } from "@/lib/rewards";
+import { useMemberStanding } from "@/hooks/useMemberStanding";
 import type { Promotion } from "@shared/promotions";
 import { RewardsBalance } from "@/components/rewards/RewardsBalance";
 import { RewardsEarnList } from "@/components/rewards/RewardsEarnList";
@@ -29,22 +30,13 @@ async function loadPointsPromotions(): Promise<Promotion[]> {
 
 export function RewardsPage() {
   const { user, authReady } = useAuth();
-  const [points, setPoints] = useState(0);
-  const [balanceLoading, setBalanceLoading] = useState(true);
+  const standing = useMemberStanding();
+  const points = standing.points;
+  const balanceLoading = standing.pointsLoading;
   const [history, setHistory] = useState<Awaited<ReturnType<typeof fetchRewardHistory>>>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [catalog, setCatalog] = useState<Promotion[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(true);
-
-  useEffect(() => {
-    if (!authReady) return;
-    setBalanceLoading(true);
-    const unsub = subscribeRewardBalance((b) => {
-      setPoints(b.points);
-      setBalanceLoading(false);
-    });
-    return unsub;
-  }, [authReady, user?.uid]);
 
   useEffect(() => {
     if (!authReady) return;
@@ -122,6 +114,7 @@ export function RewardsPage() {
             referralCount={referralCount}
             loading={balanceLoading || historyLoading}
             signedIn={Boolean(user)}
+            level={user ? standing.level : null}
           />
           <RewardsEarnList />
           <RewardsCatalog items={catalog} balance={points} loading={catalogLoading} signedIn={Boolean(user)} />

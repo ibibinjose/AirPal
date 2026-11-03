@@ -36,7 +36,6 @@ import { ConfettiBurst } from "@/components/brand/ConfettiBurst";
 import { openGlobalSearch } from "@/components/search/openSearch";
 import {
   CIRCLE_QUESTS,
-  circleQuestProgress,
   hasMarkedCircleInvite,
   markCircleInviteSent,
   sameCity,
@@ -49,6 +48,8 @@ import { toast } from "sonner";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { cn } from "@/lib/cn";
 import { activePlaces } from "@/lib/catalog";
+import { useMemberStanding } from "@/hooks/useMemberStanding";
+import { perJoinPointsLabel } from "@/lib/member-standing";
 
 import {
   sortCircleContacts,
@@ -76,6 +77,7 @@ export function CirclePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showQuests, setShowQuests] = useState(false);
   const [invitedSent, setInvitedSent] = useState(() => hasMarkedCircleInvite());
+  const standing = useMemberStanding(invitedSent);
   const [catchUpContact, setCatchUpContact] = useState<{ handle: string; name: string } | null>(null);
 
   // Met people from direct in-person connections (reactive when user logs a new person met)
@@ -306,15 +308,9 @@ export function CirclePage() {
     });
   }, [allContacts, filter, mine?.city, relationshipFilter, searchQuery]);
 
-  // Connector Rank Quest Progress
-  const quest = useMemo(() => {
-    return circleQuestProgress({
-      hasHandle: Boolean(mine?.handle),
-      sharingCity: Boolean(mine?.city),
-      invited: invitedSent,
-      memberCount: allContacts.length,
-    });
-  }, [mine?.handle, mine?.city, invitedSent, allContacts.length]);
+  // Connector rank from the same standing /rewards uses. Points are the
+  // rewards ledger, not the local quest sum.
+  const quest = standing.quest;
 
   const isMaxRank = quest.completed >= quest.total;
   const nextQuest = CIRCLE_QUESTS.find((q) => !quest.done[q.id]);
@@ -503,9 +499,11 @@ export function CirclePage() {
               </span>
             </div>
             <p className="mt-0.5 truncate text-xs text-mute tabular-nums">
-              {quest.completed}/{quest.total} quests · {quest.points} pts
+              {quest.completed}/{quest.total} quests ·{" "}
+              {standing.pointsLoading ? "…" : `${standing.points} pts`}
               {nextQuest ? ` · Next: ${nextQuest.title}` : " · Maxed out"}
             </p>
+            <p className="mt-0.5 text-xs text-mute">{perJoinPointsLabel()}</p>
           </div>
 
           <button
