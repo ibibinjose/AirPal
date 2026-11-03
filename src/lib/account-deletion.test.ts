@@ -10,7 +10,7 @@ vi.mock("firebase/firestore", () => ({
   setDoc: (...args: unknown[]) => setDoc(...args),
 }));
 
-import { ensureAccountDeletionMarker } from "./account-deletion";
+import { accountDeleteFailure, ensureAccountDeletionMarker } from "./account-deletion";
 
 const db = {} as never;
 
@@ -43,6 +43,13 @@ describe("ensureAccountDeletionMarker", () => {
     });
     expect(result).toBe("exists");
     expect(setDoc).not.toHaveBeenCalled();
+  });
+
+  it("explains a stale login and leaves retry available", () => {
+    const failure = accountDeleteFailure({ code: "auth/requires-recent-login", message: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN" });
+    expect(failure.needsReauth).toBe(true);
+    expect(failure.message).toMatch(/password/i);
+    expect(failure.message).toMatch(/still here/i);
   });
 
   it("attempts the create when the read itself fails", async () => {

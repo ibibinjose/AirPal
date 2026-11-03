@@ -1,4 +1,5 @@
 import { doc, getDoc, setDoc, type Firestore } from "firebase/firestore";
+import { authErrorCode, authErrorMessage } from "@shared/auth-email";
 
 /**
  * Records the audit marker for an account-deletion request (`requested`).
@@ -36,4 +37,15 @@ export async function ensureAccountDeletionMarker(
     status: "requested",
   });
   return "created";
+}
+
+/** What to show after accounts:delete fails. Keeps the retry button usable. */
+export function accountDeleteFailure(err: unknown): { message: string; needsReauth: boolean } {
+  const needsReauth = authErrorCode(err) === "auth/requires-recent-login";
+  return {
+    needsReauth,
+    message: needsReauth
+      ? "For your security, confirm your password and delete again. Your account is still here."
+      : authErrorMessage(err, "Could not delete account. Nothing was removed."),
+  };
 }

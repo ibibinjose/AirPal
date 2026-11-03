@@ -3,6 +3,7 @@ import {
   applyActionCode,
   confirmPasswordReset,
   linkWithCredential,
+  reauthenticateWithCredential,
   sendEmailVerification,
   sendPasswordResetEmail,
   unlink,
@@ -64,6 +65,17 @@ export async function emailForPasswordResetCode(oobCode: string) {
 export async function submitPasswordReset(oobCode: string, password: string) {
   const auth = requireAuth();
   await confirmPasswordReset(auth, oobCode, password);
+}
+
+/** Recent login required by accounts:delete and other sensitive auth writes. */
+export async function reauthenticateWithPassword(password: string): Promise<void> {
+  const auth = requireAuth();
+  const user = auth.currentUser;
+  if (!user || user.isAnonymous) throw new Error("Sign in first.");
+  const email = user.email?.trim().toLowerCase();
+  if (!email) throw new Error("Sign in with your email again, then delete the account.");
+  if (!password) throw new Error("Enter your password to confirm it's you.");
+  await reauthenticateWithCredential(user, EmailAuthProvider.credential(email, password));
 }
 
 export async function setAuthDisplayName(user: User, name: string) {

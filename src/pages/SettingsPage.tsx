@@ -33,7 +33,7 @@ import {
   Users,
   Briefcase,
 } from "lucide-react";
-import { authErrorMessage } from "@shared/auth-email";
+import { authErrorCode, authErrorMessage } from "@shared/auth-email";
 import {
   BIRTHDAY_MONTHS,
   BIRTHDAY_REGIONS,
@@ -62,6 +62,8 @@ import { CITY_OPTIONS } from "@/lib/cities";
 import { cn } from "@/lib/cn";
 import { safeGetItem, safeSetItem } from "@/lib/safe-storage";
 import { getBuildInfo } from "@/lib/build-info";
+import { reauthenticateWithPassword } from "@/lib/auth-mail";
+import { accountDeleteFailure } from "@/lib/account-deletion";
 import { bioPath } from "@shared/bio";
 
 export function SettingsPage() {
@@ -75,6 +77,9 @@ export function SettingsPage() {
   const [resetBusy, setResetBusy] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [needsReauth, setNeedsReauth] = useState(false);
+  const [reauthPassword, setReauthPassword] = useState("");
   const [showDeleteZone, setShowDeleteZone] = useState(false);
   const [copiedBio, setCopiedBio] = useState(false);
   const [alertsEnabled, setAlertsEnabled] = useState(true);
@@ -112,6 +117,27 @@ export function SettingsPage() {
       toast.error(friendlyBirthdayError(err));
     } finally {
       setAlertsBusy(false);
+    }
+  }
+
+  async function onDeleteAccount() {
+    if (deleteBusy || deleteConfirm !== "DELETE") return;
+    setDeleteBusy(true);
+    setDeleteError("");
+    try {
+      if (needsReauth) {
+        await reauthenticateWithPassword(reauthPassword);
+      }
+      await deleteAccount();
+      toast.success("Account deleted");
+      nav("/");
+    } catch (err) {
+      const failure = accountDeleteFailure(err);
+      setNeedsReauth(failure.needsReauth || needsReauth);
+      setDeleteError(failure.message);
+      toast.error(failure.message);
+    } finally {
+      setDeleteBusy(false);
     }
   }
 
@@ -1163,23 +1189,44 @@ export function SettingsPage() {
                     autoComplete="off"
                     className="w-full rounded-2xl border border-line bg-card px-4 py-3 text-sm text-ink outline-none focus:ring-2 focus:ring-rose-500"
                   />
+                  {needsReauth && (
+                    <div className="mt-3">
+                      <label
+                        htmlFor="delete-reauth-password"
+                        className="block text-[11px] font-bold uppercase tracking-wider text-mute mb-1"
+                      >
+                        Password
+                      </label>
+                      <input
+                        id="delete-reauth-password"
+                        type="password"
+                        value={reauthPassword}
+                        onChange={(e) => setReauthPassword(e.target.value)}
+                        autoComplete="current-password"
+                        placeholder="Confirm it's you"
+                        className="w-full rounded-2xl border border-line bg-card px-4 py-3 text-sm text-ink outline-none focus:ring-2 focus:ring-rose-500"
+                      />
+                    </div>
+                  )}
+                  {deleteError && (
+                    <p role="alert" className="mt-3 text-xs font-semibold text-rose-700 dark:text-rose-300">
+                      {deleteError}
+                    </p>
+                  )}
                   <button
                     type="button"
-                    disabled={deleteBusy || deleteConfirm !== "DELETE"}
+                    disabled={deleteBusy || deleteConfirm !== "DELETE" || (needsReauth && !reauthPassword)}
                     className="mt-3 inline-flex min-h-[44px] w-full items-center justify-center rounded-full bg-rose-600 px-4 text-sm font-bold text-white transition hover:bg-rose-700 disabled:opacity-40 active:scale-95 cursor-pointer shadow-sm"
                     onClick={() => {
                       void triggerHaptic("error");
-                      setDeleteBusy(true);
-                      void deleteAccount()
-                        .then(() => {
-                          toast.success("Account deleted");
-                          nav("/");
-                        })
-                        .catch((err) => toast.error(authErrorMessage(err, "Could not delete account")))
-                        .finally(() => setDeleteBusy(false));
+                      void onDeleteAccount();
                     }}
                   >
-                    {deleteBusy ? "Deleting account…" : "Permanently Delete My Account"}
+                    {deleteBusy
+                      ? "Deleting account…"
+                      : needsReauth
+                        ? "Confirm password and delete"
+                        : "Permanently Delete My Account"}
                   </button>
                 </div>
               </div>

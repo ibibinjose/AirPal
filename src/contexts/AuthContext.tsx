@@ -496,15 +496,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             phone: fb.phoneNumber || "",
           });
         }
-        try {
-          await deleteUser(fb);
-        } catch (err) {
-          const code = (err as { code?: string }).code;
-          if (code === "auth/requires-recent-login") {
-            throw new Error("Sign in again, then tap Delete account.");
-          }
-          throw err;
-        }
+        await deleteUser(fb);
         resetPhoneLogin();
         clearDeviceCache();
         setUser(null);
