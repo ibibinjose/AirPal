@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { nanoid } from "nanoid";
 import {
+  displayNameError,
   handleError,
   handleFromPlaceId,
   normalizeHandle,
@@ -185,6 +186,9 @@ export function BioProvider({ children }: { children: ReactNode }) {
       const h = normalizeHandle(input.handle);
       const err = handleError(h);
       if (err) throw new Error(err);
+      const nameProblem = displayNameError(input.name);
+      if (nameProblem) throw new Error(nameProblem);
+      const cleanName = input.name.trim();
       const kind: BioKind = input.kind || "person";
       const place = placeByHandle(h);
       const stall = stallByHandle(h);
@@ -242,7 +246,7 @@ export function BioProvider({ children }: { children: ReactNode }) {
         kind,
         ownerUid: getFirebaseAuth()?.currentUser?.uid || user?.uid,
         ownerEmail: getFirebaseAuth()?.currentUser?.email || user?.email,
-        name: input.name.trim(),
+        name: cleanName,
         shortWhy: input.shortWhy.trim(),
         aboutText: input.aboutText?.trim() || listing?.description?.trim() || keep?.aboutText || undefined,
         city: input.city.trim() || "Sydney",
@@ -312,6 +316,11 @@ export function BioProvider({ children }: { children: ReactNode }) {
   const updateProfile = useCallback(
     async (patch: Partial<BioProfile> & { handle: string }) => {
       const h = normalizeHandle(patch.handle);
+      if (patch.name !== undefined) {
+        const nameProblem = displayNameError(patch.name);
+        if (nameProblem) throw new Error(nameProblem);
+        patch = { ...patch, name: patch.name.trim() };
+      }
       const allBios = loadBios();
       let current = allBios.find((p) => normalizeHandle(p.handle) === h);
       if (!current) {

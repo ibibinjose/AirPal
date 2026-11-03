@@ -43,6 +43,7 @@ import {
   BIO_LINK_TYPES,
   bioPath,
   catalogDeals,
+  displayNameError,
   isBusinessKind,
   isSocialLinkType,
   resolveBioTheme,
@@ -419,11 +420,13 @@ export function BioEditPage() {
 
   async function handleSaveAll(e?: FormEvent) {
     if (e) e.preventDefault();
-    if (!name.trim()) {
+    const nameProblem = displayNameError(name);
+    if (nameProblem) {
       setNameTouched(true);
-      toast.error("Please enter a display name");
+      toast.error(nameProblem);
       return;
     }
+    const cleanName = name.trim();
     if (phone && !isValidPhone(phone)) {
       toast.error("Phone needs a valid country code (e.g. +61 400 123 456)");
       return;
@@ -437,7 +440,7 @@ export function BioEditPage() {
     try {
       await updateProfile({
         handle: activeProfile!.handle,
-        name,
+        name: cleanName,
         shortWhy,
         aboutText,
         categoryTag,
@@ -464,9 +467,9 @@ export function BioEditPage() {
         deals,
       });
       const auth = getFirebaseAuth();
-      if (auth?.currentUser && name.trim()) {
+      if (auth?.currentUser && cleanName) {
         try {
-          await setAuthDisplayName(auth.currentUser, name.trim());
+          await setAuthDisplayName(auth.currentUser, cleanName);
         } catch {
           /* best effort */
         }
@@ -1315,12 +1318,16 @@ export function BioEditPage() {
                       }}
                       onBlur={() => setNameTouched(true)}
                       placeholder={isBusiness ? "e.g. Harbour Brew Cafe" : "e.g. Alex Morgan"}
+                      aria-invalid={Boolean(nameTouched && displayNameError(name))}
                       required
-                      className={cn(fieldInput, nameTouched && !name.trim() && "border-red-500 ring-2 ring-red-500/20")}
+                      className={cn(
+                        fieldInput,
+                        nameTouched && displayNameError(name) && "border-red-500 ring-2 ring-red-500/20",
+                      )}
                     />
-                    {nameTouched && !name.trim() && (
+                    {nameTouched && displayNameError(name) && (
                       <p role="alert" className="text-xs font-semibold text-rose-600 dark:text-rose-400">
-                        Please enter a display name
+                        {displayNameError(name)}
                       </p>
                     )}
                     <p className="text-[11px] text-mute">

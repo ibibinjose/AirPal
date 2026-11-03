@@ -7,6 +7,7 @@ import {
   bioKindLabel,
   bioThemeCssVars,
   catalogDeals,
+  displayNameError,
   handleFromDomain,
   handleFromName,
   handleFromPlaceId,
@@ -29,6 +30,17 @@ import {
   socialLinks,
   stackLinks,
 } from "./bio";
+
+describe("display name", () => {
+  it("trims a normal name and rejects brackets and over-long values", () => {
+    expect(displayNameError("  Alex Morgan  ")).toBeNull();
+    expect(displayNameError("A")).toBeNull();
+    expect(displayNameError("")).toMatch(/display name/i);
+    expect(displayNameError("<script>")).toMatch(/can't include/);
+    expect(displayNameError("a".repeat(61))).toMatch(/60/);
+    expect(displayNameError("a".repeat(60))).toBeNull();
+  });
+});
 
 describe("bio handle", () => {
   it("normalizes and validates", () => {

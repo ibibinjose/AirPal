@@ -3,6 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import {
   HANDLE_RE,
+  displayNameError,
   handleError,
   normalizeBioTheme,
   normalizeHandle,
@@ -43,7 +44,8 @@ export const createBusinessProfile = onCall(CALLABLE, async (request) => {
   const err = handleError(handle);
   if (err) throw new HttpsError("invalid-argument", err);
   const name = String(data.name || "").trim();
-  if (!name) throw new HttpsError("invalid-argument", "Name is required.");
+  const nameProblem = displayNameError(name);
+  if (nameProblem) throw new HttpsError("invalid-argument", nameProblem);
   const kind = data.kind === "business" ? "business" : "person";
   const existingHandle = await db.collection("handles").doc(handle).get();
   if (existingHandle.exists && String(existingHandle.data()?.ownerUid) !== uid) {
@@ -136,7 +138,12 @@ export const updateBusinessProfile = onCall(CALLABLE, async (request) => {
           handle,
           kind,
           ownerUid: uid,
-          name: String(data.name || handle),
+          name: (() => {
+            const createdName = String(data.name || handle).trim();
+            const createdNameProblem = displayNameError(createdName);
+            if (createdNameProblem) throw new HttpsError("invalid-argument", createdNameProblem);
+            return createdName;
+          })(),
           updatedAt: FieldValue.serverTimestamp(),
         },
         { merge: true },
@@ -170,6 +177,11 @@ export const updateBusinessProfile = onCall(CALLABLE, async (request) => {
     "customStatusEmoji",
   ] as const) {
     if (data[key] !== undefined) patch[key] = data[key];
+  }
+  if (data.name !== undefined) {
+    const nameProblem = displayNameError(String(data.name));
+    if (nameProblem) throw new HttpsError("invalid-argument", nameProblem);
+    patch.name = String(data.name).trim();
   }
   if (typeof data.openNow === "boolean") patch.openNow = data.openNow;
   if (typeof data.zooHunt === "boolean") patch.zooHunt = data.zooHunt;

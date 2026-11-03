@@ -2,6 +2,17 @@ import type { BusinessCategoryId } from "./business";
 import type { Geo } from "./nearby";
 import type { FacilityItem } from "./airpal-data";
 
+export const DISPLAY_NAME_MAX = 60;
+
+/** Inline error for a public display name. Null means it can be saved. */
+export function displayNameError(raw: string): string | null {
+  const name = raw.trim();
+  if (!name) return "Enter a display name.";
+  if (name.length > DISPLAY_NAME_MAX) return `Keep the display name to ${DISPLAY_NAME_MAX} characters or fewer.`;
+  if (/[<>]/.test(name)) return "Display name can't include < or >.";
+  return null;
+}
+
 export const HANDLE_MIN = 3;
 export const HANDLE_MAX = 30;
 export const HANDLE_RE = /^[a-z0-9][a-z0-9._]{2,29}$/;
