@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   createUserWithEmailAndPassword,
   deleteUser,
@@ -45,6 +45,23 @@ import {
   loginWithPhonePasswordRemote,
 } from "@/lib/functions";
 import { signInWithSocial, type SocialProvider } from "@/lib/social-auth";
+
+/** Follow-up auth calls must not trap signup on "Creating your account…". */
+function settleWithin(promise: Promise<unknown>, ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(), ms);
+    promise.then(
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+    );
+  });
+}
 
 import {
   authenticateWithBiometrics,
@@ -118,6 +135,9 @@ const AuthContext = createContext<AuthValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
+  // Name typed at signup. The auth listener otherwise falls back to the email
+  // until updateProfile finishes, and a slow updateProfile used to block signup.
+  const signupNameRef = useRef("");
   const [authReady, setAuthReady] = useState(!isFirebaseConfigured);
   const [signInPrompt, setSignInPrompt] = useState<{ reason: string } | null>(null);
   const [biometricsSupported, setBiometricsSupported] = useState(false);
@@ -203,6 +223,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile.phone = fb.phoneNumber || undefined;
       profile.phoneVerified = Boolean(fb.phoneNumber);
       profile.photoURL = fb.photoURL || profile.photoURL;
+      const chosenName = signupNameRef.current.trim();
+      const authName = fb.displayName && fb.displayName !== (fb.email || "") ? fb.displayName : "";
+      if (chosenName || authName) profile.displayName = chosenName || authName;
       if (mine !== gen) return;
       setUser(profile);
       setAuthReady(true);
@@ -425,28 +448,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const auth = getFirebaseAuth();
         if (!auth) throw new Error("Sign-up needs Firebase.");
         const cleanEmail = normalizeEmail(email);
-        const cred = await withAuthUpgrade(async () => {
-          const c = await createUserWithEmailAndPassword(auth, cleanEmail, opts?.password || "");
-          try {
-            await c.user.getIdToken(true);
-          } catch {
-            /* ignore token refresh failure */
-          }
-          await setAuthDisplayName(c.user, name);
-          if (liveBackendEnabled()) {
-            try {
-              await ensureUserProfileRemote();
-            } catch {
-              /* non-blocking */
-            }
-          }
-          return c;
+        const cleanName = name.trim();
+        if (cleanName) signupNameRef.current = cleanName;
+        const cred = await withAuthUpgrade(async () => createUserWithEmailAndPassword(auth, cleanEmail, opts?.password || ""));
+        setUser((prev) => {
+          const base: UserProfile = prev ?? {
+            uid: cred.user.uid,
+            email: cleanEmail,
+            displayName: cleanName || cleanEmail,
+            role: "guest",
+            emailVerified: cred.user.emailVerified,
+          };
+          return {
+            ...base,
+            uid: cred.user.uid,
+            email: cleanEmail,
+            displayName: cleanName || base.displayName,
+            emailVerified: cred.user.emailVerified,
+          };
         });
-        try {
-          await sendAccountVerificationEmail(cred.user);
-        } catch {
-          /* account exists; they can resend from /me */
-        }
+        // Profile, token, and verification email are follow-ups. The account
+        // already exists; waiting on them left the button on "Creating…".
+        void (async () => {
+          if (cleanName) await settleWithin(setAuthDisplayName(cred.user, cleanName), 4000);
+          if (liveBackendEnabled()) await settleWithin(ensureUserProfileRemote(), 4000);
+          await settleWithin(sendAccountVerificationEmail(cred.user), 4000);
+        })();
       },
       async logout(options) {
         resetPhoneLogin();

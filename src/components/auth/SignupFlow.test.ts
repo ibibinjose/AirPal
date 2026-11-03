@@ -24,6 +24,8 @@ describe("SignupFlow & Handle Suggestion", () => {
     const code = readFileSync(new URL("./SignupFlow.tsx", import.meta.url), "utf-8");
     expect(code).toContain("withTimeout");
     expect(code).toContain("Promise.allSettled(postTasks)");
+    expect(code).toContain("onDone({ name: cleanName, handle: cleanHandle })");
+    expect(code).toContain("saveSignupDraft");
     expect(code).not.toMatch(/await confirmAdultAccount\([\s\S]*?\);\s*if \(cleanHandle/);
   });
 });

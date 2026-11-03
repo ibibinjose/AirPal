@@ -14,6 +14,7 @@ import { triggerHaptic, triggerHapticSelection } from "@/lib/native";
 import { friendlyFunctionError } from "@/lib/functions";
 import { cn } from "@/lib/cn";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { clearSignupDraft, readSignupDraft } from "@/lib/signup-draft";
 
 type OnboardingStep = 1 | 2;
 
@@ -39,7 +40,9 @@ export function OnboardingPage() {
   const search = useSearch();
   const params = useMemo(() => new URLSearchParams(search), [search]);
   const next = params.get("next") || "";
-  const initialHandleParam = params.get("handle") || "";
+  const signupDraft = useMemo(() => readSignupDraft(), []);
+  const initialHandleParam = params.get("handle") || signupDraft?.handle || "";
+  const initialNameParam = params.get("name") || signupDraft?.name || "";
 
   const {
     user,
@@ -53,7 +56,7 @@ export function OnboardingPage() {
   const { mine, createProfile } = useBio();
 
   const [step, setStep] = useState<OnboardingStep>(1);
-  const [name, setName] = useState(() => mine?.name || user?.displayName || "");
+  const [name, setName] = useState(() => initialNameParam || mine?.name || "");
   const [handle, setHandle] = useState(() => initialHandleParam || mine?.handle || "");
   const [handleTouched, setHandleTouched] = useState(() => Boolean(initialHandleParam || mine?.handle));
   const [city, setCity] = useState(() => mine?.city || "Sydney");
@@ -67,22 +70,35 @@ export function OnboardingPage() {
   // Suggest a handle from the name or email until the user edits @handle directly.
   useEffect(() => {
     if (handleTouched) return;
-    const emailPrefix = user?.email ? normalizeHandle(user.email.split("@")[0] || "") : "";
     if (initialHandleParam) {
       setHandle(normalizeHandle(initialHandleParam));
-    } else if (emailPrefix && emailPrefix.match(/\d+$/) && !handleError(emailPrefix)) {
-      setHandle(emailPrefix);
-    } else if (name) {
-      const h = handleFromName(name);
-      if (h) setHandle(h);
-    } else if (emailPrefix && !handleError(emailPrefix)) {
-      setHandle(emailPrefix);
+      return;
     }
+    // A real name beats an email-prefix guess. The prefix was winning for
+    // addresses like airpalqa2 and discarding the handle chosen at signup.
+    if (name.trim() && name.trim() !== (user?.email || "")) {
+      const h = handleFromName(name);
+      if (h && !handleError(h)) {
+        setHandle(h);
+        return;
+      }
+    }
+    const emailPrefix = user?.email ? normalizeHandle(user.email.split("@")[0] || "") : "";
+    if (emailPrefix && !handleError(emailPrefix)) setHandle(emailPrefix);
   }, [handleTouched, initialHandleParam, name, user?.email]);
 
   useEffect(() => {
-    if (!name && user?.displayName) setName(user.displayName);
-  }, [name, user?.displayName]);
+    if (name.trim()) return;
+    if (initialNameParam) {
+      setName(initialNameParam);
+      return;
+    }
+    if (mine?.name) {
+      setName(mine.name);
+      return;
+    }
+    if (user?.displayName && user.displayName !== user.email) setName(user.displayName);
+  }, [name, initialNameParam, mine?.name, user?.displayName, user?.email]);
 
   const handleOk = handleStatus.ok;
   const nameOk = name.trim().length >= 2;
@@ -108,6 +124,7 @@ export function OnboardingPage() {
         shortWhy: "On AirPal",
         kind: "person",
       });
+      clearSignupDraft();
       void triggerHaptic("success");
       setStep(2);
       window.scrollTo({ top: 0, behavior: "smooth" });

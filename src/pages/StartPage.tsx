@@ -38,6 +38,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBio } from "@/contexts/BioContext";
 import { liveBackendEnabled } from "@/lib/functions";
 import { normalizeInviteCode, recordAppInvite, resolveInviter, stashInviteRef, takeInviteRef } from "@/lib/app-invites";
+import { onboardingPath, readSignupDraft } from "@/lib/signup-draft";
 import { PILLARS } from "@/lib/pillars";
 import { cn } from "@/lib/cn";
 
@@ -218,7 +219,7 @@ export function StartPage() {
       setPendingGo(false);
       const dest = afterInPath();
       if (!mine?.handle) {
-        nav(`/onboarding?next=${encodeURIComponent(dest)}`);
+        nav(onboardingPath(dest, readSignupDraft()));
       } else {
         nav(dest);
       }
@@ -799,10 +800,9 @@ export function StartPage() {
                           if (email) setLoginEmail(email);
                           switchMode("signin");
                         }}
-                        onDone={() => {
+                        onDone={(draft) => {
                           const dest = afterInPath();
-                          const target = mine?.handle ? dest : `/onboarding?next=${encodeURIComponent(dest)}`;
-                          nav(target);
+                          nav(mine?.handle ? dest : onboardingPath(dest, draft ?? readSignupDraft()));
                         }}
                       />
                     </div>

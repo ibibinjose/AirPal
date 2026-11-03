@@ -12,6 +12,7 @@ import { useHandleStatus } from "@/hooks/useHandleStatus";
 import { ensureElementInView } from "@/lib/keyboard";
 import { triggerHaptic } from "@/lib/native";
 import { cn } from "@/lib/cn";
+import { saveSignupDraft } from "@/lib/signup-draft";
 
 const KEYBOARD_SAFE_INPUT = "text-[16px] sm:text-sm";
 
@@ -31,7 +32,7 @@ export function SignupFlow({
   initialHandle = "",
   onSwitchToSignIn,
 }: {
-  onDone: () => void;
+  onDone: (draft?: { name: string; handle: string }) => void;
   onProgress?: (inProgress: boolean) => void;
   initialEmail?: string;
   initialHandle?: string;
@@ -126,7 +127,9 @@ export function SignupFlow({
         /* storage may be restricted */
       }
 
-      if (!emailAccountCreated) {
+      saveSignupDraft({ name: cleanName, handle: cleanHandle });
+
+    if (!emailAccountCreated) {
         await register(cleanEmail, cleanName, {
           password,
           city: "Sydney",
@@ -165,11 +168,13 @@ export function SignupFlow({
         );
       }
 
-      await Promise.allSettled(postTasks);
+      // Adult confirmation and the first profile write are follow-ups.
+      // Redirect even when they are slow or fail — onboarding can finish them.
+      void Promise.allSettled(postTasks);
 
       void triggerHaptic("success");
       toast.success("Account created successfully!");
-      onDone();
+      onDone({ name: cleanName, handle: cleanHandle });
     } catch (err: unknown) {
       const errObj = err as { code?: string; message?: string };
       const code = errObj?.code || "";
