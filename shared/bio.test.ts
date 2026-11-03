@@ -128,6 +128,8 @@ describe("bio href allowlist", () => {
     expect(isSafeBioHref("https://thecut.bar/menu")).toBe(true);
     expect(isSafeBioHref("http://example.com")).toBe(true);
     expect(isSafeBioHref("tel:+61400123123")).toBe(true);
+    expect(isSafeBioHref("tel:0469304711")).toBe(true);
+    expect(isSafeBioHref("tel:abc!!")).toBe(false);
     expect(isSafeBioHref("mailto:hello@airpal.me")).toBe(true);
     expect(isSafeBioHref("/@cutbar")).toBe(true);
   });

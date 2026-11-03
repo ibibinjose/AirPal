@@ -47,6 +47,18 @@ describe("newLinkError", () => {
     expect(newLinkError("website", "not a url")).toContain("valid URL");
   });
 
+  it("rejects a call link that is not a phone number", () => {
+    expect(newLinkError("call", "abc!!")).toMatch(/digits/i);
+    expect(formatFinalLinkHref("call", "abc!!")).toBe("");
+  });
+
+  it("accepts Australian and international call numbers", () => {
+    expect(newLinkError("call", "0469 304 711")).toBeNull();
+    expect(formatFinalLinkHref("call", "0469 304 711")).toBe("tel:0469304711");
+    expect(newLinkError("call", "+61 469 304 711")).toBeNull();
+    expect(formatFinalLinkHref("call", "+61 469 304 711")).toBe("tel:+61469304711");
+  });
+
   it("passes real values through", () => {
     expect(newLinkError("website", "https://example.com/menu")).toBeNull();
     expect(newLinkError("website", "example.com/menu")).toBeNull();

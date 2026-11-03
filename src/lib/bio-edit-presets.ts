@@ -1,4 +1,4 @@
-import { BIO_CATALOG_MAX, type BioLinkType } from "@shared/bio";
+import { BIO_CATALOG_MAX, callablePhoneError, type BioLinkType } from "@shared/bio";
 
 /** Bio edit presets + social link formatting (moved from BioEditPage). */
 // Personal Profile Category / Vibe Presets
@@ -145,8 +145,9 @@ export function formatFinalLinkHref(type: BioLinkType, input: string): string {
   }
 
   if (type === "call") {
-    if (raw.startsWith("tel:")) return raw;
-    return `tel:${raw.replace(/\s+/g, "")}`;
+    if (callablePhoneError(raw)) return "";
+    const body = raw.replace(/^tel:/i, "").replace(/[^\d+]/g, "");
+    return body ? `tel:${body}` : "";
   }
 
   if (/^https?:\/\//i.test(raw)) return raw;
@@ -161,6 +162,10 @@ export function formatFinalLinkHref(type: BioLinkType, input: string): string {
  */
 export function newLinkError(type: BioLinkType, href: string): string | null {
   const raw = href.trim();
+  if (type === "call") {
+    if (!raw) return "Enter a value first — a username for socials, a URL for web links.";
+    return callablePhoneError(raw);
+  }
   if (!raw || !formatFinalLinkHref(type, raw)) {
     return "Enter a value first — a username for socials, a URL for web links.";
   }

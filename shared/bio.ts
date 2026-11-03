@@ -698,6 +698,21 @@ export function bioButtonLabel(handle: string) {
 }
 
 /**
+ * Phone numbers for a Call link. Digits, spaces, and dashes, optional leading +.
+ * Accepts Australian locals (0469 304 711) and international (+61 469 304 711).
+ */
+export function callablePhoneError(raw: string): string | null {
+  const trimmed = raw.trim().replace(/^tel:/i, "").trim();
+  if (!trimmed) return "Enter a phone number.";
+  if (!/^\+?[0-9][0-9\s-]*$/.test(trimmed)) {
+    return "Use digits, spaces, or dashes, and an optional leading +.";
+  }
+  const digits = trimmed.replace(/\D/g, "");
+  if (digits.length < 8 || digits.length > 15) return "Enter a phone number with 8 to 15 digits.";
+  return null;
+}
+
+/**
  * Allowlist for outbound link hrefs. Blocks javascript:, data:, vbscript: and
  * other dangerous schemes at save time and at render time.
  */
@@ -709,7 +724,8 @@ export function isSafeBioHref(raw: unknown): boolean {
   // Block dangerous schemes explicitly (leading whitespace/control chars trimmed above).
   if (/^(javascript|data|vbscript|file|blob):/.test(lower)) return false;
   if (lower.startsWith("http://") || lower.startsWith("https://")) return true;
-  if (lower.startsWith("tel:") || lower.startsWith("mailto:")) return true;
+  if (lower.startsWith("tel:")) return callablePhoneError(href) === null;
+  if (lower.startsWith("mailto:")) return true;
   if (lower.startsWith("/")) return true;
   return false;
 }
