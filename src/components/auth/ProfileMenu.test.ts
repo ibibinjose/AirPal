@@ -57,5 +57,7 @@ describe("ProfileMenu", () => {
     expect(code).not.toContain("signoutArmed");
     expect(code).not.toContain("Confirm Sign Out");
     expect(code).toContain('label="Sign out"');
+    expect(code).toContain("void logout()");
+    expect(code).not.toContain('addEventListener("pointerdown", onDoc)');
   });
 });

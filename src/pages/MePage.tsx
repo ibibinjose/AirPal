@@ -2051,7 +2051,9 @@ export function MePage({ defaultTab }: MePageProps = {}) {
               </span>
               <button
                 type="button"
-                onClick={() => void logout().then(() => nav("/"))}
+                onClick={() => {
+                  void logout().catch(() => toast.error("Couldn't sign out — try again."));
+                }}
                 className="inline-flex min-h-[44px] items-center gap-1.5 px-2 text-xs font-bold text-red-600 hover:text-red-700 transition-colors cursor-pointer active:scale-95"
               >
                 <LogOut size={13} />

@@ -182,10 +182,17 @@ export function ProfileMenu() {
 
   useEffect(() => {
     if (!open) return;
-    function onDoc(e: MouseEvent | PointerEvent) {
-      if (!box.current?.contains(e.target as Node) && !drawerRef.current?.contains(e.target as Node)) {
-        setOpen(false);
+    function onDoc(e: MouseEvent) {
+      const target = e.target as Node | null;
+      if (!target) return;
+      if (
+        box.current?.contains(target) ||
+        menuRef.current?.contains(target) ||
+        drawerRef.current?.contains(target)
+      ) {
+        return;
       }
+      setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
@@ -193,12 +200,12 @@ export function ProfileMenu() {
         triggerRef.current?.focus();
       }
     }
-    document.addEventListener("pointerdown", onDoc);
-    document.addEventListener("mousedown", onDoc);
+    // Click (bubble), not pointerdown. A pointerdown outside-close unmounted
+    // the Sign out row before its click ran, so the item did nothing.
+    document.addEventListener("click", onDoc);
     document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("pointerdown", onDoc);
-      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("click", onDoc);
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
@@ -693,12 +700,10 @@ export function ProfileMenu() {
           danger
           onClick={() => {
             setOpen(false);
-            void logout().then(
-              () => {
-                nav("/");
-              },
-              () => toast.error("Couldn't sign out — try again."),
-            );
+            // Same path as the Sign out button on /me: AuthContext.logout
+            // clears the session and reloads home. nav("/") alone never ran
+            // when the menu unmounted first.
+            void logout().catch(() => toast.error("Couldn't sign out — try again."));
           }}
         />
       </div>

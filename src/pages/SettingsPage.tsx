@@ -1118,7 +1118,9 @@ export function SettingsPage() {
           <button
             type="button"
             className="flex min-h-[50px] w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-card px-4 text-sm font-bold text-ink ring-1 ring-line hover:bg-paper active:scale-95 transition shadow-xs"
-            onClick={() => void logout().then(() => nav("/"))}
+            onClick={() => {
+              void logout().catch(() => toast.error("Couldn't sign out — try again."));
+            }}
           >
             <LogOut size={16} />
             <span>Sign Out of AirPal</span>
