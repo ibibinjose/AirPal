@@ -1,8 +1,9 @@
-import { HOST_COUNTRIES, addressLayoutFor, addressOk, type AddressParts } from "@shared/geo-address";
+import { HOST_COUNTRIES, addressLayoutFor, addressOk, auPostcodeError, type AddressParts } from "@shared/geo-address";
 import { ValidField, fieldInput } from "./ValidField";
 
 export function AddressFields({ value, onChange }: { value: AddressParts; onChange: (next: AddressParts) => void }) {
   const layout = addressLayoutFor(value.countryCode);
+  const postcodeError = value.postal.trim() ? auPostcodeError(value.postal, value.countryCode) : null;
   const patch = (part: Partial<AddressParts>) => onChange({ ...value, ...part });
   return (
     <div className="space-y-3">
@@ -56,7 +57,7 @@ export function AddressFields({ value, onChange }: { value: AddressParts; onChan
             className={fieldInput}
           />
         </ValidField>
-        <ValidField label={layout.postalLabel} ok={Boolean(value.postal.trim())}>
+        <ValidField label={layout.postalLabel} ok={Boolean(value.postal.trim()) && !postcodeError} error={postcodeError}>
           <input
             value={value.postal}
             onChange={(e) => patch({ postal: e.target.value })}

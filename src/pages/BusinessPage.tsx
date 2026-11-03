@@ -19,6 +19,7 @@ import { partnerAccountPath } from "@/lib/partner-account";
 import { GuestListPanel } from "@/components/club/GuestListPanel";
 import {
   addressOk,
+  auPostcodeError,
   countryByCode,
   emptyAddress,
   formatAddress,
@@ -341,8 +342,9 @@ export function BusinessPage() {
 
   async function onPlace(e: FormEvent) {
     e.preventDefault();
-    if (!addressOk(address) || (phone && !isValidPhone(phone))) {
-      toast.error("Please verify the street address and contact phone number");
+    const postcodeProblem = auPostcodeError(address.postal, address.countryCode);
+    if (!addressOk(address) || postcodeProblem || (phone && !isValidPhone(phone))) {
+      toast.error(postcodeProblem || "Please verify the street address and contact phone number");
       return;
     }
     setBusy(true);

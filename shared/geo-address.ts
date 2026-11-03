@@ -388,6 +388,14 @@ export function addressOk(parts: AddressParts) {
   return Boolean(parts.line1.trim() && parts.city.trim() && parts.countryCode);
 }
 
+/** Australian postcodes are exactly four digits. Other countries are not checked here. */
+export function auPostcodeError(postal: string, countryCode = "AU"): string | null {
+  if (countryCode.toUpperCase() !== "AU") return null;
+  const value = postal.trim();
+  if (!/^\d{4}$/.test(value)) return "Australian postcodes are exactly 4 digits.";
+  return null;
+}
+
 export function nationalDigits(raw?: string | null) {
   if (!raw || typeof raw !== "string") return "";
   return raw.replace(/\D/g, "");
