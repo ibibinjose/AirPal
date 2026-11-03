@@ -7,11 +7,9 @@ import { execSync } from "node:child_process";
  */
 
 const ALLOWED_ADVISORY_URLS = new Set([
-  // node-forge signature verification flaw (GHSA-86w9-cpqp-85rv / CVE-2026-85393).
-  // Affects RSA PKCS#1 v1.5 verification with low public exponents.
-  // AirPal uses passkit-generator solely for signing/generating Apple Wallet .pkpass files,
-  // never for verifying external signatures. No upstream release exists yet.
-  "https://github.com/advisories/GHSA-86w9-cpqp-85rv",
+  // Kept empty on purpose. High/critical findings must be cleared with a
+  // patched override (see package.json overrides) rather than an allowlist.
+  // node-forge <=1.4.0 (including GHSA-86w9-cpqp-85rv) is pinned to ^1.4.2.
 ]);
 
 function runAudit(cwd = ".") {
