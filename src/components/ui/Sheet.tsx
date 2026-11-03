@@ -22,16 +22,21 @@ export function Sheet({
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const prevFocus = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   const reduceMotion = useReducedMotion();
   useScrollLock(open);
 
   const handleClose = () => {
     void dismissKeyboard();
-    onClose();
+    onCloseRef.current();
   };
 
   // Escape to close, initial focus into the sheet, Tab trapped inside,
   // and focus restored to the opener on close.
+  // `onClose` is read from a ref: an inline callback must not re-run this
+  // effect. The cleanup restores focus to the opener, which was stealing
+  // the caret after every keystroke (walk-in name/email kept one character).
   useEffect(() => {
     if (!open) return;
     prevFocus.current = document.activeElement as HTMLElement | null;
@@ -39,7 +44,7 @@ export function Sheet({
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         void dismissKeyboard();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== "Tab" || !panelRef.current) return;
@@ -62,7 +67,7 @@ export function Sheet({
       document.removeEventListener("keydown", onKey);
       prevFocus.current?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
   if (typeof document === "undefined") return null;

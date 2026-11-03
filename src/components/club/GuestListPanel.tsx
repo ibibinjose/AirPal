@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { collection, deleteDoc, doc, getDocs, onSnapshot, query, setDoc, where } from "firebase/firestore";
 import { toast } from "sonner";
 import { WifiOff } from "lucide-react";
@@ -20,6 +20,7 @@ export function GuestListPanel({ clubId, clubName }: { clubId: string; clubName:
   const [sheetOpen, setSheetOpen] = useState(false);
   const [offline, setOffline] = useState(() => typeof navigator !== "undefined" && !navigator.onLine);
   const undoTimer = useRef<number | null>(null);
+  const closeSheet = useCallback(() => setSheetOpen(false), []);
 
   useEffect(() => {
     setRows([]);
@@ -186,7 +187,7 @@ export function GuestListPanel({ clubId, clubName }: { clubId: string; clubName:
         </Button>
       </div>
 
-      <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="Add walk-in">
+      <Sheet open={sheetOpen} onClose={closeSheet} title="Add walk-in">
         <form className="space-y-3" onSubmit={(e) => void onAdd(e)}>
           <div>
             <label htmlFor="walkin-name" className="mb-1 block text-xs font-bold uppercase tracking-wider text-mute">
