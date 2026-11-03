@@ -21,6 +21,7 @@ import type { GooglePlaceImport } from "@shared/google-place";
 import { GooglePlaceImportCard } from "@/components/business/GooglePlaceImport";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { Button } from "@/components/ui/Button";
+import { PageLoading } from "@/components/ui/PageLoading";
 import { useAuth } from "@/contexts/AuthContext";
 import { useListings } from "@/contexts/ListingsContext";
 import { useBio } from "@/contexts/BioContext";
@@ -35,7 +36,7 @@ import { cn } from "@/lib/cn";
  */
 export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
   const [, nav] = useLocation();
-  const { user } = useAuth();
+  const { user, authReady } = useAuth();
   const { mine, createPlace, confirmHours, saveDeal } = useListings();
   const { profiles = [], createProfile } = useBio();
   const { events } = useEvents();
@@ -295,6 +296,9 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
   const allDone = completedCount === checklist.length;
 
   const stepIndex = step === "onboard" ? 0 : 1;
+  if (!authReady) {
+    return <PageLoading message="Checking your account…" />;
+  }
   return (
     <div className="page-wrap-narrow space-y-5 pt-4 sm:pt-6">
       {/* Flow header: back, title, and honest 3-step progress in one card */}
