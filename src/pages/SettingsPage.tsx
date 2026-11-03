@@ -33,7 +33,7 @@ import {
   Users,
   Briefcase,
 } from "lucide-react";
-import { authErrorCode, authErrorMessage } from "@shared/auth-email";
+import { authErrorMessage } from "@shared/auth-email";
 import {
   BIRTHDAY_MONTHS,
   BIRTHDAY_REGIONS,
