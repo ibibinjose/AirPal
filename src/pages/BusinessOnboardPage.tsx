@@ -149,16 +149,19 @@ export function BusinessOnboardPage({ step }: { step: "onboard" | "setup" }) {
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/(^-|-$)/g, "")
           .slice(0, 24);
-      const created = await createPlace({
-        name: trimmed,
-        category,
-        address: address.trim() || "Sydney NSW",
-        hours: hours.trim() || "Mon–Sun · 9am–9pm",
-        shortWhy: shortWhy.trim() || `Local ${category} partner on AirPal.`,
-        handle: cleanHandle,
-      });
-      toast.success(`${trimmed} created! Let's finish your readiness checklist.`);
-      nav("/business/setup");
+      const created = await createPlace(
+        {
+          name: trimmed,
+          category,
+          address: address.trim() || "Sydney NSW",
+          hours: hours.trim() || "Mon–Sun · 9am–9pm",
+          shortWhy: shortWhy.trim() || `Local ${category} partner on AirPal.`,
+          handle: cleanHandle,
+        },
+        { backgroundSync: true },
+      );
+      toast.success(`${trimmed} is in your Business Hub.`);
+      nav("/business");
       // Venue bio builds in the background and never blocks setup: a slow
       // profile chain used to strand owners on step 1 with the venue already
       // created. Failures surface their own toast via ensureVenueBio.

@@ -60,7 +60,7 @@ type ListingsValue = {
   /** True when the last listings fetch failed (offline) — lists may show cached/empty. */
   remoteFailed: boolean;
   savePlace: (input: SavePlaceInput, targetListingId?: string) => Promise<BusinessListing>;
-  createPlace: (input: SavePlaceInput) => Promise<BusinessListing>;
+  createPlace: (input: SavePlaceInput, opts?: { backgroundSync?: boolean }) => Promise<BusinessListing>;
   deleteListing: (listingId: string) => Promise<void>;
   saveDeal: (listingId: string, deal: PlaceDeal | null) => Promise<void>;
   confirmHours: () => Promise<void>;
@@ -284,7 +284,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
         });
         return listing;
       },
-      async createPlace(input) {
+      async createPlace(input, opts) {
         const id = `list-${nanoid(8)}`;
         const listing = listingDefaults({
           id,
@@ -315,7 +315,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
           contextId: listing.id,
           actorRole: "host_admin",
         });
-        await runRemoteWrite({
+        const remoteWrite = runRemoteWrite({
           runJob: sync?.runJob,
           jobId: `listing-${listing.id}`,
           label: "Listing",
@@ -347,6 +347,10 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
               : undefined,
           policy: "queue",
         });
+        // Quick launch must toast and leave the form before the callable
+        // round-trip. The sync pill still reports a later failure.
+        if (opts?.backgroundSync) void remoteWrite.catch(() => undefined);
+        else await remoteWrite;
         return listing;
       },
       async deleteListing(listingId: string) {
