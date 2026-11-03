@@ -2,8 +2,9 @@ import { execSync } from "node:child_process";
 
 /**
  * Dependency security audit gate.
- * Enforces zero high or critical severity vulnerabilities across root and functions,
- * while accounting for documented upstream transitive dependencies where no patch exists yet.
+ * Enforces zero high or critical severity vulnerabilities across root and functions.
+ * Patched transitive deps are pinned in package.json overrides. The allowlist is
+ * only for an advisory that has no upstream fix.
  */
 
 const ALLOWED_ADVISORY_URLS = new Set([
