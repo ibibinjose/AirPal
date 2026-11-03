@@ -21,6 +21,11 @@ import {
 import { computeRescheduledTimes } from "@/lib/calendar-utils";
 import { overlayUserState } from "@/lib/event-user-state";
 import { docToCalendarBase, docToEventRecord, recordToCalendarBase, toNearbyEvent } from "@/lib/remote-events";
+import {
+  classifyEventsRefreshError,
+  publicEventsQuery,
+  type EventsRefreshFailure,
+} from "@/lib/events-refresh";
 import type { NearbyEvent } from "@shared/nearby";
 import { downloadMultipleIcs } from "@/lib/calendar-export";
 import { getFirebaseAuth, getFirebaseDb } from "@/lib/firebase";
@@ -62,8 +67,10 @@ type EventsValue = {
   remoteNearby: NearbyEvent[];
   remoteRecords: EventRecord[];
   remoteLoaded: boolean;
-  /** True when the last public-events fetch failed (offline) — lists may show cached/empty. */
+  /** True when the last public-events fetch failed — lists may show cached/empty. */
   remoteFailed: boolean;
+  /** Why the last public-events fetch failed, so the UI does not call a rules error a dropped connection. */
+  remoteFailure: EventsRefreshFailure | null;
   refresh: () => void;
   fetchRemoteStalls: (eventId: string) => Promise<void>;
   /** Direct by-id read for deep links the list fetch skipped (demo docs). */
@@ -108,6 +115,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const [remoteRecords, setRemoteRecords] = useState<EventRecord[]>([]);
   const [remoteLoaded, setRemoteLoaded] = useState(false);
   const [remoteFailed, setRemoteFailed] = useState(false);
+  const [remoteFailure, setRemoteFailure] = useState<EventsRefreshFailure | null>(null);
   const stallsFetchedRef = useRef<Set<string>>(new Set());
 
   const refresh = useCallback(() => {
@@ -173,7 +181,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       return;
     }
     let alive = true;
-    void getDocs(collection(db, "events"))
+    void getDocs(publicEventsQuery(db))
       .then((snap) => {
         if (!alive) return;
         const bases: RemoteBase[] = [];
@@ -203,14 +211,16 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         setRemoteNearby(nearby);
         setRemoteRecords(records);
         setRemoteFailed(false);
+        setRemoteFailure(null);
         setRemoteLoaded(true);
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         if (alive) {
           setRemoteBases([]);
           setRemoteNearby([]);
           setRemoteRecords([]);
           setRemoteFailed(true);
+          setRemoteFailure(classifyEventsRefreshError(err));
           setRemoteLoaded(true);
         }
       });
@@ -505,6 +515,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       remoteRecords,
       remoteLoaded,
       remoteFailed,
+      remoteFailure,
       refresh,
       fetchRemoteStalls,
       fetchRemoteEvent,
@@ -828,6 +839,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       remoteRecords,
       remoteLoaded,
       remoteFailed,
+      remoteFailure,
       fetchRemoteStalls,
       fetchRemoteEvent,
       userStates,

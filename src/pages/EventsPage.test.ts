@@ -4,7 +4,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import type { CalendarEvent } from "@shared/event";
 
 const { fakes } = vi.hoisted(() => ({
-  fakes: { search: "", remoteFailed: false, events: null as CalendarEvent[] | null },
+  fakes: {
+    search: "",
+    remoteFailed: false,
+    remoteFailure: null as "offline" | "denied" | "failed" | null,
+    events: null as CalendarEvent[] | null,
+  },
 }));
 
 vi.mock("wouter", () => ({
@@ -53,6 +58,7 @@ vi.mock("@/contexts/EventsContext", () => ({
     events: [],
     userStates: {},
     remoteFailed: fakes.remoteFailed,
+    remoteFailure: fakes.remoteFailure,
   }),
 }));
 
@@ -67,9 +73,13 @@ vi.mock("../components/calendar/CalendarEventCard", () => ({
 
 import { EventsPage } from "./EventsPage";
 
-function render(search = "", opts: { remoteFailed?: boolean; events?: CalendarEvent[] } = {}) {
+function render(
+  search = "",
+  opts: { remoteFailed?: boolean; remoteFailure?: "offline" | "denied" | "failed" | null; events?: CalendarEvent[] } = {},
+) {
   fakes.search = search;
   fakes.remoteFailed = opts.remoteFailed ?? false;
+  fakes.remoteFailure = opts.remoteFailure ?? null;
   fakes.events = opts.events ?? null;
   return renderToStaticMarkup(createElement(EventsPage));
 }
@@ -111,5 +121,11 @@ describe("EventsPage search", () => {
     expect(markup).not.toContain('data-testid="event-card"');
     expect(markup).not.toContain("Nothing live in");
     expect(markup).toContain("refresh events");
+  });
+
+  it("does not blame the connection when the events read was denied", () => {
+    const markup = render("", { remoteFailed: true, remoteFailure: "denied", events: [] });
+    expect(markup).toContain("access was denied");
+    expect(markup).toContain("isn't a connection problem");
   });
 });

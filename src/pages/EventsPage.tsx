@@ -27,6 +27,7 @@ import { CITY_OPTIONS } from "@/lib/cities";
 import { toZonedDateStr } from "@/lib/local-time";
 import { cn } from "@/lib/cn";
 import { buildEventsJsonLd } from "@/lib/events-meta";
+import { eventsRefreshCopy } from "@/lib/events-refresh";
 
 type EventCategory = "all" | "cultural" | "music" | "festivals" | "nightlife" | "community";
 type DateRange = "all" | "today" | "weekend" | "week" | "month";
@@ -148,7 +149,12 @@ function matchesDateRange(date: string, range: DateRange, today: string): boolea
  */
 export function EventsPage() {
   const [, nav] = useLocation();
-  const { calendarEvents, events, userStates, remoteFailed } = useEvents();
+  const { calendarEvents, events, userStates, remoteFailed, remoteFailure } = useEvents();
+  const refreshCopy = remoteFailure
+    ? eventsRefreshCopy(remoteFailure)
+    : remoteFailed
+      ? eventsRefreshCopy("failed")
+      : null;
   const { city, today, chooseLocation } = useLocalNow();
   const effectiveCity = city && city !== "Choose a city" && city !== "Current location" ? city : "Sydney";
 
@@ -437,20 +443,19 @@ export function EventsPage() {
           <p className="human-section-title mt-3 text-lg">
             {query.trim()
               ? `No results for “${query.trim()}”`
-              : remoteFailed
-                ? "Couldn't refresh events"
+              : refreshCopy
+                ? refreshCopy.title
                 : "No events match these filters"}
           </p>
           <p className="mx-auto mt-1 max-w-sm text-sm text-mute">
-            {query.trim() || !remoteFailed ? (
+            {query.trim() || !refreshCopy ? (
               <>
                 Nothing live in {effectiveCity} for this combination yet. Try a different search or reset the filters —
                 or host your own gathering.
               </>
             ) : (
               <>
-                Check your connection and try again — showing what’s saved on this device in the meantime. Or host your
-                own gathering.
+                {refreshCopy.detail} Or host your own gathering.
               </>
             )}
           </p>
