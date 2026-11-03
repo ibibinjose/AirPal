@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   addressLayoutFor,
   addressOk,
+  auPostcodeError,
   composePhone,
   countryByCode,
   countryFlag,
@@ -14,6 +15,16 @@ import {
   parseAddress,
   splitPhone,
 } from "./geo-address";
+
+describe("Australian postcode", () => {
+  it("accepts exactly 4 digits and rejects letters or symbols", () => {
+    expect(auPostcodeError("2000", "AU")).toBeNull();
+    expect(auPostcodeError("abc!!", "AU")).toMatch(/4 digits/);
+    expect(auPostcodeError("200", "AU")).toMatch(/4 digits/);
+    expect(auPostcodeError("20000", "AU")).toMatch(/4 digits/);
+    expect(auPostcodeError("abc!!", "US")).toBeNull();
+  });
+});
 
 describe("host location", () => {
   it("formats live GPS the way hosts pin a property", () => {
