@@ -170,7 +170,7 @@ export function newLinkError(type: BioLinkType, href: string): string | null {
     return "Enter a value first — a username for socials, a URL for web links.";
   }
   const social = SOCIAL_CONFIG[type];
-  if (!social && type !== "call") {
+  if (!social) {
     const formatted = formatFinalLinkHref(type, raw);
     if (!/^https?:\/\//i.test(formatted)) {
       return "Enter a valid URL (e.g. example.com or https://example.com).";

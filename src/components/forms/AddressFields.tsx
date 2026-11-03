@@ -57,7 +57,11 @@ export function AddressFields({ value, onChange }: { value: AddressParts; onChan
             className={fieldInput}
           />
         </ValidField>
-        <ValidField label={layout.postalLabel} ok={Boolean(value.postal.trim()) && !postcodeError} error={postcodeError}>
+        <ValidField
+          label={layout.postalLabel}
+          ok={Boolean(value.postal.trim()) && !postcodeError}
+          error={postcodeError}
+        >
           <input
             value={value.postal}
             onChange={(e) => patch({ postal: e.target.value })}

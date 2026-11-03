@@ -16,8 +16,7 @@ export function publicEventsQuery(db: Firestore): Query {
 export type EventsRefreshFailure = "offline" | "denied" | "failed";
 
 export function classifyEventsRefreshError(err: unknown): EventsRefreshFailure {
-  const code =
-    typeof err === "object" && err && "code" in err ? String((err as { code: unknown }).code || "") : "";
+  const code = typeof err === "object" && err && "code" in err ? String((err as { code: unknown }).code || "") : "";
   const message = err instanceof Error ? err.message : String(err || "");
   const haystack = `${code} ${message}`.toLowerCase();
   if (haystack.includes("permission-denied") || haystack.includes("insufficient permissions")) return "denied";
@@ -43,12 +42,11 @@ export function eventsRefreshCopy(kind: EventsRefreshFailure): { title: string; 
   if (kind === "denied") {
     return {
       title: "Couldn't refresh events",
-      detail:
-        "AirPal couldn't read the public events list (access was denied). This isn't a connection problem — try again, or host your own gathering.",
+      detail: "AirPal could not read the public events list because access was denied. This is not a network outage.",
     };
   }
   return {
     title: "Couldn't refresh events",
-    detail: "The events refresh failed for a reason other than your connection. Try again in a moment.",
+    detail: "The events refresh failed. Try again in a moment.",
   };
 }

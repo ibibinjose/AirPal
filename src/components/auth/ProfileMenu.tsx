@@ -185,11 +185,7 @@ export function ProfileMenu() {
     function onDoc(e: MouseEvent) {
       const target = e.target as Node | null;
       if (!target) return;
-      if (
-        box.current?.contains(target) ||
-        menuRef.current?.contains(target) ||
-        drawerRef.current?.contains(target)
-      ) {
+      if (box.current?.contains(target) || menuRef.current?.contains(target) || drawerRef.current?.contains(target)) {
         return;
       }
       setOpen(false);

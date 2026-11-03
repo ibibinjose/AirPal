@@ -7,6 +7,8 @@ describe("Sheet focus trap", () => {
     // An inline onClose used to sit in this effect's deps. Cleanup then
     // restored focus after every keystroke, so controlled inputs kept one character.
     expect(code).toContain("onCloseRef");
-    expect(code).toMatch(/document\.removeEventListener\("keydown", onKey\);\s*prevFocus\.current\?\.focus\?\.\(\);\s*\};\s*\}, \[open\]\);/);
+    expect(code).toMatch(
+      /document\.removeEventListener\("keydown", onKey\);\s*prevFocus\.current\?\.focus\?\.\(\);\s*\};\s*\}, \[open\]\);/,
+    );
   });
 });

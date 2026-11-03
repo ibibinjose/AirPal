@@ -21,11 +21,7 @@ import {
 import { computeRescheduledTimes } from "@/lib/calendar-utils";
 import { overlayUserState } from "@/lib/event-user-state";
 import { docToCalendarBase, docToEventRecord, recordToCalendarBase, toNearbyEvent } from "@/lib/remote-events";
-import {
-  classifyEventsRefreshError,
-  publicEventsQuery,
-  type EventsRefreshFailure,
-} from "@/lib/events-refresh";
+import { classifyEventsRefreshError, publicEventsQuery, type EventsRefreshFailure } from "@/lib/events-refresh";
 import type { NearbyEvent } from "@shared/nearby";
 import { downloadMultipleIcs } from "@/lib/calendar-export";
 import { getFirebaseAuth, getFirebaseDb } from "@/lib/firebase";

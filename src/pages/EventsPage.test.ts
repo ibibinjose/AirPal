@@ -75,7 +75,11 @@ import { EventsPage } from "./EventsPage";
 
 function render(
   search = "",
-  opts: { remoteFailed?: boolean; remoteFailure?: "offline" | "denied" | "failed" | null; events?: CalendarEvent[] } = {},
+  opts: {
+    remoteFailed?: boolean;
+    remoteFailure?: "offline" | "denied" | "failed" | null;
+    events?: CalendarEvent[];
+  } = {},
 ) {
   fakes.search = search;
   fakes.remoteFailed = opts.remoteFailed ?? false;
@@ -126,6 +130,6 @@ describe("EventsPage search", () => {
   it("does not blame the connection when the events read was denied", () => {
     const markup = render("", { remoteFailed: true, remoteFailure: "denied", events: [] });
     expect(markup).toContain("access was denied");
-    expect(markup).toContain("isn't a connection problem");
+    expect(markup).toContain("not a network outage");
   });
 });

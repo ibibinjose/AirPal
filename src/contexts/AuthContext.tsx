@@ -450,7 +450,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const cleanEmail = normalizeEmail(email);
         const cleanName = name.trim();
         if (cleanName) signupNameRef.current = cleanName;
-        const cred = await withAuthUpgrade(async () => createUserWithEmailAndPassword(auth, cleanEmail, opts?.password || ""));
+        const cred = await withAuthUpgrade(async () =>
+          createUserWithEmailAndPassword(auth, cleanEmail, opts?.password || ""),
+        );
         setUser((prev) => {
           const base: UserProfile = prev ?? {
             uid: cred.user.uid,

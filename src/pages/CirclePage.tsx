@@ -34,13 +34,7 @@ import { BioCatchUpModal } from "@/components/bio/BioCatchUpModal";
 import { BioShareModal } from "@/components/bio/BioShareModal";
 import { ConfettiBurst } from "@/components/brand/ConfettiBurst";
 import { openGlobalSearch } from "@/components/search/openSearch";
-import {
-  CIRCLE_QUESTS,
-  hasMarkedCircleInvite,
-  markCircleInviteSent,
-  sameCity,
-  type CircleQuestId,
-} from "@/lib/circle";
+import { CIRCLE_QUESTS, hasMarkedCircleInvite, markCircleInviteSent, sameCity, type CircleQuestId } from "@/lib/circle";
 import { listPeople, saveBioContact, upsertPerson, type PersonMet } from "@/lib/people";
 import { triggerHaptic } from "@/lib/native";
 import { toPublicUrl } from "@/lib/public-origin";
@@ -499,8 +493,7 @@ export function CirclePage() {
               </span>
             </div>
             <p className="mt-0.5 truncate text-xs text-mute tabular-nums">
-              {quest.completed}/{quest.total} quests ·{" "}
-              {standing.pointsLoading ? "…" : `${standing.points} pts`}
+              {quest.completed}/{quest.total} quests · {standing.pointsLoading ? "…" : `${standing.points} pts`}
               {nextQuest ? ` · Next: ${nextQuest.title}` : " · Maxed out"}
             </p>
             <p className="mt-0.5 text-xs text-mute">{perJoinPointsLabel()}</p>

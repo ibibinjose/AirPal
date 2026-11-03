@@ -454,9 +454,7 @@ export function EventsPage() {
                 or host your own gathering.
               </>
             ) : (
-              <>
-                {refreshCopy.detail} Or host your own gathering.
-              </>
+              <>{refreshCopy.detail} Or host your own gathering.</>
             )}
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">

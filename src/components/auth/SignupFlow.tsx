@@ -129,7 +129,7 @@ export function SignupFlow({
 
       saveSignupDraft({ name: cleanName, handle: cleanHandle });
 
-    if (!emailAccountCreated) {
+      if (!emailAccountCreated) {
         await register(cleanEmail, cleanName, {
           password,
           city: "Sydney",

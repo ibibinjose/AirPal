@@ -46,7 +46,10 @@ describe("ensureAccountDeletionMarker", () => {
   });
 
   it("explains a stale login and leaves retry available", () => {
-    const failure = accountDeleteFailure({ code: "auth/requires-recent-login", message: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN" });
+    const failure = accountDeleteFailure({
+      code: "auth/requires-recent-login",
+      message: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN",
+    });
     expect(failure.needsReauth).toBe(true);
     expect(failure.message).toMatch(/password/i);
     expect(failure.message).toMatch(/still here/i);
